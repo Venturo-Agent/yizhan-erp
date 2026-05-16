@@ -27,6 +27,10 @@ const EXCLUDED = [
   /MoreEvents.*\.tsx$/,
   /BirthdayList.*\.tsx$/,
   /.*Preview.*Dialog\.tsx$/,
+  // 大型 workspace dialog 合理例外（2026-05-17 拍板、見 07-ui-consistency-findings.md）
+  // 95vw×90vh、多 tab、自訂 header/footer，不適合 FormDialog
+  /finance\/payments\/_components\/AddReceiptDialog\.tsx$/,
+  /finance\/requests\/_components\/AddRequestDialog\.tsx$/,
 ]
 
 interface Stat {

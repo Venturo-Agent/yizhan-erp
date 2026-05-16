@@ -30,7 +30,6 @@ import { apiPost, apiPatch } from '@/lib/api/client'
 import { alert } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 import { useAuthStore } from '@/stores/auth-store'
-import { usePaymentMethodsCached } from '@/data/hooks/usePaymentMethods'
 import { invalidateDisbursementOrders, invalidatePaymentRequests } from '@/data'
 import type { DisbursementOrder } from '@/stores/types'
 import type { WizardStep, BankAccountOption } from './disbursement-wizard-types'
@@ -57,10 +56,8 @@ export function CreateDisbursementWizardDialog({
   editingOrder = null,
 }: CreateDisbursementWizardDialogProps) {
   const user = useAuthStore(state => state.user)
-  const { methods: paymentMethods } = usePaymentMethodsCached('payment')
 
   const [disbursementDate, setDisbursementDate] = useState(getInitialDisbursementDate())
-  const [paymentMethodId, setPaymentMethodId] = useState('')
 
   const [step, setStep] = useState<WizardStep>('main')
   const [currentBank, setCurrentBank] = useState<BankAccountOption | null>(null)
@@ -79,7 +76,6 @@ export function CreateDisbursementWizardDialog({
     setFeeDistribution('proportional')
     setStagedBatches([])
     setDisbursementDate(getInitialDisbursementDate())
-    setPaymentMethodId('')
   }, [])
 
   const handleClose = useCallback(
@@ -101,7 +97,6 @@ export function CreateDisbursementWizardDialog({
       setCurrentFee(preFilledData.currentFee)
       setFeeDistribution(preFilledData.feeDistribution)
       setDisbursementDate(preFilledData.disbursementDate)
-      setPaymentMethodId(preFilledData.paymentMethodId)
     }, []),
   })
 
@@ -167,10 +162,6 @@ export function CreateDisbursementWizardDialog({
       void alert('請選擇出帳日期', 'warning')
       return
     }
-    if (!paymentMethodId) {
-      void alert('請選擇付款方式', 'warning')
-      return
-    }
 
     // 編輯模式：PATCH 單張
     if (editingOrder) {
@@ -190,7 +181,6 @@ export function CreateDisbursementWizardDialog({
       try {
         await apiPatch(`/api/disbursement/${editingOrder.id}`, {
           disbursement_date: disbursementDate,
-          payment_method_id: paymentMethodId,
           from_bank_account_id: currentBank.id,
           total_fee: currentFee,
           fee_distribution: feeDistribution,
@@ -209,11 +199,10 @@ export function CreateDisbursementWizardDialog({
       return
     }
 
-    // 新增模式：從 stagedBatches 派生 batches（多帳戶批次儲存）
+    // 新增模式：從 stagedBatches 派生 batches（Phase 7：多 bank group → 單張 DO）
     const derivedBatches = stagedBatches.map(b => ({
       from_bank_account_id: b.from_bank_account_id,
       disbursement_date: disbursementDate,
-      payment_method_id: paymentMethodId,
       payment_request_item_ids: b.item_ids,
       total_fee: b.total_fee,
       fee_distribution: b.fee_distribution,
@@ -225,13 +214,14 @@ export function CreateDisbursementWizardDialog({
     }
     setIsSubmitting(true)
     try {
-      const res = await apiPost<{ batch_uuid: string; created: { order_number: string }[] }>(
+      const res = await apiPost<{ batch_uuid: string; created: { order_number: string; bank_group_count: number; item_count: number }[] }>(
         '/api/disbursement/batch-create',
         { batches: derivedBatches },
       )
       await Promise.all([invalidateDisbursementOrders(), invalidatePaymentRequests()])
+      const created = res.created[0]
       await alert(
-        `已建立 ${res.created.length} 張出納單：${res.created.map(c => c.order_number).join('、')}`,
+        `已建立出納單 ${created?.order_number ?? ''}（${created?.bank_group_count ?? derivedBatches.length} 個銀行帳戶、共 ${created?.item_count ?? 0} 筆品項）`,
         'success',
       )
       resetAll()
@@ -244,7 +234,7 @@ export function CreateDisbursementWizardDialog({
       setIsSubmitting(false)
     }
   }, [
-    editingOrder, disbursementDate, paymentMethodId,
+    editingOrder, disbursementDate,
     currentBank, pickedItemIds, currentFee, feeDistribution,
     stagedBatches,
     resetAll, onSuccess,
@@ -280,18 +270,6 @@ export function CreateDisbursementWizardDialog({
             <div className="flex items-center gap-2 flex-wrap">
               <Label htmlFor="disb-date" className="text-sm">出帳日期</Label>
               <DatePicker value={disbursementDate} onChange={setDisbursementDate} className="w-40" />
-              <Label className="text-sm ml-2">付款方式</Label>
-              <Select value={paymentMethodId} onValueChange={setPaymentMethodId}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="請選擇..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {paymentMethods.map(m => (
-                    <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
               {/* 編輯模式：帳戶按鈕（active 高亮）+ 手續費 input + 分攤 + 取消 / 儲存變更 */}
               {editingOrder && (
                 <>

@@ -34,6 +34,11 @@ import { AddonDataRestaurantsModule } from './addon_data_restaurants'
 // 2026-05-15 HR 子功能
 import { HrSalarySettlementModule } from './hr_salary_settlement'
 import { HrBonusSettlementModule } from './hr_bonus_settlement'
+// 2026-05-17 文件中心
+import { DocumentsModule } from './documents'
+// 2026-05-17 電子收據 + eSIM
+import { TravelInvoiceModule } from './travel_invoice'
+import { EsimModule } from './esim'
 
 /**
  * 所有 module 集中匯出（順序：side bar / module-tabs.ts 順序、再接 features-only）
@@ -67,6 +72,12 @@ export const ALL_MODULES = [
   // ===== HR 子功能 =====
   HrSalarySettlementModule,
   HrBonusSettlementModule,
+  // ===== 文件中心 =====
+  DocumentsModule,
+  // ===== 電子收據（premium）=====
+  TravelInvoiceModule,
+  // ===== eSIM 管理（basic）=====
+  EsimModule,
 ] as const
 
 export type AllModulesType = typeof ALL_MODULES

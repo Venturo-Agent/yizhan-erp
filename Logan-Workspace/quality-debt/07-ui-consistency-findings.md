@@ -33,21 +33,27 @@ status: 盤點完成、實際遷移留下次
 ### Dialog 該遷移 → SSOT（表單型）
 這些是「表單填寫 + 確認」dialog、應走 FormDialog：
 ```
-src/app/(main)/finance/payments/_components/AddReceiptDialog.tsx
 src/app/(main)/finance/payments/_components/BatchReceiptDialog.tsx
 src/app/(main)/finance/payments/_components/RefundReceiptDialog.tsx
-src/app/(main)/finance/requests/_components/AddRequestDialog.tsx
 src/app/(main)/calendar/_components/AddEventDialog.tsx
 src/app/(main)/bot/[lineUserId]/_components/BindCustomerDialog.tsx
 ```
 
 ### Dialog 合理例外（不遷移）
-這些是「detail / 顯示型」dialog、底層 Dialog 用 inline 更彈性：
+這些是「detail / 顯示型」或「大型 workspace」dialog、底層 Dialog 用 inline 更彈性：
 ```
 src/app/(main)/accounting/vouchers/components/VoucherDetailDialog.tsx (detail)
 src/app/(main)/calendar/_components/EventDetailDialog.tsx (detail)
 src/app/(main)/calendar/_components/MoreEventsDialog.tsx (列表顯示)
 src/app/(main)/calendar/_components/BirthdayListDialog.tsx (列表顯示)
+
+# 大型 workspace dialog（2026-05-17 補標）
+src/app/(main)/finance/payments/_components/AddReceiptDialog.tsx
+  理由：95vw × 90vh 大型 workspace、3 個 tab（團體收款 / 批量收款 / 公司收款）、
+        完全自訂的 ReceiptDialogHeader + ReceiptDialogFooter，不適合 FormDialog
+src/app/(main)/finance/requests/_components/AddRequestDialog.tsx
+  理由：95vw × 90vh 大型 workspace、多 tab + batch 模式 + edit 模式、
+        自訂 header/footer 結構，不適合 FormDialog
 ```
 
 ### Page 該遷移 → SSOT
@@ -76,13 +82,12 @@ UI 遷移 25 個 dialog + 19 個 page 工程量大（每個約 30 分鐘 - 1 小
 
 ## 下輪建議優先序
 
-### Phase 1：高 ROI 遷移（4 個、半天）
-1. AddReceiptDialog → FormDialog
-2. AddRequestDialog → FormDialog
-3. RefundReceiptDialog → FormDialog
-4. BatchReceiptDialog → FormDialog
+### Phase 1：高 ROI 遷移（2 個、約 1 hr）
+1. RefundReceiptDialog → FormDialog
+2. BatchReceiptDialog → FormDialog
 
 理由：金流相關、用戶最常用、樣式不一致最有感
+注：AddReceiptDialog / AddRequestDialog 已正式標為合理例外（2026-05-17）、不列入遷移
 
 ### Phase 2：列表頁遷移（2 個、1 hr）
 1. finance/treasury/disbursement → ListPageLayout

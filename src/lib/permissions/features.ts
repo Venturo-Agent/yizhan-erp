@@ -267,6 +267,43 @@ export const FEATURES: FeatureDefinition[] = [
       '/hr/bonus-settlement/[tourId]',
     ],
   },
+  {
+    code: 'documents',
+    name: '文件中心',
+    description: '上傳、編輯、蓋章、合併文件（PDF / Word / Excel / PPT）',
+    category: 'basic',
+    routes: [
+      '/documents',
+      '/documents/[id]',
+    ],
+  },
+  {
+    code: 'travel_invoice',
+    name: '電子收據',
+    description: '台灣電子發票開立、作廢、折讓、查詢與重寄',
+    category: 'premium',
+    routes: [
+      '/travel-invoice',
+      '/travel-invoice/issue',
+      '/travel-invoice/void',
+      '/travel-invoice/allowance',
+      '/travel-invoice/query',
+      '/travel-invoice/resend',
+      '/travel-invoice/settings',
+    ],
+  },
+  {
+    code: 'esim',
+    name: 'eSIM 管理',
+    description: '旅遊 eSIM 訂單管理（Worldmove）、產品目錄與 API 設定',
+    category: 'basic',
+    routes: [
+      '/esim',
+      '/esim/orders',
+      '/esim/products',
+      '/esim/settings',
+    ],
+  },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────

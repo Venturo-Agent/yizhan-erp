@@ -2,6 +2,8 @@
 /**
  * DisbursementDetailDialog
  * 出納單詳情對話框 - 用於查看詳情和確認出帳
+ *
+ * Phase 7（2026-05-17）：品項列表按銀行帳戶分區顯示（每個 bank group 加標題）
  */
 
 import { useEffect, useMemo, useState } from 'react'
@@ -31,6 +33,23 @@ import { useTranslations } from 'next-intl'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
 // jsPDF + jspdf-autotable 大型 library（~150KB）→ 動態 import、只在點「確認出帳」才載入
 
+// Phase 7：bank group 資料結構
+interface BankGroupItem {
+  doi_id: string
+  payment_request_item_id: string
+  amount: number
+  description: string | null
+  supplier_name: string | null
+  request_code: string | null
+  from_bank_account_id: string
+}
+interface BankGroup {
+  bank_account_id: string
+  bank_label: string   // "玉山銀行 (…1234)"
+  items: BankGroupItem[]
+  subtotal: number
+}
+
 interface DisbursementDetailDialogProps {
   order: DisbursementOrder | null
   open: boolean
@@ -47,6 +66,8 @@ export function DisbursementDetailDialog({
   const user = useAuthStore(state => state.user)
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false)
   const [paymentMethods, setPaymentMethods] = useState<Array<{ id: string; name: string }>>([])
+  // Phase 7：按銀行分區的品項資料
+  const [bankGroups, setBankGroups] = useState<BankGroup[]>([])
 
   // 載入付款方式
   useEffect(() => {
@@ -62,6 +83,69 @@ export function DisbursementDetailDialog({
       .order('sort_order', { ascending: true })
       .then(({ data }) => setPaymentMethods(data || []))
   }, [open, order, user?.workspace_id])
+
+  // Phase 7：載入 DOI + bank group 資料
+  useEffect(() => {
+    if (!open || !order) { setBankGroups([]); return }
+    void (async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamicFrom escape hatch
+      const { data } = await (supabase as any)
+        .from('disbursement_order_items')
+        .select(`
+          id,
+          payment_request_item_id,
+          from_bank_account_id,
+          amount,
+          bank_accounts:from_bank_account_id(id, name, account_number),
+          payment_request_items:payment_request_item_id(description, supplier_name, request_id,
+            payment_requests:request_id(code))
+        `)
+        .eq('disbursement_order_id', order.id)
+
+      if (!data) { setBankGroups([]); return }
+
+      type DoiDetailRow = {
+        id: string
+        payment_request_item_id: string
+        from_bank_account_id: string
+        amount: number
+        bank_accounts: { id: string; name: string; account_number: string | null } | null
+        payment_request_items: {
+          description: string | null
+          supplier_name: string | null
+          request_id: string
+          payment_requests: { code: string | null } | null
+        } | null
+      }
+
+      const grouped = new Map<string, BankGroup>()
+      for (const row of data as DoiDetailRow[]) {
+        const bankId = row.from_bank_account_id
+        if (!grouped.has(bankId)) {
+          const bankName = row.bank_accounts?.name ?? '未知帳戶'
+          const acctLast4 = row.bank_accounts?.account_number?.slice(-4) ?? '????'
+          grouped.set(bankId, {
+            bank_account_id: bankId,
+            bank_label: `${bankName}（…${acctLast4}）`,
+            items: [],
+            subtotal: 0,
+          })
+        }
+        const group = grouped.get(bankId)!
+        group.items.push({
+          doi_id: row.id,
+          payment_request_item_id: row.payment_request_item_id,
+          amount: Number(row.amount ?? 0),
+          description: row.payment_request_items?.description ?? null,
+          supplier_name: row.payment_request_items?.supplier_name ?? null,
+          request_code: row.payment_request_items?.payment_requests?.code ?? null,
+          from_bank_account_id: bankId,
+        })
+        group.subtotal += Number(row.amount ?? 0)
+      }
+      setBankGroups(Array.from(grouped.values()))
+    })()
+  }, [open, order])
 
   // 取得此出納單包含的請款單（FK 反查）
   const includedRequests = useMemo(() => {
@@ -163,6 +247,19 @@ export function DisbursementDetailDialog({
           )
           .in('request_id', requestIds)
         const { generateDisbursementPDF } = await import('@/lib/pdf/disbursement-pdf')
+        // Phase 7：若有 bankGroups 則用多銀行分區排版，否則 fallback 舊路徑
+        const pdfBankGroups = bankGroups.length > 0
+          ? bankGroups.map(g => ({
+              bank_label: g.bank_label,
+              items: g.items.map(i => ({
+                request_code: i.request_code,
+                description: i.description,
+                supplier_name: i.supplier_name,
+                amount: i.amount,
+              })),
+              subtotal: g.subtotal,
+            }))
+          : undefined
         const blob = await generateDisbursementPDF({
           order: {
             ...order,
@@ -173,6 +270,7 @@ export function DisbursementDetailDialog({
           paymentRequests: includedRequests,
           paymentRequestItems: (allItems.data ||
             []) as unknown as import('@/stores/types').PaymentRequestItem[],
+          bankGroups: pdfBankGroups,
         })
         const filename = `disbursement/${order.order_number || order.id}.pdf`
         const { error: uploadErr } = await supabase.storage
@@ -258,11 +356,61 @@ export function DisbursementDetailDialog({
                 </div>
               </div>
 
-              {/* 請款單列表（團體 + 公司） */}
-              <DisbursementRequestsTable
-                tourRequests={tourRequests}
-                companyRequests={companyRequests}
-              />
+              {/* Phase 7：銀行帳戶分區品項列表（若有 DOI 資料則優先顯示） */}
+              {bankGroups.length > 0 ? (
+                <div className="space-y-4">
+                  {bankGroups.map((group, idx) => (
+                    <div key={group.bank_account_id}>
+                      {/* 分隔線 + 銀行標題 */}
+                      {idx > 0 && <hr className="border-t-2 border-morandi-primary/30 my-3" />}
+                      <h3 className="text-sm font-bold text-morandi-primary mb-2">
+                        {group.bank_label}
+                        <span className="ml-2 font-normal text-morandi-secondary text-xs">
+                          （{group.items.length} 筆）
+                        </span>
+                      </h3>
+                      <div className="border border-morandi-container/20 rounded-lg overflow-hidden">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-morandi-gold-header border-b border-border">
+                              <th className="text-left py-2 px-3 text-xs font-medium text-morandi-primary">請款單號</th>
+                              <th className="text-left py-2 px-3 text-xs font-medium text-morandi-primary">品項</th>
+                              <th className="text-left py-2 px-3 text-xs font-medium text-morandi-primary">付款對象</th>
+                              <th className="text-right py-2 px-3 text-xs font-medium text-morandi-primary">金額</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {group.items.map(item => (
+                              <tr key={item.doi_id} className="border-b border-morandi-container/10">
+                                <td className="py-1.5 px-3 font-medium text-morandi-primary">{item.request_code ?? '-'}</td>
+                                <td className="py-1.5 px-3 text-morandi-secondary">{item.description ?? '-'}</td>
+                                <td className="py-1.5 px-3 text-morandi-secondary">{item.supplier_name ?? '-'}</td>
+                                <td className="py-1.5 px-3 text-right">
+                                  <CurrencyCell amount={item.amount} className="font-medium text-morandi-gold" />
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr className="bg-morandi-background/50">
+                              <td colSpan={3} className="py-2 px-3 text-right font-semibold text-sm">小計</td>
+                              <td className="py-2 px-3 text-right">
+                                <CurrencyCell amount={group.subtotal} className="font-bold text-morandi-gold" />
+                              </td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* 舊資料 fallback：按請款單顯示（未有 DOI 的舊出納單） */
+                <DisbursementRequestsTable
+                  tourRequests={tourRequests}
+                  companyRequests={companyRequests}
+                />
+              )}
 
               {/* 付款方式統計 */}
               <DisbursementPaymentStats

@@ -1,16 +1,18 @@
 /**
  * /api/disbursement/batch-create
  *
- * Phase 3 wizard 最終儲存：一次寫入多批 disbursement_orders + disbursement_order_items。
+ * Phase 7（2026-05-17）：單張多銀行整併。
+ * 一次 submit（可含多個 bank groups）→ 1 張 disbursement_order + N 個 DOI（每筆帶 from_bank_account_id）
  *
  * 流程（in one logical transaction、靠 admin client）：
  *   1. 為這次提交產生共用 batch_uuid
  *   2. 每 batch 算出 partial-billing 的請款單 → call fork_payment_request_for_partial_billing
- *   3. INSERT disbursement_orders (含 bank_account_id, total_fee, batch_uuid)
- *   4. INSERT disbursement_order_items (含 amount snapshot, supplier_bank_code, fee_amount, has_cross_bank_fee)
- *   5. UPDATE 對應 payment_requests.status='confirmed' + disbursement_order_id（保留舊 link 供舊報表）
+ *   3. 一次 generateDisbursementNo（單號不再 per-batch）
+ *   4. INSERT disbursement_orders 1 筆（bank_account_id = NULL、由 DOI 層各帶 from_bank_account_id）
+ *   5. INSERT disbursement_order_items N 筆（各帶 from_bank_account_id、amount snapshot、fee snapshot）
+ *   6. UPDATE 對應 payment_requests.status='confirmed' + disbursement_order_id
  *
- * 設計：spec 卡 2026-05-14-出納單品項級重構-spec.md + Phase3 handoff 卡
+ * 設計：spec 卡 2026-05-14-出納單品項級重構-spec.md + Phase7 spec
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -52,7 +54,7 @@ interface SupplierRow {
 interface CreatedDisbursement {
   id: string
   order_number: string
-  bank_account_id: string
+  bank_group_count: number
   item_count: number
   total_amount: number
   total_fee: number
@@ -284,14 +286,28 @@ export async function POST(request: NextRequest) {
     ws?.transfer_fee_mode === 'unified' ? 'unified' : 'average'
   const unifiedAmount = Number(ws?.transfer_fee_unified_amount ?? 0)
 
-  // ─── 為每 batch 建 disbursement_order + disbursement_order_items ───
-  const created: CreatedDisbursement[] = []
+  // ─── Phase 7：單張 DO，所有 batches 合併進一筆 ───
+  // 取一次性的 disbursement_date（使用第一個 batch 的日期）
+  const disbursementDate = body.batches[0].disbursement_date
+
+  // 計算所有 batch 的 itemRows（帶各自 from_bank_account_id）
+  interface ItemRowEnriched {
+    item: ItemRow
+    from_bank_account_id: string
+    amount: number
+    supplier_bank_code: string | null
+    is_cross_bank: boolean
+    fee_amount: number
+  }
+
+  const allItemRowsEnriched: ItemRowEnriched[] = []
+  let grandTotalAmount = 0
+  let grandTotalFee = 0
 
   for (const batch of body.batches) {
     const fromBankCode = bankCodeById.get(batch.from_bank_account_id) ?? null
 
-    // 計算每 item 金額
-    const itemRows = batch.payment_request_item_ids.map(id => {
+    const batchItemRows = batch.payment_request_item_ids.map(id => {
       const item = itemById.get(id)!
       const supplier = item.supplier_id ? supplierMap.get(item.supplier_id) : null
       const supplierBankCode = supplier?.bank_code ?? null
@@ -299,20 +315,23 @@ export async function POST(request: NextRequest) {
         !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
       return {
         item,
+        from_bank_account_id: batch.from_bank_account_id,
         amount: Number(item.subtotal ?? 0),
         supplier_bank_code: supplierBankCode,
         is_cross_bank: isCrossBank,
       }
     })
 
-    const totalAmount = itemRows.reduce((s, r) => s + r.amount, 0)
+    const batchTotalAmount = batchItemRows.reduce((s, r) => s + r.amount, 0)
+    grandTotalAmount += batchTotalAmount
+    grandTotalFee += batch.total_fee
 
-    // 分攤手續費（走 SSOT helper、保護有 unit test）
+    // 分攤手續費（走 SSOT helper，每個 bank group 獨立分攤）
     const { per_item_fees: feeShares } = distributeFees({
       mode: feeMode,
       bank_actual_fee: batch.total_fee,
       unified_amount_per_item: unifiedAmount,
-      items: itemRows.map(r => ({
+      items: batchItemRows.map(r => ({
         id: r.item.id,
         amount: r.amount,
         is_cross_bank: r.is_cross_bank,
@@ -320,116 +339,127 @@ export async function POST(request: NextRequest) {
       average_strategy: batch.fee_distribution,
     })
 
-    // 生 disbursement 編號
-    const orderNumber = await generateDisbursementNo(workspaceId, batch.disbursement_date)
+    for (const r of batchItemRows) {
+      allItemRowsEnriched.push({
+        ...r,
+        fee_amount: feeShares.get(r.item.id) ?? 0,
+      })
+    }
+  }
 
-    type DisbInsertChain = {
-      insert: (v: Record<string, unknown>) => {
-        select: (c: string) => {
-          single: () => Promise<{
-            data: { id: string; order_number: string } | null
-            error: { message?: string; code?: string } | null
-          }>
-        }
+  // 生一次 disbursement 編號（Phase 7 核心：不再 per-batch 生號）
+  const orderNumber = await generateDisbursementNo(workspaceId, disbursementDate)
+
+  type DisbInsertChain = {
+    insert: (v: Record<string, unknown>) => {
+      select: (c: string) => {
+        single: () => Promise<{
+          data: { id: string; order_number: string } | null
+          error: { message?: string; code?: string } | null
+        }>
       }
     }
+  }
 
-    const { data: orderRow, error: orderErr } = await (
-      admin.from as unknown as (t: string) => DisbInsertChain
-    )('disbursement_orders')
-      .insert({
-        id: randomUUID(),
-        code: orderNumber,
-        order_number: orderNumber,
-        disbursement_date: batch.disbursement_date,
-        amount: totalAmount,
-        total_fee: batch.total_fee,
-        batch_uuid: batchUuid,
-        status: 'pending',
-        disbursement_type: 'payment_request',
-        payment_method_id: batch.payment_method_id ?? null,
-        bank_account_id: batch.from_bank_account_id,
-        workspace_id: workspaceId,
-        created_by: employeeId,
-      })
-      .select('id, order_number')
-      .single()
-
-    if (orderErr || !orderRow) {
-      const t = translateDbError(orderErr)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
-    }
-
-    // INSERT disbursement_order_items
-    const doiRows = itemRows.map(r => ({
-      id: randomUUID(),
-      disbursement_order_id: orderRow.id,
-      payment_request_item_id: r.item.id,
-      amount: r.amount,
-      supplier_bank_code: r.supplier_bank_code,
-      fee_amount: feeShares.get(r.item.id) ?? 0,
-      has_cross_bank_fee: r.is_cross_bank,
+  const orderId = randomUUID()
+  const { data: orderRow, error: orderErr } = await (
+    admin.from as unknown as (t: string) => DisbInsertChain
+  )('disbursement_orders')
+    .insert({
+      id: orderId,
+      code: orderNumber,
+      order_number: orderNumber,
+      disbursement_date: disbursementDate,
+      amount: grandTotalAmount,
+      total_fee: grandTotalFee,
+      batch_uuid: batchUuid,
+      status: 'pending',
+      disbursement_type: 'payment_request',
+      // payment_method_id：Phase 7 從 DO 層移除，留 null（spec: Option A，DOI 從 PR 繼承）
+      payment_method_id: null,
+      // bank_account_id：Phase 7 廢用（改由 DOI.from_bank_account_id 各自帶），設 null
+      bank_account_id: null,
       workspace_id: workspaceId,
       created_by: employeeId,
-    }))
+    })
+    .select('id, order_number')
+    .single()
 
-    type DoiInsertChain = {
-      insert: (rows: Record<string, unknown>[]) => Promise<{ error: { message?: string } | null }>
-    }
-    const { error: doiErr } = await (
-      admin.from as unknown as (t: string) => DoiInsertChain
-    )('disbursement_order_items').insert(doiRows)
+  if (orderErr || !orderRow) {
+    const t = translateDbError(orderErr)
+    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+  }
 
-    if (doiErr) {
-      // rollback orders
-      type DelChain = {
-        delete: () => {
-          eq: (k: string, v: string) => Promise<{ error: unknown }>
-        }
+  // INSERT disbursement_order_items（每筆帶各自的 from_bank_account_id）
+  const doiRows = allItemRowsEnriched.map(r => ({
+    id: randomUUID(),
+    disbursement_order_id: orderRow.id,
+    payment_request_item_id: r.item.id,
+    from_bank_account_id: r.from_bank_account_id,
+    amount: r.amount,
+    supplier_bank_code: r.supplier_bank_code,
+    fee_amount: r.fee_amount,
+    has_cross_bank_fee: r.is_cross_bank,
+    workspace_id: workspaceId,
+    created_by: employeeId,
+  }))
+
+  type DoiInsertChain = {
+    insert: (rows: Record<string, unknown>[]) => Promise<{ error: { message?: string } | null }>
+  }
+  const { error: doiErr } = await (
+    admin.from as unknown as (t: string) => DoiInsertChain
+  )('disbursement_order_items').insert(doiRows)
+
+  if (doiErr) {
+    // rollback the single order we just created
+    type DelChain = {
+      delete: () => {
+        eq: (k: string, v: string) => Promise<{ error: unknown }>
       }
-      await (admin.from as unknown as (t: string) => DelChain)('disbursement_orders')
-        .delete()
-        .eq('id', orderRow.id)
-
-      const t = translateDbError(doiErr)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
     }
+    await (admin.from as unknown as (t: string) => DelChain)('disbursement_orders')
+      .delete()
+      .eq('id', orderRow.id)
 
-    // 為了讓現有列表 / 編輯 dialog / 對賬報表能跟舊邏輯一起運作、
-    // 也設 payment_requests.disbursement_order_id = orderRow.id（請款單級舊 link）
-    // 找出該 batch 所有涉及的 request_id（fork 後的新 id）
-    const requestIdsInBatch = Array.from(
-      new Set(batch.payment_request_item_ids.map(iid => itemById.get(iid)!.request_id)),
-    )
+    const t = translateDbError(doiErr)
+    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+  }
 
-    type UpdReqChain = {
-      update: (v: Record<string, unknown>) => {
-        in: (k: string, v: string[]) => Promise<{ error: { message?: string } | null }>
-      }
+  // UPDATE payment_requests.disbursement_order_id（舊 link，供舊報表向下相容）
+  const allRequestIdsInOrder = Array.from(
+    new Set(allItemRowsEnriched.map(r => r.item.request_id)),
+  )
+
+  type UpdReqChain = {
+    update: (v: Record<string, unknown>) => {
+      in: (k: string, v: string[]) => Promise<{ error: { message?: string } | null }>
     }
-    const { error: updErr } = await (
-      admin.from as unknown as (t: string) => UpdReqChain
-    )('payment_requests')
-      .update({
-        disbursement_order_id: orderRow.id,
-        status: 'confirmed',
-      })
-      .in('id', requestIdsInBatch)
+  }
+  const { error: updErr } = await (
+    admin.from as unknown as (t: string) => UpdReqChain
+  )('payment_requests')
+    .update({
+      disbursement_order_id: orderRow.id,
+      status: 'confirmed',
+    })
+    .in('id', allRequestIdsInOrder)
 
-    if (updErr) {
-      const t = translateDbError(updErr)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
-    }
+  if (updErr) {
+    const t = translateDbError(updErr)
+    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+  }
 
-    created.push({
+  const created: CreatedDisbursement[] = [
+    {
       id: orderRow.id,
       order_number: orderRow.order_number,
-      bank_account_id: batch.from_bank_account_id,
-      item_count: itemRows.length,
-      total_amount: totalAmount,
-      total_fee: batch.total_fee,
-    })
-  }
+      bank_group_count: body.batches.length,
+      item_count: allItemRowsEnriched.length,
+      total_amount: grandTotalAmount,
+      total_fee: grandTotalFee,
+    },
+  ]
 
   return NextResponse.json({
     batch_uuid: batchUuid,

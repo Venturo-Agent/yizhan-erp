@@ -22,7 +22,7 @@
 import {
   Home, CalendarDays, CheckSquare, MessagesSquare, Sparkles,
   MapPinned, Receipt, CircleDollarSign, Coins, Library, IdCard,
-  UsersRound, Database, Palette, Megaphone,
+  UsersRound, Database, Palette, Megaphone, FolderOpen,
   // sub icons
   Wallet, HandCoins, BarChart3, Settings, FileText, BookOpen,
   Calendar, FileCheck, Contact, Palmtree, Building2, Archive,
@@ -76,6 +76,7 @@ export const SIDEBAR_ORDER: readonly string[] = [
   'orders',
   'finance',
   'accounting',
+  'documents',
   'database',
   'hr',
   'workspaces',
@@ -135,6 +136,7 @@ export const SIDEBAR_META: Record<string, SidebarMeta> = {
       { href: '/hr/bonus-settlement', label: '獎金結算', icon: Coins, feature: 'hr_bonus_settlement' },
     ],
   },
+  documents: { icon: FolderOpen, label: '文件中心' },
   hr_salary_settlement: { hidden: true },
   hr_bonus_settlement: { hidden: true },
   workspaces: { icon: UsersRound, label: COMP_LAYOUT_LABELS.租戶管理 },

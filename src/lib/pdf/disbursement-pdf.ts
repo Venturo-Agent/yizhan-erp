@@ -9,6 +9,10 @@
  * 5. 每頁小計、最後一頁總計
  * 6. 頁碼（第 X 頁 / 共 Y 頁）
  * 7. 支援中文字體
+ *
+ * Phase 7（2026-05-17）：
+ * - 支援 bankGroups（多銀行出帳），每個 bank group 加粗分隔線標題
+ * - paymentRequests / paymentRequestItems 路徑仍保留（舊資料 fallback）
  */
 
 import type { DisbursementOrder, PaymentRequest, PaymentRequestItem } from '@/stores/types'
@@ -16,11 +20,26 @@ import { formatDate } from '@/lib/utils'
 import { loadChineseFonts } from './pdf-fonts'
 import { DISBURSEMENT_PDF_LABELS } from './constants/pdf-labels'
 
+// Phase 7：bank group 外部注入型別
+export interface DisbursementPdfBankGroupItem {
+  request_code: string | null
+  description: string | null
+  supplier_name: string | null
+  amount: number
+}
+export interface DisbursementPdfBankGroup {
+  bank_label: string   // "玉山銀行（…1234）"
+  items: DisbursementPdfBankGroupItem[]
+  subtotal: number
+}
+
 interface DisbursementPDFData {
   order: DisbursementOrder
   paymentRequests: PaymentRequest[]
   paymentRequestItems: PaymentRequestItem[]
   preparedBy?: string
+  /** Phase 7：若有 bankGroups 則優先用多銀行分區渲染，否則走舊 payFor 分組 */
+  bankGroups?: DisbursementPdfBankGroup[]
 }
 
 interface ProcessedItem {
@@ -156,11 +175,7 @@ function splitLargeGroups(groups: PayForGroup[], maxSize = 5): PayForGroup[] {
  * 生成出納單 PDF
  */
 export async function generateDisbursementPDF(data: DisbursementPDFData): Promise<Blob> {
-  const { order, paymentRequests, paymentRequestItems, preparedBy } = data
-
-  // 處理資料
-  const processedItems = processItems(paymentRequests, paymentRequestItems)
-  const payForGroups = splitLargeGroups(groupByPayFor(processedItems))
+  const { order, paymentRequests, paymentRequestItems, preparedBy, bankGroups } = data
 
   // 動態 import 大型 PDF library（避免 bundle 膨脹）
   const { default: jsPDF } = await import('jspdf')
@@ -202,88 +217,184 @@ export async function generateDisbursementPDF(data: DisbursementPDFData): Promis
     })
   }
 
-  // ========== 準備表格資料 ==========
-  const tableBody: (string | { content: string; rowSpan?: number })[][] = []
+  // ========== Phase 7：多銀行分區 vs 舊路徑 ==========
+  if (bankGroups && bankGroups.length > 0) {
+    // Phase 7 路徑：每個 bank group 繪製一個 section，加粗分隔線
+    let currentY = 33
 
-  for (const group of payForGroups) {
-    group.items.forEach((item, idx) => {
-      const row: (string | { content: string; rowSpan?: number })[] = []
+    for (let gi = 0; gi < bankGroups.length; gi++) {
+      const group = bankGroups[gi]
 
-      // 付款對象（第一行使用 rowSpan）- 分兩行顯示
-      if (idx === 0) {
-        const match = group.payFor.match(/^([^（]+)(（.+）)$/)
-        let payForContent = group.payFor
-        if (match) {
-          payForContent = `${match[1]}\n${match[2]}`
+      // 分隔線標題（第一個 group 除外）
+      if (gi > 0) {
+        currentY += 4
+        doc.setDrawColor(60, 60, 60)
+        doc.setLineWidth(0.6)
+        doc.line(15, currentY, pageWidth - 15, currentY)
+        currentY += 2
+      }
+
+      // 銀行標題文字
+      doc.setFontSize(10)
+      doc.setFont('ChironHeiHK', 'bold')
+      doc.setTextColor(40, 40, 40)
+      doc.text(`▍ ${group.bank_label}`, 15, currentY + 5)
+      currentY += 9
+
+      // 該 bank group 的表格
+      const tableBody: string[][] = group.items.map(item => [
+        item.request_code ?? '-',
+        item.supplier_name ?? '-',
+        item.description ?? '-',
+        item.amount.toLocaleString(),
+      ])
+
+      autoTable(doc, {
+        startY: currentY,
+        head: [
+          [
+            DISBURSEMENT_PDF_LABELS.COL_REQUEST_NO,
+            DISBURSEMENT_PDF_LABELS.COL_PAYEE,
+            DISBURSEMENT_PDF_LABELS.COL_DESCRIPTION,
+            DISBURSEMENT_PDF_LABELS.COL_AMOUNT,
+          ],
+        ],
+        body: tableBody,
+        foot: [['小計', '', '', group.subtotal.toLocaleString()]],
+        theme: 'grid',
+        styles: {
+          font: 'ChironHeiHK',
+          fontSize: 9,
+          cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
+          lineWidth: 0.1,
+          lineColor: [200, 200, 200],
+          textColor: [60, 60, 60],
+          valign: 'middle',
+        },
+        headStyles: {
+          fillColor: [255, 255, 255],
+          textColor: [80, 80, 80],
+          fontStyle: 'bold',
+          lineWidth: { top: 0.3, bottom: 0.3, left: 0, right: 0 },
+          lineColor: [150, 150, 150],
+        },
+        footStyles: {
+          fillColor: [248, 248, 248],
+          textColor: [80, 80, 80],
+          fontSize: 9,
+          fontStyle: 'bold',
+          lineWidth: { top: 0.3, bottom: 0, left: 0, right: 0 },
+          lineColor: [150, 150, 150],
+        },
+        columnStyles: {
+          0: { cellWidth: 35, halign: 'left' },
+          1: { cellWidth: 40, halign: 'left', fontStyle: 'bold' },
+          2: { cellWidth: 'auto', halign: 'left' },
+          3: { cellWidth: 28, halign: 'right', fontStyle: 'bold' },
+        },
+        margin: { left: 15, right: 15 },
+        showFoot: 'lastPage',
+      })
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- jspdf-autotable extends doc
+      currentY = (doc as any).lastAutoTable.finalY ?? currentY + 20
+    }
+
+    // 合計列（最後一個 group 之後）
+    const totalY = currentY + 6
+    doc.setFontSize(10)
+    doc.setFont('ChironHeiHK', 'bold')
+    doc.setTextColor(60, 60, 60)
+    doc.text(`${DISBURSEMENT_PDF_LABELS.TOTAL}：${(order.amount || 0).toLocaleString()}`, pageWidth - 15, totalY, { align: 'right' })
+
+  } else {
+    // 舊路徑（無 bankGroups：單銀行或舊出納單）
+    const processedItems = processItems(paymentRequests, paymentRequestItems)
+    const payForGroups = splitLargeGroups(groupByPayFor(processedItems))
+
+    // ========== 準備表格資料 ==========
+    const tableBody: (string | { content: string; rowSpan?: number })[][] = []
+
+    for (const group of payForGroups) {
+      group.items.forEach((item, idx) => {
+        const row: (string | { content: string; rowSpan?: number })[] = []
+
+        // 付款對象（第一行使用 rowSpan）- 分兩行顯示
+        if (idx === 0) {
+          const match = group.payFor.match(/^([^（]+)(（.+）)$/)
+          let payForContent = group.payFor
+          if (match) {
+            payForContent = `${match[1]}\n${match[2]}`
+          }
+          row.push({ content: payForContent, rowSpan: group.items.length })
         }
-        row.push({ content: payForContent, rowSpan: group.items.length })
-      }
 
-      row.push(item.requestCode)
-      row.push(item.description)
-      row.push(item.amount.toLocaleString())
+        row.push(item.requestCode)
+        row.push(item.description)
+        row.push(item.amount.toLocaleString())
 
-      // 小計（第一行使用 rowSpan）
-      if (idx === 0) {
-        row.push({
-          content: group.hiddenTotal ? '' : group.total.toLocaleString(),
-          rowSpan: group.items.length,
-        })
-      }
+        // 小計（第一行使用 rowSpan）
+        if (idx === 0) {
+          row.push({
+            content: group.hiddenTotal ? '' : group.total.toLocaleString(),
+            rowSpan: group.items.length,
+          })
+        }
 
-      tableBody.push(row)
+        tableBody.push(row)
+      })
+    }
+
+    // ========== 繪製表格 ==========
+    autoTable(doc, {
+      startY: 33,
+      head: [
+        [
+          DISBURSEMENT_PDF_LABELS.COL_PAYEE,
+          DISBURSEMENT_PDF_LABELS.COL_REQUEST_NO,
+          DISBURSEMENT_PDF_LABELS.COL_DESCRIPTION,
+          DISBURSEMENT_PDF_LABELS.COL_AMOUNT,
+          DISBURSEMENT_PDF_LABELS.COL_SUBTOTAL,
+        ],
+      ],
+      body: tableBody,
+      foot: [[DISBURSEMENT_PDF_LABELS.TOTAL, '', '', '', (order.amount || 0).toLocaleString()]],
+      theme: 'grid',
+      styles: {
+        font: 'ChironHeiHK',
+        fontSize: 9,
+        cellPadding: { top: 4, right: 3, bottom: 4, left: 3 },
+        lineWidth: 0.1,
+        lineColor: [200, 200, 200],
+        textColor: [60, 60, 60],
+        valign: 'middle',
+      },
+      headStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [80, 80, 80],
+        fontStyle: 'bold',
+        lineWidth: { top: 0.3, bottom: 0.3, left: 0, right: 0 },
+        lineColor: [150, 150, 150],
+      },
+      footStyles: {
+        fillColor: [255, 255, 255],
+        textColor: [120, 120, 120],
+        fontSize: 12,
+        fontStyle: 'normal',
+        lineWidth: { top: 0.5, bottom: 0, left: 0, right: 0 },
+        lineColor: [100, 100, 100],
+      },
+      columnStyles: {
+        0: { cellWidth: 40, halign: 'left', fontStyle: 'bold' },
+        1: { cellWidth: 35, halign: 'left' },
+        2: { cellWidth: 'auto', halign: 'left' },
+        3: { cellWidth: 28, halign: 'center' },
+        4: { cellWidth: 28, halign: 'center', fontStyle: 'bold' },
+      },
+      margin: { left: 15, right: 15 },
+      showFoot: 'lastPage',
     })
   }
-
-  // ========== 繪製表格 ==========
-  autoTable(doc, {
-    startY: 33,
-    head: [
-      [
-        DISBURSEMENT_PDF_LABELS.COL_PAYEE,
-        DISBURSEMENT_PDF_LABELS.COL_REQUEST_NO,
-        DISBURSEMENT_PDF_LABELS.COL_DESCRIPTION,
-        DISBURSEMENT_PDF_LABELS.COL_AMOUNT,
-        DISBURSEMENT_PDF_LABELS.COL_SUBTOTAL,
-      ],
-    ],
-    body: tableBody,
-    foot: [[DISBURSEMENT_PDF_LABELS.TOTAL, '', '', '', (order.amount || 0).toLocaleString()]],
-    theme: 'grid',
-    styles: {
-      font: 'ChironHeiHK',
-      fontSize: 9,
-      cellPadding: { top: 4, right: 3, bottom: 4, left: 3 },
-      lineWidth: 0.1,
-      lineColor: [200, 200, 200],
-      textColor: [60, 60, 60],
-      valign: 'middle',
-    },
-    headStyles: {
-      fillColor: [255, 255, 255],
-      textColor: [80, 80, 80],
-      fontStyle: 'bold',
-      lineWidth: { top: 0.3, bottom: 0.3, left: 0, right: 0 },
-      lineColor: [150, 150, 150],
-    },
-    footStyles: {
-      fillColor: [255, 255, 255],
-      textColor: [120, 120, 120],
-      fontSize: 12,
-      fontStyle: 'normal',
-      lineWidth: { top: 0.5, bottom: 0, left: 0, right: 0 },
-      lineColor: [100, 100, 100],
-    },
-    columnStyles: {
-      0: { cellWidth: 40, halign: 'left', fontStyle: 'bold' },
-      1: { cellWidth: 35, halign: 'left' },
-      2: { cellWidth: 'auto', halign: 'left' },
-      3: { cellWidth: 28, halign: 'center' },
-      4: { cellWidth: 28, halign: 'center', fontStyle: 'bold' },
-    },
-    margin: { left: 15, right: 15 },
-    showFoot: 'lastPage',
-  })
 
   // ========== 頁尾 ==========
   const pageCount = doc.getNumberOfPages()

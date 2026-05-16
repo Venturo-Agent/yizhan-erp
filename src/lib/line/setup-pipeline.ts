@@ -19,9 +19,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
 import { formatDateTaipei } from '@/lib/utils/format-date'
 import { validateChannelAccessToken } from './line-api-client'
-
-// 平台共用「系統機器人」role（workspace_id NULL、所有 workspace 的 BOT employee 都掛這個）
-const SYSTEM_BOT_ROLE_ID = '53fd15df-a256-4a55-870d-0d59810fdddf'
+import { getOrCreateSystemBotRole } from '@/lib/bot/system-bot-role'
 
 export interface ProvisionInput {
   workspaceId: string
@@ -83,6 +81,7 @@ export async function provisionLineBot(input: ProvisionInput): Promise<Provision
   if (existingBot?.id) {
     botEmployeeId = existingBot.id
   } else {
+    const systemBotRoleId = await getOrCreateSystemBotRole(input.workspaceId)
     const { data: newBot, error: insertError } = await supabase
       .from('employees')
       .insert({
@@ -92,7 +91,7 @@ export async function provisionLineBot(input: ProvisionInput): Promise<Provision
         display_name: 'LINE Bot 系統',
         english_name: 'LINE Bot',
         employee_type: 'system_bot',
-        role_id: SYSTEM_BOT_ROLE_ID,
+        role_id: systemBotRoleId,
         status: 'active',
         personal_info: {},
         job_info: { title: 'LINE Bot Integration' },

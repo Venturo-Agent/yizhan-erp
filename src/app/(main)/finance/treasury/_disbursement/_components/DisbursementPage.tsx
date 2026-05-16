@@ -7,9 +7,11 @@
  * - 單一列表：全部出納單一覽、分類顯示在欄位內
  * - 點 pending 列 → 編輯 / 點 paid 列 → 詳情
  * - 分類差異化在「預覽」（PrintDisbursementPreview）時才呈現
+ *
+ * Phase 7（2026-05-17）：銀行欄位改顯示「玉山 3 筆 / 台新 2 筆」摘要
  */
 
-import { useCallback, useState, useMemo } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 import { Plus, Wallet } from 'lucide-react'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Button } from '@/components/ui/button'
@@ -17,7 +19,6 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { TableColumn } from '@/components/ui/enhanced-table'
 import {
   usePaymentRequests,
-  usePaymentRequestItems,
   useDisbursementOrders,
   deleteDisbursementOrder as deleteDisbursementOrderApi,
   updateDisbursementOrder as updateDisbursementOrderApi,
@@ -27,6 +28,7 @@ import {
 } from '@/data'
 import { DateCell, CurrencyCell } from '@/components/table-cells'
 import { DisbursementOrder } from '@/stores/types'
+import { supabase } from '@/lib/supabase/client'
 import { CreateDisbursementWizardDialog } from './CreateDisbursementWizardDialog'
 import { DisbursementDetailDialog } from './DisbursementDetailDialog'
 import { DisbursementPrintDialog } from './DisbursementPrintDialog'
@@ -39,13 +41,81 @@ import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { UnauthorizedPage } from '@/components/unauthorized-page'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
 
+// Phase 7：銀行帳戶 group 摘要（per disbursement_order）
+interface BankGroupSummary {
+  bank_name: string
+  item_count: number
+}
+
+/**
+ * 撈 disbursement_order_items + bank_accounts，建立「出納單 → 銀行 group 摘要」map
+ * 格式：Map<order_id, "玉山 3 筆 / 台新 2 筆">
+ */
+function useDisbursementBankGroupSummaries(workspaceId: string | undefined) {
+  const [summaryMap, setSummaryMap] = useState<Map<string, string>>(new Map())
+
+  useEffect(() => {
+    if (!workspaceId) return
+    void (async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamicFrom escape hatch
+      const { data } = await (supabase as any)
+        .from('disbursement_order_items')
+        .select('disbursement_order_id, from_bank_account_id, bank_accounts:from_bank_account_id(name)')
+        .eq('workspace_id', workspaceId)
+
+      if (!data) return
+
+      type DoiRow = {
+        disbursement_order_id: string
+        from_bank_account_id: string
+        bank_accounts: { name: string } | null
+      }
+
+      // 計算每個 order 的 bank group count
+      const orderBankMap = new Map<string, Map<string, number>>()
+      for (const row of data as DoiRow[]) {
+        if (!row.disbursement_order_id || !row.from_bank_account_id) continue
+        if (!orderBankMap.has(row.disbursement_order_id)) {
+          orderBankMap.set(row.disbursement_order_id, new Map())
+        }
+        const bankMap = orderBankMap.get(row.disbursement_order_id)!
+        bankMap.set(
+          row.from_bank_account_id,
+          (bankMap.get(row.from_bank_account_id) ?? 0) + 1,
+        )
+      }
+
+      // 把 bank_account_id → name 備查
+      const bankNameMap = new Map<string, string>()
+      for (const row of data as DoiRow[]) {
+        if (row.from_bank_account_id && row.bank_accounts?.name) {
+          bankNameMap.set(row.from_bank_account_id, row.bank_accounts.name)
+        }
+      }
+
+      // 組 summary 字串
+      const result = new Map<string, string>()
+      for (const [orderId, bankMap] of orderBankMap.entries()) {
+        const groups: BankGroupSummary[] = Array.from(bankMap.entries()).map(([bankId, count]) => ({
+          bank_name: bankNameMap.get(bankId) ?? bankId.slice(-4),
+          item_count: count,
+        }))
+        result.set(orderId, groups.map(g => `${g.bank_name} ${g.item_count} 筆`).join(' / '))
+      }
+      setSummaryMap(result)
+    })()
+  }, [workspaceId])
+
+  return summaryMap
+}
+
 export function DisbursementPage() {
   const t = useTranslations('finance')
   const { items: disbursement_orders } = useDisbursementOrders({ all: true })
   const { items: payment_requests } = usePaymentRequests({ all: true })
-  const { items: _payment_request_items } = usePaymentRequestItems({ all: true })
 
   const user = useAuthStore(state => state.user)
+  const bankGroupSummaries = useDisbursementBankGroupSummaries(user?.workspace_id)
   const { can, loading: permLoading } = useCapabilities()
   const canManage = can(CAPABILITIES.FINANCE_MANAGE_DISBURSEMENT)
 
@@ -92,6 +162,17 @@ export function DisbursementPage() {
         ),
       },
       {
+        // Phase 7：銀行帳戶欄改顯示「玉山 3 筆 / 台新 2 筆」摘要
+        key: 'bank_account_id' as keyof DisbursementOrder,
+        label: '銀行帳戶',
+        width: '180px',
+        render: (_value: unknown, row: DisbursementOrder) => {
+          const summary = bankGroupSummaries.get(row.id)
+          if (!summary) return <span className="text-morandi-muted text-xs">—</span>
+          return <span className="text-sm text-morandi-secondary">{summary}</span>
+        },
+      },
+      {
         key: 'amount',
         label: '總金額',
         sortable: true,
@@ -112,7 +193,7 @@ export function DisbursementPage() {
         ),
       },
     ],
-    [payment_requests]
+    [payment_requests, bankGroupSummaries]
   )
 
   // 點擊列：pending → 編輯、paid → 詳情

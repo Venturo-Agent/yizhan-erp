@@ -18,6 +18,7 @@ import { logger } from '@/lib/utils/logger'
 import { formatDateTaipei } from '@/lib/utils/format-date'
 import { encryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { validatePageAccessToken } from './facebook-api-client'
+import { getOrCreateSystemBotRole } from '@/lib/bot/system-bot-role'
 import { randomBytes } from 'crypto'
 
 // generated types 還沒含 workspace_facebook_settings（migration 5/13 才建）
@@ -35,9 +36,6 @@ interface FacebookSettingsUpsert {
   webhook_verified_at: string
   effective_from: string
 }
-
-// 平台共用「系統機器人」role（同 LINE bot 用同一個、避免再加 role）
-const SYSTEM_BOT_ROLE_ID = '53fd15df-a256-4a55-870d-0d59810fdddf'
 
 export interface ProvisionInput {
   workspaceId: string
@@ -103,6 +101,7 @@ export async function provisionFacebookBot(input: ProvisionInput): Promise<Provi
   if (existingBot?.id) {
     botEmployeeId = existingBot.id
   } else {
+    const systemBotRoleId = await getOrCreateSystemBotRole(input.workspaceId)
     const { data: newBot, error: insertError } = await supabase
       .from('employees')
       .insert({
@@ -112,7 +111,7 @@ export async function provisionFacebookBot(input: ProvisionInput): Promise<Provi
         display_name: 'FB Messenger 系統',
         english_name: 'Facebook Messenger Bot',
         employee_type: 'system_bot',
-        role_id: SYSTEM_BOT_ROLE_ID,
+        role_id: systemBotRoleId,
         status: 'active',
         personal_info: {},
         job_info: { title: 'Facebook Messenger Integration' },

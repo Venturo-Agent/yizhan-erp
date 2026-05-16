@@ -11,9 +11,8 @@ import { logger } from '@/lib/utils/logger'
 import { formatDateTaipei } from '@/lib/utils/format-date'
 import { encryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { validateInstagramBusinessAccount } from './instagram-api-client'
+import { getOrCreateSystemBotRole } from '@/lib/bot/system-bot-role'
 import { randomBytes } from 'crypto'
-
-const SYSTEM_BOT_ROLE_ID = '53fd15df-a256-4a55-870d-0d59810fdddf'
 
 // generated types 還沒含 workspace_instagram_settings、apply migration + regen 後拿掉
 interface InstagramSettingsUpsert {
@@ -97,6 +96,7 @@ export async function provisionInstagramBot(input: ProvisionInput): Promise<Prov
   if (existingBot?.id) {
     botEmployeeId = existingBot.id
   } else {
+    const systemBotRoleId = await getOrCreateSystemBotRole(input.workspaceId)
     const { data: newBot, error: insertError } = await supabase
       .from('employees')
       .insert({
@@ -106,7 +106,7 @@ export async function provisionInstagramBot(input: ProvisionInput): Promise<Prov
         display_name: 'IG DM 系統',
         english_name: 'Instagram DM Bot',
         employee_type: 'system_bot',
-        role_id: SYSTEM_BOT_ROLE_ID,
+        role_id: systemBotRoleId,
         status: 'active',
         personal_info: {},
         job_info: { title: 'Instagram DM Integration' },

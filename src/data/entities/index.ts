@@ -398,6 +398,34 @@ export {
 } from './cis-pricing-items'
 
 export { useTourPL, useTreasurySummary } from './finance-summary'
+
+// ============================================
+// 文件中心（Phase 1）
+// ============================================
+
+// Workspace Documents
+export {
+  useWorkspaceDocuments,
+  useWorkspaceDocumentsSlim,
+  useWorkspaceDocument,
+  createWorkspaceDocument,
+  updateWorkspaceDocument,
+  deleteWorkspaceDocument,
+  invalidateWorkspaceDocuments,
+} from './workspace-documents'
+export type { WorkspaceDocument } from './workspace-documents'
+
+// Workspace Seals（章印管理）
+export {
+  useWorkspaceSeals,
+  useWorkspaceSealsSlim,
+  useWorkspaceSeal,
+  createWorkspaceSeal,
+  updateWorkspaceSeal,
+  deleteWorkspaceSeal,
+  invalidateWorkspaceSeals,
+} from './workspace-seals'
+export type { WorkspaceSeal } from './workspace-seals'
 export type { TourPL, TreasurySummary } from './finance-summary'
 
 // Channels
@@ -433,6 +461,45 @@ export {
   useAiAgent,
   invalidateAiAgents,
 } from './ai-agents'
+
+// ============================================
+// 電子收據（Travel Invoice）
+// ============================================
+export {
+  useTravelInvoices,
+  useTravelInvoicesSlim,
+  useTravelInvoice,
+  createTravelInvoice,
+  updateTravelInvoice,
+  deleteTravelInvoice,
+  invalidateTravelInvoices,
+} from './travel-invoices'
+export type { TravelInvoice } from './travel-invoices'
+
+// ============================================
+// eSIM 管理（Worldmove）
+// ============================================
+export {
+  useWorldmoveOrders,
+  useWorldmoveOrdersSlim,
+  useWorldmoveOrder,
+  createWorldmoveOrder,
+  updateWorldmoveOrder,
+  deleteWorldmoveOrder,
+  invalidateWorldmoveOrders,
+} from './worldmove-orders'
+export type { WorldmoveOrder } from './worldmove-orders'
+
+export {
+  useWorldmoveEsimItems,
+  useWorldmoveEsimItemsSlim,
+  useWorldmoveEsimItem,
+  createWorldmoveEsimItem,
+  updateWorldmoveEsimItem,
+  deleteWorldmoveEsimItem,
+  invalidateWorldmoveEsimItems,
+} from './worldmove-esim-items'
+export type { WorldmoveEsimItem } from './worldmove-esim-items'
 
 // Employee Eligibilities（5/13、員工資格、從 role_capabilities 移過來）
 export {
