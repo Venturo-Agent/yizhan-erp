@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
 import { ArrowRightLeft, X} from 'lucide-react'
 import { useToursSlim, invalidateReceipts } from '@/data'
+import { useTourOptions } from '@/hooks'
 import { supabase } from '@/lib/supabase/client'
 import { generateReceiptNo } from '@/lib/codes'
 import { useAuthStore } from '@/stores'
@@ -68,14 +69,11 @@ export function ReceiptTransferDialog({
   const [transferring, setTransferring] = useState(false)
 
   // 排除來源團（不能轉給自己）
-  const tourOptions = useMemo(() => {
-    return tours
-      .filter(t => t.id !== sourceReceipt?.tour_id)
-      .map(t => ({
-        value: t.id,
-        label: `${t.code || ''} - ${t.name || ''}`,
-      }))
-  }, [tours, sourceReceipt?.tour_id])
+  const filteredTours = useMemo(
+    () => tours.filter(t => t.id !== sourceReceipt?.tour_id),
+    [tours, sourceReceipt?.tour_id]
+  )
+  const tourOptions = useTourOptions(filteredTours)
 
   const handleTransfer = async () => {
     if (!sourceReceipt || !targetTourId) return

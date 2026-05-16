@@ -33,6 +33,7 @@ import {
 } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import type { ChannelType } from '@/types/channel.types'
+import { useTourOptions } from '@/hooks'
 
 interface Props {
   open: boolean
@@ -56,14 +57,7 @@ export function CreateChannelDialog({ open, onOpenChange }: Props) {
     return (tours ?? []).filter(t => (t as { controller_id?: string | null }).controller_id === user.id)
   }, [tours, user?.id])
 
-  const tourOptions = useMemo(
-    () =>
-      myTours.map(t => ({
-        value: t.id,
-        label: `${t.code ?? ''} ${t.name ?? ''}`.trim() || t.id,
-      })),
-    [myTours]
-  )
+  const tourOptions = useTourOptions(myTours)
 
   const peerOptions = useMemo(
     () =>

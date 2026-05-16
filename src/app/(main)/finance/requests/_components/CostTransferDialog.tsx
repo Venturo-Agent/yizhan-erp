@@ -20,6 +20,7 @@ const COMPONENT_LABELS = {
   CONFIRM_TRANSFER: '確認轉移',
 } as const
 import { useToursSlim, invalidatePaymentRequests, invalidatePaymentRequestItems } from '@/data'
+import { useTourOptions } from '@/hooks'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores'
 import { logger } from '@/lib/utils/logger'
@@ -65,21 +66,17 @@ export function CostTransferDialog({
   const [transferring, setTransferring] = useState(false)
 
   // 排除來源團的選項
-  const tourOptions = useMemo(() => {
-    return tours
-      .filter(t => {
-        if (t.id === sourceRequest?.tourId) return false
-        if (t.archived) return false
-        // 排除已結案團
-        const status = (t as unknown as { status?: string }).status
-        if (status === '已結案' || status === 'closed') return false
-        return true
-      })
-      .map(t => ({
-        value: t.id,
-        label: `${t.code || ''} - ${t.name || ''}`,
-      }))
+  const filteredTours = useMemo(() => {
+    return tours.filter(t => {
+      if (t.id === sourceRequest?.tourId) return false
+      if (t.archived) return false
+      // 排除已結案團
+      const status = (t as unknown as { status?: string }).status
+      if (status === '已結案' || status === 'closed') return false
+      return true
+    })
   }, [tours, sourceRequest?.tourId])
+  const tourOptions = useTourOptions(filteredTours)
 
   // 選中的總金額
   const selectedTotal = useMemo(() => {

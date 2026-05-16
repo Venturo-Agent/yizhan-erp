@@ -7,6 +7,7 @@ import { Combobox } from '@/components/ui/combobox'
 import { useToursListSlim } from '@/hooks/useListSlim'
 import { useEligibleEmployees, ELIGIBILITY } from '@/app/(main)/orders/_hooks/useEligibleEmployees'
 import { useTranslations } from 'next-intl'
+import { useTourOptions } from '@/hooks'
 
 export interface OrderFormData {
   tour_id: string
@@ -38,6 +39,7 @@ interface AddOrderFormProps {
 export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange, hideAssistant }: AddOrderFormProps) {
   const t = useTranslations('orders')
   const { items: tours } = useToursListSlim()
+  const tourOptions = useTourOptions(tours)
 
   // 下拉資格：5/13 新概念、讀 employee_eligibilities（HR 員工頁勾選）
   const salesPersons = useEligibleEmployees(ELIGIBILITY.TOURS_AS_SALES)
@@ -80,11 +82,7 @@ export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange, hide
             {t('selectTourLabel')}
           </label>
           <Combobox
-            options={tours.map(tour => ({
-              value: tour.id,
-              label: `${tour.code} - ${tour.name}`,
-              data: tour,
-            }))}
+            options={tourOptions}
             value={formData.tour_id || ''}
             onChange={value => updateFormData?.({ ...formData, tour_id: value })}
             placeholder={t('searchOrSelectTour')}

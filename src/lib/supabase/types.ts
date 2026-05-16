@@ -5622,12 +5622,15 @@ export type Database = {
           refund_voucher_id: string | null
           refunded_at: string | null
           refunded_by: string | null
+          rejected_reason: string | null
           status: string
           tour_id: string | null
           tour_name: string | null
           transferred_pair_id: string | null
           updated_at: string | null
           updated_by: string | null
+          verified_at: string | null
+          verified_by: string | null
           workspace_id: string
         }
         Insert: {
@@ -5662,12 +5665,15 @@ export type Database = {
           refund_voucher_id?: string | null
           refunded_at?: string | null
           refunded_by?: string | null
+          rejected_reason?: string | null
           status?: string
           tour_id?: string | null
           tour_name?: string | null
           transferred_pair_id?: string | null
           updated_at?: string | null
           updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
           workspace_id: string
         }
         Update: {
@@ -5702,12 +5708,15 @@ export type Database = {
           refund_voucher_id?: string | null
           refunded_at?: string | null
           refunded_by?: string | null
+          rejected_reason?: string | null
           status?: string
           tour_id?: string | null
           tour_name?: string | null
           transferred_pair_id?: string | null
           updated_at?: string | null
           updated_by?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
           workspace_id?: string
         }
         Relationships: [

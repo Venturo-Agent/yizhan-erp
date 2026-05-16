@@ -8,6 +8,7 @@ import { translateDbError } from '@/lib/db-error-translate'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { encryptPersonalField } from '@/lib/crypto/personal-data'
+import type { Json } from '@/lib/supabase/types'
 
 /**
  * PATCH /api/employees/[id]
@@ -106,18 +107,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     // 等 William 確認要開放 id_number 更新後、再把 id_number 加進 schema 並在這裡加密。
 
     // 2. UPDATE employees
-    // jsonb 欄位 type 在 generated types 是 Json union、跟 zod Record 型別對不上
-    // 用 eslint-disable 限制範圍，比 as any 在 client 上更安全（只影響 update payload）
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: updateErr } = await supabase
       .from('employees')
       .update({
         ...data,
+        personal_info: data.personal_info as Json | undefined,
+        job_info: data.job_info as Json | undefined,
+        salary_info: data.salary_info as Json | undefined,
         ...encryptedExtra,
         updated_at: new Date().toISOString(),
         updated_by: guard.employeeId,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any)
+      })
       .eq('id', id)
 
     if (updateErr) {

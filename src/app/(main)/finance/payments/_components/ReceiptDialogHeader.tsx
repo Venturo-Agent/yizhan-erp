@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useTranslations } from 'next-intl'
+import { useTourOptions } from '@/hooks'
 interface PaymentMethod {
   id: string
   name: string
@@ -84,6 +85,7 @@ export function ReceiptDialogHeader({
   paymentMethods,
 }: ReceiptDialogHeaderProps) {
   const t = useTranslations('finance')
+  const tourComboOptions = useTourOptions(tours)
   return (
     <DialogHeader className="flex-row items-center justify-between pb-4">
       {/* 左邊：Tab + 選擇器 */}
@@ -141,10 +143,7 @@ export function ReceiptDialogHeader({
           <>
             <div className="relative z-[10020]">
               <Combobox
-                options={tours.map(tour => ({
-                  value: tour.id,
-                  label: `${tour.code || ''} - ${tour.name || ''}`,
-                }))}
+                options={tourComboOptions}
                 value={tourId}
                 onChange={value => onTourChange(value)}
                 placeholder={t('receiptSelectTour')}

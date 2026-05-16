@@ -21,6 +21,7 @@ import {
 } from '@/data'
 import { cn } from '@/lib/utils'
 import type { ComboboxOption } from '@/components/ui/combobox'
+import { useTourOptions } from '@/hooks'
 
 const STATUS_DOTS: Record<string, string> = {
   pending: 'bg-morandi-muted',
@@ -158,10 +159,7 @@ export function TodoExpandedView({ todo, onUpdate, onClose, onDelete }: TodoExpa
     })
   }
 
-  const tourOptions: ComboboxOption[] = (tours || []).map(t => ({
-    value: t.id,
-    label: t.code ? `${t.code}｜${t.name}` : t.name,
-  }))
+  const tourOptions: ComboboxOption[] = useTourOptions(tours)
 
   const orderOptions: ComboboxOption[] = (orders || [])
     .filter(o => !tourRelated || o.tour_id === tourRelated.id)

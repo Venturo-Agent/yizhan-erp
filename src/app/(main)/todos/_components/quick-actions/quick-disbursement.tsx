@@ -17,6 +17,7 @@ import { CreateSupplierDialog } from '@/app/(main)/finance/requests/_components/
 import { alert } from '@/lib/ui/alert-dialog'
 import { CurrencyCell } from '@/components/table-cells'
 import { useTranslations } from 'next-intl'
+import { useTourOptions } from '@/hooks'
 
 interface QuickDisbursementProps {
   onSubmit?: () => void
@@ -81,15 +82,7 @@ export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: Q
   const selectedTour = (tours || []).find(t => t.id === formData.tour_id)
   const selectedOrder = (orders || []).find(o => o.id === formData.order_id)
 
-  // TODO(P1 抽象機會): tourOptions 同樣的 .map 出現在 quick-receipt / AddRequestDialog /
-  // TodoExpandedView / ReceiptTransferDialog / CostTransferDialog 等 5+ 處。
-  // 各處 label 格式略不同（「code - name」vs「code name」vs「code｜name」），
-  // 要統一格式後才能安全提取 shared TourSelect 組件（約 -120 行）。
-  // 統一格式後可建 src/components/shared/TourSelect.tsx 替換這些地方。
-  const tourOptions = (tours || []).map(tour => ({
-    value: tour.id,
-    label: `${tour.code || ''} - ${tour.name || ''}`,
-  }))
+  const tourOptions = useTourOptions(tours)
 
   const orderOptions = filteredOrders.map(order => ({
     value: order.id,
@@ -136,8 +129,8 @@ export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: Q
             onChange={value =>
               setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))
             }
-            placeholder="搜尋團號或團名..."
-            emptyMessage="找不到團體"
+            placeholder={t('searchTourPlaceholder')}
+            emptyMessage={t('tourEmptyMessage')}
             className="w-[280px]"
             maxHeight="300px"
           />
@@ -149,8 +142,8 @@ export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: Q
             onChange={value => setFormData(prev => ({ ...prev, order_id: value }))}
             placeholder={
               !formData.tour_id
-                ? '請先選擇旅遊團'
-                : '搜尋訂單...'
+                ? t('selectTourFirst')
+                : t('searchOrderPlaceholder')
             }
             disabled={!formData.tour_id}
             className="w-[240px]"

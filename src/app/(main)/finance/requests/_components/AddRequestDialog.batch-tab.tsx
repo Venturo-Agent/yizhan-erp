@@ -20,6 +20,7 @@ import { categoryOptions } from '../_types'
 import { PaymentItemCategory } from '@/stores/types'
 import { TourAllocation, COMPONENT_LABELS } from './AddRequestDialog.types'
 import { useTranslations } from 'next-intl'
+import { useTourOptions } from '@/hooks'
 
 interface Tour {
   id: string
@@ -84,6 +85,7 @@ export function BatchTabContent({
   onCreateSupplier,
 }: BatchTabContentProps) {
   const t = useTranslations('finance')
+  const availableTourOptions = useTourOptions(availableTours)
   return (
     <TabsContent
       value="batch"
@@ -109,10 +111,7 @@ export function BatchTabContent({
                           },
                         ]
                       : []),
-                    ...availableTours.map(tour => ({
-                      value: tour.id,
-                      label: `${tour.code} - ${tour.name}`,
-                    })),
+                    ...availableTourOptions,
                   ]}
                   value={row.tour_id}
                   onChange={value => onSelectTour(index, value)}

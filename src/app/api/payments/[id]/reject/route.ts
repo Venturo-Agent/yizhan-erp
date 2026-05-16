@@ -93,8 +93,6 @@ export async function POST(
       )
     }
 
-    // receipts.verified_by / verified_at / rejected_reason 為 DB 新增欄位、尚未納入生成類型
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: updated, error: updateErr } = await supabase
       .from('receipts')
       .update({
@@ -103,8 +101,7 @@ export async function POST(
         verified_by: ctx.employeeId,
         verified_at: new Date().toISOString(),
         updated_by: ctx.employeeId,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any)
+      })
       .eq('id', id)
       .select('id, status, rejected_reason, verified_by, verified_at')
       .single() as { data: ReceiptUpdated | null; error: PostgrestError | null }

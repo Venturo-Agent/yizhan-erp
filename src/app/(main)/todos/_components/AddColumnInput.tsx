@@ -53,7 +53,7 @@ export function AddColumnInput({
               className="h-7 text-xs"
               onClick={onCancelAddColumn}
             >
-              取消
+              {t('cancel')}
             </Button>
             <Button
               variant="soft-gold"
@@ -62,7 +62,7 @@ export function AddColumnInput({
               onClick={onAddColumn}
               disabled={!newColumnName.trim() || addingColumnInFlight}
             >
-              {addingColumnInFlight ? '建立中…' : '新增欄位'}
+              {addingColumnInFlight ? t('creating') : t('addColumnBtn')}
             </Button>
           </div>
         </div>
@@ -72,7 +72,7 @@ export function AddColumnInput({
           className="w-full flex items-center justify-center gap-2 py-3 rounded-lg bg-morandi-container/20 hover:bg-morandi-container/40 text-morandi-secondary hover:text-morandi-primary transition-colors text-sm font-medium border-2 border-dashed border-border/50"
         >
           <Plus size={16} />
-          新增欄位
+          {t('addColumnBtn')}
         </button>
       )}
     </div>

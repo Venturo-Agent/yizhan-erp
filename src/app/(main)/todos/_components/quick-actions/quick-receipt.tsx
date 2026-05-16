@@ -21,6 +21,7 @@ import { Combobox } from '@/components/ui/combobox'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { useAuthStore } from '@/stores'
+import { useTranslations } from 'next-intl'
 import { usePaymentForm } from '@/app/(main)/finance/payments/_hooks/usePaymentForm'
 import { useReceiptMutations } from '@/app/(main)/finance/payments/_hooks/useReceiptMutations'
 import { usePaymentMethodsCached } from '@/data/hooks'
@@ -32,12 +33,7 @@ import {
 import { RequestDateInput } from '@/app/(main)/finance/requests/_components/RequestDateInput'
 import { formatMoney } from '@/lib/utils/format-currency'
 import type { PaymentItem } from '@/app/(main)/finance/payments/_types'
-
-const COMPONENT_LABELS = {
-  PH_SEARCH_TOUR: '搜尋團號或團名',
-  RECEIPT_ITEMS: '收款項目',
-  TOTAL_PREFIX: '總金額：',
-} as const
+import { useTourOptions } from '@/hooks'
 
 interface QuickReceiptProps {
   onSubmit?: () => void
@@ -61,6 +57,7 @@ export function QuickReceipt({
   defaultTourId,
   defaultOrderId,
 }: QuickReceiptProps) {
+  const t = useTranslations('todos')
   const { user } = useAuthStore()
   const {
     tours,
@@ -92,10 +89,7 @@ export function QuickReceipt({
      
   }, [defaultTourId, defaultOrderId])
 
-  const tourOptions = (tours || []).map(t => ({
-    value: t.id,
-    label: `${t.code || ''} ${t.name || ''}`.trim() || t.id,
-  }))
+  const tourOptions = useTourOptions(tours)
   const orderOptions = filteredOrders.map(o => ({
     value: o.id,
     label: `${o.code || ''} ${o.contact_person || ''}`.trim() || o.id,
@@ -157,7 +151,7 @@ export function QuickReceipt({
             onChange={value =>
               setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))
             }
-            placeholder={COMPONENT_LABELS.PH_SEARCH_TOUR}
+            placeholder={t('searchTourPlaceholder')}
             maxHeight="300px"
           />
         </div>
@@ -166,7 +160,7 @@ export function QuickReceipt({
             options={orderOptions}
             value={formData.order_id}
             onChange={value => setFormData(prev => ({ ...prev, order_id: value }))}
-            placeholder={!formData.tour_id ? '請先選擇旅遊團' : '搜尋訂單'}
+            placeholder={!formData.tour_id ? t('selectTourFirst') : t('searchOrderPlaceholder')}
             disabled={!formData.tour_id}
             maxHeight="300px"
           />
@@ -181,7 +175,7 @@ export function QuickReceipt({
 
       {/* 收款項目（多筆 row、含手續費自動算） */}
       <InlineEditTable<PaymentItem>
-        title={COMPONENT_LABELS.RECEIPT_ITEMS}
+        title={t('receiptItemsLabel')}
         rows={paymentItems}
         columns={receiptColumns}
         onAdd={addPaymentItem}
@@ -212,7 +206,7 @@ export function QuickReceipt({
       {/* 總金額 + 提交 */}
       <div className="flex justify-between items-center pt-3 border-t border-border">
         <div className="text-sm">
-          <span className="text-morandi-secondary">{COMPONENT_LABELS.TOTAL_PREFIX}</span>
+          <span className="text-morandi-secondary">{t('totalAmountPrefix')}</span>
           <span className="text-base font-semibold text-morandi-gold">
             NT$ {formatMoney(totalAmount)}
           </span>
@@ -229,7 +223,7 @@ export function QuickReceipt({
           className="gap-2"
         >
           <Save size={16} />
-          {isSubmitting ? '建立中...' : '建立收款單'}
+          {isSubmitting ? t('creating') : t('createReceiptBtn')}
         </Button>
       </div>
     </div>

@@ -28,6 +28,7 @@ import { getTodayString } from '@/lib/utils/format-date'
 import { useWorkspaceId } from '@/lib/workspace-context'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { useTranslations } from 'next-intl'
+import { useTourOptions } from '@/hooks'
 import { AddRequestDialogHeader } from './AddRequestDialogHeader'
 import { AddRequestDialogFooter } from './AddRequestDialogFooter'
 import { PaymentItemCategory } from '@/stores/types'
@@ -157,7 +158,7 @@ export function AddRequestDialog({
     [suppliers, batchSupplierId]
   )
 
-  const tourOptions = activeTours.map(t => ({ value: t.id, label: `${t.code || ''} - ${t.name || ''}` }))
+  const tourOptions = useTourOptions(activeTours)
   const orderOptions = filteredOrders.map(o => ({
     value: o.id,
     label: `${o.order_number} - ${o.contact_person || t('receiptNoContact')}`,
