@@ -1,6 +1,6 @@
 name: RLS Blueprint Audit
 
-# 對照 2026-05-13-venturo-aierp-概念架構-blueprint.md 6 層
+# 對照 2026-05-13-venturo-aierp-概念架構-blueprint.md 6 層（blueprint 檔名保留歷史、內容仍適用）
 # 偵測 production RLS / 中央 module SSOT 是否偏離藍圖
 # PR / push 自動跑、error 擋 merge
 

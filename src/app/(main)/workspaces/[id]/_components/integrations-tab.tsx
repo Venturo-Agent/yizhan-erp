@@ -3,7 +3,7 @@
 /**
  * Workspace API 整合設定 tab
  *
- * William 拍板 2026-05-11：未來 venturo-aierp 是 API 整合平台、每個客戶在這設自己的 API key
+ * William 拍板 2026-05-11：未來一棧 ERP 是 API 整合平台、每個客戶在這設自己的 API key
  *
  * 流程：
  * - GET /api/workspace-integrations?workspace_id={id} 載入所有 integration 狀態

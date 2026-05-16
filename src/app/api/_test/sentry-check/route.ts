@@ -6,7 +6,7 @@
  *
  * 預期：
  *   - response: 500 + body { error: 'Sentry test triggered' }
- *   - Sentry dashboard 應在 1-2 分鐘內收到 event 'Sentry test - venturo-aierp ...'
+ *   - Sentry dashboard 應在 1-2 分鐘內收到 event 'Sentry test - yizhan-erp ...'
  *
  * 驗完移除這個 file。
  */
@@ -25,5 +25,5 @@ export async function GET(request: NextRequest) {
 
   // 故意 throw、不 catch、讓 Sentry 自動撈
   // Next.js 會把這個 unhandled error 變成 500 response
-  throw new Error(`Sentry test - venturo-aierp ${new Date().toISOString()}`)
+  throw new Error(`Sentry test - yizhan-erp ${new Date().toISOString()}`)
 }

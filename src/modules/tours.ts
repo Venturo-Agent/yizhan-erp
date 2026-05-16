@@ -1,7 +1,7 @@
 import { defineModule } from './_define'
 
 /**
- * 旅遊團管理 — venturo-aierp 核心模組
+ * 旅遊團管理 — 一棧 ERP 核心模組
  *
  * 對應：
  * - 路由：/tours, /tours/[code]
