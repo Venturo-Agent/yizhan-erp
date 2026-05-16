@@ -87,6 +87,9 @@ fix-types-to-snake.js
 # Claude Code — 整個目錄都不追蹤
 .claude/
 
+# AI Agent skills — 從 GitHub 安裝、不進 repo（見 SKILLS.md 重裝方式）
+.agents/
+
 # Backup and temporary directories
 Corner/
 backup/

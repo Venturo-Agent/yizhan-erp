@@ -86,7 +86,7 @@ fi
 # ============================================================
 echo
 echo "▶ #10: root 多餘 .md"
-ALLOWED_ROOT_MD=("README.md" "CLAUDE.md" "CHANGELOG.md" "AGENTS.md")
+ALLOWED_ROOT_MD=("README.md" "CLAUDE.md" "CHANGELOG.md" "AGENTS.md" "SKILLS.md")
 EXTRA_MD=()
 for f in *.md; do
   [ -f "$f" ] || continue
@@ -99,7 +99,7 @@ done
 if [ ${#EXTRA_MD[@]} -gt 0 ]; then
   log_fail "#10: root 多餘 .md: ${EXTRA_MD[*]}"
 else
-  log_pass "#10: root .md 乾淨（只有 README/CLAUDE/CHANGELOG/AGENTS）"
+  log_pass "#10: root .md 乾淨（只有 README/CLAUDE/CHANGELOG/AGENTS/SKILLS）"
 fi
 
 # ============================================================
