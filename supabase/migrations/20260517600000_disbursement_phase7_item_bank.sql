@@ -25,6 +25,7 @@ ALTER TABLE public.disbursement_order_items
   ADD COLUMN IF NOT EXISTS from_bank_account_id uuid REFERENCES public.bank_accounts(id);
 
 -- Step 2: backfill（從 DO.bank_account_id 補進 DOI）
+-- 注意：2 筆舊 DO 無 bank_account_id（DO260319-001, DO260428-001），其 8 個 DOI 留 NULL
 UPDATE public.disbursement_order_items doi
 SET from_bank_account_id = do_.bank_account_id
 FROM public.disbursement_orders do_
@@ -32,11 +33,10 @@ WHERE doi.disbursement_order_id = do_.id
   AND doi.from_bank_account_id IS NULL
   AND do_.bank_account_id IS NOT NULL;
 
--- Step 3: 設 NOT NULL（backfill 完成後）
-ALTER TABLE public.disbursement_order_items
-  ALTER COLUMN from_bank_account_id SET NOT NULL;
+-- 欄位保持 nullable（舊資料 8 筆無法 backfill）
+-- 新建 DOI 由 API 層強制帶 from_bank_account_id、不靠 DB NOT NULL
 
--- Step 4: DO.bank_account_id 設 nullable（廢用但保留、供舊資料/報表向下相容）
+-- Step 3: DO.bank_account_id 設 nullable（廢用但保留、供舊資料/報表向下相容）
 ALTER TABLE public.disbursement_orders
   ALTER COLUMN bank_account_id DROP NOT NULL;
 
@@ -44,9 +44,17 @@ ALTER TABLE public.disbursement_orders
 
 -- 先確認無重複（撞號已在 2026-05-16 修復，此 constraint 防未來復發）
 -- 若有重複會在 BEGIN 後 fail，不會 partial commit
-ALTER TABLE public.disbursement_orders
-  ADD CONSTRAINT IF NOT EXISTS disbursement_orders_workspace_code_unique
-  UNIQUE (workspace_id, code);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'disbursement_orders_workspace_code_unique'
+  ) THEN
+    ALTER TABLE public.disbursement_orders
+      ADD CONSTRAINT disbursement_orders_workspace_code_unique
+      UNIQUE (workspace_id, code);
+  END IF;
+END $$;
 
 -- 補 index 加速查詢（UNIQUE constraint 已自帶 index，這個補 disbursement_date 查詢）
 CREATE INDEX IF NOT EXISTS idx_do_workspace_date

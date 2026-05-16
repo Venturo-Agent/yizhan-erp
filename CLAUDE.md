@@ -1,12 +1,12 @@
-# CLAUDE.md — venturo-aierp
+# CLAUDE.md — venturo-atlas（一棧 ERP）
 
-> 最後重寫：2026-05-13。venturo-aierp 是新專案（從 venturo-erp fork、清掉舊紅線）、加上「寫程式哲學」+ 重寫「技術紅線」+「上線戰略地圖」。
+> 最後重寫：2026-05-13；更名記錄：venturo-aierp → 一棧 ERP（yizhan-erp on GitHub）→ venturo-atlas（local folder）。同一個連續專案、GitHub repo 是 Venturo-Agent/yizhan-erp。
 
 ---
 
 ## 🔒 戰略凍結中（2026-05-13 William 拍板）
 
-**venturo-aierp 進入「修復 + 測試 + 上線」階段、凍結新功能開發**。
+**venturo-atlas 進入「修復 + 測試 + 上線」階段、凍結新功能開發**。
 詳細戰略地圖：`Logan-Workspace/2026-05-13-venturo-aierp-上線戰略地圖.md`
 
 **🚩 當前戰場（可做）**：
