@@ -1,0 +1,37 @@
+name: ERP Standards Check
+
+# 守門 workflow：對應 docs/VENTURO_ERP_STANDARDS.md Section 10 禁止清單
+# 跑 scripts/check-standards.sh --strict
+# 與既有 .github/workflows/ci.yml 的 quality job 並行（後者跑 format/lint/type-check）
+# 此 workflow 專注於「整理憲法違反」掃描（isAdmin 殘留 / 軟刪除 / audit FK / migration 命名 / console.* 等）
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  standards-check:
+    name: ERP Standards (憲法守門)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Make script executable
+        run: chmod +x scripts/check-standards.sh
+
+      - name: Run standards check (strict)
+        # --strict：任何違反 = exit 1 = CI 失敗
+        # script 內含 tsc 0-error 檢查、不需另外跑 type-check
+        run: ./scripts/check-standards.sh --strict

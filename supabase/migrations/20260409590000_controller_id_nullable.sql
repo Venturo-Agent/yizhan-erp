@@ -1,0 +1,1 @@
+ALTER TABLE tours ALTER COLUMN controller_id DROP NOT NULL;

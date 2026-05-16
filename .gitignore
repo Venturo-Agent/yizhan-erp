@@ -1,0 +1,125 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+/dist
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Production env (contains secrets - use Vercel env vars instead)
+.env.production
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDEs and editors
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+*.old
+*.deprecated
+.cache
+
+# Development temporary files
+check_data_status.sql
+check-employees.js
+check-errors.sh
+ISSUE_DIAGNOSIS.md
+MIGRATION_GUIDE.md
+supabase-migration-*.sql
+fix-types-to-snake.js
+
+# Environment files
+.env
+.env.local
+.env*.local
+
+# Claude Code — 整個目錄都不追蹤
+.claude/
+
+# Backup and temporary directories
+Corner/
+backup/
+temp/
+db-export/
+
+# Backup files — 一律放 ~/Backups/、不該進 repo
+*.tar.gz
+db-backup-*.sql
+backup_*.sql
+venturo-erp-backup-*
+venturo-erp-clean-backup-*
+
+# Playwright auth state
+tests/e2e/.auth/
+SUPABASE_CREDENTIALS_BACKUP.md
+
+# Large assets (stored in Supabase bucket)
+city-backgrounds/
+city-backgrounds-2/
+city-backgrounds-all/
+
+# Build artifacts / reports
+lint-report.json
+playwright-report/
+test-results/
+*.pdf
+
+# Debug HTML tools
+public/*.html
+!public/contract-templates/
+/*.js
+!next.config.js
+!postcss.config.js
+!tailwind.config.js
+.gitnexus

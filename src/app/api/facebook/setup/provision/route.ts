@@ -1,0 +1,86 @@
+/**
+ * POST /api/facebook/setup/provision
+ *
+ * Setup Wizard StepProvisioning 階段呼叫、跑完整 setup pipeline：
+ *   1. 再次驗證 token（避免 race）
+ *   2. 建 / 找 BOT employee（FB-BOT-{workspace}-001）
+ *   3. 加密 page_access_token + app_secret、upsert workspace_facebook_settings
+ *   4. 回 webhook URL + verify token 給 UI 顯示
+ */
+
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { getServerAuth } from '@/lib/auth/server-auth'
+import { requireCapability } from '@/lib/auth/require-capability'
+import { CAPABILITIES } from '@/lib/permissions/capabilities'
+import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { validateBody } from '@/lib/api/validation'
+import { ApiError } from '@/lib/api/response'
+import { provisionFacebookBot } from '@/lib/facebook/setup-pipeline'
+import { logger } from '@/lib/utils/logger'
+import { createApiClient } from '@/lib/supabase/api-client'
+import { recordApiAuditContext } from '@/lib/audit/audit-helper'
+
+const schema = z.object({
+  page_access_token: z.string().min(1),
+  app_secret: z.string().optional().nullable(),
+  bot_greeting: z.string().optional().nullable(),
+})
+
+export async function POST(request: NextRequest) {
+  try {
+    const auth = await getServerAuth()
+    if (!auth.success) {
+      return ApiError.unauthorized('請先登入')
+    }
+
+    const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
+    if (!guard.ok) return guard.response
+
+    const auditClient = await createApiClient()
+    await recordApiAuditContext(auditClient, {
+      actorId: guard.employeeId,
+      reason: 'provision Facebook Messenger Bot',
+    })
+
+    const supabase = getSupabaseAdminClient()
+    const { data: feature } = await supabase
+      .from('workspace_features')
+      .select('enabled')
+      .eq('workspace_id', auth.data.workspaceId)
+      .eq('feature_code', 'facebook_bot')
+      .maybeSingle()
+
+    if (!feature?.enabled) {
+      return ApiError.forbidden('此 workspace 尚未開通 Facebook Messenger 整合')
+    }
+
+    const validation = await validateBody(request, schema)
+    if (!validation.success) return validation.error
+
+    const result = await provisionFacebookBot({
+      workspaceId: auth.data.workspaceId,
+      pageAccessToken: validation.data.page_access_token,
+      appSecret: validation.data.app_secret,
+      botGreeting: validation.data.bot_greeting,
+    })
+
+    if (!result.ok) {
+      return NextResponse.json({ success: false, error: result.error }, { status: 200 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        webhookUrl: result.webhookUrl,
+        webhookVerifyToken: result.webhookVerifyToken,
+        pageId: result.pageId,
+        pageName: result.pageName,
+        botEmployeeId: result.botEmployeeId,
+      },
+    })
+  } catch (error) {
+    logger.error('Facebook provision error', { error })
+    return ApiError.internal('系統錯誤')
+  }
+}

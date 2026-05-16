@@ -1,0 +1,31 @@
+#!/bin/sh
+# Push 前跑 vitest + codegen-fresh check、避免破壞 baseline 還 push
+# pre-commit 已有 type-check / lint、這裡只補 unit test
+
+echo "🧪 Pre-push: 跑 vitest..."
+echo ""
+
+npx vitest run --reporter=default
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ vitest 沒過、push 被擋"
+  echo "💡 Fix the failing tests, or skip with: git push --no-verify (慎用)"
+  exit 1
+fi
+
+echo ""
+echo "🔁 Pre-push: 確認 3 個 SSOT 檔跟 src/modules/* 同步..."
+
+if [ -x scripts/check-codegen-fresh.sh ]; then
+  ./scripts/check-codegen-fresh.sh
+  if [ $? -ne 0 ]; then
+    echo ""
+    echo "❌ codegen drift、push 被擋"
+    echo "💡 跑 npm run codegen:permissions、git add + amend、再 push"
+    exit 1
+  fi
+fi
+
+echo ""
+echo "✅ 全綠、push 繼續"

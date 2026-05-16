@@ -1,0 +1,33 @@
+-- 啟用 ai_settings 表的 RLS（多租戶隔離）
+-- 修復：ai_settings 表原本 DISABLE ROW LEVEL SECURITY，導致任何人都能讀寫任何 workspace 的設定
+
+-- 啟用 RLS
+ALTER TABLE ai_settings ENABLE ROW LEVEL SECURITY;
+
+-- 查詢 policy（所有人都能讀取自己 workspace 的設定，或超級管理員）
+DROP POLICY IF EXISTS "ai_settings_select" ON ai_settings;
+CREATE POLICY "ai_settings_select" ON ai_settings
+  FOR SELECT USING (
+    workspace_id = get_current_user_workspace() OR is_super_admin()
+  );
+
+-- 更新 policy（自己 workspace 可更新，或超級管理員）
+DROP POLICY IF EXISTS "ai_settings_update" ON ai_settings;
+CREATE POLICY "ai_settings_update" ON ai_settings
+  FOR UPDATE USING (
+    workspace_id = get_current_user_workspace() OR is_super_admin()
+  );
+
+-- 插入 policy（需要指定 workspace_id）
+DROP POLICY IF EXISTS "ai_settings_insert" ON ai_settings;
+CREATE POLICY "ai_settings_insert" ON ai_settings
+  FOR INSERT WITH CHECK (
+    workspace_id = get_current_user_workspace()
+  );
+
+-- 刪除 policy（自己 workspace 可刪除，或超級管理員）
+DROP POLICY IF EXISTS "ai_settings_delete" ON ai_settings;
+CREATE POLICY "ai_settings_delete" ON ai_settings
+  FOR DELETE USING (
+    workspace_id = get_current_user_workspace() OR is_super_admin()
+  );

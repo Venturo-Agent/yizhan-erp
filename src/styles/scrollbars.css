@@ -1,0 +1,52 @@
+/* 全站滾動條規範 - 完全隱藏，只在需要滾動且正在滾動時顯示 */
+
+/* 預設完全隱藏所有滾動條 */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+*::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* 只有當內容真的需要滾動時才顯示滾動條 */
+.scrollable-content {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollable-content::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+/* 滾動中時才顯示 */
+.scrollable-content.scrolling::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollable-content.scrolling::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable-content.scrolling::-webkit-scrollbar-thumb {
+  background: rgba(139, 134, 128, 0.6);
+  border-radius: 3px;
+}
+
+.scrollable-content.scrolling {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 134, 128, 0.6) transparent;
+}

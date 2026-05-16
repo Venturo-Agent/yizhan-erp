@@ -1,0 +1,7 @@
+/* Google Fonts 載入說明
+   因 CSS @import 規範要求 url() import 必須置於所有規則之前，
+   實際載入已統一置於 src/app/globals.css 頂部：
+   - Noto Serif TC（中文襯線，對應 font-serif）
+   - Inter（英文無襯線）
+   - Playfair Display（英文襯線裝飾）
+*/

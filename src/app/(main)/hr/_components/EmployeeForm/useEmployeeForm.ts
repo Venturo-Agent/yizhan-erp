@@ -1,0 +1,422 @@
+'use client'
+
+/**
+ * useEmployeeForm — 員工表單 state + handlers 提取
+ *
+ * 將表單狀態、effect、submit handler 從 EmployeeForm.tsx 拆出、
+ * 讓 EmployeeForm.tsx 專注於 render 邏輯。
+ */
+
+import { useState, useRef, useEffect } from 'react'
+import { useUserStore } from '@/stores/user-store'
+import { useWorkspaceId } from '@/lib/workspace-context'
+import { generateEmployeeNumber } from '@/lib/codes'
+import { useBranches, useDepartments, useRoles } from '@/data/hooks'
+import { apiGet, apiPatch, apiPost, apiPut, extractHttpErrorMessage, HttpError } from '@/lib/api/client'
+import { useEmployee } from '@/data/entities/employees'
+import { invalidateEmployeeEligibilities } from '@/data/entities/employee-eligibilities'
+import { EmployeeFull } from '@/stores/types'
+import { alertSuccess, alertError, prompt } from '@/lib/ui/alert-dialog'
+import { logger } from '@/lib/utils/logger'
+
+type ScopeOption = { id: string; name: string }
+
+interface Role {
+  id: string
+  name: string
+  description?: string
+  workspace_id: string
+  is_admin?: boolean
+}
+
+const COMPONENT_LABELS = {
+  ALERT_REQUIRED_FIELDS: '請填寫必填欄位（中文姓名、Email）',
+  ALERT_ROLE_REQUIRED: '請選擇職務',
+  ERR_CREATE_FAILED: '建立員工失敗',
+  ERR_UPDATE_FAILED: '更新員工失敗',
+  ALERT_NEW_EMPLOYEE_TITLE: '新員工建立成功',
+  ALERT_NEW_EMPLOYEE_SUCCESS_PREFIX: '員工建立成功！\n\n',
+  ALERT_NEW_EMPLOYEE_NUMBER_PREFIX: '員工編號：',
+  ALERT_NEW_EMPLOYEE_PASSWORD_PREFIX: '預設密碼：',
+  ALERT_NEW_EMPLOYEE_FOOTER: '\n\n請通知員工首次登入後修改密碼。',
+  ALERT_UPDATE_SUCCESS: '更新成功',
+  ALERT_CREATE_SUCCESS: '員工建立成功',
+  ALERT_UPDATE_FAILED: '更新失敗',
+  ALERT_CREATE_FAILED: '建立失敗',
+  CHINESE_NAME: '中文姓名',
+  EMAIL: 'Email',
+  ROLE: '職務',
+} as const
+
+export type EmployeeFormMode = 'hr' | 'self'
+
+export interface UseEmployeeFormParams {
+  employeeId?: string
+  mode?: EmployeeFormMode
+  onSubmit: () => void
+}
+
+export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmployeeFormParams) {
+  const { update: updateEmployee } = useUserStore()
+  const workspaceId = useWorkspaceId()
+  const { roles: cachedRoles } = useRoles()
+  const { branches: cachedBranches, mutate: mutateBranches } = useBranches()
+  const { departments: cachedDepartments, mutate: mutateDepartments } = useDepartments()
+
+  const { item: employeeRaw } = useEmployee(employeeId ?? null)
+  const employee = employeeRaw ? (employeeRaw as unknown as EmployeeFull) : null
+  const isEditMode = !!employeeId
+
+  const [submitting, setSubmitting] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(employee?.avatar_url || null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
+
+  // 從 API 載入的職務列表
+  const [roles, setRoles] = useState<Role[]>([])
+
+  // Phase A：分公司 / 部門 scope（SWR cache、跨頁共享）
+  const branches: ScopeOption[] = cachedBranches.map(b => ({ id: b.id, name: b.name }))
+  const allDepartments = cachedDepartments
+
+  const [formData, setFormData] = useState({
+    chinese_name: employee?.chinese_name || '',
+    display_name: employee?.display_name || '',
+    email: employee?.email || '',
+    phone:
+      (Array.isArray(employee?.personal_info?.phone)
+        ? employee.personal_info.phone[0]
+        : employee?.personal_info?.phone) || '',
+    address: employee?.personal_info?.address || '',
+    birth_date: employee?.personal_info?.birth_date || '',
+    id_number: employee?.personal_info?.national_id || '',
+    job_title: ((employee as unknown as Record<string, unknown>)?.job_title as string) || '',
+    position: employee?.job_info?.position || '',
+    hire_date: employee?.job_info?.hire_date || new Date().toISOString().split('T')[0],
+    emergency_contact_name: employee?.personal_info?.emergency_contact?.name || '',
+    emergency_contact_relation: employee?.personal_info?.emergency_contact?.relationship || '',
+    emergency_contact_phone: employee?.personal_info?.emergency_contact?.phone || '',
+    emergency_contact_address: employee?.personal_info?.emergency_contact?.address || '',
+    role_id: ((employee as unknown as Record<string, unknown>)?.role_id as string) || '',
+    branch_id: ((employee as unknown as Record<string, unknown>)?.branch_id as string) || (branches.length === 1 ? branches[0].id : ''),
+    department_id: ((employee as unknown as Record<string, unknown>)?.department_id as string) || '',
+    is_dept_manager: ((employee as unknown as Record<string, unknown>)?.is_dept_manager as boolean) || false,
+    base_salary:
+      Number(employee?.monthly_salary) || employee?.salary_info?.base_salary || 0,
+    attendance_bonus: employee?.salary_info?.attendance_bonus || 0,
+    other_allowances: employee?.salary_info?.other_allowances || 0,
+    insured_salary:
+      employee?.salary_info?.insured_salary ?? null,
+    pension_voluntary_rate: employee?.salary_info?.pension_voluntary_rate || 0,
+    pay_day: (employee?.salary_info?.pay_day as number | 'last') || 10,
+    dependents_count: (employee?.salary_info?.dependents_count as number | undefined) ?? 0,
+    labor_insured_here: (employee?.salary_info?.labor_insured_here as boolean | undefined) ?? true,
+    health_insured_here: (employee?.salary_info?.health_insured_here as boolean | undefined) ?? true,
+    eligibility_codes: [] as string[],
+    avatar_url: employee?.avatar_url ?? '',
+    bank_code: employee?.bank_code ?? '',
+    bank_name: employee?.bank_name ?? '',
+    bank_account_number: employee?.bank_account_number ?? '',
+    bank_account_name: employee?.bank_account_name ?? '',
+  })
+
+  // 職務列表改用 SWR 快取
+  useEffect(() => {
+    if (cachedRoles.length > 0) {
+      setRoles(cachedRoles as Role[])
+    }
+  }, [cachedRoles])
+
+  // 編輯模式：載入既有員工 eligibility
+  useEffect(() => {
+    if (!employeeId) return
+    apiGet<{ data: string[] }>(`/api/employees/${employeeId}/eligibilities`)
+      .then(res => setFormData(prev => ({ ...prev, eligibility_codes: res.data || [] })))
+      .catch(err => logger.error('載入員工資格失敗', err))
+  }, [employeeId])
+
+  // 新增模式：選 role 後自動帶該 role 預設 eligibility（HR 可手動取消）
+  useEffect(() => {
+    if (isEditMode || !formData.role_id) return
+    apiGet<{ data: string[] }>(`/api/roles/${formData.role_id}/eligibility-defaults`)
+      .then(res => setFormData(prev => ({ ...prev, eligibility_codes: res.data || [] })))
+      .catch(err => logger.error('載入職務預設資格失敗', err))
+  }, [formData.role_id, isEditMode])
+
+  // 當 employee 資料更新時，同步更新 formData
+  useEffect(() => {
+    if (employee) {
+      setFormData(prev => ({
+        ...prev,
+        chinese_name: employee.chinese_name || '',
+        display_name: employee.display_name || '',
+        email: employee.email || employee.personal_info?.email || '',
+        phone:
+          (Array.isArray(employee.personal_info?.phone)
+            ? employee.personal_info.phone[0]
+            : employee.personal_info?.phone) || '',
+        address: employee.personal_info?.address || '',
+        birth_date: employee.personal_info?.birth_date || '',
+        id_number: employee.personal_info?.national_id || '',
+        job_title: ((employee as unknown as Record<string, unknown>).job_title as string) || '',
+        position: employee.job_info?.position || '',
+        hire_date: employee.job_info?.hire_date || new Date().toISOString().split('T')[0],
+        emergency_contact_name: employee.personal_info?.emergency_contact?.name || '',
+        emergency_contact_relation: employee.personal_info?.emergency_contact?.relationship || '',
+        emergency_contact_phone: employee.personal_info?.emergency_contact?.phone || '',
+        emergency_contact_address: employee.personal_info?.emergency_contact?.address || '',
+        role_id: ((employee as unknown as Record<string, unknown>).role_id as string) || '',
+        branch_id: ((employee as unknown as Record<string, unknown>).branch_id as string) || '',
+        department_id: ((employee as unknown as Record<string, unknown>).department_id as string) || '',
+        is_dept_manager: ((employee as unknown as Record<string, unknown>).is_dept_manager as boolean) || false,
+        base_salary:
+          Number(employee.monthly_salary) || employee.salary_info?.base_salary || 0,
+        attendance_bonus: employee.salary_info?.attendance_bonus || 0,
+        other_allowances: employee.salary_info?.other_allowances || 0,
+        insured_salary: employee.salary_info?.insured_salary ?? null,
+        pension_voluntary_rate: employee.salary_info?.pension_voluntary_rate || 0,
+        pay_day: (employee.salary_info?.pay_day as number | 'last') || 10,
+        dependents_count: (employee.salary_info?.dependents_count as number | undefined) ?? 0,
+        labor_insured_here: (employee.salary_info?.labor_insured_here as boolean | undefined) ?? true,
+        health_insured_here: (employee.salary_info?.health_insured_here as boolean | undefined) ?? true,
+        bank_code: employee.bank_code ?? '',
+        bank_name: employee.bank_name ?? '',
+        bank_account_number: employee.bank_account_number ?? '',
+        bank_account_name: employee.bank_account_name ?? '',
+      }))
+      setAvatarPreview(employee.avatar_url || null)
+    }
+  }, [employee])
+
+  const toggleEligibility = (code: string, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      eligibility_codes: checked
+        ? Array.from(new Set([...prev.eligibility_codes, code]))
+        : prev.eligibility_codes.filter(c => c !== code),
+    }))
+  }
+
+  const handleCreateBranch = async () => {
+    const name = await prompt('輸入新分公司名稱', { title: '新增分公司', placeholder: '例如：台北分公司' })
+    if (!name?.trim()) return
+    try {
+      const created = await apiPost<ScopeOption>('/api/branches', { name: name.trim() })
+      await mutateBranches()
+      setFormData(prev => ({ ...prev, branch_id: created.id }))
+    } catch (err) {
+      logger.error('新增分公司失敗', err)
+      await alertError('新增分公司失敗')
+    }
+  }
+
+  const handleCreateDepartment = async () => {
+    if (!formData.branch_id) {
+      await alertError('請先選擇分公司、再建立部門')
+      return
+    }
+    const name = await prompt('輸入新部門名稱', { title: '新增部門', placeholder: '例如：業務部' })
+    if (!name?.trim()) return
+    try {
+      const created = await apiPost<ScopeOption>('/api/departments', {
+        name: name.trim(),
+        branch_id: formData.branch_id,
+      })
+      await mutateDepartments()
+      setFormData(prev => ({ ...prev, department_id: created.id }))
+    } catch (err) {
+      logger.error('新增部門失敗', err)
+      await alertError('新增部門失敗')
+    }
+  }
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!workspaceId) {
+      await alertError('找不到 workspace、請重新登入')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => setAvatarPreview(reader.result as string)
+    reader.readAsDataURL(file)
+
+    setAvatarUploading(true)
+    try {
+      const ext = file.name.split('.').pop() || 'png'
+      const path = `${workspaceId}/${employeeId || 'new'}-${Date.now()}.${ext}`
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('bucket', 'user-avatars')
+      fd.append('path', path)
+
+      const res = await fetch('/api/storage/upload', { method: 'POST', body: fd })
+      const json = (await res.json()) as { data?: { publicUrl?: string }; message?: string }
+      if (!res.ok || !json.data?.publicUrl) {
+        throw new Error(json.message || '上傳失敗')
+      }
+      setFormData(prev => ({ ...prev, avatar_url: json.data!.publicUrl! }))
+    } catch (err) {
+      logger.error('avatar upload failed', err)
+      await alertError('頭像上傳失敗、按存檔不會更新頭像')
+      setAvatarPreview(employee?.avatar_url ?? null)
+    } finally {
+      setAvatarUploading(false)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const missingFields: string[] = []
+    if (!formData.chinese_name) missingFields.push(COMPONENT_LABELS.CHINESE_NAME)
+    if (!formData.email) missingFields.push(COMPONENT_LABELS.EMAIL)
+    if (!isEditMode && !formData.role_id && mode === 'hr') {
+      missingFields.push(COMPONENT_LABELS.ROLE)
+    }
+
+    if (missingFields.length > 0) {
+      await alertError(`請補齊以下必填欄位：${missingFields.join('、')}`)
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      let employeeNumber = employee?.employee_number
+      if (!isEditMode) {
+        if (!workspaceId) throw new Error('無法取得當前分公司、請重新登入')
+        employeeNumber = await generateEmployeeNumber(workspaceId)
+      }
+
+      const payload = {
+        employee_number: employeeNumber,
+        chinese_name: formData.chinese_name,
+        display_name: formData.display_name || formData.chinese_name,
+        job_title: formData.job_title || null,
+        ...(formData.avatar_url ? { avatar_url: formData.avatar_url } : {}),
+        email: formData.email,
+        personal_info: {
+          phone: formData.phone,
+          address: formData.address,
+          birth_date: formData.birth_date,
+          national_id: formData.id_number,
+          emergency_contact: {
+            name: formData.emergency_contact_name,
+            relationship: formData.emergency_contact_relation,
+            phone: formData.emergency_contact_phone,
+            address: formData.emergency_contact_address,
+          },
+        },
+        role_id: formData.role_id || null,
+        branch_id: formData.branch_id || null,
+        department_id: formData.department_id || null,
+        is_dept_manager: formData.is_dept_manager || false,
+        job_info: {
+          position: formData.position,
+          hire_date: formData.hire_date,
+        },
+        monthly_salary: formData.base_salary,
+        salary_info: {
+          base_salary: formData.base_salary,
+          allowances: employee?.salary_info?.allowances || [],
+          attendance_bonus: formData.attendance_bonus,
+          other_allowances: formData.other_allowances,
+          insured_salary: formData.insured_salary,
+          pension_voluntary_rate: formData.pension_voluntary_rate,
+          pay_day: formData.pay_day,
+          salary_history: employee?.salary_info?.salary_history || [],
+          dependents_count: formData.dependents_count,
+          labor_insured_here: formData.labor_insured_here,
+          health_insured_here: formData.health_insured_here,
+        },
+        status: 'active' as const,
+        bank_code: formData.bank_code || null,
+        bank_name: formData.bank_name || null,
+        bank_account_number: formData.bank_account_number || null,
+        bank_account_name: formData.bank_account_name || null,
+      }
+
+      if (isEditMode && employeeId) {
+        const { employee_number: _en, ...patchPayload } = payload
+        try {
+          await apiPatch(`/api/employees/${employeeId}`, patchPayload)
+        } catch (err) {
+          if (err instanceof HttpError) {
+            const body = err.body as { message?: string } | null
+            throw new Error(body?.message || extractHttpErrorMessage(err, COMPONENT_LABELS.ERR_UPDATE_FAILED))
+          }
+          throw err
+        }
+        await apiPut(`/api/employees/${employeeId}/eligibilities`, { codes: formData.eligibility_codes })
+        await invalidateEmployeeEligibilities()
+        await updateEmployee(employeeId, {} as Parameters<typeof updateEmployee>[1])
+      } else {
+        const defaultPassword = '12345678'
+        let newEmployeeId: string | undefined
+        try {
+          const created = await apiPost<{ success: boolean; employee: { id: string; employee_number: string } }>(
+            '/api/employees/create',
+            {
+              ...payload,
+              password: defaultPassword,
+            }
+          )
+          newEmployeeId = created?.employee?.id
+        } catch (err) {
+          if (err instanceof HttpError) {
+            const body = err.body as { message?: string; error?: string } | null
+            throw new Error(body?.message || extractHttpErrorMessage(err, COMPONENT_LABELS.ERR_CREATE_FAILED))
+          }
+          throw err
+        }
+
+        if (newEmployeeId && formData.eligibility_codes.length > 0) {
+          try {
+            await apiPut(`/api/employees/${newEmployeeId}/eligibilities`, { codes: formData.eligibility_codes })
+            await invalidateEmployeeEligibilities()
+          } catch (err) {
+            logger.error('新員工資格寫入失敗（員工已建、可手動補）', err)
+          }
+        }
+
+        const { alert } = await import('@/lib/ui/alert-dialog')
+        await alert(
+          `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_SUCCESS_PREFIX}` +
+            `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_NUMBER_PREFIX}${employeeNumber}\n` +
+            `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_PASSWORD_PREFIX}${defaultPassword}` +
+            `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_FOOTER}`,
+          'success',
+          COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_TITLE
+        )
+      }
+
+      await alertSuccess(isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_SUCCESS : COMPONENT_LABELS.ALERT_CREATE_SUCCESS)
+      onSubmit()
+    } catch (error) {
+      logger.error(isEditMode ? '更新失敗' : '建立員工失敗', error)
+      await alertError(isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_FAILED : COMPONENT_LABELS.ALERT_CREATE_FAILED)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return {
+    employee,
+    isEditMode,
+    submitting,
+    avatarPreview,
+    avatarUploading,
+    fileInputRef,
+    formData,
+    setFormData,
+    roles,
+    branches,
+    allDepartments,
+    toggleEligibility,
+    handleCreateBranch,
+    handleCreateDepartment,
+    handleAvatarChange,
+    handleSubmit,
+  }
+}

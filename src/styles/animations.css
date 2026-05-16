@@ -1,0 +1,6 @@
+/* 全域動畫與 @keyframes
+   目前無需保留的全域動畫：
+   - .loader / .orb-loader / .search-pill 等複雜動畫組件未被任何 TSX 引用，已清理
+   - .animate-fadeIn / .animate-slide-up 未被任何 TSX 引用，已清理
+   若未來需要通用動畫，請在此統一管理並確保有實際引用方
+*/

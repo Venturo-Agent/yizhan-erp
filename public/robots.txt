@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /landing
+Allow: /landing/
+Disallow: /

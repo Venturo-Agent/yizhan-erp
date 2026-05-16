@@ -1,0 +1,40 @@
+-- 审计日志表 (Audit Logs)
+-- 用于记录用户在后台的操作行为
+-- 记录：谁在后台看了对话、谁手动回复了、什么时间做了什么
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  workspace_id uuid REFERENCES workspaces(id) ON DELETE CASCADE,
+  user_id uuid REFERENCES users(id) ON DELETE SET NULL,
+  action varchar(50) NOT NULL, -- 'view_conversation', 'send_manual_reply', 'view_dashboard' 等
+  target_type varchar(50), -- 'conversation', 'message', 'user' 等
+  target_id uuid,
+  metadata jsonb DEFAULT '{}'::jsonb,
+  ip_address varchar(45),
+  user_agent text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- 索引：按工作区、用户、时间查询
+CREATE INDEX IF NOT EXISTS idx_audit_logs_workspace_time ON audit_logs(workspace_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user_time ON audit_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_target ON audit_logs(target_type, target_id);
+
+-- RLS 策略：只能查看自己工作区的日志
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view audit logs in their workspace"
+  ON audit_logs FOR SELECT
+  USING (workspace_id IN (SELECT workspace_id FROM user_workspace_memberships WHERE user_id = auth.uid()));
+
+CREATE POLICY "Users can insert audit logs in their workspace"
+  ON audit_logs FOR INSERT
+  WITH CHECK (workspace_id IN (SELECT workspace_id FROM user_workspace_memberships WHERE user_id = auth.uid()));
+
+-- 注释
+COMMENT ON TABLE audit_logs IS '审计日志表 - 记录用户在系统中的操作行为';
+COMMENT ON COLUMN audit_logs.action IS '操作类型: view_conversation, send_manual_reply, view_dashboard 等';
+COMMENT ON COLUMN audit_logs.target_type IS '目标类型: conversation, message, user, order 等';
+COMMENT ON COLUMN audit_logs.target_id IS '目标ID';
+COMMENT ON COLUMN audit_logs.metadata IS '额外元数据，如对话ID、IP等';

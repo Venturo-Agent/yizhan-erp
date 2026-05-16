@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Logs
+logs/
+*.log
+logs/errors.json
+
+# Cache
+.cache/
+.turbo/
+.vercel/
+
+# IDE
+.vscode/
+.idea/
+
+# Build artifacts
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.DS_Store
+*.pem
+
+# Legacy scripts (手動維護，不需格式化)
+scripts/legacy/

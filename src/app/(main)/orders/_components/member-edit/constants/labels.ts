@@ -1,0 +1,18 @@
+export const MEMBER_EDIT_LABELS = {
+  LABEL_3362: '成員資料',
+  LABEL_9768: '中文姓名',
+  LABEL_2195: '性別',
+  LABEL_4765: '男',
+  LABEL_7599: '女',
+  LABEL_1636: '護照拼音',
+  LABEL_1089: '吊牌拼音',
+  LABEL_3396: '出生年月日',
+  LABEL_3405: '身分證號',
+  LABEL_5147: '護照號碼',
+  LABEL_4167: '護照效期',
+  LABEL_6650: '特殊餐食',
+  REMARKS: '備註',
+  PLACEHOLDER_PASSPORT_NAME: 'HSU ZHENG-YI',
+  PLACEHOLDER_BIRTH_DATE: 'YYYY-MM-DD',
+  PLACEHOLDER_PASSPORT_EXPIRY: 'YYYY-MM-DD',
+}

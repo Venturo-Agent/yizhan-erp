@@ -1,0 +1,528 @@
+/* 🎨 Design Tokens System
+   多主題（morandi / iron / airtable / klein-blue）+ @theme inline 推到 Tailwind
+   Cheat sheet: docs/DESIGN_TOKENS.md（npm run tokens:doc 重生） */
+
+/* ─────────────────────────────────────────────
+   字體大小 5 階（accessibility feature、UI_DESIGN_DECISIONS 2026-05-09）
+   FontScaleSwitcher 在 <html> 設 data-font-scale、這裡用 calc 套到 root font-size
+   注意：必須設在 html（不是 body）、因為 html 的 font-size 不受 body attribute 影響（CSS cascade）
+   ───────────────────────────────────────────── */
+html {
+  --font-scale: 1;
+  font-size: calc(17px * var(--font-scale, 1));
+  transition: font-size 0.2s ease;
+}
+/* 2026-05-16 William 拍板：均勻 +2 階距（13/15/17/19/21）、md(預設)=17px */
+html[data-font-scale='xs'] { --font-scale: 0.765; } /* 13px */
+html[data-font-scale='sm'] { --font-scale: 0.882; } /* 15px */
+html[data-font-scale='md'] { --font-scale: 1; }     /* 17px 預設 */
+html[data-font-scale='lg'] { --font-scale: 1.118; } /* 19px */
+html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
+
+/* 莫蘭迪主題（預設） */
+:root,
+[data-theme='morandi'] {
+  /* 主色系（莫蘭迪金 — 預設主題） */
+  --morandi-primary: #3a3633;
+  --morandi-secondary: #8b8680;
+  --morandi-gold: #c9aa7c;
+  --morandi-gold-rgb: 201, 170, 124;
+  --morandi-gold-hover: #b8996b;
+  --morandi-gold-light: rgba(201, 170, 124, 0.12);
+  --morandi-gold-light-end: #f7efe2;
+  --morandi-green: #9fa68f;
+  --morandi-green-rgb: 159, 166, 143;
+  --morandi-red: #c08374;
+  --morandi-container: #e8e5e0;
+  --morandi-muted: #b8b2aa;
+
+  /* claymorphism 卡片漸層用（柔和奶油色、用於登入 / 租戶詳情等高質感卡片）*/
+  --morandi-cream: #faf7f3;
+  --morandi-cream-warm: #f5f0e8;
+  --morandi-cream-soft: #faf7f0;
+  --morandi-cream-shadow: rgba(180, 160, 120, 0.15);
+  --morandi-cream-shadow-strong: rgba(180, 160, 120, 0.3);
+  --morandi-cream-shadow-deep: rgba(180, 160, 120, 0.45);
+
+  /* 類別色 — 用於需要區分類別的 UI（獎金類型、dashboard 統計、角色 badge 等）
+     跟主題連動，每套主題有自己的調和版本；類別彼此之間保持可辨識度 */
+  --cat-purple: #a08ab5;
+  --cat-purple-bg: #efe8f3;
+  --cat-orange: #c49a74;
+  --cat-orange-bg: #f5ebe0;
+  --cat-pink: #c48a9e;
+  --cat-pink-bg: #f5e7ed;
+  --cat-indigo: #8a95b5;
+  --cat-indigo-bg: #e8ebf3;
+
+  /* 品牌色 */
+  --brand-line: #06c755; /* LINE 綠 */
+  --brand-line-hover: #05b34c;
+  --brand-telegram: #0088cc; /* Telegram 藍 */
+  --brand-facebook: #1877f2; /* Facebook 藍 */
+
+  /* 行程編輯器主題色 */
+  --editor-theme-blue: #4a6fa5;
+  --editor-theme-blue-light: #8da399;
+  --editor-theme-green: #2c5f4d;
+  --editor-theme-accent: #c76d54;
+
+  /* 公開頁面主題色 */
+  --public-primary: #00113a; /* 深藍 */
+  --public-secondary: #006970; /* 青綠 */
+  --public-accent: #002366; /* 藍色強調 */
+  --public-muted: #c0b090; /* 金棕 */
+
+  /* 漸層色（莫蘭迪金系列）— 拉開對比讓漸層明顯可見 */
+  --gradient-gold-light: #e6d9bf;
+  --gradient-gold-mid: #c9aa7c;
+  --gradient-gold-dark: #a8875d;
+  --gradient-brown-light: #d4c4a8;
+  --gradient-brown-mid: #8b6d4a;
+  --gradient-brown-dark: #6f5538;
+  --gradient-primary-dark: #4a4540;
+
+  /* 行事曆狀態色 */
+  --cal-proposal: #9bb5d6;
+  --cal-in-progress: #a8c4a2;
+  --cal-pending-close: #d4b896;
+  --cal-closed: #b8b3ae;
+  --cal-special: #d4a5a5;
+  --cal-personal: #b8a9d1;
+  --cal-birthday: #e6b8c8;
+  --cal-company: #e0c3a0;
+
+  /* 行事曆視覺對齊 token（DateCell / Calendar popover / FullCalendar 共用）
+     改一處，三套同步 */
+  --cal-selected-bg: var(--morandi-gold);
+  --cal-selected-fg: #ffffff;
+  --cal-today-ring: var(--morandi-gold);
+  --cal-today-fg: var(--morandi-gold);
+  --cal-day-hover: color-mix(in srgb, var(--morandi-container) 40%, transparent);
+  --cal-weekday-text: var(--morandi-secondary);
+
+  /* 語義顏色系統 (替代硬編碼的 blue/red/green/amber) */
+  --status-info: #8ba4b4; /* 資訊 - 柔和藍灰 */
+  --status-info-bg: #f0f4f6; /* 資訊背景 */
+  --status-success: #9fa68f; /* 成功 - 莫蘭迪綠 */
+  --status-success-bg: #f4f6f2; /* 成功背景 */
+  --status-warning: #d4a574; /* 警告 - 柔和橙金 */
+  --status-warning-bg: #faf6f0; /* 警告背景 */
+  --status-danger: #c08374; /* 危險 - 莫蘭迪紅 */
+  --status-danger-bg: #faf4f2; /* 危險背景 */
+  --status-neutral: #8b8680; /* 中性 - 莫蘭迪次要色 */
+  --status-neutral-bg: #f6f5f3; /* 中性背景 */
+
+  /* 背景色 */
+  --background: #f6f4f1;
+  --page-bg: linear-gradient(to bottom right, rgba(232, 229, 224, 0.5), #fafafa, rgba(201, 170, 124, 0.1));
+  --card: #ffffff;
+  --border: #d4c4b0;
+  --popover: #ffffff;
+  --popover-foreground: #3a3633;
+  --accent: #e8e5e0;
+  --accent-foreground: #3a3633;
+
+  /* 設定對應變數 */
+  --foreground: var(--morandi-primary);
+  --card-foreground: var(--morandi-primary);
+  --border-muted: var(--morandi-container);
+
+  /* 表單元素專用變數 — 2026-05-02 加深邊框 + 加深字色，UX 反映看不清楚 */
+  --input-border: #b8a385;
+  --input-border-hover: #a08a68;
+  --input-border-focus: #c4a572;
+  --input-bg: #ffffff;
+  --input-disabled-bg: #f5f1e8;
+  --input-readonly-bg: #f5f1e8;
+  --input-text: #2a2522;
+  --input-placeholder: #a89e92;
+
+  /* Shadcn 標準變數（按鈕等組件使用） */
+  --primary: #c9aa7c;
+  --primary-foreground: #ffffff;
+  --secondary: #e8e5e0;
+  --secondary-foreground: #3a3633;
+  --destructive: #c08374;
+  --destructive-foreground: #ffffff;
+  --muted: #e8e5e0;
+  --muted-foreground: #8b8680;
+  --ring: #c9aa7c;
+  --input: #b8a385;
+
+  /* Button Primary token（淡金漸層 tone-on-tone、hero 同款 135deg、UI_DESIGN_DECISIONS 2026-05-09） */
+  --btn-primary-bg: linear-gradient(135deg, #f8eede 0%, #f5e8d3 50%, #ecd9bb 100%);
+  --btn-primary-fg: #5c4a2f;
+  --btn-primary-border: #efe2c8;
+}
+
+/* ─────────────────────────────────────────────
+   鐵灰主題（iron gray）— 變數名保留 morandi-* 歷史名稱，值覆寫為冷調鐵灰
+   ───────────────────────────────────────────── */
+[data-theme='iron'] {
+  --morandi-primary: #1f242b;
+  --morandi-secondary: #4d535c;
+  --morandi-gold: #5d6670;
+  --morandi-gold-rgb: 93, 102, 112;
+  --morandi-gold-hover: #484f57;
+  --morandi-gold-light: rgba(93, 102, 112, 0.12);
+  --morandi-gold-light-end: #e9ebee;
+  --morandi-green: #6f9285;
+  --morandi-green-rgb: 111, 146, 133;
+  --morandi-red: #b3716a;
+  --morandi-container: #e5e7ea;
+  --morandi-muted: #a8adb5;
+
+  /* 類別色（冷調版本） */
+  --cat-purple: #8e85a3;
+  --cat-purple-bg: #ebe8f0;
+  --cat-orange: #a68570;
+  --cat-orange-bg: #efe5dc;
+  --cat-pink: #a67587;
+  --cat-pink-bg: #efe1e6;
+  --cat-indigo: #7682a3;
+  --cat-indigo-bg: #e4e7f0;
+
+  --gradient-gold-light: #c9ccd1;
+  --gradient-gold-mid: #9ea3ac;
+  --gradient-gold-dark: #6c727a;
+  --gradient-brown-light: #c9ccd1;
+  --gradient-brown-mid: #8a9099;
+  --gradient-brown-dark: #5d6670;
+  --gradient-primary-dark: #3a3f46;
+
+  --background: #f4f5f7;
+  --page-bg: linear-gradient(to bottom right, rgba(229, 231, 234, 0.5), #fafafa, rgba(93, 102, 112, 0.08));
+  --border: #c9ccd1;
+  --popover-foreground: #2d3139;
+  --accent: #e5e7ea;
+  --accent-foreground: #2d3139;
+
+  --input-border: #c9ccd1;
+  --input-border-hover: #8a9099;
+  --input-border-focus: #5d6670;
+  --input-disabled-bg: #eef0f3;
+  --input-readonly-bg: #f6f7f9;
+  --input-text: #2d3139;
+  --input-placeholder: #a8adb5;
+
+  --primary: #5d6670;
+  --secondary: #e5e7ea;
+  --secondary-foreground: #2d3139;
+  --destructive: #b3716a;
+  --muted: #e5e7ea;
+  --muted-foreground: #787d85;
+  --ring: #5d6670;
+  --input: #c9ccd1;
+
+  /* Button Primary token（鐵灰主題、淡灰漸層） */
+  --btn-primary-bg: linear-gradient(135deg, #eceef1 0%, #dde0e5 50%, #c8ccd2 100%);
+  --btn-primary-fg: #2d3139;
+  --btn-primary-border: #d8dbe0;
+}
+
+/* ─────────────────────────────────────────────
+   Airtable 主題 — Swiss-precision 企業風
+   白底 + 深海軍藍文字 + Airtable Blue 主色
+   ───────────────────────────────────────────── */
+[data-theme='airtable'] {
+  --morandi-primary: #181d26; /* Deep Navy 文字 */
+  --morandi-secondary: #333333; /* Dark Gray 次要 */
+  --morandi-gold: #1b61c9; /* Airtable Blue（原金色位） */
+  --morandi-gold-rgb: 27, 97, 201;
+  --morandi-gold-hover: #254fad; /* Mid Blue hover */
+  --morandi-gold-light: rgba(27, 97, 201, 0.08);
+  --morandi-gold-light-end: #eaf2fc;
+  --morandi-green: #006400; /* Success Green */
+  --morandi-green-rgb: 0, 100, 0;
+  --morandi-red: #c44545;
+  --morandi-container: #f8fafc; /* Light Surface */
+  --morandi-muted: rgba(4, 14, 32, 0.45);
+
+  /* 類別色（飽和清晰版本，跟 airtable 藍對比） */
+  --cat-purple: #7c3aed;
+  --cat-purple-bg: #f3e9ff;
+  --cat-orange: #d97706;
+  --cat-orange-bg: #fff0db;
+  --cat-pink: #ec4899;
+  --cat-pink-bg: #fce4ef;
+  --cat-indigo: #4f46e5;
+  --cat-indigo-bg: #e6e5fc;
+
+  --gradient-gold-light: #cfdef5;
+  --gradient-gold-mid: #6b94d9;
+  --gradient-gold-dark: #1b61c9;
+  --gradient-brown-light: #cfdef5;
+  --gradient-brown-mid: #4a7bc7;
+  --gradient-brown-dark: #254fad;
+  --gradient-primary-dark: #0f1620;
+
+  --background: #ffffff;
+  --page-bg: linear-gradient(to bottom right, rgba(248, 250, 252, 0.6), #ffffff, rgba(27, 97, 201, 0.05));
+  --border: #e0e2e6;
+  --popover-foreground: #181d26;
+  --accent: #f8fafc;
+  --accent-foreground: #181d26;
+
+  --input-border: #e0e2e6;
+  --input-border-hover: #1b61c9;
+  --input-border-focus: #1b61c9;
+  --input-disabled-bg: #f1f4f8;
+  --input-readonly-bg: #f8fafc;
+  --input-text: #181d26;
+  --input-placeholder: rgba(4, 14, 32, 0.45);
+
+  --primary: #1b61c9;
+  --secondary: #f8fafc;
+  --secondary-foreground: #181d26;
+  --destructive: #c44545;
+  --muted: #f1f4f8;
+  --muted-foreground: rgba(4, 14, 32, 0.69);
+  --ring: #1b61c9;
+  --input: #e0e2e6;
+
+  /* Button Primary token（Airtable 藍主題、淡藍漸層） */
+  --btn-primary-bg: linear-gradient(135deg, #f0f5fc 0%, #dde7f4 50%, #b8cce8 100%);
+  --btn-primary-fg: #1b61c9;
+  --btn-primary-border: #cfdcef;
+}
+
+/* ─────────────────────────────────────────────
+   克萊因藍主題 — 北歐簡約
+   ───────────────────────────────────────────── */
+[data-theme='klein-blue'] {
+  /* 主色系（克萊因藍 Mid、北歐簡約） */
+  --morandi-primary: #1a2540;
+  --morandi-secondary: #5b6680;
+  --morandi-gold: #2C3E72;
+  --morandi-gold-rgb: 44, 62, 114;
+  --morandi-gold-hover: #243260;
+  --morandi-gold-light: rgba(44, 62, 114, 0.12);
+  --morandi-gold-light-end: #e7ecf5;
+  --morandi-green: #5C8765;
+  --morandi-green-rgb: 92, 135, 101;
+  --morandi-red: #a86859;
+  --morandi-container: #dde3f0;
+  --morandi-muted: #a0a8b8;
+
+  /* claymorphism 卡片漸層用 */
+  --morandi-cream: #fafbfd;
+  --morandi-cream-warm: #f3f5fa;
+  --morandi-cream-soft: #f6f8fc;
+  --morandi-cream-shadow: rgba(31, 45, 90, 0.10);
+  --morandi-cream-shadow-strong: rgba(31, 45, 90, 0.18);
+  --morandi-cream-shadow-deep: rgba(31, 45, 90, 0.28);
+
+  /* 漸層色（藍系覆寫） */
+  --gradient-gold-light: #c8d2e8;
+  --gradient-gold-mid: #2C3E72;
+  --gradient-gold-dark: #1F2D5A;
+
+  /* 行事曆視覺對齊（藍系） */
+  --cal-selected-bg: var(--morandi-gold);
+  --cal-selected-fg: #ffffff;
+  --cal-today-ring: var(--morandi-gold);
+  --cal-today-fg: var(--morandi-gold);
+  --cal-day-hover: color-mix(in srgb, var(--morandi-container) 40%, transparent);
+  --cal-weekday-text: var(--morandi-secondary);
+
+  /* 語義顏色（藍生態系：success teal-ish、warning sand、danger 北歐鏽紅、info 同色系藍） */
+  --status-info: #4a6db8;
+  --status-info-bg: rgba(74, 109, 184, 0.10);
+  --status-success: #4d8259;
+  --status-success-bg: rgba(77, 130, 89, 0.18);
+  --status-warning: #c4a874;
+  --status-warning-bg: rgba(196, 168, 116, 0.14);
+  --status-danger: #a86859;
+  --status-danger-bg: rgba(168, 104, 89, 0.12);
+  --status-neutral: #5b6680;
+  --status-neutral-bg: rgba(91, 102, 128, 0.10);
+
+  /* 背景與卡片 */
+  --background: #fafafa;
+  --page-bg: linear-gradient(to bottom right, rgba(221, 227, 240, 0.5), #fafafa, rgba(44, 62, 114, 0.06));
+  --card: #ffffff;
+  --border: #d2d6e0;
+  --popover: #ffffff;
+  --popover-foreground: #1a2540;
+  --accent: #dde3f0;
+  --accent-foreground: #1a2540;
+  --foreground: var(--morandi-primary);
+  --card-foreground: var(--morandi-primary);
+  --border-muted: var(--morandi-container);
+
+  /* 表單元素 */
+  --input-border: #b8c2db;
+  --input-border-hover: #8595c4;
+  --input-border-focus: #2C3E72;
+  --input-bg: #ffffff;
+
+  /* shadcn 標準變數 */
+  --primary: #2C3E72;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f5fa;
+  --secondary-foreground: #1a2540;
+  --destructive: #a86859;
+  --destructive-foreground: #ffffff;
+  --muted: #f3f5fa;
+  --muted-foreground: #5b6680;
+  --ring: #2C3E72;
+  --input: #b8c2db;
+
+  /* Button Primary token */
+  --btn-primary-bg: linear-gradient(135deg, #f8faff 0%, #dde3f0 50%, #c8d2e8 100%);
+  --btn-primary-fg: #1F2D5A;
+  --btn-primary-border: #e3e8f2;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* 表單元素顏色映射 */
+  --color-input: var(--input);
+  --color-input-bg: var(--input-bg);
+  --color-input-disabled-bg: var(--input-disabled-bg);
+  --color-input-readonly-bg: var(--input-readonly-bg);
+  --color-input-text: var(--input-text);
+  --color-input-placeholder: var(--input-placeholder);
+
+  /* Shadcn 標準變數映射 */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-ring: var(--ring);
+
+  /* 莫蘭迪色系 */
+  --color-morandi-primary: var(--morandi-primary);
+  --color-morandi-secondary: var(--morandi-secondary);
+  --color-morandi-gold: var(--morandi-gold);
+  --color-morandi-gold-hover: var(--morandi-gold-hover);
+  --color-morandi-gold-light: var(--morandi-gold-light);
+  --color-morandi-gold-light-end: var(--morandi-gold-light-end);
+  --color-morandi-green: var(--morandi-green);
+  --color-morandi-red: var(--morandi-red);
+  --color-morandi-container: var(--morandi-container);
+  --color-morandi-muted: var(--morandi-muted);
+  --color-morandi-cream: var(--morandi-cream);
+  --color-morandi-cream-warm: var(--morandi-cream-warm);
+  --color-morandi-cream-soft: var(--morandi-cream-soft);
+
+  /* 漸層色系（漸層按鈕專用、3 階金色） */
+  --color-gradient-gold-light: var(--gradient-gold-light);
+  --color-gradient-gold-mid: var(--gradient-gold-mid);
+  --color-gradient-gold-dark: var(--gradient-gold-dark);
+
+  /* 類別色 */
+  --color-cat-purple: var(--cat-purple);
+  --color-cat-purple-bg: var(--cat-purple-bg);
+  --color-cat-orange: var(--cat-orange);
+  --color-cat-orange-bg: var(--cat-orange-bg);
+  --color-cat-pink: var(--cat-pink);
+  --color-cat-pink-bg: var(--cat-pink-bg);
+  --color-cat-indigo: var(--cat-indigo);
+  --color-cat-indigo-bg: var(--cat-indigo-bg);
+
+  /* 語義顏色 - 用於狀態指示 */
+  --color-status-info: var(--status-info);
+  --color-status-info-bg: var(--status-info-bg);
+  --color-status-success: var(--status-success);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-bg: var(--status-danger-bg);
+  --color-status-neutral: var(--status-neutral);
+  --color-status-neutral-bg: var(--status-neutral-bg);
+
+  /* 品牌色 */
+  --color-brand-line: var(--brand-line);
+  --color-brand-line-hover: var(--brand-line-hover);
+  --color-brand-telegram: var(--brand-telegram);
+  --color-brand-facebook: var(--brand-facebook);
+
+  /* 行程編輯器主題色 */
+  --color-editor-theme-blue: var(--editor-theme-blue);
+  --color-editor-theme-blue-light: var(--editor-theme-blue-light);
+  --color-editor-theme-green: var(--editor-theme-green);
+  --color-editor-theme-accent: var(--editor-theme-accent);
+
+  /* 公開頁面主題色 */
+  --color-public-primary: var(--public-primary);
+  --color-public-secondary: var(--public-secondary);
+  --color-public-accent: var(--public-accent);
+  --color-public-muted: var(--public-muted);
+
+  /* 行事曆狀態色 */
+  --color-cal-proposal: var(--cal-proposal);
+  --color-cal-in-progress: var(--cal-in-progress);
+  --color-cal-pending-close: var(--cal-pending-close);
+  --color-cal-closed: var(--cal-closed);
+  --color-cal-special: var(--cal-special);
+  --color-cal-personal: var(--cal-personal);
+  --color-cal-birthday: var(--cal-birthday);
+  --color-cal-company: var(--cal-company);
+
+  /* 行事曆視覺對齊 token */
+  --color-cal-selected-bg: var(--cal-selected-bg);
+  --color-cal-selected-fg: var(--cal-selected-fg);
+  --color-cal-today-ring: var(--cal-today-ring);
+  --color-cal-today-fg: var(--cal-today-fg);
+  --color-cal-day-hover: var(--cal-day-hover);
+  --color-cal-weekday-text: var(--cal-weekday-text);
+
+  /* ─────────────────────────────────────────────
+     UI 大改前置 — 短名 alias / shadow / radius
+     紅線：不准加 --color-primary / --color-secondary / --color-muted
+     （這三個是 shadcn 標準、已綁 var(--primary/secondary/muted)、覆寫會打爆視覺）
+     ───────────────────────────────────────────── */
+
+  /* 莫蘭迪短名 alias（搭主題切換、不是固定色） */
+  --color-gold: var(--morandi-gold);
+  --color-gold-hover: var(--morandi-gold-hover);
+  --color-gold-light: var(--morandi-gold-light-end);
+  --color-container: var(--morandi-container);
+  --color-green: var(--morandi-green);
+  --color-red: var(--morandi-red);
+
+  /* 語義色短名（shadcn 沒佔、安全） */
+  --color-info: var(--status-info);
+  --color-info-bg: var(--status-info-bg);
+  --color-success: var(--status-success);
+  --color-success-bg: var(--status-success-bg);
+  --color-warning: var(--status-warning);
+  --color-warning-bg: var(--status-warning-bg);
+  --color-danger: var(--status-danger);
+  --color-danger-bg: var(--status-danger-bg);
+
+  /* Shadow tokens — 莫蘭迪金底色陰影 */
+  --shadow-sm: 0 4px 12px -2px rgba(180, 160, 120, 0.08);
+  --shadow-md: 0 8px 16px -4px rgba(180, 160, 120, 0.12);
+  --shadow-lg: 0 12px 24px -8px rgba(180, 160, 120, 0.15);
+  --shadow-xl: 0 16px 32px -8px rgba(180, 160, 120, 0.20);
+  --shadow-2xl: 0 30px 30px -20px rgba(180, 160, 120, 0.45);
+
+  /* Radius tokens */
+  --radius-card: 1.5rem;       /* 24px */
+  --radius-card-sm: 1rem;      /* 16px */
+  --radius-button: 0.75rem;    /* 12px */
+  --radius-input: 0.5rem;      /* 8px */
+  --radius-badge: 9999px;
+
+  --font-sans: var(--font-noto-sans-tc), var(--font-geist-sans);
+  --font-serif: 'Noto Serif TC', 'Playfair Display', ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono);
+}

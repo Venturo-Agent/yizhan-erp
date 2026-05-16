@@ -1,0 +1,101 @@
+'use client'
+
+import { Check, X, AlertCircle, Users, UserPlus } from 'lucide-react'
+import { useTranslations } from 'next-intl'
+
+interface OrderInfo {
+  id: string
+  order_number: string
+  contact_person: string | null
+}
+
+interface MatchStats {
+  exact: number
+  partial: number
+  none: number
+  withSuggestions: number
+  selectedCustomers: number
+  total: number
+}
+
+interface PnrMatchStatsProps {
+  stats: MatchStats
+  orderId?: string
+  isTourMode: boolean
+  orders: OrderInfo[]
+  onSetAllOrders: (orderId: string) => void
+}
+
+// 配對統計 + 說明文字 + 團體模式快速設定訂單
+export function PnrMatchStats({
+  stats,
+  orderId,
+  isTourMode,
+  orders,
+  onSetAllOrders,
+}: PnrMatchStatsProps) {
+  const t = useTranslations('orders')
+  return (
+    <>
+      {/* 統計 */}
+      <div className="flex items-center gap-4 p-3 bg-morandi-container/30 rounded-lg flex-wrap">
+        <span className="text-sm font-medium">{t('matchResult')}</span>
+        <span className="flex items-center gap-1 text-sm text-morandi-green">
+          <Check size={14} /> {stats.exact} {t('fullMatch')}
+        </span>
+        <span className="flex items-center gap-1 text-sm text-morandi-gold">
+          <AlertCircle size={14} /> {stats.partial} {t('partialMatch')}
+        </span>
+        <span className="flex items-center gap-1 text-sm text-morandi-red">
+          <X size={14} /> {stats.none} {t('noMatch')}
+        </span>
+        {stats.withSuggestions > 0 && (
+          <span className="flex items-center gap-1 text-sm text-status-info">
+            <Users size={14} /> {stats.withSuggestions} {t('hasSuggestedCustomers')}
+          </span>
+        )}
+        {stats.selectedCustomers > 0 && (
+          <span className="flex items-center gap-1 text-sm text-morandi-secondary">
+            <UserPlus size={14} /> {stats.selectedCustomers}{' '}
+            {t('hasSelectedCustomers')}
+          </span>
+        )}
+      </div>
+
+      {/* 說明文字 */}
+      {stats.withSuggestions > 0 && (orderId || isTourMode) && (
+        <div className="p-2 bg-status-info/10 rounded-lg text-xs text-status-info">
+          <Users size={12} className="inline mr-1" />
+          {t('suggestedCustomersDesc')}
+          {isTourMode && t('selectOrderHint')}
+        </div>
+      )}
+      {stats.withSuggestions > 0 && !orderId && !isTourMode && (
+        <div className="p-2 bg-morandi-gold/10 rounded-lg text-xs text-morandi-gold">
+          <AlertCircle size={12} className="inline mr-1" />
+          {t('suggestedNoOrderDesc')}
+        </div>
+      )}
+
+      {/* 團體模式：快速設定所有人的訂單 */}
+      {isTourMode && stats.withSuggestions > 0 && (
+        <div className="flex items-center gap-2 p-2 bg-morandi-container/20 rounded-lg">
+          <span className="text-xs text-morandi-secondary">
+            {t('quickSetAllOrders')}
+          </span>
+          <select
+            onChange={e => onSetAllOrders(e.target.value)}
+            className="text-xs border rounded px-2 py-1"
+          >
+            <option value="">{t('pleaseSelect')}</option>
+            {orders.map(o => (
+              <option key={o.id} value={o.id}>
+                {o.order_number} - {o.contact_person || t('noContact')}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+    </>
+  )
+}

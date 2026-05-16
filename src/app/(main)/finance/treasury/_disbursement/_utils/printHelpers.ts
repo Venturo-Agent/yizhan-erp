@@ -1,0 +1,199 @@
+/**
+ * printHelpers.ts
+ * PrintDisbursementPreview 的 helper functions 和型別定義
+ * 從 PrintDisbursementPreview.tsx 抽出、供各子組件共用
+ */
+
+import type { PaymentRequest, PaymentRequestItem } from '@/stores/types'
+
+// ─── 共用型別 ───────────────────────────────────────────────────────────────
+
+export interface ProcessedItem {
+  requestId: string // 用來過濾成本轉移 pair requests
+  requestCode: string
+  createdBy: string
+  tourName: string
+  description: string
+  payFor: string
+  amount: number
+  isCompany: boolean // 是否為公司請款
+}
+
+export interface PayForGroup {
+  payFor: string
+  items: ProcessedItem[]
+  total: number
+  showTotal: boolean // 是否顯示小計（只在該供應商最後一個區塊顯示）
+}
+
+export interface TransferPairRow {
+  pairId: string
+  fromTourCode: string
+  fromTourName: string
+  toTourCode: string
+  toTourName: string
+  amount: number
+  items: Array<{ description: string; supplier: string; subtotal: number }>
+}
+
+// ─── Helper functions ────────────────────────────────────────────────────────
+
+export function processItems(
+  paymentRequests: PaymentRequest[],
+  paymentRequestItems: PaymentRequestItem[]
+): ProcessedItem[] {
+  const requestMap = new Map(paymentRequests.map(r => [r.id, r]))
+
+  return paymentRequestItems.map(item => {
+    const request = requestMap.get(item.request_id)
+    const isCompany = request?.request_category === 'company'
+    // 公司請款顯示費用類型，團體請款顯示團名
+    const tourName = isCompany
+      ? request?.request_type || '公司'
+      : request?.tour_name || '-'
+
+    // 有代墊人時，付款對象是「代墊人（廠商）」
+    const advancedBy = (item as unknown as Record<string, unknown>).advanced_by_name as
+      | string
+      | undefined
+    const supplierName = item.supplier_name || '未指定供應商'
+    const payFor = advancedBy ? `${advancedBy}（${supplierName}）` : supplierName
+
+    return {
+      requestId: item.request_id,
+      requestCode: request?.code || '-',
+      createdBy: request?.created_by_name || '-',
+      tourName,
+      description: item.description || item.category || '-',
+      payFor,
+      amount: item.subtotal || 0,
+      isCompany,
+    }
+  })
+}
+
+export function groupByPayFor(items: ProcessedItem[]): PayForGroup[] {
+  const grouped = new Map<string, ProcessedItem[]>()
+
+  for (const item of items) {
+    if (!grouped.has(item.payFor)) {
+      grouped.set(item.payFor, [])
+    }
+    grouped.get(item.payFor)!.push(item)
+  }
+
+  const groups: PayForGroup[] = Array.from(grouped.entries()).map(([payFor, groupItems]) => ({
+    payFor,
+    items: groupItems,
+    total: groupItems.reduce((sum, item) => sum + item.amount, 0),
+    showTotal: true,
+  }))
+
+  groups.sort((a, b) => a.payFor.localeCompare(b.payFor, 'zh-TW'))
+
+  return groups
+}
+
+/**
+ * 提取實際收款人（去掉括號部分）
+ * 例如："William（XX）" → "William"
+ */
+export function extractPayee(payFor: string): string {
+  const match = payFor.match(/^([^（]+)/)
+  return match ? match[1].trim() : payFor
+}
+
+/**
+ * 拆分付款對象為兩行顯示
+ * 例如："William（XX）" → { payee: "William", supplier: "（XX）" }
+ */
+export function splitPayFor(payFor: string): { payee: string; supplier: string | null } {
+  const match = payFor.match(/^([^（]+)(（.+）)$/)
+  if (match) {
+    return {
+      payee: match[1].trim(),
+      supplier: match[2],
+    }
+  }
+  return {
+    payee: payFor,
+    supplier: null,
+  }
+}
+
+/**
+ * 分割大型群組 + 同收款人合併小計
+ * - 每個區塊都顯示供應商名稱
+ * - 同一個收款人的多個分組，只在最後一組顯示總金額
+ */
+export function splitLargeGroups(groups: PayForGroup[], maxSize = 5): PayForGroup[] {
+  const result: PayForGroup[] = []
+
+  for (const group of groups) {
+    if (group.items.length <= maxSize) {
+      result.push(group)
+    } else {
+      // 拆成多個區塊
+      const totalChunks = Math.ceil(group.items.length / maxSize)
+      for (let i = 0; i < group.items.length; i += maxSize) {
+        const chunk = group.items.slice(i, i + maxSize)
+        const chunkIndex = Math.floor(i / maxSize)
+        const isLastChunk = chunkIndex === totalChunks - 1
+
+        result.push({
+          payFor: group.payFor,
+          items: chunk,
+          total: group.total,
+          showTotal: isLastChunk, // 只在最後一個區塊顯示小計
+        })
+      }
+    }
+  }
+
+  // 計算每個收款人的總金額，並標記誰是最後一組
+  const payeeGroups = new Map<string, { total: number; indices: number[] }>()
+
+  result.forEach((group, idx) => {
+    const payee = extractPayee(group.payFor)
+    if (!payeeGroups.has(payee)) {
+      payeeGroups.set(payee, { total: 0, indices: [] })
+    }
+    const pg = payeeGroups.get(payee)!
+    pg.total += group.total
+    pg.indices.push(idx)
+  })
+
+  // 如果同一個收款人有多個分組，只在最後一組顯示總金額
+  payeeGroups.forEach(pg => {
+    if (pg.indices.length > 1) {
+      // 前面的分組不顯示小計
+      pg.indices.slice(0, -1).forEach(idx => {
+        result[idx].showTotal = false
+      })
+      // 最後一組顯示該收款人的總金額
+      const lastIdx = pg.indices[pg.indices.length - 1]
+      result[lastIdx].total = pg.total
+      result[lastIdx].showTotal = true
+    }
+  })
+
+  // 計算每個收款人的總行數（用於 rowSpan）
+  result.forEach((group, idx) => {
+    const payee = extractPayee(group.payFor)
+    const pg = payeeGroups.get(payee)!
+    const isFirstGroupOfPayee = pg.indices[0] === idx
+
+    if (isFirstGroupOfPayee) {
+      // 計算該收款人的所有行數
+      const totalRows = pg.indices.reduce((sum, gIdx) => sum + result[gIdx].items.length, 0)
+      ;((group as unknown as Record<string, unknown>).subtotalRowSpan as number) = totalRows
+      // 強制設定 showTotal=true（確保顯示小計）
+      group.showTotal = true
+      group.total = pg.total
+    } else {
+      ;((group as unknown as Record<string, unknown>).subtotalRowSpan as number) = 0 // 不顯示小計欄位
+    }
+  })
+
+  return result
+}

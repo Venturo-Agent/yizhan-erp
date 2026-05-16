@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>國外個別旅遊定型化契約書</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 2cm 1.5cm;
+      }
+
+      body {
+        font-family: 'PingFang TC', 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
+        font-size: 10pt;
+        line-height: 1.6;
+        color: #000;
+        max-width: 595.3pt;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .header h1 {
+        font-size: 16pt;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+
+      .header .subtitle {
+        font-size: 10pt;
+        text-align: right;
+        color: #000;
+        margin: 2px 0;
+      }
+
+      .contract-body {
+        border: none;
+        padding: 10px 0;
+      }
+
+      .review-period {
+        font-size: 10pt;
+        margin: 15px 0;
+      }
+
+      .party-info {
+        font-size: 8pt;
+        margin: 5px 0;
+        line-height: 1.5;
+      }
+
+      .party-info .label {
+        font-weight: 600;
+      }
+
+      .spacer {
+        margin: 10px 0;
+      }
+
+      .article {
+        margin: 12px 0 12px 24px;
+      }
+
+      .article-title {
+        font-size: 10pt;
+        font-weight: 600;
+        margin: 8px 0 5px -24px;
+      }
+
+      .article-content {
+        font-size: 8pt;
+        text-align: justify;
+        line-height: 1.5;
+        margin: 5px 0;
+      }
+
+      .article-list {
+        font-size: 8pt;
+        text-align: justify;
+        line-height: 1.5;
+        margin: 5px 0 5px 24px;
+      }
+
+      .signature-section {
+        margin-top: 20px;
+        font-size: 8pt;
+      }
+
+      .signature-section .title {
+        font-size: 10pt;
+        font-weight: 600;
+        margin: 10px 0 5px 0;
+      }
+
+      .signature-section .info {
+        margin: 3px 0;
+        line-height: 1.5;
+      }
+
+      .underline {
+        display: inline-block;
+        min-width: 60px;
+        border-bottom: 1px solid #000;
+        padding: 0 5px;
+      }
+
+      .highlight {
+        color: #c00000;
+      }
+
+      @media print {
+        body {
+          padding: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>國外個別旅遊定型化契約書</h1>
+      <div class="subtitle">交通部觀光局91年10月9日觀業字第0910026947號函訂頒</div>
+      <div class="subtitle">
+        交通部觀光局100年1月17日觀業字第0990044124號函公告修正（增修第17條之1）
+      </div>
+      <div class="subtitle">中華民國112年9月8日觀業字第1123002067函修正，並自112年9月15日生效</div>
+    </div>
+
+    <div class="contract-body">
+      <div class="review-period">
+        立契約書人（本契約審閱期間至少一日，<span class="underline">{{reviewYear}}</span>年<span
+          class="underline"
+          >{{reviewMonth}}</span
+        >月<span class="underline">{{reviewDay}}</span>日由甲方攜回審閱）
+      </div>
+
+      <div class="party-info">
+        旅客姓名：<span class="underline">{{travelerName}}</span>（以下稱甲方）
+      </div>
+      <div class="party-info">
+        旅行社名稱：<span class="label">角落旅行社股份有限公司</span>（以下稱乙方）
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="article-title">甲乙雙方同意就本旅遊事項，依下列規定辦理：</div>
+
+      <div class="article">
+        <div class="article-title">第一條、國外旅遊之定義</div>
+        <div class="article-content">
+          本契約所謂國外旅遊，係指到中華民國疆域以外其他國家或地區旅遊。赴中國大陸旅行者，準用本旅遊契約之規定。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第二條、個別旅遊之定義及內容</div>
+        <div class="article-content">
+          本契約所稱個別旅遊係指乙方不派領隊人員服務，由乙方依甲方之要求代為安排機票、住宿、旅遊行程；或甲方參加乙方所包裝販賣之機票、住宿、旅遊行程之個別旅遊產品。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第三條、預定旅遊地及交通住宿內容</div>
+        <div class="article-content">
+          本旅遊之交通、住宿、旅遊行程詳如附件。前項記載得以所刊登之廣告、宣傳文件代之，視為本契約之一部分，如載明僅供參考或以外國旅遊業所提供之內容為準者，其記載無效。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第四條、集合及出發時地</div>
+        <div class="article-content">
+          甲方應於民國<span class="underline">{{gatherYear}}</span>年<span class="underline"
+            >{{gatherMonth}}</span
+          >月<span class="underline">{{gatherDay}}</span>日<span class="underline"
+            >{{gatherHour}}</span
+          >時<span class="underline">{{gatherMinute}}</span
+          >分自行抵達機場或其他約定地點，並自行辦理入出境手續。但如依航空公司規定需由乙方協助辦理者，應由乙方協助辦理之。甲方未準時到達致無法出發時，亦未能中途加入旅遊者，視為甲方解除契約，乙方得依第十六條之規定，行使損害賠償請求權。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第五條、旅遊費用及其涵蓋內容</div>
+        <div class="article-content">
+          旅遊費用共新臺幣：<span class="underline">{{totalAmount}}</span>元，甲方應依下列約定繳付：
+        </div>
+        <div class="article-list">
+          一、簽訂本契約時，甲方應繳付定金新臺幣<span class="underline">{{depositAmount}}</span>元。
+        </div>
+        <div class="article-list">二、其餘款項於出發前三日或領取機票及住宿券時繳清。</div>
+        <div class="article-content">
+          甲方依前項繳納之旅遊費用，應包括本契約所列應由乙方安排之機票交通費用、旅館住宿費用、旅程遊覽費用。但如雙方約定另含其他費用者，依其約定。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第六條、怠於給付旅遊費用之效力</div>
+        <div class="article-content">
+          甲方因可歸責於自己之事由，怠於給付旅遊費用者，乙方得逕行解除契約，並沒收其已繳之訂金。如有其他損害，並得請求賠償。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第七條、旅客協力義務</div>
+        <div class="article-content">
+          旅遊需甲方之行為始能完成，而甲方不為其行為者，乙方得定相當期限，催告甲方為之。甲方逾期不為其行為者，乙方得終止契約，並得請求賠償因契約終止而生之損害。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第八條、交通費之調高或調低</div>
+        <div class="article-content">
+          旅遊契約訂立後，其所使用之交通工具之票價或運費較訂約前運送人公布之票價或運費調高或調低逾百分之十者，應由甲方補足或由乙方退還。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第九條、強制投保保險</div>
+        <div class="article-content">
+          乙方應依主管機關之規定辦理責任保險及履約保證保險。乙方如未依前項規定投保者，於發生旅遊意外事故或不能履約之情形時，乙方應以主管機關規定最低投保金額計算其應理賠金額之三倍賠償甲方。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十條、檢查證照、報告必要事項</div>
+        <div class="article-content">
+          乙方應明確告知甲方本次旅遊所需之護照及簽證。乙方應於預定出發前，將甲方的機票、機位、旅館及其他必要事項向甲方報告，並以書面行程表確認之。乙方怠於履行上述義務時，甲方得拒絕參加旅遊並解除契約，乙方即應退還甲方所繳之所有費用。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十一條、因旅行社過失無法成行</div>
+        <div class="article-content">
+          因可歸責於乙方之事由，致甲方之旅遊活動無法成行時，乙方於知悉旅遊活動無法成行者，應即通知甲方並說明其事由。怠於通知者，應賠償甲方依旅遊費用之全部計算之違約金；其已為通知者，則按通知到達甲方時，距出發日期時間之長短，依下列規定計算應賠償甲方之違約金。
+        </div>
+        <div class="article-list">
+          一、通知於出發日前第二十一日至第三十日以內到達者，賠償旅遊費用百分之十。
+        </div>
+        <div class="article-list">
+          二、通知於出發日前第十一日至第二十日以內到達者，賠償旅遊費用百分之二十。
+        </div>
+        <div class="article-list">
+          三、通知於出發日前第四日至第十日以內到達者，賠償旅遊費用百分之三十。
+        </div>
+        <div class="article-list">
+          四、通知於出發日前一日至第三日以內到達者，賠償旅遊費用百分之七十。
+        </div>
+        <div class="article-list">五、通知於出發當日以後到達者，賠償旅遊費用百分之一百。</div>
+        <div class="article-content">
+          甲方如能證明其所受損害超過第一項各款標準者，得就其實際損害請求賠償。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十二條、非因旅行社之過失無法成行</div>
+        <div class="article-content">
+          因不可抗力或不可歸責於乙方之事由，致旅遊無法成行者，乙方於知悉旅遊活動無法成行時應即通知甲方並說明其事由；其怠於通知甲方，致甲方受有損害時，應負賠償責任。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十三條、證照之保管</div>
+        <div class="article-content">
+          乙方代理甲方辦理出國簽證或旅遊手續時，應妥慎保管甲方之各項證照及相關文件，乙方如有遺失或毀損者，應行補辦，其致甲方受損害者，並應賠償甲方之損失。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十四條、旅程內容之實現及例外</div>
+        <div class="article-content">
+          乙方應依契約所定辦理住宿、交通、旅遊行程等，不得變更，但經甲方要求，乙方同意甲方之要求而變更者，不在此限，惟其所增加之費用應由甲方負擔。除非有本契約第十八條或第二十條之情事，乙方不得以任何名義或理由變更，乙方未依本契約所訂等級辦理餐宿、交通等事宜時，甲方得請求乙方賠償差額二倍之違約金。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十五條、因旅行社之過失致旅客留滯國外</div>
+        <div class="article-content">
+          因可歸責於乙方之事由，致甲方留滯國外時，甲方於留滯期間所支出之食宿或其他必要費用，應由乙方全額負擔，乙方並應儘速依預定旅程安排旅遊活動或安排甲方返國，並賠償甲方依旅遊費用總額除以全部旅遊日數乘以滯留日數計算之違約金。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十六條、出發前旅客任意解除契約</div>
+        <div class="article-content">
+          甲方於旅遊活動開始前得通知乙方解除本契約，但乙方如代理甲方辦理證照者，甲方應繳交證照費用，並依下列標準賠償乙方：
+        </div>
+        <div class="article-list">
+          一、通知於出發日前第二十一日至第三十日以內到達者，賠償旅遊費用百分之十。
+        </div>
+        <div class="article-list">
+          二、通知於出發日前第十一日至第二十日以內到達者，賠償旅遊費用百分之二十。
+        </div>
+        <div class="article-list">
+          三、通知於出發日前第四日至第十日以內到達者，賠償旅遊費用百分之三十。
+        </div>
+        <div class="article-list">
+          四、通知於出發日前一日至第三日以內到達者，賠償旅遊費用百分之七十。
+        </div>
+        <div class="article-list">五、通知於出發當日以後到達者，賠償旅遊費用百分之一百。</div>
+        <div class="article-content">
+          乙方如能證明其所受損害超過第一項各款標準者，得就其實際損害請求賠償。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十七條、出發前有法定原因解除契約</div>
+        <div class="article-content">
+          因不可抗力或不可歸責於雙方當事人之事由，致本契約之全部或一部無法履行時，得解除契約之全部或一部，不負損害賠償責任。乙方應將已代繳之規費或履行本契約已支付之全部必要費用扣除後之餘款退還甲方。但雙方於知悉旅遊活動無法成行時應即通知他方並說明事由；其怠於通知致使他方受有損害時，應負賠償責任。為維護本契約旅遊之安全與利益，乙方依前項為解除契約之一部後，應為有利於旅遊之必要措置。但甲方不同意者，得拒絕之；如因此支出必要費用，應由甲方負擔。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十七條之一、出發前有客觀風險事由解除契約</div>
+        <div class="article-content">
+          出發前，本旅遊所前往旅遊地區之一，有事實足認危害旅客生命、身體、健康、財產安全之虞者，得準用前條之規定。但解除之一方，應另按旅遊費用<span
+            class="highlight"
+            >百分之五</span
+          >補償他方。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十八條、出發後旅客任意終止契約</div>
+        <div class="article-content">
+          甲方於旅遊活動開始後中途退出旅遊活動或未能參加乙方所排定之旅遊項目時，不得要求乙方退還旅遊費用。但乙方因甲方退出旅遊活動後，應可節省或無須支付之費用，應退還甲方。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第十九條、旅遊途中行程、食宿、遊覽項目之變更</div>
+        <div class="article-content">
+          甲方於參加乙方所安排之旅遊行程中，因不可抗力或不可歸責於乙方之事由，致無法依預定之旅程、住宿或遊覽項目等履行時，乙方應盡善良管理人之注意為必要之協助。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第二十條、責任歸屬及協辦</div>
+        <div class="article-content">
+          旅遊期間，因不可歸責於乙方之事由，致甲方搭乘飛機、輪船、火車、捷運、纜車、汽車等大眾運輸工具所受損害者，應由各該提供服務之業者直接對甲方負責。但乙方應盡善良管理人之注意，協助甲方處理。
+        </div>
+      </div>
+
+      <div class="article">
+        <div class="article-title">第二十一條、其他協議事項</div>
+        <div class="article-content">甲乙雙方同意遵守下列各項：</div>
+        <div class="article-list">一、</div>
+        <div class="article-list">二、</div>
+        <div class="article-content">
+          前項協議事項，如有變更本契約其他條款之規定，除經交通部觀光署核准，其約定無效，但有利於甲方者，不在此限。
+        </div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="signature-section">
+        <div class="title">訂約人</div>
+        <div class="title" style="margin-top: 15px">甲方：</div>
+        <div class="info">住址：<span class="underline">{{travelerAddress}}</span></div>
+        <div class="info">身分證字號：<span class="underline">{{travelerIdNumber}}</span></div>
+        <div class="info">電話或傳真：<span class="underline">{{travelerPhone}}</span></div>
+
+        <div class="title" style="margin-top: 15px">乙方：角落旅行社股份有限公司</div>
+        <div class="info">註冊編號：843100</div>
+        <div class="info">負責人：簡瑋廷</div>
+        <div class="info">地址：10350 台北市大同區重慶北路一段67號8樓之2</div>
+        <div class="info">電話或傳真：02-7751-6051#9</div>
+
+        <div class="info" style="margin-top: 10px">
+          乙方委託之旅行業副署：（本契約如係綜合或甲種旅行業自行安排之個別旅遊產品而與旅客簽約者，下列各項免填）
+        </div>
+        <div class="info">註冊編號：</div>
+        <div class="info">負責人：</div>
+        <div class="info">住址：</div>
+        <div class="info">電話或傳真：</div>
+      </div>
+    </div>
+  </body>
+</html>

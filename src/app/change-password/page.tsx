@@ -1,0 +1,210 @@
+'use client'
+
+import { useState } from 'react'
+import { Lock, AlertCircle, Eye, EyeOff } from 'lucide-react'
+import { supabase } from '@/lib/supabase/client'
+
+const LABELS = {
+  TITLE: '首次登入',
+  SUBTITLE: '請設定新密碼，避免使用預設密碼',
+  CURRENT_PLACEHOLDER: '目前密碼（預設 12345678）',
+  NEW_PLACEHOLDER: '新密碼（至少 6 個字元）',
+  CONFIRM_PLACEHOLDER: '再次輸入新密碼',
+  SUBMIT: '設定密碼並進入系統',
+  PROCESSING: '處理中...',
+  MISMATCH: '兩次新密碼不一致',
+  TOO_SHORT: '新密碼至少 6 個字元',
+  SAME_AS_CURRENT: '新密碼不可與目前密碼相同',
+  ERROR_SYSTEM: '伺服器錯誤、請稍後重試',
+}
+
+export default function ChangePasswordPage() {
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNew, setShowNew] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+
+    if (next !== confirm) {
+      setError(LABELS.MISMATCH)
+      return
+    }
+    if (next.length < 6) {
+      setError(LABELS.TOO_SHORT)
+      return
+    }
+    if (next === current) {
+      setError(LABELS.SAME_AS_CURRENT)
+      return
+    }
+
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          current_password: current,
+          new_password: next,
+        }),
+      })
+      const data = await res.json()
+      if (data.success) {
+        // Supabase admin.updateUserById 改密後會 invalidate 既有 session
+        // backend 回的 authEmail + 新密碼 → client signInWithPassword 拿 fresh session
+        // 否則進 /dashboard 會被 middleware 307 redirect 回 /login 死循環
+        const authEmail = data.data?.authEmail as string | undefined
+        if (!authEmail) {
+          // 拿不到 email、走 login 重新登入
+          window.location.href = '/login'
+          return
+        }
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: authEmail,
+          password: next,
+        })
+        if (signInError) {
+          window.location.href = '/login'
+          return
+        }
+        window.location.href = '/dashboard'
+        return
+      }
+      setError(data.error || LABELS.ERROR_SYSTEM)
+    } catch {
+      setError(LABELS.ERROR_SYSTEM)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-card to-morandi-container">
+      {/* eslint-disable-next-line venturo/no-forbidden-classes */}
+      <div className="w-full max-w-[420px] mx-4 bg-gradient-to-t from-white to-morandi-cream rounded-[40px] px-10 py-8 border-[5px] border-white shadow-[rgba(180,160,120,0.45)_0px_30px_30px_-20px]">
+        <div className="flex items-center justify-center gap-2 text-[var(--morandi-gold)]">
+          <Lock size={22} />
+          <h1 className="font-black text-[1.412rem] tracking-tight">{LABELS.TITLE}</h1>
+        </div>
+        <p className="text-center text-xs text-morandi-muted mt-1">{LABELS.SUBTITLE}</p>
+
+        {error && (
+          <div className="mt-4 p-3 bg-morandi-red/10 border border-morandi-red/30 rounded-2xl flex items-start gap-2">
+            <AlertCircle size={16} className="text-morandi-red mt-0.5 shrink-0" />
+            <span className="text-xs text-morandi-red">{error}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="mt-5">
+          <div className="relative">
+            <input
+              type={showCurrent ? 'text' : 'password'}
+              value={current}
+              onChange={(e) => setCurrent(e.target.value)}
+              placeholder={LABELS.CURRENT_PLACEHOLDER}
+              required
+              autoComplete="current-password"
+              autoFocus
+              className="cp-input pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowCurrent(!showCurrent)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-morandi-muted hover:text-morandi-secondary mt-[7px]"
+            >
+              {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+
+          <div className="relative">
+            <input
+              type={showNew ? 'text' : 'password'}
+              value={next}
+              onChange={(e) => setNext(e.target.value)}
+              placeholder={LABELS.NEW_PLACEHOLDER}
+              required
+              minLength={6}
+              autoComplete="new-password"
+              className="cp-input pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowNew(!showNew)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-morandi-muted hover:text-morandi-secondary mt-[7px]"
+            >
+              {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+
+          <div className="relative">
+            <input
+              type={showConfirm ? 'text' : 'password'}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder={LABELS.CONFIRM_PLACEHOLDER}
+              required
+              autoComplete="new-password"
+              className="cp-input pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirm(!showConfirm)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-morandi-muted hover:text-morandi-secondary mt-[7px]"
+            >
+              {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading || !current || !next || !confirm}
+            className="cp-button"
+          >
+            {loading ? LABELS.PROCESSING : LABELS.SUBMIT}
+          </button>
+        </form>
+      </div>
+
+      <style>{`
+        .cp-input {
+          width: 100%;
+          padding: 12px 16px;
+          margin-top: 12px;
+          background-color: white;
+          border: 2px solid var(--morandi-cream);
+          border-radius: 24px;
+          font-size: 14px;
+          color: var(--morandi-primary);
+          transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .cp-input:focus {
+          outline: none;
+          border-color: var(--morandi-gold);
+          box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+        .cp-input::placeholder { color: var(--morandi-muted); }
+        .cp-button {
+          width: 100%;
+          margin-top: 16px;
+          padding: 12px 16px;
+          background: var(--morandi-gold);
+          color: white;
+          font-weight: 600;
+          font-size: 14px;
+          border-radius: 24px;
+          transition: opacity 0.2s, transform 0.1s;
+        }
+        .cp-button:hover:not(:disabled) { opacity: 0.9; }
+        .cp-button:active:not(:disabled) { transform: scale(0.98); }
+        .cp-button:disabled { opacity: 0.5; cursor: not-allowed; }
+      `}</style>
+    </div>
+  )
+}

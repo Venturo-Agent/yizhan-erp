@@ -1,0 +1,16 @@
+.next
+node_modules
+.git
+.gitnexus
+.claude
+*.log
+coverage
+.vitest
+playwright-report
+test-results
+logs
+reports
+archive
+memory
+tests
+scripts

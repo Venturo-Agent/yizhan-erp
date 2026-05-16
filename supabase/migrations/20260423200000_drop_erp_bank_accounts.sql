@@ -1,0 +1,22 @@
+-- =============================================
+-- 清理舊版單租戶 ERP 遺留表 erp_bank_accounts
+-- 2026-04-23
+--
+-- 背景：
+-- 2026-01-17 的 multi-tenant 遷移時、與 erp_bank_accounts 同期的三個遺留表
+-- （erp_transactions / erp_vouchers / suppliers）已做不同處理：
+--   - erp_transactions / erp_vouchers：已 drop table + 從同步白名單註解掉
+--   - suppliers：後續補 workspace_id、新版重新啟用
+--   - erp_bank_accounts：drop 表與白名單移除漏做、留了空表 + 白名單仍列名
+--
+-- 現況驗證（2026-04-23）：
+--   - DB 表 erp_bank_accounts 存在但 0 筆資料
+--   - bank_accounts（新表）有 12 筆活資料、有完整 CRUD API /api/bank-accounts
+--   - 程式碼除了 createCloudHook / createEntityHook 兩個同步白名單外、零處引用
+--
+-- 這次一併處理：
+--   - 程式：移除 createCloudHook.ts + createEntityHook.ts 白名單項
+--   - DB：drop table erp_bank_accounts
+-- =============================================
+
+DROP TABLE IF EXISTS public.erp_bank_accounts;

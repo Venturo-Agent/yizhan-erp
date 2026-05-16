@@ -1,0 +1,4 @@
+-- 清理舊表
+DROP TABLE IF EXISTS tour_files CASCADE;
+DROP TABLE IF EXISTS request_documents CASCADE;
+DROP TABLE IF EXISTS tour_requests CASCADE;

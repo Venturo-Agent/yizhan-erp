@@ -1,0 +1,131 @@
+{
+  "timestamp": "2026-05-08 17:34:06",
+  "score": 81,
+  "elapsed_seconds": 41.6,
+  "test": {
+    "files": 419,
+    "total": 1130,
+    "passed": 1121,
+    "failed": 0,
+    "skipped": 9,
+    "success": true
+  },
+  "eslint": {
+    "warnings": 1664,
+    "errors": 0,
+    "totalRules": 11,
+    "topRules": [
+      [
+        "@typescript-eslint/no-unused-vars",
+        906
+      ],
+      [
+        "venturo/no-hardcoded-chinese-jsx",
+        495
+      ],
+      [
+        "venturo/no-silent-catch",
+        123
+      ],
+      [
+        "venturo/no-direct-supabase-in-feature-layer",
+        70
+      ],
+      [
+        "venturo/consistent-form-label",
+        21
+      ]
+    ]
+  },
+  "patterns": {
+    "hardFailViolations": 0,
+    "hardFailFailedCount": 0,
+    "hardFailErroredCount": 5,
+    "infoViolations": 162,
+    "totalViolations": 162,
+    "redLines": {
+      "P100": 40,
+      "P101": 4,
+      "P102": null,
+      "P103": 5,
+      "P109": 21
+    },
+    "perDetector": {
+      "P001": {
+        "violations": 0,
+        "status": "pass"
+      },
+      "P004": {
+        "violations": 0,
+        "status": "error"
+      },
+      "P016": {
+        "violations": 0,
+        "status": "error"
+      },
+      "P017": {
+        "violations": 0,
+        "status": "error"
+      },
+      "P018": {
+        "violations": 0,
+        "status": "error"
+      },
+      "P020": {
+        "violations": 0,
+        "status": "error"
+      },
+      "P022": {
+        "violations": 0,
+        "status": "pass"
+      },
+      "P100": {
+        "violations": 40,
+        "status": "pass"
+      },
+      "P101": {
+        "violations": 4,
+        "status": "pass"
+      },
+      "P103": {
+        "violations": 5,
+        "status": "pass"
+      },
+      "P104": {
+        "violations": 0,
+        "status": "pass"
+      },
+      "P105": {
+        "violations": 0,
+        "status": "pass"
+      },
+      "P106": {
+        "violations": 59,
+        "status": "pass"
+      },
+      "P109": {
+        "violations": 21,
+        "status": "pass"
+      },
+      "P110": {
+        "violations": 0,
+        "status": "pass"
+      },
+      "API_UNGUARDED": {
+        "violations": 33,
+        "status": "pass"
+      }
+    }
+  },
+  "docs": {
+    "total": 67,
+    "withExpiry": 67,
+    "expired": 0,
+    "noFrontmatter": 0
+  },
+  "tools": {
+    "scaffolds": 3,
+    "codemods": 2,
+    "detectors": 1
+  }
+}

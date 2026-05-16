@@ -1,0 +1,24 @@
+# 強制 Nixpacks 用 Node.js provider
+# 之前 auto-detect 跑去 Deno、build 在 (main) 路徑炸 bash syntax error
+# https://nixpacks.com/docs/configuration/file
+
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_22"]
+
+[phases.install]
+cmds = [
+  "npm ci --legacy-peer-deps"
+]
+
+[phases.build]
+cmds = [
+  "npm run build"
+]
+
+[start]
+cmd = "npm start"
+
+[variables]
+NODE_OPTIONS = "--max-old-space-size=8192"

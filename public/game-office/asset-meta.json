@@ -1,0 +1,1728 @@
+{
+  "Bonsai": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cactus_1": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cactus_2": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Plant_1": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Plant_2": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Plant_5": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Sun_Flower": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Bottle_12": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Box_2": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cereals": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cola": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cutting_Board": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Dish": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Fork": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Frying_Pan": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Glass_1": {
+    "placement": "surface",
+    "sizeClass": "tiny",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Glass_2": {
+    "placement": "surface",
+    "sizeClass": "tiny",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Ketel_7": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Kitchen_A_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -24,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -10,
+        "y": -5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 10,
+        "y": 5
+      }
+    ]
+  },
+  "Kitchen_Knife": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Kitchen_Stool": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Kitchen_Tiles": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -24,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -10,
+        "y": -5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 10,
+        "y": 5
+      }
+    ]
+  },
+  "Mug_15": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Mug_Green": {
+    "placement": "surface",
+    "sizeClass": "tiny",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Mug_Red": {
+    "placement": "surface",
+    "sizeClass": "tiny",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Oven": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Pot": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Pot_Full": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Rag": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Scourer": {
+    "placement": "surface",
+    "sizeClass": "tiny",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Sink": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -24,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -10,
+        "y": -5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 10,
+        "y": 5
+      }
+    ]
+  },
+  "Spoon": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Stoves": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -24,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -10,
+        "y": -5
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 10,
+        "y": 5
+      }
+    ]
+  },
+  "TeaPot": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Toaster": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wine": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_100": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_100_B": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_100_C": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_100_D": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_100_E": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_2": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_3": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_4": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_5": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_6": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Present_7": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_BaseCup": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Canvas": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Canvas_Leters": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Closet": {
+    "placement": "floor",
+    "sizeClass": "xlarge",
+    "footprint": [4, 4],
+    "hasSurface": false
+  },
+  "Japanese_Cup": {
+    "placement": "surface",
+    "sizeClass": "tiny",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Dish": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Lamp": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Plant": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Seat": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Tea": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Japanese_Tori_Gate": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Japanese_Vase": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "NES_4_B_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "NES_4_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Nes": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Switch_5": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Shower_Floor": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Tap_Wall": {
+    "placement": "wall",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "AirCC_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Clothes_Basket": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Clothes_Case": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "TrashBin_Closed": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "TrashBin_Open": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "WashingMachine_Closed": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Cat_99_2_A": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_2_B": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_2_C": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_2_D": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_2_E": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_A": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_B": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_C": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_D": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_E": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_F": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_G": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_H": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_I": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_J": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_K": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_L": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_M": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_N": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Cat_99_O": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Duck": {
+    "placement": "surface",
+    "sizeClass": "tiny",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Candle": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Lamp_8_A_Tile": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Lamp_8_B_Tile": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "BendedScreen_A_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "NewImac_A_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "NewImac_B_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "NewKeyboard_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "OldImac_A_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "OldImac_B_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "OldKeyboard_Tile": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "OldPC_A_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "OldPC_B_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "PcTower_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "RotationScreen_A_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "RotationScreen_B_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "RotationScreen_C_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Book_8": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Book_Big_LightBlue": {
+    "placement": "floor",
+    "sizeClass": "xlarge",
+    "footprint": [4, 4],
+    "hasSurface": false
+  },
+  "Book_Small_Blue": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_BrightRed": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_Green": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_Grey": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_LightGreen": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_LightRed": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_Orange": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_Purple": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Book_Small_Yellow": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Japanese_Shelf": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -40,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Long_Shelf": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -40,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Macbook_1_Open_Tile": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Macbook_1_Tile_Ani_1": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Rack": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -40,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Shelf": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -40,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Small_Shelf": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -40,
+    "maxItems": 3,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "shelving_6": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -40,
+    "maxItems": 4,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "shelving_7": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -40,
+    "maxItems": 4,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Carton_Box": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Microwave_5_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Microwave_5_Tile_B": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Microwave_5_Tile_C": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Microwave_5_Tile_D": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Speaker_6_Tile": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Painting": {
+    "placement": "wall",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Poster_16": {
+    "placement": "wall",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Poster_17": {
+    "placement": "wall",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Bath_1": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_2": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_3": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_4": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_5": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_6": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_7": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_8": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_9": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Dish_Soap": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Hanger": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Hanging_Towel": {
+    "placement": "wall",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Kitchen_Soap": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Mirror": {
+    "placement": "wall",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Shower_Bin": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Soap": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Soap_Green": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Soap_Red": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Soap_Yellow": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Tap_Shower": {
+    "placement": "wall",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Tissues": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Toilet_Paper": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Towel_Blue": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Towel_Green": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Towel_Red": {
+    "placement": "floor",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wc_Back_1": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wc_Back_2": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wc_Back_3": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wc_Front_1": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wc_Front_2": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wc_Front_3": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Wc_Furniture": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -30,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Wc_Tap_1": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -30,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Wc_Tap_1(Drawer_1)": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Wc_Tap_1(Drawer_2)": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Wc_Tap_2": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -30,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Wc_Tap_3": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -30,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": -8,
+        "y": -4
+      },
+      {
+        "x": 8,
+        "y": 4
+      }
+    ]
+  },
+  "Pillow_11": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Pillow_9": {
+    "placement": "surface",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Sofa_3_A_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Sofa_3_B_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Sofa_3_C_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Sofa_3_D_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bed_A_4": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bed_B_4": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bed_C_4": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bed_D_4": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Bath_Carpet": {
+    "placement": "carpet",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false,
+    "depthOffset": -0.5
+  },
+  "Carpet_13": {
+    "placement": "carpet",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false,
+    "depthOffset": -0.5
+  },
+  "Carpet_14": {
+    "placement": "carpet",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false,
+    "depthOffset": -0.5
+  },
+  "Carpet_3_Tile": {
+    "placement": "carpet",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false,
+    "depthOffset": -0.5
+  },
+  "Carpet_7": {
+    "placement": "carpet",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false,
+    "depthOffset": -0.5
+  },
+  "Kitchen_Rug": {
+    "placement": "carpet",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false,
+    "depthOffset": -0.5
+  },
+  "Fidge_Red": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Fridge_2_A_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Fridge_2_C_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Japanese_Table": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -16,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -12,
+        "y": -6
+      },
+      {
+        "x": 12,
+        "y": 6
+      }
+    ]
+  },
+  "Kitchen_Table": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -30,
+    "maxItems": 4,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -12,
+        "y": -6
+      },
+      {
+        "x": 12,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -6,
+        "y": 6
+      }
+    ]
+  },
+  "Night_Table_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -20,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": -6,
+        "y": -3
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ]
+  },
+  "Night_Table_Tile(Drawer_1)": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -20,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": -6,
+        "y": -3
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ]
+  },
+  "Night_Table_Tile(Drawer_2)": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": true,
+    "surfaceOffsetY": -20,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small"],
+    "slots": [
+      {
+        "x": -6,
+        "y": -3
+      },
+      {
+        "x": 6,
+        "y": 3
+      }
+    ]
+  },
+  "SmallTable_5": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -28,
+    "maxItems": 2,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -12,
+        "y": -6
+      },
+      {
+        "x": 12,
+        "y": 6
+      }
+    ]
+  },
+  "Table_10": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -30,
+    "maxItems": 6,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -12,
+        "y": -6
+      },
+      {
+        "x": 12,
+        "y": 6
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": -6,
+        "y": 6
+      }
+    ]
+  },
+  "WacomTablet": {
+    "placement": "surface",
+    "sizeClass": "small",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Chair_2_A_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Chair_2_B_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Chair_2_C_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Chair_2_D_Tile": {
+    "placement": "floor",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "GChair_9_A": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "GChair_9_B": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "GChair_9_C": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "GChair_9_D": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Desk_1_B_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -36,
+    "maxItems": 4,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -16,
+        "y": -8
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 16,
+        "y": 8
+      },
+      {
+        "x": -8,
+        "y": 8
+      }
+    ]
+  },
+  "Desk_1_Tile": {
+    "placement": "floor",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": true,
+    "surfaceOffsetY": -36,
+    "maxItems": 4,
+    "acceptSizes": ["tiny", "small", "medium"],
+    "slots": [
+      {
+        "x": -16,
+        "y": -8
+      },
+      {
+        "x": 0,
+        "y": 0
+      },
+      {
+        "x": 16,
+        "y": 8
+      },
+      {
+        "x": -8,
+        "y": 8
+      }
+    ]
+  },
+  "Bath_window": {
+    "placement": "wall",
+    "sizeClass": "medium",
+    "footprint": [1, 1],
+    "hasSurface": false
+  },
+  "Kitchen_Window": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_11": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_11_B": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_11_C": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_7_A_Tile": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_7_B_Tile": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_7_C_Tile": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_8": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_B_8": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  },
+  "Window_C_8": {
+    "placement": "wall",
+    "sizeClass": "large",
+    "footprint": [2, 2],
+    "hasSurface": false
+  }
+}

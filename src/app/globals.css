@@ -1,0 +1,22 @@
+/* Google Fonts - 精簡版（必須置頂以符合 CSS @import 規範） */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+@import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+
+/* 模組化樣式層 */
+@import '../styles/fonts.css';
+@import '../styles/tokens.css';
+@import '../styles/scrollbars.css';
+@import '../styles/utilities.css';
+@import '../styles/animations.css';
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}

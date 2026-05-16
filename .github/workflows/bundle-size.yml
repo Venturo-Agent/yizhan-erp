@@ -1,0 +1,55 @@
+name: Bundle Size Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  bundle-size:
+    name: Check Bundle Size
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and analyze
+        run: |
+          npm run build > build-output.txt 2>&1
+
+          echo "## 📦 Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Top 10 Largest Routes" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          grep -A 10 "Route (app)" build-output.txt | head -15 >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Shared Chunks" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          grep -A 5 "First Load JS shared" build-output.txt >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for bundle size regression
+        run: |
+          # Extract largest route size
+          LARGEST_SIZE=$(grep -A 60 "Route (app)" build-output.txt | grep "First Load" | awk '{print $NF}' | grep -o '[0-9]*' | sort -nr | head -1)
+
+          echo "Largest route First Load: ${LARGEST_SIZE} kB"
+
+          # Fail if any route exceeds 600 kB
+          if [ "$LARGEST_SIZE" -gt 600 ]; then
+            echo "❌ Bundle size regression detected! Largest route is ${LARGEST_SIZE} kB (limit: 600 kB)"
+            exit 1
+          else
+            echo "✅ Bundle size check passed! Largest route is ${LARGEST_SIZE} kB"
+          fi

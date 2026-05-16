@@ -1,0 +1,53 @@
+#!/bin/sh
+echo "🔍 Pre-commit checks..."
+
+# 1. TypeScript 型別檢查（整個專案）
+echo "📝 Running TypeScript type check..."
+NODE_OPTIONS="--max-old-space-size=4096" npm run type-check
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript type check failed!"
+  echo "💡 Tip: Run 'npm run type-check' to see errors"
+  exit 1
+fi
+
+# 2. 檢查是否有 @ts-expect-error（絕對禁止）
+echo "🚫 Checking for @ts-expect-error..."
+FOUND_FILES=$(git diff --cached --name-only | grep -E '\.(ts|tsx)$' | grep -v '.husky' | xargs grep -l "@ts-expect-error" 2>/dev/null || true)
+if [ -n "$FOUND_FILES" ]; then
+  echo "❌ Found @ts-expect-error in staged files:"
+  echo "$FOUND_FILES"
+  echo "💡 Fix the type error instead of using @ts-expect-error"
+  exit 1
+fi
+
+# （2026-05-16 砍）params Promise / console.log 兩條 grep-based check 移除：
+# - regex 把 useParams() 跟 Promise params 都當違規 → false positive 多
+# - console.log fallback logger 也被誤抓
+# - Warning 一律被忽略 → 連帶遮蓋真警報
+# 改由 ESLint plugin（@typescript-eslint, no-console）精準偵測。
+
+# 5. Module SSOT codegen（5/13、改 modules/ 自動同步 features.ts + module-tabs.ts）
+MODULES_CHANGED=$(git diff --cached --name-only | grep -E '^src/modules/' || true)
+if [ -n "$MODULES_CHANGED" ]; then
+  echo "🔁 Detected modules/ change、跑 codegen 同步 features.ts + module-tabs.ts..."
+  npm run codegen:permissions
+  if [ $? -ne 0 ]; then
+    echo "❌ codegen 失敗、檢查 src/modules/ 是否有 type error"
+    exit 1
+  fi
+  git add src/lib/permissions/features.ts src/lib/permissions/module-tabs.ts
+  echo "✓ features.ts + module-tabs.ts 已自動同步並 stage"
+fi
+
+# 6. ERP 整理憲法守門（VENTURO_ERP_STANDARDS.md Section 10）
+echo "🛡️  Running ERP standards check..."
+if [ -x scripts/check-standards.sh ]; then
+  scripts/check-standards.sh --strict
+  if [ $? -ne 0 ]; then
+    echo "❌ ERP standards violations found"
+    echo "💡 See docs/VENTURO_ERP_STANDARDS.md Section 10"
+    exit 1
+  fi
+fi
+
+echo "✅ All checks passed!"

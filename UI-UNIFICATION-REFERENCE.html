@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Venturo ERP — UI 硬編碼清理總覽</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans TC', sans-serif;
+      background: #f5f5f0;
+      color: #3a3633;
+      line-height: 1.6;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+    header {
+      background: linear-gradient(135deg, #3a3633 0%, #5c554d 100%);
+      color: #faf7f2;
+      padding: 48px 24px;
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 8px; }
+    header p { opacity: 0.8; font-size: 0.95rem; }
+
+    .section {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .section h2 {
+      font-size: 1.25rem;
+      color: #3a3633;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #c9aa7c;
+    }
+    .section h3 {
+      font-size: 1rem;
+      color: #5c554d;
+      margin: 24px 0 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .badge-new { background: #dcfce7; color: #166534; }
+    .badge-mod { background: #dbeafe; color: #1e40af; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-ok { background: #f3f4f6; color: #4b5563; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin-top: 12px;
+    }
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    th {
+      background: #faf7f2;
+      font-weight: 600;
+      color: #5c554d;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    tr:hover { background: #fafaf8; }
+    code {
+      background: #f3f4f6;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: 'SF Mono', Monaco, monospace;
+      font-size: 0.8rem;
+      color: #c2410c;
+    }
+    .path {
+      color: #6b7280;
+      font-size: 0.8rem;
+      font-family: monospace;
+    }
+
+    .rule-box {
+      background: #faf7f2;
+      border-left: 4px solid #c9aa7c;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+    }
+    .rule-box h4 { color: #3a3633; margin-bottom: 8px; font-size: 0.9rem; }
+    .rule-box ul { margin-left: 18px; font-size: 0.85rem; color: #5c554d; }
+    .rule-box li { margin-bottom: 4px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .stat-card {
+      background: #faf7f2;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .stat-card .num {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #c9aa7c;
+    }
+    .stat-card .label {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .highlight {
+      background: #fef3c7;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🛡️ Venturo ERP — UI 硬編碼清理總覽</h1>
+  <p>2025-05-05 清理後的規範參考文件｜供 William 審閱對照</p>
+</header>
+
+<div class="container">
+
+  <!-- 統計 -->
+  <div class="section">
+    <h2>📊 清理統計 <span class="badge badge-new">NEW</span></h2>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="num">64</div>
+        <div class="label">修改檔案數</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">391+</div>
+        <div class="label">新增規範行數</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">366-</div>
+        <div class="label">移除硬編碼行數</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">4</div>
+        <div class="label">新建系統檔案</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 核心規範 -->
+  <div class="section">
+    <h2>📐 統一後的參考架構</h2>
+
+    <div class="rule-box">
+      <h4>🎯 三層架構（這次統一採用的標準）</h4>
+      <ul>
+        <li><strong>第一層：通用訊息</strong> → <code>src/constants/messages.ts</code>（alert、toast、錯誤訊息）</li>
+        <li><strong>第二層：中央 Labels</strong> → <code>src/constants/labels.ts</code>（跨模組共用，如 accounting、quotes）</li>
+        <li><strong>第三層：模組 Labels</strong> → <code>src/app/(main)/xxx/constants/labels.ts</code>（頁面專屬）</li>
+        <li><strong>Status 配置</strong> → <code>src/lib/status-config.ts</code>（最佳實踐，color/label/icon 集中管理）</li>
+      </ul>
+    </div>
+
+    <div class="rule-box">
+      <h4>✅ 正確寫法（統一後的標準）</h4>
+      <ul>
+        <li>Alert：改走 <code>import { COMMON_MESSAGES } from '@/constants/messages'</code></li>
+        <li>頁面標題：改走 <code>import { ACCOUNTING_PAGE_LABELS } from '@/constants/labels'</code></li>
+        <li>模組 placeholder：改走 <code>import { LABELS } from '../constants/labels'</code></li>
+        <li>Inline style：改走 Tailwind class（靜態值）或保留（動態值）</li>
+        <li>Tooltip / title：改走對應的 labels 常數</li>
+      </ul>
+    </div>
+
+    <div class="rule-box">
+      <h4>❌ 禁止寫法（清理目標）</h4>
+      <ul>
+        <li><code>alert('載入失敗')</code>、<code>alert('請選擇日期')</code> 等裸字串</li>
+        <li><code>title="傳票管理"</code>、<code>title="資產負債表"</code> 等硬編碼頁面標題</li>
+        <li><code>placeholder="輸入目前密碼"</code> 等硬編碼 placeholder</li>
+        <li><code>style={{ background: 'linear-gradient(...)', boxShadow: '...' }}</code> 大面積 inline style</li>
+        <li><code>&lt;style&gt;{`...`}&lt;/style&gt;</code> JSX 內嵌 CSS</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 新建檔案 -->
+  <div class="section">
+    <h2>📁 這次新建的規範檔案 <span class="badge badge-new">NEW</span></h2>
+    <table>
+      <tr><th>檔案路徑</th><th>用途</th><th>內容範例</th></tr>
+      <tr>
+        <td class="path">src/constants/messages.ts</td>
+        <td>通用訊息常量</td>
+        <td><code>COMMON_MESSAGES.LOAD_FAILED</code> = '載入失敗'</td>
+      </tr>
+      <tr>
+        <td class="path">src/app/(main)/payslip/constants/labels.ts</td>
+        <td>薪資單模組 labels</td>
+        <td><code>PAYSLIP_LABELS.MY_PAYSLIP</code> = '我的薪資'</td>
+      </tr>
+      <tr>
+        <td class="path">src/app/(public)/constants/labels.ts</td>
+        <td>公開頁面 labels</td>
+        <td><code>PUBLIC_PAGE_LABELS.TOUR_NOT_FOUND</code> = '找不到行程'</td>
+      </tr>
+      <tr>
+        <td class="path">src/app/(main)/settings/settings-glass.css</td>
+        <td>抽離 settings 玻璃效果</td>
+        <td>.settings-glass .bg-card { ... }</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 擴充的 Labels -->
+  <div class="section">
+    <h2>🔧 擴充 Labels 的模組 <span class="badge badge-mod">MODIFIED</span></h2>
+
+    <h3>1. 中央 Labels — src/constants/labels.ts</h3>
+    <table>
+      <tr><th>Label 常數</th><th>新增 Key</th><th>用途</th></tr>
+      <tr><td><code>ACCOUNTING_PAGE_LABELS</code></td><td>+14 個 key</td><td>會計頁面標題、按鈕、欄位</td></tr>
+      <tr><td><code>PERIOD_CLOSING_LABELS</code></td><td>已 export</td><td>之前是 const，改 export</td></tr>
+      <tr><td><code>BALANCE_SHEET_LABELS</code></td><td>已 export</td><td>之前是 const，改 export</td></tr>
+      <tr><td><code>INCOME_STATEMENT_LABELS</code></td><td>已 export</td><td>之前是 const，改 export</td></tr>
+      <tr><td><code>TRIAL_BALANCE_LABELS</code></td><td>已 export</td><td>之前是 const，改 export</td></tr>
+      <tr><td><code>CASH_FLOW_LABELS</code></td><td>已 export</td><td>之前是 const，改 export</td></tr>
+    </table>
+
+    <h3>2. 模組 Labels</h3>
+    <table>
+      <tr><th>模組</th><th>檔案</th><th>新增內容</th></tr>
+      <tr><td>finance</td><td>constants/labels.ts</td><td>財務報表、金庫總覽、財務設定、統計標題</td></tr>
+      <tr><td>hr</td><td>constants/labels.ts</td><td>ROLE_MANAGEMENT: '職務管理'</td></tr>
+      <tr><td>cis</td><td>constants/labels.ts</td><td>品牌資料卡 title、編輯/刪除 tooltip、placeholder</td></tr>
+      <tr><td>todos</td><td>constants/labels.ts</td><td>PRIORITY、ASSIGNEE、COLUMN_NAME、卡片操作</td></tr>
+      <tr><td>tours</td><td>constants/labels.ts</td><td>合約操作、行程操作（插入箭頭/飛機）</td></tr>
+      <tr><td>orders</td><td>constants/labels.ts</td><td>快速辦簽證、辦簽證</td></tr>
+      <tr><td>quotes</td><td>constants/labels.ts</td><td>HIDE_FROM_QUOTE、MOVE_TO_EXCLUDED/INCLUDED</td></tr>
+      <tr><td>customers</td><td>constants/labels.ts</td><td>title_edit_photo、placeholder</td></tr>
+      <tr><td>companies</td><td>constants/labels.ts</td><td>統編、電話、Email、網站 placeholder</td></tr>
+      <tr><td>selectors</td><td>constants/labels.ts</td><td>國家/城市 placeholder</td></tr>
+      <tr><td>layout</td><td>constants/labels.ts</td><td>LOGOUT: '登出'</td></tr>
+      <tr><td>member-edit</td><td>constants/labels.ts</td><td>護照拼音、出生日期 placeholder</td></tr>
+    </table>
+  </div>
+
+  <!-- 清理對照 -->
+  <div class="section">
+    <h2>🧹 硬編碼清理前後對照</h2>
+
+    <h3>🔴 Alert / Toast</h3>
+    <table>
+      <tr><th>檔案</th><th>清理前（硬編碼）</th><th>清理後（規範）</th></tr>
+      <tr>
+        <td>accounting/vouchers</td>
+        <td><code>alert('反沖失敗：' + json.error || '未知錯誤')</code></td>
+        <td><code>COMMON_MESSAGES.UNKNOWN_ERROR</code></td>
+      </tr>
+      <tr>
+        <td>accounting/reports</td>
+        <td><code>alert('請選擇日期')</code></td>
+        <td><code>COMMON_MESSAGES.PLEASE_SELECT_DATE</code></td>
+      </tr>
+      <tr>
+        <td>settings/personal</td>
+        <td><code>alert('新密碼至少需要 6 位')</code></td>
+        <td><code>COMMON_MESSAGES.PASSWORD_TOO_SHORT(6)</code></td>
+      </tr>
+      <tr>
+        <td>finance/settings</td>
+        <td><code>await alert('儲存成功', 'success')</code></td>
+        <td><code>await alert(COMMON_MESSAGES.SAVE_SUCCESS, 'success')</code></td>
+      </tr>
+    </table>
+
+    <h3>🔴 頁面標題（ContentPageLayout）</h3>
+    <table>
+      <tr><th>頁面</th><th>清理前</th><th>清理後</th></tr>
+      <tr><td>accounting/page</td><td><code>title="會計系統"</code></td><td><code>title={ACCOUNTING_PAGE_LABELS.ACCOUNTING_SYSTEM}</code></td></tr>
+      <tr><td>finance/reports</td><td><code>title="財務報表"</code></td><td><code>title={FINANCE_PAGE_LABELS.FINANCE_REPORTS}</code></td></tr>
+      <tr><td>hr/roles</td><td><code>title="職務管理"</code></td><td><code>title={LABELS.ROLE_MANAGEMENT}</code></td></tr>
+      <tr><td>payslip</td><td><code>title="我的薪資"</code></td><td><code>title={PAYSLIP_LABELS.MY_PAYSLIP}</code></td></tr>
+      <tr><td>cis/[id]</td><td><code>&lt;Card title="品牌資料卡..."&gt;</code></td><td><code>&lt;Card title={L.title_brand_card}&gt;</code></td></tr>
+    </table>
+
+    <h3>🔴 Inline Style</h3>
+    <table>
+      <tr><th>檔案</th><th>清理前</th><th>清理後</th></tr>
+      <tr><td>not-found.tsx</td><td><code>style={{ minHeight: '100vh', padding: '1.5rem', ... }}</code></td><td><code>className="min-h-screen flex items-center justify-center p-6"</code></td></tr>
+      <tr><td>login/page.tsx</td><td><code>style={{ background: 'linear-gradient(...)', borderRadius: '40px', ... }}</code></td><td><code>className="bg-gradient-to-t from-white to-[#faf7f3] rounded-[40px] ..."</code></td></tr>
+      <tr><td>tenants/[id]</td><td>7 處大/小卡片 inline style</td><td>Tailwind arbitrary value class</td></tr>
+      <tr><td>settings/*</td><td><code>&lt;style&gt;{`...`}&lt;/style&gt;</code></td><td><code>import './settings-glass.css'</code></td></tr>
+    </table>
+
+    <h3>🔴 Tooltip / Placeholder</h3>
+    <table>
+      <tr><th>檔案</th><th>清理前</th><th>清理後</th></tr>
+      <tr><td>cis/pricing</td><td><code>title="編輯" / title="刪除"</code></td><td><code>title={L.edit} / title={L.delete}</code></td></tr>
+      <tr><td>tours/contract</td><td><code>title="標記為紙本簽署"</code> 等 5 個</td><td><code>title={COMP_TOURS_LABELS.MARK_PAPER_SIGN}</code> 等</td></tr>
+      <tr><td>CountryAirportSelector</td><td><code>placeholder="例如：日本"</code></td><td><code>placeholder={SELECTORS_LABELS.EXAMPLE_COUNTRY}</code></td></tr>
+      <tr><td>CisPricingItemDialog</td><td><code>placeholder="IDN-001"</code> 等 5 個</td><td><code>placeholder={L.placeholder_code}</code> 等</td></tr>
+    </table>
+  </div>
+
+  <!-- 剩餘項目 -->
+  <div class="section">
+    <h2>⏳ 這次「暫時保留」的項目 <span class="badge badge-warn">PENDING</span></h2>
+    <table>
+      <tr><th>項目</th><th>原因</th><th>建議</th></tr>
+      <tr>
+        <td>表格 columns 定義寫死</td>
+        <td>20+ 頁面，量大且每頁結構不同</td>
+        <td>第二輪逐頁抽出到 <code>columns-config.ts</code></td>
+      </tr>
+      <tr>
+        <td>報價單/行程表列印組件英文 subtitle</td>
+        <td>Highlights、QUOTATION、NOTICES 可能是品牌設計需求</td>
+        <td>需 William 確認是否改為中文</td>
+      </tr>
+      <tr>
+        <td>Calendar / Itinerary 色碼</td>
+        <td>功能性色碼映射，改動需對齊 design tokens</td>
+        <td>確認對應關係後統一遷移</td></tr>
+      <tr>
+        <td>動態 alert <code>${action}成功</code></td>
+        <td>訊息拼接，需額外設計函數</td>
+        <td>建立 <code>formatMessage(key, params)</code> 工具</td>
+      </tr>
+      <tr>
+        <td>HTML string 內的 inline style</td>
+        <td>動態 HTML（如 passportUpload），非 JSX</td>
+        <td>需重構為組件化渲染</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 驗證建議 -->
+  <div class="section">
+    <h2>🧪 驗證建議</h2>
+    <div class="rule-box">
+      <h4>如果你擔心我做錯，可以這樣快速驗證：</h4>
+      <ul>
+        <li>打開這份 HTML，對照你心中的規範看「正確寫法」那一區是否一致</li>
+        <li>跑 <code>cd venturo-erp && npx tsc --noEmit</code> 確認沒有編譯錯誤</li>
+        <li>打開幾個改過的頁面（accounting、settings/personal、payslip）確認 UI 沒有跑版</li>
+        <li>如果發現某個 label 應該是 A 但我寫成 B，直接改那個模組的 <code>constants/labels.ts</code> 即可，所有引用會自動更新</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
