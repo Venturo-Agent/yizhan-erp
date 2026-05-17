@@ -118,7 +118,7 @@ export default function OrdersPage() {
         paid_amount: 0,
         payment_status: 'unpaid',
         remaining_amount: initialTotalAmount,
-        status: 'pending',
+        status: 'hk',
         notes: null,
         customer_id: null,
       } as Omit<Order, 'id' | 'created_at' | 'updated_at'>)

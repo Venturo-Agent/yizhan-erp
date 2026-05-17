@@ -118,7 +118,7 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
           {/* 編輯永遠第一、跟訂單列表對齊 */}
           {EditButton}
 
-          {/* 模板：複製按鈕 */}
+          {/* 模板：複製→提案 + 直接開團 */}
           {isTemplate && onCopyTemplate && (
             <Button
               variant="ghost"
@@ -127,10 +127,24 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
                 e.stopPropagation()
                 onCopyTemplate(tour)
               }}
-              className="h-7 px-2 text-xs text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10 gap-1"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
             >
               <Copy size="0.75em" />
               {t('actionCopy')}
+            </Button>
+          )}
+          {isTemplate && onConvertTour && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={e => {
+                e.stopPropagation()
+                onConvertTour(tour)
+              }}
+              className="h-7 px-2 text-xs text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10 gap-1"
+            >
+              <Send size="0.75em" />
+              {t('actionConvert')}
             </Button>
           )}
 

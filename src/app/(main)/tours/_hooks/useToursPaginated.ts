@@ -100,18 +100,27 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
         // 封存是獨立欄位、不是 status 值
         query = query.eq('archived', true)
       } else if (status === TOUR_STATUS.UPCOMING) {
-        // 待出發：正式團、回程日未過
+        // 即將出發：status='upcoming'，出發日未到
         query = query
-          .gte('return_date', todayStr)
           .neq('archived', true)
-          .in('status', [TOUR_STATUS.UPCOMING, TOUR_STATUS.ONGOING])
+          .eq('status', TOUR_STATUS.UPCOMING)
+      } else if (status === TOUR_STATUS.ONGOING) {
+        // 旅行中：status='ongoing'
+        query = query
+          .neq('archived', true)
+          .eq('status', TOUR_STATUS.ONGOING)
+      } else if (status === TOUR_STATUS.RETURNED) {
+        // 未結案：status='returned'，已回程但尚未結案
+        query = query
+          .neq('archived', true)
+          .eq('status', TOUR_STATUS.RETURNED)
       } else if (status === TOUR_STATUS.CLOSED) {
-        // 已結團：只看 status='closed'
+        // 已結案：只看 status='closed'
         query = query
           .neq('archived', true)
           .eq('status', TOUR_STATUS.CLOSED)
       } else {
-        // 'all' 或其他 tab：排除封存、工具團、提案/模板
+        // fallback：排除封存、提案/模板
         query = query
           .neq('archived', true)
           .in('status', [

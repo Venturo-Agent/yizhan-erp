@@ -43,10 +43,10 @@ export const TOUR_STATUS = {
 const TOUR_STATUS_LABELS: Record<TourStatusValue, string> = {
   template: '模板',
   proposal: '提案',
-  upcoming: '待出發',
-  ongoing: '進行中',
-  returned: '未結團',
-  closed: '已結團',
+  upcoming: '即將出發',
+  ongoing: '旅行中',
+  returned: '未結案',
+  closed: '已結案',
 }
 
 /**
@@ -73,17 +73,19 @@ export function canConfirmTour(status: string | null): boolean {
 // ============================================
 
 export const ORDER_STATUS_MAP = {
-  pending: '待確認',
-  confirmed: '已確認',
-  completed: '已完成',
-  cancelled: '已取消',
+  pending_review: '待處理',
+  hk: '待確認',
+  kk: '已確認',
+  hl: '候補',
+  lk: '候補成功',
 } as const
 
 export const ORDER_STATUS_REVERSE_MAP = {
-  待確認: 'pending',
-  已確認: 'confirmed',
-  已完成: 'completed',
-  已取消: 'cancelled',
+  待處理: 'pending_review',
+  待確認: 'hk',
+  已確認: 'kk',
+  候補: 'hl',
+  候補成功: 'lk',
 } as const
 
 type OrderStatusKey = keyof typeof ORDER_STATUS_MAP

@@ -38,6 +38,9 @@ interface CheckInput {
     default_billing_day_of_week: number | null
     setup_completed_at: string | null
     setup_banner_dismissed_at: string | null
+    logo_url: string | null
+    company_seal_url: string | null
+    contract_seal_image_url: string | null
   }
   bank_accounts_count: number
   payment_methods_count: number
@@ -97,6 +100,20 @@ export function computeSetupStatus(input: CheckInput): SetupStatus {
       done: employees_count > 0,
       action_url: '/hr',
       hint: '員工是後續所有作業的對象',
+    },
+    {
+      key: 'seals',
+      label: '上傳公司大章 + 合約章',
+      done: !!(workspace.company_seal_url && workspace.contract_seal_image_url),
+      action_url: '/settings/company',
+      hint: '缺少印章圖片時，電子合約功能將無法使用',
+    },
+    {
+      key: 'logo',
+      label: '上傳公司 Logo',
+      done: !!workspace.logo_url,
+      action_url: '/settings/company',
+      hint: '會顯示在報價單、行程表等對外文件上',
     },
   ]
 

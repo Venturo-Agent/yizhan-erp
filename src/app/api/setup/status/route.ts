@@ -27,7 +27,7 @@ export async function GET() {
       supabase
         .from('workspaces')
         .select(
-          'id, name, tax_id, transfer_fee_mode, leave_policy, pension_system, default_billing_day_of_week, setup_completed_at, setup_banner_dismissed_at'
+          'id, name, tax_id, transfer_fee_mode, leave_policy, pension_system, default_billing_day_of_week, setup_completed_at, setup_banner_dismissed_at, logo_url, company_seal_url, contract_seal_image_url'
         )
         .eq('id', workspaceId)
         .maybeSingle(),

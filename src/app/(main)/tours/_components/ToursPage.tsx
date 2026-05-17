@@ -276,7 +276,16 @@ export const ToursPage: React.FC = () => {
   )
 
   // 開團（正式團）
-  const handleOpenTourDialog = useCallback(() => {
+  const handleOpenTourDialog = useCallback(async () => {
+    // 硬 gate：沒有出帳銀行帳戶不能開團
+    const res = await fetch('/api/setup/status').then(r => r.ok ? r.json() : null).catch(() => null)
+    if (res) {
+      const bankTodo = res.todos?.find((t: { key: string; done: boolean }) => t.key === 'bank_accounts')
+      if (bankTodo && !bankTodo.done) {
+        await alert('請先設定至少一個出帳銀行帳戶，才能建立旅遊團。\n\n前往：財務設定 → 銀行帳戶', 'warning')
+        return
+      }
+    }
     handleOpenCreateDialog()
   }, [handleOpenCreateDialog])
 

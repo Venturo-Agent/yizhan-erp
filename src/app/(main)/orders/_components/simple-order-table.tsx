@@ -14,9 +14,12 @@ import { cn } from '@/lib/utils'
 import { Order, Tour } from '@/stores/types'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
 import { OrderMembersExpandable } from '@/app/(main)/orders/_components/OrderMembersExpandable'
+import { OrderStatusBadge } from '@/app/(main)/orders/_components/OrderStatusBadge'
+import { OrderStatusChangeDialog } from '@/app/(main)/orders/_components/OrderStatusChangeDialog'
 import { EnhancedTable } from '@/components/ui/enhanced-table'
 import { useTranslations } from 'next-intl'
 import type { TableColumn } from '@/components/ui/enhanced-table'
+import type { OrderStatus } from '@/types/order.types'
 
 interface SimpleOrderTableProps {
   orders: Order[]
@@ -53,6 +56,19 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
   const router = useRouter()
   const workspaceId = useAuthStore(state => state.user?.workspace_id) || ''
   const [expanded, setExpanded] = useState<string[]>([])
+  const [statusDialog, setStatusDialog] = useState<{
+    order: Order
+    newStatus: OrderStatus
+  } | null>(null)
+  const [orderStatuses, setOrderStatuses] = useState<Record<string, OrderStatus>>({})
+
+  const handleStatusChangeRequest = useCallback((order: Order, newStatus: OrderStatus) => {
+    setStatusDialog({ order, newStatus })
+  }, [])
+
+  const handleStatusChangeSuccess = useCallback((orderId: string, newStatus: OrderStatus) => {
+    setOrderStatuses(prev => ({ ...prev, [orderId]: newStatus }))
+  }, [])
 
   const handleDelete = useCallback(async (order: Order, e: React.MouseEvent) => {
     e.stopPropagation()
@@ -172,9 +188,32 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
         <span className="tabular-nums">{typeof value === 'number' ? value : 0}</span>
       ),
     },
+    {
+      key: 'status',
+      label: '狀態',
+      width: '5.5rem',
+      render: (_value, row) => {
+        const order = row as Order
+        const currentStatus = (orderStatuses[order.id] ?? order.status) as OrderStatus | null
+        return (
+          <OrderStatusBadge
+            status={currentStatus}
+            onChangeRequest={newStatus => handleStatusChangeRequest(order, newStatus)}
+          />
+        )
+      },
+    },
   ]
 
   return (
+    <>
+    <OrderStatusChangeDialog
+      order={statusDialog?.order ?? null}
+      newStatus={statusDialog?.newStatus ?? null}
+      isOpen={!!statusDialog}
+      onClose={() => setStatusDialog(null)}
+      onSuccess={handleStatusChangeSuccess}
+    />
     <EnhancedTable<Order>
       className={className}
       columns={columns}
@@ -315,5 +354,6 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
         </div>
       )}
     />
+    </>
   )
 })

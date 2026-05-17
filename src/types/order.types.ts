@@ -78,13 +78,19 @@ export interface Member extends BaseEntity {
 // ============================================
 
 /**
- * OrderStatus - 訂單狀態
+ * OrderStatus - 訂單狀態（GDS 碼）
+ * pending_review = 待處理（AI/官網進來未接手）
+ * hk = Holds Confirmed，訂好位等開票
+ * kk = Confirming，開票完成
+ * hl = Have Waitlisted，候補中（預留）
+ * lk = Waitlist Link，候補成功未處理（預留）
  */
 export type OrderStatus =
-  | 'pending' // 待確認
-  | 'confirmed' // 已確認
-  | 'completed' // 已完成
-  | 'cancelled' // 已取消
+  | 'pending_review'
+  | 'hk'
+  | 'kk'
+  | 'hl'
+  | 'lk'
 
 /**
  * PaymentStatus - 付款狀態

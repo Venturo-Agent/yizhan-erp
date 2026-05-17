@@ -20,6 +20,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showForgot, setShowForgot] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
+  const [forgotLoading, setForgotLoading] = useState(false)
   const searchParams = useSearchParams()
   const { validateLogin } = useAuthStore()
 
@@ -65,6 +69,20 @@ export default function LoginPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!forgotEmail.trim()) return
+    setForgotLoading(true)
+    try {
+      await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      setForgotSent(true)
+    } finally {
+      setForgotLoading(false)
+    }
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -188,6 +206,53 @@ export default function LoginPage() {
             {isLoading ? t('loginButtonLoading') : t('loginButton')}
           </button>
         </form>
+
+        {/* 忘記密碼 */}
+        {!showForgot ? (
+          <button
+            type="button"
+            onClick={() => { setShowForgot(true); setForgotEmail(email) }}
+            className="mt-4 w-full text-center text-xs text-morandi-muted hover:text-morandi-secondary transition-colors"
+          >
+            忘記密碼？
+          </button>
+        ) : (
+          <div className="mt-4 border-t border-morandi-gold/20 pt-4">
+            {forgotSent ? (
+              <p className="text-xs text-center text-morandi-secondary">
+                重設信件已寄出，請檢查信箱（含垃圾郵件）。
+              </p>
+            ) : (
+              <form onSubmit={handleForgotPassword}>
+                <p className="text-xs text-morandi-secondary mb-2 text-center">輸入帳號 Email，我們會寄重設連結給你</p>
+                <input
+                  type="email"
+                  value={forgotEmail}
+                  onChange={e => setForgotEmail(e.target.value)}
+                  placeholder="帳號 Email"
+                  required
+                  className="login-input"
+                />
+                <div className="flex gap-2 mt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgot(false)}
+                    className="flex-1 py-2 text-xs text-morandi-muted border border-morandi-gold/30 rounded-2xl hover:bg-morandi-gold/5"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="flex-1 py-2 text-xs text-white bg-morandi-gold rounded-2xl disabled:opacity-60"
+                  >
+                    {forgotLoading ? '寄送中...' : '寄出重設信'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
       </div>
 
       <style>{`
