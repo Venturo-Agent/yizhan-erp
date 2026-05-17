@@ -20,7 +20,7 @@ CREATE POLICY "workspace members can read conversation notes"
   ON inbox_conversation_notes FOR SELECT
   USING (
     workspace_id IN (
-      SELECT workspace_id FROM employees WHERE auth_user_id = auth.uid()
+      SELECT workspace_id FROM employees WHERE user_id = auth.uid()
     )
   );
 
@@ -28,9 +28,9 @@ CREATE POLICY "workspace members can insert conversation notes"
   ON inbox_conversation_notes FOR INSERT
   WITH CHECK (
     workspace_id IN (
-      SELECT workspace_id FROM employees WHERE auth_user_id = auth.uid()
+      SELECT workspace_id FROM employees WHERE user_id = auth.uid()
     )
     AND employee_id IN (
-      SELECT id FROM employees WHERE auth_user_id = auth.uid()
+      SELECT id FROM employees WHERE user_id = auth.uid()
     )
   );
