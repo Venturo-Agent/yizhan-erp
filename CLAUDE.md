@@ -252,6 +252,7 @@ Phase 3  audit      ☐ npm run audit:rls 必綠 + type-check / lint 必綠
 ### audit script（自動偵測偏離 blueprint）
 - **`npm run audit:rls`** — `scripts/audit-rls-blueprint.ts`、6 層自動檢核
 - **`npm run audit:writes`** — `scripts/audit-write-paths.ts`、抓「DB trigger + API 同表 INSERT」雙寫撞車（2026-05-17 加、解 onboarding trigger × API 撞 unique 那次教訓）
+- **`npm run audit:orphans`** — `scripts/audit-auth-orphans.ts`、抓 `auth.users` 沒對應 `employees` row 的孤兒（多步 create rollback 漏清會累積、撞下次同 email 註冊）。加 `-- --clean` 互動式清。需 `source ~/.config/venturo/secrets.env`
 - 走 psql + `SUPABASE_DB_URL`（不用 PAT）、Mac IPv6 不通自動降級為 code grep only
 - CI：`.github/workflows/audit-rls.yml`、PR 自動跑、error 擋 merge、要 `SUPABASE_DB_URL` secret
 - 動表 / 動 RLS / 動中央 module 前必跑、新表上線前必綠
