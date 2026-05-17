@@ -10,7 +10,7 @@ import {
   getStatusText,
   type AirportFlightItem,
   type ApiFlightData,
-} from './flight-utils'
+} from '@/lib/utils/flight-utils'
 
 /**
  * 查詢機場抵達航班

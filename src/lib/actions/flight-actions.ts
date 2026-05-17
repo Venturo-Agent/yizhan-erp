@@ -11,10 +11,10 @@ import {
   validateFlightData,
   transformFlightData,
   type ApiFlightData,
-} from './flight-utils'
+} from '@/lib/utils/flight-utils'
 
 // Re-export types so callers don't need to change import paths
-export type { FlightData, AirportFlightItem } from './flight-utils'
+export type { FlightData, AirportFlightItem } from '@/lib/utils/flight-utils'
 
 /**
  * 查詢單一航班
@@ -28,8 +28,8 @@ export async function searchFlightAction(
   flightNumber: string,
   flightDate: string
 ): Promise<{
-  data?: import('./flight-utils').FlightData
-  segments?: import('./flight-utils').FlightData[]
+  data?: import('@/lib/utils/flight-utils').FlightData
+  segments?: import('@/lib/utils/flight-utils').FlightData[]
   error?: string
   warning?: string
 }> {
@@ -141,7 +141,7 @@ export async function searchAirportDeparturesAction(
   airportCode: string,
   date: string,
   destinationFilter?: string
-): Promise<{ data?: import('./flight-utils').AirportFlightItem[]; error?: string }> {
+): Promise<{ data?: import('@/lib/utils/flight-utils').AirportFlightItem[]; error?: string }> {
   // 載入機場/航空公司參考資料（從資料庫，有快取）
   await loadReferenceData()
 
@@ -228,7 +228,7 @@ export async function searchAirportDeparturesAction(
 
     // 轉換資料格式
     // 注意：Airport Departures API 使用 movement 結構，而非 departure/arrival
-    let flights: import('./flight-utils').AirportFlightItem[] = departures.map(
+    let flights: import('@/lib/utils/flight-utils').AirportFlightItem[] = departures.map(
       (flight: ApiFlightData) => {
         // 優先使用 movement（Airport API），fallback 到 departure（Flight API）
         const movement = flight.movement || flight.departure
