@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { fetcher, type DimensionRow } from '../_types/organizationTypes'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface DeptFormState {
   branchId: string
@@ -80,14 +81,13 @@ export function BranchesWithDepartments() {
         name: branchForm.name.trim(),
         is_default: branchForm.isDefault,
       }
-      const res = await fetch('/api/organization/branches', {
+      const res = await apiMutate('/api/organization/branches', {
         method: isUpdate ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body,
+        invalidate: ['/api/organization/branches'],
       })
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || '儲存失敗')
+        throw new Error(res.error || '儲存失敗')
       }
       toast.success(isUpdate ? '已更新分公司' : '已新增分公司')
       cancelBranchForm()
@@ -109,10 +109,12 @@ export function BranchesWithDepartments() {
     })
     if (!ok) return
     try {
-      const res = await fetch(`/api/organization/branches?id=${row.id}`, { method: 'DELETE' })
+      const res = await apiMutate(`/api/organization/branches?id=${row.id}`, {
+        method: 'DELETE',
+        invalidate: ['/api/organization/branches', '/api/organization/departments'],
+      })
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || '刪除失敗')
+        throw new Error(res.error || '刪除失敗')
       }
       toast.success('已刪除')
       await mutateBranches()
@@ -152,14 +154,13 @@ export function BranchesWithDepartments() {
         branch_id: deptForm.branchId,
         is_default: false,
       }
-      const res = await fetch('/api/organization/departments', {
+      const res = await apiMutate('/api/organization/departments', {
         method: isUpdate ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body,
+        invalidate: ['/api/organization/departments'],
       })
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || '儲存失敗')
+        throw new Error(res.error || '儲存失敗')
       }
       toast.success(isUpdate ? '已更新部門' : '已新增部門')
       cancelDeptForm()
@@ -181,10 +182,12 @@ export function BranchesWithDepartments() {
     })
     if (!ok) return
     try {
-      const res = await fetch(`/api/organization/departments?id=${dept.id}`, { method: 'DELETE' })
+      const res = await apiMutate(`/api/organization/departments?id=${dept.id}`, {
+        method: 'DELETE',
+        invalidate: ['/api/organization/departments'],
+      })
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || '刪除失敗')
+        throw new Error(res.error || '刪除失敗')
       }
       toast.success('已刪除')
       await mutateDepts()

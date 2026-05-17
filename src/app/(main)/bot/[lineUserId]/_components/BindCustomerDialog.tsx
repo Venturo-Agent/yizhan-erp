@@ -20,6 +20,7 @@ import { useCustomersSlim } from '@/data'
 import { toast } from 'sonner'
 import { Link2 } from 'lucide-react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface BindCustomerDialogProps {
   open: boolean
@@ -54,17 +55,15 @@ export function BindCustomerDialog({
         toast.error('請選擇客戶')
         return
       }
-      const res = await fetch(
+      const res = await apiMutate(
         `/api/line/conversations/${encodeURIComponent(lineUserId)}/bind-customer`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer_id: selectedId }),
+          body: { customer_id: selectedId },
         }
       )
-      const json = await res.json().catch(() => ({}))
       if (!res.ok) {
-        throw new Error(json.error || '綁定失敗')
+        throw new Error(res.error || '綁定失敗')
       }
       toast.success('已綁定客戶')
       onBound()

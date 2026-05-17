@@ -93,7 +93,7 @@ export async function provisionLineBot(input: ProvisionInput): Promise<Provision
         chinese_name: 'LINE Bot 系統',
         display_name: 'LINE Bot 系統',
         english_name: 'LINE Bot',
-        employee_type: 'system_bot',
+        employee_type: 'bot',
         role_id: systemBotRoleId,
         status: 'active',
         personal_info: {},

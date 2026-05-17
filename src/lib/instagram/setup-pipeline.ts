@@ -105,7 +105,7 @@ export async function provisionInstagramBot(input: ProvisionInput): Promise<Prov
         chinese_name: 'IG DM 系統',
         display_name: 'IG DM 系統',
         english_name: 'Instagram DM Bot',
-        employee_type: 'system_bot',
+        employee_type: 'bot',
         role_id: systemBotRoleId,
         status: 'active',
         personal_info: {},

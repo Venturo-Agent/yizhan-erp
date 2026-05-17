@@ -28,6 +28,8 @@ const schema = z
     bot_paused_until: z.string().datetime().optional().nullable(),
     is_archived: z.boolean().optional(),
     customer_id: z.string().optional().nullable(),
+    /** true = 把 unread_count 歸零（agent 進入對話自動清未讀）*/
+    mark_as_read: z.boolean().optional(),
   })
   .refine(d => Object.values(d).some(v => v !== undefined), { message: '至少要更新一個欄位' })
 
@@ -94,13 +96,15 @@ export async function PATCH(
       return NextResponse.json({ success: true })
     }
 
-    // FB / IG: 動態組 update payload
+    // FB / IG / LINE（走 UUID）：動態組 update payload
     const updates: Record<string, unknown> = {}
     if (validation.data.bot_paused !== undefined) updates.bot_paused = validation.data.bot_paused
     if (validation.data.bot_paused_until !== undefined)
       updates.bot_paused_until = validation.data.bot_paused_until
     if (validation.data.is_archived !== undefined) updates.is_archived = validation.data.is_archived
     if (validation.data.customer_id !== undefined) updates.customer_id = validation.data.customer_id
+    // agent 進入對話自動清未讀
+    if (validation.data.mark_as_read === true) updates.unread_count = 0
 
     const convTable = supabase.from as unknown as (
       table: string

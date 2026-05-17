@@ -23,6 +23,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { alert as showAlert } from '@/lib/ui/alert-dialog'
+import { apiMutate } from '@/lib/swr/api-mutate'
 import { logger } from '@/lib/utils/logger'
 import type { IntegrationFieldDef } from '@/lib/integrations/registry'
 
@@ -65,24 +66,26 @@ export function IntegrationsTab({ workspaceId }: IntegrationsTabProps) {
     setGeneratingLinkCode(integrationCode)
     setLinkCopied(false)
     try {
-      const res = await fetch('/api/setup-tokens', {
+      const res = await apiMutate<{
+        integration?: { name?: string }
+        url: string
+        expires_at: string
+      }>('/api/setup-tokens', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           workspace_id: workspaceId,
           integration_code: integrationCode,
           expires_hours: 24,
-        }),
+        },
       })
-      const data = await res.json()
-      if (!res.ok) {
-        await showAlert(data.error || '生成連結失敗', 'error')
+      if (!res.ok || !res.data) {
+        await showAlert(res.error || '生成連結失敗', 'error')
         return
       }
       setLinkResult({
-        integration_name: data.integration?.name ?? integrationCode,
-        url: data.url,
-        expires_at: data.expires_at,
+        integration_name: res.data.integration?.name ?? integrationCode,
+        url: res.data.url,
+        expires_at: res.data.expires_at,
       })
     } catch (err) {
       logger.error('生成 setup 連結失敗', err)
@@ -170,19 +173,18 @@ export function IntegrationsTab({ workspaceId }: IntegrationsTabProps) {
   const handleSave = async (it: IntegrationView) => {
     setSavingCode(it.code)
     try {
-      const res = await fetch('/api/workspace-integrations', {
+      const res = await apiMutate('/api/workspace-integrations', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           workspace_id: workspaceId,
           integration_code: it.code,
           config: drafts[it.code] ?? {},
           enabled: draftEnabled[it.code] ?? false,
-        }),
+        },
+        invalidate: [`/api/workspace-integrations?workspace_id=${workspaceId}`],
       })
-      const body = await res.json()
       if (!res.ok) {
-        await showAlert(body.error || '儲存失敗', 'error')
+        await showAlert(res.error || '儲存失敗', 'error')
         return
       }
       // 重撈、拿到最新遮罩

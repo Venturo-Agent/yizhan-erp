@@ -23,6 +23,7 @@ import { logger } from '@/lib/utils/logger'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { useTranslations } from 'next-intl'
 import { COMMON_MESSAGES } from '@/constants/messages'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 const PAGE_LABELS = {
   STATUS_DRAFT: '草稿',
@@ -203,15 +204,15 @@ export default function VouchersPage() {
     if (!confirmed) return
 
     try {
-      const res = await fetch(`/api/accounting/vouchers/${voucher.id}/reverse`, {
-        method: 'POST',
-      })
-      const json = await res.json()
+      const res = await apiMutate<{ voucher_no?: string; error?: string }>(
+        `/api/accounting/vouchers/${voucher.id}/reverse`,
+        { method: 'POST' }
+      )
       if (!res.ok) {
-        toast.error(json.error ?? COMMON_MESSAGES.UNKNOWN_ERROR)
+        toast.error(res.error ?? COMMON_MESSAGES.UNKNOWN_ERROR)
         return
       }
-      toast.success(`${COMMON_MESSAGES.OPERATION_SUCCESS}、反沖傳票編號：${json.voucher_no}`)
+      toast.success(`${COMMON_MESSAGES.OPERATION_SUCCESS}、反沖傳票編號：${res.data?.voucher_no}`)
       loadVouchers()
     } catch (error) {
       logger.error('反沖傳票失敗:', error)

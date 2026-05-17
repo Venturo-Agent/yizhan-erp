@@ -23,6 +23,7 @@ import { BillingTab } from './_components/billing-tab'
 import { IntegrationsTab } from './_components/integrations-tab'
 import { AddonsTab } from './_components/addons-tab'
 import { OverviewTab } from './_components/overview-tab'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 const TAB_VALUES = {
   OVERVIEW: 'overview',
@@ -167,19 +168,18 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
     setSaving(true)
 
     try {
-      const res = await fetch('/api/permissions/features', {
+      const res = await apiMutate('/api/permissions/features', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           workspace_id: id,
           features,
           premium_enabled: premiumEnabled,
-        }),
+        },
+        invalidate: [`/api/permissions/features?workspace_id=${id}`],
       })
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        toast.error('儲存失敗', { description: body.error || `HTTP ${res.status}` })
+        toast.error('儲存失敗', { description: res.error || `HTTP ${res.status}` })
         return
       }
 
@@ -197,17 +197,16 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
   const handleSaveHrPolicy = async () => {
     setSavingHrPolicy(true)
     try {
-      const res = await fetch(`/api/workspaces/${id}/hr-policy`, {
+      const res = await apiMutate(`/api/workspaces/${id}/hr-policy`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           leave_policy: leavePolicy,
           pension_system: pensionSystem,
-        }),
+        },
+        invalidate: [`/api/workspaces/${id}`],
       })
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        toast.error('儲存 HR 政策失敗', { description: body.error || `HTTP ${res.status}` })
+        toast.error('儲存 HR 政策失敗', { description: res.error || `HTTP ${res.status}` })
         return
       }
       toast.success('HR 政策已儲存')

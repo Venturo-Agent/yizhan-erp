@@ -26,7 +26,7 @@ import {
   // sub icons
   Wallet, HandCoins, BarChart3, Settings, FileText, BookOpen,
   Calendar, FileCheck, Contact, Palmtree, Building2, Archive,
-  Network, Landmark, Globe, Plane, Shield,
+  Network, Landmark, Globe, Plane, Shield, MapPin,
   Box,
   type LucideIcon,
 } from 'lucide-react'
@@ -149,6 +149,7 @@ export const SIDEBAR_META: Record<string, SidebarMeta> = {
       { href: '/shared-data/countries', label: COMP_LAYOUT_LABELS.國家代號, icon: Globe },
       { href: '/shared-data/airports', label: COMP_LAYOUT_LABELS.機場代號, icon: Plane },
       { href: '/shared-data/insurance-grades', label: '勞健保級距', icon: Shield },
+      { href: '/shared-data/attractions', label: COMP_LAYOUT_LABELS.景點圈管理, icon: MapPin },
     ],
   },
   cis: {

@@ -28,6 +28,7 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { fetcher, type DimensionRow } from '../_types/organizationTypes'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface DimensionSectionConfig {
   table: 'brands' | 'branches' | 'departments'
@@ -99,14 +100,13 @@ export function DimensionSection({ config }: DimensionSectionProps) {
       if (isDeptSection) {
         body.branch_id = formBranchId
       }
-      const res = await fetch(config.apiPath, {
+      const res = await apiMutate(config.apiPath, {
         method: isUpdate ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body,
+        invalidate: [config.apiPath],
       })
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || '儲存失敗')
+        throw new Error(res.error || '儲存失敗')
       }
       toast.success(isUpdate ? '已更新' : '已新增')
       cancelEdit()
@@ -143,10 +143,12 @@ export function DimensionSection({ config }: DimensionSectionProps) {
     })
     if (!ok) return
     try {
-      const res = await fetch(`${config.apiPath}?id=${row.id}`, { method: 'DELETE' })
+      const res = await apiMutate(`${config.apiPath}?id=${row.id}`, {
+        method: 'DELETE',
+        invalidate: [config.apiPath],
+      })
       if (!res.ok) {
-        const j = await res.json().catch(() => ({}))
-        throw new Error(j.error || '刪除失敗')
+        throw new Error(res.error || '刪除失敗')
       }
       toast.success('已刪除')
       await mutate()

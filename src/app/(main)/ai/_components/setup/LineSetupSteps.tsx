@@ -117,6 +117,110 @@ export function StepCredentials({
         </p>
       </div>
 
+      {/* 圖文並排引導：LINE Console 操作步驟 */}
+      <div className="space-y-4">
+        {/* 圖1：LINE Console 歡迎頁 */}
+        <div className="flex gap-4 items-start">
+          <div className="w-2/5 rounded-md border border-morandi-muted/20 overflow-hidden flex-shrink-0">
+            <img
+              src="/images/line-setup/line-console-welcome.png"
+              alt="LINE Developers Console — 3 steps to create Provider and Channel"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex-1 space-y-2 py-1">
+            <h4 className="text-sm font-semibold text-morandi-primary">第一步：建立 Provider（服務提供者）</h4>
+            <p className="text-xs text-morandi-secondary">
+              點擊「<strong>Create a new provider</strong>」按鈕，輸入你的公司或組織名稱。Provider 是代表你的公司、個人或組織的實體，未來會用來建立多個 Channel。
+            </p>
+          </div>
+        </div>
+
+        {/* 圖2：建立 Provider 頁面 */}
+        <div className="flex gap-4 items-start">
+          <div className="w-2/5 rounded-md border border-morandi-muted/20 overflow-hidden flex-shrink-0">
+            <img
+              src="/images/line-setup/line-console-create-provider-en.png"
+              alt="LINE Developers Console — Create a new provider page"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex-1 space-y-2 py-1">
+            <h4 className="text-sm font-semibold text-morandi-primary">第二步：填寫 Provider 名稱</h4>
+            <p className="text-xs text-morandi-secondary">
+              在「<strong>Provider name</strong>」欄位輸入你的公司或組織名稱（不需要特殊字元、不超過 100 字），確認三條規則都變成綠色勾勾後，點擊「<strong>Create</strong>」建立。
+            </p>
+          </div>
+        </div>
+
+        {/* 圖3：Messaging API 需先建立 LINE 官方帳號 */}
+        <div className="flex gap-4 items-start">
+          <div className="w-2/5 rounded-md border border-morandi-muted/20 overflow-hidden flex-shrink-0">
+            <img
+              src="/images/line-setup/line-console-messaging-api-create-notice.png"
+              alt="LINE Developers Console — Messaging API requires LINE Official Account"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex-1 space-y-2 py-1">
+            <h4 className="text-sm font-semibold text-morandi-primary">第三步：建立 LINE 官方帳號（新制）</h4>
+            <p className="text-xs text-morandi-secondary">
+              直接建立 Messaging API Channel 已停用。現在要先去外部網站建立「<strong>LINE 官方帳號</strong>」。<br/>
+              點「<strong>Create a LINE Official Account</strong>」（會跳到 external site）。
+            </p>
+          </div>
+        </div>
+
+        {/* 圖4：LINE 官方帳號申請表 */}
+        <div className="flex gap-4 items-start">
+          <div className="w-2/5 rounded-md border border-morandi-muted/20 overflow-hidden flex-shrink-0">
+            <img
+              src="/images/line-setup/line-official-account-create-form.png"
+              alt="LINE Official Account — 申請表單"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex-1 space-y-2 py-1">
+            <h4 className="text-sm font-semibold text-morandi-primary">第四步：填寫 LINE 官方帳號資料</h4>
+            <p className="text-xs text-morandi-secondary">
+              必填項目：<br/>
+              - <strong>帳號名稱</strong>：你的 LINE 官方帳號名稱（20 字以內）<br/>
+              - <strong>電子郵件</strong>：填 Email<br/>
+              - <strong>公司所在國家/地區</strong>：選「<strong>台灣</strong>」<br/>
+              - <strong>業種</strong>：選大分類 / 小分類（例：旅行社 / 旅行社）<br/>
+              填完點「<strong>確定</strong>」申請。
+            </p>
+          </div>
+        </div>
+
+        {/* 圖5：Channel 表單（可能不再需要或位置不同） */}
+        {/*
+        <div className="flex gap-4 items-start">
+          <div className="w-2/5 rounded-md border border-morandi-muted/20 overflow-hidden flex-shrink-0">
+            <img
+              src="/images/line-setup/line-console-create-channel-form.png"
+              alt="LINE Developers Console — Create Messaging API channel form"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex-1 space-y-2 py-1">
+            <h4 className="text-sm font-semibold text-morandi-primary">第五步：啟用 Messaging API</h4>
+            <p className="text-xs text-morandi-secondary">
+              建立 LINE 官方帳號後，需到「<strong>LINE Official Account Manager</strong>」啟用 Messaging API。<br/>
+              啟用後，LINE Developers Console 才會出現 Channel ID / Secret / Token。
+            </p>
+          </div>
+        </div>
+        */}
+      </div>
+
+      <div className="p-2 bg-morandi-gold/10 border border-morandi-gold/30 rounded-md text-xs text-morandi-secondary">
+        <strong>LINE Console 重新調整過位置，Credential 在這裡：</strong><br/>
+        - <strong>Channel ID</strong>：Basic settings 分頁<br/>
+        - <strong>Channel secret</strong>：Basic settings 分頁（旁邊有「<strong>Issue</strong>」按鈕）<br/>
+        - <strong>Channel access token</strong>：點到「<strong>Messaging API</strong>」分頁，最下方有「Channel access token」區塊，點「<strong>Issue</strong>」產生（long-lived）
+      </div>
+
       <div className="space-y-1.5">
         <Label className="text-xs font-semibold uppercase">Channel ID *</Label>
         <Input

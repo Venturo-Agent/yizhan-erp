@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface SettlementItem {
   id: string
@@ -110,13 +111,18 @@ export default function SalarySettlementDetailPage({
 
     setSubmitting(true)
     try {
-      const res = await fetch(`/api/hr/salary-settlements/${id}/submit`, { method: 'POST' })
-      const body = await res.json()
-      if (!res.ok) {
-        toast.error(body.error || `確認失敗 HTTP ${res.status}`)
+      const res = await apiMutate<{ data: { payment_request_code: string } }>(
+        `/api/hr/salary-settlements/${id}/submit`,
+        {
+          method: 'POST',
+          invalidate: [`/api/hr/salary-settlements/${id}`, '/api/hr/salary-settlements'],
+        }
+      )
+      if (!res.ok || !res.data) {
+        toast.error(res.error || `確認失敗 HTTP ${res.status}`)
         return
       }
-      toast.success(`已確認、請款單 ${body.data.payment_request_code}`)
+      toast.success(`已確認、請款單 ${res.data.data.payment_request_code}`)
       load()
     } catch (err) {
       logger.error('Submit failed:', err)
@@ -131,10 +137,12 @@ export default function SalarySettlementDetailPage({
     if (!ok) return
 
     try {
-      const res = await fetch(`/api/hr/salary-settlements/${id}`, { method: 'DELETE' })
+      const res = await apiMutate(`/api/hr/salary-settlements/${id}`, {
+        method: 'DELETE',
+        invalidate: ['/api/hr/salary-settlements'],
+      })
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        toast.error(body.error || '刪除失敗')
+        toast.error(res.error || '刪除失敗')
         return
       }
       toast.success('已刪除')

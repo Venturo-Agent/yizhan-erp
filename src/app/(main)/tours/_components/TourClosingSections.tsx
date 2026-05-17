@@ -41,6 +41,7 @@ import { BONUS_TYPE_LABELS } from '../_constants/bonus-labels'
 import type { PrintTourClosingPreviewProps } from './PrintTourClosingPreview'
 
 import { Spinner } from '@/components/ui/spinner'
+import { apiMutate } from '@/lib/swr/api-mutate'
 const COMPONENT_LABELS = {
   STATUS_UPDATE_FAILED: '狀態更新失敗',
   CLOSE_TOUR_FAILED: '結團失敗、請再試一次',
@@ -199,10 +200,9 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
       ].filter(b => b.amount > 0)
 
       if (bonusesToWrite.length > 0) {
-        const res = await fetch('/api/hr/bonus-settlements/write-pending', {
+        const res = await apiMutate('/api/hr/bonus-settlements/write-pending', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          body: {
             tour_id: tour.id,
             tour_code: tour.code || '',
             bonuses: bonusesToWrite.map(b => ({
@@ -214,11 +214,11 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
               bonus_kind: BONUS_TYPE_LABELS[b.setting.type] ?? null,
               reason: null,
             })),
-          }),
+          },
+          invalidate: ['/api/hr/bonus-settlements/pending-tours'],
         })
         if (!res.ok) {
-          const body = await res.json().catch(() => ({}))
-          throw new Error(body.error || `寫入 bonus_pending 失敗 HTTP ${res.status}`)
+          throw new Error(res.error || `寫入 bonus_pending 失敗 HTTP ${res.status}`)
         }
       }
 

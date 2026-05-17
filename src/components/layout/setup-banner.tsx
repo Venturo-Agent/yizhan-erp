@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { AlertCircle, ChevronDown, ChevronUp, X, ArrowRight, Check } from 'lucide-react'
 import { CAPABILITIES, useCapabilities } from '@/lib/permissions'
 import type { SetupStatus, SetupTodo } from '@/lib/setup/check-status'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 export function SetupBanner() {
   const router = useRouter()
@@ -42,10 +43,10 @@ export function SetupBanner() {
   const handleDismiss = async () => {
     setDismissing(true)
     try {
-      await fetch('/api/setup/status', {
+      await apiMutate('/api/setup/status', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'dismiss_banner' }),
+        body: { action: 'dismiss_banner' },
+        invalidate: ['/api/setup/status'],
       })
       setStatus(prev => (prev ? { ...prev, banner_dismissed_at: new Date().toISOString() } : prev))
     } finally {

@@ -72,32 +72,40 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
   const happyEnabled = isFeatureEnabled('channels.happy')
   const [openingDm, setOpeningDm] = useState<string | null>(null)
 
-  // 同事清單：當前 workspace active human 員工、排除自己
-  // 過濾掉「已經跟我有 DM channel」的人 → 那些人會在「私訊」section 顯示、不重複
+  // 同事清單（合併「同事 + 私訊」成單一「私訊」section）：
+  //   當前 workspace active human、排除自己、排除 bot / system_bot / integration
+  //   有 DM channel 的 → 點擊跳該 channel + 顯示未讀
+  //   沒 DM channel 的 → 點擊建 DM + 跳
   const coworkers = useMemo(() => {
     if (!user?.workspace_id) return []
-    const myDmChannelIds = (members ?? [])
-      .filter(m => m.employee_id === user.id)
-      .map(m => m.channel_id)
-    const peerInDmIds = new Set(
-      (members ?? [])
-        .filter(m => myDmChannelIds.includes(m.channel_id) && m.employee_id !== user.id)
-        .filter(m => {
-          const ch = (channels ?? []).find(c => c.id === m.channel_id)
-          return ch?.type === 'dm' && !ch.is_archived && !ch.agent_id
-        })
-        .map(m => m.employee_id)
-    )
     return (allEmployees ?? []).filter(
       e =>
         e.workspace_id === user.workspace_id &&
         e.status === 'active' &&
         e.id !== user.id &&
+        // 排除所有 bot 類員工（LINE Bot 系統 / 系統 bot / 第三方整合）
+        (e as { employee_type?: string }).employee_type !== 'bot' &&
         (e as { employee_type?: string }).employee_type !== 'system_bot' &&
-        (e as { employee_type?: string }).employee_type !== 'integration' &&
-        !peerInDmIds.has(e.id) // 已有 DM 的人不重複列、走「私訊」section
+        (e as { employee_type?: string }).employee_type !== 'integration'
     )
-  }, [allEmployees, user?.workspace_id, user?.id, members, channels])
+  }, [allEmployees, user?.workspace_id, user?.id])
+
+  // peer employee id → 既有 DM channel（沒有就是 null、點擊時才建）
+  const dmChannelByPeer = useMemo(() => {
+    const map = new Map<string, Channel>()
+    if (!user?.id) return map
+    const myDmChannelIds = (members ?? [])
+      .filter(m => m.employee_id === user.id)
+      .map(m => m.channel_id)
+    for (const m of members ?? []) {
+      if (m.employee_id === user.id) continue
+      if (!myDmChannelIds.includes(m.channel_id)) continue
+      const ch = (channels ?? []).find(c => c.id === m.channel_id)
+      if (!ch || ch.type !== 'dm' || ch.is_archived || ch.agent_id) continue
+      map.set(m.employee_id, ch)
+    }
+    return map
+  }, [members, channels, user?.id])
 
   // 找 / 建跟某員工的 DM channel、然後跳轉
   // 走 API（不走 client supabase）— channels_insert RLS 有詭異互動、API 用 admin client 繞、安全等價
@@ -266,12 +274,12 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
               </div>
             )}
 
-            {/* Section 2: 同事 — 列當前 workspace active human、點開直接跳對應 DM（找不到就建）*/}
+            {/* Section 2: 私訊（同事 + 既有 DM 合併、點頭像 = 開 DM）*/}
             {coworkers.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
-                  <Users className="h-3 w-3" />
-                  同事
+                  <MessagesSquare className="h-3 w-3" />
+                  私訊
                 </div>
                 <ul>
                   {coworkers.map(emp => {
@@ -279,18 +287,37 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
                     const avatarUrl = (emp as { avatar_url?: string | null }).avatar_url ?? null
                     const initial = display[0] ?? '?'
                     const isOpening = openingDm === emp.id
+                    const existingDm = dmChannelByPeer.get(emp.id)
+                    const unread = existingDm ? isUnread(existingDm) : false
+                    const isActive = existingDm?.id === activeChannelId
+
+                    // 既有 DM channel → 直接 Link 跳該 channel
+                    // 沒 DM channel → button 點擊時建 DM 再跳
+                    const handleClick = () => {
+                      if (existingDm) {
+                        router.push(`/channels/${existingDm.id}`)
+                      } else {
+                        void openDmWith(emp.id)
+                      }
+                    }
+
                     return (
                       <li key={emp.id}>
                         <button
                           type="button"
-                          onClick={() => openDmWith(emp.id)}
+                          onClick={handleClick}
                           disabled={isOpening}
                           className={cn(
-                            'w-full flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-morandi-gold-light transition-colors text-morandi-secondary',
+                            'w-full flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-morandi-gold-light transition-colors',
+                            isActive
+                              ? 'bg-morandi-gold-light text-morandi-primary font-medium'
+                              : unread
+                                ? 'text-morandi-primary font-medium'
+                                : 'text-morandi-secondary',
                             isOpening && 'opacity-60 cursor-wait'
                           )}
                         >
-                          {/* 同事頭像 20×20 圓形、無頭像顯姓氏首字 */}
+                          {/* 頭像 20×20 圓形、無頭像顯首字 */}
                           <div className="shrink-0 w-5 h-5 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-[0.588rem] font-medium text-morandi-gold">
                             {avatarUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
@@ -301,25 +328,13 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
                           </div>
                           <span className="flex-1 text-left truncate">{display}</span>
                           {isOpening && <Loader2 className="h-3 w-3 animate-spin" />}
+                          {unread && (
+                            <span className="ml-auto h-2 w-2 rounded-full bg-morandi-gold shrink-0" />
+                          )}
                         </button>
                       </li>
                     )
                   })}
-                </ul>
-              </div>
-            )}
-
-            {/* Section 3: 私訊（既有 DM channels — 未讀紅點在這呈現） */}
-            {sections.dms.length > 0 && (
-              <div className="mb-4">
-                <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
-                  <MessagesSquare className="h-3 w-3" />
-                  私訊
-                </div>
-                <ul>
-                  {sections.dms.map(c =>
-                    renderChannelItem(c, resolveDmDisplayName(c), MessagesSquare)
-                  )}
                 </ul>
               </div>
             )}

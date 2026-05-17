@@ -22,13 +22,16 @@
  */
 
 import { useEffect, useState, useMemo, useRef } from 'react'
-import useSWR, { mutate as swrMutate } from 'swr'
+import useSWR from 'swr'
+import { apiMutate } from '@/lib/swr/api-mutate'
+import { useRealtimeMutate } from '@/lib/swr/use-realtime-mutate'
+import { useAuthStore } from '@/stores/auth-store'
 import { formatDateTaipei } from '@/lib/utils/format-date'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2 } from 'lucide-react'
+import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 
@@ -98,11 +101,28 @@ function formatRelative(ts: string | null): string {
 export function AiConversationsTab() {
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const { user } = useAuthStore()
+  const workspaceId = user?.workspace_id ?? null
 
   const listUrl =
     channelFilter === 'all'
       ? '/api/messaging/conversations'
       : `/api/messaging/conversations?channel=${channelFilter}`
+
+  // 🔴 SWR Realtime：別人改 inbox_conversations / 該 conversation 的 messages → 我這邊立刻更新
+  useRealtimeMutate({
+    table: 'inbox_conversations',
+    filter: workspaceId ? `workspace_id=eq.${workspaceId}` : undefined,
+    swrKeys: [listUrl],
+    enabled: Boolean(workspaceId),
+  })
+
+  useRealtimeMutate({
+    table: 'inbox_messages',
+    filter: selectedId ? `conversation_id=eq.${selectedId}` : undefined,
+    swrKeys: selectedId ? [`/api/messaging/conversations/${selectedId}/messages`] : [],
+    enabled: Boolean(selectedId),
+  })
 
   const { data: listResp, error: listError, isLoading: listLoading } = useSWR<{
     data: ConversationItem[]
@@ -128,25 +148,20 @@ export function AiConversationsTab() {
     }
   }, [conversations, selectedId])
 
+  // 選中對話時、若有未讀就 mark_as_read
+  useEffect(() => {
+    if (!selectedConv || selectedConv.unread_count === 0) return
+    void apiMutate(`/api/messaging/conversations/${selectedConv.id}`, {
+      method: 'PATCH',
+      body: { mark_as_read: true },
+      invalidate: [listUrl],
+    })
+  }, [selectedConv, listUrl])
+
   return (
     <div className="flex gap-4 p-4 h-full">
-      {/* 左側：對話列表 */}
-      <div className="w-[360px] flex flex-col gap-3 flex-shrink-0">
-        {/* Channel filter */}
-        <div className="flex gap-1">
-          {(['all', 'line', 'facebook', 'instagram'] as const).map((c) => (
-            <Button
-              key={c}
-              variant={channelFilter === c ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setChannelFilter(c)}
-              className="text-xs"
-            >
-              {c === 'all' ? '全部' : CHANNEL_LABELS[c]}
-            </Button>
-          ))}
-        </div>
-
+      {/* 左側：對話列表（Hub 模式、不分 channel） */}
+      <div className="w-[280px] flex flex-col flex-shrink-0">
         {/* List */}
         <Card className="flex-1 overflow-y-auto p-0">
           {listLoading && (
@@ -176,41 +191,72 @@ export function AiConversationsTab() {
             <button
               key={c.id}
               onClick={() => setSelectedId(c.id)}
-              className={`w-full px-3 py-3 border-b border-morandi-muted/20 text-left hover:bg-morandi-gold/5 transition-colors ${
+              className={`w-full px-3 py-2.5 border-b border-morandi-muted/20 text-left hover:bg-morandi-gold/5 transition-colors ${
                 selectedId === c.id ? 'bg-morandi-gold/10' : ''
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <span
-                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.588rem] font-semibold ${CHANNEL_COLORS[c.channel_type]}`}
-                >
-                  <ChannelIcon channel={c.channel_type} />
-                  {CHANNEL_LABELS[c.channel_type]}
-                </span>
-                <span className="text-sm font-medium flex-1 truncate">
-                  {c.display_name || c.external_user_id.slice(0, 10) + '…'}
-                </span>
-                {c.unread_count > 0 && (
-                  <span className="bg-red-500 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold">
-                    {c.unread_count}
-                  </span>
-                )}
+              <div className="flex items-center gap-2.5">
+                {/* 頭像（含 channel icon overlay） */}
+                <div className="relative shrink-0">
+                  {c.picture_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={c.picture_url}
+                      alt=""
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : c.external_user_id.startsWith('group:') ||
+                    c.external_user_id.startsWith('room:') ? (
+                    // 群組 / 多人聊天室、用 Users icon 視覺區分
+                    <div className="w-10 h-10 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold">
+                      <Users className="w-5 h-5" />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-morandi-gold/20 flex items-center justify-center text-sm font-medium text-morandi-gold">
+                      {(c.display_name || c.external_user_id).slice(0, 1)}
+                    </div>
+                  )}
+                  {/* channel 角標（右下角小圓圈） */}
+                  <div
+                    className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${CHANNEL_COLORS[c.channel_type]}`}
+                  >
+                    <ChannelIcon channel={c.channel_type} />
+                  </div>
+                </div>
+
+                {/* 中間：名字 + 預覽（兩行） */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-medium truncate">
+                      {c.display_name || '（未取得名稱）'}
+                    </span>
+                    <span className="text-[0.65rem] text-morandi-muted shrink-0">
+                      {formatRelative(c.last_message_at)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-morandi-secondary truncate">
+                      {c.last_message_direction === 'outbound' ? '你: ' : ''}
+                      {c.last_message_preview || '（無訊息）'}
+                    </span>
+                    {c.unread_count > 0 && (
+                      <span className="bg-red-500 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold shrink-0">
+                        {c.unread_count}
+                      </span>
+                    )}
+                    {c.bot_paused && (
+                      <span className="text-[0.588rem] text-orange-600 shrink-0">⏸</span>
+                    )}
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-morandi-secondary truncate">
-                {c.last_message_direction === 'outbound' ? '你: ' : ''}
-                {c.last_message_preview || '（無訊息）'}
-              </p>
-              <p className="text-[0.588rem] text-morandi-muted mt-0.5">
-                {formatRelative(c.last_message_at)}
-                {c.bot_paused && <span className="ml-2 text-orange-600">⏸ Bot 暫停</span>}
-              </p>
             </button>
           ))}
         </Card>
       </div>
 
       {/* 右側：對話 thread */}
-      <Card className="flex-1 flex flex-col overflow-hidden">
+      <Card className="flex-1 flex flex-col overflow-hidden border border-morandi-muted/30">
         {!selectedConv && (
           <div className="flex-1 flex items-center justify-center text-sm text-morandi-muted">
             選一個對話看訊息
@@ -219,45 +265,18 @@ export function AiConversationsTab() {
 
         {selectedConv && (
           <>
-            {/* 對話 header */}
-            <div className="px-4 py-3 border-b border-morandi-muted/20 flex items-center gap-3">
-              <span
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${CHANNEL_COLORS[selectedConv.channel_type]}`}
-              >
-                <ChannelIcon channel={selectedConv.channel_type} />
-                {CHANNEL_LABELS[selectedConv.channel_type]}
-              </span>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-sm truncate">
-                  {selectedConv.display_name || selectedConv.external_user_id}
-                </h3>
-                <p className="text-[0.647rem] text-morandi-muted font-mono">
-                  {selectedConv.external_user_id}
-                </p>
-              </div>
-            </div>
+            {/* 對話 header（含 Bot 自動回覆 toggle、亮著 = 自動回覆中、暫停變灰） */}
+            <ConversationHeader conv={selectedConv} listUrl={listUrl} />
 
-            {/* 訊息 list */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-morandi-container/10">
-              {msgLoading && (
-                <div className="text-center text-sm text-morandi-muted">載入中...</div>
-              )}
-              {!msgLoading && messages.length === 0 && (
-                <div className="text-center text-sm text-morandi-muted py-12">
-                  這個對話還沒有訊息
-                </div>
-              )}
-              {messages.map((m) => (
-                <MessageBubble key={m.id} msg={m} />
-              ))}
-            </div>
+            {/* 訊息 list（自動 scroll 到最底） */}
+            <MessagesList
+              messages={messages}
+              loading={msgLoading}
+              conversationId={selectedConv.id}
+            />
 
             {/* 回覆區 */}
-            <ReplyComposer
-              conversationId={selectedConv.id}
-              botPaused={selectedConv.bot_paused}
-              listUrl={listUrl}
-            />
+            <ReplyComposer conversationId={selectedConv.id} listUrl={listUrl} />
           </>
         )}
       </Card>
@@ -265,110 +284,192 @@ export function AiConversationsTab() {
   )
 }
 
+// ===== 訊息 list（auto scroll to bottom） =====
+function MessagesList({
+  messages,
+  loading,
+  conversationId,
+}: {
+  messages: MessageItem[]
+  loading: boolean
+  conversationId: string
+}) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const lastMessageCountRef = useRef<number>(0)
+
+  // 1. 切 conversation → 立刻跳到底（不要 smooth、user 期待立即）
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    el.scrollTop = el.scrollHeight
+    lastMessageCountRef.current = messages.length
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId])
+
+  // 2. 同 conversation 內有新訊息 → smooth scroll 到底（user 看得到「新訊息進來」感）
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    if (messages.length > lastMessageCountRef.current) {
+      el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
+    }
+    lastMessageCountRef.current = messages.length
+  }, [messages.length])
+
+  return (
+    <div
+      ref={containerRef}
+      className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-morandi-container/10"
+    >
+      {loading && (
+        <div className="text-center text-sm text-morandi-muted">載入中...</div>
+      )}
+      {!loading && messages.length === 0 && (
+        <div className="text-center text-sm text-morandi-muted py-12">
+          這個對話還沒有訊息
+        </div>
+      )}
+      {messages.map((m) => (
+        <MessageBubble key={m.id} msg={m} />
+      ))}
+    </div>
+  )
+}
+
+// ===== 右側 header（含 Bot toggle）=====
+function ConversationHeader({
+  conv,
+  listUrl,
+}: {
+  conv: ConversationItem
+  listUrl: string
+}) {
+  const [paused, setPaused] = useState(conv.bot_paused)
+  useEffect(() => setPaused(conv.bot_paused), [conv.id, conv.bot_paused])
+
+  const handleToggle = async (next: boolean) => {
+    // UI 顯示「自動回覆中亮著」、邏輯 paused 反向
+    const newPaused = !next
+    setPaused(newPaused)
+    // apiMutate：PATCH 完成後自動 invalidate listUrl、其他 user 看到更新
+    const res = await apiMutate<{ success: boolean; error?: string }>(
+      `/api/messaging/conversations/${conv.id}`,
+      {
+        method: 'PATCH',
+        body: { bot_paused: newPaused },
+        invalidate: [listUrl],
+      }
+    )
+    if (!res.ok || !res.data?.success) {
+      toast.error(res.error || res.data?.error || '切換失敗')
+      setPaused(!newPaused)
+    }
+  }
+
+  return (
+    <div className="px-4 py-3 border-b border-morandi-muted/20 flex items-center gap-3">
+      {/* 頭像（群組用 Users icon） */}
+      {conv.picture_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={conv.picture_url}
+          alt=""
+          className="w-9 h-9 rounded-full object-cover shrink-0"
+        />
+      ) : conv.external_user_id.startsWith('group:') ||
+        conv.external_user_id.startsWith('room:') ? (
+        <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold shrink-0">
+          <Users className="w-4.5 h-4.5" />
+        </div>
+      ) : (
+        <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-sm font-medium text-morandi-gold shrink-0">
+          {(conv.display_name || conv.external_user_id).slice(0, 1)}
+        </div>
+      )}
+      <span
+        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${CHANNEL_COLORS[conv.channel_type]}`}
+      >
+        <ChannelIcon channel={conv.channel_type} />
+        {CHANNEL_LABELS[conv.channel_type]}
+      </span>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-sm truncate">
+          {conv.display_name || '（未取得名稱）'}
+        </h3>
+      </div>
+      {/* Bot 自動回覆 toggle：亮著 = 自動回覆中 */}
+      <div className="flex items-center gap-2">
+        <span className={`text-xs ${!paused ? 'text-green-700 font-medium' : 'text-morandi-muted'}`}>
+          {!paused ? '✨ 自動回覆中' : '⏸ 已暫停'}
+        </span>
+        <Switch checked={!paused} onCheckedChange={handleToggle} />
+      </div>
+    </div>
+  )
+}
+
 function ReplyComposer({
   conversationId,
-  botPaused,
   listUrl,
 }: {
   conversationId: string
-  botPaused: boolean
   listUrl: string
 }) {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
-  const [paused, setPaused] = useState(botPaused)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-
-  useEffect(() => {
-    setPaused(botPaused)
-  }, [botPaused, conversationId])
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSend = async () => {
     const trimmed = text.trim()
     if (!trimmed) return
     setSending(true)
     try {
-      const res = await fetch(`/api/messaging/conversations/${conversationId}/reply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: trimmed }),
-      })
-      const json = await res.json()
-      if (!res.ok || !json.success) {
-        toast.error(json.error || `送出失敗（HTTP ${res.status}）`)
+      // apiMutate：寫入後自動 invalidate messages + listUrl、UI 立即更新（#7 根本解）
+      const res = await apiMutate<{ success: boolean; error?: string }>(
+        `/api/messaging/conversations/${conversationId}/reply`,
+        {
+          method: 'POST',
+          body: { text: trimmed },
+          invalidate: [
+            `/api/messaging/conversations/${conversationId}/messages`,
+            listUrl,
+          ],
+        }
+      )
+      if (!res.ok || !res.data?.success) {
+        toast.error(res.error || res.data?.error || `送出失敗`)
         return
       }
       setText('')
-      await swrMutate(`/api/messaging/conversations/${conversationId}/messages`)
-      await swrMutate(listUrl)
       toast.success('已送出')
-    } catch (e) {
-      logger.error('send reply failed', e)
-      toast.error('網路錯誤')
     } finally {
       setSending(false)
     }
   }
 
-  const handleTogglePause = async (next: boolean) => {
-    setPaused(next)
-    try {
-      const res = await fetch(`/api/messaging/conversations/${conversationId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bot_paused: next }),
-      })
-      const json = await res.json()
-      if (!res.ok || !json.success) {
-        toast.error(json.error || '切換失敗')
-        setPaused(!next)
-        return
-      }
-      await swrMutate(listUrl)
-      toast.success(next ? 'Bot 已暫停、agent 接管' : 'Bot 已恢復自動回覆')
-    } catch (e) {
-      logger.error('toggle pause failed', e)
-      toast.error('網路錯誤')
-      setPaused(!next)
-    }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
       void handleSend()
     }
   }
 
   return (
-    <div className="px-4 py-3 border-t border-morandi-muted/20 bg-morandi-container/10 space-y-2">
-      {/* Bot 暫停切換 */}
-      <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-2">
-          <Switch checked={paused} onCheckedChange={handleTogglePause} disabled={sending} />
-          <span className={paused ? 'text-orange-600 font-medium' : 'text-morandi-muted'}>
-            {paused ? '⏸ Bot 已暫停（agent 接管中）' : 'Bot 自動回覆中'}
-          </span>
-        </div>
-        <span className="text-morandi-muted">💡 暫停後 AI 不再自動回、由你回覆</span>
-      </div>
-
-      {/* 回覆 textarea */}
-      <div className="flex gap-2">
-        <Textarea
-          ref={textareaRef}
+    <div className="px-4 py-3 border-t border-morandi-muted/20 bg-morandi-container/10">
+      <div className="flex gap-2 items-stretch">
+        <Input
+          ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="輸入回覆內容、Cmd/Ctrl+Enter 送出..."
-          rows={2}
+          placeholder="輸入回覆內容、Enter 送出..."
           disabled={sending}
-          className="flex-1 resize-none"
+          className="flex-1 h-10"
         />
         <Button
           onClick={handleSend}
           disabled={sending || !text.trim()}
-          className="self-end"
+          className="h-10 px-4"
         >
           {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
         </Button>

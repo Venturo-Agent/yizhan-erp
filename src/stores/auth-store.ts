@@ -127,6 +127,14 @@ export const useAuthStore = create<AuthState>()(
           features: [],
           premium_enabled: false,
         })
+
+        // 清 SWR localStorage cache（避免切換帳號時看到前一個 user 的舊資料）
+        //
+        // 5/17 William 抓資安洞：
+        // - 舊版只清固定 key `venturo-swr-cache-v2`、但 5/17 起 cache key 帶 user_id 後綴
+        // - 用 clearAllSwrCacheKeys() 掃 prefix 全清、確保跨帳號污染不會發生
+        const { clearAllSwrCacheKeys } = await import('@/lib/swr/config')
+        clearAllSwrCacheKeys()
       },
 
       validateLogin: async (email, password, code) => {
@@ -187,6 +195,15 @@ export const useAuthStore = create<AuthState>()(
             logger.warn(`⚠️ Supabase Auth 登入失敗: ${authError?.message}`)
             return { success: false, message: '帳號或密碼錯誤' }
           }
+
+          // 2.5. 清舊的 SWR cache（防前一個 user 沒明確登出、cache 殘留）
+          //
+          // 5/17 William 抓資安洞：
+          // - A 直接關瀏覽器、沒 trigger logout handler、cache 留在 localStorage
+          // - B 登入同台電腦、5 分鐘內 hit cache → 看到 A workspace 資料（跨帳號污染）
+          // - 在這裡清一次 cache、保證 B 拿到的全是新 fetch、不會看到 A 殘留
+          const { clearAllSwrCacheKeys } = await import('@/lib/swr/config')
+          clearAllSwrCacheKeys()
 
           // 3. 寫 capabilities/features/premium_enabled 進 zustand（自動 persist localStorage、跨 refresh 保留）
           // 解 hydration race：sidebar 第一個 render 就能透過 useLayoutContext 從 zustand 拿 fallback

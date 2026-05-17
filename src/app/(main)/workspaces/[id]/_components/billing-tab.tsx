@@ -14,6 +14,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
+import { apiMutate } from '@/lib/swr/api-mutate'
 import { Wallet, Plus, Save } from 'lucide-react'
 import { formatDateTaipei } from '@/lib/utils/format-date'
 import { Button } from '@/components/ui/button'
@@ -156,21 +157,20 @@ export function BillingTab({ workspaceId }: BillingTabProps) {
         return
       }
 
-      const res = await fetch(`/api/workspaces/${workspaceId}/billing`, {
+      const res = await apiMutate(`/api/workspaces/${workspaceId}/billing`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           amount,
           period_start: form.period_start,
           period_end: form.period_end,
           status: form.status,
           paid_at: form.status === 'paid' && form.paid_at ? form.paid_at : null,
           notes: form.notes || null,
-        }),
+        },
+        invalidate: [`/api/workspaces/${workspaceId}/billing`],
       })
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || `HTTP ${res.status}`)
+        throw new Error(res.error || `HTTP ${res.status}`)
       }
       toast.success('已新增付款紀錄')
       setCreateOpen(false)

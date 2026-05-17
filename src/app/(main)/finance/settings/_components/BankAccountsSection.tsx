@@ -24,6 +24,7 @@ import {
 } from './shared-table'
 import { PAGE_LABELS, type BankAccount } from './types'
 import { BankCombobox } from '@/components/bank-combobox'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface BankAccountsSectionProps {
   bankAccounts: BankAccount[]
@@ -51,24 +52,23 @@ export function BankAccountsSection({
 
   // 儲存銀行帳戶
   const handleSaveBank = async (bank: Partial<BankAccount>) => {
-    try {
-      const res = await fetch('/api/bank-accounts', {
-        method: editingBank?.id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...bank,
-          id: editingBank?.id,
-          workspace_id: workspaceId,
-        }),
-      })
-      if (!res.ok) throw new Error(t('saveFailed'))
-      await reload()
-      setIsDialogOpen(false)
-      setEditingBank(null)
-      await alert(COMMON_MESSAGES.SAVE_SUCCESS, 'success')
-    } catch {
+    const res = await apiMutate('/api/bank-accounts', {
+      method: editingBank?.id ? 'PUT' : 'POST',
+      body: {
+        ...bank,
+        id: editingBank?.id,
+        workspace_id: workspaceId,
+      },
+      invalidate: ['/api/bank-accounts'],
+    })
+    if (!res.ok) {
       await alert(COMMON_MESSAGES.SAVE_FAILED, 'error')
+      return
     }
+    await reload()
+    setIsDialogOpen(false)
+    setEditingBank(null)
+    await alert(COMMON_MESSAGES.SAVE_SUCCESS, 'success')
   }
 
   // 刪除銀行帳戶
@@ -82,14 +82,16 @@ export function BankAccountsSection({
 
     setLoading(bank.id, true)
     try {
-      const res = await fetch(`/api/bank-accounts?id=${bank.id}`, {
+      const res = await apiMutate(`/api/bank-accounts?id=${bank.id}`, {
         method: 'DELETE',
+        invalidate: ['/api/bank-accounts'],
       })
-      if (!res.ok) throw new Error(t('deleteFailed'))
+      if (!res.ok) {
+        await alert(t('deleteFailed'), 'error')
+        return
+      }
       await reload()
       await alert(t('deleteSuccess'), 'success')
-    } catch {
-      await alert(t('deleteFailed'), 'error')
     } finally {
       setLoading(bank.id, false)
     }

@@ -110,7 +110,7 @@ export async function provisionFacebookBot(input: ProvisionInput): Promise<Provi
         chinese_name: 'FB Messenger 系統',
         display_name: 'FB Messenger 系統',
         english_name: 'Facebook Messenger Bot',
-        employee_type: 'system_bot',
+        employee_type: 'bot',
         role_id: systemBotRoleId,
         status: 'active',
         personal_info: {},

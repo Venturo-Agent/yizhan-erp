@@ -24,6 +24,7 @@ import { Receipt, History, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { dynamicFrom } from '@/lib/supabase/typed-client'
 import { logger } from '@/lib/utils/logger'
+import { apiMutate } from '@/lib/swr/api-mutate'
 import type { OrderMember } from '../_types/order-member.types'
 
 import { NewInvoiceForm } from './_invoice-dialog/NewInvoiceForm'
@@ -188,23 +189,24 @@ export function CreateInvoicesDialog({
         return
       }
 
-      const res = await fetch('/api/invoices', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId, splits: validSplits }),
-      })
+      const res = await apiMutate<{ batch: CreatedBatch; error?: string; details?: string; hint?: string; code?: string }>(
+        '/api/invoices',
+        {
+          method: 'POST',
+          body: { order_id: orderId, splits: validSplits },
+          invalidate: [`/api/invoice-batches?order_id=${encodeURIComponent(orderId)}`],
+        }
+      )
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        logger.error('[/api/invoices POST] failed:', res.status, err)
+      if (!res.ok || !res.data) {
+        logger.error('[/api/invoices POST] failed:', res.status, res.data)
         throw new Error(
-          err.error || err.details || err.hint || err.code || `建帳單失敗 (HTTP ${res.status})`
+          res.data?.error || res.data?.details || res.data?.hint || res.data?.code || res.error || `建帳單失敗 (HTTP ${res.status})`
         )
       }
 
-      const data = await res.json()
-      setCreatedBatch(data.batch as CreatedBatch)
-      toast.success(`成功開立 ${data.batch.invoice_count} 人帳單、產生 1 條付款連結`)
+      setCreatedBatch(res.data.batch)
+      toast.success(`成功開立 ${res.data.batch.invoice_count} 人帳單、產生 1 條付款連結`)
       // 重整歷史
       void fetchHistory()
     },

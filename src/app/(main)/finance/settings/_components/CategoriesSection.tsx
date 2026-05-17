@@ -23,6 +23,7 @@ import {
   TableCell,
 } from './shared-table'
 import { PAGE_LABELS, type ExpenseCategory, type ChartOfAccount } from './types'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 type CategoryType = 'expense' | 'company_expense' | 'company_income'
 
@@ -75,25 +76,24 @@ export function CategoriesSection({
     // 決定 category type（編輯時不改）
     const categoryType: CategoryType = dialogCategoryType
 
-    try {
-      const res = await fetch('/api/finance/expense-categories', {
-        method: editingCategory?.id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...category,
-          id: editingCategory?.id,
-          workspace_id: workspaceId,
-          type: editingCategory?.id ? undefined : categoryType, // 新增時設定 type、編輯時不改
-        }),
-      })
-      if (!res.ok) throw new Error(t('saveFailed'))
-      await reload()
-      setIsDialogOpen(false)
-      setEditingCategory(null)
-      await alert(t('saveSuccess'), 'success')
-    } catch {
+    const res = await apiMutate('/api/finance/expense-categories', {
+      method: editingCategory?.id ? 'PUT' : 'POST',
+      body: {
+        ...category,
+        id: editingCategory?.id,
+        workspace_id: workspaceId,
+        type: editingCategory?.id ? undefined : categoryType, // 新增時設定 type、編輯時不改
+      },
+      invalidate: ['/api/finance/expense-categories'],
+    })
+    if (!res.ok) {
       await alert(t('saveFailed'), 'error')
+      return
     }
+    await reload()
+    setIsDialogOpen(false)
+    setEditingCategory(null)
+    await alert(t('saveSuccess'), 'success')
   }
 
   // 刪除
@@ -112,14 +112,16 @@ export function CategoriesSection({
 
     setLoading(category.id, true)
     try {
-      const res = await fetch(`/api/finance/expense-categories?id=${category.id}`, {
+      const res = await apiMutate(`/api/finance/expense-categories?id=${category.id}`, {
         method: 'DELETE',
+        invalidate: ['/api/finance/expense-categories'],
       })
-      if (!res.ok) throw new Error(t('deleteFailed'))
+      if (!res.ok) {
+        await alert(t('deleteFailed'), 'error')
+        return
+      }
       await reload()
       await alert(t('deleteSuccess'), 'success')
-    } catch {
-      await alert(t('deleteFailed'), 'error')
     } finally {
       setLoading(category.id, false)
     }

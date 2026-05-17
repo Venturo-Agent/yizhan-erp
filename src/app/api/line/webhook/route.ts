@@ -30,7 +30,7 @@ import type { Json } from '@/lib/supabase/types'
 import { verifyLineSignature } from '@/lib/line/verify-signature'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { processIncomingTextMessage } from '@/lib/line/handler'
-import { fetchLineProfile } from '@/lib/line/profile-client'
+import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile } from '@/lib/line/profile-client'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
 import { logger } from '@/lib/utils/logger'
 import type { BotContext } from '@/types/line.types'
@@ -197,21 +197,31 @@ interface HandleEventArgs {
 async function handleEvent(args: HandleEventArgs): Promise<void> {
   const { event, workspaceId, channelAccessToken, isActive, botEmployeeId } = args
 
-  const lineUserId = event.source?.userId
+  const source = event.source
+  if (!source) return
+
+  // 群組 / 多人聊天室：只記錄、不回應（William 2026-05-17 拍板、之後做復盤功能）
+  if (source.type === 'group' || source.type === 'room') {
+    await recordGroupOrRoomMessage(workspaceId, source, event, channelAccessToken)
+    return
+  }
+
+  const lineUserId = source.userId
   if (!lineUserId) {
-    // group / room event 暫時略過、demo 只處理 1:1
+    // 連 userId 都沒（罕見 edge case）、靜默略過
     return
   }
 
   const supabase = getSupabaseAdminClient()
 
   // 5a. 寫 inbound 紀錄（無論 active 與否、紀錄要留）
+  // 非文字訊息給 UI 看得懂的友善描述（圖片下載 / 預覽未來實作、現在先標明類型）
   const inboundContent =
     event.type === 'message' && event.message?.type === 'text'
       ? (event.message.text ?? '')
       : event.type === 'postback'
         ? (event.postback?.data ?? '')
-        : `[${event.type}/${event.message?.type ?? 'unknown'}]`
+        : describeNonTextMessage(event)
 
   const inboundType =
     event.type === 'postback' ? 'postback' : (event.message?.type ?? event.type)
@@ -275,6 +285,19 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
         },
         { onConflict: 'workspace_id,line_user_id' }
       )
+
+      // 同步寫 inbox_conversations.display_name / picture_url
+      // （recordInboxMessage 先跑了、conv row 已存在、只是 name/avatar 是 null、
+      //  這邊把 LINE profile 抓到的補上、對話管理 UI 立刻看得到名字 + 頭像）
+      await supabaseAny
+        .from('inbox_conversations')
+        .update({
+          display_name: profile.displayName,
+          picture_url: profile.pictureUrl ?? null,
+        })
+        .eq('workspace_id', workspaceId)
+        .eq('channel_type', 'line')
+        .eq('external_user_id', lineUserId)
     }
   } else {
     // 既有 profile、只更新 last_seen_at
@@ -325,6 +348,138 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
 
   // T1.3 state machine 接手（內部已處理 reply + outbound 紀錄 + 建單）
   await processIncomingTextMessage(ctx, userText, event.replyToken)
+}
+
+/**
+ * 處理群組 / 多人聊天室訊息：只記錄、不回應。
+ *
+ * 設計（William 2026-05-17 拍板「一次到位」）：
+ *   - external_user_id 用 prefix：`group:<groupId>` / `room:<roomId>`
+ *   - display_name 預設「LINE 群組」、有發訊者就 try fetchLineProfile 抓真名 + 頭像（cache 在 line_user_profiles）
+ *   - 訊息 content 內 prefix `[真名]` 而不是末 6 碼（profile cache miss 才 fallback 末 6 碼）
+ *   - 不走 processIncomingTextMessage、不 sendReply
+ */
+async function recordGroupOrRoomMessage(
+  workspaceId: string,
+  source: LineEventSource,
+  event: LineEvent,
+  channelAccessToken: string
+): Promise<void> {
+  const isGroup = source.type === 'group'
+  const containerId = isGroup ? source.groupId : source.roomId
+  if (!containerId) return
+
+  const externalUserId = `${isGroup ? 'group' : 'room'}:${containerId}`
+
+  // 抓發訊者 profile（cache + on-demand）：群組真名顯示
+  // 限制：普通 OA 只能拿「加 OA 為好友」的成員 profile、其他成員 fetchLineProfile 會 404
+  const senderUserId = source.userId ?? null
+  let senderName = '匿名'
+
+  if (senderUserId) {
+    const supabaseTemp = getSupabaseAdminClient() as unknown as SupabaseClient
+    const { data: existingProfile } = await supabaseTemp
+      .from('line_user_profiles')
+      .select('display_name')
+      .eq('workspace_id', workspaceId)
+      .eq('line_user_id', senderUserId)
+      .maybeSingle<{ display_name: string | null }>()
+
+    if (existingProfile?.display_name) {
+      senderName = existingProfile.display_name
+    } else {
+      // 用 getGroupMemberProfile / getRoomMemberProfile（不限好友、所有 OA 都能用）
+      // 跟 fetchLineProfile (個人 profile 限好友) 不同
+      const profile = isGroup
+        ? await fetchLineGroupMemberProfile({
+            groupId: containerId,
+            lineUserId: senderUserId,
+            channelAccessToken,
+          })
+        : await fetchLineRoomMemberProfile({
+            roomId: containerId,
+            lineUserId: senderUserId,
+            channelAccessToken,
+          })
+      if (profile) {
+        senderName = profile.displayName
+        await supabaseTemp.from('line_user_profiles').upsert(
+          {
+            workspace_id: workspaceId,
+            line_user_id: senderUserId,
+            display_name: profile.displayName,
+            picture_url: profile.pictureUrl ?? null,
+            language: profile.language ?? null,
+            last_seen_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'workspace_id,line_user_id' }
+        )
+      } else {
+        // API 真的失敗（極少見、可能 bot 已離群）、用「成員-末4碼」
+        senderName = `成員-${senderUserId.slice(-4)}`
+      }
+    }
+  }
+
+  // 群組 display_name 用「群組 #末4碼」、第一字「群」UI fallback 看起來像群組 icon
+  // 之後 Phase 2 接 LINE getGroupSummary（Verified OA only）才換真實群組名
+  const displayName = `群組 #${containerId.slice(-4)}`
+
+  const rawContent =
+    event.type === 'message' && event.message?.type === 'text'
+      ? (event.message.text ?? '')
+      : event.type === 'postback'
+        ? (event.postback?.data ?? '')
+        : describeNonTextMessage(event)
+
+  // 訊息 content 內 prefix 真名（不是末 6 碼）
+  const taggedContent = `[${senderName}] ${rawContent}`
+
+  const inboundType =
+    event.type === 'postback' ? 'postback' : (event.message?.type ?? event.type)
+
+  const supabase = getSupabaseAdminClient()
+
+  await recordInboxMessage(supabase, {
+    workspaceId,
+    channelType: 'line',
+    externalUserId,
+    direction: 'inbound',
+    senderType: 'contact',
+    messageType: inboundType,
+    content: taggedContent,
+    sourceId: event.message?.id ?? null,
+    rawEvent: event,
+    displayName,
+    pictureUrl: null, // 群組 conversation 不放單個成員頭像（避免被最後發訊者覆蓋）
+  })
+}
+
+/**
+ * 把非文字 LINE event 轉成 UI 看得懂的友善描述。
+ * 圖片 / 影片 / 貼圖等的實際內容下載（getMessageContent API）未來做、目前先標類型。
+ */
+function describeNonTextMessage(event: LineEvent): string {
+  if (event.type === 'message') {
+    const t = event.message?.type
+    switch (t) {
+      case 'image': return '📷 [客戶傳了一張圖片、暫未實作預覽]'
+      case 'video': return '🎬 [客戶傳了一段影片]'
+      case 'audio': return '🔊 [客戶傳了一段語音]'
+      case 'file': return '📎 [客戶傳了一個檔案]'
+      case 'sticker': return '😀 [客戶傳了一個貼圖]'
+      case 'location': return '📍 [客戶傳了位置資訊]'
+      default: return `[訊息類型：${t ?? '未知'}]`
+    }
+  }
+  if (event.type === 'follow') return '👋 [客戶加為好友]'
+  if (event.type === 'unfollow') return '👋 [客戶封鎖了 OA]'
+  if (event.type === 'join') return '🤖 [Bot 加進群組]'
+  if (event.type === 'leave') return '🤖 [Bot 離開群組]'
+  if (event.type === 'memberJoined') return '👥 [新成員加入群組]'
+  if (event.type === 'memberLeft') return '👥 [成員離開群組]'
+  return `[事件：${event.type}]`
 }
 
 /**

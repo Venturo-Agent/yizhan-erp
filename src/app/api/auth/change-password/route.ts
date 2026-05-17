@@ -38,10 +38,10 @@ export async function POST(request: NextRequest) {
     const supabaseAdmin = getSupabaseAdminClient()
 
     // 1. 用當前登入用戶的資訊查詢（已經有 session 了）
-    // 直接用 auth.data.employeeId 查，不需要 employee_number
+    // 5/17 加查 must_change_password：首次登入跳過舊密碼驗證
     const { data: employee, error: empError } = await supabaseAdmin
       .from('employees')
-      .select('id, employee_number, user_id, workspace_id')
+      .select('id, employee_number, user_id, workspace_id, must_change_password')
       .eq('id', auth.data.employeeId)
       .single()
 
@@ -50,37 +50,46 @@ export async function POST(request: NextRequest) {
       return errorResponse('找不到此員工', 404, ErrorCode.NOT_FOUND)
     }
 
-    // 2. 用 Supabase Auth 驗證當前密碼
-    // 優先從 auth.users 取得真實 email，fallback 用舊邏輯拼假 email
+    // 2. 取得 authEmail（先從 auth.users 查、fallback 用舊邏輯拼）
     let authEmail: string | undefined
-
     if (employee.user_id) {
       const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(
         employee.user_id
       )
       authEmail = authUser?.user?.email ?? undefined
     }
-
     if (!authEmail) {
-      // fallback：向後兼容舊帳號
       const empNum = employee.employee_number
       authEmail = `corner_${empNum.toLowerCase()}@venturo.com`
     }
 
-    // 用 anon client 驗證舊密碼（admin client 拿 SERVICE_ROLE_KEY、用 admin client 驗密碼會
-    // 留下「成功登入」session 在 admin context、且 admin 不該做用戶層 sign-in。改用 anon 才正規。）
-    const verifyClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { auth: { persistSession: false } }
-    )
-    const { error: signInError } = await verifyClient.auth.signInWithPassword({
-      email: authEmail,
-      password: current_password,
-    })
+    // 3. 舊密碼驗證 — 首次登入跳過、其他情況必驗
+    //
+    // 為什麼這樣設計：
+    // - 首次登入 must_change_password=true、所有員工預設密碼都是 12345678
+    //   輸入「12345678」當舊密碼很蠢、business 無感、體感卡關
+    // - 正常改密碼（must_change_password=false）還是要驗舊密碼、防電腦借人 / session 被劫持
+    //   後改密碼鎖死帳號
+    const isFirstTimeChange = employee.must_change_password === true
+    if (!isFirstTimeChange) {
+      if (!current_password) {
+        return errorResponse('請輸入目前密碼', 400, ErrorCode.VALIDATION_ERROR)
+      }
+      // 用 anon client 驗舊密碼（admin client 拿 SERVICE_ROLE_KEY、用 admin client 驗密碼會
+      // 留下「成功登入」session 在 admin context、且 admin 不該做用戶層 sign-in。改用 anon 才正規。）
+      const verifyClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { auth: { persistSession: false } }
+      )
+      const { error: signInError } = await verifyClient.auth.signInWithPassword({
+        email: authEmail,
+        password: current_password,
+      })
 
-    if (signInError) {
-      return errorResponse('目前密碼錯誤', 401, ErrorCode.UNAUTHORIZED)
+      if (signInError) {
+        return errorResponse('目前密碼錯誤', 401, ErrorCode.UNAUTHORIZED)
+      }
     }
 
     // 3. 更新 Supabase Auth 密碼

@@ -19,6 +19,7 @@ import { generateReceiptNo } from '@/lib/codes'
 import type { ReceiptItem } from '@/stores'
 import { codeToPaymentMethod, codeToReceiptType } from '@/types/receipt.types'
 import { useTranslations } from 'next-intl'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 export function usePaymentData() {
   const t = useTranslations('finance')
@@ -118,14 +119,13 @@ export function usePaymentData() {
     try {
       const wsId = user?.workspace_id
       if (wsId) {
-        await fetch('/api/accounting/vouchers/auto-create', {
+        await apiMutate('/api/accounting/vouchers/auto-create', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
+          body: {
             source_type: 'receipt',
             source_id: receiptId,
             workspace_id: wsId,
-          }),
+          },
         })
       }
     } catch (err) {

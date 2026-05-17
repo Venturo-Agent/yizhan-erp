@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { alert as showAlert } from '@/lib/ui/alert-dialog'
+import { apiMutate } from '@/lib/swr/api-mutate'
 import { Settings2, Sparkles, Users } from 'lucide-react'
 import { FormDialog } from '@/components/dialog'
 import {
@@ -190,17 +191,18 @@ export function OverviewTab({
                 // William 2026-05-10 拍板：固定 '12345678'
                 const defaultPw = '12345678'
                 try {
-                  const res = await fetch('/api/auth/reset-employee-password', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      employee_id: workspace.admin_id,
-                      new_password: defaultPw,
-                    }),
-                  })
+                  const res = await apiMutate<{ error?: string; message?: string }>(
+                    '/api/auth/reset-employee-password',
+                    {
+                      method: 'POST',
+                      body: {
+                        employee_id: workspace.admin_id,
+                        new_password: defaultPw,
+                      },
+                    }
+                  )
                   if (!res.ok) {
-                    const err = await res.json().catch(() => ({}))
-                    await showAlert(err?.error || err?.message || '重設失敗', 'error')
+                    await showAlert(res.data?.error || res.data?.message || res.error || '重設失敗', 'error')
                     return
                   }
                   await showAlert(

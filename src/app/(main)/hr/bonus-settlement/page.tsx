@@ -23,6 +23,7 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { getTodayString } from '@/lib/utils/format-date'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface PendingTourRow {
   tour_id: string
@@ -103,20 +104,22 @@ export default function BonusSettlementListPage() {
     if (selected.size === 0 || !requestDate) return
     setSettling(true)
     try {
-      const res = await fetch('/api/hr/bonus-settlements/settle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tour_ids: Array.from(selected),
-          request_date: requestDate,
-        }),
-      })
-      const body = await res.json()
-      if (!res.ok) {
-        toast.error(body.error || `結算失敗 HTTP ${res.status}`)
+      const res = await apiMutate<{ data: { ok_count: number; fail_count: number } }>(
+        '/api/hr/bonus-settlements/settle',
+        {
+          method: 'POST',
+          body: {
+            tour_ids: Array.from(selected),
+            request_date: requestDate,
+          },
+          invalidate: ['/api/hr/bonus-settlements/pending-tours'],
+        }
+      )
+      if (!res.ok || !res.data) {
+        toast.error(res.error || `結算失敗 HTTP ${res.status}`)
         return
       }
-      const { ok_count, fail_count } = body.data
+      const { ok_count, fail_count } = res.data.data
       if (fail_count === 0) {
         toast.success(`已結算 ${ok_count} 團、${ok_count} 張請款單已產出`)
         setConfirmOpen(false)

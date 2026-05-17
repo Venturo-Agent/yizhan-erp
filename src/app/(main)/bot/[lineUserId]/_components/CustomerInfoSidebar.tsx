@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { BindCustomerDialog } from './BindCustomerDialog'
 import type { CustomerOrdersResponse } from '@/app/api/line/conversations/[lineUserId]/customer-orders/route'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface CustomerInfoSidebarProps {
   lineUserId: string
@@ -62,23 +63,19 @@ export function CustomerInfoSidebar({ lineUserId }: CustomerInfoSidebarProps) {
     if (!confirmed) return
     setUnbinding(true)
     try {
-      const res = await fetch(
+      const res = await apiMutate(
         `/api/line/conversations/${encodeURIComponent(lineUserId)}/bind-customer`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer_id: null }),
+          body: { customer_id: null },
+          invalidate: [url],
         }
       )
-      const json = await res.json().catch(() => ({}))
       if (!res.ok) {
-        toast.error(json.error || '解綁失敗')
+        toast.error(res.error || '解綁失敗')
         return
       }
       toast.success('已解除綁定')
-      mutate()
-    } catch {
-      toast.error('網路錯誤')
     } finally {
       setUnbinding(false)
     }

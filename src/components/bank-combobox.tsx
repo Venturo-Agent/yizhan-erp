@@ -26,6 +26,7 @@ import { Label } from '@/components/ui/label'
 import { dynamicFrom } from '@/lib/supabase/typed-client'
 import { useMyCapabilities } from '@/lib/permissions'
 import { logger } from '@/lib/utils/logger'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 const LABELS = {
   DIALOG_TITLE: '新增銀行（共用資料）',
@@ -136,18 +137,17 @@ export function BankCombobox({
     setSubmitting(true)
     setErrorMsg(null)
     try {
-      const res = await fetch('/api/banks', {
+      const res = await apiMutate('/api/banks', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           bank_code: code,
           bank_name: name,
           english_name: englishName.trim() || null,
-        }),
+        },
+        invalidate: ['ref_banks'],
       })
       if (!res.ok) {
-        const { error } = await res.json().catch(() => ({ error: LABELS.ERROR_CREATE_FAIL }))
-        setErrorMsg(error || LABELS.ERROR_CREATE_FAIL)
+        setErrorMsg(res.error || LABELS.ERROR_CREATE_FAIL)
         return
       }
       await mutate()

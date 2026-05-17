@@ -8,8 +8,66 @@ import { logger } from '@/lib/utils/logger'
 // 快取 Key 常數
 // ============================================
 const CACHE_KEY = 'venturo-swr-cache'
-const CACHE_VERSION = 'v1'
-const CACHE_STORAGE_KEY = `${CACHE_KEY}-${CACHE_VERSION}`
+// bump v2 (2026-05-17)：強制所有用戶 cache 失效一次、解決
+// LINE setup 後新增的 BOT employee + 修了 sidebar 過濾邏輯、舊 cache 殘留舊資料
+const CACHE_VERSION = 'v2'
+
+// Cache key prefix（不含 user_id）— 給「清所有 user 的 cache」用
+export const CACHE_STORAGE_KEY_PREFIX = `${CACHE_KEY}-${CACHE_VERSION}`
+
+/**
+ * 從 supabase localStorage session 拉當前 user.id、組 cache key。
+ *
+ * 為什麼這樣設計（2026-05-17 William 抓資安洞）：
+ * - 舊版 cache key 固定 `venturo-swr-cache-v2`、不分 user
+ * - A 帳號沒登出、B 帳號登入同一台電腦 → B 在 5 分鐘 TTL 內 hit cache → 看到 A workspace 資料
+ * - 加 user_id 進 cache key、不同 user 各自 namespace、永不撞
+ * - 沒登入時用 'anon'、登入後切換到 user_id（下次 reload 生效）
+ */
+function getCurrentCacheKey(): string {
+  if (typeof window === 'undefined') return `${CACHE_STORAGE_KEY_PREFIX}-ssr`
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    if (!supabaseUrl) return `${CACHE_STORAGE_KEY_PREFIX}-anon`
+    const projectRef = new URL(supabaseUrl).hostname.split('.')[0]
+    const raw = localStorage.getItem(`sb-${projectRef}-auth-token`)
+    if (!raw) return `${CACHE_STORAGE_KEY_PREFIX}-anon`
+    const parsed = JSON.parse(raw) as {
+      user?: { id?: string }
+      currentSession?: { user?: { id?: string } }
+    }
+    const userId = parsed?.user?.id ?? parsed?.currentSession?.user?.id ?? 'anon'
+    // 取 user_id 前 12 char、避免完整 uuid 進 localStorage 暴露
+    const fp = userId === 'anon' ? 'anon' : userId.slice(0, 12)
+    return `${CACHE_STORAGE_KEY_PREFIX}-${fp}`
+  } catch {
+    return `${CACHE_STORAGE_KEY_PREFIX}-anon`
+  }
+}
+
+const CACHE_STORAGE_KEY = getCurrentCacheKey()
+
+/**
+ * 清掉 localStorage 內所有 SWR cache（不分 user）
+ *
+ * 用途：登入 / 登出時呼叫、保證跨帳號污染不會發生
+ * 為什麼掃 prefix：cache key 帶 user_id 後、可能殘留多個 `venturo-swr-cache-v2-*`、要全清
+ */
+export function clearAllSwrCacheKeys(): void {
+  if (typeof window === 'undefined') return
+  try {
+    const keysToRemove: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith(CACHE_STORAGE_KEY_PREFIX)) {
+        keysToRemove.push(key)
+      }
+    }
+    keysToRemove.forEach((k) => localStorage.removeItem(k))
+  } catch {
+    // ignore（無痕視窗 / 容量滿等）
+  }
+}
 
 // 快取過期時間（毫秒）
 const CACHE_TTL = {

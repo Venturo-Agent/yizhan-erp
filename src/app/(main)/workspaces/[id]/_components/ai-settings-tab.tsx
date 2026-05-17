@@ -11,8 +11,8 @@
  * 守門：API 端守 workspaces.write、UI 不另檢、操作失敗會被 403 擋下並 toast
  */
 
-import { useEffect, useState } from 'react'
-import { Sparkles, Save } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { Sparkles, Save, Cpu, KeyRound, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -27,6 +27,8 @@ import {
 import { toast } from 'sonner'
 import { ModuleLoading } from '@/components/module-loading'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
+import { LlmTokenSetupDialog } from './llm-token-setup-dialog'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 const RESPONSE_MODE_OPTIONS = [
   { value: 'formal', label: '正式（formal）' },
@@ -54,6 +56,14 @@ interface AiSettingsTabProps {
   workspaceId: string
 }
 
+interface LlmStatus {
+  provider: string | null
+  model: string | null
+  has_token: boolean
+  is_active: boolean
+  last_used_at: string | null
+}
+
 export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
   const [loading, setLoading] = useState(true)
   const [settings, setSettings] = useState<AiSettings>({
@@ -61,19 +71,37 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
     data_sources: [],
     response_mode: 'friendly',
   })
+  const [llmStatus, setLlmStatus] = useState<LlmStatus | null>(null)
+  const [llmDialogOpen, setLlmDialogOpen] = useState(false)
+  const [llmDeleting, setLlmDeleting] = useState(false)
+
+  const loadLlmStatus = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/workspaces/${workspaceId}/ai-settings/status`)
+      if (res.ok) {
+        const data = await res.json()
+        setLlmStatus(data)
+      }
+    } catch {
+      // 失敗就保持 null、UI 顯示「未設定」、user 可以重設
+    }
+  }, [workspaceId])
 
   useEffect(() => {
     let cancelled = false
     const load = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`/api/workspaces/${workspaceId}/ai-settings`)
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}))
-          toast.error('讀取 AI 設定失敗', { description: body.error || `HTTP ${res.status}` })
+        const [behaviorRes] = await Promise.all([
+          fetch(`/api/workspaces/${workspaceId}/ai-settings`),
+          loadLlmStatus(),
+        ])
+        if (!behaviorRes.ok) {
+          const body = await behaviorRes.json().catch(() => ({}))
+          toast.error('讀取 AI 設定失敗', { description: body.error || `HTTP ${behaviorRes.status}` })
           return
         }
-        const data = await res.json()
+        const data = await behaviorRes.json()
         if (cancelled) return
         setSettings({
           prompt_template: data.prompt_template ?? '',
@@ -88,7 +116,32 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
     return () => {
       cancelled = true
     }
-  }, [workspaceId])
+  }, [workspaceId, loadLlmStatus])
+
+  const handleRemoveLlm = async () => {
+    if (!confirm('確定移除 LLM 設定？該租戶的 AI 對話將無法運作。')) return
+    setLlmDeleting(true)
+    try {
+      const res = await apiMutate(`/api/workspaces/${workspaceId}/ai-settings`, {
+        method: 'DELETE',
+        invalidate: [
+          `/api/workspaces/${workspaceId}/ai-settings`,
+          `/api/workspaces/${workspaceId}/ai-settings/status`,
+        ],
+      })
+      if (!res.ok) {
+        throw new Error(res.error || `HTTP ${res.status}`)
+      }
+      toast.success('LLM 設定已移除')
+      await loadLlmStatus()
+    } catch (err) {
+      toast.error('移除失敗', {
+        description: err instanceof Error ? err.message : '請稍後再試',
+      })
+    } finally {
+      setLlmDeleting(false)
+    }
+  }
 
   const toggleDataSource = (value: string) => {
     setSettings(prev => {
@@ -104,18 +157,17 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
 
   const { isSubmitting: saving, execute: handleSave } = useAsyncSubmit(
     async () => {
-      const res = await fetch(`/api/workspaces/${workspaceId}/ai-settings`, {
+      const res = await apiMutate(`/api/workspaces/${workspaceId}/ai-settings`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           prompt_template: settings.prompt_template || null,
           data_sources: settings.data_sources,
           response_mode: settings.response_mode,
-        }),
+        },
+        invalidate: [`/api/workspaces/${workspaceId}/ai-settings`],
       })
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error(body.error || `HTTP ${res.status}`)
+        throw new Error(res.error || `HTTP ${res.status}`)
       }
       toast.success('已儲存 AI 設定')
     },
@@ -131,6 +183,103 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
 
   return (
     <div className="space-y-6">
+      {/* ============================================================== */}
+      {/* LLM Token 設定（最上方、最重要） */}
+      {/* ============================================================== */}
+      {/* eslint-disable-next-line venturo/no-forbidden-classes */}
+      <div className="rounded-[24px] p-6 bg-gradient-to-t from-white to-morandi-cream border-[3px] border-white shadow-[rgba(180,160,120,0.15)_0px_12px_24px_-8px]">
+        <div className="flex items-center gap-2 mb-4">
+          <Cpu className="h-4 w-4 text-morandi-gold" />
+          <h3 className="font-semibold text-morandi-primary">LLM Token 設定</h3>
+        </div>
+
+        <div className="space-y-4">
+          <p className="text-xs text-morandi-secondary">
+            幫此租戶填入 LLM 服務商的 API token。
+            該租戶的 LINE Bot AI 對話會用這組憑證跑、計費也算在他們頭上。
+            漫途幫客戶代設（客戶自己看不到這個分頁）。
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-morandi-cream-soft/40 border border-morandi-gold/10">
+            <div>
+              <div className="text-xs text-morandi-secondary">Provider</div>
+              <div className="text-sm font-medium font-mono">
+                {llmStatus?.provider ?? <span className="text-morandi-secondary">未設定</span>}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-morandi-secondary">Model</div>
+              <div className="text-sm font-medium font-mono">
+                {llmStatus?.model ?? <span className="text-morandi-secondary">—</span>}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-morandi-secondary">Token 狀態</div>
+              <div className="text-sm font-medium">
+                {llmStatus?.has_token ? (
+                  <span className="font-mono">已設定（••••••••）</span>
+                ) : (
+                  <span className="text-morandi-secondary">未設定</span>
+                )}
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-morandi-secondary">啟用狀態</div>
+              <div className="text-sm font-medium">
+                {llmStatus?.is_active ? (
+                  <span className="text-green-700">✅ 啟用中</span>
+                ) : (
+                  <span className="text-morandi-secondary">未啟用</span>
+                )}
+              </div>
+            </div>
+            <div className="col-span-2">
+              <div className="text-xs text-morandi-secondary">最後使用</div>
+              <div className="text-sm font-medium">
+                {llmStatus?.last_used_at
+                  ? new Date(llmStatus.last_used_at).toLocaleString('zh-TW')
+                  : <span className="text-morandi-secondary">—</span>}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-2 justify-end">
+            {llmStatus?.has_token && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRemoveLlm}
+                disabled={llmDeleting}
+                className="text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                {llmDeleting ? '移除中...' : '移除設定'}
+              </Button>
+            )}
+            <Button
+              size="sm"
+              onClick={() => setLlmDialogOpen(true)}
+              className="bg-morandi-gold hover:bg-morandi-gold/90 text-white"
+            >
+              <KeyRound className="h-3.5 w-3.5 mr-1.5" />
+              {llmStatus?.has_token ? '變更 Token' : '設定 Token'}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <LlmTokenSetupDialog
+        workspaceId={workspaceId}
+        open={llmDialogOpen}
+        onOpenChange={setLlmDialogOpen}
+        onSaved={() => {
+          loadLlmStatus()
+        }}
+      />
+
+      {/* ============================================================== */}
+      {/* AI 行為設定（原有） */}
+      {/* ============================================================== */}
       {/* eslint-disable-next-line venturo/no-forbidden-classes */}
       <div className="rounded-[24px] p-6 bg-gradient-to-t from-white to-morandi-cream border-[3px] border-white shadow-[rgba(180,160,120,0.15)_0px_12px_24px_-8px]">
         <div className="flex items-center gap-2 mb-4">

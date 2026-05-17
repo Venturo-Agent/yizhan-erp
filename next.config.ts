@@ -33,6 +33,18 @@ const nextConfig: NextConfig = {
             },
           ]
         : []),
+      // 5/17 加：舊 Supabase project（venturo-erp）的 storage、attractions / hotels
+      //        圖片是從那邊 migrate 過來、URL 還指向舊 host
+      //        未來資料全搬完可以拿掉、但目前生產資料還在用、不加會炸 next/image
+      {
+        protocol: 'https' as const,
+        hostname: 'wzvwmawpkapcmkfmkvav.supabase.co',
+      },
+      // 兼容所有 *.supabase.co 子網域、防其他 migrate 路徑漏抓
+      {
+        protocol: 'https' as const,
+        hostname: '*.supabase.co',
+      },
     ],
   },
 

@@ -64,7 +64,7 @@ export async function botEnsureCustomer(ctx: BotContext): Promise<CustomerRow> {
     linked_at: now.toISOString(),
     linked_method: 'line_bot_auto',
     source: 'line_bot',
-    member_type: 'individual',
+    member_type: 'potential', // CHECK constraint: ['potential', 'member', 'vip']；LINE 新訪客預設「潛在客戶」
     is_active: true,
     created_by: ctx.botEmployeeId, // FK → employees.id
     updated_by: ctx.botEmployeeId,

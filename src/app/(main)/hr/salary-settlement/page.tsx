@@ -34,6 +34,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface SettlementRow {
   id: string
@@ -100,19 +101,21 @@ export default function SalarySettlementListPage() {
     }
     setCreating(true)
     try {
-      const res = await fetch('/api/hr/salary-settlements', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ period: newPeriod }),
-      })
-      const body = await res.json()
-      if (!res.ok) {
-        toast.error(body.error || `建立失敗 HTTP ${res.status}`)
+      const res = await apiMutate<{ data: { id: string; employee_count: number } }>(
+        '/api/hr/salary-settlements',
+        {
+          method: 'POST',
+          body: { period: newPeriod },
+          invalidate: ['/api/hr/salary-settlements'],
+        }
+      )
+      if (!res.ok || !res.data) {
+        toast.error(res.error || `建立失敗 HTTP ${res.status}`)
         return
       }
-      toast.success(`已建立 ${newPeriod} 結算、共 ${body.data.employee_count} 位員工`)
+      toast.success(`已建立 ${newPeriod} 結算、共 ${res.data.data.employee_count} 位員工`)
       setCreateOpen(false)
-      router.push(`/hr/salary-settlement/${body.data.id}`)
+      router.push(`/hr/salary-settlement/${res.data.data.id}`)
     } catch (err) {
       logger.error('Create salary settlement failed:', err)
       toast.error('建立失敗')

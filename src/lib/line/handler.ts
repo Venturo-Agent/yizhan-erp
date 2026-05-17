@@ -85,6 +85,7 @@ export async function processIncomingTextMessage(
   }
 
   // 1. customer profile（同時 link line_user_id → customer）
+  // freestyle 模式：customer 建不起來不擋路、繼續走、Bot 仍可亂回
   let customerId: string | null = null
   let customerName: string | null = null
   try {
@@ -92,23 +93,17 @@ export async function processIncomingTextMessage(
     customerId = customer.id
     customerName = customer.name
   } catch (err) {
-    logger.error(`${HANDLER}: ensure customer failed`, err, {
+    logger.warn(`${HANDLER}: ensure customer failed (freestyle 模式繼續往下)`, {
       workspaceId: ctx.workspaceId,
+      err: err instanceof Error ? err.message : String(err),
     })
-    // 客戶建不起來 = 不能往下、回禮貌的失敗訊息
-    const msg = '系統暫時無法處理、請稍後再試或聯繫客服 🙏'
-    await sendReply(ctx, replyToken, msg)
-    return {
-      replyText: msg,
-      llmUsed: false,
-      debugReason: 'ensureCustomer failed',
-    }
   }
 
-  // 2. 最近對話 history
+  // 2. 最近對話 history（William 2026-05-17 拍板改 200 條、含群組對話）
+  // Supabase 存的不費錢、上下文越多 LLM 對長期客戶記性越好
   let history: LineMessageRow[] = []
   try {
-    history = await botGetRecentMessages(ctx, 30)
+    history = await botGetRecentMessages(ctx, 200)
   } catch (err) {
     logger.warn(`${HANDLER}: get recent messages failed (continue with empty)`, {
       workspaceId: ctx.workspaceId,

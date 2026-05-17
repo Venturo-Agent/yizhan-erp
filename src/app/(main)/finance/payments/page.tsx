@@ -52,6 +52,7 @@ const ReceiptPrintDialog = dynamic(
 
 // Hooks
 import { usePaymentData } from './hooks/usePaymentData'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 // Utils
 
@@ -158,10 +159,9 @@ export default function PaymentsPage() {
       const ok = await confirm(t('verifyConfirmMessage'))
       if (!ok) return
       try {
-        const res = await fetch(`/api/payments/${receiptId}/verify`, { method: 'POST' })
-        const json = await res.json()
+        const res = await apiMutate(`/api/payments/${receiptId}/verify`, { method: 'POST' })
         if (!res.ok) {
-          toast.error(json.error || t('verifyFailed'))
+          toast.error(res.error || t('verifyFailed'))
           return
         }
         toast.success(t('verifySuccess'))
@@ -183,14 +183,12 @@ export default function PaymentsPage() {
       })
       if (!reason || !reason.trim()) return
       try {
-        const res = await fetch(`/api/payments/${receiptId}/reject`, {
+        const res = await apiMutate(`/api/payments/${receiptId}/reject`, {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ reason: reason.trim() }),
+          body: { reason: reason.trim() },
         })
-        const json = await res.json()
         if (!res.ok) {
-          toast.error(json.error || t('rejectFailed'))
+          toast.error(res.error || t('rejectFailed'))
           return
         }
         toast.success(t('rejectSuccess'))

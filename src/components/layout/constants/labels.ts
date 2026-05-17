@@ -78,6 +78,7 @@ export const COMP_LAYOUT_LABELS = {
   銀行代號: '銀行代號',
   國家代號: '國家代號',
   機場代號: '機場代號',
+  景點圈管理: '景點圈管理',
   平台整合: '平台整合',
   AiToEarn: 'AiToEarn',
   AI內容分發: 'AI 內容分發',

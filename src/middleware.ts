@@ -49,6 +49,8 @@ const EXACT_PUBLIC_PATHS = new Set<string>([
   '/api/health',
   // === 客戶簽單確認（透過分享連結）===
   '/api/contracts/sign',
+  // === LINE Webhook（LINE 伺服器打過來、不需認證）===
+  '/api/line/webhook',
 ])
 
 const PREFIX_PUBLIC_PATHS: readonly string[] = [

@@ -24,6 +24,7 @@ import { useRoles, type Role } from '@/data/hooks/useRoles'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { RoleListPanel } from './_components/RoleListPanel'
 import { RoleCapabilityTable } from './_components/RoleCapabilityTable'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 const PAGE_LABELS = {
   ADD_ROLE: '新增職務',
@@ -208,19 +209,17 @@ export default function RolesPage() {
 
     setSaving(true)
     try {
-      const res = await fetch('/api/roles', {
+      const res = await apiMutate<Role>('/api/roles', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           name: editingRole.name,
           description: editingRole.description || null,
-        }),
+        },
       })
 
-      if (res.ok) {
-        const newRole = await res.json()
+      if (res.ok && res.data) {
         await mutateRoles()
-        setSelectedRole(newRole)
+        setSelectedRole(res.data)
         setIsDialogOpen(false)
         setEditingRole({ name: '', description: '' })
         toast.success('已建立角色')
@@ -246,16 +245,14 @@ export default function RolesPage() {
         permissions: payload,
       })
 
-      const res = await fetch(`/api/roles/${selectedRole.id}/tab-permissions`, {
+      const res = await apiMutate(`/api/roles/${selectedRole.id}/tab-permissions`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ permissions }),
+        body: { permissions },
       })
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        logger.error('[ROLES] Save failed', { status: res.status, body })
-        toast.error('儲存失敗', { description: body.error || `HTTP ${res.status}` })
+        logger.error('[ROLES] Save failed', { status: res.status, body: res.data })
+        toast.error('儲存失敗', { description: res.error || `HTTP ${res.status}` })
         return
       }
 
@@ -289,7 +286,7 @@ export default function RolesPage() {
     if (!confirmed) return
 
     try {
-      const res = await fetch(`/api/roles/${role.id}`, { method: 'DELETE' })
+      const res = await apiMutate(`/api/roles/${role.id}`, { method: 'DELETE' })
       if (res.ok) {
         // 若刪的是選中的，先切到另一筆（用當前 roles 計算 fallback）
         if (selectedRole?.id === role.id) {

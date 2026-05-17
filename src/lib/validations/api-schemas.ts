@@ -7,16 +7,15 @@
 import { z } from 'zod'
 
 // ==========================================
-// 密碼複雜度 schema（SEC-006 / SEC-003 對齊 Supabase auth 設定）
-// minimum_password_length = 12, password_requirements = "letters_digits"
+// 密碼複雜度 schema
+// 5/17 William 拍板：原本 SEC-006/SEC-003 要求 12 字 + 字母 + 數字、業務改密碼太煩
+// 放寬到至少 6 字（不限字母 / 數字）、Supabase Auth Dashboard 那邊同步調整
 // ==========================================
 
 export const passwordComplexitySchema = z
   .string()
-  .min(12, '密碼至少需要 12 個字元')
+  .min(6, '密碼至少需要 6 個字元')
   .max(128, '密碼不能超過 128 個字元')
-  .refine((pw) => /[a-zA-Z]/.test(pw), { message: '密碼必須包含至少一個英文字母' })
-  .refine((pw) => /[0-9]/.test(pw), { message: '密碼必須包含至少一個數字' })
 
 // ==========================================
 // 認證模組
@@ -25,7 +24,9 @@ export const passwordComplexitySchema = z
 export const changePasswordSchema = z.object({
   employee_number: z.string().optional(), // 可選，API 會用 session 的 employeeId
   workspace_code: z.string().optional(),
-  current_password: z.string().min(1, '請輸入目前密碼'),
+  // 5/17 William 拍板：首次登入（must_change_password=true）不需舊密碼、避免大家輸 12345678 很蠢
+  // API 內判斷 must_change_password、true 就 skip 舊密碼驗證
+  current_password: z.string().optional(),
   new_password: passwordComplexitySchema,
 })
 

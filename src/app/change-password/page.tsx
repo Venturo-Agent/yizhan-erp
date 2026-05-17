@@ -6,23 +6,21 @@ import { supabase } from '@/lib/supabase/client'
 
 const LABELS = {
   TITLE: '首次登入',
-  SUBTITLE: '請設定新密碼，避免使用預設密碼',
-  CURRENT_PLACEHOLDER: '目前密碼（預設 12345678）',
+  SUBTITLE: '請設定新密碼、開始使用系統',
   NEW_PLACEHOLDER: '新密碼（至少 6 個字元）',
   CONFIRM_PLACEHOLDER: '再次輸入新密碼',
   SUBMIT: '設定密碼並進入系統',
   PROCESSING: '處理中...',
   MISMATCH: '兩次新密碼不一致',
   TOO_SHORT: '新密碼至少 6 個字元',
-  SAME_AS_CURRENT: '新密碼不可與目前密碼相同',
   ERROR_SYSTEM: '伺服器錯誤、請稍後重試',
 }
 
 export default function ChangePasswordPage() {
-  const [current, setCurrent] = useState('')
+  // 5/17 William 拍板：首次登入不需輸入舊密碼（預設都是 12345678、輸入很蠢）
+  // 後端 API 用 must_change_password=true 判斷、跳過舊密碼驗證
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
-  const [showCurrent, setShowCurrent] = useState(false)
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -40,10 +38,6 @@ export default function ChangePasswordPage() {
       setError(LABELS.TOO_SHORT)
       return
     }
-    if (next === current) {
-      setError(LABELS.SAME_AS_CURRENT)
-      return
-    }
 
     setLoading(true)
     try {
@@ -51,7 +45,7 @@ export default function ChangePasswordPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          current_password: current,
+          // current_password 不傳、後端讀 must_change_password=true 自動跳過驗證
           new_password: next,
         }),
       })
@@ -105,26 +99,6 @@ export default function ChangePasswordPage() {
         <form onSubmit={handleSubmit} className="mt-5">
           <div className="relative">
             <input
-              type={showCurrent ? 'text' : 'password'}
-              value={current}
-              onChange={(e) => setCurrent(e.target.value)}
-              placeholder={LABELS.CURRENT_PLACEHOLDER}
-              required
-              autoComplete="current-password"
-              autoFocus
-              className="cp-input pr-10"
-            />
-            <button
-              type="button"
-              onClick={() => setShowCurrent(!showCurrent)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-morandi-muted hover:text-morandi-secondary mt-[7px]"
-            >
-              {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-
-          <div className="relative">
-            <input
               type={showNew ? 'text' : 'password'}
               value={next}
               onChange={(e) => setNext(e.target.value)}
@@ -132,6 +106,7 @@ export default function ChangePasswordPage() {
               required
               minLength={6}
               autoComplete="new-password"
+              autoFocus
               className="cp-input pr-10"
             />
             <button
@@ -164,7 +139,7 @@ export default function ChangePasswordPage() {
 
           <button
             type="submit"
-            disabled={loading || !current || !next || !confirm}
+            disabled={loading || !next || !confirm}
             className="cp-button"
           >
             {loading ? LABELS.PROCESSING : LABELS.SUBMIT}

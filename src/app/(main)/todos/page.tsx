@@ -21,6 +21,7 @@ import { AddTodoForm } from './_components/AddTodoForm'
 import { Todo } from '@/stores/types'
 import { ConfirmDialog } from '@/components/dialog/confirm-dialog'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
+import { apiMutate } from '@/lib/swr/api-mutate'
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd'
 import { TodoFiltersBar } from './_components/TodoFiltersBar'
 import { KanbanColumn } from './_components/KanbanColumn'
@@ -137,10 +138,10 @@ export default function TodosPage() {
         reordered.splice(destination.index, 0, moved)
         const withOrder = reordered.map((col, idx) => ({ ...col, sort_order: idx + 1 }))
         reorderColumns(withOrder)
-        fetch('/api/todo-columns', {
+        apiMutate('/api/todo-columns', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reorder: withOrder.map(c => ({ id: c.id, sort_order: c.sort_order })) }),
+          body: { reorder: withOrder.map(c => ({ id: c.id, sort_order: c.sort_order })) },
+          invalidate: ['/api/todo-columns'],
         }).catch(err => logger.error('欄位排序失敗:', err))
         return
       }

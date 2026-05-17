@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { LABELS, PaymentMethodOption } from './types'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface PayFormDialogProps {
   token: string
@@ -72,27 +73,23 @@ export function PayFormDialog({
 
     setSubmitting(true)
     try {
-      const res = await fetch(`/api/public/invoices/${token}/pay`, {
+      const res = await apiMutate(`/api/public/invoices/${token}/pay`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           selected_invoice_ids: selectedIds,
           payment_method_id: paymentMethodId,
           identifier,
           payment_date: paymentDate,
           notes: notes || null,
           amount,
-        }),
+        },
       })
-      const json = await res.json()
       if (!res.ok) {
-        setError(json.error || LABELS.ERR_SUBMIT_FAILED)
+        setError(res.error || LABELS.ERR_SUBMIT_FAILED)
         return
       }
       setSuccess(true)
       setTimeout(onSuccess, 1500)
-    } catch {
-      setError(LABELS.ERR_NETWORK)
     } finally {
       setSubmitting(false)
     }

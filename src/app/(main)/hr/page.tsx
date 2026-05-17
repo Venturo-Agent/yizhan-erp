@@ -20,6 +20,7 @@ import { ConfirmDialog } from '@/components/dialog/confirm-dialog'
 import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 import { useAuthStore } from '@/stores/auth-store'
 import { toast } from 'sonner'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 export default function HRPage() {
   const t = useTranslations('hrPage')
@@ -129,12 +130,14 @@ export default function HRPage() {
 
     try {
       // 5/15 走 API、級聯清 auth.users，避免 orphan 害新員工撞 email unique
-      const res = await fetch(`/api/employees/${employee.id}`, { method: 'DELETE' })
-      const json = await res.json().catch(() => ({}) as Record<string, unknown>)
+      const res = await apiMutate<{ message?: string }>(
+        `/api/employees/${employee.id}`,
+        { method: 'DELETE' }
+      )
 
       if (!res.ok) {
-        const msg = (json?.message as string) ?? `刪除失敗 (HTTP ${res.status})`
-        logger.error('[HR] delete employee failed', { status: res.status, body: json })
+        const msg = res.data?.message ?? res.error ?? `刪除失敗 (HTTP ${res.status})`
+        logger.error('[HR] delete employee failed', { status: res.status, body: res.data })
         toast.error(msg)
         return
       }

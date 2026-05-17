@@ -13,21 +13,14 @@ ALTER TABLE public.payment_methods ADD COLUMN IF NOT EXISTS integration_status v
 CREATE OR REPLACE FUNCTION public.create_default_finance_settings()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- 1. 收款方式 (5 種)
+  -- 1. 收款方式 (4 種)
   INSERT INTO public.payment_methods (workspace_id, code, name, type, description, sort_order)
   VALUES
     (NEW.id, 'CASH', '現金', 'receipt', '現金收款', 1),
     (NEW.id, 'TRANSFER', '匯款', 'receipt', '銀行轉帳', 2),
     (NEW.id, 'CREDIT_CARD', '刷卡', 'receipt', '信用卡收款', 3),
-    (NEW.id, 'CHECK', '支票', 'receipt', '支票收款', 4),
-    (NEW.id, 'LINKPAY', 'LinkPay', 'receipt', 'LinkPay 線上收款', 5)
+    (NEW.id, 'CHECK', '支票', 'receipt', '支票收款', 4)
   ON CONFLICT DO NOTHING;
-
-  UPDATE public.payment_methods
-  SET requires_integration = TRUE,
-      integration_type = 'linkpay',
-      integration_status = 'pending'
-  WHERE code = 'LINKPAY' AND workspace_id = NEW.id;
 
   -- 2. 付款方式 (4 種)
   INSERT INTO public.payment_methods (workspace_id, code, name, type, description, sort_order)

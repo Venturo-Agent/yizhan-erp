@@ -18,6 +18,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
+import { tryHappyReply } from '@/lib/channels/happy-handler'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 export const POST = apiHandler(async (req: NextRequest) => {
@@ -87,6 +88,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
     .single()
 
   if (error) return dbErrorResponse(error)
+
+  // HAPPY Bot fire-and-forget：bot channel 自動 LLM 回應、不擋主 response
+  // 內部會檢查 channel.type === 'bot' && agent_id、非 bot channel 直接 return
+  void tryHappyReply(channel_id)
 
   return NextResponse.json({ message })
 })

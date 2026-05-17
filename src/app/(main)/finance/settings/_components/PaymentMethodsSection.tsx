@@ -39,6 +39,7 @@ import {
 } from './types'
 import { SortableMethodRow } from './SortableMethodRow'
 import { MethodDialog } from './MethodDialog'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface PaymentMethodsSectionProps {
   type: 'receipt' | 'payment'
@@ -102,10 +103,9 @@ export function PaymentMethodsSection({
     try {
       await Promise.all(
         reordered.map((m, idx) =>
-          fetch('/api/finance/payment-methods', {
+          apiMutate('/api/finance/payment-methods', {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: m.id, sort_order: idx + 1 }),
+            body: { id: m.id, sort_order: idx + 1 },
           })
         )
       )
@@ -118,25 +118,24 @@ export function PaymentMethodsSection({
 
   // 儲存付款方式
   const handleSaveMethod = async (method: Partial<PaymentMethod>) => {
-    try {
-      const res = await fetch('/api/finance/payment-methods', {
-        method: editingMethod?.id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...method,
-          id: editingMethod?.id,
-          workspace_id: workspaceId,
-          type,
-        }),
-      })
-      if (!res.ok) throw new Error('儲存失敗')
-      await reload()
-      setIsDialogOpen(false)
-      setEditingMethod(null)
-      await alert(COMMON_MESSAGES.SAVE_SUCCESS, 'success')
-    } catch {
+    const res = await apiMutate('/api/finance/payment-methods', {
+      method: editingMethod?.id ? 'PUT' : 'POST',
+      body: {
+        ...method,
+        id: editingMethod?.id,
+        workspace_id: workspaceId,
+        type,
+      },
+      invalidate: ['/api/finance/payment-methods'],
+    })
+    if (!res.ok) {
       await alert(COMMON_MESSAGES.SAVE_FAILED, 'error')
+      return
     }
+    await reload()
+    setIsDialogOpen(false)
+    setEditingMethod(null)
+    await alert(COMMON_MESSAGES.SAVE_SUCCESS, 'success')
   }
 
   // 複製方式（system / 自訂都可複製、複製後變 user 自訂、可改名 / 編輯）
@@ -148,10 +147,9 @@ export function PaymentMethodsSection({
         0,
         ...paymentMethods.filter(m => m.type === method.type).map(m => m.sort_order || 0)
       )
-      const res = await fetch('/api/finance/payment-methods', {
+      const res = await apiMutate('/api/finance/payment-methods', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           workspace_id: workspaceId,
           type: method.type,
           // code 加 _COPY 後綴避免衝突；user 編輯時可改
@@ -167,13 +165,15 @@ export function PaymentMethodsSection({
           sort_order: maxSort + 1,
           is_active: true,
           is_system: false, // 副本一律 user 自訂
-        }),
+        },
+        invalidate: ['/api/finance/payment-methods'],
       })
-      if (!res.ok) throw new Error('複製失敗')
+      if (!res.ok) {
+        await alert(COMMON_MESSAGES.OPERATION_FAILED, 'error')
+        return
+      }
       await reload()
       await alert(t('copySuccessEditName'), 'success')
-    } catch {
-      await alert(COMMON_MESSAGES.OPERATION_FAILED, 'error')
     } finally {
       setLoading(method.id, false)
     }
@@ -192,16 +192,17 @@ export function PaymentMethodsSection({
 
     setLoading(method.id, true)
     try {
-      const res = await fetch('/api/finance/payment-methods', {
+      const res = await apiMutate('/api/finance/payment-methods', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: method.id, is_active: newStatus }),
+        body: { id: method.id, is_active: newStatus },
+        invalidate: ['/api/finance/payment-methods'],
       })
-      if (!res.ok) throw new Error(`${action}失敗`)
+      if (!res.ok) {
+        await alert(`${action}失敗`, 'error')
+        return
+      }
       await reload()
       await alert(`${action}成功`, 'success')
-    } catch {
-      await alert(`${action}失敗`, 'error')
     } finally {
       setLoading(method.id, false)
     }
@@ -218,18 +219,16 @@ export function PaymentMethodsSection({
 
     setLoading(method.id, true)
     try {
-      const res = await fetch(`/api/finance/payment-methods?id=${method.id}`, {
+      const res = await apiMutate(`/api/finance/payment-methods?id=${method.id}`, {
         method: 'DELETE',
+        invalidate: ['/api/finance/payment-methods'],
       })
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        await alert(body.error || COMMON_MESSAGES.DELETE_FAILED, 'error')
+        await alert(res.error || COMMON_MESSAGES.DELETE_FAILED, 'error')
         return
       }
       await reload()
       await alert(COMMON_MESSAGES.DELETE_SUCCESS, 'success')
-    } catch {
-      await alert(COMMON_MESSAGES.DELETE_FAILED, 'error')
     } finally {
       setLoading(method.id, false)
     }

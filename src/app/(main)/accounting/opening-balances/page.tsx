@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Save, Info } from 'lucide-react'
 import { logger } from '@/lib/utils/logger'
 import { toast } from 'sonner'
+import { apiMutate } from '@/lib/swr/api-mutate'
 import { ACCOUNTS_TABS } from '../accounts/components/accounts-tabs'
 import { useTranslations } from 'next-intl'
 
@@ -122,17 +123,19 @@ export default function OpeningBalancesPage() {
         .map(([account_id, raw]) => ({ account_id, amount: Number(raw) }))
         .filter(i => !isNaN(i.amount) && i.amount > 0)
 
-      const res = await fetch('/api/accounting/opening-balances', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ as_of_date: asOfDate, items }),
-      })
-      const json = await res.json()
+      const res = await apiMutate<{ voucher_no: string; error?: string }>(
+        '/api/accounting/opening-balances',
+        {
+          method: 'POST',
+          body: { as_of_date: asOfDate, items },
+          invalidate: ['/api/accounting/opening-balances'],
+        }
+      )
       if (!res.ok) {
-        toast.error(json.error || PAGE_LABELS.SAVE_FAILED)
+        toast.error(res.error || PAGE_LABELS.SAVE_FAILED)
         return
       }
-      toast.success(`${PAGE_LABELS.SAVE_SUCCESS_PREFIX}${json.voucher_no}${PAGE_LABELS.SAVE_SUCCESS_SUFFIX}`)
+      toast.success(`${PAGE_LABELS.SAVE_SUCCESS_PREFIX}${res.data?.voucher_no}${PAGE_LABELS.SAVE_SUCCESS_SUFFIX}`)
       // 重載
       const reloadRes = await fetch('/api/accounting/opening-balances')
       const reload = await reloadRes.json()

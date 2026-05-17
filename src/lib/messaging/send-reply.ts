@@ -65,22 +65,26 @@ export async function sendAgentReply(input: AgentSendInput): Promise<AgentSendRe
   const supabase = getSupabaseAdminClient()
 
   // 反查 inbox_conversations（FB / IG）
-  const convTable = supabase.from as unknown as (
-    table: string
-  ) => {
-    select: (cols: string) => {
-      eq: (col: string, value: string) => {
+  // 注意：supabase.from 要綁 this、不能直接 cast 成 free function（會炸 Cannot read 'rest'）
+  const supabaseAny = supabase as unknown as {
+    from: (
+      table: string
+    ) => {
+      select: (cols: string) => {
         eq: (col: string, value: string) => {
-          maybeSingle: () => Promise<{
-            data: ConversationLookupRow | null
-            error: { message: string } | null
-          }>
+          eq: (col: string, value: string) => {
+            maybeSingle: () => Promise<{
+              data: ConversationLookupRow | null
+              error: { message: string } | null
+            }>
+          }
         }
       }
     }
   }
 
-  const { data: conv, error: convError } = await convTable('inbox_conversations')
+  const { data: conv, error: convError } = await supabaseAny
+    .from('inbox_conversations')
     .select('id, workspace_id, channel_type, external_user_id')
     .eq('id', input.conversationId)
     .eq('workspace_id', input.workspaceId)
@@ -93,6 +97,10 @@ export async function sendAgentReply(input: AgentSendInput): Promise<AgentSendRe
     return { ok: false, error: '找不到對話（或不在此 workspace）' }
   }
 
+  // LINE：透過 inbox_conversations 查到的（不是 synthetic line:xxx）也走 sendViaLine
+  if (conv.channel_type === 'line') {
+    return sendViaLine(conv, input)
+  }
   if (conv.channel_type === 'facebook') {
     return sendViaFacebook(conv, input, 'facebook')
   }
@@ -107,18 +115,35 @@ async function sendViaLine(
   input: AgentSendInput
 ): Promise<AgentSendResult> {
   const supabase = getSupabaseAdminClient()
-  const { data: settings, error } = await supabase
+  // 撈兩個欄位、優先用加密版（webhook setup-pipeline 寫入時明文欄會清成 null）
+  const supabaseAny = supabase as unknown as SupabaseClient
+  const { data: settings, error } = await supabaseAny
     .from('workspace_line_settings')
-    .select('channel_access_token, is_active')
+    .select('channel_access_token, channel_access_token_encrypted, is_active')
     .eq('workspace_id', input.workspaceId)
-    .maybeSingle<LineSettingsRow>()
+    .maybeSingle<LineSettingsRow & { channel_access_token_encrypted: string | null }>()
 
   if (error || !settings) {
     return { ok: false, error: 'LINE 設定不存在或載入失敗' }
   }
 
+  // 解密 token：優先加密欄、fallback 明文欄（過渡期舊資料）
+  let accessToken: string
+  try {
+    accessToken = settings.channel_access_token_encrypted
+      ? decryptIntegrationSecret(settings.channel_access_token_encrypted)
+      : (settings.channel_access_token ?? '')
+  } catch (cryptoErr) {
+    logger.error('LINE token decrypt failed', cryptoErr, { workspaceId: input.workspaceId })
+    return { ok: false, error: 'LINE token 解密失敗' }
+  }
+
+  if (!accessToken) {
+    return { ok: false, error: 'LINE token 未設定、請重新跑 LINE Bot 自助開通' }
+  }
+
   const result = await pushLineText({
-    channelAccessToken: settings.channel_access_token,
+    channelAccessToken: accessToken,
     toUserId: conv.external_user_id,
     text: input.text,
   })

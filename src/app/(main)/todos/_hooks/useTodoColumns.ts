@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { logger } from '@/lib/utils/logger'
 import { alertError } from '@/lib/ui/alert-dialog'
 import type { ConfirmDialogType } from '@/components/dialog'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 export interface TodoColumn {
   id: string
@@ -79,14 +80,13 @@ export function useTodoColumns({ confirm }: UseTodoColumnsOptions): UseTodoColum
     if (addingColumnInFlight) return
     setAddingColumnInFlight(true)
     try {
-      const res = await fetch('/api/todo-columns', {
+      const res = await apiMutate<TodoColumn>('/api/todo-columns', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newColumnName.trim(), color: 'gray' }),
+        body: { name: newColumnName.trim(), color: 'gray' },
+        invalidate: ['/api/todo-columns'],
       })
-      if (res.ok) {
-        const col = await res.json()
-        setColumns(prev => [...prev, col])
+      if (res.ok && res.data) {
+        setColumns(prev => [...prev, res.data!])
         setNewColumnName('')
         setIsAddingColumn(false)
       }
@@ -103,10 +103,10 @@ export function useTodoColumns({ confirm }: UseTodoColumnsOptions): UseTodoColum
       return
     }
     try {
-      await fetch('/api/todo-columns', {
+      await apiMutate('/api/todo-columns', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: columnId, name: name.trim() }),
+        body: { id: columnId, name: name.trim() },
+        invalidate: ['/api/todo-columns'],
       })
       setColumns(prev => prev.map(c => (c.id === columnId ? { ...c, name: name.trim() } : c)))
     } catch (err) {
@@ -136,10 +136,12 @@ export function useTodoColumns({ confirm }: UseTodoColumnsOptions): UseTodoColum
       if (!confirmed) return
 
       try {
-        const res = await fetch(`/api/todo-columns?id=${column.id}`, { method: 'DELETE' })
+        const res = await apiMutate(`/api/todo-columns?id=${column.id}`, {
+          method: 'DELETE',
+          invalidate: ['/api/todo-columns'],
+        })
         if (!res.ok) {
-          const err = await res.json()
-          await alertError(err.error || '刪除失敗')
+          await alertError(res.error || '刪除失敗')
           return
         }
         // 卡片移到第一欄

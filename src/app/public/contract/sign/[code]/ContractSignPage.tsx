@@ -7,6 +7,7 @@ import { ContractFillInfoStep } from './ContractFillInfoStep'
 import { ContractSignStep } from './ContractSignStep'
 import { ContractSuccessStep } from './ContractSuccessStep'
 import { loadContractTemplate, printContract } from './contract-sign-helpers'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface ContractMember {
   id: string
@@ -210,19 +211,17 @@ export function ContractSignPage({ contract }: ContractSignPageProps) {
     setSigning(true)
     setError(null)
     try {
-      const response = await fetch('/api/contracts/sign', {
+      const res = await apiMutate('/api/contracts/sign', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           contractId: contract.id,
           signature: signaturePreview,
           signerPhone: signerPhone.trim(),
           signerAddress: signerAddress.trim(),
           signerIdNumber: signerIdNumber.trim() || undefined,
-        }),
+        },
       })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || '簽署失敗')
+      if (!res.ok) throw new Error(res.error || '簽署失敗')
       setSavedSignature(signaturePreview)
       setStep('preview')
       setCanSign(true)

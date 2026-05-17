@@ -69,6 +69,17 @@ const TourClosingSections = dynamic(
   { loading: () => <TabLoading /> }
 )
 
+// 展示行程（永成款）— 5/17 加：之前漏掉 tab 註冊、所以管理後台看不到入口
+// 註冊邏輯：feature `tours.display-itinerary` 啟用 + role 有對應 capability、就會顯示
+// 動態載入避免拖累其他 tab 的首屏速度
+const TourDisplayItineraryTab = dynamic(
+  () =>
+    import('@/app/(main)/tours/_components/tour-display-itinerary-tab').then(
+      m => m.TourDisplayItineraryTab
+    ),
+  { loading: () => <TabLoading /> }
+)
+
 // TourContractTab：合約功能 William 重寫中、檔案被刪、暫時 stub
 const TourContractTab = ({ tour: _tour }: { tour: unknown }) => {
   const t = useTranslations('tour')
@@ -81,11 +92,16 @@ const TourContractTab = ({ tour: _tour }: { tour: unknown }) => {
 // 頁籤定義（共用）
 // ============================================================================
 
-// 5/13 William 拍板：訂單為預設第一個、總覽移最右（業務最常看訂單）
+// 5/13 William 拍板：訂單為預設第一個、總覽移最right（業務最常看訂單）
+// 5/17 加 display-itinerary：放在「行程」後面、語意上是行程的對客版
+//   - 需要 workspace feature `tours.display-itinerary` 開通
+//   - 需要 role capability `tours.display-itinerary.read` 才能進
+//   - 兩個 gate 都過、useVisibleModuleTabs 會自動把它放進可見清單
 export const TOUR_TABS = [
   { value: 'orders', label: '訂單' },
   { value: 'members', label: '團員' },
   { value: 'itinerary', label: '行程' },
+  { value: 'display-itinerary', label: '展示行程' },
   { value: 'quote', label: '報價' },
   { value: 'contract', label: '合約' },
   { value: 'overview', label: '總覽' },
@@ -161,6 +177,8 @@ export function TourTabContent({
       return <TourQuoteTab tour={tour} />
     case 'itinerary':
       return <TourItineraryTab tour={tour} />
+    case 'display-itinerary':
+      return <TourDisplayItineraryTab tour={tour} />
     case 'overview':
       return (
         <div className="space-y-6">

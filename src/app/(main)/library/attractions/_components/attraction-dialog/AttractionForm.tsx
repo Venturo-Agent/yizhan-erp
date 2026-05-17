@@ -19,6 +19,7 @@ import { useTranslations } from 'next-intl'
 import { AttractionFormData } from '../../_types'
 import type { Country, Region, City } from '@/stores/region-store'
 import { CoordinateSearch } from './CoordinateSearch'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 const COMPONENT_LABELS = {
   CAT_ATTRACTION: '景點',
@@ -64,25 +65,24 @@ export function AttractionForm({
     }
     setPolishingField(field)
     try {
-      const res = await fetch('/api/shared-data/attractions/ai-polish', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          category: formData.category,
-          field,
-          currentContent: field === 'description' ? formData.description : formData.notes,
-        }),
-      })
-      const data = (await res.json()) as { polished?: string; error?: string }
-      if (!res.ok || !data.polished) {
-        toast.error(data.error ?? 'AI 潤飾失敗，請稍後再試')
+      const res = await apiMutate<{ polished?: string; error?: string }>(
+        '/api/shared-data/attractions/ai-polish',
+        {
+          method: 'POST',
+          body: {
+            name: formData.name,
+            category: formData.category,
+            field,
+            currentContent: field === 'description' ? formData.description : formData.notes,
+          },
+        }
+      )
+      if (!res.ok || !res.data?.polished) {
+        toast.error(res.data?.error ?? res.error ?? 'AI 潤飾失敗，請稍後再試')
         return
       }
-      setFormData(prev => ({ ...prev, [field]: data.polished! }))
+      setFormData(prev => ({ ...prev, [field]: res.data!.polished! }))
       toast.success('AI 潤飾完成，請確認內容後儲存')
-    } catch {
-      toast.error('AI 潤飾失敗，請稍後再試')
     } finally {
       setPolishingField(null)
     }

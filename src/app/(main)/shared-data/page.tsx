@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Landmark, Globe, Plane } from 'lucide-react'
+import { Landmark, Globe, Plane, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
@@ -35,6 +35,14 @@ export default function SharedDataPage() {
       icon: Plane,
       href: '/shared-data/airports',
       color: 'bg-morandi-blue',
+    },
+    {
+      id: 'attractions',
+      title: t('moduleAttractionPool'),
+      description: t('moduleAttractionPoolDesc'),
+      icon: MapPin,
+      href: '/shared-data/attractions',
+      color: 'bg-morandi-gold',
     },
   ]
 
