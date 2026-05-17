@@ -1,5 +1,3 @@
-'use server'
-
 import { logger } from '@/lib/utils/logger'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getServerAuth } from '@/lib/auth/server-auth'
