@@ -32,7 +32,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag, ClipboardList } from 'lucide-react'
+import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 
@@ -712,87 +712,98 @@ function BusinessPanel({
             <Tag className="w-3 h-3 text-morandi-muted" />
             <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">標籤</p>
           </div>
-          <p className="text-xs text-morandi-muted">即將推出</p>
+          <p className="text-xs text-morandi-muted">即將推出（AI 自動判別）</p>
         </div>
 
-        {/* 副牌 / 快捷回覆（LINE 限定） */}
-        {conv.channel_type === 'line' && (
-          <div className="px-3 py-3">
-            <div className="flex items-center gap-1.5 mb-2">
-              <ClipboardList className="w-3 h-3 text-morandi-muted" />
-              <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">快捷回覆</p>
-            </div>
-            <QuickReplySection conversationId={conv.id} listUrl={listUrl} />
-          </div>
-        )}
-
         {/* 業務紀錄 */}
-        <div className="px-3 py-3">
-          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide mb-2">業務紀錄</p>
-          <p className="text-xs text-morandi-muted">即將推出</p>
+        <div className="px-3 py-3 flex flex-col gap-2">
+          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">業務紀錄</p>
+          <ConversationNotes conversationId={conv.id} />
         </div>
       </div>
     </div>
   )
 }
 
-// ===== 快捷回覆（業務面板內用，無抽屜）=====
-function QuickReplySection({
-  conversationId,
-  listUrl,
-}: {
-  conversationId: string
-  listUrl: string
-}) {
-  const [sending, setSending] = useState<string | null>(null)
-  const { data, isLoading } = useSWR<{ data: PostbackTemplate[] }>(
-    '/api/line/postback-templates',
-    fetcher,
-    { revalidateOnFocus: false }
-  )
-  const templates = (data?.data ?? []).filter(t => t.is_active)
+// ===== 業務紀錄（文字輸入 + 顯示歷史）=====
+interface NoteItem {
+  id: number
+  content: string
+  created_at: string
+  employees: { display_name: string | null } | null
+}
 
-  const handleSend = async (template: PostbackTemplate) => {
-    setSending(template.id)
+function ConversationNotes({ conversationId }: { conversationId: string }) {
+  const [text, setText] = useState('')
+  const [saving, setSaving] = useState(false)
+  const notesUrl = `/api/messaging/conversations/${conversationId}/notes`
+
+  const { data, mutate } = useSWR<{ data: NoteItem[] }>(notesUrl, fetcher, {
+    revalidateOnFocus: false,
+  })
+  const notes = data?.data ?? []
+
+  const handleSave = async () => {
+    const trimmed = text.trim()
+    if (!trimmed) return
+    setSaving(true)
     try {
-      const res = await apiMutate<{ success: boolean; error?: string }>(
-        `/api/messaging/conversations/${conversationId}/reply`,
-        {
-          method: 'POST',
-          body: { text: template.response_text },
-          invalidate: [
-            `/api/messaging/conversations/${conversationId}/messages`,
-            listUrl,
-          ],
-        }
-      )
+      const res = await apiMutate<{ success: boolean; error?: string }>(notesUrl, {
+        method: 'POST',
+        body: { content: trimmed },
+      })
       if (!res.ok || !res.data?.success) {
-        toast.error(res.error || res.data?.error || '發送失敗')
+        toast.error(res.error || '儲存失敗')
         return
       }
-      toast.success(`已發送「${template.label}」`)
+      setText('')
+      void mutate()
     } finally {
-      setSending(null)
+      setSaving(false)
     }
   }
 
-  if (isLoading) return <p className="text-xs text-morandi-muted">載入中...</p>
-  if (templates.length === 0) return <p className="text-xs text-morandi-muted">尚未設定模板</p>
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.nativeEvent.isComposing) {
+      e.preventDefault()
+      void handleSave()
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-1">
-      {templates.map(t => (
-        <button
-          key={t.id}
-          onClick={() => handleSend(t)}
-          disabled={sending === t.id}
-          title={t.response_text}
-          className="text-left text-xs px-2 py-1 rounded-lg border border-morandi-muted/20 bg-morandi-container/20 hover:bg-morandi-gold/10 hover:border-morandi-gold/40 transition-colors disabled:opacity-50 truncate"
-        >
-          {sending === t.id ? <Loader2 className="w-3 h-3 animate-spin inline mr-1" /> : null}
-          {t.label}
-        </button>
-      ))}
+    <div className="flex flex-col gap-2">
+      {/* 輸入區 */}
+      <textarea
+        value={text}
+        onChange={e => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="輸入備忘、⌘Enter 儲存..."
+        rows={3}
+        disabled={saving}
+        className="w-full resize-none text-xs px-2 py-1.5 rounded-lg border border-morandi-muted/30 bg-morandi-container/10 placeholder:text-morandi-muted/60 focus:outline-none focus:ring-1 focus:ring-morandi-gold/40 disabled:opacity-50"
+      />
+      <Button
+        size="sm"
+        onClick={handleSave}
+        disabled={saving || !text.trim()}
+        className="h-7 text-xs self-end"
+      >
+        {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : '儲存'}
+      </Button>
+
+      {/* 歷史紀錄（最新在上） */}
+      {notes.length > 0 && (
+        <div className="flex flex-col gap-1.5 mt-1">
+          {notes.map(n => (
+            <div key={n.id} className="rounded-lg bg-morandi-container/20 px-2 py-1.5">
+              <p className="text-xs text-morandi-primary whitespace-pre-wrap break-words">{n.content}</p>
+              <p className="text-[0.588rem] text-morandi-muted mt-0.5">
+                {n.employees?.display_name ?? '員工'} ・ {new Date(n.created_at).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
