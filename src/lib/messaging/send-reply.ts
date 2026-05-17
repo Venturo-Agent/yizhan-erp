@@ -10,7 +10,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { sendTextMessage } from '@/lib/facebook/reply-client'
 import { pushLineText } from '@/lib/line/push-client'
-import { recordOutboundMessage } from '@/lib/inbox/inbox-service'
+import { recordOutboundMessage, upsertConversation } from '@/lib/inbox/inbox-service'
 import { logger } from '@/lib/utils/logger'
 import type { ChannelType } from '@/lib/inbox/inbox-service'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -152,8 +152,7 @@ async function sendViaLine(
     return { ok: false, error: result.error || 'LINE push 失敗' }
   }
 
-  // LINE outbound 寫到 line_conversation_messages（LINE 自己的舊表、保留現有 flow）
-  // 不寫 inbox_messages 因為 LINE 沒有對應的 inbox_conversations row
+  // 1. 寫舊表 line_conversation_messages（保留既有流程）
   const lineMsg = supabase as unknown as SupabaseClient
   await lineMsg.from('line_conversation_messages').insert({
     workspace_id: input.workspaceId,
@@ -164,6 +163,30 @@ async function sendViaLine(
     content: input.text,
     raw_event: { sent_via: 'line_push', agent_employee_id: input.senderEmployeeId },
   })
+
+  // 2. 寫 inbox_messages（AI Hub UI 讀這張表）
+  // conv.id 有可能是 synthetic（'line:xxx'），需要先確保 inbox_conversations 存在
+  let inboxConvId = conv.id.startsWith('line:') ? null : conv.id
+  if (!inboxConvId) {
+    // synthetic id path：確保 inbox_conversations 有這個對話（upsert 是 idempotent）
+    inboxConvId = await upsertConversation({
+      workspaceId: input.workspaceId,
+      channelType: 'line',
+      externalUserId: conv.external_user_id,
+    })
+  }
+  if (inboxConvId) {
+    await recordOutboundMessage({
+      conversationId: inboxConvId,
+      workspaceId: input.workspaceId,
+      sourceId: null,
+      senderType: 'agent',
+      senderEmployeeId: input.senderEmployeeId,
+      messageType: 'text',
+      content: input.text,
+      rawEvent: { sent_via: 'line_push' },
+    })
+  }
 
   return { ok: true }
 }

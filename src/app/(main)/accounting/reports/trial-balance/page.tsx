@@ -152,7 +152,7 @@ export default function TrialBalancePage() {
 
   return (
     <ContentPageLayout title={t('trialBalanceTitle')}>
-      <div className="p-6 space-y-4">
+      <div className="space-y-4">
         {/* 查詢條件 */}
         <Card className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

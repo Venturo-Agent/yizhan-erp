@@ -11,6 +11,7 @@ import { TenantBasicInfoSection } from './_components/TenantBasicInfoSection'
 import { TenantBrandSection } from './_components/TenantBrandSection'
 import { TenantOrgSection } from './_components/TenantOrgSection'
 import { TenantAdminSection } from './_components/TenantAdminSection'
+import { TenantPlanSection } from './_components/TenantPlanSection'
 
 interface CreateTenantDialogProps {
   open: boolean
@@ -52,6 +53,8 @@ export function CreateTenantDialog({
     removeDept,
     toggleMultiBranch,
     toggleMultiDept,
+    handlePlanChange,
+    handleAdvancePicksChange,
   } = useCreateTenantForm(existingCodes)
 
   const handleOpenChange = useCallback(
@@ -78,6 +81,13 @@ export function CreateTenantDialog({
 
         {step === 'form' && (
           <div className="space-y-5">
+            <TenantPlanSection
+              subscriptionPlan={form.subscriptionPlan}
+              advancePicks={form.advancePicks}
+              onPlanChange={handlePlanChange}
+              onAdvancePicksChange={handleAdvancePicksChange}
+            />
+
             <TenantBasicInfoSection
               form={form}
               setForm={setForm}

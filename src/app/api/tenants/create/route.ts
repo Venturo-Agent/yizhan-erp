@@ -107,6 +107,8 @@ export async function POST(request: NextRequest) {
       adminEmployeeNumber,
       adminName,
       adminEmail,
+      subscriptionPlan,
+      advancePicks,
     } = body
 
     const newWorkspaceCode = (rawWorkspaceCode || '').toUpperCase().trim()
@@ -149,6 +151,7 @@ export async function POST(request: NextRequest) {
       trimmedTaxId,
       isMultiBranch,
       isMultiDepartment,
+      subscriptionPlan: subscriptionPlan ?? 'custom',
     })
     if ('status' in wsResult) return wsResult
     state.createdWorkspaceId = wsResult.workspaceId
@@ -202,8 +205,13 @@ export async function POST(request: NextRequest) {
       return rolesError
     }
 
-    // 7. 建立預設 workspace_features
-    const featuresError = await seedWorkspaceFeatures(supabaseAdmin, wsResult.workspaceId)
+    // 7. 建立預設 workspace_features（依所選方案配置功能開關）
+    const featuresError = await seedWorkspaceFeatures(
+      supabaseAdmin,
+      wsResult.workspaceId,
+      subscriptionPlan ?? 'custom',
+      advancePicks
+    )
     if (featuresError) {
       await rollback(supabaseAdmin, state, 'workspace_features insert failed')
       return featuresError

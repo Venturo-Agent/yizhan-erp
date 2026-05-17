@@ -10,6 +10,7 @@
  */
 
 import { useCallback, useMemo } from 'react'
+// eslint-disable-next-line venturo/no-direct-useswr-in-pages -- ref_airports / ref_countries 是全域 reference table，非 workspace-scoped entity；createEntityHook 不適用
 import useSWR, { mutate } from 'swr'
 import { supabase } from '@/lib/supabase/client'
 import { dynamicFrom } from '@/lib/supabase/typed-client'

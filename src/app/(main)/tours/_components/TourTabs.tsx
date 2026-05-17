@@ -262,7 +262,7 @@ function _TourTabs({
       </div>
 
       {/* 內容區 */}
-      <div className="flex-1 overflow-auto p-4">
+      <div className={cn('flex-1 overflow-auto', activeTab !== 'display-itinerary' && 'p-4')}>
         <TourTabContent tour={tour} activeTab={activeTab} onAddRequest={onAddRequest} />
       </div>
     </div>

@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { useTranslations } from 'next-intl'
 import { type FormData, type LoginInfo, type DimensionRow, INITIAL_FORM } from './create-tenant-types'
+import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
 
 export function useCreateTenantForm(existingCodes: string[]) {
   const t = useTranslations('workspacesPage')
@@ -137,6 +138,18 @@ export function useCreateTenantForm(existingCodes: string[]) {
     }))
   }
 
+  const handlePlanChange = useCallback((planId: PlanId) => {
+    setForm(prev => ({
+      ...prev,
+      subscriptionPlan: planId,
+      advancePicks: planId === 'advance' ? prev.advancePicks : [],
+    }))
+  }, [])
+
+  const handleAdvancePicksChange = useCallback((picks: AdvancePickId[]) => {
+    setForm(prev => ({ ...prev, advancePicks: picks }))
+  }, [])
+
   const isFormValid = (() => {
     if (!form.name.trim() || !form.code.trim() || !form.taxId.trim()) return false
     if (codeError || taxIdError) return false
@@ -144,6 +157,7 @@ export function useCreateTenantForm(existingCodes: string[]) {
     if (!/^\d{8}$/.test(form.taxId)) return false
     if (!form.adminName.trim() || !form.adminEmail.trim()) return false
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.adminEmail)) return false
+    if (form.subscriptionPlan === 'advance' && form.advancePicks.length !== 2) return false
     for (const b of form.brands) {
       if (b.name.trim() === '' && b.code.trim() !== '') return false
     }
@@ -169,6 +183,8 @@ export function useCreateTenantForm(existingCodes: string[]) {
         workspaceType: 'travel_agency',
         maxEmployees: form.maxEmployees ? parseInt(form.maxEmployees, 10) : null,
         taxId: form.taxId.trim(),
+        subscriptionPlan: form.subscriptionPlan,
+        advancePicks: form.advancePicks,
         brands: form.brands
           .filter(b => b.name.trim())
           .map(b => ({ code: b.code.trim().toUpperCase(), name: b.name.trim() })),
@@ -269,5 +285,8 @@ export function useCreateTenantForm(existingCodes: string[]) {
     // toggles
     toggleMultiBranch,
     toggleMultiDept,
+    // plan
+    handlePlanChange,
+    handleAdvancePicksChange,
   }
 }

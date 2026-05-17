@@ -66,12 +66,9 @@ export {
 
 // Quotes
 export {
-  
   useQuotes,
-  
+  useQuotesSlim,
   useQuote,
-  
-  
   createQuote,
   updateQuote,
   deleteQuote,

@@ -174,6 +174,7 @@ export async function PUT(
     data_sources: dataSources,
     response_mode: responseMode,
     updated_by: auth.data.employeeId,
+    updated_at: new Date().toISOString(),
   }
 
   // provider

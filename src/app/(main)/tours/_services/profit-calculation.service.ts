@@ -135,11 +135,20 @@ function calculateBonus(netProfit: number, setting: TourBonusSetting): number {
   }
 }
 
-/** 計算所有獎金 */
+export type BonusCalculationOrder = 'independent' | 'op_first' | 'sales_first'
+
+/** 計算所有獎金
+ *
+ * calculationOrder:
+ *   independent（預設）= OP / 業務都從同一個 netProfit 算（舊行為）
+ *   op_first           = OP 先算，業務從 (netProfit − OP總額) 算
+ *   sales_first        = 業務先算，OP 從 (netProfit − 業務總額) 算
+ */
 function calculateAllBonuses(
   netProfit: number,
   settings: TourBonusSetting[],
-  employeeDict?: Record<string, string>
+  employeeDict?: Record<string, string>,
+  calculationOrder: BonusCalculationOrder = 'independent'
 ): { team_bonuses: BonusResult[]; employee_bonuses: BonusResult[] } {
   if (netProfit < 0) {
     return { team_bonuses: [], employee_bonuses: [] }
@@ -148,27 +157,72 @@ function calculateAllBonuses(
   const team_bonuses: BonusResult[] = []
   const employee_bonuses: BonusResult[] = []
 
-  for (const setting of settings) {
-    // 跳過稅額和行政費用（不是發放的獎金）
-    if (
-      setting.type === BonusSettingType.PROFIT_TAX ||
-      setting.type === BonusSettingType.ADMINISTRATIVE_EXPENSES
-    ) {
-      continue
+  const bonusSettings = settings.filter(
+    s =>
+      s.type !== BonusSettingType.PROFIT_TAX &&
+      s.type !== BonusSettingType.ADMINISTRATIVE_EXPENSES
+  )
+
+  if (calculationOrder === 'independent') {
+    for (const setting of bonusSettings) {
+      const amount = calculateBonus(netProfit, setting)
+      const result: BonusResult = {
+        setting,
+        amount,
+        employee_name:
+          setting.employee_id && employeeDict ? employeeDict[setting.employee_id] : undefined,
+      }
+      if (setting.type === BonusSettingType.TEAM_BONUS) {
+        team_bonuses.push(result)
+      } else {
+        employee_bonuses.push(result)
+      }
+    }
+  } else {
+    // Sequential: first group calculated from netProfit, second from remainder
+    const firstType =
+      calculationOrder === 'op_first' ? BonusSettingType.OP_BONUS : BonusSettingType.SALE_BONUS
+    const secondType =
+      calculationOrder === 'op_first' ? BonusSettingType.SALE_BONUS : BonusSettingType.OP_BONUS
+
+    const firstGroup = bonusSettings.filter(s => s.type === firstType)
+    const secondGroup = bonusSettings.filter(s => s.type === secondType)
+    const otherGroup = bonusSettings.filter(s => s.type !== firstType && s.type !== secondType)
+
+    // First group: from full netProfit
+    let totalFirst = 0
+    for (const setting of firstGroup) {
+      const amount = calculateBonus(netProfit, setting)
+      totalFirst += amount
+      employee_bonuses.push({
+        setting,
+        amount,
+        employee_name:
+          setting.employee_id && employeeDict ? employeeDict[setting.employee_id] : undefined,
+      })
     }
 
-    const amount = calculateBonus(netProfit, setting)
-    const result: BonusResult = {
-      setting,
-      amount,
-      employee_name:
-        setting.employee_id && employeeDict ? employeeDict[setting.employee_id] : undefined,
+    // Second group: from (netProfit - totalFirst)
+    const remainingBase = Math.max(0, netProfit - totalFirst)
+    for (const setting of secondGroup) {
+      const amount = calculateBonus(remainingBase, setting)
+      employee_bonuses.push({
+        setting,
+        amount,
+        employee_name:
+          setting.employee_id && employeeDict ? employeeDict[setting.employee_id] : undefined,
+      })
     }
 
-    if (setting.type === BonusSettingType.TEAM_BONUS) {
-      team_bonuses.push(result)
-    } else {
-      employee_bonuses.push(result)
+    // Other (TEAM_BONUS): always from netProfit
+    for (const setting of otherGroup) {
+      const amount = calculateBonus(netProfit, setting)
+      team_bonuses.push({
+        setting,
+        amount,
+        employee_name:
+          setting.employee_id && employeeDict ? employeeDict[setting.employee_id] : undefined,
+      })
     }
   }
 
@@ -187,8 +241,9 @@ export function calculateFullProfit(params: {
   settings: TourBonusSetting[]
   memberCount: number
   employeeDict?: Record<string, string>
+  calculationOrder?: BonusCalculationOrder
 }): ProfitCalculationResult {
-  const { receipts, expenses, settings, memberCount, employeeDict } = params
+  const { receipts, expenses, settings, memberCount, employeeDict, calculationOrder } = params
 
   const receipt_total = calculateReceiptTotal(receipts)
   const expense_total = calculateExpenseTotal(expenses)
@@ -205,7 +260,7 @@ export function calculateFullProfit(params: {
   const profit_tax = taxResult.tax
   const net_profit = calculateNetProfit(profit_before_tax, profit_tax)
 
-  const { team_bonuses, employee_bonuses } = calculateAllBonuses(net_profit, settings, employeeDict)
+  const { team_bonuses, employee_bonuses } = calculateAllBonuses(net_profit, settings, employeeDict, calculationOrder)
   const total_team_bonus = team_bonuses.reduce((s, b) => s + b.amount, 0)
   const total_employee_bonus = employee_bonuses.reduce((s, b) => s + b.amount, 0)
   const company_profit =

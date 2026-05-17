@@ -4,7 +4,7 @@ import { useMemo, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { Tour } from '@/stores/types'
 import { OrderListView } from '@/app/(main)/orders/_components/OrderListView'
-import { useOrdersListSlim } from '@/hooks/useListSlim'
+import { useOrdersSlim } from '@/data'
 import type { Order as OrderType } from '@/types/order.types'
 import { toast } from 'sonner'
 import { invalidateOrders } from '@/data'
@@ -15,7 +15,7 @@ interface TourOrdersProps {
 
 export function TourOrders({ tour }: TourOrdersProps) {
   const t = useTranslations('tour')
-  const { items: allOrders } = useOrdersListSlim()
+  const { items: allOrders } = useOrdersSlim()
   const orders = useMemo(() => allOrders.filter(o => o.tour_id === tour.id), [allOrders, tour.id])
 
   const handleReceiptSuccess = useCallback(() => {

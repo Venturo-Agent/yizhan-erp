@@ -75,6 +75,10 @@ export default tseslint.config(
       'venturo/no-hardcoded-chinese-jsx': 'warn',
       // 紅線：防連點（FormDialog 必傳 loading prop）
       'venturo/form-dialog-loading-required': 'warn',
+      // 紅線 F：頁面不准直接 useSWR（走 entity hook / createReportHook）
+      'venturo/no-direct-useswr-in-pages': 'warn',
+      // 紅線 F：頁面不准直接 supabase 寫入（走 apiMutate + API route）
+      'venturo/no-direct-supabase-writes': 'warn',
 
       // 暫時保留原設定中被放寬的規則，以避免一次性出現大量新錯誤
       'prefer-const': 'off',

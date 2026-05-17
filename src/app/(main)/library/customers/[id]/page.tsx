@@ -187,7 +187,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   if (!customer) {
     return (
       <ContentPageLayout title={PAGE_LABELS.TITLE} icon={User}>
-        <div className="p-6 text-center text-morandi-secondary">{PAGE_LABELS.NOT_FOUND}</div>
+        <div className="flex-1 flex items-center justify-center text-morandi-secondary">{PAGE_LABELS.NOT_FOUND}</div>
       </ContentPageLayout>
     )
   }
@@ -251,7 +251,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
         </div>
       }
     >
-      <div className="p-6">
+      <div>
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
           <TabsContent value="basic" className="mt-0">
             <Card className="p-6">

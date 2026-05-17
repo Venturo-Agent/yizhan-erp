@@ -24,6 +24,11 @@ import { IntegrationsTab } from './_components/integrations-tab'
 import { AddonsTab } from './_components/addons-tab'
 import { OverviewTab } from './_components/overview-tab'
 import { apiMutate } from '@/lib/swr/api-mutate'
+import {
+  getFeaturesForPlan,
+  getAdvancePicksFromFeatures,
+} from '@/lib/permissions/subscription-plans'
+import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
 
 const TAB_VALUES = {
   OVERVIEW: 'overview',
@@ -54,6 +59,7 @@ interface Workspace {
   default_password?: string | null
   admin_id?: string | null
   admin_employee_number?: string | null
+  subscription_plan?: PlanId | null
 }
 
 interface WorkspaceFeature {
@@ -77,6 +83,8 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
   const [saving, setSaving] = useState(false)
   const [employeeCount, setEmployeeCount] = useState(0)
   const [adminName, setAdminName] = useState<string | null>(null)
+  const [subscriptionPlan, setSubscriptionPlan] = useState<PlanId>('custom')
+  const [advancePicks, setAdvancePicks] = useState<AdvancePickId[]>([])
 
   // 載入資料（總覽 tab 用）
   useEffect(() => {
@@ -101,6 +109,10 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
       if (ws.pension_system && ['old', 'new', 'mixed'].includes(ws.pension_system)) {
         setPensionSystem(ws.pension_system)
       }
+      const validPlans: PlanId[] = ['lite', 'standard', 'advance', 'premium', 'custom']
+      if (ws.subscription_plan && validPlans.includes(ws.subscription_plan)) {
+        setSubscriptionPlan(ws.subscription_plan)
+      }
 
       // 取得功能權限
       const featuresRes = await fetch(`/api/permissions/features?workspace_id=${id}`)
@@ -119,12 +131,13 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
       featuresData
         .filter(f => f.feature_code.includes('.') && !allFeatureMap.has(f.feature_code))
         .forEach(f => allFeatureMap.set(f.feature_code, f.enabled))
-      setFeatures(
-        Array.from(allFeatureMap.entries()).map(([code, enabled]) => ({
-          feature_code: code,
-          enabled,
-        }))
-      )
+      const resolvedFeatures = Array.from(allFeatureMap.entries()).map(([code, enabled]) => ({
+        feature_code: code,
+        enabled,
+      }))
+      setFeatures(resolvedFeatures)
+      // 從 features 推導進階選項（Advance 方案）
+      setAdvancePicks(getAdvancePicksFromFeatures(resolvedFeatures))
 
       setLoading(false)
     }
@@ -163,7 +176,39 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
     return feature?.enabled !== false
   }
 
-  // 儲存（只在總覽 tab 顯示按鈕、用 features 寫入）
+  // 切換訂閱方案（只更新 state、不立即 API call）
+  const handlePlanChange = (planId: PlanId) => {
+    setSubscriptionPlan(planId)
+    if (planId === 'custom') {
+      // custom 不自動配置 features
+      return
+    }
+    const featuresToEnable = getFeaturesForPlan(
+      planId,
+      planId === 'advance' ? advancePicks : undefined
+    )
+    setFeatures(prev =>
+      prev.map(f => ({
+        ...f,
+        enabled: featuresToEnable.includes(f.feature_code),
+      }))
+    )
+  }
+
+  // 切換進階選項（advance 方案）
+  const handleAdvancePicksChange = (picks: AdvancePickId[]) => {
+    setAdvancePicks(picks)
+    // 同步更新 features（仍在 advance 方案下）
+    const featuresToEnable = getFeaturesForPlan('advance', picks)
+    setFeatures(prev =>
+      prev.map(f => ({
+        ...f,
+        enabled: featuresToEnable.includes(f.feature_code),
+      }))
+    )
+  }
+
+  // 儲存（只在總覽 tab 顯示按鈕、用 features 寫入 + subscription_plan PATCH）
   const handleSave = async () => {
     setSaving(true)
 
@@ -180,6 +225,17 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
 
       if (!res.ok) {
         toast.error('儲存失敗', { description: res.error || `HTTP ${res.status}` })
+        return
+      }
+
+      // 同步更新訂閱方案
+      const planRes = await apiMutate(`/api/workspaces/${id}`, {
+        method: 'PATCH',
+        body: { subscription_plan: subscriptionPlan },
+        invalidate: [`/api/workspaces/${id}`],
+      })
+      if (!planRes.ok) {
+        toast.error('方案儲存失敗', { description: planRes.error || `HTTP ${planRes.status}` })
         return
       }
 
@@ -260,12 +316,16 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
           leavePolicy={leavePolicy}
           pensionSystem={pensionSystem}
           savingHrPolicy={savingHrPolicy}
+          subscriptionPlan={subscriptionPlan}
+          advancePicks={advancePicks}
           onToggleFeature={toggleFeature}
           onToggleTabFeature={toggleTabFeature}
           onIsTabFeatureEnabled={isTabFeatureEnabled}
           onSetLeavePolicy={setLeavePolicy}
           onSetPensionSystem={setPensionSystem}
           onSaveHrPolicy={handleSaveHrPolicy}
+          onPlanChange={handlePlanChange}
+          onAdvancePicksChange={handleAdvancePicksChange}
         />
       )}
 

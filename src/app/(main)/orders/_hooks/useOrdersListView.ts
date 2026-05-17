@@ -21,6 +21,7 @@
  * - 排序、select 欄位、cache 行為跟 useOrdersPaginated 對齊、避免列表 UI 拿不到欄位。
  */
 
+// eslint-disable-next-line venturo/no-direct-useswr-in-pages -- OR filter（sales_person OR created_by）entity hook 不支援；架構說明見 file header
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'

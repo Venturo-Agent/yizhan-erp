@@ -24,6 +24,12 @@ import { logger } from '@/lib/utils/logger'
 export interface ApiMutateOptions {
   method?: 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   body?: unknown
+  /**
+   * FormData 上傳（OCR / 護照 / 頭像 / 圖片）。
+   * 提供後自動跳過 Content-Type header（瀏覽器自動補 multipart boundary）。
+   * body 與 formData 擇一使用；兩者同時存在時 formData 優先。
+   */
+  formData?: FormData
   headers?: Record<string, string>
   /** 完成後要觸發 refetch 的 SWR keys（globalMutate 自動 revalidate） */
   invalidate?: string[]
@@ -32,6 +38,16 @@ export interface ApiMutateOptions {
    * key = SWR key、updater 拿到當前 cache 值、回傳新值（不 revalidate、寫入失敗會 rollback）。
    */
   optimistic?: Array<{ key: string; updater: (current: unknown) => unknown }>
+  /**
+   * 回傳 Blob（圖片下載 / 檔案下載）。
+   * true 時 data 型別為 Blob、不嘗試 JSON.parse。
+   */
+  blob?: boolean
+  /**
+   * 以 response body 的 .success 旗標判斷成功（部分舊 API 回傳 { success: boolean }）。
+   * true 時：res.ok && data?.success === true 才算成功；data?.success === false 走 error 路徑。
+   */
+  successFlag?: boolean
 }
 
 export interface ApiMutateResult<T> {
@@ -55,9 +71,12 @@ export async function apiMutate<T = unknown>(
   const {
     method = 'POST',
     body,
+    formData,
     headers,
     invalidate = [],
     optimistic = [],
+    blob: returnBlob = false,
+    successFlag = false,
   } = options
 
   // 1. Optimistic update：寫入 cache、不 revalidate（避免立刻被 server 覆蓋）
@@ -66,11 +85,35 @@ export async function apiMutate<T = unknown>(
   }
 
   try {
+    // FormData 上傳不設 Content-Type（瀏覽器自動補 multipart boundary）
+    const isFormData = formData !== undefined
+    const fetchHeaders: Record<string, string> = isFormData
+      ? { ...headers }
+      : { 'Content-Type': 'application/json', ...headers }
+
+    const fetchBody = isFormData
+      ? formData
+      : body !== undefined
+        ? JSON.stringify(body)
+        : undefined
+
     const res = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json', ...headers },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      headers: fetchHeaders,
+      body: fetchBody,
     })
+
+    // Blob 回應（圖片 / 檔案下載）
+    if (returnBlob) {
+      if (!res.ok) {
+        for (const o of optimistic) { await globalMutate(o.key) }
+        return { ok: false, error: `HTTP ${res.status}`, status: res.status }
+      }
+      const blobData = await res.blob()
+      await Promise.all(invalidate.map(key => globalMutate(key)))
+      return { ok: true, data: blobData as T, status: res.status }
+    }
+
     const text = await res.text()
     let data: T | undefined
     if (text) {
@@ -81,7 +124,13 @@ export async function apiMutate<T = unknown>(
       }
     }
 
-    if (!res.ok) {
+    // 失敗判斷：HTTP 狀態 + successFlag 模式
+    const isSuccess = res.ok && (
+      !successFlag ||
+      (data && typeof data === 'object' && (data as Record<string, unknown>).success === true)
+    )
+
+    if (!isSuccess) {
       // 失敗：rollback optimistic（revalidate 拉真實狀態）
       for (const o of optimistic) {
         await globalMutate(o.key)

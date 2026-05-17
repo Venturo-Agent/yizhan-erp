@@ -290,7 +290,7 @@ export const createPaymentMethodSchema = z.object({
   fee_percent: z.number().min(0).max(100).optional().nullable(),
   fee_fixed: z.number().min(0).optional().nullable(),
   // 種類 enum（分類用、各 kind 邏輯未來再接）
-  kind: z.enum(['wire_transfer', 'card', 'cash', 'cash_foreign', 'check', 'other']).optional().nullable(),
+  kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
 })
 
 export const updatePaymentMethodSchema = z.object({
@@ -310,7 +310,7 @@ export const updatePaymentMethodSchema = z.object({
   fee_percent: z.number().min(0).max(100).optional().nullable(),
   fee_fixed: z.number().min(0).optional().nullable(),
   // 種類 enum（分類用、各 kind 邏輯未來再接）
-  kind: z.enum(['wire_transfer', 'card', 'cash', 'cash_foreign', 'check', 'other']).optional().nullable(),
+  kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
 })
 
 export const upsertBankAccountSchema = z.object({

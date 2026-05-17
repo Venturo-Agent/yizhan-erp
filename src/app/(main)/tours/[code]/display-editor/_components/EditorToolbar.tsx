@@ -17,7 +17,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Eye } from 'lucide-react'
+import { ArrowLeft, Eye, Sparkles } from 'lucide-react'
 import type { SaveStatus } from '../_hooks/useCanvasEditor'
 
 // 永成款主題色（不放 morandi token、屬於 yongcheng 主題範圍）
@@ -33,6 +33,7 @@ interface EditorToolbarProps {
   unpublishLoading: boolean
   onPublish: () => void
   onUnpublish: () => void
+  onAiAssist: () => void
 }
 
 function SaveIndicator({ status }: { status: SaveStatus }) {
@@ -76,6 +77,7 @@ export function EditorToolbar({
   unpublishLoading,
   onPublish,
   onUnpublish,
+  onAiAssist,
 }: EditorToolbarProps) {
   const router = useRouter()
 
@@ -139,6 +141,27 @@ export function EditorToolbar({
 
       {/* 右：動作按鈕 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <button
+          type="button"
+          onClick={onAiAssist}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'rgba(200,90,56,0.15)',
+            border: `1px solid ${PUBLISH_BG}`,
+            color: PUBLISH_BG,
+            padding: '7px 14px',
+            borderRadius: 6,
+            cursor: 'pointer',
+            fontSize: 13,
+            fontWeight: 500,
+          }}
+        >
+          <Sparkles size={14} />
+          AI 助理
+        </button>
+
         <button
           type="button"
           onClick={handlePreview}

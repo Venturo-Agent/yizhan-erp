@@ -179,7 +179,7 @@ export default function PeriodClosingPage() {
 
   return (
     <ContentPageLayout title={t('periodClosing')}>
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         {/* 執行結轉 */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">

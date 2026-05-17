@@ -68,7 +68,7 @@ export interface ProcessResult {
 export async function processIncomingTextMessage(
   ctx: BotContext,
   userText: string,
-  replyToken: string
+  replyToken: string | null
 ): Promise<ProcessResult> {
   if (!userText?.trim()) {
     return { replyText: '', llmUsed: false, debugReason: 'empty user text' }
@@ -318,19 +318,36 @@ async function tryCreateOrderFromHistory(args: OrderAttemptArgs): Promise<OrderA
 // reply helper
 // ============================================================================
 
-async function sendReply(ctx: BotContext, replyToken: string, text: string): Promise<void> {
-  if (!replyToken) return
+async function sendReply(ctx: BotContext, replyToken: string | null, text: string): Promise<void> {
   if (!text?.trim()) return
-  const res = await replyToLine({
-    replyToken,
-    messages: [{ type: 'text', text: text.slice(0, 4900) }], // LINE 5000 char limit
-    channelAccessToken: ctx.channelAccessToken,
-  })
-  if (!res.ok) {
-    logger.warn(`${HANDLER}: reply failed`, {
-      workspaceId: ctx.workspaceId,
-      status: res.status,
-      error: res.error,
+  if (replyToken) {
+    // Reply API（webhook 即時 path，token 有效期 5 min）
+    const res = await replyToLine({
+      replyToken,
+      messages: [{ type: 'text', text: text.slice(0, 4900) }], // LINE 5000 char limit
+      channelAccessToken: ctx.channelAccessToken,
     })
+    if (!res.ok) {
+      logger.warn(`${HANDLER}: reply failed`, {
+        workspaceId: ctx.workspaceId,
+        status: res.status,
+        error: res.error,
+      })
+    }
+  } else {
+    // PUSH API（debounce flush path，無 reply token）
+    const { pushLineText } = await import('@/lib/line/push-client')
+    const res = await pushLineText({
+      channelAccessToken: ctx.channelAccessToken,
+      toUserId: ctx.lineUserId,
+      text: text.slice(0, 4900),
+    })
+    if (!res.ok) {
+      logger.warn(`${HANDLER}: push failed`, {
+        workspaceId: ctx.workspaceId,
+        status: res.status,
+        error: res.error,
+      })
+    }
   }
 }

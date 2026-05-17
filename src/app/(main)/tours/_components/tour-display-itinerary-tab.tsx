@@ -254,14 +254,13 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
   // ──────────────── render ────────────────
 
   return (
-    // -m-4 是為了打破 tab 父層的 p-4 padding、讓預覽能 full-bleed
-    <div className="-m-4 flex flex-col">
+    <div className="flex flex-col">
       {/* ─── Toolbar（sticky 頂部）─── */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 border-b bg-card px-4 py-2 shadow-sm">
+      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 pb-2">
         {/* 主題切換 */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" className="gap-2">
               <Palette className="h-4 w-4" />
               {THEME_LABELS[theme]}
               <ChevronDown className="h-3 w-3" />
@@ -279,7 +278,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
 
         {/* 編輯模式 */}
         {canEdit ? (
-          <Button variant="outline" size="sm" onClick={handleEdit} className="gap-2">
+          <Button variant="outline" onClick={handleEdit} className="gap-2">
             <Pencil className="h-4 w-4" />
             編輯
           </Button>
@@ -289,7 +288,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
         <div className="mx-1 h-6 w-px bg-border" />
 
         {/* 複製連結 */}
-        <Button variant="outline" size="sm" onClick={handleCopy} className="gap-2">
+        <Button variant="outline" onClick={handleCopy} className="gap-2">
           {copied ? (
             <Check className="h-4 w-4 text-green-500" />
           ) : (
@@ -299,7 +298,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
         </Button>
 
         {/* 新分頁開啟 */}
-        <Button variant="outline" size="sm" onClick={handleOpen} className="gap-2">
+        <Button variant="outline" onClick={handleOpen} className="gap-2">
           <ExternalLink className="h-4 w-4" />
           新分頁開啟
         </Button>
@@ -310,7 +309,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
         {/* 連結效期 */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" className="gap-2">
               <Clock className="h-4 w-4" />
               連結效期
             </Button>
@@ -342,7 +341,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
         {/* 報名表 */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" className="gap-2">
               <ClipboardList className="h-4 w-4" />
               報名表
             </Button>
@@ -360,11 +359,6 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
           </PopoverContent>
         </Popover>
 
-        {/* 右側 URL */}
-        <div className="flex-1" />
-        <div className="hidden md:block max-w-md truncate font-mono text-xs text-muted-foreground">
-          {fullUrl}
-        </div>
       </div>
 
       {/* ─── 預覽區 ─── */}

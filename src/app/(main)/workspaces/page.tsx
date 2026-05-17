@@ -14,11 +14,14 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { CreateTenantDialog } from './create-tenant-dialog'
 import { EditTenantDialog } from './edit-tenant-dialog'
+import { getPlanById } from '@/lib/permissions/subscription-plans'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 type WorkspaceRow = Workspace & {
   employee_count: number
   admin_name: string | null
   admin_id: string | null
+  subscription_plan: PlanId | null
 }
 
 export default function TenantsPage() {
@@ -100,6 +103,21 @@ export default function TenantsPage() {
             {t('employeeCountSuffix')}
           </span>
         ),
+      },
+      {
+        key: 'subscription_plan',
+        label: t('colPlan'),
+        sortable: false,
+        width: '100px',
+        render: (_value, row: WorkspaceRow) => {
+          const planId: PlanId = row.subscription_plan || 'custom'
+          const plan = getPlanById(planId)
+          return (
+            <span className={`px-2 py-1 rounded text-xs font-medium ${plan.colorClass}`}>
+              {plan.name}
+            </span>
+          )
+        },
       },
       {
         key: 'is_active',

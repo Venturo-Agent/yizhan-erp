@@ -13,7 +13,7 @@ interface PaymentMethod {
   is_system: boolean
   sort_order: number
   // 種類 enum（分類用、各 kind 邏輯未來再接）
-  kind?: 'wire_transfer' | 'card' | 'cash' | 'cash_foreign' | 'check' | 'other' | null
+  kind?: 'wire_transfer' | 'card' | 'cash' | 'check' | 'other' | null
   fee_fixed?: number
   fee_account_id?: string | null
 }

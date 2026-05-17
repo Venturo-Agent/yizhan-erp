@@ -4,7 +4,7 @@
  * 設計（William 2026-05-17 拍板）：
  *   - 從 workspace_ai_settings 查該 workspace 的 provider / model / 加密 token
  *   - 解密後 dispatch 到對應 client（minimax / anthropic / openrouter）
- *   - 沒設定或 is_active=false → fallback 到平台層 OPENROUTER_API_KEY（過渡期）
+ *   - 沒設定 / is_active=false / decrypt 失敗 → fallback 到平台層 MINIMAX_API_KEY
  *   - 成功後 fire-and-forget 更新 last_used_at（為計費鋪路）
  *
  * 紀律：
@@ -16,7 +16,6 @@
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { logger } from '@/lib/utils/logger'
-import { callLLM as callOpenRouter } from '@/lib/llm/openrouter-client'
 import { callMiniMax } from './providers/minimax-client'
 import { callAnthropic } from './providers/anthropic-client'
 import { toTraditional } from '@/lib/text/simplified-to-traditional'
@@ -49,9 +48,8 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
   })
 
   if (!workspaceId) {
-    // 沒 workspaceId 就 fallback platform OPENROUTER_API_KEY（demo / 漫途自家過渡期）
-    logger.warn(`${HANDLER}: no workspaceId, fallback to platform OpenRouter`)
-    return callOpenRouter(req)
+    logger.warn(`${HANDLER}: no workspaceId, fallback to platform MiniMax`)
+    return callPlatformMiniMax(req)
   }
 
   // 查 workspace_ai_settings
@@ -65,14 +63,14 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
     .maybeSingle<WorkspaceLlmSettings>()
 
   if (error) {
-    logger.warn(`${HANDLER}: settings query failed, fallback platform`, {
+    logger.warn(`${HANDLER}: settings query failed, fallback platform MiniMax`, {
       workspaceId,
       err: error.message,
     })
-    return callOpenRouter(req)
+    return callPlatformMiniMax(req)
   }
 
-  // 沒設定 / 沒啟用 / 三件套不全 → fallback platform
+  // 沒設定 / 沒啟用 / 三件套不全 → fallback platform MiniMax
   if (
     !settings ||
     !settings.is_active ||
@@ -80,7 +78,7 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
     !settings.api_token_encrypted ||
     !settings.model
   ) {
-    logger.info(`${HANDLER}: no active workspace settings, fallback platform OpenRouter`, {
+    logger.info(`${HANDLER}: no active workspace settings, fallback platform MiniMax`, {
       workspaceId,
       hasSettings: Boolean(settings),
       isActive: settings?.is_active ?? false,
@@ -88,7 +86,7 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
       hasToken: Boolean(settings?.api_token_encrypted),
       hasModel: Boolean(settings?.model),
     })
-    return callOpenRouter(req)
+    return callPlatformMiniMax(req)
   }
 
   logger.info(`${HANDLER}: settings ok, will use`, {
@@ -102,14 +100,8 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
   try {
     apiToken = decryptIntegrationSecret(settings.api_token_encrypted)
   } catch (err) {
-    logger.error(`${HANDLER}: decrypt failed`, err, { workspaceId })
-    return {
-      ok: false,
-      content: '',
-      toolCalls: [],
-      model: settings.model,
-      error: 'decrypt failed',
-    }
+    logger.warn(`${HANDLER}: decrypt failed, fallback platform MiniMax`, { workspaceId, err })
+    return callPlatformMiniMax(req)
   }
 
   // 用設定的 model 覆寫 req 內的（除非 caller 明確指定）
@@ -127,14 +119,9 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
     case 'anthropic':
       response = await callAnthropic(reqWithModel, apiToken)
       break
-    case 'openrouter':
-      // OpenRouter client 目前讀 env 不接 token、暫時 caller 自己塞 env（之後 v2 改）
-      // 簡化：caller 用 openrouter 等於不走 dispatcher、直接 callOpenRouter
-      response = await callOpenRouter(reqWithModel)
-      break
     default:
-      logger.warn(`${HANDLER}: unknown provider`, { provider: settings.provider, workspaceId })
-      response = await callOpenRouter(reqWithModel)
+      logger.warn(`${HANDLER}: unknown provider, fallback platform MiniMax`, { provider: settings.provider, workspaceId })
+      response = await callPlatformMiniMax(reqWithModel)
   }
 
   // 🔒 簡體 → 繁體 後處理（William 紅線：簡體大忌、即使 SYSTEM_PROMPT 守不住、這層強制轉繁）
@@ -185,4 +172,23 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
   }
 
   return response
+}
+
+/**
+ * 平台層 MiniMax fallback：讀 MINIMAX_API_KEY env var。
+ * 用於 workspace 沒設定 / decrypt 失敗 / 沒 workspaceId 的情況。
+ */
+function callPlatformMiniMax(req: LLMRequest): Promise<LLMResponse> {
+  const platformToken = process.env.MINIMAX_API_KEY ?? ''
+  if (!platformToken) {
+    logger.error(`${HANDLER}: MINIMAX_API_KEY not configured`)
+    return Promise.resolve({
+      ok: false,
+      content: '',
+      toolCalls: [],
+      model: req.model ?? 'MiniMax-M2',
+      error: 'AI 服務尚未設定，請聯絡管理員',
+    })
+  }
+  return callMiniMax({ ...req, model: req.model ?? 'MiniMax-M2' }, platformToken)
 }

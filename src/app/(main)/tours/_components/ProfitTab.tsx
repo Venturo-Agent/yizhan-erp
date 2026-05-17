@@ -12,6 +12,7 @@
  */
 
 import { useMemo } from 'react'
+import useSWR from 'swr'
 import { useTranslations } from 'next-intl'
 import { DollarSign, HandCoins, FileCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -24,7 +25,9 @@ import {
   useMembers,
   useOrdersSlim,
 } from '@/data'
-import { calculateFullProfit } from '../_services/profit-calculation.service'
+import { supabase } from '@/lib/supabase/client'
+import { useAuthStore } from '@/stores/auth-store'
+import { calculateFullProfit, type BonusCalculationOrder } from '../_services/profit-calculation.service'
 import {
   BONUS_TYPE_LABELS,
   BONUS_TYPE_BADGE_VARIANTS,
@@ -181,6 +184,23 @@ interface DetailRow {
 
 export function ProfitTab({ tour }: ProfitTabProps) {
   const t = useTranslations('tour')
+  const { user } = useAuthStore()
+  const workspaceId = user?.workspace_id
+
+  const { data: bonusOrderData } = useSWR(
+    workspaceId ? `workspace-bonus-order-${workspaceId}` : null,
+    async () => {
+      const { data } = await supabase
+        .from('workspaces')
+        .select('bonus_calculation_order')
+        .eq('id', workspaceId!)
+        .single()
+      return (data as { bonus_calculation_order?: string } | null)?.bonus_calculation_order ?? 'independent'
+    },
+    { revalidateOnFocus: false }
+  )
+  const calculationOrder = (bonusOrderData ?? 'independent') as BonusCalculationOrder
+
   // 注意：useList({ filter }) 目前被 createEntityHook silently drop（待 SSOT 修）
   // 暫時 client side filter by tour.id、避免 receipts/orders/PR/bonusSettings 顯示全部
   const { items: allReceipts } = useReceipts({ all: true, filter: { tour_id: tour.id } })
@@ -263,8 +283,9 @@ export function ProfitTab({ tour }: ProfitTabProps) {
       settings: bonusSettings,
       memberCount,
       employeeDict,
+      calculationOrder,
     })
-  }, [receipts, normalExpenses, bonusSettings, memberCount, employeeDict])
+  }, [receipts, normalExpenses, bonusSettings, memberCount, employeeDict, calculationOrder])
 
   // ===== 利潤計算表（左右兩欄會計對照）=====
   // - left: 收款 / 行政費 / 稅 / 團隊獎金

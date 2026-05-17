@@ -41,6 +41,8 @@ export interface RecordInboxMessageInput {
   /** profile 資訊（first sight 寫進 inbox_conversations）*/
   displayName?: string | null
   pictureUrl?: string | null
+  /** LINE 圖片 / 影片下載後上傳到 line-media bucket 的 URL */
+  mediaUrl?: string | null
 }
 
 interface InboxConversationRow {
@@ -69,6 +71,7 @@ export async function recordInboxMessage(
     rawEvent,
     displayName,
     pictureUrl,
+    mediaUrl,
   } = input
 
   const previewSource = content ?? ''
@@ -114,6 +117,7 @@ export async function recordInboxMessage(
     content,
     raw_event: (rawEvent ?? null) as never,
     source_id: sourceId,
+    ...(mediaUrl !== undefined && { media_url: mediaUrl }),
   })
 
   if (msgErr) {

@@ -11,6 +11,7 @@
  */
 
 import { useEffect } from 'react'
+// eslint-disable-next-line venturo/no-direct-useswr-in-pages -- 分頁 CRUD hook，需要 keepPreviousData + realtime + 樂觀更新，entity hook 無法表達；寫入操作待 API route 建立後再遷移
 import useSWR, { mutate } from 'swr'
 import { supabase } from '@/lib/supabase/client'
 import { generateTourCode as generateTourCodeShared } from '@/lib/codes'

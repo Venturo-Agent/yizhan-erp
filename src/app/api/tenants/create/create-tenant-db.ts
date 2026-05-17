@@ -15,6 +15,7 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { errorResponse, ErrorCode } from '@/lib/api/response'
 import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 // onboarding fix pack 2026-05-10：brands / branches / departments / employee_* 三維表
 // Supabase Database type 還沒 regenerate，先 cast 為 any 暫避型別衝突
@@ -90,6 +91,7 @@ export interface CreateWorkspaceParams {
   trimmedTaxId: string
   isMultiBranch: boolean
   isMultiDepartment: boolean
+  subscriptionPlan?: PlanId
 }
 
 export async function createWorkspace(
@@ -103,6 +105,7 @@ export async function createWorkspace(
     trimmedTaxId,
     isMultiBranch,
     isMultiDepartment,
+    subscriptionPlan,
   } = params
 
   // 鐵律：不寫 type 欄位（workspaces.type 已在 Phase 2 patch DROP、code 不可再 reference）
@@ -117,6 +120,7 @@ export async function createWorkspace(
       tax_id: trimmedTaxId,
       is_multi_branch: !!isMultiBranch,
       is_multi_department: !!isMultiDepartment,
+      subscription_plan: subscriptionPlan ?? 'custom',
     })
     .select('id')
     .single()

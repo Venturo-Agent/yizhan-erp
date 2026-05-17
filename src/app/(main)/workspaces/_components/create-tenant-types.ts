@@ -2,6 +2,10 @@
  * 建立租戶 Dialog — 共用型別
  */
 
+import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+
+export type { PlanId, AdvancePickId }
+
 export interface DimensionRow {
   code: string
   name: string
@@ -13,6 +17,10 @@ export interface FormData {
   code: string
   taxId: string
   maxEmployees: string
+
+  // 訂閱方案
+  subscriptionPlan: PlanId
+  advancePicks: AdvancePickId[]
 
   // 品牌
   brands: DimensionRow[]
@@ -41,6 +49,8 @@ export const INITIAL_FORM: FormData = {
   code: '',
   taxId: '',
   maxEmployees: '',
+  subscriptionPlan: 'lite',
+  advancePicks: [],
   brands: [],
   isMultiBranch: false,
   branches: [],

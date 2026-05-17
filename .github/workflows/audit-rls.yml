@@ -36,6 +36,9 @@ jobs:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: npm run audit:rls
 
+      - name: Realtime publication audit (code-only, no DB needed)
+        run: npm run audit:realtime
+
       - name: Generate markdown report (on failure)
         if: failure()
         env:

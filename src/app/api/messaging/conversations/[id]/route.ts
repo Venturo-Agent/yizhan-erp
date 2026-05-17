@@ -28,6 +28,10 @@ const schema = z
     bot_paused_until: z.string().datetime().optional().nullable(),
     is_archived: z.boolean().optional(),
     customer_id: z.string().optional().nullable(),
+    /** 手動命名（群組對話改名）*/
+    display_name: z.string().max(100).optional().nullable(),
+    /** 群組自訂頭像 URL（上傳完後由 client patch）*/
+    picture_url: z.string().url().max(2048).optional().nullable(),
     /** true = 把 unread_count 歸零（agent 進入對話自動清未讀）*/
     mark_as_read: z.boolean().optional(),
   })
@@ -103,6 +107,8 @@ export async function PATCH(
       updates.bot_paused_until = validation.data.bot_paused_until
     if (validation.data.is_archived !== undefined) updates.is_archived = validation.data.is_archived
     if (validation.data.customer_id !== undefined) updates.customer_id = validation.data.customer_id
+    if (validation.data.display_name !== undefined) updates.display_name = validation.data.display_name
+    if (validation.data.picture_url !== undefined) updates.picture_url = validation.data.picture_url
     // agent 進入對話自動清未讀
     if (validation.data.mark_as_read === true) updates.unread_count = 0
 

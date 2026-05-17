@@ -50,14 +50,28 @@ export default function LoginPage() {
 
   // 複製分頁 / 多分頁 race rescue：middleware 因 refresh_token 競爭把使用者誤踢來時，
   // client supabase 用 navigator.locks 等另一個 tab 完成 refresh、讀到 valid session 就自動跳回。
+  //
+  // getSession() 只讀本地快取（不驗 server）、getUser() 才真正問 Supabase server。
+  // 必須兩段：快速排除「根本沒 session」→ 再驗 server 避免 admin.updateUserById 後
+  // invalidated session 仍在本地快取、觸發誤 redirect 死循環。
   useEffect(() => {
     let cancelled = false
     ;(async () => {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession()
+        // 第一段：本地快取有沒有 session（無網路開銷）
+        const { data: { session } } = await supabase.auth.getSession()
         if (cancelled || !session) return
+
+        // 第二段：向 Supabase server 驗證 session 仍有效
+        // （admin.updateUserById 改密後 access/refresh token 全失效、getSession 不知道）
+        const { data: { user } } = await supabase.auth.getUser()
+        if (cancelled) return
+        if (!user) {
+          // 本地有 session 但 server 已 invalidate → 清掉防止 redirect 死循環
+          await supabase.auth.signOut()
+          return
+        }
+
         logger.log('🔄 Login page: detected valid session, auto-redirecting')
         window.location.href = getRedirectPath()
       } catch (e) {

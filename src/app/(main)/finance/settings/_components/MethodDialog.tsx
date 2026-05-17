@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { alert } from '@/lib/ui/alert-dialog'
 import { useTranslations } from 'next-intl'
+import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 import {
   PAGE_LABELS,
   PAYMENT_METHOD_KIND_LABELS,
@@ -16,6 +17,15 @@ import {
   type PaymentMethodKind,
   type ChartOfAccount,
 } from './types'
+
+const FEE_KIND_HINT: Partial<Record<PaymentMethodKind, string>> = {
+  card: '刷卡手續費（如 2%）。收款核准時自動扣減實收、並產生傳票分錄。',
+  wire_transfer: '匯款轉帳手續費比例（若有）。收款核准時自動扣減實收、並產生傳票分錄。',
+  check: '票據手續費比例（若有）。收款核准時自動扣減實收、並產生傳票分錄。',
+  other: '手續費比例（若有）。收款核准時自動扣減實收、並產生傳票分錄。',
+}
+
+const KINDS_WITH_FEE: PaymentMethodKind[] = ['card', 'wire_transfer', 'check', 'other']
 
 interface MethodDialogProps {
   open: boolean
@@ -37,12 +47,15 @@ export function MethodDialog({
   existingMethods,
 }: MethodDialogProps) {
   const t = useTranslations('finance')
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const hasAccounting = isFeatureEnabled('accounting')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [placeholder, setPlaceholder] = useState('')
   const [debitAccountId, setDebitAccountId] = useState('')
   const [creditAccountId, setCreditAccountId] = useState('')
   const [feePercent, setFeePercent] = useState('')
+  const [feeFixed, setFeeFixed] = useState('')
   const [feeAccountId, setFeeAccountId] = useState('')
   const [sortOrder, setSortOrder] = useState(0)
   // 種類 enum（William 拍板 2026-05-11、保留為分類用、各 kind 邏輯未來再接）
@@ -61,6 +74,7 @@ export function MethodDialog({
           ? String(method.fee_percent)
           : ''
       )
+      setFeeFixed(method?.fee_fixed ? String(method.fee_fixed) : '')
       setFeeAccountId(method?.fee_account_id || '')
       setKind((method?.kind as PaymentMethodKind | null) ?? '')
       // 新增時自動取下一個排序數字
@@ -74,16 +88,26 @@ export function MethodDialog({
     // existingMethods 不放 deps：只有 open=true 那刻取一次 maxSort、後續 mutation 不重算
   }, [open, method])
 
+  // 切換到現鈔（無手續費）時清空
+  useEffect(() => {
+    if (kind && !KINDS_WITH_FEE.includes(kind as PaymentMethodKind)) {
+      setFeePercent('')
+      setFeeFixed('')
+      setFeeAccountId('')
+    }
+  }, [kind])
+
   const doSubmit = async () => {
     if (!name) {
       await alert(t('pleaseFillName'), 'warning')
       return
     }
     if (!kind) {
-      await alert('請選擇「種類」（匯款 / 刷卡 / 現金 / 支票 / 其他）', 'warning')
+      await alert('請選擇「種類」（匯款 / 刷卡 / 現鈔 / 支票 / 其他）', 'warning')
       return
     }
     const feePercentNum = parseFloat(feePercent) || 0
+    const feeFixedNum = parseFloat(feeFixed) || 0
     await onSave({
       name,
       description,
@@ -91,8 +115,8 @@ export function MethodDialog({
       debit_account_id: debitAccountId || null,
       credit_account_id: creditAccountId || null,
       fee_percent: feePercentNum,
-      fee_fixed: 0,
-      fee_account_id: feePercentNum > 0 ? feeAccountId || null : null,
+      fee_fixed: hasAccounting ? feeFixedNum : 0,
+      fee_account_id: (feePercentNum > 0 || feeFixedNum > 0) ? feeAccountId || null : null,
       kind: kind || null,
       sort_order: sortOrder,
     })
@@ -116,6 +140,25 @@ export function MethodDialog({
       maxWidth="lg"
     >
       <div className="space-y-4 py-4">
+        {/* 種類放最上面：決定後續欄位顯示邏輯 */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">種類 *</Label>
+          <select
+            value={kind}
+            onChange={e => setKind(e.target.value as PaymentMethodKind | '')}
+            className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+          >
+            <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
+            {(Object.entries(PAYMENT_METHOD_KIND_LABELS) as [PaymentMethodKind, string][]).map(
+              ([k, label]) => (
+                <option key={k} value={k}>
+                  {label}
+                </option>
+              )
+            )}
+          </select>
+        </div>
+
         <div className="space-y-2">
           <Label>{t('fieldNameRequired')}</Label>
           <Input
@@ -145,28 +188,54 @@ export function MethodDialog({
             </p>
           </div>
         )}
-        {type === 'receipt' && (
+
+        {/* 手續費：僅收款方式、且種類已選、且該種類有手續費概念（匯款 / 刷卡 / 支票 / 其他）*/}
+        {type === 'receipt' && kind && KINDS_WITH_FEE.includes(kind as PaymentMethodKind) && (
           <div className="space-y-2">
             <Label>{t('fieldFeeOptional')}</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="relative">
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={feePercent}
-                  onChange={e => setFeePercent(e.target.value)}
-                  placeholder={PAGE_LABELS.EXAMPLE_2}
-                  className="pr-8"
-                />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-morandi-muted">
-                  %
-                </span>
+            <div className={hasAccounting ? 'grid grid-cols-2 gap-4' : ''}>
+              <div className="space-y-1">
+                <p className="text-xs text-morandi-muted">手續費比例</p>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={feePercent}
+                    onChange={e => setFeePercent(e.target.value)}
+                    placeholder={PAGE_LABELS.EXAMPLE_2}
+                    className="pr-8"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-morandi-muted">
+                    %
+                  </span>
+                </div>
               </div>
+              {hasAccounting && (
+                <div className="space-y-1">
+                  <p className="text-xs text-morandi-muted">實際手續費</p>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={feeFixed}
+                      onChange={e => setFeeFixed(e.target.value)}
+                      placeholder="例：1.8"
+                      className="pr-8"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-morandi-muted">
+                      %
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+            {hasAccounting && (
               <select
                 value={feeAccountId}
                 onChange={e => setFeeAccountId(e.target.value)}
-                disabled={!feePercent || parseFloat(feePercent) <= 0}
+                disabled={(!feePercent || parseFloat(feePercent) <= 0) && (!feeFixed || parseFloat(feeFixed) <= 0)}
                 className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm disabled:opacity-50"
               >
                 <option value="">{PAGE_LABELS.FEE_ACCOUNT}</option>
@@ -178,71 +247,53 @@ export function MethodDialog({
                     </option>
                   ))}
               </select>
-            </div>
+            )}
             <p className="text-xs text-morandi-muted">
-              💡 銀行抽成（如刷卡 2%）。收款核准時自動扣減實收、並產生「借手續費」傳票分錄。
+              💡 {FEE_KIND_HINT[kind as PaymentMethodKind] ?? '手續費比例（若有）。收款核准時自動扣減實收。'}
             </p>
           </div>
         )}
-        {/* 種類（William 拍板 2026-05-11：取代舊「這是匯款方式」勾選框、未來每 kind 走獨立邏輯）*/}
-        <div className="rounded-md border border-morandi-gold/20 bg-morandi-gold/5 p-4 space-y-3">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">種類 *</Label>
-            <select
-              value={kind}
-              onChange={e => setKind(e.target.value as PaymentMethodKind | '')}
-              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-            >
-              <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
-              {(Object.entries(PAYMENT_METHOD_KIND_LABELS) as [PaymentMethodKind, string][]).map(
-                ([k, label]) => (
-                  <option key={k} value={k}>
-                    {label}
-                  </option>
-                )
-              )}
-            </select>
-            <p className="text-xs text-morandi-muted">
-              💡 分類用、未來各 kind 走獨立邏輯（例：刷卡接刷卡手續費紀錄）。
-            </p>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>{t('fieldDebitAccountOptional')}</Label>
-            <select
-              value={debitAccountId}
-              onChange={e => setDebitAccountId(e.target.value)}
-              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-            >
-              <option value="">{PAGE_LABELS.NO_BIND}</option>
-              {chartOfAccounts.map(account => (
-                <option key={account.id} value={account.id}>
-                  {account.code} {account.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-2">
-            <Label>{t('fieldCreditAccountOptional')}</Label>
-            <select
-              value={creditAccountId}
-              onChange={e => setCreditAccountId(e.target.value)}
-              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-            >
-              <option value="">{PAGE_LABELS.NO_BIND}</option>
-              {chartOfAccounts.map(account => (
-                <option key={account.id} value={account.id}>
-                  {account.code} {account.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <p className="text-xs text-morandi-muted">
-          💡 綁定科目後，收款/請款時會自動產生對應傳票。不綁定則不產生。
-        </p>
+        {/* 借貸方科目：需開通會計功能才顯示 */}
+        {hasAccounting && (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{t('fieldDebitAccountOptional')}</Label>
+                <select
+                  value={debitAccountId}
+                  onChange={e => setDebitAccountId(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                >
+                  <option value="">{PAGE_LABELS.NO_BIND}</option>
+                  {chartOfAccounts.map(account => (
+                    <option key={account.id} value={account.id}>
+                      {account.code} {account.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>{t('fieldCreditAccountOptional')}</Label>
+                <select
+                  value={creditAccountId}
+                  onChange={e => setCreditAccountId(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                >
+                  <option value="">{PAGE_LABELS.NO_BIND}</option>
+                  {chartOfAccounts.map(account => (
+                    <option key={account.id} value={account.id}>
+                      {account.code} {account.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <p className="text-xs text-morandi-muted">
+              💡 綁定科目後，收款/請款時會自動產生對應傳票。不綁定則不產生。
+            </p>
+          </>
+        )}
       </div>
     </EntityFormDialog>
   )

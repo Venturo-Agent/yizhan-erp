@@ -22,6 +22,7 @@
  */
 
 import { useEffect, useState, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import useSWR from 'swr'
 import { apiMutate } from '@/lib/swr/api-mutate'
 import { useRealtimeMutate } from '@/lib/swr/use-realtime-mutate'
@@ -31,7 +32,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users } from 'lucide-react'
+import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag, ClipboardList } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 
@@ -57,6 +58,7 @@ interface MessageItem {
   sender_type: 'contact' | 'agent' | 'ai_agent' | 'system'
   message_type: string
   content: string | null
+  media_url: string | null
   created_at: string
 }
 
@@ -101,6 +103,7 @@ function formatRelative(ts: string | null): string {
 export function AiConversationsTab() {
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [panelOpen, setPanelOpen] = useState(false)
   const { user } = useAuthStore()
   const workspaceId = user?.workspace_id ?? null
 
@@ -159,11 +162,11 @@ export function AiConversationsTab() {
   }, [selectedConv, listUrl])
 
   return (
-    <div className="flex gap-4 p-4 h-full">
+    <div className="flex gap-4 h-full">
       {/* 左側：對話列表（Hub 模式、不分 channel） */}
-      <div className="w-[280px] flex flex-col flex-shrink-0">
+      <div className="w-[280px] flex flex-col flex-shrink-0 h-full">
         {/* List */}
-        <Card className="flex-1 overflow-y-auto p-0">
+        <Card className="flex-1 overflow-y-auto p-0 border border-border">
           {listLoading && (
             <div className="p-6 text-center text-sm text-morandi-muted">載入中...</div>
           )}
@@ -245,7 +248,7 @@ export function AiConversationsTab() {
                       </span>
                     )}
                     {c.bot_paused && (
-                      <span className="text-[0.588rem] text-orange-600 shrink-0">⏸</span>
+                      <Pause className="w-3 h-3 text-orange-500 shrink-0" />
                     )}
                   </div>
                 </div>
@@ -255,8 +258,8 @@ export function AiConversationsTab() {
         </Card>
       </div>
 
-      {/* 右側：對話 thread */}
-      <Card className="flex-1 flex flex-col overflow-hidden border border-morandi-muted/30">
+      {/* 中間：對話 thread */}
+      <Card className="flex-1 flex flex-col overflow-hidden border border-border min-w-0">
         {!selectedConv && (
           <div className="flex-1 flex items-center justify-center text-sm text-morandi-muted">
             選一個對話看訊息
@@ -265,21 +268,30 @@ export function AiConversationsTab() {
 
         {selectedConv && (
           <>
-            {/* 對話 header（含 Bot 自動回覆 toggle、亮著 = 自動回覆中、暫停變灰） */}
-            <ConversationHeader conv={selectedConv} listUrl={listUrl} />
-
-            {/* 訊息 list（自動 scroll 到最底） */}
+            <ConversationHeader
+              conv={selectedConv}
+              listUrl={listUrl}
+              panelOpen={panelOpen}
+              onTogglePanel={() => setPanelOpen(v => !v)}
+            />
             <MessagesList
               messages={messages}
               loading={msgLoading}
               conversationId={selectedConv.id}
             />
-
-            {/* 回覆區 */}
             <ReplyComposer conversationId={selectedConv.id} listUrl={listUrl} />
           </>
         )}
       </Card>
+
+      {/* 右側業務面板 */}
+      {selectedConv && panelOpen && (
+        <BusinessPanel
+          conv={selectedConv}
+          listUrl={listUrl}
+          onClose={() => setPanelOpen(false)}
+        />
+      )}
     </div>
   )
 }
@@ -336,74 +348,167 @@ function MessagesList({
   )
 }
 
-// ===== 右側 header（含 Bot toggle）=====
+// ===== 右側 header =====
 function ConversationHeader({
   conv,
   listUrl,
+  panelOpen,
+  onTogglePanel,
 }: {
   conv: ConversationItem
   listUrl: string
+  panelOpen: boolean
+  onTogglePanel: () => void
 }) {
-  const [paused, setPaused] = useState(conv.bot_paused)
-  useEffect(() => setPaused(conv.bot_paused), [conv.id, conv.bot_paused])
+  const [showRetro, setShowRetro] = useState(false)
 
-  const handleToggle = async (next: boolean) => {
-    // UI 顯示「自動回覆中亮著」、邏輯 paused 反向
-    const newPaused = !next
-    setPaused(newPaused)
-    // apiMutate：PATCH 完成後自動 invalidate listUrl、其他 user 看到更新
+  const isGroup =
+    conv.external_user_id.startsWith('group:') || conv.external_user_id.startsWith('room:')
+  const [editingName, setEditingName] = useState(false)
+  const [nameInput, setNameInput] = useState(conv.display_name || '')
+  const [avatarUploading, setAvatarUploading] = useState(false)
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const uploadRes = await fetch(`/api/messaging/conversations/${conv.id}/avatar`, {
+        method: 'POST',
+        body: fd,
+      })
+      const uploadJson = await uploadRes.json() as { url?: string; error?: string }
+      if (!uploadRes.ok || !uploadJson.url) {
+        toast.error(uploadJson.error || '頭像上傳失敗')
+        return
+      }
+      const patchRes = await apiMutate<{ success: boolean; error?: string }>(
+        `/api/messaging/conversations/${conv.id}`,
+        { method: 'PATCH', body: { picture_url: uploadJson.url }, invalidate: [listUrl] }
+      )
+      if (!patchRes.ok || !patchRes.data?.success) {
+        toast.error(patchRes.error || '更新頭像失敗')
+        return
+      }
+      toast.success('頭像已更新')
+    } finally {
+      setAvatarUploading(false)
+      // reset so same file can be re-selected
+      if (avatarInputRef.current) avatarInputRef.current.value = ''
+    }
+  }
+
+  const handleSaveName = async () => {
+    const trimmed = nameInput.trim()
+    if (!trimmed || trimmed === conv.display_name) { setEditingName(false); return }
     const res = await apiMutate<{ success: boolean; error?: string }>(
       `/api/messaging/conversations/${conv.id}`,
-      {
-        method: 'PATCH',
-        body: { bot_paused: newPaused },
-        invalidate: [listUrl],
-      }
+      { method: 'PATCH', body: { display_name: trimmed }, invalidate: [listUrl] }
     )
-    if (!res.ok || !res.data?.success) {
-      toast.error(res.error || res.data?.error || '切換失敗')
-      setPaused(!newPaused)
-    }
+    if (!res.ok || !res.data?.success) toast.error(res.error || '改名失敗')
+    setEditingName(false)
   }
 
   return (
     <div className="px-4 py-3 border-b border-morandi-muted/20 flex items-center gap-3">
-      {/* 頭像（群組用 Users icon） */}
-      {conv.picture_url ? (
+      {/* 頭像（群組用 Users icon、可點擊換頭像） */}
+      {isGroup ? (
+        <>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
+          <button
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={avatarUploading}
+            className="relative w-9 h-9 rounded-full shrink-0 group"
+            title="換群組頭像"
+          >
+            {conv.picture_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={conv.picture_url} alt="" className="w-9 h-9 rounded-full object-cover" />
+            ) : (
+              <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold">
+                {avatarUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4.5 h-4.5" />}
+              </div>
+            )}
+            {!avatarUploading && (
+              <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="w-4 h-4 text-white" />
+              </div>
+            )}
+          </button>
+        </>
+      ) : conv.picture_url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={conv.picture_url}
-          alt=""
-          className="w-9 h-9 rounded-full object-cover shrink-0"
-        />
-      ) : conv.external_user_id.startsWith('group:') ||
-        conv.external_user_id.startsWith('room:') ? (
-        <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold shrink-0">
-          <Users className="w-4.5 h-4.5" />
-        </div>
+        <img src={conv.picture_url} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />
       ) : (
         <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-sm font-medium text-morandi-gold shrink-0">
           {(conv.display_name || conv.external_user_id).slice(0, 1)}
         </div>
       )}
-      <span
-        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${CHANNEL_COLORS[conv.channel_type]}`}
-      >
+      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${CHANNEL_COLORS[conv.channel_type]}`}>
         <ChannelIcon channel={conv.channel_type} />
         {CHANNEL_LABELS[conv.channel_type]}
       </span>
-      <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-sm truncate">
-          {conv.display_name || '（未取得名稱）'}
-        </h3>
+      <div className="flex-1 min-w-0 flex items-center gap-1">
+        {editingName ? (
+          <>
+            <Input
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false) }}
+              className="h-7 text-sm py-0 px-2"
+              autoFocus
+            />
+            <button onClick={handleSaveName} className="text-green-600 hover:text-green-700"><Check className="w-4 h-4" /></button>
+            <button onClick={() => setEditingName(false)} className="text-morandi-muted hover:text-morandi-primary"><X className="w-4 h-4" /></button>
+          </>
+        ) : (
+          <>
+            <h3 className="font-semibold text-sm truncate">{conv.display_name || '（未取得名稱）'}</h3>
+            {isGroup && (
+              <button
+                onClick={() => { setNameInput(conv.display_name || ''); setEditingName(true) }}
+                className="text-morandi-muted hover:text-morandi-primary shrink-0"
+                title="改名"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </>
+        )}
       </div>
-      {/* Bot 自動回覆 toggle：亮著 = 自動回覆中 */}
-      <div className="flex items-center gap-2">
-        <span className={`text-xs ${!paused ? 'text-green-700 font-medium' : 'text-morandi-muted'}`}>
-          {!paused ? '✨ 自動回覆中' : '⏸ 已暫停'}
-        </span>
-        <Switch checked={!paused} onCheckedChange={handleToggle} />
-      </div>
+
+      {/* 復盤 */}
+      <Button variant="outline" size="sm" onClick={() => setShowRetro(true)} className="gap-1.5 h-8 text-xs shrink-0">
+        <FileText className="w-3.5 h-3.5" />
+        復盤
+      </Button>
+
+      {/* 業務面板開關 */}
+      <button
+        onClick={onTogglePanel}
+        title="業務面板"
+        className={`p-1.5 rounded-lg transition-colors shrink-0 ${panelOpen ? 'bg-morandi-gold/20 text-morandi-gold' : 'text-morandi-muted hover:text-morandi-primary hover:bg-morandi-container/40'}`}
+      >
+        <PanelRight className="w-4 h-4" />
+      </button>
+
+      {/* 復盤 Modal */}
+      {showRetro && (
+        <RetrospectiveModal
+          conversationId={conv.id}
+          customerName={conv.display_name || '客戶'}
+          onClose={() => setShowRetro(false)}
+        />
+      )}
     </div>
   )
 }
@@ -478,30 +583,357 @@ function ReplyComposer({
   )
 }
 
+function RetrospectiveModal({
+  conversationId,
+  customerName,
+  onClose,
+}: {
+  conversationId: string
+  customerName: string
+  onClose: () => void
+}) {
+  const [loading, setLoading] = useState(true)
+  const [summary, setSummary] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      try {
+        const res = await fetch(`/api/messaging/conversations/${conversationId}/retrospective`, {
+          method: 'POST',
+        })
+        const json = await res.json() as { success: boolean; summary?: string; error?: string }
+        if (cancelled) return
+        if (!json.success || !json.summary) {
+          setError(json.error || '生成失敗，請稍後再試')
+        } else {
+          setSummary(json.summary)
+        }
+      } catch {
+        if (!cancelled) setError('網路錯誤，請稍後再試')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    void run()
+    return () => { cancelled = true }
+  }, [conversationId])
+
+  const modal = (
+    <div
+      className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-morandi-muted/20">
+          <div>
+            <h3 className="font-semibold text-morandi-primary">對話復盤</h3>
+            <p className="text-xs text-morandi-muted">{customerName}</p>
+          </div>
+          <button onClick={onClose} className="text-morandi-muted hover:text-morandi-primary">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-morandi-gold/60" />
+              <p className="text-sm text-morandi-muted">AI 正在分析對話...</p>
+            </div>
+          )}
+          {!loading && error && (
+            <div className="text-sm text-red-600 bg-red-50 rounded-xl p-4">{error}</div>
+          )}
+          {!loading && summary && (
+            <div className="prose prose-sm max-w-none text-morandi-primary whitespace-pre-wrap text-sm leading-relaxed">
+              {summary}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  return typeof document !== 'undefined' ? createPortal(modal, document.body) : null
+}
+
+// ===== 業務面板（右側可收合）=====
+function BusinessPanel({
+  conv,
+  listUrl,
+  onClose,
+}: {
+  conv: ConversationItem
+  listUrl: string
+  onClose: () => void
+}) {
+  const [paused, setPaused] = useState(conv.bot_paused)
+  useEffect(() => setPaused(conv.bot_paused), [conv.id, conv.bot_paused])
+
+  const handleToggle = async (next: boolean) => {
+    const newPaused = !next
+    setPaused(newPaused)
+    const res = await apiMutate<{ success: boolean; error?: string }>(
+      `/api/messaging/conversations/${conv.id}`,
+      { method: 'PATCH', body: { bot_paused: newPaused }, invalidate: [listUrl] }
+    )
+    if (!res.ok || !res.data?.success) {
+      toast.error(res.error || '切換失敗')
+      setPaused(!newPaused)
+    }
+  }
+
+  return (
+    <div className="w-56 flex-shrink-0 h-full border border-border rounded-xl bg-white flex flex-col overflow-hidden">
+      {/* 面板 header */}
+      <div className="px-3 py-2.5 border-b border-morandi-muted/20 flex items-center justify-between">
+        <span className="text-xs font-semibold text-morandi-primary">業務面板</span>
+        <button onClick={onClose} className="text-morandi-muted hover:text-morandi-primary">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto divide-y divide-morandi-muted/10">
+        {/* 自動回覆 toggle */}
+        <div className="px-3 py-3">
+          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide mb-2">自動回覆</p>
+          <div className="flex items-center justify-between">
+            <span className={`text-xs ${!paused ? 'text-green-700 font-medium' : 'text-morandi-muted'}`}>
+              {!paused ? '回覆中' : '已暫停'}
+            </span>
+            <Switch checked={!paused} onCheckedChange={handleToggle} />
+          </div>
+        </div>
+
+        {/* 標籤 */}
+        <div className="px-3 py-3">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Tag className="w-3 h-3 text-morandi-muted" />
+            <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">標籤</p>
+          </div>
+          <p className="text-xs text-morandi-muted">即將推出</p>
+        </div>
+
+        {/* 副牌 / 快捷回覆（LINE 限定） */}
+        {conv.channel_type === 'line' && (
+          <div className="px-3 py-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <ClipboardList className="w-3 h-3 text-morandi-muted" />
+              <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">快捷回覆</p>
+            </div>
+            <QuickReplySection conversationId={conv.id} listUrl={listUrl} />
+          </div>
+        )}
+
+        {/* 業務紀錄 */}
+        <div className="px-3 py-3">
+          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide mb-2">業務紀錄</p>
+          <p className="text-xs text-morandi-muted">即將推出</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ===== 快捷回覆（業務面板內用，無抽屜）=====
+function QuickReplySection({
+  conversationId,
+  listUrl,
+}: {
+  conversationId: string
+  listUrl: string
+}) {
+  const [sending, setSending] = useState<string | null>(null)
+  const { data, isLoading } = useSWR<{ data: PostbackTemplate[] }>(
+    '/api/line/postback-templates',
+    fetcher,
+    { revalidateOnFocus: false }
+  )
+  const templates = (data?.data ?? []).filter(t => t.is_active)
+
+  const handleSend = async (template: PostbackTemplate) => {
+    setSending(template.id)
+    try {
+      const res = await apiMutate<{ success: boolean; error?: string }>(
+        `/api/messaging/conversations/${conversationId}/reply`,
+        {
+          method: 'POST',
+          body: { text: template.response_text },
+          invalidate: [
+            `/api/messaging/conversations/${conversationId}/messages`,
+            listUrl,
+          ],
+        }
+      )
+      if (!res.ok || !res.data?.success) {
+        toast.error(res.error || res.data?.error || '發送失敗')
+        return
+      }
+      toast.success(`已發送「${template.label}」`)
+    } finally {
+      setSending(null)
+    }
+  }
+
+  if (isLoading) return <p className="text-xs text-morandi-muted">載入中...</p>
+  if (templates.length === 0) return <p className="text-xs text-morandi-muted">尚未設定模板</p>
+
+  return (
+    <div className="flex flex-col gap-1">
+      {templates.map(t => (
+        <button
+          key={t.id}
+          onClick={() => handleSend(t)}
+          disabled={sending === t.id}
+          title={t.response_text}
+          className="text-left text-xs px-2 py-1 rounded-lg border border-morandi-muted/20 bg-morandi-container/20 hover:bg-morandi-gold/10 hover:border-morandi-gold/40 transition-colors disabled:opacity-50 truncate"
+        >
+          {sending === t.id ? <Loader2 className="w-3 h-3 animate-spin inline mr-1" /> : null}
+          {t.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+interface PostbackTemplate {
+  id: string
+  label: string
+  postback_data: string
+  response_text: string
+  sort_order: number
+  is_active: boolean
+}
+
+function QuickReplyDrawer({
+  conversationId,
+  listUrl,
+}: {
+  conversationId: string
+  listUrl: string
+}) {
+  const [open, setOpen] = useState(false)
+  const [sending, setSending] = useState<string | null>(null)
+
+  const { data, isLoading } = useSWR<{ data: PostbackTemplate[] }>(
+    open ? '/api/line/postback-templates' : null,
+    fetcher,
+    { revalidateOnFocus: false }
+  )
+
+  const templates = (data?.data ?? []).filter(t => t.is_active)
+
+  const handleSend = async (template: PostbackTemplate) => {
+    setSending(template.id)
+    try {
+      const res = await apiMutate<{ success: boolean; error?: string }>(
+        `/api/messaging/conversations/${conversationId}/reply`,
+        {
+          method: 'POST',
+          body: { text: template.response_text },
+          invalidate: [
+            `/api/messaging/conversations/${conversationId}/messages`,
+            listUrl,
+          ],
+        }
+      )
+      if (!res.ok || !res.data?.success) {
+        toast.error(res.error || res.data?.error || '發送失敗')
+        return
+      }
+      toast.success(`已發送「${template.label}」`)
+    } finally {
+      setSending(null)
+    }
+  }
+
+  return (
+    <div className="border-t border-morandi-muted/20 bg-morandi-container/5">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-4 py-1.5 text-xs text-morandi-muted hover:text-morandi-primary transition-colors"
+      >
+        <span className="font-medium">⚡ 快捷回覆</span>
+        {open ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-3">
+          {isLoading && (
+            <div className="text-xs text-morandi-muted py-2">載入中...</div>
+          )}
+          {!isLoading && templates.length === 0 && (
+            <div className="text-xs text-morandi-muted py-2">
+              尚未設定快捷回覆模板，
+              <a href="/bot/line-setup" className="text-morandi-gold underline">前往 LINE 設定</a>
+              建立
+            </div>
+          )}
+          {!isLoading && templates.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {templates.map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => handleSend(t)}
+                  disabled={sending === t.id}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-morandi-muted/30 text-xs bg-white hover:bg-morandi-gold/10 hover:border-morandi-gold/50 transition-colors disabled:opacity-50"
+                  title={t.response_text}
+                >
+                  {sending === t.id ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : null}
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function MessageBubble({ msg }: { msg: MessageItem }) {
   const isInbound = msg.direction === 'inbound'
   const senderLabel =
     msg.sender_type === 'contact'
       ? '客戶'
       : msg.sender_type === 'ai_agent'
-        ? '🤖 AI'
+        ? 'AI'
         : msg.sender_type === 'agent'
           ? '客服'
           : '系統'
+
+  const isImage = msg.message_type === 'image' && msg.media_url
 
   return (
     <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'}`}>
       <div className="max-w-[75%]">
         <div
-          className={`px-3 py-2 rounded-lg ${
-            isInbound
-              ? 'bg-white border border-morandi-muted/20'
-              : msg.sender_type === 'ai_agent'
-                ? 'bg-morandi-gold/20 text-morandi-primary'
-                : 'bg-morandi-primary text-white'
+          className={`rounded-lg overflow-hidden ${
+            isImage
+              ? ''
+              : `px-3 py-2 ${
+                  isInbound
+                    ? 'bg-white border border-morandi-muted/20'
+                    : msg.sender_type === 'ai_agent'
+                      ? 'bg-morandi-gold/20 text-morandi-primary'
+                      : 'bg-morandi-primary text-white'
+                }`
           }`}
         >
-          <p className="text-sm whitespace-pre-wrap break-words">{msg.content || '(無內容)'}</p>
+          {isImage ? (
+            <a href={msg.media_url!} target="_blank" rel="noopener noreferrer">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={msg.media_url!}
+                alt="客戶傳送的圖片"
+                className="max-w-[240px] max-h-[320px] rounded-lg object-contain border border-morandi-muted/20 cursor-pointer hover:opacity-90 transition-opacity"
+              />
+            </a>
+          ) : (
+            <p className="text-sm whitespace-pre-wrap break-words">{msg.content || '(無內容)'}</p>
+          )}
         </div>
         <p
           className={`text-[0.588rem] text-morandi-muted mt-0.5 ${

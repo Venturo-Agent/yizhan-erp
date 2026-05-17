@@ -5,6 +5,7 @@
  */
 
 import { errorResponse, ErrorCode } from '@/lib/api/response'
+import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
 
 export interface BrandPayload {
   code: string
@@ -25,6 +26,10 @@ export interface CreateTenantRequest {
   branches?: BrandPayload[] // isMultiBranch=true 才需要
   isMultiDepartment: boolean
   departments?: BrandPayload[]
+
+  // 訂閱方案
+  subscriptionPlan?: PlanId
+  advancePicks?: AdvancePickId[]
 
   // 第一個系統主管資訊
   adminEmployeeNumber: string

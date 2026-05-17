@@ -1242,7 +1242,18 @@
     "toastToggleSuccessActive": "已啟用",
     "toastToggleSuccessInactive": "已停用",
     "toastToggleFailed": "狀態切換失敗",
-    "employeeCountSuffix": " 人"
+    "employeeCountSuffix": " 人",
+    "planLite": "輕量版",
+    "planStandard": "標準版",
+    "planAdvance": "進階版",
+    "planPremium": "旗艦版",
+    "planCustom": "客製版",
+    "colPlan": "方案",
+    "planSectionTitle": "訂閱方案",
+    "advancePick2Title": "進階版 — 選擇 2 個模組",
+    "advancePick2Desc": "旗艦版包含全部 3 個、進階版請選擇 2 個",
+    "advanceMustPickTwo": "請選擇 2 個模組",
+    "passportOcrNote": "護照辨識需在「API 整合」分頁設定"
   },
   "login": {
     "title": "Venturo",

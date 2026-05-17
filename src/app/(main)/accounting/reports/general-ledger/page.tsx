@@ -151,7 +151,7 @@ export default function GeneralLedgerPage() {
 
   return (
     <ContentPageLayout title={t('generalLedger')}>
-      <div className="p-6 space-y-4">
+      <div className="space-y-4">
         {/* 查詢條件 */}
         <Card className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

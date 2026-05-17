@@ -12,9 +12,8 @@
  *   2. 沒啟用 accounting / 帳戶沒綁科目 → 顯示「未綁定科目」、餘額為 null
  */
 
-import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
-import { logger } from '@/lib/utils/logger'
+import { createReportHook } from '@/lib/swr/createReportHook'
 
 export interface BankBalanceRow {
   bank_account_id: string
@@ -30,104 +29,78 @@ export interface BankBalanceRow {
   currency: string // 暫一律 'TWD'、待外幣 phase
 }
 
-interface UseBankBalancesResult {
-  rows: BankBalanceRow[]
-  loading: boolean
-  error: string | null
-  stats: {
-    count: number
-    total_balance: number // 已綁科目的加總
-    unlinked_count: number // 未綁科目的數量
-  }
-  refresh: () => Promise<void>
+interface BankBalancesStats {
+  count: number
+  total_balance: number // 已綁科目的加總
+  unlinked_count: number // 未綁科目的數量
 }
 
-export function useBankBalances(): UseBankBalancesResult {
-  const { data, error, isLoading, mutate } = useSWR(
-    'bank-balances-report',
-    async () => {
-      const { data: accounts, error: queryError } = await supabase
-        .from('bank_accounts')
-        .select('id, code, name, bank_name, account_number, account_id, is_default, is_active')
-        .eq('is_active', true)
-        .order('is_default', { ascending: false })
-        .order('code', { ascending: true })
-        .limit(200)
+const DEFAULT_STATS: BankBalancesStats = { count: 0, total_balance: 0, unlinked_count: 0 }
 
-      if (queryError) {
-        logger.error('❌ Error fetching bank accounts:', queryError.message)
-        throw new Error(queryError.message)
-      }
+export const useBankBalances = createReportHook<BankBalanceRow, BankBalancesStats>({
+  key: 'bank-balances-report',
+  defaultStats: DEFAULT_STATS,
+  swrOptions: { dedupingInterval: 60000 }, // 1 分鐘 - 銀行餘額變動較慢
+  fetcher: async () => {
+    const { data: accounts, error: queryError } = await supabase
+      .from('bank_accounts')
+      .select('id, code, name, bank_name, account_number, account_id, is_default, is_active')
+      .eq('is_active', true)
+      .order('is_default', { ascending: false })
+      .order('code', { ascending: true })
+      .limit(200)
 
-      const accountIds = Array.from(new Set((accounts || []).map(a => a.account_id).filter(Boolean))) as string[]
+    if (queryError) throw new Error(queryError.message)
 
-      // 取會計科目 + 對每個科目算餘額（SUM debit - credit on journal_lines）
-      const [coaRes, linesRes] = await Promise.all([
-        accountIds.length > 0
-          ? supabase.from('chart_of_accounts').select('id, code, name').in('id', accountIds)
-          : Promise.resolve({ data: [], error: null }),
-        accountIds.length > 0
-          ? supabase
-              .from('journal_lines')
-              .select('account_id, debit_amount, credit_amount')
-              .in('account_id', accountIds)
-          : Promise.resolve({ data: [], error: null }),
-      ])
+    const accountIds = Array.from(new Set((accounts || []).map(a => a.account_id).filter(Boolean))) as string[]
 
-      const coaInfo = new Map<string, { code: string; name: string }>()
-      for (const c of coaRes.data || []) coaInfo.set(c.id, { code: c.code || '', name: c.name || '' })
+    const [coaRes, linesRes] = await Promise.all([
+      accountIds.length > 0
+        ? supabase.from('chart_of_accounts').select('id, code, name').in('id', accountIds)
+        : Promise.resolve({ data: [], error: null }),
+      accountIds.length > 0
+        ? supabase
+            .from('journal_lines')
+            .select('account_id, debit_amount, credit_amount')
+            .in('account_id', accountIds)
+        : Promise.resolve({ data: [], error: null }),
+    ])
 
-      const balanceByAccount = new Map<string, number>()
-      for (const line of linesRes.data || []) {
-        if (!line.account_id) continue
-        const cur = balanceByAccount.get(line.account_id) || 0
-        const debit = Number(line.debit_amount) || 0
-        const credit = Number(line.credit_amount) || 0
-        balanceByAccount.set(line.account_id, cur + debit - credit)
-      }
+    const coaInfo = new Map<string, { code: string; name: string }>()
+    for (const c of coaRes.data || []) coaInfo.set(c.id, { code: c.code || '', name: c.name || '' })
 
-      const rows: BankBalanceRow[] = (accounts || []).map(a => {
-        const coa = a.account_id ? coaInfo.get(a.account_id) : null
-        return {
-          bank_account_id: a.id,
-          code: a.code || '',
-          name: a.name || '',
-          bank_name: a.bank_name,
-          account_number: a.account_number,
-          is_default: a.is_default || false,
-          account_id: a.account_id,
-          account_code: coa?.code || null,
-          account_name: coa?.name || null,
-          balance: a.account_id ? (balanceByAccount.get(a.account_id) || 0) : null,
-          currency: 'TWD',
-        }
-      })
-
-      const totalBalance = rows.reduce((sum, r) => sum + (r.balance || 0), 0)
-      const unlinkedCount = rows.filter(r => r.balance === null).length
-
-      return {
-        rows,
-        stats: {
-          count: rows.length,
-          total_balance: totalBalance,
-          unlinked_count: unlinkedCount,
-        },
-      }
-    },
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 60000, // 1 分鐘 - 銀行餘額變動較慢
+    const balanceByAccount = new Map<string, number>()
+    for (const line of linesRes.data || []) {
+      if (!line.account_id) continue
+      const cur = balanceByAccount.get(line.account_id) || 0
+      const debit = Number(line.debit_amount) || 0
+      const credit = Number(line.credit_amount) || 0
+      balanceByAccount.set(line.account_id, cur + debit - credit)
     }
-  )
 
-  return {
-    rows: data?.rows || [],
-    loading: isLoading,
-    error: error?.message || null,
-    stats: data?.stats || { count: 0, total_balance: 0, unlinked_count: 0 },
-    refresh: async () => {
-      await mutate()
-    },
-  }
-}
+    const rows: BankBalanceRow[] = (accounts || []).map(a => {
+      const coa = a.account_id ? coaInfo.get(a.account_id) : null
+      return {
+        bank_account_id: a.id,
+        code: a.code || '',
+        name: a.name || '',
+        bank_name: a.bank_name,
+        account_number: a.account_number,
+        is_default: a.is_default || false,
+        account_id: a.account_id,
+        account_code: coa?.code || null,
+        account_name: coa?.name || null,
+        balance: a.account_id ? (balanceByAccount.get(a.account_id) || 0) : null,
+        currency: 'TWD',
+      }
+    })
+
+    const stats: BankBalancesStats = {
+      count: rows.length,
+      total_balance: rows.reduce((sum, r) => sum + (r.balance || 0), 0),
+      unlinked_count: rows.filter(r => r.balance === null).length,
+    }
+
+    return { rows, stats }
+  },
+})

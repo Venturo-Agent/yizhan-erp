@@ -1,0 +1,30 @@
+name: LINE Bot Flush Cron
+
+on:
+  schedule:
+    # Every 5 minutes (GitHub Actions minimum interval)
+    # Max latency: 30s pg_cron expire + 5min flush = ~5.5min worst case
+    # TODO: replace with 1-min Coolify Scheduled Task for tighter latency
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  flush:
+    name: Flush LINE bot debounce replies
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Call line-flush endpoint
+        run: |
+          response=$(curl -s -w "\n%{http_code}" \
+            -X GET \
+            "https://erp.venturo.tw/api/cron/line-flush" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -1)
+          echo "HTTP $http_code: $body"
+          if [ "$http_code" != "200" ]; then
+            echo "Flush failed with HTTP $http_code"
+            exit 1
+          fi

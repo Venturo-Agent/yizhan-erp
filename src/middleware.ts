@@ -43,6 +43,8 @@ const EXACT_PUBLIC_PATHS = new Set<string>([
   // === 認證 API ===
   '/api/auth/validate-login',
   '/api/auth/logout',
+  // layout-context 自帶未登入處理（回 { ok: false }）、middleware 不需要攔截
+  '/api/auth/layout-context',
   // sync-employee：解「登入時 session cookie 尚未就緒」的雞生蛋問題。
   // 自帶 access_token 驗證（比 cookie session 更嚴、已是 defense-in-depth）。
   '/api/auth/sync-employee',

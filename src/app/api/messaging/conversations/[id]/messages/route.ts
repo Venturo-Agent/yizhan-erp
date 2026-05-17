@@ -27,6 +27,7 @@ interface MessageRow {
   sender_employee_id: string | null
   message_type: string
   content: string | null
+  media_url: string | null
   source_id: string | null
   created_at: string
 }
@@ -57,7 +58,7 @@ export async function GET(
 
     const { data, error } = await msgTable
       .select(
-        'id, conversation_id, workspace_id, direction, sender_type, sender_employee_id, message_type, content, source_id, created_at'
+        'id, conversation_id, workspace_id, direction, sender_type, sender_employee_id, message_type, content, media_url, source_id, created_at'
       )
       .eq('conversation_id', conversationId)
       .eq('workspace_id', workspaceId)

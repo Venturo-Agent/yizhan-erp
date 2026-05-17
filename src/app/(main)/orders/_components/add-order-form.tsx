@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Combobox } from '@/components/ui/combobox'
-import { useToursListSlim } from '@/hooks/useListSlim'
+import { useToursSlim } from '@/data'
 import { useEligibleEmployees, ELIGIBILITY } from '@/app/(main)/orders/_hooks/useEligibleEmployees'
 import { useTranslations } from 'next-intl'
 import { useTourOptions } from '@/hooks'
@@ -38,7 +38,7 @@ interface AddOrderFormProps {
 
 export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange, hideAssistant }: AddOrderFormProps) {
   const t = useTranslations('orders')
-  const { items: tours } = useToursListSlim()
+  const { items: tours } = useToursSlim()
   const tourOptions = useTourOptions(tours)
 
   // 下拉資格：5/13 新概念、讀 employee_eligibilities（HR 員工頁勾選）

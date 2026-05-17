@@ -45,10 +45,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     const supabase = getSupabaseAdminClient()
 
-    // leave_policy / pension_system 是 2026-05-15 加的欄位、typegen 還沒 regen、cast 繞過
+    // leave_policy / pension_system 是 2026-05-15 加的欄位
+    // subscription_plan 是 2026-05-18 加的欄位、typegen 還沒 regen、cast 繞過
     const { data, error } = (await supabase
       .from('workspaces')
-      .select('id, name, code, is_active, premium_enabled, leave_policy, pension_system')
+      .select('id, name, code, is_active, premium_enabled, leave_policy, pension_system, subscription_plan')
       .eq('id', workspaceId)
       .single()) as { data: Record<string, unknown> | null; error: unknown }
 
@@ -220,6 +221,67 @@ export async function DELETE(
       success: true,
       deleted: { id: workspaceId, name: targetWs.name },
     })
+  } catch (error) {
+    logger.error('API Error', { path: request.nextUrl.pathname, error })
+    return NextResponse.json({ success: false, error: '系統錯誤，請稍後再試' }, { status: 500 })
+  }
+}
+
+/**
+ * PATCH /api/workspaces/[id]
+ * 更新租戶訂閱方案
+ *
+ * 存取規則：
+ * - 必須有 workspaces.write capability
+ * - 接受 { subscription_plan: PlanId }
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: workspaceId } = await params
+
+    const auth = await getServerAuth()
+    if (!auth.success) {
+      return NextResponse.json({ error: '請先登入' }, { status: 401 })
+    }
+
+    // 必須有租戶管理寫入權限
+    const { hasCapabilityByCode } = await import('@/app/api/lib/check-capability')
+    const canWrite = await hasCapabilityByCode(auth.data.employeeId, 'workspaces.write')
+    if (!canWrite) {
+      return NextResponse.json({ error: '需租戶管理權限' }, { status: 403 })
+    }
+
+    const body = (await request.json()) as { subscription_plan?: string }
+    const { subscription_plan } = body
+
+    const VALID_PLANS = ['lite', 'standard', 'advance', 'premium', 'custom'] as const
+    if (!subscription_plan || !(VALID_PLANS as readonly string[]).includes(subscription_plan)) {
+      return NextResponse.json(
+        { error: '無效的訂閱方案，必須是 lite / standard / advance / premium / custom' },
+        { status: 400 }
+      )
+    }
+
+    const supabase = getSupabaseAdminClient()
+
+    // subscription_plan 是新欄位、typegen 尚未 regen，用 cast 繞過
+    const { error } = await (supabase
+      .from('workspaces')
+      .update({ subscription_plan } as Record<string, unknown>)
+      .eq('id', workspaceId) as unknown as Promise<{ error: unknown }>)
+
+    if (error) {
+      const t = translateDbError(error as Parameters<typeof translateDbError>[0])
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
+    }
+
+    return NextResponse.json({ success: true, subscription_plan })
   } catch (error) {
     logger.error('API Error', { path: request.nextUrl.pathname, error })
     return NextResponse.json({ success: false, error: '系統錯誤，請稍後再試' }, { status: 500 })

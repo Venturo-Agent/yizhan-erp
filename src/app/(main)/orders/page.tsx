@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { createOrder } from '@/data'
-import { useToursListSlim } from '@/hooks/useListSlim'
+import { useToursSlim } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import { generateOrderNumber } from '@/lib/codes'
 import { ShoppingCart, Plus, Users, User } from 'lucide-react'
@@ -24,7 +24,7 @@ const VIEW_MODE_STORAGE_KEY = 'orders.viewMode'
 
 export default function OrdersPage() {
   const t = useTranslations('orders')
-  const { items: tours } = useToursListSlim()
+  const { items: tours } = useToursSlim()
   const { user } = useAuthStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)

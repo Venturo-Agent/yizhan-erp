@@ -590,5 +590,95 @@ module.exports = {
         }
       },
     },
+
+    /**
+     * 紅線 F：頁面 / component 不准直接 import useSWR（走 entity hook / createReportHook）
+     *
+     * 適用範圍：src/app/(main)/** 和 src/components/**
+     * 排除：src/lib/swr/（工廠本身）、src/data/core/（工廠本身）
+     */
+    'no-direct-useswr-in-pages': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: '頁面與 component 不准直接 import useSWR（紅線 F）',
+          category: 'Venturo SWR Architecture',
+          recommended: true,
+        },
+        messages: {
+          noDirectUseSWR:
+            '禁止直接 import useSWR（紅線 F）。讀實體資料走 src/data/entities/ 的 entity hook；讀財務報表走 createReportHook。',
+        },
+        schema: [],
+      },
+      create(context) {
+        const filename = context.getFilename()
+        // 只檢查 app pages / components（不含 api routes、lib 工廠本身）
+        const isPage = filename.includes('/src/app/(main)/') || filename.includes('/src/components/')
+        const isFactory = filename.includes('/src/lib/swr/') || filename.includes('/src/data/core/')
+        if (!isPage || isFactory) return {}
+
+        return {
+          ImportDeclaration(node) {
+            if (node.source.value === 'swr') {
+              context.report({ node, messageId: 'noDirectUseSWR' })
+            }
+          },
+        }
+      },
+    },
+
+    /**
+     * 紅線 F：頁面 / component 不准對 supabase client 直接做寫入操作（走 apiMutate）
+     *
+     * 偵測：supabase.from('...').insert/update/upsert/delete 呼叫鏈
+     * 適用範圍：src/app/(main)/**（排除 src/app/api/、lib 工廠）
+     */
+    'no-direct-supabase-writes': {
+      meta: {
+        type: 'suggestion',
+        docs: {
+          description: '頁面 / component 不准直接呼叫 supabase 寫入（紅線 F）',
+          category: 'Venturo SWR Architecture',
+          recommended: true,
+        },
+        messages: {
+          noDirectWrite:
+            '禁止在 client 端直接呼叫 supabase .{{method}}()（紅線 F）。寫入應走 fetch API route + apiMutate 觸發 cache 失效。',
+        },
+        schema: [],
+      },
+      create(context) {
+        const filename = context.getFilename()
+        const isClientPage = filename.includes('/src/app/(main)/') || filename.includes('/src/components/')
+        const isApiRoute = filename.includes('/src/app/api/')
+        const isLibrary = filename.includes('/src/lib/') || filename.includes('/src/data/')
+        if (!isClientPage || isApiRoute || isLibrary) return {}
+
+        const WRITE_METHODS = new Set(['insert', 'update', 'upsert', 'delete'])
+
+        return {
+          CallExpression(node) {
+            if (node.callee.type !== 'MemberExpression') return
+            const methodName = node.callee.property?.name
+            if (!WRITE_METHODS.has(methodName)) return
+
+            // 往呼叫鏈找 .from()、確認是 supabase 寫入
+            let obj = node.callee.object
+            while (obj) {
+              if (obj.type === 'CallExpression' && obj.callee.type === 'MemberExpression') {
+                if (obj.callee.property?.name === 'from') {
+                  context.report({ node, messageId: 'noDirectWrite', data: { method: methodName } })
+                  return
+                }
+                obj = obj.callee.object
+              } else {
+                break
+              }
+            }
+          },
+        }
+      },
+    },
   },
 }

@@ -13,6 +13,12 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { errorResponse, ErrorCode } from '@/lib/api/response'
 import { logger } from '@/lib/utils/logger'
 import { MODULES } from '@/lib/permissions/module-tabs'
+import {
+  getFeaturesForPlan,
+  ADVANCE_PICK_OPTIONS,
+  type PlanId,
+  type AdvancePickId,
+} from '@/lib/permissions/subscription-plans'
 import type { BrandPayload } from './create-tenant-validation'
 
 // onboarding fix pack 2026-05-10：brands / branches / departments / employee_* 三維表
@@ -181,36 +187,56 @@ export async function seedRolesAndCapabilities(
 
 export async function seedWorkspaceFeatures(
   supabaseAdmin: SupabaseClient,
-  workspaceId: string
+  workspaceId: string,
+  planId: PlanId = 'custom',
+  advancePicks?: AdvancePickId[]
 ): Promise<ReturnType<typeof errorResponse> | null> {
-  const freeFeatures = [
-    'dashboard',
-    'calendar',
-    'workspace',
-    'todos',
-    'tours',
-    'orders',
-    'quotes',
-    'finance',
-    'database',
-    'hr',
-    'settings',
-    'customers',
-    'itinerary',
-  ]
-  const premiumFeatures = ['accounting', 'office']
-  const defaultFeatures = [
-    ...freeFeatures.map(code => ({ feature_code: code, enabled: true })),
-    ...premiumFeatures.map(code => ({ feature_code: code, enabled: false })),
+  // All module-level features that exist in the system
+  const allModuleFeatures = [
+    'dashboard', 'calendar', 'workspace', 'todos', 'tours', 'orders',
+    'quotes', 'finance', 'database', 'hr', 'hr_bonus_settlement',
+    'hr_salary_settlement', 'settings', 'customers', 'itinerary',
+    'accounting', 'office',
   ]
 
-  const enabledModules = new Set(freeFeatures)
+  // Determine which features are enabled based on the selected plan
+  const isCustom = planId === 'custom'
+
+  // For custom: enable all except premium (office, accounting) — same as old default
+  // For named plans: use getFeaturesForPlan + always-on baseline (workspace/quotes/itinerary)
+  const ALWAYS_ENABLED = new Set(['workspace', 'quotes', 'itinerary'])
+  const planFeatureSet: Set<string> = isCustom
+    ? new Set([
+        'dashboard', 'calendar', 'workspace', 'todos', 'tours', 'orders',
+        'quotes', 'finance', 'database', 'hr', 'hr_bonus_settlement',
+        'hr_salary_settlement', 'settings', 'customers', 'itinerary',
+      ])
+    : new Set([...getFeaturesForPlan(planId, advancePicks), ...ALWAYS_ENABLED])
+
+  const defaultFeatures = allModuleFeatures.map(code => ({
+    feature_code: code,
+    enabled: planFeatureSet.has(code),
+  }))
+
+  // Tab-level features: advance pick tabs (e.g. tours.contract) only enabled if in plan
+  const advancePickTabCodes = new Set(
+    Object.values(ADVANCE_PICK_OPTIONS)
+      .flatMap(o => o.features)
+      .filter(f => f.includes('.'))
+  )
+
   const tabFeatures: { feature_code: string; enabled: boolean }[] = []
   for (const m of MODULES) {
     for (const t of m.tabs) {
       if (t.isEligibility) continue
       const key = `${m.code}.${t.code}`
-      const enabled = enabledModules.has(m.code) && t.category !== 'premium'
+      let enabled: boolean
+      if (advancePickTabCodes.has(key)) {
+        // Special tab only enabled if explicitly included in plan (e.g. tours.contract)
+        enabled = planFeatureSet.has(key)
+      } else {
+        enabled = planFeatureSet.has(m.code) && t.category !== 'premium'
+      }
       tabFeatures.push({ feature_code: key, enabled })
     }
   }

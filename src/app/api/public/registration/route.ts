@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,7 +69,7 @@ export async function POST(
       .single()
 
     if (error) {
-      console.error('Registration error:', error)
+      logger.error('Registration error', { error })
       return NextResponse.json(
         { success: false, error: '報名失敗，請稍後再試' },
         { status: 500 }
@@ -84,7 +85,7 @@ export async function POST(
       },
     })
   } catch (err) {
-    console.error('Registration parse error:', err)
+    logger.error('Registration parse error', { err })
     return NextResponse.json(
       { success: false, error: '請求格式錯誤' },
       { status: 400 }

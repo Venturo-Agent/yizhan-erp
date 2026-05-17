@@ -42,7 +42,8 @@ import type { YongchengCanvas } from '@/components/tour-display-yongcheng/types'
 import { EditorToolbar } from './_components/EditorToolbar'
 import { EditorPanel } from './_components/EditorPanel'
 import { DeleteBlockDialog } from './_components/DeleteBlockDialog'
-import { deleteBlock, findBlock, type SelectionKey } from './_components/canvas-utils'
+import { AiAssistDialog } from './_components/AiAssistDialog'
+import { deleteBlock, findBlock, applyAiPatch, type SelectionKey, type AiPatch } from './_components/canvas-utils'
 import { useCanvasEditor } from './_hooks/useCanvasEditor'
 import {
   fetchDisplayCanvas,
@@ -305,6 +306,7 @@ function EditorReady({
   )
   const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = React.useState<boolean>(false)
+  const [showAiDialog, setShowAiDialog] = React.useState(false)
 
   const handlePublish = async () => {
     if (publishLoading) return
@@ -386,6 +388,7 @@ function EditorReady({
         unpublishLoading={unpublishLoading}
         onPublish={handlePublish}
         onUnpublish={handleUnpublish}
+        onAiAssist={() => setShowAiDialog(true)}
       />
 
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
@@ -411,6 +414,21 @@ function EditorReady({
         onConfirm={handleConfirmDelete}
         onCancel={() => setPendingDeleteId(null)}
       />
+
+      {showAiDialog && (
+        <AiAssistDialog
+          code={code}
+          canvas={canvas}
+          onApply={(patches: AiPatch[]) => {
+            let next = canvas
+            for (const patch of patches) {
+              next = applyAiPatch(next, patch)
+            }
+            setCanvas(next)
+          }}
+          onClose={() => setShowAiDialog(false)}
+        />
+      )}
     </div>
   )
 }

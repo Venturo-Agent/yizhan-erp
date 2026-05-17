@@ -24,7 +24,7 @@ const quoteEntity = createEntityHook<Quote>('quotes', {
 })
 
 export const useQuotes = quoteEntity.useList
-const _useQuotesSlim = quoteEntity.useListSlim
+export const useQuotesSlim = quoteEntity.useListSlim
 export const useQuote = quoteEntity.useDetail
 const _useQuotesPaginated = quoteEntity.usePaginated
 const _useQuoteDictionary = quoteEntity.useDictionary

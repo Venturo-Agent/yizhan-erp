@@ -8,7 +8,7 @@ import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
-import { useQuotesListSlim, useOrdersListSlim } from '@/hooks/useListSlim'
+import { useQuotesSlim, useOrdersSlim } from '@/data'
 import { useItineraries } from '@/data'
 import { useTourOperations } from '../_hooks/useTourOperations'
 import { useTourActionButtons } from './TourActionButtons'
@@ -57,8 +57,8 @@ export const ToursPage: React.FC = () => {
   const [addOrderDialogTour, setAddOrderDialogTour] = useState<Tour | null>(null)
 
   // 🔧 優化：只保留 quotes（TourActionButtons 需要），其他由 useTourOperations 內部處理
-  const { items: quotes } = useQuotesListSlim()
-  const { items: allOrders } = useOrdersListSlim()
+  const { items: quotes } = useQuotesSlim()
+  const { items: allOrders } = useOrdersSlim()
   const { items: itineraries } = useItineraries({ all: true })
 
   // Build a map of tour_id → first order's sales_person/assistant for display in tour table

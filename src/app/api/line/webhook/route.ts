@@ -32,6 +32,8 @@ import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { processIncomingTextMessage } from '@/lib/line/handler'
 import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile } from '@/lib/line/profile-client'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
+import { downloadAndStoreLineMedia } from '@/lib/line/media-client'
+import { upsertDebounceAndCheckPrev } from '@/lib/line/debounce'
 import { logger } from '@/lib/utils/logger'
 import type { BotContext } from '@/types/line.types'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -243,6 +245,21 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
     })
   }
 
+  // 圖片 / 媒體：下載後上傳到 line-media bucket
+  let mediaUrl: string | null = null
+  if (event.type === 'message' && event.message?.id) {
+    const mediaTypes = ['image', 'video', 'audio', 'file']
+    if (mediaTypes.includes(event.message.type)) {
+      const result = await downloadAndStoreLineMedia(supabase, {
+        messageId: event.message.id,
+        channelAccessToken,
+        workspaceId,
+        lineUserId,
+      })
+      mediaUrl = result.url
+    }
+  }
+
   // 5/14 雙寫過渡：同時寫進 unified inbox（inbox_conversations + inbox_messages）
   // 過渡期 backfill apply 後可拔上面舊寫入路徑、code 改走純 inbox_*
   await recordInboxMessage(supabase, {
@@ -255,6 +272,7 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
     content: inboundContent,
     sourceId: event.message?.id ?? null,
     rawEvent: event,
+    mediaUrl,
   })
 
   // 5a-2. upsert line_user_profiles（display name / picture url、之後 UI 顯示真名 + 頭像）
@@ -313,11 +331,23 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
     return
   }
 
+  // 5b-2. Postback 事件：查 line_postback_templates 自動回覆（不需 replyToken）
+  if (event.type === 'postback' && event.postback?.data) {
+    await handlePostbackAutoReply({
+      supabaseAny,
+      workspaceId,
+      lineUserId,
+      postbackData: event.postback.data,
+      channelAccessToken,
+    })
+    return
+  }
+
   if (!event.replyToken) {
     return
   }
 
-  // 5c. 只處理 text 訊息走 state machine、其他 type（sticker / image / postback）暫時不回
+  // 5c. 只處理 text 訊息走 state machine、其他 type（sticker / image）暫時不回
   if (event.type !== 'message' || event.message?.type !== 'text') {
     return
   }
@@ -346,8 +376,29 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
     lineDisplayName: null,
   }
 
-  // T1.3 state machine 接手（內部已處理 reply + outbound 紀錄 + 建單）
-  await processIncomingTextMessage(ctx, userText, event.replyToken)
+  // 5e. Debounce：10s 靜默後才送 AI 回覆（避免快速連傳造成多次回覆）
+  const { prevBatchReady, prevAccumulatedText } = await upsertDebounceAndCheckPrev(supabase, {
+    workspaceId,
+    lineUserId,
+    userText,
+    replyToken: event.replyToken ?? null,
+  })
+
+  if (prevBatchReady && prevAccumulatedText) {
+    // 前一批 ready：用 reply token（當前訊息的）送前一批的 AI 回覆
+    // 這是最常見的 debounce trigger path（user 停頓 > 10s 後又發訊）
+    //
+    // 注意：不呼叫 markDebounceSent。
+    // upsertDebounceAndCheckPrev 已在 upsert 時把目前訊息（B）開成新 window（sent_at=null）。
+    // 若這裡呼叫 markDebounceSent，同一個 row 的 sent_at 會被蓋成 now，
+    // 導致 B 永遠不會被 pg_cron 標 expired 也不會被 flush 送出（訊息 B 丟失）。
+    try {
+      await processIncomingTextMessage(ctx, prevAccumulatedText, event.replyToken)
+    } catch (err) {
+      logger.error(`${HANDLER_NAME}: processIncomingTextMessage (debounce prev batch) failed`, err)
+    }
+  }
+  // 目前訊息進入 debounce 累積、不立刻回覆（等下一輪靜默 > 10s 觸發）
 }
 
 /**
@@ -422,9 +473,22 @@ async function recordGroupOrRoomMessage(
     }
   }
 
-  // 群組 display_name 用「群組 #末4碼」、第一字「群」UI fallback 看起來像群組 icon
+  // 群組 display_name 預設「群組 #末4碼」、但僅在對話尚未建立時設、不覆蓋 agent 已改的自訂名
   // 之後 Phase 2 接 LINE getGroupSummary（Verified OA only）才換真實群組名
-  const displayName = `群組 #${containerId.slice(-4)}`
+  const defaultDisplayName = `群組 #${containerId.slice(-4)}`
+  // 先查是否已有對話（有就不帶 displayName、避免蓋掉 agent 自訂名）
+  const supabaseForConvCheck = getSupabaseAdminClient() as unknown as SupabaseClient
+  const { data: existingGroupConv } = await supabaseForConvCheck
+    .from('inbox_conversations')
+    .select('id, display_name')
+    .eq('workspace_id', workspaceId)
+    .eq('channel_type', 'line')
+    .eq('external_user_id', externalUserId)
+    .maybeSingle<{ id: string; display_name: string | null }>()
+
+  // 只在首次建立時傳 displayName（無對話 or display_name 仍是預設格式）
+  const shouldSetDisplayName =
+    !existingGroupConv || !existingGroupConv.display_name
 
   const rawContent =
     event.type === 'message' && event.message?.type === 'text'
@@ -451,9 +515,77 @@ async function recordGroupOrRoomMessage(
     content: taggedContent,
     sourceId: event.message?.id ?? null,
     rawEvent: event,
-    displayName,
+    ...(shouldSetDisplayName && { displayName: defaultDisplayName }),
     pictureUrl: null, // 群組 conversation 不放單個成員頭像（避免被最後發訊者覆蓋）
   })
+
+  // 群組秘書：偵測待辦任務關鍵字 → 自動建 todo
+  if (event.type === 'message' && event.message?.type === 'text' && rawContent) {
+    await maybeCreateGroupTodo({
+      supabase: getSupabaseAdminClient() as unknown as SupabaseClient,
+      workspaceId,
+      rawText: rawContent,
+      senderName,
+    })
+  }
+}
+
+const SECRETARY_PREFIXES = [
+  '待辦：', '待辦:', '待辦 ',
+  '任務：', '任務:', '任務 ',
+  '#待辦', '#任務', '#todo',
+  'todo:', 'TODO:', 'Todo:',
+  '@秘書 ', '@secretary ',
+]
+
+async function maybeCreateGroupTodo(args: {
+  supabase: SupabaseClient
+  workspaceId: string
+  rawText: string
+  senderName: string
+}): Promise<void> {
+  const { supabase, workspaceId, rawText, senderName } = args
+  const trimmed = rawText.trim()
+
+  let taskTitle: string | null = null
+  for (const prefix of SECRETARY_PREFIXES) {
+    if (trimmed.toLowerCase().startsWith(prefix.toLowerCase())) {
+      taskTitle = trimmed.slice(prefix.length).trim()
+      break
+    }
+  }
+
+  if (!taskTitle) return
+
+  // 取第一個 todo column（sort_order 最小的）
+  const { data: col } = await supabase
+    .from('todo_columns')
+    .select('id')
+    .eq('workspace_id', workspaceId)
+    .order('sort_order', { ascending: true })
+    .limit(1)
+    .maybeSingle<{ id: string }>()
+
+  const { error } = await supabase.from('todos').insert({
+    workspace_id: workspaceId,
+    title: taskTitle.slice(0, 200),
+    description: `由群組秘書自動建立 — 發訊者：${senderName}`,
+    status: 'pending',
+    priority: 2,
+    column_id: col?.id ?? null,
+  })
+
+  if (error) {
+    logger.warn(`${HANDLER_NAME}: group secretary todo insert failed`, {
+      workspaceId,
+      error: error.message,
+    })
+  } else {
+    logger.info(`${HANDLER_NAME}: group secretary created todo`, {
+      workspaceId,
+      title: taskTitle.slice(0, 50),
+    })
+  }
 }
 
 /**
@@ -480,6 +612,76 @@ function describeNonTextMessage(event: LineEvent): string {
   if (event.type === 'memberJoined') return '👥 [新成員加入群組]'
   if (event.type === 'memberLeft') return '👥 [成員離開群組]'
   return `[事件：${event.type}]`
+}
+
+interface PostbackAutoReplyArgs {
+  supabaseAny: SupabaseClient
+  workspaceId: string
+  lineUserId: string
+  postbackData: string
+  channelAccessToken: string
+}
+
+async function handlePostbackAutoReply(args: PostbackAutoReplyArgs): Promise<void> {
+  const { supabaseAny, workspaceId, lineUserId, postbackData, channelAccessToken } = args
+
+  const { data: template } = await supabaseAny
+    .from('line_postback_templates')
+    .select('id, response_text')
+    .eq('workspace_id', workspaceId)
+    .eq('postback_data', postbackData)
+    .eq('is_active', true)
+    .maybeSingle<{ id: string; response_text: string }>()
+
+  if (!template?.response_text) return
+
+  const { pushLineText } = await import('@/lib/line/push-client')
+  const result = await pushLineText({
+    channelAccessToken,
+    toUserId: lineUserId,
+    text: template.response_text,
+  })
+
+  if (!result.ok) {
+    logger.warn(`${HANDLER_NAME}: postback auto-reply push failed`, {
+      workspaceId,
+      lineUserId,
+      postbackData,
+      error: result.error,
+    })
+    return
+  }
+
+  // 寫 outbound 到舊表
+  await supabaseAny.from('line_conversation_messages').insert({
+    workspace_id: workspaceId,
+    line_user_id: lineUserId,
+    direction: 'outbound',
+    sender: 'bot',
+    message_type: 'text',
+    content: template.response_text,
+    raw_event: { sent_via: 'postback_template', postback_data: postbackData, template_id: template.id },
+  })
+
+  // 寫 outbound 到 inbox_messages
+  const { recordOutboundMessage, upsertConversation } = await import('@/lib/inbox/inbox-service')
+  const convId = await upsertConversation({
+    workspaceId,
+    channelType: 'line',
+    externalUserId: lineUserId,
+  })
+  if (convId) {
+    await recordOutboundMessage({
+      conversationId: convId,
+      workspaceId,
+      sourceId: null,
+      senderType: 'system',
+      senderEmployeeId: null,
+      messageType: 'text',
+      content: template.response_text,
+      rawEvent: { sent_via: 'postback_template', postback_data: postbackData },
+    })
+  }
 }
 
 /**

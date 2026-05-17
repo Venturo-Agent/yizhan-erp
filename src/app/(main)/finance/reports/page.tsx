@@ -152,7 +152,7 @@ export default function ReportsPage() {
         ) : undefined
       }
     >
-      <div className="p-6">
+      <div>
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsContent value="overview" className="mt-0">
             <OverviewTab dateRange={dateRange} granularity={detailGranularity} />

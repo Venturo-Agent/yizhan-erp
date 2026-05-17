@@ -45,7 +45,7 @@ export default function ReportsPage() {
   const t = useTranslations('accounting')
   return (
     <ContentPageLayout title={t('accountingReports')}>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reports.map(report => (
           <Link key={report.href} href={report.href}>
             <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer">

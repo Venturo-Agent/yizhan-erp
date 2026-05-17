@@ -56,7 +56,8 @@ export default function ChangePasswordPage() {
         // 否則進 /dashboard 會被 middleware 307 redirect 回 /login 死循環
         const authEmail = data.data?.authEmail as string | undefined
         if (!authEmail) {
-          // 拿不到 email、走 login 重新登入
+          // 拿不到 email — 同樣要清掉已失效的舊 session、再走 login
+          await supabase.auth.signOut()
           window.location.href = '/login'
           return
         }
@@ -65,9 +66,15 @@ export default function ChangePasswordPage() {
           password: next,
         })
         if (signInError) {
+          // admin.updateUserById 讓舊 session 在 server 失效、本地快取仍殘留。
+          // 不清就跳 /login → login 的 getSession() 讀到舊（無效）session → 誤 redirect → 死循環。
+          await supabase.auth.signOut()
           window.location.href = '/login'
           return
         }
+        // 清 SWR cache：user_id 不變但 session 換新、清快取確保後續拿到乾淨資料
+        const { clearAllSwrCacheKeys } = await import('@/lib/swr/config')
+        clearAllSwrCacheKeys()
         window.location.href = '/dashboard'
         return
       }
