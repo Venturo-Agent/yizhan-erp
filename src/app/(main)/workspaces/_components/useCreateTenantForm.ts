@@ -106,7 +106,7 @@ export function useCreateTenantForm(existingCodes: string[]) {
       return { ...prev, branches: next }
     })
   }
-  const addBranch = () => setForm(prev => ({ ...prev, branches: [...prev.branches, { code: '', name: '' }] }))
+  const addBranch = () => setForm(prev => ({ ...prev, branches: [...prev.branches, { code: '', name: prev.name }] }))
   const removeBranch = (idx: number) =>
     setForm(prev => ({ ...prev, branches: prev.branches.filter((_, i) => i !== idx) }))
 
@@ -126,7 +126,8 @@ export function useCreateTenantForm(existingCodes: string[]) {
     setForm(prev => ({
       ...prev,
       isMultiBranch: checked,
-      branches: checked && prev.branches.length === 0 ? [{ code: '', name: '' }] : prev.branches,
+      // 第一筆預填公司名稱（總公司），讓用戶在此基礎上加後綴（如「台北分公司」）
+      branches: checked && prev.branches.length === 0 ? [{ code: '', name: prev.name }] : prev.branches,
     }))
   }
 
