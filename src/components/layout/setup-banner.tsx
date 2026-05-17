@@ -10,10 +10,12 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AlertCircle, ChevronDown, ChevronUp, X, ArrowRight, Check } from 'lucide-react'
+import { CAPABILITIES, useCapabilities } from '@/lib/permissions'
 import type { SetupStatus, SetupTodo } from '@/lib/setup/check-status'
 
 export function SetupBanner() {
   const router = useRouter()
+  const { can } = useCapabilities()
   const [status, setStatus] = useState<SetupStatus | null>(null)
   const [expanded, setExpanded] = useState(false)
   const [dismissing, setDismissing] = useState(false)
@@ -31,6 +33,7 @@ export function SetupBanner() {
     }
   }, [])
 
+  if (!can(CAPABILITIES.SETTINGS_MANAGE_COMPANY)) return null
   if (!status) return null
 
   // 完成 / 已 dismiss 不顯示
