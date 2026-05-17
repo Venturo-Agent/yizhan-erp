@@ -49,18 +49,6 @@ export function TenantAdminSection({ form, setForm }: Props) {
           <p className="text-xs text-morandi-muted mt-1">{t('fieldEmailHint')}</p>
         </div>
 
-        <div>
-          <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldEmployeeNumber')}
-          </label>
-          <Input
-            value={form.employeeNumber}
-            onChange={e => setForm(prev => ({ ...prev, employeeNumber: e.target.value }))}
-            className="font-mono"
-          />
-          <p className="text-xs text-morandi-muted mt-1">{t('fieldEmployeeNumberHint')}</p>
-        </div>
-
         <div className="md:col-span-2">
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
             {t('fieldPassword')}
