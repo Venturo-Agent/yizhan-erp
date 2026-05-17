@@ -53,8 +53,6 @@ export const LABELS = {
   SECTION_BRANDS: '品牌設定',
   SECTION_BRANDS_DESC: '不填會用公司名稱當預設品牌；多品牌情境才需要新增（第 1 個自動主要）',
   FIELD_BRAND_NAME: '品牌名稱',
-  FIELD_BRAND_CODE: '品牌代號',
-  FIELD_BRAND_CODE_PLACEHOLDER: '留空自動產生（例 JINYANG）',
   BTN_ADD_BRAND: '+ 新增品牌',
   BTN_REMOVE_BRAND: '移除',
 
@@ -62,15 +60,11 @@ export const LABELS = {
   CHECKBOX_MULTI_BRANCH: '是否多分公司？',
   CHECKBOX_MULTI_BRANCH_HINT: '勾選後填寫分公司列表；不勾自動建一筆「總部」placeholder',
   FIELD_BRANCH_NAME: '分公司名稱',
-  FIELD_BRANCH_CODE: '分公司代號',
-  FIELD_BRANCH_CODE_PLACEHOLDER: '留空自動產生（例 TPE）',
   BTN_ADD_BRANCH: '+ 新增分公司',
 
   CHECKBOX_MULTI_DEPARTMENT: '是否多部門？',
   CHECKBOX_MULTI_DEPARTMENT_HINT: '勾選後填寫部門列表；不勾自動建一筆「總公司」placeholder',
   FIELD_DEPARTMENT_NAME: '部門名稱',
-  FIELD_DEPARTMENT_CODE: '部門代號',
-  FIELD_DEPARTMENT_CODE_PLACEHOLDER: '留空自動產生（例 SALES）',
   BTN_ADD_DEPARTMENT: '+ 新增部門',
 
   // Dialog - Step 2

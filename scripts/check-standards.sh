@@ -68,6 +68,7 @@ fi
 echo
 echo "▶ #6: 軟刪除舊欄位殘留"
 DELETED_RESIDUE=$(grep -rn "is_deleted\|deleted_at" src/ 2>/dev/null \
+  | sed 's|src//|src/|g' \
   | grep -v "database\.types\|supabase/types\.ts\|//\s*\(is_deleted\|deleted_at\)\|terminated_at\|closed_at\|confirmed_at" \
   | grep -v "src/lib/data/soft-delete\.ts\|src/lib/data/force-delete\.ts\|src/lib/data/filter-active\.ts\|src/lib/auth/enforce-workspace-scope\.ts" \
   | grep -v "src/data/core/createEntityHook\.ts\|src/data/core/types\.ts" \

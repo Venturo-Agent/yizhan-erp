@@ -35,12 +35,6 @@ export function TenantBrandSection({ brands, onUpdate, onAdd, onRemove }: Props)
               placeholder={`${t('fieldBrandName')}${idx === 0 ? '（主要）' : ''}`}
               className="flex-1"
             />
-            <Input
-              value={b.code}
-              onChange={e => onUpdate(idx, 'code', e.target.value.toUpperCase())}
-              placeholder={t('fieldBrandCodePlaceholder')}
-              className="w-32 font-mono"
-            />
             {brands.length > 1 && (
               <Button
                 variant="ghost"

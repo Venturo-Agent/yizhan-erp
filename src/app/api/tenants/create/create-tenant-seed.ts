@@ -303,12 +303,17 @@ export async function createDimensions(
   )?.id
 
   // branches：勾「多分公司」依 onboarding 填、否則建 placeholder「總部」
+  // type 欄位：第一筆 headquarters（總公司本身）、其餘 branch（分公司）
+  // 2026-05-17：原本 5/14 trg_workspaces_onboarding_seed trigger 會自動建一筆 HQ、
+  // 結果跟這段 API 撞 branches_workspace_code_unique、整個 tenant create 炸
+  // → 改成 trigger 已 drop、API 是唯一 seed SSOT、自己設 type
   const branchSource: BrandPayload[] =
     isMultiBranch && branches?.length ? branches : [{ code: 'HQ', name: '總部' }]
   const branchRows = branchSource.map((br: BrandPayload, idx: number) => ({
     workspace_id: workspaceId,
     code: (br.code?.trim() || `BR${idx + 1}`).toUpperCase(),
     name: br.name.trim(),
+    type: idx === 0 ? 'headquarters' : 'branch',
     is_default: idx === 0,
     display_order: idx,
   }))
@@ -333,6 +338,7 @@ export async function createDimensions(
 
   // departments：勾「多部門」依 onboarding 填、否則建 placeholder「總公司」
   // 所有 default seed 部門都掛在 default branch 底下（2026-05-14 起 branch_id 必填）
+  // type 欄位：第一筆 headquarters（總部）、其餘 department（一般部門）
   const departmentSource: BrandPayload[] =
     isMultiDepartment && departments?.length ? departments : [{ code: 'MAIN', name: '總公司' }]
   const deptRows = departmentSource.map((d: BrandPayload, idx: number) => ({
@@ -340,6 +346,7 @@ export async function createDimensions(
     branch_id: defaultBranchId,
     code: (d.code?.trim() || `D${idx + 1}`).toUpperCase(),
     name: d.name.trim(),
+    type: idx === 0 ? 'headquarters' : 'department',
     is_default: idx === 0,
     display_order: idx,
   }))

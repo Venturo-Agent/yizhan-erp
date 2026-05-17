@@ -73,12 +73,6 @@ export function TenantOrgSection({
                   placeholder={`${t('fieldBranchName')}${idx === 0 ? '（主要）' : ''}`}
                   className="flex-1"
                 />
-                <Input
-                  value={br.code}
-                  onChange={e => onUpdateBranch(idx, 'code', e.target.value.toUpperCase())}
-                  placeholder={t('fieldBranchCodePlaceholder')}
-                  className="w-32 font-mono"
-                />
                 {branches.length > 1 && (
                   <Button
                     variant="ghost"
@@ -125,12 +119,6 @@ export function TenantOrgSection({
                   onChange={e => onUpdateDept(idx, 'name', e.target.value)}
                   placeholder={`${t('fieldDepartmentName')}${idx === 0 ? '（主要）' : ''}`}
                   className="flex-1"
-                />
-                <Input
-                  value={d.code}
-                  onChange={e => onUpdateDept(idx, 'code', e.target.value.toUpperCase())}
-                  placeholder={t('fieldDepartmentCodePlaceholder')}
-                  className="w-32 font-mono"
                 />
                 {departments.length > 1 && (
                   <Button

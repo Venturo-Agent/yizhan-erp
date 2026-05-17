@@ -251,6 +251,7 @@ Phase 3  audit      ☐ npm run audit:rls 必綠 + type-check / lint 必綠
 
 ### audit script（自動偵測偏離 blueprint）
 - **`npm run audit:rls`** — `scripts/audit-rls-blueprint.ts`、6 層自動檢核
+- **`npm run audit:writes`** — `scripts/audit-write-paths.ts`、抓「DB trigger + API 同表 INSERT」雙寫撞車（2026-05-17 加、解 onboarding trigger × API 撞 unique 那次教訓）
 - 走 psql + `SUPABASE_DB_URL`（不用 PAT）、Mac IPv6 不通自動降級為 code grep only
 - CI：`.github/workflows/audit-rls.yml`、PR 自動跑、error 擋 merge、要 `SUPABASE_DB_URL` secret
 - 動表 / 動 RLS / 動中央 module 前必跑、新表上線前必綠
@@ -364,6 +365,39 @@ Phase 3  audit      ☐ npm run audit:rls 必綠 + type-check / lint 必綠
 - 給 SaaS 客戶用：員工想竄改數字（業務員藏私房錢、會計幫老闆做兩本帳）、系統必須擋
 - 給漫途自己用：審計 / 報稅時、不准有「上個月某張單我改過」的紀錄
 - Sales pitch 賣點：「venturo 結帳後自動鎖、防員工竄改」是強項
+
+### E. 加新 DB trigger / 新 API 寫入前必查同表寫入清單（William 2026-05-17 拍板）
+
+**白話**：同一張表的寫入邏輯**只能放一個地方**、不准 DB trigger 跟 API code 各做一份。
+過去踩過：5/14 加的 `trg_workspaces_onboarding_seed` trigger 跟 5/10 寫的 `createDimensions()` API 各建一份 `branches('HQ')`、撞 `branches_workspace_code_unique` → 自 5/14 起無人能成功建租戶。
+
+**為什麼這條重要**：
+- 寫 trigger 的人通常不會去翻 API code、寫 API 的人也不會去翻 migration、兩條路各做各的、撞號才知道
+- 不只 unique 撞、UPDATE 雙寫會 race condition、刪除互相清也會孤兒
+- 跟「沒看完整 6 道門」是同一個病根：**SSOT 散在多處 = 將來必撞**
+
+**動之前必跑**：
+```bash
+npm run audit:writes     # 列出每張表的 trigger + API 寫入清單、有雙寫就 warn
+```
+
+**動之中要選邊**：
+| 場景 | 該選誰當 SSOT |
+|---|---|
+| onboarding seed（建租戶配套） | **API**（彈性、可吃 user 輸入） |
+| 純技術 housekeeping（時戳 / audit log） | **Trigger**（不可能漏） |
+| 編號產生 / 級聯狀態（已封存判定）| **DB function**（advisory lock / 競態保護）|
+| 業務寫入（會計分錄 / 訂單）| **API**（中央化權限檢查 + audit context）|
+
+**例外（合理雙寫、需 review）**：
+- `channel_members` — RPC `get_or_create_dm_channel` 建 DM、API `/channels/dm/route.ts` 另加成員（intentional dual-write）
+- `journal_lines` — trigger 自動分錄 + API 手動分錄（intentional dual-write）
+- 加進 `scripts/audit-write-paths.ts` 的 `ALLOWLIST`、留 comment 寫清楚為什麼
+
+**code 層偵測**：
+- `npm run audit:writes` 加進 commit / PR 前必跑清單（跟 `audit:rls` 並列）
+- 任何加 `CREATE TRIGGER ... INSERT INTO X` 的 PR、必對照 `src/app/api/**` 有沒有也寫 X
+- 任何加 `.from('X').insert` 的 PR、必對照 `supabase/migrations/*.sql` 有沒有 trigger 也寫 X
 
 ---
 
