@@ -58,7 +58,6 @@ export function TourSidebar({
           <div className="space-y-3">
             <Link
               href={`/p/tour/${code}/register${refParam ? `?ref=${refParam}` : ''}`}
-              className="block"
             >
               <Button className="w-full bg-gradient-to-r from-public-primary to-public-accent text-white py-4 rounded-xl font-bold hover:shadow-lg transition-all">
                 立即預約
