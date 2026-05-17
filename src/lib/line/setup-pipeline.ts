@@ -9,7 +9,8 @@
  *   3. upsert workspace_line_settings（含 token, secret, bot_employee_id, is_active）
  *   4. 回 webhook URL 給 UI 顯示、客戶複製貼回 LINE Developers
  *
- * 加密：demo 階段用 TEXT 明文（schema 已寫死）、phase 2 換 Vault / pgsodium。
+ * 加密：token/secret 用 AES-256-GCM 加密後存 _encrypted 欄；明文欄保留緩衝期
+ *       待全部 workspace 重 provision 後可清空（migration 20260517950000）。
  *
  * Setup 失敗時應該 rollback、但 demo 簡化版用「上次撞錯就 manual fix」
  * 處理（commit 訊息註記）。
@@ -20,6 +21,8 @@ import { logger } from '@/lib/utils/logger'
 import { formatDateTaipei } from '@/lib/utils/format-date'
 import { validateChannelAccessToken } from './line-api-client'
 import { getOrCreateSystemBotRole } from '@/lib/bot/system-bot-role'
+import { encryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 export interface ProvisionInput {
   workspaceId: string
@@ -110,15 +113,18 @@ export async function provisionLineBot(input: ProvisionInput): Promise<Provision
     botEmployeeId = newBot.id
   }
 
-  // 4. upsert workspace_line_settings
-  const { error: settingsError } = await supabase
+  // 4. upsert workspace_line_settings（token/secret 加密存入、明文欄位清空）
+  const supabaseAny = supabase as unknown as SupabaseClient
+  const { error: settingsError } = await supabaseAny
     .from('workspace_line_settings')
     .upsert(
       {
         workspace_id: input.workspaceId,
         channel_id: input.channelId.trim(),
-        channel_access_token: input.channelAccessToken.trim(),
-        channel_secret: input.channelSecret.trim(),
+        channel_access_token: null,
+        channel_secret: null,
+        channel_access_token_encrypted: encryptIntegrationSecret(input.channelAccessToken.trim()),
+        channel_secret_encrypted: encryptIntegrationSecret(input.channelSecret.trim()),
         bot_greeting: input.botGreeting || null,
         bot_employee_id: botEmployeeId,
         is_active: true,

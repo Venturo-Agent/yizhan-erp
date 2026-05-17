@@ -28,6 +28,7 @@ import type { NextRequest } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import type { Json } from '@/lib/supabase/types'
 import { verifyLineSignature } from '@/lib/line/verify-signature'
+import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { processIncomingTextMessage } from '@/lib/line/handler'
 import { fetchLineProfile } from '@/lib/line/profile-client'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
@@ -64,8 +65,10 @@ interface LineWebhookBody {
 
 interface WorkspaceLineSettingsRow {
   workspace_id: string
-  channel_secret: string
-  channel_access_token: string
+  channel_secret: string | null
+  channel_access_token: string | null
+  channel_secret_encrypted: string | null
+  channel_access_token_encrypted: string | null
   is_active: boolean
   bot_employee_id: string | null
 }
@@ -96,7 +99,7 @@ export async function POST(req: NextRequest) {
   const supabase = getSupabaseAdminClient()
   const { data: settings, error: settingsError } = await supabase
     .from('workspace_line_settings')
-    .select('workspace_id, channel_secret, channel_access_token, is_active, bot_employee_id')
+    .select('workspace_id, channel_secret, channel_access_token, channel_secret_encrypted, channel_access_token_encrypted, is_active, bot_employee_id')
     .eq('channel_id', destination)
     .maybeSingle<WorkspaceLineSettingsRow>()
 
@@ -114,8 +117,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'unknown destination' }, { status: 401 })
   }
 
+  // 3.5. 解密 token/secret（優先加密欄，fallback 明文緩衝期欄）
+  let channelSecret: string
+  let channelAccessToken: string
+  try {
+    channelSecret = settings.channel_secret_encrypted
+      ? decryptIntegrationSecret(settings.channel_secret_encrypted)
+      : (settings.channel_secret ?? '')
+    channelAccessToken = settings.channel_access_token_encrypted
+      ? decryptIntegrationSecret(settings.channel_access_token_encrypted)
+      : (settings.channel_access_token ?? '')
+  } catch (cryptoErr) {
+    logger.error(`${HANDLER_NAME}: decrypt credentials failed`, cryptoErr, { destination })
+    return NextResponse.json({ error: 'decrypt failed' }, { status: 503 })
+  }
+
+  if (!channelSecret || !channelAccessToken) {
+    logger.warn(`${HANDLER_NAME}: credentials missing for workspace`, { destination })
+    return NextResponse.json({ error: 'credentials not configured' }, { status: 503 })
+  }
+
   // 4. 驗簽章（用該 workspace 的 channel_secret）
-  const sigCheck = verifyLineSignature(rawBody, signature, settings.channel_secret)
+  const sigCheck = verifyLineSignature(rawBody, signature, channelSecret)
   if (!sigCheck.valid) {
     logger.warn(`${HANDLER_NAME}: signature verification failed`, {
       destination,
@@ -147,7 +170,7 @@ export async function POST(req: NextRequest) {
       handleEvent({
         event,
         workspaceId: settings.workspace_id,
-        channelAccessToken: settings.channel_access_token,
+        channelAccessToken,
         isActive: settings.is_active,
         botEmployeeId: settings.bot_employee_id,
       }).catch(err => {

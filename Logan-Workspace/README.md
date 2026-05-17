@@ -35,6 +35,8 @@
 
 | 檔案 | 說明 |
 |------|------|
+| `2026-05-17-旅遊團-訂單-AI需求單-pipeline-spec.md` | 📌 旅遊團狀態機 + 官網 vs AI 兩條 pipeline + 需求單設計 |
+| `2026-05-17-官網報名-公開API-訂單狀態機-spec.md` | 📌 官網報名 feature + 公開 API 設計 + AI Hub 待處理介面 |
 | `2026-05-14-帳單系統-客戶自助付款-CRM-spec.md` | 待排 |
 | `2026-05-14-ai-integration-spec-v2-circle-table.md` | 凍結中（AI 整合） |
 | `2026-05-15-bonus-settlement-spec.md` | 待排 |
