@@ -40,10 +40,11 @@ export async function rollback(
   logger.warn(`Rolling back tenant creation: ${reason}`)
   const { createdWorkspaceId, createdEmployeeId, createdAuthUserId } = state
 
-  if (createdAuthUserId) {
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(createdAuthUserId)
-    if (error) logger.error('Rollback deleteUser failed:', error)
-  }
+  // 順序很關鍵：employees.user_id → auth.users 是 ON DELETE RESTRICT、
+  // 所以 auth user 必須在 employee 被刪掉「之後」才能刪、否則 FK 擋住、
+  // auth user 留成孤兒、下次拿同 email 建租戶會被「email 已被使用」擋。
+  // 過去（2026-05-17 之前）寫的順序剛好相反、踩過這坑、現在按依賴方向重排：
+  //   role_capabilities → workspace_roles → features → 三維 → employees → auth user → workspace
   if (createdWorkspaceId) {
     const { data: wsRoles } = await supabaseAdmin
       .from('workspace_roles')
@@ -64,6 +65,10 @@ export async function rollback(
   if (createdEmployeeId) {
     const { error } = await supabaseAdmin.from('employees').delete().eq('id', createdEmployeeId)
     if (error) logger.error('Rollback delete employee failed:', error)
+  }
+  if (createdAuthUserId) {
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(createdAuthUserId)
+    if (error) logger.error('Rollback deleteUser failed:', error)
   }
   if (createdWorkspaceId) {
     const { error } = await supabaseAdmin
