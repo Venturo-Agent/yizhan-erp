@@ -198,21 +198,14 @@ export const CAPABILITIES = {
   // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════
   CHANNELS_MANAGE: 'channels.manage',
   FACEBOOK_BOT_CONFIG: 'facebook_bot.config',
-  FACEBOOK_BOT_READ: 'facebook_bot.read',
   FACEBOOK_BOT_WRITE: 'facebook_bot.write',
   FINANCE_ADVANCE_PAYMENT_WRITE: 'finance.advance_payment.write',
   INSTAGRAM_BOT_CONFIG: 'instagram_bot.config',
-  INSTAGRAM_BOT_READ: 'instagram_bot.read',
   INSTAGRAM_BOT_WRITE: 'instagram_bot.write',
   LINE_BOT_CONFIG: 'line_bot.config',
   LINE_BOT_READ: 'line_bot.read',
   LINE_BOT_WRITE: 'line_bot.write',
-  MESSAGING_INBOX_READ: 'messaging_inbox.read',
-  MESSAGING_INBOX_WRITE: 'messaging_inbox.write',
   MANAGE_ENV_SETTINGS: 'settings.env.write',
-  TOURS_AS_ASSISTANT_WRITE: 'tours.as_assistant.write',
-  TOURS_AS_CONTROLLER_WRITE: 'tours.as_controller.write',
-  TOURS_AS_SALES_WRITE: 'tours.as_sales.write',
 } as const
 
 export type Capability = (typeof CAPABILITIES)[keyof typeof CAPABILITIES]

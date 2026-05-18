@@ -32,7 +32,17 @@ const API_DIR = 'src/app/api'
 // 已知「合理雙寫」白名單（譬如純 audit、純技術 housekeeping）
 // 加進來前必須先看過、確認不會撞 unique / FK
 const ALLOWLIST = new Set<string>([
-  // 範例：'audit_logs' — API 寫業務操作、trigger 寫系統事件、互不衝突
+  // channel_members — 兩條寫入路徑刻意分工、不撞：
+  //   1. RPC get_or_create_dm_channel(): 建 DM 頻道時、原子把雙方成員一起塞進去
+  //   2. API /channels/dm/route.ts: 群組頻道 / 邀人入群時、走應用層加成員（capability check + audit context）
+  // 場景不同（DM 自動 vs 群組手動）、不會同時對同一組 (channel_id, employee_id) 寫入
+  'channel_members',
+
+  // journal_lines — 會計分錄 SSOT、兩條寫入路徑：
+  //   1. Trigger auto_post_*（收款 / 付款 / 出納確認時）: 業務單據自動產分錄
+  //   2. API /accounting/{vouchers,opening-balances,period-closing,receipts/refund}: 手動傳票、開帳、期末結轉、退款沖正
+  // 場景不同（自動分錄 vs 手動傳票）、各自寫不同 voucher_id 下的 lines、不會撞
+  'journal_lines',
 ])
 
 interface WriteSite {

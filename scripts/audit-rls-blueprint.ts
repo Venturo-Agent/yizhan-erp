@@ -299,9 +299,15 @@ async function auditL1FeatureGate(): Promise<Finding[]> {
   }
 
   // L1.5: features.ts 跟 modules/ 對齊（features.ts 是 downstream、應該從 modules 衍生）
+  // 衍生來源：ALL_MODULES.code (module-level) + ALL_MODULES.subFeatures[].code (sub-feature gate)
+  // codegen-permissions.ts line 75-76 已把 subFeatures 衍生進 features.ts、audit 也要跟同
   const featureCodesInTs = parseFeaturesTs().map((f) => f.code)
   const moduleCodes_l1 = ALL_MODULES.map((m) => m.code)
-  const featuresOnlyInTs = featureCodesInTs.filter((c) => !moduleCodes_l1.includes(c))
+  const subFeatureCodes_l1 = ALL_MODULES.flatMap((m) =>
+    ((m as { subFeatures?: readonly { code: string }[] }).subFeatures ?? []).map((sf) => sf.code),
+  )
+  const validFeatureCodes = new Set([...moduleCodes_l1, ...subFeatureCodes_l1])
+  const featuresOnlyInTs = featureCodesInTs.filter((c) => !validFeatureCodes.has(c))
   const modulesNotInFeaturesTs = moduleCodes_l1.filter((c) => !featureCodesInTs.includes(c))
   if (featuresOnlyInTs.length > 0 || modulesNotInFeaturesTs.length > 0) {
     findings.push(
