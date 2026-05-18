@@ -32,7 +32,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag } from 'lucide-react'
+import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 
@@ -50,6 +50,20 @@ interface ConversationItem {
   last_message_direction: 'inbound' | 'outbound' | null
   unread_count: number
   bot_paused: boolean
+  /** AI 速記卡 tone — derive 信心 emoji 用、null = 還沒生成速記卡 */
+  memory_tone?: string | null
+  /** 速記卡連續失敗 ≥3、暫停摘要 */
+  memory_failed?: boolean
+}
+
+/** tone → emoji map（W 5/18 拍板：主動/完整 = 🟢、應付 = 🟡、失敗 = 🔴、無 = 空白）*/
+function listToneEmoji(item: ConversationItem): string | null {
+  if (item.memory_failed) return '🔴'
+  const tone = item.memory_tone
+  if (!tone) return null
+  if (tone.includes('主動') || tone.includes('完整')) return '🟢'
+  if (tone.includes('應付')) return '🟡'
+  return null
 }
 
 interface MessageItem {
@@ -230,8 +244,13 @@ export function AiConversationsTab() {
                 {/* 中間：名字 + 預覽（兩行） */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium truncate">
-                      {c.display_name || '（未取得名稱）'}
+                    <span className="text-sm font-medium truncate flex items-center gap-1">
+                      {listToneEmoji(c) && (
+                        <span className="text-[0.7rem] shrink-0" title="AI 速記卡信心">
+                          {listToneEmoji(c)}
+                        </span>
+                      )}
+                      <span className="truncate">{c.display_name || '（未取得名稱）'}</span>
                     </span>
                     <span className="text-[0.65rem] text-morandi-muted shrink-0">
                       {formatRelative(c.last_message_at)}
@@ -698,7 +717,7 @@ function BusinessPanel({
   }
 
   return (
-    <div className="w-56 flex-shrink-0 h-full border border-border rounded-xl bg-white flex flex-col overflow-hidden">
+    <div className="w-72 flex-shrink-0 h-full border border-border rounded-xl bg-white flex flex-col overflow-hidden">
       {/* 面板 header */}
       <div className="px-3 py-2.5 border-b border-morandi-muted/20 flex items-center justify-between">
         <span className="text-xs font-semibold text-morandi-primary">業務面板</span>
@@ -719,13 +738,9 @@ function BusinessPanel({
           </div>
         </div>
 
-        {/* 標籤 */}
+        {/* 速記卡 — AI 對客戶的長期記憶（每 20 則訊息重生）*/}
         <div className="px-3 py-3">
-          <div className="flex items-center gap-1.5 mb-2">
-            <Tag className="w-3 h-3 text-morandi-muted" />
-            <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">標籤</p>
-          </div>
-          <p className="text-xs text-morandi-muted">即將推出（AI 自動判別）</p>
+          <SpeedCardSection conversationId={conv.id} />
         </div>
 
         {/* 業務紀錄 */}
@@ -736,6 +751,346 @@ function BusinessPanel({
       </div>
     </div>
   )
+}
+
+// ===== 速記卡（AI 長期記憶）=====
+// 對應後端：generateMemorySummary（每 20 則訊息 fire-and-forget LLM 重寫）
+// API：GET /api/messaging/conversations/[id]/memory（讀）
+//      POST .../memory/regenerate（手動重生）
+//      PATCH .../memory（編輯）
+//      DELETE .../memory（清空）
+
+interface MemoryApiResponse {
+  data: {
+    id: string
+    memory_json: SpeedCardMemoryJson | null
+    last_summarized_message_count: number
+    last_summarized_at: string | null
+    failed_attempts: number
+    last_error: string | null
+    created_at: string
+    updated_at: string
+  } | null
+}
+
+interface SpeedCardMemoryJson {
+  persona?: {
+    name?: string | null
+    family?: string | null
+    occupation?: string | null
+    tone?: string
+  }
+  preferences?: {
+    destinations?: string[]
+    budget_range?: string | null
+    departure_window?: string | null
+    avoid?: string[]
+    special_needs?: string[]
+  }
+  history?: {
+    discussed_tours?: string[]
+    rejected?: Array<{ tour: string; reason: string }>
+    interested?: string[]
+  }
+  unanswered_questions?: string[]
+  summary_text?: string
+}
+
+function toneEmoji(tone?: string): string {
+  if (!tone) return '⚪'
+  if (tone.includes('主動') || tone.includes('完整')) return '🟢'
+  if (tone.includes('應付')) return '🟡'
+  return '⚪'
+}
+
+function SpeedCardSection({ conversationId }: { conversationId: string }) {
+  const apiUrl = `/api/messaging/conversations/${conversationId}/memory`
+  const { data, isLoading, mutate } = useSWR<MemoryApiResponse>(apiUrl, fetcher, {
+    revalidateOnFocus: false,
+  })
+  const [regenLoading, setRegenLoading] = useState(false)
+  const [showEditor, setShowEditor] = useState(false)
+
+  const memory = data?.data
+  const m = memory?.memory_json ?? null
+
+  const handleRegenerate = async () => {
+    if (regenLoading) return
+    setRegenLoading(true)
+    try {
+      const res = await apiMutate<{ success: boolean; error?: string }>(
+        `/api/messaging/conversations/${conversationId}/memory/regenerate`,
+        { method: 'POST', invalidate: [apiUrl] }
+      )
+      if (!res.ok || !res.data?.success) {
+        toast.error(res.error || res.data?.error || '重生失敗')
+      } else {
+        toast.success('已重生速記卡')
+      }
+      void mutate()
+    } finally {
+      setRegenLoading(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('確定清空這位客戶的速記卡？下次累積 20 則訊息會再自動生成。')) return
+    const res = await apiMutate<{ success: boolean }>(apiUrl, {
+      method: 'DELETE',
+      invalidate: [apiUrl],
+    })
+    if (!res.ok) toast.error('刪除失敗')
+    else toast.success('已清空')
+    void mutate()
+  }
+
+  return (
+    <>
+      <div className="flex items-center gap-1.5 mb-2">
+        <Sparkles className="w-3 h-3 text-morandi-muted" />
+        <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide flex-1">速記卡</p>
+        {memory?.failed_attempts ? (
+          <span className="text-[0.6rem] text-red-600">失敗 {memory.failed_attempts}/3</span>
+        ) : null}
+      </div>
+
+      {isLoading ? (
+        <p className="text-xs text-morandi-muted">載入中...</p>
+      ) : !m ? (
+        <div className="flex flex-col gap-2">
+          <p className="text-xs text-morandi-muted">
+            尚未生成（對話累積 20 則訊息會自動建立）
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={regenLoading}
+            onClick={handleRegenerate}
+            className="h-7 text-xs gap-1"
+          >
+            {regenLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            立刻生成
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2 text-xs">
+          {/* 一句話總結 + tone emoji */}
+          <div className="bg-morandi-container/30 rounded-md px-2 py-1.5">
+            <div className="flex items-start gap-1.5">
+              <span className="shrink-0">{toneEmoji(m.persona?.tone)}</span>
+              <p className="text-morandi-primary leading-snug">
+                {m.summary_text ?? '（無摘要）'}
+              </p>
+            </div>
+          </div>
+
+          {/* 偏好 */}
+          {m.preferences && (
+            <div className="space-y-1">
+              {m.preferences.avoid && m.preferences.avoid.length > 0 && (
+                <div className="flex flex-wrap gap-1 items-center">
+                  <span className="text-[0.6rem] text-morandi-muted shrink-0">避忌：</span>
+                  {m.preferences.avoid.map((x, i) => (
+                    <span key={i} className="text-[0.65rem] bg-red-50 text-red-700 px-1.5 py-0.5 rounded">
+                      {x}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {m.preferences.budget_range && (
+                <p className="text-[0.65rem]">
+                  <span className="text-morandi-muted">預算：</span>
+                  <span className="text-morandi-primary">{m.preferences.budget_range}</span>
+                </p>
+              )}
+              {m.preferences.destinations && m.preferences.destinations.length > 0 && (
+                <p className="text-[0.65rem]">
+                  <span className="text-morandi-muted">想去：</span>
+                  <span className="text-morandi-primary">{m.preferences.destinations.join('、')}</span>
+                </p>
+              )}
+              {m.preferences.special_needs && m.preferences.special_needs.length > 0 && (
+                <p className="text-[0.65rem]">
+                  <span className="text-morandi-muted">特殊：</span>
+                  <span className="text-morandi-primary">{m.preferences.special_needs.join('、')}</span>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* 聊過的事 */}
+          {m.history && (m.history.interested?.length || m.history.rejected?.length) ? (
+            <div className="space-y-1 border-t border-morandi-muted/10 pt-1.5">
+              {m.history.interested && m.history.interested.length > 0 && (
+                <p className="text-[0.65rem]">
+                  <span className="text-morandi-muted">有興趣：</span>
+                  <span className="text-morandi-primary">{m.history.interested.join('、')}</span>
+                </p>
+              )}
+              {m.history.rejected && m.history.rejected.length > 0 && (
+                <p className="text-[0.65rem]">
+                  <span className="text-morandi-muted">已拒絕：</span>
+                  <span className="text-morandi-primary">
+                    {m.history.rejected.map(r => `${r.tour}（${r.reason}）`).join('、')}
+                  </span>
+                </p>
+              )}
+            </div>
+          ) : null}
+
+          {/* AI 答不出來的問題 */}
+          {m.unanswered_questions && m.unanswered_questions.length > 0 && (
+            <div className="border-t border-morandi-muted/10 pt-1.5">
+              <p className="text-[0.6rem] text-morandi-muted mb-0.5">AI 答不出來：</p>
+              <ul className="space-y-0.5">
+                {m.unanswered_questions.slice(0, 3).map((q, i) => (
+                  <li key={i} className="text-[0.65rem] text-orange-700 line-clamp-1">
+                    • {q}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* 失敗錯誤訊息 */}
+          {memory?.last_error && (
+            <p className="text-[0.6rem] text-red-600 line-clamp-2">
+              ⚠️ {memory.last_error}
+            </p>
+          )}
+
+          {/* 上次更新時間 + 操作按鈕 */}
+          <div className="border-t border-morandi-muted/10 pt-1.5 flex items-center justify-between">
+            <span className="text-[0.6rem] text-morandi-muted">
+              {memory?.last_summarized_at
+                ? `更新 ${new Date(memory.last_summarized_at).toLocaleString('zh-TW', { dateStyle: 'short', timeStyle: 'short' })}`
+                : '尚未生成'}
+            </span>
+            <div className="flex gap-1">
+              <button
+                onClick={handleRegenerate}
+                disabled={regenLoading}
+                title="重生"
+                className="p-1 text-morandi-muted hover:text-morandi-gold disabled:opacity-50"
+              >
+                {regenLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+              </button>
+              <button
+                onClick={() => setShowEditor(true)}
+                title="編輯"
+                className="p-1 text-morandi-muted hover:text-morandi-primary"
+              >
+                <Pencil className="w-3 h-3" />
+              </button>
+              <button
+                onClick={handleDelete}
+                title="清空"
+                className="p-1 text-morandi-muted hover:text-red-600"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditor && memory && (
+        <SpeedCardEditor
+          conversationId={conversationId}
+          initialJson={m ?? {}}
+          onClose={() => setShowEditor(false)}
+          onSaved={() => {
+            setShowEditor(false)
+            void mutate()
+          }}
+        />
+      )}
+    </>
+  )
+}
+
+// ===== 速記卡編輯器（modal、純 JSON textarea、業務手動精修）=====
+function SpeedCardEditor({
+  conversationId,
+  initialJson,
+  onClose,
+  onSaved,
+}: {
+  conversationId: string
+  initialJson: SpeedCardMemoryJson
+  onClose: () => void
+  onSaved: () => void
+}) {
+  const [text, setText] = useState(() => JSON.stringify(initialJson, null, 2))
+  const [saving, setSaving] = useState(false)
+  const [parseErr, setParseErr] = useState<string | null>(null)
+
+  const handleSave = async () => {
+    let parsed: SpeedCardMemoryJson
+    try {
+      parsed = JSON.parse(text) as SpeedCardMemoryJson
+    } catch (err) {
+      setParseErr(err instanceof Error ? err.message : 'JSON 格式錯誤')
+      return
+    }
+    setSaving(true)
+    try {
+      const res = await apiMutate<{ success: boolean }>(
+        `/api/messaging/conversations/${conversationId}/memory`,
+        {
+          method: 'PATCH',
+          body: { memory_json: parsed },
+          invalidate: [`/api/messaging/conversations/${conversationId}/memory`],
+        }
+      )
+      if (!res.ok || !res.data?.success) {
+        toast.error('儲存失敗')
+        return
+      }
+      toast.success('已儲存')
+      onSaved()
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const modal = (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+      <div
+        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="px-5 py-4 border-b border-morandi-muted/20 flex items-center justify-between">
+          <h3 className="font-semibold text-morandi-primary">編輯速記卡（JSON）</h3>
+          <button onClick={onClose} className="text-morandi-muted hover:text-morandi-primary">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="p-5 flex-1 overflow-auto">
+          <p className="text-xs text-morandi-muted mb-2">
+            手動編輯速記卡 JSON（persona / preferences / history / unanswered_questions / summary_text）。
+            存檔後 AI 下次回覆會用這版。下次累積 20 則訊息會 AI 重生覆蓋、想保留就鎖住 ✋。
+          </p>
+          <textarea
+            value={text}
+            onChange={e => { setText(e.target.value); setParseErr(null) }}
+            className="w-full h-96 text-xs font-mono px-3 py-2 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+            spellCheck={false}
+          />
+          {parseErr && <p className="text-xs text-red-600 mt-2">⚠️ {parseErr}</p>}
+        </div>
+        <div className="px-5 py-3 border-t border-morandi-muted/20 flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>取消</Button>
+          <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1">
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+            儲存
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+
+  return typeof document !== 'undefined' ? createPortal(modal, document.body) : null
 }
 
 // ===== 業務紀錄（文字輸入 + 顯示歷史）=====

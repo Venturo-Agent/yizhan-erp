@@ -24,16 +24,18 @@
  */
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Sparkles, MessageSquare, Plug, Settings2 } from 'lucide-react'
+import { Sparkles, MessageSquare, Plug, Settings2, BookOpenCheck } from 'lucide-react'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { AiConversationsTab } from './_components/AiConversationsTab'
 import { AiSetupTab } from './_components/AiSetupTab'
 import { AiSettingsTab } from './_components/AiSettingsTab'
+import { AiRetrospectiveTab } from './_components/AiRetrospectiveTab'
 
 // AI 控制中心暫時隱藏（dashboard tab）：placeholder 頁面、待真實數據量足夠再做統計
 // 之後恢復：加回 import AiDashboardTab + LayoutDashboard icon、TABS 加回 dashboard、default tab 改回 'dashboard'
 const TABS = [
   { value: 'conversations', label: '對話管理', icon: MessageSquare },
+  { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
   { value: 'settings', label: 'AI 設定', icon: Settings2 },
 ] as const
@@ -62,6 +64,7 @@ export default function AiHubPage() {
       onTabChange={handleTabChange}
     >
       {activeTab === 'conversations' && <AiConversationsTab />}
+      {activeTab === 'retrospective' && <AiRetrospectiveTab />}
       {activeTab === 'setup' && <AiSetupTab />}
       {activeTab === 'settings' && <AiSettingsTab />}
     </ContentPageLayout>

@@ -5779,6 +5779,82 @@ export type Database = {
           },
         ]
       }
+      rag_topic_queue: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          example_conversation_ids: string[]
+          example_questions: string[]
+          generated_at: string | null
+          generated_run_id: string | null
+          id: string
+          notes: string | null
+          occurrence_count: number
+          status: string
+          topic_summary: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          example_conversation_ids?: string[]
+          example_questions?: string[]
+          generated_at?: string | null
+          generated_run_id?: string | null
+          id?: string
+          notes?: string | null
+          occurrence_count?: number
+          status?: string
+          topic_summary: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          example_conversation_ids?: string[]
+          example_questions?: string[]
+          generated_at?: string | null
+          generated_run_id?: string | null
+          id?: string
+          notes?: string | null
+          occurrence_count?: number
+          status?: string
+          topic_summary?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rag_topic_queue_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rag_topic_queue_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rag_topic_queue_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       receipt_invoice_allocations: {
         Row: {
           allocated_amount: number
@@ -8741,6 +8817,38 @@ export type Database = {
           },
           {
             foreignKeyName: "workspace_bonus_defaults_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_code_counters: {
+        Row: {
+          code_type: string
+          next_value: number
+          scope: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          code_type: string
+          next_value?: number
+          scope?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          code_type?: string
+          next_value?: number
+          scope?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_code_counters_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
