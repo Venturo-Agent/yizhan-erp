@@ -38,7 +38,14 @@ import { isOpenRouterConfigured } from '@/lib/llm/openrouter-client'
 import { logger } from '@/lib/utils/logger'
 import { parseIntent } from '@/lib/line/line-intent-parser'
 import { composeReply } from '@/lib/line/line-llm-compose'
+import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { filterActive } from '@/lib/data/filter-active'
+import { generateMemorySummary, MAX_FAILED_ATTEMPTS } from '@/lib/ai/memory-summarizer'
 import type { BotContext, LineMessageRow, TourSummary } from '@/types/line.types'
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+// 速記卡觸發門檻：每對話累積 N 則新訊息、AI 自動重寫一張速記卡（William 2026-05-18 拍板）
+const MEMORY_SUMMARY_THRESHOLD = 20
 
 // re-export so existing callers don't break
 export { parseIntent } from '@/lib/line/line-intent-parser'
@@ -98,6 +105,10 @@ export async function processIncomingTextMessage(
       err: err instanceof Error ? err.message : String(err),
     })
   }
+
+  // 1b. inbox conversation id（給速記卡 lookup 用）
+  // recordInboxMessage 已在 webhook router 跑過、conversation row 必存在
+  const conversationId = await findInboxConversationId(ctx.workspaceId, ctx.lineUserId)
 
   // 2. 最近對話 history（William 2026-05-17 拍板改 200 條、含群組對話）
   // Supabase 存的不費錢、上下文越多 LLM 對長期客戶記性越好
@@ -165,6 +176,7 @@ export async function processIncomingTextMessage(
     history,
     tours,
     customerName,
+    conversationId,
   })
 
   // 6. send reply
@@ -178,9 +190,117 @@ export async function processIncomingTextMessage(
     messageType: 'text',
   })
 
+  // 8. 速記卡觸發判斷（fire-and-forget、不阻塞 webhook 回應）
+  // 每對話累積 20 則訊息、AI 自己重寫一張速記卡（William 2026-05-18 拍板）
+  if (conversationId) {
+    void maybeTriggerMemorySummary(ctx.workspaceId, conversationId)
+  }
+
   return {
     replyText,
     llmUsed: isOpenRouterConfigured(),
+  }
+}
+
+// ============================================================================
+// inbox conversation lookup
+// ============================================================================
+
+async function findInboxConversationId(
+  workspaceId: string,
+  lineUserId: string
+): Promise<string | null> {
+  try {
+    const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
+    const { data } = await supabase
+      .from('inbox_conversations')
+      .select('id')
+      .eq('workspace_id', workspaceId)
+      .eq('channel_type', 'line')
+      .eq('external_user_id', lineUserId)
+      .maybeSingle<{ id: string }>()
+    return data?.id ?? null
+  } catch (err) {
+    logger.debug('findInboxConversationId failed (ignored)', {
+      workspaceId,
+      err: err instanceof Error ? err.message : String(err),
+    })
+    return null
+  }
+}
+
+// ============================================================================
+// memory summary trigger（rolling summary memory）
+// ============================================================================
+
+/**
+ * 判斷該不該觸發摘要、是就 fire-and-forget 跑。
+ *
+ * 觸發條件：
+ *   - 對話累積訊息數 - 上次摘要時的數字 >= 20
+ *   - 速記卡失敗次數 < MAX_FAILED_ATTEMPTS（連續失敗暫停）
+ *
+ * 不 await、不阻塞 webhook 回應。失敗在 generateMemorySummary 內部處理（記 last_error）。
+ */
+async function maybeTriggerMemorySummary(
+  workspaceId: string,
+  conversationId: string
+): Promise<void> {
+  try {
+    const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
+
+    // 查當前對話訊息總數
+    const { count: currentCount } = await supabase
+      .from('inbox_messages')
+      .select('id', { count: 'exact', head: true })
+      .eq('conversation_id', conversationId)
+
+    if (!currentCount || currentCount < MEMORY_SUMMARY_THRESHOLD) {
+      // 對話太短、還沒到第一次觸發點（20 則）、跳過
+      return
+    }
+
+    // 查上次摘要的進度
+    const memoryQuery = supabase
+      .from('customer_memories')
+      .select('last_summarized_message_count, failed_attempts')
+      .eq('conversation_id', conversationId)
+    const { data: memory } = await filterActive(memoryQuery)
+      .maybeSingle<{ last_summarized_message_count: number; failed_attempts: number }>()
+
+    const lastCount = memory?.last_summarized_message_count ?? 0
+    const failed = memory?.failed_attempts ?? 0
+
+    if (failed >= MAX_FAILED_ATTEMPTS) {
+      logger.info(`${HANDLER}: memory summary paused (too many failures)`, {
+        conversationId,
+        failed,
+      })
+      return
+    }
+
+    if (currentCount - lastCount < MEMORY_SUMMARY_THRESHOLD) {
+      return
+    }
+
+    logger.info(`${HANDLER}: trigger memory summary`, {
+      conversationId,
+      currentCount,
+      lastCount,
+      diff: currentCount - lastCount,
+    })
+
+    // fire-and-forget、不 await
+    void generateMemorySummary({
+      conversationId,
+      workspaceId,
+      currentMessageCount: currentCount,
+    })
+  } catch (err) {
+    logger.debug('maybeTriggerMemorySummary failed (ignored)', {
+      conversationId,
+      err: err instanceof Error ? err.message : String(err),
+    })
   }
 }
 

@@ -11,8 +11,10 @@
  */
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { filterActive } from '@/lib/data/filter-active'
 import { logger } from '@/lib/utils/logger'
 import { formatDateTaipei } from '@/lib/utils/format-date'
+import type { MemoryJson } from './memory-summarizer'
 
 interface TourRow {
   code: string | null
@@ -42,8 +44,18 @@ interface OrderRow {
   tour_id: string | null
 }
 
+interface MemoryRow {
+  memory_json: MemoryJson | null
+  last_summarized_at: string | null
+}
+
 /**
  * 組對話 thread 的 context string、塞進 system prompt。
+ *
+ * 順序（從「最個人」到「最通用」）：
+ *   1. 客戶速記卡（長期記憶、AI 每 20 則訊息自己重寫）
+ *   2. workspace 可推薦的團
+ *   3. 綁定的 ERP 客戶 + 最近訂單
  */
 export async function buildConversationContext(
   conversationId: string,
@@ -51,7 +63,57 @@ export async function buildConversationContext(
 ): Promise<string> {
   const parts: string[] = []
 
-  // 1. workspace 可推薦的團
+  // 1. 客戶速記卡（long-term memory、ai-brain 只看最近 10 則、靠這個記住更早講過的事）
+  try {
+    const supabase = getSupabaseAdminClient()
+    const memoryQuery = supabase
+      .from('customer_memories')
+      .select('memory_json, last_summarized_at')
+      .eq('conversation_id', conversationId)
+    const { data: memory } = await filterActive(memoryQuery).maybeSingle<MemoryRow>()
+
+    if (memory?.memory_json) {
+      const m = memory.memory_json
+      const memoryLines: string[] = []
+
+      if (m.summary_text) {
+        memoryLines.push(`📋 ${m.summary_text}`)
+      }
+
+      const pref = m.preferences
+      if (pref) {
+        if (pref.avoid && pref.avoid.length > 0) {
+          memoryLines.push(`⚠️ 客戶明確不要 / 避忌：${pref.avoid.join('、')}`)
+        }
+        if (pref.budget_range) {
+          memoryLines.push(`💰 預算：${pref.budget_range}`)
+        }
+        if (pref.destinations && pref.destinations.length > 0) {
+          memoryLines.push(`✈️ 想去：${pref.destinations.join('、')}`)
+        }
+        if (pref.special_needs && pref.special_needs.length > 0) {
+          memoryLines.push(`🔍 特殊需求：${pref.special_needs.join('、')}`)
+        }
+      }
+
+      const hist = m.history
+      if (hist?.rejected && hist.rejected.length > 0) {
+        const rej = hist.rejected.map(r => `${r.tour}（${r.reason}）`).join('、')
+        memoryLines.push(`🚫 已拒絕過的團：${rej}`)
+      }
+      if (hist?.interested && hist.interested.length > 0) {
+        memoryLines.push(`👍 感興趣的團：${hist.interested.join('、')}`)
+      }
+
+      if (memoryLines.length > 0) {
+        parts.push(`【客戶速記卡】（上次更新：${memory.last_summarized_at ?? '剛建立'}）\n${memoryLines.join('\n')}`)
+      }
+    }
+  } catch (error) {
+    logger.debug('buildConversationContext: memory lookup failed', { error })
+  }
+
+  // 2. workspace 可推薦的團
   try {
     const supabase = getSupabaseAdminClient()
     const { data: tours } = await supabase

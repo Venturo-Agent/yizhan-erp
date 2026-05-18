@@ -1505,6 +1505,93 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_memories: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          deleted_at: string | null
+          failed_attempts: number
+          id: string
+          last_error: string | null
+          last_summarized_at: string | null
+          last_summarized_message_count: number
+          memory_json: Json
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          deleted_at?: string | null
+          failed_attempts?: number
+          id?: string
+          last_error?: string | null
+          last_summarized_at?: string | null
+          last_summarized_message_count?: number
+          memory_json?: Json
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          deleted_at?: string | null
+          failed_attempts?: number
+          id?: string
+          last_error?: string | null
+          last_summarized_at?: string | null
+          last_summarized_message_count?: number
+          memory_json?: Json
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_memories_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_memories_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_memories_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_memories_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_memories_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_service_conversations: {
         Row: {
           ai_response: string
@@ -2265,6 +2352,8 @@ export type Database = {
           email: string | null
           employee_number: string
           employee_type: string | null
+          encrypted_bank_account_number: string | null
+          encrypted_id_number: string | null
           english_name: string | null
           hidden_menu_items: string[] | null
           id: string
@@ -2272,6 +2361,7 @@ export type Database = {
           is_dept_manager: boolean
           job_info: Json | null
           job_title: string | null
+          labor_insurance_date: string | null
           login_failed_count: number
           login_locked_until: string | null
           monthly_salary: number | null
@@ -2284,6 +2374,7 @@ export type Database = {
           status: string | null
           terminated_at: string | null
           terminated_by: string | null
+          tourism_join_date: string | null
           updated_at: string | null
           updated_by: string | null
           user_id: string | null
@@ -2314,6 +2405,8 @@ export type Database = {
           email?: string | null
           employee_number: string
           employee_type?: string | null
+          encrypted_bank_account_number?: string | null
+          encrypted_id_number?: string | null
           english_name?: string | null
           hidden_menu_items?: string[] | null
           id?: string
@@ -2321,6 +2414,7 @@ export type Database = {
           is_dept_manager?: boolean
           job_info?: Json | null
           job_title?: string | null
+          labor_insurance_date?: string | null
           login_failed_count?: number
           login_locked_until?: string | null
           monthly_salary?: number | null
@@ -2333,6 +2427,7 @@ export type Database = {
           status?: string | null
           terminated_at?: string | null
           terminated_by?: string | null
+          tourism_join_date?: string | null
           updated_at?: string | null
           updated_by?: string | null
           user_id?: string | null
@@ -2363,6 +2458,8 @@ export type Database = {
           email?: string | null
           employee_number?: string
           employee_type?: string | null
+          encrypted_bank_account_number?: string | null
+          encrypted_id_number?: string | null
           english_name?: string | null
           hidden_menu_items?: string[] | null
           id?: string
@@ -2370,6 +2467,7 @@ export type Database = {
           is_dept_manager?: boolean
           job_info?: Json | null
           job_title?: string | null
+          labor_insurance_date?: string | null
           login_failed_count?: number
           login_locked_until?: string | null
           monthly_salary?: number | null
@@ -2382,6 +2480,7 @@ export type Database = {
           status?: string | null
           terminated_at?: string | null
           terminated_by?: string | null
+          tourism_join_date?: string | null
           updated_at?: string | null
           updated_by?: string | null
           user_id?: string | null
