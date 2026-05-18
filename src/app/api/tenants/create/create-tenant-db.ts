@@ -109,7 +109,6 @@ export async function createWorkspace(
       premium_enabled: false,
       tax_id: trimmedTaxId,
       is_multi_branch: !!isMultiBranch,
-      is_multi_department: false,
       subscription_plan: subscriptionPlan ?? 'custom',
     })
     .select('id')

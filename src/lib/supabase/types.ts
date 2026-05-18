@@ -454,6 +454,7 @@ export type Database = {
         Row: {
           amount: number
           bonus_kind: string | null
+          branch_id: string | null
           created_at: string
           created_by: string | null
           employee_id: string
@@ -471,6 +472,7 @@ export type Database = {
         Insert: {
           amount: number
           bonus_kind?: string | null
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           employee_id: string
@@ -488,6 +490,7 @@ export type Database = {
         Update: {
           amount?: number
           bonus_kind?: string | null
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           employee_id?: string
@@ -503,6 +506,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "bonus_pending_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bonus_pending_employee_id_fkey"
             columns: ["employee_id"]
@@ -1002,6 +1012,7 @@ export type Database = {
       checks: {
         Row: {
           amount: number
+          branch_id: string | null
           check_date: string
           check_number: string
           created_at: string | null
@@ -1015,6 +1026,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          branch_id?: string | null
           check_date: string
           check_number: string
           created_at?: string | null
@@ -1028,6 +1040,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          branch_id?: string | null
           check_date?: string
           check_number?: string
           created_at?: string | null
@@ -1039,7 +1052,15 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "checks_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cities: {
         Row: {
@@ -1259,6 +1280,7 @@ export type Database = {
       }
       contracts: {
         Row: {
+          branch_id: string | null
           code: string
           company_address: string | null
           company_name: string | null
@@ -1294,6 +1316,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          branch_id?: string | null
           code: string
           company_address?: string | null
           company_name?: string | null
@@ -1329,6 +1352,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          branch_id?: string | null
           code?: string
           company_address?: string | null
           company_name?: string | null
@@ -1363,7 +1387,15 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contracts_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       countries: {
         Row: {
@@ -1524,6 +1556,7 @@ export type Database = {
           alternative_phone: string | null
           avatar_url: string | null
           birth_date: string | null
+          branch_id: string | null
           city: string | null
           code: string
           company: string | null
@@ -1576,6 +1609,7 @@ export type Database = {
           alternative_phone?: string | null
           avatar_url?: string | null
           birth_date?: string | null
+          branch_id?: string | null
           city?: string | null
           code: string
           company?: string | null
@@ -1628,6 +1662,7 @@ export type Database = {
           alternative_phone?: string | null
           avatar_url?: string | null
           birth_date?: string | null
+          branch_id?: string | null
           city?: string | null
           code?: string
           company?: string | null
@@ -1677,6 +1712,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "customers_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "customers_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -1709,6 +1751,7 @@ export type Database = {
       disbursement_order_items: {
         Row: {
           amount: number
+          branch_id: string | null
           created_at: string
           created_by: string | null
           disbursement_order_id: string
@@ -1722,6 +1765,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           disbursement_order_id: string
@@ -1735,6 +1779,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           disbursement_order_id?: string
@@ -1747,6 +1792,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "disbursement_order_items_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "disbursement_order_items_created_by_fkey"
             columns: ["created_by"]
@@ -1790,6 +1842,7 @@ export type Database = {
           amount: number
           bank_account_id: string | null
           batch_uuid: string | null
+          branch_id: string | null
           code: string | null
           confirmed_at: string | null
           confirmed_by: string | null
@@ -1820,6 +1873,7 @@ export type Database = {
           amount: number
           bank_account_id?: string | null
           batch_uuid?: string | null
+          branch_id?: string | null
           code?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -1850,6 +1904,7 @@ export type Database = {
           amount?: number
           bank_account_id?: string | null
           batch_uuid?: string | null
+          branch_id?: string | null
           code?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -1877,6 +1932,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "disbursement_orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "disbursement_orders_payment_method_fk"
             columns: ["payment_method_id"]
             isOneToOne: false
@@ -1891,6 +1953,7 @@ export type Database = {
           agency_contact_name: string | null
           agency_contact_phone: string | null
           assigned_at: string | null
+          branch_id: string | null
           cancelled_at: string | null
           completed_at: string | null
           created_at: string | null
@@ -1942,6 +2005,7 @@ export type Database = {
           agency_contact_name?: string | null
           agency_contact_phone?: string | null
           assigned_at?: string | null
+          branch_id?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
           created_at?: string | null
@@ -1993,6 +2057,7 @@ export type Database = {
           agency_contact_name?: string | null
           agency_contact_phone?: string | null
           assigned_at?: string | null
+          branch_id?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
           created_at?: string | null
@@ -2040,6 +2105,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "driver_tasks_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "driver_tasks_supplier_id_fkey"
             columns: ["supplier_id"]
@@ -2930,6 +3002,7 @@ export type Database = {
       }
       invoice_batches: {
         Row: {
+          branch_id: string | null
           created_at: string
           created_by: string | null
           id: string
@@ -2943,6 +3016,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -2956,6 +3030,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -2969,6 +3044,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "invoice_batches_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invoice_batches_created_by_fkey"
             columns: ["created_by"]
@@ -3002,6 +3084,7 @@ export type Database = {
       invoices: {
         Row: {
           batch_id: string | null
+          branch_id: string | null
           created_at: string
           created_by: string | null
           customer_id: string
@@ -3021,6 +3104,7 @@ export type Database = {
         }
         Insert: {
           batch_id?: string | null
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           customer_id: string
@@ -3040,6 +3124,7 @@ export type Database = {
         }
         Update: {
           batch_id?: string | null
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           customer_id?: string
@@ -3063,6 +3148,13 @@ export type Database = {
             columns: ["batch_id"]
             isOneToOne: false
             referencedRelation: "invoice_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
@@ -3116,6 +3208,7 @@ export type Database = {
           _synced_at: string | null
           archived_at: string | null
           author_name: string
+          branch_id: string | null
           cancellation_policy: string[] | null
           city: string
           closed_at: string | null
@@ -3185,6 +3278,7 @@ export type Database = {
           _synced_at?: string | null
           archived_at?: string | null
           author_name?: string
+          branch_id?: string | null
           cancellation_policy?: string[] | null
           city: string
           closed_at?: string | null
@@ -3254,6 +3348,7 @@ export type Database = {
           _synced_at?: string | null
           archived_at?: string | null
           author_name?: string
+          branch_id?: string | null
           cancellation_policy?: string[] | null
           city?: string
           closed_at?: string | null
@@ -3332,6 +3427,13 @@ export type Database = {
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "itineraries_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
         ]
       }
       journal_lines: {
@@ -3375,6 +3477,7 @@ export type Database = {
       }
       journal_vouchers: {
         Row: {
+          branch_id: string | null
           company_unit: string | null
           created_at: string | null
           created_by: string | null
@@ -3394,6 +3497,7 @@ export type Database = {
           workspace_id: string | null
         }
         Insert: {
+          branch_id?: string | null
           company_unit?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -3413,6 +3517,7 @@ export type Database = {
           workspace_id?: string | null
         }
         Update: {
+          branch_id?: string | null
           company_unit?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -3431,7 +3536,15 @@ export type Database = {
           voucher_no?: string
           workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "journal_vouchers_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kb_agencies: {
         Row: {
@@ -4425,6 +4538,7 @@ export type Database = {
           balance_amount: number | null
           balance_receipt_no: string | null
           birth_date: string | null
+          branch_id: string | null
           checked_in: boolean | null
           checked_in_at: string | null
           chinese_name: string | null
@@ -4480,6 +4594,7 @@ export type Database = {
           balance_amount?: number | null
           balance_receipt_no?: string | null
           birth_date?: string | null
+          branch_id?: string | null
           checked_in?: boolean | null
           checked_in_at?: string | null
           chinese_name?: string | null
@@ -4535,6 +4650,7 @@ export type Database = {
           balance_amount?: number | null
           balance_receipt_no?: string | null
           birth_date?: string | null
+          branch_id?: string | null
           checked_in?: boolean | null
           checked_in_at?: string | null
           chinese_name?: string | null
@@ -4586,6 +4702,13 @@ export type Database = {
           workspace_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "order_members_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "order_members_created_by_fkey"
             columns: ["created_by"]
@@ -4683,6 +4806,7 @@ export type Database = {
           adult_count: number | null
           assistant: string | null
           assistant_id: string | null
+          branch_id: string | null
           contact_email: string | null
           contact_person: string
           contact_phone: string | null
@@ -4717,6 +4841,7 @@ export type Database = {
           adult_count?: number | null
           assistant?: string | null
           assistant_id?: string | null
+          branch_id?: string | null
           contact_email?: string | null
           contact_person: string
           contact_phone?: string | null
@@ -4751,6 +4876,7 @@ export type Database = {
           adult_count?: number | null
           assistant?: string | null
           assistant_id?: string | null
+          branch_id?: string | null
           contact_email?: string | null
           contact_person?: string
           contact_phone?: string | null
@@ -4787,6 +4913,13 @@ export type Database = {
             columns: ["assistant_id"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
@@ -4937,6 +5070,7 @@ export type Database = {
           advanced_by: string | null
           advanced_by_name: string | null
           amount: number
+          branch_id: string | null
           category: string | null
           created_at: string | null
           created_by: string | null
@@ -4963,6 +5097,7 @@ export type Database = {
           advanced_by?: string | null
           advanced_by_name?: string | null
           amount?: number
+          branch_id?: string | null
           category?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -4989,6 +5124,7 @@ export type Database = {
           advanced_by?: string | null
           advanced_by_name?: string | null
           amount?: number
+          branch_id?: string | null
           category?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -5020,6 +5156,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payment_request_items_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payment_request_items_payment_method_id_fkey"
             columns: ["payment_method_id"]
             isOneToOne: false
@@ -5040,6 +5183,13 @@ export type Database = {
             referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payment_request_items_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
         ]
       }
       payment_requests: {
@@ -5050,6 +5200,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           batch_id: string | null
+          branch_id: string | null
           budget_warning: boolean | null
           code: string
           created_at: string | null
@@ -5091,6 +5242,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           batch_id?: string | null
+          branch_id?: string | null
           budget_warning?: boolean | null
           code: string
           created_at?: string | null
@@ -5132,6 +5284,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           batch_id?: string | null
+          branch_id?: string | null
           budget_warning?: boolean | null
           code?: string
           created_at?: string | null
@@ -5166,7 +5319,22 @@ export type Database = {
           updated_by?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payment_requests_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_requests_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       personal_expenses: {
         Row: {
@@ -5255,6 +5423,7 @@ export type Database = {
           adult_count: number | null
           airport_code: string | null
           balance_amount: number | null
+          branch_id: string | null
           categories: Json | null
           child_count: number | null
           code: string | null
@@ -5338,6 +5507,7 @@ export type Database = {
           adult_count?: number | null
           airport_code?: string | null
           balance_amount?: number | null
+          branch_id?: string | null
           categories?: Json | null
           child_count?: number | null
           code?: string | null
@@ -5421,6 +5591,7 @@ export type Database = {
           adult_count?: number | null
           airport_code?: string | null
           balance_amount?: number | null
+          branch_id?: string | null
           categories?: Json | null
           child_count?: number | null
           code?: string | null
@@ -5499,11 +5670,20 @@ export type Database = {
           versions?: Json | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quotes_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       receipt_invoice_allocations: {
         Row: {
           allocated_amount: number
+          branch_id: string | null
           created_at: string
           id: string
           invoice_id: string
@@ -5512,6 +5692,7 @@ export type Database = {
         }
         Insert: {
           allocated_amount: number
+          branch_id?: string | null
           created_at?: string
           id?: string
           invoice_id: string
@@ -5520,6 +5701,7 @@ export type Database = {
         }
         Update: {
           allocated_amount?: number
+          branch_id?: string | null
           created_at?: string
           id?: string
           invoice_id?: string
@@ -5527,6 +5709,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "receipt_invoice_allocations_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "receipt_invoice_allocations_invoice_id_fkey"
             columns: ["invoice_id"]
@@ -5556,6 +5745,7 @@ export type Database = {
           actual_amount: number | null
           bank_account_last5: string | null
           batch_id: string | null
+          branch_id: string | null
           confirmed_at: string | null
           confirmed_by: string | null
           created_at: string | null
@@ -5601,6 +5791,7 @@ export type Database = {
           actual_amount?: number | null
           bank_account_last5?: string | null
           batch_id?: string | null
+          branch_id?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
           created_at?: string | null
@@ -5646,6 +5837,7 @@ export type Database = {
           actual_amount?: number | null
           bank_account_last5?: string | null
           batch_id?: string | null
+          branch_id?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
           created_at?: string | null
@@ -5692,6 +5884,13 @@ export type Database = {
             columns: ["payment_method_id"]
             isOneToOne: false
             referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
@@ -6380,6 +6579,7 @@ export type Database = {
           allowances: number
           attendance_bonus: number
           base_salary: number
+          branch_id: string | null
           breakdown: Json | null
           created_at: string
           deductions: number
@@ -6396,6 +6596,7 @@ export type Database = {
           allowances?: number
           attendance_bonus?: number
           base_salary?: number
+          branch_id?: string | null
           breakdown?: Json | null
           created_at?: string
           deductions?: number
@@ -6412,6 +6613,7 @@ export type Database = {
           allowances?: number
           attendance_bonus?: number
           base_salary?: number
+          branch_id?: string | null
           breakdown?: Json | null
           created_at?: string
           deductions?: number
@@ -6425,6 +6627,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "salary_settlement_items_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "salary_settlement_items_employee_id_fkey"
             columns: ["employee_id"]
@@ -6450,6 +6659,7 @@ export type Database = {
       }
       salary_settlements: {
         Row: {
+          branch_id: string | null
           created_at: string
           created_by: string | null
           employee_count: number
@@ -6466,6 +6676,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           employee_count?: number
@@ -6482,6 +6693,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           employee_count?: number
@@ -6498,6 +6710,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "salary_settlements_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "salary_settlements_payment_request_id_fkey"
             columns: ["payment_request_id"]
@@ -6925,6 +7144,7 @@ export type Database = {
         Row: {
           bonus: number
           bonus_type: number
+          branch_id: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -6941,6 +7161,7 @@ export type Database = {
         Insert: {
           bonus?: number
           bonus_type: number
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -6957,6 +7178,7 @@ export type Database = {
         Update: {
           bonus?: number
           bonus_type?: number
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -6970,7 +7192,15 @@ export type Database = {
           updated_by?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tour_bonus_settings_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_custom_cost_fields: {
         Row: {
@@ -7151,6 +7381,7 @@ export type Database = {
       }
       tour_documents: {
         Row: {
+          branch_id: string | null
           created_at: string | null
           created_by: string | null
           description: string | null
@@ -7168,6 +7399,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -7185,6 +7417,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          branch_id?: string | null
           created_at?: string | null
           created_by?: string | null
           description?: string | null
@@ -7201,7 +7434,15 @@ export type Database = {
           uploaded_by?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tour_documents_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_itinerary_items: {
         Row: {
@@ -7214,6 +7455,7 @@ export type Database = {
           booking_confirmed_at: string | null
           booking_reference: string | null
           booking_status: string | null
+          branch_id: string | null
           breakfast_preset: string | null
           category: string | null
           child_price: number | null
@@ -7303,6 +7545,7 @@ export type Database = {
           booking_confirmed_at?: string | null
           booking_reference?: string | null
           booking_status?: string | null
+          branch_id?: string | null
           breakfast_preset?: string | null
           category?: string | null
           child_price?: number | null
@@ -7392,6 +7635,7 @@ export type Database = {
           booking_confirmed_at?: string | null
           booking_reference?: string | null
           booking_status?: string | null
+          branch_id?: string | null
           breakfast_preset?: string | null
           category?: string | null
           child_price?: number | null
@@ -7471,10 +7715,19 @@ export type Database = {
           vehicle_type?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tour_itinerary_items_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_meal_settings: {
         Row: {
+          branch_id: string | null
           created_at: string | null
           day_number: number
           display_order: number | null
@@ -7487,6 +7740,7 @@ export type Database = {
           workspace_id: string | null
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string | null
           day_number: number
           display_order?: number | null
@@ -7499,6 +7753,7 @@ export type Database = {
           workspace_id?: string | null
         }
         Update: {
+          branch_id?: string | null
           created_at?: string | null
           day_number?: number
           display_order?: number | null
@@ -7510,7 +7765,15 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tour_meal_settings_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_member_fields: {
         Row: {
@@ -7842,6 +8105,7 @@ export type Database = {
           allowance_amount: number
           allowance_date: string | null
           allowance_number: string | null
+          branch_id: string | null
           created_at: string
           id: string
           invoice_id: string
@@ -7860,6 +8124,7 @@ export type Database = {
           allowance_amount?: number
           allowance_date?: string | null
           allowance_number?: string | null
+          branch_id?: string | null
           created_at?: string
           id?: string
           invoice_id: string
@@ -7878,6 +8143,7 @@ export type Database = {
           allowance_amount?: number
           allowance_date?: string | null
           allowance_number?: string | null
+          branch_id?: string | null
           created_at?: string
           id?: string
           invoice_id?: string
@@ -7893,6 +8159,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "travel_allowances_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "travel_allowances_invoice_id_fkey"
             columns: ["invoice_id"]
@@ -7918,6 +8191,7 @@ export type Database = {
       }
       travel_invoice_voids: {
         Row: {
+          branch_id: string | null
           created_at: string
           id: string
           invoice_id: string
@@ -7928,6 +8202,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string
           id?: string
           invoice_id: string
@@ -7938,6 +8213,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          branch_id?: string | null
           created_at?: string
           id?: string
           invoice_id?: string
@@ -7948,6 +8224,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "travel_invoice_voids_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "travel_invoice_voids_invoice_id_fkey"
             columns: ["invoice_id"]
@@ -7973,6 +8256,7 @@ export type Database = {
       }
       travel_invoices: {
         Row: {
+          branch_id: string | null
           buyer_address: string | null
           buyer_ban: string | null
           buyer_email: string | null
@@ -8003,6 +8287,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          branch_id?: string | null
           buyer_address?: string | null
           buyer_ban?: string | null
           buyer_email?: string | null
@@ -8033,6 +8318,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          branch_id?: string | null
           buyer_address?: string | null
           buyer_ban?: string | null
           buyer_email?: string | null
@@ -8063,6 +8349,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "travel_invoices_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "travel_invoices_issued_by_fkey"
             columns: ["issued_by"]
@@ -9121,13 +9414,13 @@ export type Database = {
           employee_number_prefix: string | null
           enabled_tour_categories: string[] | null
           fax: string | null
+          finance_centralized: boolean
           home_country_code: string | null
           icon: string | null
           id: string
           invoice_seal_image_url: string | null
           is_active: boolean | null
           is_multi_branch: boolean
-          is_multi_department: boolean
           leave_policy: string
           legal_name: string | null
           logo_url: string | null
@@ -9175,13 +9468,13 @@ export type Database = {
           employee_number_prefix?: string | null
           enabled_tour_categories?: string[] | null
           fax?: string | null
+          finance_centralized?: boolean
           home_country_code?: string | null
           icon?: string | null
           id?: string
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
           is_multi_branch?: boolean
-          is_multi_department?: boolean
           leave_policy?: string
           legal_name?: string | null
           logo_url?: string | null
@@ -9229,13 +9522,13 @@ export type Database = {
           employee_number_prefix?: string | null
           enabled_tour_categories?: string[] | null
           fax?: string | null
+          finance_centralized?: boolean
           home_country_code?: string | null
           icon?: string | null
           id?: string
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
           is_multi_branch?: boolean
-          is_multi_department?: boolean
           leave_policy?: string
           legal_name?: string | null
           logo_url?: string | null
@@ -9295,6 +9588,7 @@ export type Database = {
       worldmove_esim_items: {
         Row: {
           activation_code: string | null
+          branch_id: string | null
           created_at: string
           data_limit_mb: number | null
           data_used_mb: number
@@ -9318,6 +9612,7 @@ export type Database = {
         }
         Insert: {
           activation_code?: string | null
+          branch_id?: string | null
           created_at?: string
           data_limit_mb?: number | null
           data_used_mb?: number
@@ -9341,6 +9636,7 @@ export type Database = {
         }
         Update: {
           activation_code?: string | null
+          branch_id?: string | null
           created_at?: string
           data_limit_mb?: number | null
           data_used_mb?: number
@@ -9363,6 +9659,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "worldmove_esim_items_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "worldmove_esim_items_order_id_fkey"
             columns: ["order_id"]
@@ -9388,6 +9691,7 @@ export type Database = {
       }
       worldmove_orders: {
         Row: {
+          branch_id: string | null
           created_at: string
           created_by: string | null
           customer_email: string | null
@@ -9408,6 +9712,7 @@ export type Database = {
           worldmove_order_id: string | null
         }
         Insert: {
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           customer_email?: string | null
@@ -9428,6 +9733,7 @@ export type Database = {
           worldmove_order_id?: string | null
         }
         Update: {
+          branch_id?: string | null
           created_at?: string
           created_by?: string | null
           customer_email?: string | null
@@ -9448,6 +9754,13 @@ export type Database = {
           worldmove_order_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "worldmove_orders_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "worldmove_orders_created_by_fkey"
             columns: ["created_by"]
@@ -9583,6 +9896,14 @@ export type Database = {
       auto_open_tour_conversations_with_logging: {
         Args: never
         Returns: undefined
+      }
+      can_access_branch: {
+        Args: { p_cap?: string; row_branch_id: string }
+        Returns: boolean
+      }
+      can_access_branch_finance: {
+        Args: { p_cap?: string; row_branch_id: string }
+        Returns: boolean
       }
       compute_tour_pl: {
         Args: { p_tour_id: string }

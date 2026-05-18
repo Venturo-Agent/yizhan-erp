@@ -194,8 +194,6 @@ export const CAPABILITIES = {
   // ════ Non-module（scope / 全域 capability、不屬任何 module）════
   CROSS_BRANCH_READ: 'cross_branch.read',
   CROSS_BRANCH_WRITE: 'cross_branch.write',
-  CROSS_DEPARTMENT_READ: 'cross_department.read',
-  CROSS_DEPARTMENT_WRITE: 'cross_department.write',
 
   // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════
   CHANNELS_MANAGE: 'channels.manage',

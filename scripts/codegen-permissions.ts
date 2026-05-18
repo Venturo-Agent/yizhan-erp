@@ -224,8 +224,6 @@ export function getAllModulesSorted(): ModuleDefinition[] {
 const NON_MODULE_CAPABILITIES = new Set([
   'cross_branch.read',
   'cross_branch.write',
-  'cross_department.read',
-  'cross_department.write',
 ])
 
 /**
