@@ -34,6 +34,7 @@ import { DisbursementDetailDialog } from './DisbursementDetailDialog'
 import { DisbursementPrintDialog } from './DisbursementPrintDialog'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
+import { useBranches } from '@/data/hooks/useBranches'
 import { apiPost } from '@/lib/api/client'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth-store'
@@ -116,6 +117,7 @@ export function DisbursementPage() {
 
   const user = useAuthStore(state => state.user)
   const bankGroupSummaries = useDisbursementBankGroupSummaries(user?.workspace_id)
+  const { branches } = useBranches()
   const { can, loading: permLoading } = useCapabilities()
   const canManage = can(CAPABILITIES.FINANCE_MANAGE_DISBURSEMENT)
 
@@ -141,6 +143,20 @@ export function DisbursementPage() {
             {String(value || '自動產生')}
           </div>
         ),
+      },
+      {
+        key: 'branch_id' as keyof DisbursementOrder,
+        label: '分公司',
+        width: '100px',
+        render: (_value: unknown, row: DisbursementOrder) => {
+          const branchId = (row as unknown as { branch_id?: string | null }).branch_id
+          const branch = branches.find(b => b.id === branchId)
+          return (
+            <div className={`text-sm ${branch ? 'text-morandi-primary' : 'text-morandi-muted'}`}>
+              {branch?.name || '—'}
+            </div>
+          )
+        },
       },
       {
         key: 'disbursement_date',
@@ -193,7 +209,7 @@ export function DisbursementPage() {
         ),
       },
     ],
-    [payment_requests, bankGroupSummaries]
+    [payment_requests, bankGroupSummaries, branches]
   )
 
   // 點擊列：pending → 編輯、paid → 詳情

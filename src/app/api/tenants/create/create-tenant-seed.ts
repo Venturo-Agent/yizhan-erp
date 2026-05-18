@@ -150,6 +150,9 @@ export async function seedRolesAndCapabilities(
       })
     }
   })
+  // 跨域 capability：非 MODULES 內定義、必須額外加給系統主管
+  // 包括跨分公司讀寫（branch 隔離 epic 2026-05-18）
+  ;['cross_branch.read', 'cross_branch.write'].forEach(c => adminCapabilityCodes.add(c))
 
   const adminCapRows = Array.from(adminCapabilityCodes).map(code => ({
     role_id: adminRole.id,

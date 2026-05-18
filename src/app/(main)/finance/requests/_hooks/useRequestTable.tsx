@@ -5,9 +5,11 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { DateCell, CurrencyCell } from '@/components/table-cells'
 import { getStatusLabelFor } from '@/lib/design/status-tone-map'
 import { useTranslations } from 'next-intl'
+import { useBranches } from '@/data/hooks/useBranches'
 
 export function useRequestTable(payment_requests: PaymentRequest[]) {
   const t = useTranslations('finance')
+  const { branches } = useBranches()
   // Table columns configuration
   const tableColumns: TableColumn<PaymentRequest>[] = useMemo(
     () => [
@@ -21,6 +23,20 @@ export function useRequestTable(payment_requests: PaymentRequest[]) {
           return (
             <div className="font-medium text-morandi-primary">
               {displayCode || <span className="text-morandi-muted">—</span>}
+            </div>
+          )
+        },
+      },
+      {
+        key: 'branch_id',
+        label: '分公司',
+        sortable: false,
+        render: (_value: unknown, row: PaymentRequest) => {
+          const branchId = (row as unknown as { branch_id?: string | null }).branch_id
+          const branch = branches.find(b => b.id === branchId)
+          return (
+            <div className={`text-sm ${branch ? 'text-morandi-primary' : 'text-morandi-muted'}`}>
+              {branch?.name || '—'}
             </div>
           )
         },
@@ -83,7 +99,7 @@ export function useRequestTable(payment_requests: PaymentRequest[]) {
         },
       },
     ],
-    [t]
+    [t, branches]
   )
 
   // Sort function
