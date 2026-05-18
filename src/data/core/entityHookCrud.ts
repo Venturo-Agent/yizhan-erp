@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase/client'
 import { invalidate_cache_pattern } from '@/lib/cache/indexeddb-cache'
 import { logger } from '@/lib/utils/logger'
 import { generateUUID, getCurrentUserContext, TABLE_CODE_PREFIX } from './entityHookCache'
+import { getRegisteredKeysForTable } from './entityHookRegistry'
 import type { BaseEntity, EntityCreateData } from './types'
 
 // ============================================
@@ -33,13 +34,21 @@ export interface CrudContext {
 // ============================================
 
 export async function invalidateEntity(ctx: CrudContext): Promise<void> {
-  // 5/18 William 拍板：startsWith(prefix) predicate 對 SWR mutate 行為不可靠、
-  // 全 app 寫入後普遍要 F5 才看得到結果（收款管理 / channel / 出納 / 全部）。
-  // 改 `() => true` 強制全 cache revalidate、寫入後所有頁面 hook 一起重撈。
-  // tradeoff：寫入瞬間 Supabase 讀取量衝高（一次性 burst、不是持續）、
-  // 換來 user「寫完就看到」的體驗、跟 line ai hub 的 apiMutate 同等級。
+  // 5/18 重做（William 拍板「完整修復」）：
+  //
+  // 原本走 globalMutate(predicate, undefined, { revalidate: true })、靠 SWR
+  // iterate cache 比對 prefix 觸發 revalidation。實測對 entity hook 的 cache
+  // key 結構（包 select hash + filter JSON）行為不可靠、寫完看不到 server
+  // 真實狀態、要 F5。
+  //
+  // 改用 entityHookRegistry：useList / useListSlim / useDictionary mount 時
+  // 把具體 swrKey 註冊進 module-level Map、unmount 移除。invalidateEntity
+  // 從該 table 對應的 Set 撈所有 swrKey、對每個 string key 直接呼叫
+  // globalMutate(key) — SWR 對單一 string key 的行為穩定可靠、跟 line ai hub
+  // apiMutate 同概念。
+  const keys = getRegisteredKeysForTable(ctx.tableName)
   await Promise.all([
-    globalMutate(() => true, undefined, { revalidate: true }),
+    ...keys.map(key => globalMutate(key)),
     invalidate_cache_pattern(ctx.cacheKeyPrefix),
   ])
 }

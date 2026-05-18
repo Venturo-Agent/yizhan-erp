@@ -17,6 +17,7 @@
  *   - entityHookCrud.ts     — createEntity / updateEntity / removeEntity / batchRemoveEntities / invalidateEntity
  */
 
+import { useEffect } from 'react'
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
 import type {  } from '@/lib/supabase/typed-client'
@@ -45,6 +46,7 @@ import {
   WORKSPACE_SCOPED_TABLES,
 } from './entityHookCache'
 import { useRealtimeSync } from './entityHookRealtime'
+import { registerSwrKey, unregisterSwrKey } from './entityHookRegistry'
 import {
   type CrudContext,
   createEntity,
@@ -174,6 +176,15 @@ export function createEntityHook<T extends BaseEntity>(
     const swrKey = isReady && enabled ? `${cacheKeyList}${filterKey ? ':' + filterKey : ''}` : null
     const idb_fallback = useIdbFallback<T[]>(swrKey)
 
+    // 註冊 swrKey 進 registry、invalidateEntity 才能對具體 key 呼叫 mutate
+    useEffect(() => {
+      if (!swrKey) return
+      registerSwrKey(tableName, swrKey)
+      return () => {
+        unregisterSwrKey(tableName, swrKey)
+      }
+    }, [swrKey])
+
     const { data, error, isLoading, mutate } = useSWR<T[]>(
       swrKey,
       async () => {
@@ -256,6 +267,15 @@ export function createEntityHook<T extends BaseEntity>(
     const swrKey = isReady && enabled ? cacheKeySlim : null
     const idb_fallback = useIdbFallback<T[]>(swrKey)
 
+    // 註冊 swrKey 進 registry（invalidateEntity 對具體 key call mutate）
+    useEffect(() => {
+      if (!swrKey) return
+      registerSwrKey(tableName, swrKey)
+      return () => {
+        unregisterSwrKey(tableName, swrKey)
+      }
+    }, [swrKey])
+
     const { data, error, isLoading, mutate } = useSWR<T[]>(
       swrKey,
       async () => {
@@ -313,6 +333,15 @@ export function createEntityHook<T extends BaseEntity>(
     const swrKey = isReady && id ? `${cacheKeyPrefix}:detail:${id}` : null
     const idb_fallback = useIdbFallback<T | null>(swrKey)
 
+    // 註冊 swrKey 進 registry
+    useEffect(() => {
+      if (!swrKey) return
+      registerSwrKey(tableName, swrKey)
+      return () => {
+        unregisterSwrKey(tableName, swrKey)
+      }
+    }, [swrKey])
+
     const { data, error, isLoading, mutate } = useSWR<T | null>(
       swrKey,
       async () => {
@@ -365,6 +394,15 @@ export function createEntityHook<T extends BaseEntity>(
   function usePaginated(params: PaginatedParams): PaginatedResult<T> {
     const { isReady, hasHydrated } = useAuth()
     const swrKey = isReady ? `${cacheKeyPrefix}:paginated:${JSON.stringify(params)}` : null
+
+    // 註冊 swrKey 進 registry
+    useEffect(() => {
+      if (!swrKey) return
+      registerSwrKey(tableName, swrKey)
+      return () => {
+        unregisterSwrKey(tableName, swrKey)
+      }
+    }, [swrKey])
 
     const { data, error, isLoading, mutate } = useSWR(
       swrKey,
