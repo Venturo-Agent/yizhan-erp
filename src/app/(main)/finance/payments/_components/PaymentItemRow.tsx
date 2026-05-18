@@ -240,28 +240,24 @@ export function PaymentItemRow({
               </Button>
             )}
           </div>
-          {item.fees && item.fees > 0 ? (
-            <div className="text-[0.588rem] text-morandi-muted mt-0.5">
-              {t('paymentItemFee')} {formatMoney(item.fees)}
-            </div>
-          ) : null}
         </td>
 
-        {/* 實收金額 + 刪除：只有核帳權限（finance.payments-confirm.write）可見可填 */}
+        {/* 實收金額 + 手續費 + 刪除：只有核帳權限（finance.payments-confirm.write）可見可填
+            confirmed 後仍可改、會計對帳時直接覆蓋（覆蓋紀錄寫進 receipts.notes） */}
         {canConfirmReceipt && (
           <>
             <td className="py-2 px-3 border-b border-border/50 text-right">
               <div className="flex items-center justify-end gap-2">
                 <input
                   type="text"
-                  inputMode="numeric"
+                  inputMode="decimal"
                   value={item.actual_amount ? formatMoney(item.actual_amount) : ''}
                   onChange={e => {
                     // 5/13 W 反饋：全形數字 → 半形
                     const raw = e.target.value
                       .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
                       .replace(/,/g, '')
-                    const num = parseInt(raw, 10)
+                    const num = parseFloat(raw)
                     onUpdate(item.id, { actual_amount: isNaN(num) ? 0 : num })
                   }}
                   placeholder="0"
@@ -279,6 +275,26 @@ export function PaymentItemRow({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 )}
+              </div>
+              {/* 手續費小 input（可空、可改、跟實收同欄） */}
+              <div className="flex items-center justify-end gap-1 mt-0.5">
+                <span className="text-[0.65rem] text-morandi-muted shrink-0">
+                  {t('paymentItemFee')}
+                </span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={item.fees ? formatMoney(item.fees) : ''}
+                  onChange={e => {
+                    const raw = e.target.value
+                      .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+                      .replace(/,/g, '')
+                    const num = parseFloat(raw)
+                    onUpdate(item.id, { fees: isNaN(num) ? 0 : num })
+                  }}
+                  placeholder="0"
+                  className="input-no-focus w-16 bg-transparent text-[0.65rem] text-morandi-muted text-right"
+                />
               </div>
             </td>
           </>

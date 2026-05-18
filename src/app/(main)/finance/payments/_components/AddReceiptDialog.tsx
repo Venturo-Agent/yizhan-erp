@@ -212,10 +212,42 @@ export function AddReceiptDialog({
             .eq('id', receiptId)
           if (error) throw error
         }
+
+        // 已確認的單在這次儲存時、若實收 / 手續費被覆蓋、append 覆蓋紀錄到 notes
+        // 為什麼：對帳時會計可能要把系統算的 fee（13800×2% + 1.68 = 277.68）改成銀行實際扣款、
+        // 留紀錄才知道差額為什麼出現（user 5/18 要求）
+        let submitItems = paymentItems
+        if (isConfirmed) {
+          const firstItem = paymentItems[0]
+          const oldActual = Number(editingReceipt.actual_amount || 0)
+          const oldFees = Number(
+            (editingReceipt as unknown as { fees?: number | null }).fees || 0
+          )
+          const newActual = Number(firstItem?.actual_amount || 0)
+          const newFees = Number(firstItem?.fees || 0)
+
+          if (oldActual !== newActual || oldFees !== newFees) {
+            const ts = new Date()
+              .toLocaleString('zh-TW', { hour12: false })
+              .replace(/\//g, '-')
+            const name =
+              user?.display_name ||
+              user?.chinese_name ||
+              user?.email ||
+              (user?.id ? user.id.slice(0, 8) : 'unknown')
+            const auditLine = `[${ts} ${name} 覆蓋] 實收 ${oldActual} → ${newActual}, 手續費 ${oldFees} → ${newFees}`
+            const newNotes =
+              (firstItem?.notes ? firstItem.notes + '\n' : '') + auditLine
+            submitItems = paymentItems.map((it, i) =>
+              i === 0 ? { ...it, notes: newNotes } : it
+            )
+          }
+        }
+
         const result = await updateReceiptWithItems({
           receipt: editingReceipt,
           formData,
-          paymentItems,
+          paymentItems: submitItems,
           orderInfo: selectedOrder ? { customer_id: selectedOrder.customer_id } : null,
           userId: user.id,
           workspaceId: user.workspace_id,
