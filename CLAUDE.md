@@ -1,35 +1,7 @@
 # CLAUDE.md — 一棧 ERP（yizhan-erp）
 
 > 最後重寫：2026-05-13；更名記錄：venturo-aierp → venturo-atlas → yizhan-erp（2026-05-18 本地資料夾正式對齊 GitHub）。GitHub repo：Venturo-Agent/yizhan-erp。
-
----
-
-## 🔒 戰略凍結中（2026-05-13 William 拍板）
-
-**yizhan-erp 進入「修復 + 測試 + 上線」階段、凍結新功能開發**。
-詳細戰略地圖：`Logan-Workspace/2026-05-13-venturo-aierp-上線戰略地圖.md`
-
-**🚩 當前戰場（可做）**：
-- Pooler URL 換完（CI DB-side audit）
-- DBA monitoring SOP / CSP headers
-- Preset Role / Onboarding wizard（解 HR 學習成本）
-- 業務 e2e 全流程（要 staging）
-- 試用客戶 1-2 家
-- 上線後 bug 除錯
-
-**🔒 凍結戰場（一律不准動）**：
-- AI 整合（aitoearn / xhs / capture bot / LINE OA AI）
-- Billing 系統 / 多語言 / 多 region
-- Sidebar Phase 4B 真實衍生（用 audit detector 守、不重寫 551 行）
-- 新 audit detector / 新規範文件（既有夠用）
-- 「順手優化」/「再乾淨一點」/「nice-to-have」
-
-**目標**：3 個月內第一個付費客戶（2026-08-13）。
-
-**Logan 守線**：
-- 任何 cctk session 想做「凍結戰場」項 = 立即提醒「凍結中」+ 回頭看戰略地圖
-- 例外：真實 bug / 紅線違反 / 資安洞 / William 明確拍板新優先
-- 紀律契約：少做、做對、做完
+> **2026-05-18 完全解凍**：原戰略凍結（5-13 設、限制只做修復不做新功能）已撤銷。發現 SWR 抽象層全 app 卡 stale 是真實 bug、不是 nice-to-have。上線目標時程往後推、回到正常開發節奏、不再用「凍結戰場」當理由綁手綁腳。
 
 ---
 
