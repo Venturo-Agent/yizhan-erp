@@ -140,6 +140,8 @@ export async function createEntity<T extends BaseEntity>(
           (current: T[] | undefined) => [...(current || []), createdRow],
           { revalidate: true }
         )
+        // 5/18 修：樂觀更新 + globalMutate predicate 不可靠、補一次全 cache revalidate
+        await invalidateEntity(ctx)
         return createdRow
       }
 
@@ -206,6 +208,10 @@ export async function updateEntity<T extends BaseEntity>(
       throw error
     }
 
+    // 5/18 修：成功也要 invalidate、不然 UI 卡 stale cache 要 F5
+    // 樂觀更新已經把 row update 進去、但 trigger / FK cascade / DB default 後可能跟 server 真實值不同
+    // server-side 真正狀態必須 refetch 才確認
+    await invalidateEntity(ctx)
     return { id, ...updateData } as unknown as T
   } catch (err) {
     await invalidateEntity(ctx)
@@ -242,6 +248,8 @@ export async function removeEntity<T extends BaseEntity>(
       throw error
     }
 
+    // 5/18 修：成功也要 invalidate（跟 update 同理）
+    await invalidateEntity(ctx)
     return true
   } catch (err) {
     await invalidateEntity(ctx)
@@ -281,6 +289,8 @@ export async function batchRemoveEntities<T extends BaseEntity>(
       throw error
     }
 
+    // 5/18 修：成功也要 invalidate（跟 update / remove 同理）
+    await invalidateEntity(ctx)
     return true
   } catch (err) {
     await invalidateEntity(ctx)
