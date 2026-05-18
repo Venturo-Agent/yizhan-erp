@@ -31,9 +31,9 @@ export default function OrdersPage() {
   const PAGE_SIZE = 15
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
-  // 業務員視角 toggle：'all' = 全部訂單、'mine' = 業務員是我或我建立的
-  // 預設「全部」、切到「只看我的」記住偏好（localStorage）
-  const [viewMode, setViewMode] = useState<OrdersViewMode>('all')
+  // 業務員視角 toggle：'all' = 全部訂單（需 cross_branch.read）、'mine' = 只看我的
+  // 預設「只看我的」、切換記住偏好（localStorage）
+  const [viewMode, setViewMode] = useState<OrdersViewMode>('mine')
 
   // hydrate localStorage 偏好（必 useEffect、避免 SSR mismatch）
   useEffect(() => {
@@ -42,8 +42,9 @@ export default function OrdersPage() {
       if (saved === 'mine' || saved === 'all') {
         setViewMode(saved)
       }
+      // 沒有 localStorage 紀錄 → 維持預設 'mine'
     } catch {
-      // localStorage 不可用（隱私模式）→ 用預設值
+      // localStorage 不可用（隱私模式）→ 用預設值 'mine'
     }
   }, [])
 
@@ -142,8 +143,8 @@ export default function OrdersPage() {
       }}
       searchPlaceholder="搜尋團號 / 團名"
       tabs={[
+        { value: 'mine', label: '我的訂單', icon: User },
         { value: 'all', label: '全部訂單', icon: Users },
-        { value: 'mine', label: '只看我的', icon: User },
       ]}
       activeTab={viewMode}
       onTabChange={handleViewModeChange}

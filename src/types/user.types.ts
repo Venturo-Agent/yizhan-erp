@@ -126,6 +126,7 @@ export interface EmployeeFull {
   bank_name?: string | null
   bank_account_number?: string | null
   bank_account_name?: string | null
+  branch_id?: string | null
   created_at: string
   updated_at: string
 }

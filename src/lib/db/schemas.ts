@@ -18,7 +18,7 @@ export const TABLES = {
   QUOTES: 'quotes',
   TODOS: 'todos',
   SUPPLIERS: 'suppliers',
-  COST_TEMPLATES: 'cost_templates',
+  // COST_TEMPLATES: 'cost_templates',  // 表已移除
   SUPPLIER_CATEGORIES: 'supplier_categories',
   // 企業客戶系統
   COMPANIES: 'companies',
@@ -30,11 +30,11 @@ export const TABLES = {
   CALENDAR_EVENTS: 'calendar_events',
   // Workspace 相關
   WORKSPACES: 'workspaces',
-  BULLETINS: 'bulletins',
-  RICH_DOCUMENTS: 'rich_documents',
+  // BULLETINS: 'bulletins',  // 表已移除
+  // RICH_DOCUMENTS: 'rich_documents',  // 表已移除
   ATTRACTIONS: 'attractions',
   RECEIPTS: 'receipts',
-  VENDOR_COSTS: 'vendor_costs',
+  // VENDOR_COSTS: 'vendor_costs',  // 表已移除
   // 會計系統
   JOURNAL_VOUCHERS: 'journal_vouchers',
   JOURNAL_LINES: 'journal_lines',

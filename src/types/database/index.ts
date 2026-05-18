@@ -80,7 +80,7 @@ export type QuoteRow = Tables['quotes']['Row']
 export type QuoteInsert = Tables['quotes']['Insert']
 export type QuoteUpdate = Tables['quotes']['Update']
 
-export type QuoteConfirmationLogRow = Tables['quote_confirmation_logs']['Row']
+// export type QuoteConfirmationLogRow = Tables['quote_confirmation_logs']['Row']  // 表已移除
 
 // ─── 財務 — 收款（Receipts） ──────────────────────────────────
 
@@ -141,15 +141,16 @@ export type SupplierInsert = Tables['suppliers']['Insert']
 export type SupplierUpdate = Tables['suppliers']['Update']
 
 export type SupplierCategoryRow = Tables['supplier_categories']['Row']
-export type VendorCostRow = Tables['vendor_costs']['Row']
-export type VendorCostInsert = Tables['vendor_costs']['Insert']
-export type VendorCostUpdate = Tables['vendor_costs']['Update']
+// vendor_costs 表已移除
+// export type VendorCostRow = Tables['vendor_costs']['Row']
+// export type VendorCostInsert = Tables['vendor_costs']['Insert']
+// export type VendorCostUpdate = Tables['vendor_costs']['Update']
 
 // ─── 費用模板（Cost Templates） ───────────────────────────────
 
-export type CostTemplateRow = Tables['cost_templates']['Row']
-export type CostTemplateInsert = Tables['cost_templates']['Insert']
-export type CostTemplateUpdate = Tables['cost_templates']['Update']
+// export type CostTemplateRow = Tables['cost_templates']['Row']  // 表已移除
+// export type CostTemplateInsert = Tables['cost_templates']['Insert']  // 表已移除
+// export type CostTemplateUpdate = Tables['cost_templates']['Update']  // 表已移除
 
 // ─── 人資（HR） ───────────────────────────────────────────────
 
@@ -160,24 +161,24 @@ export type EmployeeUpdate = Tables['employees']['Update']
 export type EmployeeEligibilityRow = Tables['employee_eligibilities']['Row']
 
 // 請假
-export type LeaveRequestRow = Tables['leave_requests']['Row']
-export type LeaveRequestInsert = Tables['leave_requests']['Insert']
-export type LeaveRequestUpdate = Tables['leave_requests']['Update']
+// export type LeaveRequestRow = Tables['leave_requests']['Row']  // 表已移除
+// export type LeaveRequestInsert = Tables['leave_requests']['Insert']  // 表已移除
+// export type LeaveRequestUpdate = Tables['leave_requests']['Update']  // 表已移除
 
-export type LeaveBalanceRow = Tables['leave_balances']['Row']
-export type LeaveTypeRow = Tables['leave_types']['Row']
+// export type LeaveBalanceRow = Tables['leave_balances']['Row']  // 表已移除
+// export type LeaveTypeRow = Tables['leave_types']['Row']  // 表已移除
 
 // 打卡
-export type ClockRecordRow = Tables['clock_records']['Row']
-export type ClockRecordInsert = Tables['clock_records']['Insert']
-export type ClockRecordUpdate = Tables['clock_records']['Update']
+// export type ClockRecordRow = Tables['clock_records']['Row']  // 表已移除
+// export type ClockRecordInsert = Tables['clock_records']['Insert']  // 表已移除
+// export type ClockRecordUpdate = Tables['clock_records']['Update']  // 表已移除
 
-export type MissedClockRequestRow = Tables['missed_clock_requests']['Row']
-export type OvertimeRequestRow = Tables['overtime_requests']['Row']
+// export type MissedClockRequestRow = Tables['missed_clock_requests']['Row']  // 表已移除
+// export type OvertimeRequestRow = Tables['overtime_requests']['Row']  // 表已移除
 
 // 薪資
-export type PayrollRunRow = Tables['payroll_runs']['Row']
-export type PayslipRow = Tables['payslips']['Row']
+// export type PayrollRunRow = Tables['payroll_runs']['Row']  // 表已移除
+// export type PayslipRow = Tables['payslips']['Row']  // 表已移除
 
 // ─── 權限 / 角色（Permissions & Roles） ──────────────────────
 
@@ -201,7 +202,7 @@ export type WorkspaceFeatureRow = Tables['workspace_features']['Row']
 export type WorkspaceFeatureInsert = Tables['workspace_features']['Insert']
 export type WorkspaceFeatureUpdate = Tables['workspace_features']['Update']
 
-export type WorkspaceAttendanceSettingRow = Tables['workspace_attendance_settings']['Row']
+// export type WorkspaceAttendanceSettingRow = Tables['workspace_attendance_settings']['Row']  // 表已移除
 export type WorkspaceBonusDefaultRow = Tables['workspace_bonus_defaults']['Row']
 export type WorkspaceCountryRow = Tables['workspace_countries']['Row']
 export type WorkspaceAiSettingRow = Tables['workspace_ai_settings']['Row']
@@ -212,9 +213,9 @@ export type WorkspaceSelectorFieldRow = Tables['workspace_selector_fields']['Row
 
 // ─── 使用者 / 個人設定（Profiles） ───────────────────────────
 
-export type ProfileRow = Tables['profiles']['Row']
-export type ProfileInsert = Tables['profiles']['Insert']
-export type ProfileUpdate = Tables['profiles']['Update']
+// export type ProfileRow = Tables['profiles']['Row']  // 表已移除
+// export type ProfileInsert = Tables['profiles']['Insert']  // 表已移除
+// export type ProfileUpdate = Tables['profiles']['Update']  // 表已移除
 
 export type UserPreferenceRow = Tables['user_preferences']['Row']
 export type UserPreferenceInsert = Tables['user_preferences']['Insert']
@@ -232,12 +233,12 @@ export type CompanyContactUpdate = Tables['company_contacts']['Update']
 
 // ─── CIS（業務拜訪） ──────────────────────────────────────────
 
-export type CisClientRow = Tables['cis_clients']['Row']
-export type CisClientInsert = Tables['cis_clients']['Insert']
-export type CisClientUpdate = Tables['cis_clients']['Update']
+// export type CisClientRow = Tables['cis_clients']['Row']  // 表已移除
+// export type CisClientInsert = Tables['cis_clients']['Insert']  // 表已移除
+// export type CisClientUpdate = Tables['cis_clients']['Update']  // 表已移除
 
-export type CisPricingItemRow = Tables['cis_pricing_items']['Row']
-export type CisVisitRow = Tables['cis_visits']['Row']
+// export type CisPricingItemRow = Tables['cis_pricing_items']['Row']  // 表已移除
+// export type CisVisitRow = Tables['cis_visits']['Row']  // 表已移除
 export type ContractRow = Tables['contracts']['Row']
 
 // ─── 目的地 / 地理（Geography） ──────────────────────────────
@@ -249,7 +250,7 @@ export type RegionRow = Tables['regions']['Row']
 export type RefAirlineRow = Tables['ref_airlines']['Row']
 export type RefAirportRow = Tables['ref_airports']['Row']
 export type RefBookingClassRow = Tables['ref_booking_classes']['Row']
-export type RefCityRow = Tables['ref_cities']['Row']
+// export type RefCityRow = Tables['ref_cities']['Row']  // 表已移除
 export type RefCountryRow = Tables['ref_countries']['Row']
 export type RefDestinationRow = Tables['ref_destinations']['Row']
 export type RefSsrCodeRow = Tables['ref_ssr_codes']['Row']
@@ -269,16 +270,16 @@ export type AttractionRow = Tables['attractions']['Row']
 export type AttractionInsert = Tables['attractions']['Insert']
 export type AttractionUpdate = Tables['attractions']['Update']
 
-export type PremiumExperienceRow = Tables['premium_experiences']['Row']
+// export type PremiumExperienceRow = Tables['premium_experiences']['Row']  // 表已移除
 export type AirportImageRow = Tables['airport_images']['Row']
 
 // ─── PNR / 航班（PNR & Flights） ─────────────────────────────
 
-export type PnrRecordRow = Tables['pnr_records']['Row']
-export type PnrRecordInsert = Tables['pnr_records']['Insert']
-export type PnrRecordUpdate = Tables['pnr_records']['Update']
+// export type PnrRecordRow = Tables['pnr_records']['Row']  // 表已移除
+// export type PnrRecordInsert = Tables['pnr_records']['Insert']  // 表已移除
+// export type PnrRecordUpdate = Tables['pnr_records']['Update']  // 表已移除
 
-export type FlightStatusSubscriptionRow = Tables['flight_status_subscriptions']['Row']
+// export type FlightStatusSubscriptionRow = Tables['flight_status_subscriptions']['Row']  // 表已移除
 
 // ─── 通訊（LINE / Bulletins） ─────────────────────────────────
 
@@ -286,9 +287,9 @@ export type LineConversationMessageRow = Tables['line_conversation_messages']['R
 export type LineConversationMessageInsert = Tables['line_conversation_messages']['Insert']
 export type LineConversationMessageUpdate = Tables['line_conversation_messages']['Update']
 
-export type BulletinRow = Tables['bulletins']['Row']
-export type BulletinInsert = Tables['bulletins']['Insert']
-export type BulletinUpdate = Tables['bulletins']['Update']
+// export type BulletinRow = Tables['bulletins']['Row']  // 表已移除
+// export type BulletinInsert = Tables['bulletins']['Insert']  // 表已移除
+// export type BulletinUpdate = Tables['bulletins']['Update']  // 表已移除
 
 // ─── 行事曆 / 任務（Calendar & Tasks） ───────────────────────
 
@@ -296,9 +297,10 @@ export type CalendarEventRow = Tables['calendar_events']['Row']
 export type CalendarEventInsert = Tables['calendar_events']['Insert']
 export type CalendarEventUpdate = Tables['calendar_events']['Update']
 
-export type TaskRow = Tables['tasks']['Row']
-export type TaskInsert = Tables['tasks']['Insert']
-export type TaskUpdate = Tables['tasks']['Update']
+// tasks 表已移除
+// export type TaskRow = Tables['tasks']['Row']
+// export type TaskInsert = Tables['tasks']['Insert']
+// export type TaskUpdate = Tables['tasks']['Update']
 
 // ─── 待辦（Todos） ───────────────────────────────────────────
 
@@ -314,9 +316,10 @@ export type NoteRow = Tables['notes']['Row']
 export type NoteInsert = Tables['notes']['Insert']
 export type NoteUpdate = Tables['notes']['Update']
 
-export type RichDocumentRow = Tables['rich_documents']['Row']
-export type RichDocumentInsert = Tables['rich_documents']['Insert']
-export type RichDocumentUpdate = Tables['rich_documents']['Update']
+// rich_documents 表已移除
+// export type RichDocumentRow = Tables['rich_documents']['Row']
+// export type RichDocumentInsert = Tables['rich_documents']['Insert']
+// export type RichDocumentUpdate = Tables['rich_documents']['Update']
 
 // ─── 圖片庫（Image Library） ──────────────────────────────────
 
@@ -330,7 +333,7 @@ export type AuditLogRow = Tables['audit_logs']['Row']
 export type BackgroundTaskRow = Tables['background_tasks']['Row']
 export type ApiUsageRow = Tables['api_usage']['Row']
 export type CronExecutionLogRow = Tables['cron_execution_logs']['Row']
-export type RateLimitRow = Tables['rate_limits']['Row']
+// export type RateLimitRow = Tables['rate_limits']['Row']  // 表已移除
 export type WebhookIdempotencyKeyRow = Tables['webhook_idempotency_keys']['Row']
 
 // ─── AI（AI Agents） ──────────────────────────────────────────
@@ -346,15 +349,16 @@ export type WorkspaceSelectorFieldUpdate = Tables['workspace_selector_fields']['
 
 // ─── Views ────────────────────────────────────────────────────
 
-export type AttendanceDailyView = Views['v_attendance_daily']['Row']
+// export type AttendanceDailyView = Views['v_attendance_daily']['Row']  // view 已移除
 
 // ─── Enums ────────────────────────────────────────────────────
 
-export type AccountingEventStatus = Enums['accounting_event_status']
-export type AccountingEventType = Enums['accounting_event_type']
-export type CalendarVisibility = Enums['calendar_visibility']
-export type ChannelVisibility = Enums['channel_visibility']
-export type ConfirmationType = Enums['confirmation_type']
+// 以下 enum 已從 DB 移除
+// export type AccountingEventStatus = Enums['accounting_event_status']
+// export type AccountingEventType = Enums['accounting_event_type']
+// export type CalendarVisibility = Enums['calendar_visibility']
+// export type ChannelVisibility = Enums['channel_visibility']
+// export type ConfirmationType = Enums['confirmation_type']
 export type FileAction = Enums['file_action']
 export type FileCategory = Enums['file_category']
 export type FolderType = Enums['folder_type']

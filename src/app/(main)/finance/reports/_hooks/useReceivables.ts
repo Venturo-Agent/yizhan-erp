@@ -40,7 +40,7 @@ export const useReceivables = createReportHook<ReceivableRow, ReceivablesStats>(
   fetcher: async () => {
     const { data: orders, error: queryError } = await supabase
       .from('orders')
-      .select('id, code, customer_id, tour_id, total_amount, paid_amount, remaining_amount, created_at')
+      .select('id, order_number, customer_id, tour_id, total_amount, paid_amount, remaining_amount, created_at')
       .gt('remaining_amount', 0)
       .neq('status', 'cancelled')
       .order('created_at', { ascending: true })
@@ -70,7 +70,7 @@ export const useReceivables = createReportHook<ReceivableRow, ReceivablesStats>(
       const days = daysBetween(o.created_at, today)
       return {
         order_id: o.id,
-        order_code: o.code,
+        order_code: o.order_number,
         customer_id: o.customer_id,
         customer_name: o.customer_id
           ? (customerName.get(o.customer_id) || '(無客戶資料)')

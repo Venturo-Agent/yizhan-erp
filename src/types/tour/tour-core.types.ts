@@ -94,6 +94,8 @@ export interface Tour extends BaseEntity {
   return_flight?: FlightInfo | FlightInfo[] | null
 
   // 公司規範：一團一份、不需版本鎖定
+
+  branch_id?: string | null // 分公司 FK（分公司隔離用）
 }
 
 // ============================================

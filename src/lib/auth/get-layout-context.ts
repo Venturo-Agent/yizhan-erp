@@ -26,10 +26,10 @@ type WorkspaceRow = Database['public']['Tables']['workspaces']['Row']
 
 export interface LayoutContext {
   user: User | null
-  employee: Pick<
+  employee: (Pick<
     EmployeeRow,
     'id' | 'employee_number' | 'display_name' | 'english_name' | 'role_id' | 'workspace_id' | 'status'
-  > | null
+  > & { branch_id?: string | null }) | null
   workspace: Pick<
     WorkspaceRow,
     | 'id'
@@ -81,7 +81,7 @@ export const getLayoutContext = cache(async (): Promise<LayoutContext> => {
   // 兼容 Pattern A 舊資料：employee.id = auth.uid()
   let employeeQuery = admin
     .from('employees')
-    .select('id, employee_number, display_name, english_name, role_id, workspace_id, status')
+    .select('id, employee_number, display_name, english_name, role_id, workspace_id, status, branch_id')
     .or(`user_id.eq.${user.id},id.eq.${user.id}`)
 
   // 有 cookie 的 workspace_id 就嚴格篩、避免抓到別的 workspace 的 employee

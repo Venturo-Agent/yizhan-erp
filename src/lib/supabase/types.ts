@@ -54,29 +54,7 @@ export type Database = {
           updated_at?: string
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "accounting_period_closings_closed_by_fkey"
-            columns: ["closed_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounting_period_closings_closing_voucher_id_fkey"
-            columns: ["closing_voucher_id"]
-            isOneToOne: false
-            referencedRelation: "journal_vouchers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "accounting_period_closings_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ai_agents: {
         Row: {
@@ -168,29 +146,7 @@ export type Database = {
           uploaded_by?: string | null
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "airport_images_airport_code_fkey"
-            columns: ["airport_code"]
-            isOneToOne: false
-            referencedRelation: "ref_airports"
-            referencedColumns: ["iata_code"]
-          },
-          {
-            foreignKeyName: "airport_images_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "airport_images_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       api_usage: {
         Row: {
@@ -226,6 +182,8 @@ export type Database = {
           country_id: string
           created_at: string | null
           created_by: string | null
+          created_by_user_id: string | null
+          created_by_workspace_id: string | null
           data_verified: boolean | null
           deleted_at: string | null
           deleted_by: string | null
@@ -252,7 +210,6 @@ export type Database = {
           updated_at: string | null
           updated_by: string | null
           website: string | null
-          workspace_id: string
         }
         Insert: {
           address?: string | null
@@ -263,6 +220,8 @@ export type Database = {
           country_id: string
           created_at?: string | null
           created_by?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           data_verified?: boolean | null
           deleted_at?: string | null
           deleted_by?: string | null
@@ -289,7 +248,6 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
-          workspace_id: string
         }
         Update: {
           address?: string | null
@@ -300,6 +258,8 @@ export type Database = {
           country_id?: string
           created_at?: string | null
           created_by?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           data_verified?: boolean | null
           deleted_at?: string | null
           deleted_by?: string | null
@@ -326,66 +286,8 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
-          workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "attractions_city_id_fkey"
-            columns: ["city_id"]
-            isOneToOne: false
-            referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "attractions_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "attractions_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "attractions_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "attractions_deleted_by_fkey"
-            columns: ["deleted_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "attractions_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "attractions_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_attractions_workspace"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       audit_logs: {
         Row: {
@@ -498,22 +400,7 @@ export type Database = {
           updated_at?: string
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "background_tasks_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "background_tasks_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       bank_accounts: {
         Row: {
@@ -526,6 +413,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_default: boolean | null
+          is_disbursement_eligible: boolean
           name: string
           updated_at: string | null
           workspace_id: string
@@ -540,6 +428,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_default?: boolean | null
+          is_disbursement_eligible?: boolean
           name: string
           updated_at?: string | null
           workspace_id: string
@@ -554,20 +443,89 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_default?: boolean | null
+          is_disbursement_eligible?: boolean
           name?: string
           updated_at?: string | null
           workspace_id?: string
         }
+        Relationships: []
+      }
+      bonus_pending: {
+        Row: {
+          amount: number
+          bonus_kind: string | null
+          created_at: string
+          created_by: string | null
+          employee_id: string
+          employee_name: string
+          id: string
+          reason: string | null
+          settled_at: string | null
+          settled_in_payment_request_id: string | null
+          status: string
+          tour_code: string | null
+          tour_id: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          amount: number
+          bonus_kind?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_id: string
+          employee_name: string
+          id?: string
+          reason?: string | null
+          settled_at?: string | null
+          settled_in_payment_request_id?: string | null
+          status?: string
+          tour_code?: string | null
+          tour_id: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          amount?: number
+          bonus_kind?: string | null
+          created_at?: string
+          created_by?: string | null
+          employee_id?: string
+          employee_name?: string
+          id?: string
+          reason?: string | null
+          settled_at?: string | null
+          settled_in_payment_request_id?: string | null
+          status?: string
+          tour_code?: string | null
+          tour_id?: string
+          updated_at?: string
+          workspace_id?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "bank_accounts_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "bonus_pending_employee_id_fkey"
+            columns: ["employee_id"]
             isOneToOne: false
-            referencedRelation: "chart_of_accounts"
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bank_accounts_workspace_id_fkey"
+            foreignKeyName: "bonus_pending_settled_in_payment_request_id_fkey"
+            columns: ["settled_in_payment_request_id"]
+            isOneToOne: false
+            referencedRelation: "payment_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bonus_pending_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bonus_pending_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -575,59 +533,112 @@ export type Database = {
           },
         ]
       }
-      bulletins: {
+      branches: {
         Row: {
-          content: string
-          created_at: string | null
-          created_by: string | null
+          address: string | null
+          code: string
+          created_at: string
+          display_order: number
           id: string
-          is_pinned: boolean | null
-          priority: number | null
-          title: string
-          type: string | null
-          updated_at: string | null
-          updated_by: string | null
+          is_active: boolean
+          is_default: boolean
+          name: string
+          parent_branch_id: string | null
+          phone: string | null
+          type: string
+          updated_at: string
           workspace_id: string
         }
         Insert: {
-          content: string
-          created_at?: string | null
-          created_by?: string | null
+          address?: string | null
+          code: string
+          created_at?: string
+          display_order?: number
           id?: string
-          is_pinned?: boolean | null
-          priority?: number | null
-          title: string
-          type?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          parent_branch_id?: string | null
+          phone?: string | null
+          type?: string
+          updated_at?: string
           workspace_id: string
         }
         Update: {
-          content?: string
-          created_at?: string | null
-          created_by?: string | null
+          address?: string | null
+          code?: string
+          created_at?: string
+          display_order?: number
           id?: string
-          is_pinned?: boolean | null
-          priority?: number | null
-          title?: string
-          type?: string | null
-          updated_at?: string | null
-          updated_by?: string | null
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          parent_branch_id?: string | null
+          phone?: string | null
+          type?: string
+          updated_at?: string
           workspace_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "bulletins_author_id_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "branches_parent_branch_id_fkey"
+            columns: ["parent_branch_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "bulletins_updated_by_fkey"
-            columns: ["updated_by"]
+            foreignKeyName: "branches_workspace_id_fkey"
+            columns: ["workspace_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brands: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brands_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -702,30 +713,231 @@ export type Database = {
           visibility?: string
           workspace_id?: string | null
         }
+        Relationships: []
+      }
+      channel_members: {
+        Row: {
+          channel_id: string
+          employee_id: string
+          id: string
+          joined_at: string
+          last_read_at: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          channel_id: string
+          employee_id: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          channel_id?: string
+          employee_id?: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          role?: string
+          updated_at?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "calendar_events_created_by_fkey"
+            foreignKeyName: "channel_members_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_members_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channel_messages: {
+        Row: {
+          attachments: Json
+          body: string | null
+          channel_id: string
+          created_at: string
+          edited_at: string | null
+          id: string
+          is_active: boolean
+          is_pinned: boolean
+          last_reply_at: string | null
+          message_type: string
+          payload: Json | null
+          reactions: Json
+          recipient_employee_id: string | null
+          reply_count: number
+          reply_to_id: string | null
+          revoked_at: string | null
+          scheduled_at: string | null
+          sender_agent_id: string | null
+          sender_employee_id: string | null
+        }
+        Insert: {
+          attachments?: Json
+          body?: string | null
+          channel_id: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_pinned?: boolean
+          last_reply_at?: string | null
+          message_type?: string
+          payload?: Json | null
+          reactions?: Json
+          recipient_employee_id?: string | null
+          reply_count?: number
+          reply_to_id?: string | null
+          revoked_at?: string | null
+          scheduled_at?: string | null
+          sender_agent_id?: string | null
+          sender_employee_id?: string | null
+        }
+        Update: {
+          attachments?: Json
+          body?: string | null
+          channel_id?: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_pinned?: boolean
+          last_reply_at?: string | null
+          message_type?: string
+          payload?: Json | null
+          reactions?: Json
+          recipient_employee_id?: string | null
+          reply_count?: number
+          reply_to_id?: string | null
+          revoked_at?: string | null
+          scheduled_at?: string | null
+          sender_agent_id?: string | null
+          sender_employee_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channel_messages_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_recipient_employee_id_fkey"
+            columns: ["recipient_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "channel_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_sender_agent_id_fkey"
+            columns: ["sender_agent_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channel_messages_sender_employee_id_fkey"
+            columns: ["sender_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      channels: {
+        Row: {
+          agent_id: string | null
+          archived_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_archived: boolean
+          is_official: boolean
+          is_system: boolean
+          name: string | null
+          post_permission: string
+          tour_id: string | null
+          type: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean
+          is_official?: boolean
+          is_system?: boolean
+          name?: string | null
+          post_permission?: string
+          tour_id?: string | null
+          type: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          archived_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_archived?: boolean
+          is_official?: boolean
+          is_system?: boolean
+          name?: string | null
+          post_permission?: string
+          tour_id?: string | null
+          type?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "channels_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "channels_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "calendar_events_owner_id_fkey"
-            columns: ["owner_id"]
+            foreignKeyName: "channels_tour_id_fkey"
+            columns: ["tour_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "tours"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "calendar_events_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "calendar_events_workspace_id_fkey"
+            foreignKeyName: "channels_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -782,22 +994,7 @@ export type Database = {
           usage_count?: number | null
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "chart_of_accounts_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "chart_of_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "chart_of_accounts_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       checks: {
         Row: {
@@ -839,250 +1036,7 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "checks_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cis_clients: {
-        Row: {
-          address: string | null
-          code: string
-          company_name: string
-          contact_name: string | null
-          created_at: string
-          created_by: string | null
-          email: string | null
-          id: string
-          notes: string | null
-          phone: string | null
-          status: string
-          tags: string[]
-          travel_types: string[]
-          updated_at: string
-          updated_by: string | null
-          workspace_id: string
-        }
-        Insert: {
-          address?: string | null
-          code: string
-          company_name: string
-          contact_name?: string | null
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          id?: string
-          notes?: string | null
-          phone?: string | null
-          status?: string
-          tags?: string[]
-          travel_types?: string[]
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id: string
-        }
-        Update: {
-          address?: string | null
-          code?: string
-          company_name?: string
-          contact_name?: string | null
-          created_at?: string
-          created_by?: string | null
-          email?: string | null
-          id?: string
-          notes?: string | null
-          phone?: string | null
-          status?: string
-          tags?: string[]
-          travel_types?: string[]
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cis_clients_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cis_clients_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cis_clients_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cis_pricing_items: {
-        Row: {
-          category: string
-          code: string
-          created_at: string
-          created_by: string | null
-          description: string | null
-          id: string
-          is_active: boolean
-          match_keywords: string[]
-          name: string
-          notes: string | null
-          price_high: number | null
-          price_low: number | null
-          sort_order: number
-          unit: string
-          updated_at: string
-          updated_by: string | null
-          workspace_id: string
-        }
-        Insert: {
-          category?: string
-          code: string
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          match_keywords?: string[]
-          name: string
-          notes?: string | null
-          price_high?: number | null
-          price_low?: number | null
-          sort_order?: number
-          unit?: string
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id: string
-        }
-        Update: {
-          category?: string
-          code?: string
-          created_at?: string
-          created_by?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean
-          match_keywords?: string[]
-          name?: string
-          notes?: string | null
-          price_high?: number | null
-          price_low?: number | null
-          sort_order?: number
-          unit?: string
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cis_pricing_items_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cis_pricing_items_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cis_pricing_items_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cis_visits: {
-        Row: {
-          audio_url: string | null
-          brand_card: Json
-          client_id: string
-          created_at: string
-          created_by: string | null
-          id: string
-          stage: string
-          summary: string | null
-          updated_at: string
-          updated_by: string | null
-          visited_at: string
-          workspace_id: string
-        }
-        Insert: {
-          audio_url?: string | null
-          brand_card?: Json
-          client_id: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          stage?: string
-          summary?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          visited_at?: string
-          workspace_id: string
-        }
-        Update: {
-          audio_url?: string | null
-          brand_card?: Json
-          client_id?: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          stage?: string
-          summary?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          visited_at?: string
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cis_visits_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "cis_clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cis_visits_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cis_visits_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cis_visits_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       cities: {
         Row: {
@@ -1151,148 +1105,7 @@ export type Database = {
           usage_count?: number | null
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "cities_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "cities_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cities_parent_city_id_fkey"
-            columns: ["parent_city_id"]
-            isOneToOne: false
-            referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cities_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cities_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clock_records: {
-        Row: {
-          clock_at: string
-          clock_date: string
-          clock_type: string
-          created_at: string
-          created_by: string | null
-          employee_id: string
-          gps_accuracy_meters: number | null
-          gps_latitude: number | null
-          gps_longitude: number | null
-          id: string
-          is_remote: boolean
-          is_within_geofence: boolean | null
-          late_minutes: number
-          missed_clock_request_id: string | null
-          note: string | null
-          source: string
-          status: string
-          updated_at: string
-          updated_by: string | null
-          workspace_id: string
-        }
-        Insert: {
-          clock_at?: string
-          clock_date?: string
-          clock_type: string
-          created_at?: string
-          created_by?: string | null
-          employee_id: string
-          gps_accuracy_meters?: number | null
-          gps_latitude?: number | null
-          gps_longitude?: number | null
-          id?: string
-          is_remote?: boolean
-          is_within_geofence?: boolean | null
-          late_minutes?: number
-          missed_clock_request_id?: string | null
-          note?: string | null
-          source?: string
-          status?: string
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id: string
-        }
-        Update: {
-          clock_at?: string
-          clock_date?: string
-          clock_type?: string
-          created_at?: string
-          created_by?: string | null
-          employee_id?: string
-          gps_accuracy_meters?: number | null
-          gps_latitude?: number | null
-          gps_longitude?: number | null
-          id?: string
-          is_remote?: boolean
-          is_within_geofence?: boolean | null
-          late_minutes?: number
-          missed_clock_request_id?: string | null
-          note?: string | null
-          source?: string
-          status?: string
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clock_records_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clock_records_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clock_records_missed_clock_request_id_fkey"
-            columns: ["missed_clock_request_id"]
-            isOneToOne: false
-            referencedRelation: "missed_clock_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clock_records_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clock_records_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       companies: {
         Row: {
@@ -1376,29 +1189,7 @@ export type Database = {
           website?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "companies_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companies_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "companies_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       company_contacts: {
         Row: {
@@ -1461,36 +1252,7 @@ export type Database = {
           updated_by?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "company_contacts_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_contacts_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_contacts_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_contacts_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       contracts: {
         Row: {
@@ -1598,165 +1360,7 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "contracts_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cost_templates: {
-        Row: {
-          attraction_id: string | null
-          base_distance_km: number | null
-          base_hours: number | null
-          capacity: number | null
-          category: string
-          city_id: string
-          cost_price: number
-          created_at: string | null
-          created_by: string | null
-          currency: string
-          description: string | null
-          display_order: number | null
-          duration_minutes: number | null
-          extra_km_rate: number | null
-          id: string
-          is_active: boolean | null
-          item_name: string
-          item_name_en: string | null
-          max_quantity: number | null
-          min_quantity: number | null
-          notes: string | null
-          overtime_rate: number | null
-          route_destination: string | null
-          route_origin: string | null
-          season: string | null
-          selling_price: number | null
-          supplier_id: string
-          trip_type: string | null
-          unit: string
-          updated_at: string | null
-          updated_by: string | null
-          valid_from: string | null
-          valid_until: string | null
-          vehicle_type: string | null
-          workspace_id: string
-        }
-        Insert: {
-          attraction_id?: string | null
-          base_distance_km?: number | null
-          base_hours?: number | null
-          capacity?: number | null
-          category: string
-          city_id: string
-          cost_price: number
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string
-          description?: string | null
-          display_order?: number | null
-          duration_minutes?: number | null
-          extra_km_rate?: number | null
-          id?: string
-          is_active?: boolean | null
-          item_name: string
-          item_name_en?: string | null
-          max_quantity?: number | null
-          min_quantity?: number | null
-          notes?: string | null
-          overtime_rate?: number | null
-          route_destination?: string | null
-          route_origin?: string | null
-          season?: string | null
-          selling_price?: number | null
-          supplier_id: string
-          trip_type?: string | null
-          unit: string
-          updated_at?: string | null
-          updated_by?: string | null
-          valid_from?: string | null
-          valid_until?: string | null
-          vehicle_type?: string | null
-          workspace_id: string
-        }
-        Update: {
-          attraction_id?: string | null
-          base_distance_km?: number | null
-          base_hours?: number | null
-          capacity?: number | null
-          category?: string
-          city_id?: string
-          cost_price?: number
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string
-          description?: string | null
-          display_order?: number | null
-          duration_minutes?: number | null
-          extra_km_rate?: number | null
-          id?: string
-          is_active?: boolean | null
-          item_name?: string
-          item_name_en?: string | null
-          max_quantity?: number | null
-          min_quantity?: number | null
-          notes?: string | null
-          overtime_rate?: number | null
-          route_destination?: string | null
-          route_origin?: string | null
-          season?: string | null
-          selling_price?: number | null
-          supplier_id?: string
-          trip_type?: string | null
-          unit?: string
-          updated_at?: string | null
-          updated_by?: string | null
-          valid_from?: string | null
-          valid_until?: string | null
-          vehicle_type?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cost_templates_attraction_id_fkey"
-            columns: ["attraction_id"]
-            isOneToOne: false
-            referencedRelation: "attractions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cost_templates_city_id_fkey"
-            columns: ["city_id"]
-            isOneToOne: false
-            referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cost_templates_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cost_templates_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cost_templates_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       countries: {
         Row: {
@@ -1804,15 +1408,7 @@ export type Database = {
           usage_count?: number | null
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "countries_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       cron_execution_logs: {
         Row: {
@@ -1871,6 +1467,51 @@ export type Database = {
           started_at?: string | null
           status?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      customer_service_conversations: {
+        Row: {
+          ai_response: string
+          created_at: string | null
+          id: string
+          intent: string | null
+          is_potential_lead: boolean | null
+          lead_score: number | null
+          mentioned_tours: string[] | null
+          platform: string
+          platform_user_id: string
+          sentiment: string | null
+          user_display_name: string | null
+          user_message: string
+        }
+        Insert: {
+          ai_response: string
+          created_at?: string | null
+          id?: string
+          intent?: string | null
+          is_potential_lead?: boolean | null
+          lead_score?: number | null
+          mentioned_tours?: string[] | null
+          platform: string
+          platform_user_id: string
+          sentiment?: string | null
+          user_display_name?: string | null
+          user_message: string
+        }
+        Update: {
+          ai_response?: string
+          created_at?: string | null
+          id?: string
+          intent?: string | null
+          is_potential_lead?: boolean | null
+          lead_score?: number | null
+          mentioned_tours?: string[] | null
+          platform?: string
+          platform_user_id?: string
+          sentiment?: string | null
+          user_display_name?: string | null
+          user_message?: string
         }
         Relationships: []
       }
@@ -2033,8 +1674,22 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "customers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "customers_deleted_by_fkey"
             columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customers_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
@@ -2048,11 +1703,157 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          branch_id: string
+          code: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          is_default: boolean
+          name: string
+          parent_department_id: string | null
+          type: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          branch_id: string
+          code: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name: string
+          parent_department_id?: string | null
+          type?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          branch_id?: string
+          code?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          name?: string
+          parent_department_id?: string | null
+          type?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "departments_parent_department_id_fkey"
+            columns: ["parent_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "departments_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disbursement_order_items: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          disbursement_order_id: string
+          fee_amount: number | null
+          from_bank_account_id: string | null
+          has_cross_bank_fee: boolean | null
+          id: string
+          payment_request_item_id: string
+          supplier_bank_code: string | null
+          workspace_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          disbursement_order_id: string
+          fee_amount?: number | null
+          from_bank_account_id?: string | null
+          has_cross_bank_fee?: boolean | null
+          id?: string
+          payment_request_item_id: string
+          supplier_bank_code?: string | null
+          workspace_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          disbursement_order_id?: string
+          fee_amount?: number | null
+          from_bank_account_id?: string | null
+          has_cross_bank_fee?: boolean | null
+          id?: string
+          payment_request_item_id?: string
+          supplier_bank_code?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disbursement_order_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursement_order_items_disbursement_order_id_fkey"
+            columns: ["disbursement_order_id"]
+            isOneToOne: false
+            referencedRelation: "disbursement_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursement_order_items_from_bank_account_id_fkey"
+            columns: ["from_bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursement_order_items_payment_request_item_id_fkey"
+            columns: ["payment_request_item_id"]
+            isOneToOne: true
+            referencedRelation: "payment_request_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursement_order_items_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disbursement_orders: {
         Row: {
           accounting_voucher_id: string | null
           amount: number
           bank_account_id: string | null
+          batch_uuid: string | null
           code: string | null
           confirmed_at: string | null
           confirmed_by: string | null
@@ -2069,9 +1870,11 @@ export type Database = {
           notes: string | null
           order_number: string | null
           payment_method: string | null
+          payment_method_id: string | null
           pdf_url: string | null
           refund_id: string | null
           status: string
+          total_fee: number
           updated_at: string | null
           updated_by: string | null
           workspace_id: string
@@ -2080,6 +1883,7 @@ export type Database = {
           accounting_voucher_id?: string | null
           amount: number
           bank_account_id?: string | null
+          batch_uuid?: string | null
           code?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -2096,9 +1900,11 @@ export type Database = {
           notes?: string | null
           order_number?: string | null
           payment_method?: string | null
+          payment_method_id?: string | null
           pdf_url?: string | null
           refund_id?: string | null
           status?: string
+          total_fee?: number
           updated_at?: string | null
           updated_by?: string | null
           workspace_id: string
@@ -2107,6 +1913,7 @@ export type Database = {
           accounting_voucher_id?: string | null
           amount?: number
           bank_account_id?: string | null
+          batch_uuid?: string | null
           code?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -2123,67 +1930,327 @@ export type Database = {
           notes?: string | null
           order_number?: string | null
           payment_method?: string | null
+          payment_method_id?: string | null
           pdf_url?: string | null
           refund_id?: string | null
           status?: string
+          total_fee?: number
           updated_at?: string | null
           updated_by?: string | null
           workspace_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "disbursement_orders_accounting_voucher_id_fkey"
-            columns: ["accounting_voucher_id"]
+            foreignKeyName: "disbursement_orders_payment_method_fk"
+            columns: ["payment_method_id"]
             isOneToOne: false
-            referencedRelation: "journal_vouchers"
+            referencedRelation: "payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      driver_tasks: {
+        Row: {
+          accepted_at: string | null
+          agency_contact_name: string | null
+          agency_contact_phone: string | null
+          assigned_at: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          driver_id: string | null
+          driver_name: string | null
+          driver_note: string | null
+          driver_phone: string | null
+          dropoff_address: string | null
+          dropoff_lat: number | null
+          dropoff_lng: number | null
+          dropoff_location: string
+          dropoff_note: string | null
+          estimated_cost: number | null
+          final_cost: number | null
+          id: string
+          internal_note: string | null
+          passenger_count: number | null
+          passenger_name: string | null
+          passenger_note: string | null
+          passenger_phone: string | null
+          picked_up_at: string | null
+          pickup_address: string | null
+          pickup_lat: number | null
+          pickup_lng: number | null
+          pickup_location: string
+          pickup_note: string | null
+          pickup_time: string
+          service_date: string
+          source_workspace_id: string | null
+          started_at: string | null
+          status: string | null
+          stops: Json | null
+          supplier_id: string
+          supplier_name: string | null
+          task_code: string
+          tour_code: string | null
+          tour_id: string | null
+          tour_name: string | null
+          tour_request_id: string | null
+          updated_at: string | null
+          updated_by: string | null
+          vehicle_info: string | null
+          workspace_id: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          agency_contact_name?: string | null
+          agency_contact_phone?: string | null
+          assigned_at?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          driver_id?: string | null
+          driver_name?: string | null
+          driver_note?: string | null
+          driver_phone?: string | null
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          dropoff_location: string
+          dropoff_note?: string | null
+          estimated_cost?: number | null
+          final_cost?: number | null
+          id?: string
+          internal_note?: string | null
+          passenger_count?: number | null
+          passenger_name?: string | null
+          passenger_note?: string | null
+          passenger_phone?: string | null
+          picked_up_at?: string | null
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          pickup_location: string
+          pickup_note?: string | null
+          pickup_time: string
+          service_date: string
+          source_workspace_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          stops?: Json | null
+          supplier_id: string
+          supplier_name?: string | null
+          task_code: string
+          tour_code?: string | null
+          tour_id?: string | null
+          tour_name?: string | null
+          tour_request_id?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          vehicle_info?: string | null
+          workspace_id: string
+        }
+        Update: {
+          accepted_at?: string | null
+          agency_contact_name?: string | null
+          agency_contact_phone?: string | null
+          assigned_at?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          driver_id?: string | null
+          driver_name?: string | null
+          driver_note?: string | null
+          driver_phone?: string | null
+          dropoff_address?: string | null
+          dropoff_lat?: number | null
+          dropoff_lng?: number | null
+          dropoff_location?: string
+          dropoff_note?: string | null
+          estimated_cost?: number | null
+          final_cost?: number | null
+          id?: string
+          internal_note?: string | null
+          passenger_count?: number | null
+          passenger_name?: string | null
+          passenger_note?: string | null
+          passenger_phone?: string | null
+          picked_up_at?: string | null
+          pickup_address?: string | null
+          pickup_lat?: number | null
+          pickup_lng?: number | null
+          pickup_location?: string
+          pickup_note?: string | null
+          pickup_time?: string
+          service_date?: string
+          source_workspace_id?: string | null
+          started_at?: string | null
+          status?: string | null
+          stops?: Json | null
+          supplier_id?: string
+          supplier_name?: string | null
+          task_code?: string
+          tour_code?: string | null
+          tour_id?: string | null
+          tour_name?: string | null
+          tour_request_id?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          vehicle_info?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "driver_tasks_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_branches: {
+        Row: {
+          branch_id: string
+          created_at: string
+          employee_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          employee_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          employee_id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_branches_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "disbursement_orders_bank_account_id_fkey"
-            columns: ["bank_account_id"]
-            isOneToOne: false
-            referencedRelation: "bank_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disbursement_orders_deleted_by_fkey"
-            columns: ["deleted_by"]
+            foreignKeyName: "employee_branches_employee_id_fkey"
+            columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      employee_brands: {
+        Row: {
+          brand_id: string
+          created_at: string
+          employee_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          brand_id: string
+          created_at?: string
+          employee_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          brand_id?: string
+          created_at?: string
+          employee_id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
           {
-            foreignKeyName: "disbursement_orders_workspace_id_fkey"
-            columns: ["workspace_id"]
+            foreignKeyName: "employee_brands_brand_id_fkey"
+            columns: ["brand_id"]
             isOneToOne: false
-            referencedRelation: "workspaces"
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_brands_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_departments: {
+        Row: {
+          created_at: string
+          department_id: string
+          employee_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          created_at?: string
+          department_id: string
+          employee_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          created_at?: string
+          department_id?: string
+          employee_id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_departments_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_departments_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
       }
       employee_eligibilities: {
         Row: {
-          employee_id: string
-          eligibility_code: string
-          workspace_id: string
           created_at: string
           created_by: string | null
+          eligibility_code: string
+          employee_id: string
+          workspace_id: string
         }
         Insert: {
-          employee_id: string
-          eligibility_code: string
-          workspace_id: string
           created_at?: string
           created_by?: string | null
+          eligibility_code: string
+          employee_id: string
+          workspace_id: string
         }
         Update: {
-          employee_id?: string
-          eligibility_code?: string
-          workspace_id?: string
           created_at?: string
           created_by?: string | null
+          eligibility_code?: string
+          employee_id?: string
+          workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "employee_eligibilities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "employee_eligibilities_employee_id_fkey"
             columns: ["employee_id"]
@@ -2202,12 +2269,19 @@ export type Database = {
       }
       employees: {
         Row: {
+          accessible_branch_ids: string[]
+          accessible_department_ids: string[]
           amadeus_totp_account_name: string | null
           amadeus_totp_secret: string | null
           attendance: Json | null
           avatar_url: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_code: string | null
+          bank_name: string | null
           birth_date: string | null
           birthday: string | null
+          branch_id: string | null
           chinese_name: string | null
           contracts: Json | null
           created_at: string | null
@@ -2215,6 +2289,7 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           deleted_reason: string | null
+          department_id: string | null
           display_name: string | null
           email: string | null
           employee_number: string
@@ -2223,6 +2298,7 @@ export type Database = {
           hidden_menu_items: string[] | null
           id: string
           id_number: string | null
+          is_dept_manager: boolean
           job_info: Json | null
           job_title: string | null
           login_failed_count: number
@@ -2243,12 +2319,19 @@ export type Database = {
           workspace_id: string | null
         }
         Insert: {
+          accessible_branch_ids?: string[]
+          accessible_department_ids?: string[]
           amadeus_totp_account_name?: string | null
           amadeus_totp_secret?: string | null
           attendance?: Json | null
           avatar_url?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
           birth_date?: string | null
           birthday?: string | null
+          branch_id?: string | null
           chinese_name?: string | null
           contracts?: Json | null
           created_at?: string | null
@@ -2256,6 +2339,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           deleted_reason?: string | null
+          department_id?: string | null
           display_name?: string | null
           email?: string | null
           employee_number: string
@@ -2264,6 +2348,7 @@ export type Database = {
           hidden_menu_items?: string[] | null
           id?: string
           id_number?: string | null
+          is_dept_manager?: boolean
           job_info?: Json | null
           job_title?: string | null
           login_failed_count?: number
@@ -2284,12 +2369,19 @@ export type Database = {
           workspace_id?: string | null
         }
         Update: {
+          accessible_branch_ids?: string[]
+          accessible_department_ids?: string[]
           amadeus_totp_account_name?: string | null
           amadeus_totp_secret?: string | null
           attendance?: Json | null
           avatar_url?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
           birth_date?: string | null
           birthday?: string | null
+          branch_id?: string | null
           chinese_name?: string | null
           contracts?: Json | null
           created_at?: string | null
@@ -2297,6 +2389,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           deleted_reason?: string | null
+          department_id?: string | null
           display_name?: string | null
           email?: string | null
           employee_number?: string
@@ -2305,6 +2398,7 @@ export type Database = {
           hidden_menu_items?: string[] | null
           id?: string
           id_number?: string | null
+          is_dept_manager?: boolean
           job_info?: Json | null
           job_title?: string | null
           login_failed_count?: number
@@ -2326,6 +2420,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "employees_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "employees_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
@@ -2337,6 +2438,13 @@ export type Database = {
             columns: ["deleted_by"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
           {
@@ -2378,12 +2486,11 @@ export type Database = {
           icon: string
           id: string
           is_active: boolean | null
-          is_system: boolean | null
           name: string
-          parent_id: string | null
           sort_order: number | null
           type: string
           user_id: string | null
+          workspace_id: string | null
         }
         Insert: {
           color: string
@@ -2393,12 +2500,11 @@ export type Database = {
           icon: string
           id?: string
           is_active?: boolean | null
-          is_system?: boolean | null
           name: string
-          parent_id?: string | null
           sort_order?: number | null
           type?: string
           user_id?: string | null
+          workspace_id?: string | null
         }
         Update: {
           color?: string
@@ -2408,21 +2514,13 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean | null
-          is_system?: boolean | null
           name?: string
-          parent_id?: string | null
           sort_order?: number | null
           type?: string
           user_id?: string | null
+          workspace_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "expense_categories_accounting_subject_id_fkey"
-            columns: ["debit_account_id"]
-            isOneToOne: false
-            referencedRelation: "chart_of_accounts"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "expense_categories_credit_account_id_fkey"
             columns: ["credit_account_id"]
@@ -2431,75 +2529,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "expense_categories_parent_id_fkey"
-            columns: ["parent_id"]
+            foreignKeyName: "expense_categories_debit_account_id_fkey"
+            columns: ["debit_account_id"]
             isOneToOne: false
-            referencedRelation: "expense_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      flight_status_subscriptions: {
-        Row: {
-          airline_code: string
-          created_at: string | null
-          external_provider: string | null
-          external_subscription_id: string | null
-          flight_date: string
-          flight_number: string
-          id: string
-          is_active: boolean | null
-          last_checked_at: string | null
-          notify_channel_id: string | null
-          notify_employee_ids: string[] | null
-          notify_on: string[] | null
-          pnr_id: string | null
-          segment_id: string | null
-          updated_at: string | null
-          workspace_id: string
-        }
-        Insert: {
-          airline_code: string
-          created_at?: string | null
-          external_provider?: string | null
-          external_subscription_id?: string | null
-          flight_date: string
-          flight_number: string
-          id?: string
-          is_active?: boolean | null
-          last_checked_at?: string | null
-          notify_channel_id?: string | null
-          notify_employee_ids?: string[] | null
-          notify_on?: string[] | null
-          pnr_id?: string | null
-          segment_id?: string | null
-          updated_at?: string | null
-          workspace_id: string
-        }
-        Update: {
-          airline_code?: string
-          created_at?: string | null
-          external_provider?: string | null
-          external_subscription_id?: string | null
-          flight_date?: string
-          flight_number?: string
-          id?: string
-          is_active?: boolean | null
-          last_checked_at?: string | null
-          notify_channel_id?: string | null
-          notify_employee_ids?: string[] | null
-          notify_on?: string[] | null
-          pnr_id?: string | null
-          segment_id?: string | null
-          updated_at?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "flight_status_subscriptions_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
+            referencedRelation: "chart_of_accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -2527,6 +2560,8 @@ export type Database = {
           country_id: string
           created_at: string | null
           created_by: string | null
+          created_by_user_id: string | null
+          created_by_workspace_id: string | null
           currency: string | null
           data_verified: boolean | null
           deleted_at: string | null
@@ -2566,7 +2601,6 @@ export type Database = {
           updated_at: string | null
           updated_by: string | null
           website: string | null
-          workspace_id: string
         }
         Insert: {
           address?: string | null
@@ -2590,6 +2624,8 @@ export type Database = {
           country_id: string
           created_at?: string | null
           created_by?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           currency?: string | null
           data_verified?: boolean | null
           deleted_at?: string | null
@@ -2629,7 +2665,6 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
-          workspace_id?: string
         }
         Update: {
           address?: string | null
@@ -2653,6 +2688,8 @@ export type Database = {
           country_id?: string
           created_at?: string | null
           created_by?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           currency?: string | null
           data_verified?: boolean | null
           deleted_at?: string | null
@@ -2692,59 +2729,8 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
-          workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "hotels_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "hotels_deleted_by_fkey"
-            columns: ["deleted_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "luxury_hotels_city_id_fkey"
-            columns: ["city_id"]
-            isOneToOne: false
-            referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "luxury_hotels_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "luxury_hotels_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "luxury_hotels_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "luxury_hotels_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       image_library: {
         Row: {
@@ -2812,21 +2798,420 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "image_library_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
             foreignKeyName: "image_library_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      inbox_conversation_notes: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          employee_id: string
+          id: number
+          workspace_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          employee_id: string
+          id?: number
+          workspace_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          employee_id?: string
+          id?: number
+          workspace_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "image_library_workspace_id_fkey"
+            foreignKeyName: "inbox_conversation_notes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_conversation_notes_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_conversation_notes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbox_conversations: {
+        Row: {
+          bot_paused: boolean
+          bot_paused_until: string | null
+          channel_type: string
+          created_at: string
+          customer_id: string | null
+          display_name: string | null
+          external_user_id: string
+          id: string
+          is_archived: boolean
+          last_message_at: string | null
+          last_message_direction: string | null
+          last_message_preview: string | null
+          picture_url: string | null
+          unread_count: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          bot_paused?: boolean
+          bot_paused_until?: string | null
+          channel_type: string
+          created_at?: string
+          customer_id?: string | null
+          display_name?: string | null
+          external_user_id: string
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string | null
+          last_message_direction?: string | null
+          last_message_preview?: string | null
+          picture_url?: string | null
+          unread_count?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          bot_paused?: boolean
+          bot_paused_until?: string | null
+          channel_type?: string
+          created_at?: string
+          customer_id?: string | null
+          display_name?: string | null
+          external_user_id?: string
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string | null
+          last_message_direction?: string | null
+          last_message_preview?: string | null
+          picture_url?: string | null
+          unread_count?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_conversations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_conversations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbox_messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          direction: string
+          id: number
+          media_url: string | null
+          message_type: string
+          raw_event: Json | null
+          sender_employee_id: string | null
+          sender_type: string
+          source_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          direction: string
+          id?: number
+          media_url?: string | null
+          message_type?: string
+          raw_event?: Json | null
+          sender_employee_id?: string | null
+          sender_type: string
+          source_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          id?: number
+          media_url?: string | null
+          message_type?: string
+          raw_event?: Json | null
+          sender_employee_id?: string | null
+          sender_type?: string
+          source_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_sender_employee_id_fkey"
+            columns: ["sender_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_usage_log: {
+        Row: {
+          called_at: string
+          created_at: string
+          error_message: string | null
+          id: string
+          integration_code: string
+          metadata: Json | null
+          success: boolean
+          triggered_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          called_at?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          integration_code: string
+          metadata?: Json | null
+          success: boolean
+          triggered_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          called_at?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          integration_code?: string
+          metadata?: Json | null
+          success?: boolean
+          triggered_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_usage_log_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_batches: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          order_id: string
+          public_token: string
+          status: string
+          token_expires_at: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id: string
+          public_token?: string
+          status?: string
+          token_expires_at?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string
+          public_token?: string
+          status?: string
+          token_expires_at?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_batches_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_batches_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_batches_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_batches_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          due_date: string | null
+          id: string
+          member_id: string | null
+          notes: string | null
+          order_id: string
+          paid_amount: number
+          public_token: string
+          status: string
+          token_expires_at: string
+          total_amount: number
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          due_date?: string | null
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          order_id: string
+          paid_amount?: number
+          public_token?: string
+          status?: string
+          token_expires_at?: string
+          total_amount: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          due_date?: string | null
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          order_id?: string
+          paid_amount?: number
+          public_token?: string
+          status?: string
+          token_expires_at?: string
+          total_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "order_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -2836,33 +3221,38 @@ export type Database = {
       }
       itineraries: {
         Row: {
+          _deleted: boolean | null
+          _needs_sync: boolean | null
+          _synced_at: string | null
           archived_at: string | null
-          author_name: string | null
+          author_name: string
           cancellation_policy: string[] | null
-          city: string | null
+          city: string
           closed_at: string | null
-          code: string | null
-          country: string | null
-          cover_image: string | null
+          code: string
+          country: string
+          cover_image: string
           cover_style: string | null
-          created_at: string
+          cover_template_id: string | null
+          created_at: string | null
           created_by: string | null
-          daily_itinerary: Json | null
-          departure_date: string | null
-          description: string | null
+          daily_itinerary: Json
+          daily_template_id: string | null
+          departure_date: string
+          description: string
           duration_days: number | null
-          erp_itinerary_id: string | null
           faqs: Json | null
-          features: Json | null
+          features: Json
           features_style: string | null
           flight_style: string | null
-          focus_cards: Json | null
+          flight_template_id: string | null
+          focus_cards: Json
           hidden_items_for_brochure: Json | null
           hidden_items_for_web: Json | null
           hotel_style: string | null
-          hotels: Json | null
+          hotels: Json
           id: string
-          is_latest: boolean | null
+          is_latest: boolean
           is_template: boolean | null
           itinerary_style: string | null
           itinerary_subtitle: string | null
@@ -2879,55 +3269,59 @@ export type Database = {
           show_cancellation_policy: boolean | null
           show_faqs: boolean | null
           show_features: boolean | null
-          show_hotels: boolean | null
-          show_leader_meeting: boolean | null
+          show_hotels: boolean
+          show_leader_meeting: boolean
           show_notices: boolean | null
           show_price_tiers: boolean | null
           show_pricing_details: boolean | null
-          status: string | null
-          subtitle: string | null
-          summary: string | null
-          tagline: string | null
+          status: string
+          subtitle: string
+          tagline: string
           template_code: string | null
           template_id: string | null
           template_name: string | null
-          title: string | null
-          tour_code: string | null
+          title: string
+          tour_code: string
           tour_id: string | null
-          updated_at: string
+          updated_at: string | null
           updated_by: string | null
-          version: number | null
+          version: number
           version_records: Json | null
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
+          _deleted?: boolean | null
+          _needs_sync?: boolean | null
+          _synced_at?: string | null
           archived_at?: string | null
-          author_name?: string | null
+          author_name?: string
           cancellation_policy?: string[] | null
-          city?: string | null
+          city: string
           closed_at?: string | null
-          code?: string | null
-          country?: string | null
-          cover_image?: string | null
+          code: string
+          country: string
+          cover_image: string
           cover_style?: string | null
-          created_at?: string
+          cover_template_id?: string | null
+          created_at?: string | null
           created_by?: string | null
-          daily_itinerary?: Json | null
-          departure_date?: string | null
-          description?: string | null
+          daily_itinerary?: Json
+          daily_template_id?: string | null
+          departure_date: string
+          description: string
           duration_days?: number | null
-          erp_itinerary_id?: string | null
           faqs?: Json | null
-          features?: Json | null
+          features?: Json
           features_style?: string | null
           flight_style?: string | null
-          focus_cards?: Json | null
+          flight_template_id?: string | null
+          focus_cards?: Json
           hidden_items_for_brochure?: Json | null
           hidden_items_for_web?: Json | null
           hotel_style?: string | null
-          hotels?: Json | null
+          hotels?: Json
           id?: string
-          is_latest?: boolean | null
+          is_latest?: boolean
           is_template?: boolean | null
           itinerary_style?: string | null
           itinerary_subtitle?: string | null
@@ -2944,55 +3338,59 @@ export type Database = {
           show_cancellation_policy?: boolean | null
           show_faqs?: boolean | null
           show_features?: boolean | null
-          show_hotels?: boolean | null
-          show_leader_meeting?: boolean | null
+          show_hotels?: boolean
+          show_leader_meeting?: boolean
           show_notices?: boolean | null
           show_price_tiers?: boolean | null
           show_pricing_details?: boolean | null
-          status?: string | null
-          subtitle?: string | null
-          summary?: string | null
-          tagline?: string | null
+          status?: string
+          subtitle: string
+          tagline: string
           template_code?: string | null
           template_id?: string | null
           template_name?: string | null
-          title?: string | null
-          tour_code?: string | null
+          title: string
+          tour_code: string
           tour_id?: string | null
-          updated_at?: string
+          updated_at?: string | null
           updated_by?: string | null
-          version?: number | null
+          version?: number
           version_records?: Json | null
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
+          _deleted?: boolean | null
+          _needs_sync?: boolean | null
+          _synced_at?: string | null
           archived_at?: string | null
-          author_name?: string | null
+          author_name?: string
           cancellation_policy?: string[] | null
-          city?: string | null
+          city?: string
           closed_at?: string | null
-          code?: string | null
-          country?: string | null
-          cover_image?: string | null
+          code?: string
+          country?: string
+          cover_image?: string
           cover_style?: string | null
-          created_at?: string
+          cover_template_id?: string | null
+          created_at?: string | null
           created_by?: string | null
-          daily_itinerary?: Json | null
-          departure_date?: string | null
-          description?: string | null
+          daily_itinerary?: Json
+          daily_template_id?: string | null
+          departure_date?: string
+          description?: string
           duration_days?: number | null
-          erp_itinerary_id?: string | null
           faqs?: Json | null
-          features?: Json | null
+          features?: Json
           features_style?: string | null
           flight_style?: string | null
-          focus_cards?: Json | null
+          flight_template_id?: string | null
+          focus_cards?: Json
           hidden_items_for_brochure?: Json | null
           hidden_items_for_web?: Json | null
           hotel_style?: string | null
-          hotels?: Json | null
+          hotels?: Json
           id?: string
-          is_latest?: boolean | null
+          is_latest?: boolean
           is_template?: boolean | null
           itinerary_style?: string | null
           itinerary_subtitle?: string | null
@@ -3009,79 +3407,36 @@ export type Database = {
           show_cancellation_policy?: boolean | null
           show_faqs?: boolean | null
           show_features?: boolean | null
-          show_hotels?: boolean | null
-          show_leader_meeting?: boolean | null
+          show_hotels?: boolean
+          show_leader_meeting?: boolean
           show_notices?: boolean | null
           show_price_tiers?: boolean | null
           show_pricing_details?: boolean | null
-          status?: string | null
-          subtitle?: string | null
-          summary?: string | null
-          tagline?: string | null
+          status?: string
+          subtitle?: string
+          tagline?: string
           template_code?: string | null
           template_id?: string | null
           template_name?: string | null
-          title?: string | null
-          tour_code?: string | null
+          title?: string
+          tour_code?: string
           tour_id?: string | null
-          updated_at?: string
+          updated_at?: string | null
           updated_by?: string | null
-          version?: number | null
+          version?: number
           version_records?: Json | null
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "fk_itineraries_created_by"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_itineraries_updated_by"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_itineraries_workspace"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "itineraries_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "itineraries_parent_id_fkey"
+            foreignKeyName: "fk_itineraries_parent"
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "itineraries"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "itineraries_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "itineraries_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "itineraries_workspace_id_fkey"
+            foreignKeyName: "fk_itineraries_workspace"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -3126,22 +3481,7 @@ export type Database = {
           subledger_type?: Database["public"]["Enums"]["subledger_type"] | null
           voucher_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "journal_lines_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "chart_of_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "journal_lines_voucher_id_fkey"
-            columns: ["voucher_id"]
-            isOneToOne: false
-            referencedRelation: "journal_vouchers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       journal_vouchers: {
         Row: {
@@ -3201,274 +3541,737 @@ export type Database = {
           voucher_no?: string
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "journal_vouchers_reversed_by_id_fkey"
-            columns: ["reversed_by_id"]
-            isOneToOne: false
-            referencedRelation: "journal_vouchers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "journal_vouchers_reversed_from_id_fkey"
-            columns: ["reversed_from_id"]
-            isOneToOne: false
-            referencedRelation: "journal_vouchers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "journal_vouchers_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      leave_balances: {
+      kb_agencies: {
         Row: {
           created_at: string
-          employee_id: string
+          description: string | null
           id: string
-          leave_type_id: string
-          pending_days: number
-          total_days: number
+          is_active: boolean | null
+          name_en: string | null
+          name_zh: string
+          notes: string | null
+          type: string | null
           updated_at: string
-          used_days: number
-          workspace_id: string
-          year: number
+          website: string | null
         }
         Insert: {
           created_at?: string
-          employee_id: string
+          description?: string | null
           id?: string
-          leave_type_id: string
-          pending_days?: number
-          total_days?: number
+          is_active?: boolean | null
+          name_en?: string | null
+          name_zh: string
+          notes?: string | null
+          type?: string | null
           updated_at?: string
-          used_days?: number
-          workspace_id: string
-          year: number
+          website?: string | null
         }
         Update: {
           created_at?: string
-          employee_id?: string
+          description?: string | null
           id?: string
-          leave_type_id?: string
-          pending_days?: number
-          total_days?: number
+          is_active?: boolean | null
+          name_en?: string | null
+          name_zh?: string
+          notes?: string | null
+          type?: string | null
           updated_at?: string
-          used_days?: number
-          workspace_id?: string
-          year?: number
+          website?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "leave_balances_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_balances_leave_type_id_fkey"
-            columns: ["leave_type_id"]
-            isOneToOne: false
-            referencedRelation: "leave_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_balances_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
-      leave_requests: {
+      kb_cabin_types: {
         Row: {
-          approved_at: string | null
-          approver_id: string | null
-          approver_note: string | null
-          attachments: Json
-          cancelled_at: string | null
-          cancelled_by: string | null
+          cabin_code: string | null
+          capacity: number
+          category: string
           created_at: string
-          created_by: string | null
-          employee_id: string
-          end_at: string
-          estimated_deduction_amount: number | null
+          description: string | null
+          features: string[] | null
+          has_balcony: boolean | null
+          has_bathtub: boolean | null
+          has_bidet: boolean | null
+          has_window: boolean | null
           id: string
-          leave_type_id: string
-          reason: string
-          reject_reason: string | null
-          start_at: string
-          status: string
-          total_days: number
-          total_minutes: number
+          max_capacity: number | null
+          name_en: string | null
+          name_zh: string
+          notes: string | null
+          ship_id: string
+          size_ping: number | null
+          size_sqm: number | null
           updated_at: string
-          updated_by: string | null
-          workspace_id: string
         }
         Insert: {
-          approved_at?: string | null
-          approver_id?: string | null
-          approver_note?: string | null
-          attachments?: Json
-          cancelled_at?: string | null
-          cancelled_by?: string | null
+          cabin_code?: string | null
+          capacity?: number
+          category: string
           created_at?: string
-          created_by?: string | null
-          employee_id: string
-          end_at: string
-          estimated_deduction_amount?: number | null
+          description?: string | null
+          features?: string[] | null
+          has_balcony?: boolean | null
+          has_bathtub?: boolean | null
+          has_bidet?: boolean | null
+          has_window?: boolean | null
           id?: string
-          leave_type_id: string
-          reason: string
-          reject_reason?: string | null
-          start_at: string
-          status?: string
-          total_days: number
-          total_minutes: number
+          max_capacity?: number | null
+          name_en?: string | null
+          name_zh: string
+          notes?: string | null
+          ship_id: string
+          size_ping?: number | null
+          size_sqm?: number | null
           updated_at?: string
-          updated_by?: string | null
-          workspace_id: string
         }
         Update: {
-          approved_at?: string | null
-          approver_id?: string | null
-          approver_note?: string | null
-          attachments?: Json
-          cancelled_at?: string | null
-          cancelled_by?: string | null
+          cabin_code?: string | null
+          capacity?: number
+          category?: string
           created_at?: string
-          created_by?: string | null
-          employee_id?: string
-          end_at?: string
-          estimated_deduction_amount?: number | null
+          description?: string | null
+          features?: string[] | null
+          has_balcony?: boolean | null
+          has_bathtub?: boolean | null
+          has_bidet?: boolean | null
+          has_window?: boolean | null
           id?: string
-          leave_type_id?: string
-          reason?: string
-          reject_reason?: string | null
-          start_at?: string
-          status?: string
-          total_days?: number
-          total_minutes?: number
+          max_capacity?: number | null
+          name_en?: string | null
+          name_zh?: string
+          notes?: string | null
+          ship_id?: string
+          size_ping?: number | null
+          size_sqm?: number | null
           updated_at?: string
-          updated_by?: string | null
-          workspace_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "leave_requests_approver_id_fkey"
-            columns: ["approver_id"]
+            foreignKeyName: "kb_cabin_types_ship_id_fkey"
+            columns: ["ship_id"]
             isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_requests_cancelled_by_fkey"
-            columns: ["cancelled_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_requests_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_requests_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_requests_leave_type_id_fkey"
-            columns: ["leave_type_id"]
-            isOneToOne: false
-            referencedRelation: "leave_types"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_requests_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "leave_requests_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
+            referencedRelation: "kb_cruise_ships"
             referencedColumns: ["id"]
           },
         ]
       }
-      leave_types: {
+      kb_cancellation_policies: {
         Row: {
-          attachment_threshold_days: number | null
-          attendance_bonus_flag: string
-          code: string
+          applies_to: string | null
           created_at: string
-          default_days_per_year: number | null
+          cruise_line_id: string
+          days_before_departure_max: number | null
+          days_before_departure_min: number
+          id: string
+          notes: string | null
+          penalty_percent: number | null
+          policy_label: string | null
+          refund_percent: number
+          source_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          applies_to?: string | null
+          created_at?: string
+          cruise_line_id: string
+          days_before_departure_max?: number | null
+          days_before_departure_min: number
+          id?: string
+          notes?: string | null
+          penalty_percent?: number | null
+          policy_label?: string | null
+          refund_percent: number
+          source_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          applies_to?: string | null
+          created_at?: string
+          cruise_line_id?: string
+          days_before_departure_max?: number | null
+          days_before_departure_min?: number
+          id?: string
+          notes?: string | null
+          penalty_percent?: number | null
+          policy_label?: string | null
+          refund_percent?: number
+          source_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_cancellation_policies_cruise_line_id_fkey"
+            columns: ["cruise_line_id"]
+            isOneToOne: false
+            referencedRelation: "kb_cruise_lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_cruise_agency_relations: {
+        Row: {
+          agency_id: string
+          created_at: string
+          cruise_line_id: string
+          effective_from: string | null
+          effective_to: string | null
+          id: string
+          notes: string | null
+          relationship_type: string
+          source_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string
+          cruise_line_id: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          notes?: string | null
+          relationship_type: string
+          source_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string
+          cruise_line_id?: string
+          effective_from?: string | null
+          effective_to?: string | null
+          id?: string
+          notes?: string | null
+          relationship_type?: string
+          source_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_cruise_agency_relations_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "kb_agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_cruise_agency_relations_cruise_line_id_fkey"
+            columns: ["cruise_line_id"]
+            isOneToOne: false
+            referencedRelation: "kb_cruise_lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_cruise_lines: {
+        Row: {
+          created_at: string
+          description: string | null
+          founded_year: number | null
+          headquarters: string | null
           id: string
           is_active: boolean
-          legal_basis: string | null
-          name: string
-          pay_type: string
-          quota_type: string
-          requires_attachment: boolean
-          sort_order: number
-          supports_hourly: boolean
+          name_en: string | null
+          name_zh: string
+          notes: string | null
+          parent_company: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          founded_year?: number | null
+          headquarters?: string | null
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_zh: string
+          notes?: string | null
+          parent_company?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          founded_year?: number | null
+          headquarters?: string | null
+          id?: string
+          is_active?: boolean
+          name_en?: string | null
+          name_zh?: string
+          notes?: string | null
+          parent_company?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      kb_cruise_ships: {
+        Row: {
+          built_year: number | null
+          cabin_count: number | null
+          created_at: string
+          crew_count: number | null
+          cruise_line_id: string
+          decks: number | null
+          description: string | null
+          flag: string | null
+          highlights: string[] | null
+          id: string
+          is_active: boolean
+          language_support: string[] | null
+          last_refurbished_year: number | null
+          length_meters: number | null
+          max_passenger_capacity: number | null
+          name_en: string | null
+          name_zh: string
+          notes: string | null
+          passenger_capacity: number | null
+          power_voltage: string | null
+          ship_class: string | null
+          source_url: string | null
+          speed_knots: number | null
+          tonnage: number | null
+          updated_at: string
+          width_meters: number | null
+        }
+        Insert: {
+          built_year?: number | null
+          cabin_count?: number | null
+          created_at?: string
+          crew_count?: number | null
+          cruise_line_id: string
+          decks?: number | null
+          description?: string | null
+          flag?: string | null
+          highlights?: string[] | null
+          id?: string
+          is_active?: boolean
+          language_support?: string[] | null
+          last_refurbished_year?: number | null
+          length_meters?: number | null
+          max_passenger_capacity?: number | null
+          name_en?: string | null
+          name_zh: string
+          notes?: string | null
+          passenger_capacity?: number | null
+          power_voltage?: string | null
+          ship_class?: string | null
+          source_url?: string | null
+          speed_knots?: number | null
+          tonnage?: number | null
+          updated_at?: string
+          width_meters?: number | null
+        }
+        Update: {
+          built_year?: number | null
+          cabin_count?: number | null
+          created_at?: string
+          crew_count?: number | null
+          cruise_line_id?: string
+          decks?: number | null
+          description?: string | null
+          flag?: string | null
+          highlights?: string[] | null
+          id?: string
+          is_active?: boolean
+          language_support?: string[] | null
+          last_refurbished_year?: number | null
+          length_meters?: number | null
+          max_passenger_capacity?: number | null
+          name_en?: string | null
+          name_zh?: string
+          notes?: string | null
+          passenger_capacity?: number | null
+          power_voltage?: string | null
+          ship_class?: string | null
+          source_url?: string | null
+          speed_knots?: number | null
+          tonnage?: number | null
+          updated_at?: string
+          width_meters?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_cruise_ships_cruise_line_id_fkey"
+            columns: ["cruise_line_id"]
+            isOneToOne: false
+            referencedRelation: "kb_cruise_lines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_fees: {
+        Row: {
+          amount: number | null
+          applies_to_cabin_categories: string[] | null
+          child_age_max: number | null
+          child_age_min: number | null
+          created_at: string
+          cruise_line_id: string | null
+          currency: string | null
+          description: string | null
+          effective_from: string | null
+          effective_to: string | null
+          fee_type: string
+          id: string
+          is_optional: boolean | null
+          notes: string | null
+          per_unit: string
+          ship_id: string | null
+          source_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          applies_to_cabin_categories?: string[] | null
+          child_age_max?: number | null
+          child_age_min?: number | null
+          created_at?: string
+          cruise_line_id?: string | null
+          currency?: string | null
+          description?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          fee_type: string
+          id?: string
+          is_optional?: boolean | null
+          notes?: string | null
+          per_unit: string
+          ship_id?: string | null
+          source_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          applies_to_cabin_categories?: string[] | null
+          child_age_max?: number | null
+          child_age_min?: number | null
+          created_at?: string
+          cruise_line_id?: string | null
+          currency?: string | null
+          description?: string | null
+          effective_from?: string | null
+          effective_to?: string | null
+          fee_type?: string
+          id?: string
+          is_optional?: boolean | null
+          notes?: string | null
+          per_unit?: string
+          ship_id?: string | null
+          source_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_fees_cruise_line_id_fkey"
+            columns: ["cruise_line_id"]
+            isOneToOne: false
+            referencedRelation: "kb_cruise_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_fees_ship_id_fkey"
+            columns: ["ship_id"]
+            isOneToOne: false
+            referencedRelation: "kb_cruise_ships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_pricing: {
+        Row: {
+          cabin_type_id: string
+          child_free_quota: number | null
+          child_free_under_age: number | null
+          created_at: string
+          early_bird_deadline: string | null
+          early_bird_discount_per_cabin: number | null
+          early_bird_price_twd: number | null
+          effective_from: string | null
+          effective_to: string | null
+          fourth_person_free: boolean | null
+          group_discount_per_person_twd: number | null
+          group_discount_threshold: number | null
+          id: string
+          notes: string | null
+          price_currency: string
+          price_per_person_twd: number | null
+          price_per_person_usd: number | null
+          sailing_id: string
+          source_platform: string | null
+          source_url: string | null
+          third_person_free: boolean | null
+          third_person_price_twd: number | null
+          updated_at: string
+        }
+        Insert: {
+          cabin_type_id: string
+          child_free_quota?: number | null
+          child_free_under_age?: number | null
+          created_at?: string
+          early_bird_deadline?: string | null
+          early_bird_discount_per_cabin?: number | null
+          early_bird_price_twd?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          fourth_person_free?: boolean | null
+          group_discount_per_person_twd?: number | null
+          group_discount_threshold?: number | null
+          id?: string
+          notes?: string | null
+          price_currency?: string
+          price_per_person_twd?: number | null
+          price_per_person_usd?: number | null
+          sailing_id: string
+          source_platform?: string | null
+          source_url?: string | null
+          third_person_free?: boolean | null
+          third_person_price_twd?: number | null
+          updated_at?: string
+        }
+        Update: {
+          cabin_type_id?: string
+          child_free_quota?: number | null
+          child_free_under_age?: number | null
+          created_at?: string
+          early_bird_deadline?: string | null
+          early_bird_discount_per_cabin?: number | null
+          early_bird_price_twd?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          fourth_person_free?: boolean | null
+          group_discount_per_person_twd?: number | null
+          group_discount_threshold?: number | null
+          id?: string
+          notes?: string | null
+          price_currency?: string
+          price_per_person_twd?: number | null
+          price_per_person_usd?: number | null
+          sailing_id?: string
+          source_platform?: string | null
+          source_url?: string | null
+          third_person_free?: boolean | null
+          third_person_price_twd?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_pricing_cabin_type_id_fkey"
+            columns: ["cabin_type_id"]
+            isOneToOne: false
+            referencedRelation: "kb_cabin_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_pricing_sailing_id_fkey"
+            columns: ["sailing_id"]
+            isOneToOne: false
+            referencedRelation: "kb_sailings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_sailing_agencies: {
+        Row: {
+          agency_id: string
+          cabin_block_type: string | null
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          created_at: string | null
+          early_bird_deadline: string | null
+          early_bird_price_twd: number | null
+          id: string
+          includes_meals_full: boolean | null
+          includes_shore_excursion: boolean | null
+          includes_tour_leader: boolean | null
+          includes_transfer: boolean | null
+          includes_visa_arrange: boolean | null
+          list_price_twd: number | null
+          notes: string | null
+          sailing_id: string
+          source_url: string | null
+          updated_at: string | null
+          verification_level: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          agency_id: string
+          cabin_block_type?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          early_bird_deadline?: string | null
+          early_bird_price_twd?: number | null
+          id?: string
+          includes_meals_full?: boolean | null
+          includes_shore_excursion?: boolean | null
+          includes_tour_leader?: boolean | null
+          includes_transfer?: boolean | null
+          includes_visa_arrange?: boolean | null
+          list_price_twd?: number | null
+          notes?: string | null
+          sailing_id: string
+          source_url?: string | null
+          updated_at?: string | null
+          verification_level?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          agency_id?: string
+          cabin_block_type?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          early_bird_deadline?: string | null
+          early_bird_price_twd?: number | null
+          id?: string
+          includes_meals_full?: boolean | null
+          includes_shore_excursion?: boolean | null
+          includes_tour_leader?: boolean | null
+          includes_transfer?: boolean | null
+          includes_visa_arrange?: boolean | null
+          list_price_twd?: number | null
+          notes?: string | null
+          sailing_id?: string
+          source_url?: string | null
+          updated_at?: string | null
+          verification_level?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_sailing_agencies_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "kb_agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kb_sailing_agencies_sailing_id_fkey"
+            columns: ["sailing_id"]
+            isOneToOne: false
+            referencedRelation: "kb_sailings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kb_sailings: {
+        Row: {
+          created_at: string
+          departure_date: string
+          departure_port: string
+          destinations: string[]
+          duration_days: number | null
+          duration_nights: number | null
+          id: string
+          itinerary_summary: string | null
+          notes: string | null
+          return_date: string | null
+          return_port: string | null
+          route_type: string | null
+          ship_id: string
+          source_url: string | null
+          status: string
+          updated_at: string
+          verification_level: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          departure_date: string
+          departure_port: string
+          destinations: string[]
+          duration_days?: number | null
+          duration_nights?: number | null
+          id?: string
+          itinerary_summary?: string | null
+          notes?: string | null
+          return_date?: string | null
+          return_port?: string | null
+          route_type?: string | null
+          ship_id: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          verification_level?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          departure_date?: string
+          departure_port?: string
+          destinations?: string[]
+          duration_days?: number | null
+          duration_nights?: number | null
+          id?: string
+          itinerary_summary?: string | null
+          notes?: string | null
+          return_date?: string | null
+          return_port?: string | null
+          route_type?: string | null
+          ship_id?: string
+          source_url?: string | null
+          status?: string
+          updated_at?: string
+          verification_level?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kb_sailings_ship_id_fkey"
+            columns: ["ship_id"]
+            isOneToOne: false
+            referencedRelation: "kb_cruise_ships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      line_bot_reply_debounce: {
+        Row: {
+          accumulated_text: string
+          created_at: string
+          id: number
+          is_expired: boolean
+          last_message_at: string
+          line_user_id: string
+          reply_token: string | null
+          sent_at: string | null
           updated_at: string
           workspace_id: string
         }
         Insert: {
-          attachment_threshold_days?: number | null
-          attendance_bonus_flag?: string
-          code: string
+          accumulated_text?: string
           created_at?: string
-          default_days_per_year?: number | null
-          id?: string
-          is_active?: boolean
-          legal_basis?: string | null
-          name: string
-          pay_type?: string
-          quota_type?: string
-          requires_attachment?: boolean
-          sort_order?: number
-          supports_hourly?: boolean
+          id?: number
+          is_expired?: boolean
+          last_message_at?: string
+          line_user_id: string
+          reply_token?: string | null
+          sent_at?: string | null
           updated_at?: string
           workspace_id: string
         }
         Update: {
-          attachment_threshold_days?: number | null
-          attendance_bonus_flag?: string
-          code?: string
+          accumulated_text?: string
           created_at?: string
-          default_days_per_year?: number | null
-          id?: string
-          is_active?: boolean
-          legal_basis?: string | null
-          name?: string
-          pay_type?: string
-          quota_type?: string
-          requires_attachment?: boolean
-          sort_order?: number
-          supports_hourly?: boolean
+          id?: number
+          is_expired?: boolean
+          last_message_at?: string
+          line_user_id?: string
+          reply_token?: string | null
+          sent_at?: string | null
           updated_at?: string
           workspace_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "leave_types_workspace_id_fkey"
+            foreignKeyName: "line_bot_reply_debounce_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -3526,89 +4329,157 @@ export type Database = {
           },
         ]
       }
-      missed_clock_requests: {
+      line_conversation_overrides: {
         Row: {
-          approved_at: string | null
-          approved_by: string | null
-          clock_type: string
+          bot_paused: boolean
           created_at: string
-          created_by: string | null
-          date: string
-          employee_id: string
           id: string
-          reason: string
-          reject_reason: string | null
-          requested_time: string
-          status: string
+          line_user_id: string
+          notes: string | null
+          paused_at: string | null
+          paused_by: string | null
+          paused_until: string | null
           updated_at: string
-          updated_by: string | null
           workspace_id: string
         }
         Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          clock_type: string
+          bot_paused?: boolean
           created_at?: string
-          created_by?: string | null
-          date: string
-          employee_id: string
           id?: string
-          reason: string
-          reject_reason?: string | null
-          requested_time: string
-          status?: string
+          line_user_id: string
+          notes?: string | null
+          paused_at?: string | null
+          paused_by?: string | null
+          paused_until?: string | null
           updated_at?: string
-          updated_by?: string | null
           workspace_id: string
         }
         Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          clock_type?: string
+          bot_paused?: boolean
           created_at?: string
-          created_by?: string | null
-          date?: string
-          employee_id?: string
           id?: string
-          reason?: string
-          reject_reason?: string | null
-          requested_time?: string
-          status?: string
+          line_user_id?: string
+          notes?: string | null
+          paused_at?: string | null
+          paused_by?: string | null
+          paused_until?: string | null
           updated_at?: string
-          updated_by?: string | null
           workspace_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "missed_clock_requests_approved_by_fkey"
-            columns: ["approved_by"]
+            foreignKeyName: "line_conversation_overrides_paused_by_fkey"
+            columns: ["paused_by"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "missed_clock_requests_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "line_conversation_overrides_workspace_id_fkey"
+            columns: ["workspace_id"]
             isOneToOne: false
-            referencedRelation: "employees"
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      line_postback_templates: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          postback_data: string
+          response_text: string
+          sort_order: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          postback_data: string
+          response_text: string
+          sort_order?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          postback_data?: string
+          response_text?: string
+          sort_order?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "line_postback_templates_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      line_user_profiles: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          display_name: string | null
+          first_seen_at: string
+          id: string
+          language: string | null
+          last_seen_at: string
+          line_user_id: string
+          picture_url: string | null
+          status_message: string | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          display_name?: string | null
+          first_seen_at?: string
+          id?: string
+          language?: string | null
+          last_seen_at?: string
+          line_user_id: string
+          picture_url?: string | null
+          status_message?: string | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          display_name?: string | null
+          first_seen_at?: string
+          id?: string
+          language?: string | null
+          last_seen_at?: string
+          line_user_id?: string
+          picture_url?: string | null
+          status_message?: string | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "line_user_profiles_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "missed_clock_requests_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "missed_clock_requests_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "missed_clock_requests_workspace_id_fkey"
+            foreignKeyName: "line_user_profiles_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -3656,36 +4527,7 @@ export type Database = {
           user_id?: string
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "notes_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notes_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "notes_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       order_members: {
         Row: {
@@ -3855,6 +4697,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "order_members_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "order_members_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
@@ -3883,10 +4732,58 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "order_members_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "order_members_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_status_logs: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          note: string | null
+          order_id: string
+          to_status: string
+          workspace_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id: string
+          to_status: string
+          workspace_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string
+          to_status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_status_logs_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -3896,7 +4793,6 @@ export type Database = {
           adult_count: number | null
           assistant: string | null
           assistant_id: string | null
-          code: string
           contact_email: string | null
           contact_person: string
           contact_phone: string | null
@@ -3918,6 +4814,7 @@ export type Database = {
           remaining_amount: number | null
           sales_id: string | null
           sales_person: string | null
+          source: string
           status: string
           total_amount: number | null
           tour_id: string | null
@@ -3930,7 +4827,6 @@ export type Database = {
           adult_count?: number | null
           assistant?: string | null
           assistant_id?: string | null
-          code: string
           contact_email?: string | null
           contact_person: string
           contact_phone?: string | null
@@ -3952,6 +4848,7 @@ export type Database = {
           remaining_amount?: number | null
           sales_id?: string | null
           sales_person?: string | null
+          source?: string
           status?: string
           total_amount?: number | null
           tour_id?: string | null
@@ -3964,7 +4861,6 @@ export type Database = {
           adult_count?: number | null
           assistant?: string | null
           assistant_id?: string | null
-          code?: string
           contact_email?: string | null
           contact_person?: string
           contact_phone?: string | null
@@ -3986,6 +4882,7 @@ export type Database = {
           remaining_amount?: number | null
           sales_id?: string | null
           sales_person?: string | null
+          source?: string
           status?: string
           total_amount?: number | null
           tour_id?: string | null
@@ -3995,6 +4892,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_assistant_id_fkey"
+            columns: ["assistant_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_created_by_fkey"
             columns: ["created_by"]
@@ -4012,6 +4916,13 @@ export type Database = {
           {
             foreignKeyName: "orders_deleted_by_fkey"
             columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_sales_id_fkey"
+            columns: ["sales_id"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
@@ -4039,159 +4950,66 @@ export type Database = {
           },
         ]
       }
-      overtime_requests: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          created_at: string
-          created_by: string | null
-          date: string
-          employee_id: string
-          end_time: string
-          hours: number
-          id: string
-          overtime_type: string
-          reason: string | null
-          reject_reason: string | null
-          start_time: string
-          status: string
-          updated_at: string
-          updated_by: string | null
-          workspace_id: string
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
-          created_by?: string | null
-          date: string
-          employee_id: string
-          end_time: string
-          hours: number
-          id?: string
-          overtime_type?: string
-          reason?: string | null
-          reject_reason?: string | null
-          start_time: string
-          status?: string
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id: string
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
-          created_by?: string | null
-          date?: string
-          employee_id?: string
-          end_time?: string
-          hours?: number
-          id?: string
-          overtime_type?: string
-          reason?: string | null
-          reject_reason?: string | null
-          start_time?: string
-          status?: string
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "overtime_requests_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "overtime_requests_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "overtime_requests_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "overtime_requests_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "overtime_requests_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       payment_methods: {
         Row: {
-          code: string | null
+          code: string
           created_at: string | null
           credit_account_id: string | null
           debit_account_id: string | null
           description: string | null
           fee_account_id: string | null
-          fee_fixed: number
-          fee_percent: number
+          fee_fixed: number | null
+          fee_percent: number | null
           id: string
           is_active: boolean | null
           is_system: boolean | null
+          kind: string | null
           name: string
           placeholder: string | null
           sort_order: number | null
           type: string
           updated_at: string | null
-          workspace_id: string
+          workspace_id: string | null
         }
         Insert: {
-          code?: string | null
+          code: string
           created_at?: string | null
           credit_account_id?: string | null
           debit_account_id?: string | null
           description?: string | null
           fee_account_id?: string | null
-          fee_fixed?: number
-          fee_percent?: number
+          fee_fixed?: number | null
+          fee_percent?: number | null
           id?: string
           is_active?: boolean | null
           is_system?: boolean | null
+          kind?: string | null
           name: string
           placeholder?: string | null
           sort_order?: number | null
           type: string
           updated_at?: string | null
-          workspace_id: string
+          workspace_id?: string | null
         }
         Update: {
-          code?: string | null
+          code?: string
           created_at?: string | null
           credit_account_id?: string | null
           debit_account_id?: string | null
           description?: string | null
           fee_account_id?: string | null
-          fee_fixed?: number
-          fee_percent?: number
+          fee_fixed?: number | null
+          fee_percent?: number | null
           id?: string
           is_active?: boolean | null
           is_system?: boolean | null
+          kind?: string | null
           name?: string
           placeholder?: string | null
           sort_order?: number | null
           type?: string
           updated_at?: string | null
-          workspace_id?: string
+          workspace_id?: string | null
         }
         Relationships: [
           {
@@ -4228,16 +5046,16 @@ export type Database = {
         Row: {
           advanced_by: string | null
           advanced_by_name: string | null
+          amount: number
           category: string | null
-          confirmation_item_id: string | null
           created_at: string | null
           created_by: string | null
+          currency: string | null
           custom_request_date: string | null
           description: string
           id: string
           item_number: string | null
           notes: string | null
-          payment_method: string | null
           payment_method_id: string | null
           quantity: number | null
           request_id: string | null
@@ -4246,10 +5064,7 @@ export type Database = {
           supplier_id: string | null
           supplier_name: string | null
           tour_id: string | null
-          transferred_at: string | null
-          transferred_by: string | null
-          transferred_from_tour_id: string | null
-          unit_price: number | null
+          unit_price: number
           updated_at: string | null
           updated_by: string | null
           workspace_id: string | null
@@ -4257,16 +5072,16 @@ export type Database = {
         Insert: {
           advanced_by?: string | null
           advanced_by_name?: string | null
+          amount?: number
           category?: string | null
-          confirmation_item_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          currency?: string | null
           custom_request_date?: string | null
           description: string
           id?: string
           item_number?: string | null
           notes?: string | null
-          payment_method?: string | null
           payment_method_id?: string | null
           quantity?: number | null
           request_id?: string | null
@@ -4275,10 +5090,7 @@ export type Database = {
           supplier_id?: string | null
           supplier_name?: string | null
           tour_id?: string | null
-          transferred_at?: string | null
-          transferred_by?: string | null
-          transferred_from_tour_id?: string | null
-          unit_price?: number | null
+          unit_price?: number
           updated_at?: string | null
           updated_by?: string | null
           workspace_id?: string | null
@@ -4286,16 +5098,16 @@ export type Database = {
         Update: {
           advanced_by?: string | null
           advanced_by_name?: string | null
+          amount?: number
           category?: string | null
-          confirmation_item_id?: string | null
           created_at?: string | null
           created_by?: string | null
+          currency?: string | null
           custom_request_date?: string | null
           description?: string
           id?: string
           item_number?: string | null
           notes?: string | null
-          payment_method?: string | null
           payment_method_id?: string | null
           quantity?: number | null
           request_id?: string | null
@@ -4304,15 +5116,19 @@ export type Database = {
           supplier_id?: string | null
           supplier_name?: string | null
           tour_id?: string | null
-          transferred_at?: string | null
-          transferred_by?: string | null
-          transferred_from_tour_id?: string | null
-          unit_price?: number | null
+          unit_price?: number
           updated_at?: string | null
           updated_by?: string | null
           workspace_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "payment_request_items_advanced_by_fkey"
+            columns: ["advanced_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payment_request_items_payment_method_id_fkey"
             columns: ["payment_method_id"]
@@ -4332,13 +5148,6 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_request_items_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
             referencedColumns: ["id"]
           },
         ]
@@ -4467,807 +5276,88 @@ export type Database = {
           updated_by?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "payment_requests_accounting_subject_id_fkey"
-            columns: ["accounting_subject_id"]
-            isOneToOne: false
-            referencedRelation: "chart_of_accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_accounting_voucher_id_fkey"
-            columns: ["accounting_voucher_id"]
-            isOneToOne: false
-            referencedRelation: "journal_vouchers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_deleted_by_fkey"
-            columns: ["deleted_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_disbursement_order_id_fkey"
-            columns: ["disbursement_order_id"]
-            isOneToOne: false
-            referencedRelation: "disbursement_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_paid_by_fkey"
-            columns: ["paid_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "suppliers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      payroll_runs: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          finalized_at: string | null
-          finalized_by: string | null
-          id: string
-          law_version: string | null
-          note: string | null
-          period_month: number
-          period_year: number
-          status: string
-          total_deduction_amount: number
-          total_employees: number
-          total_gross_amount: number
-          total_net_amount: number
-          updated_at: string
-          updated_by: string | null
-          workspace_id: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          finalized_at?: string | null
-          finalized_by?: string | null
-          id?: string
-          law_version?: string | null
-          note?: string | null
-          period_month: number
-          period_year: number
-          status?: string
-          total_deduction_amount?: number
-          total_employees?: number
-          total_gross_amount?: number
-          total_net_amount?: number
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          finalized_at?: string | null
-          finalized_by?: string | null
-          id?: string
-          law_version?: string | null
-          note?: string | null
-          period_month?: number
-          period_year?: number
-          status?: string
-          total_deduction_amount?: number
-          total_employees?: number
-          total_gross_amount?: number
-          total_net_amount?: number
-          updated_at?: string
-          updated_by?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payroll_runs_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payroll_runs_finalized_by_fkey"
-            columns: ["finalized_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payroll_runs_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payroll_runs_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      payslips: {
-        Row: {
-          attendance_bonus: number
-          attendance_bonus_deduction: number
-          base_salary: number
-          calc_breakdown: Json
-          created_at: string
-          created_by: string | null
-          employee_id: string
-          employee_snapshot: Json
-          gross_amount: number
-          has_warnings: boolean
-          health_insurance_employee: number
-          health_insurance_employer: number
-          id: string
-          income_tax: number
-          labor_insurance_employee: number
-          labor_insurance_employer: number
-          leave_deduction: number
-          net_amount: number
-          note: string | null
-          other_allowances: number
-          other_deductions: number
-          overtime_pay: number
-          payroll_run_id: string
-          pension_employer: number
-          pension_voluntary: number
-          period_month: number
-          period_year: number
-          sent_to_employee_at: string | null
-          updated_at: string
-          updated_by: string | null
-          warnings: Json
-          workspace_id: string
-        }
-        Insert: {
-          attendance_bonus?: number
-          attendance_bonus_deduction?: number
-          base_salary?: number
-          calc_breakdown?: Json
-          created_at?: string
-          created_by?: string | null
-          employee_id: string
-          employee_snapshot?: Json
-          gross_amount?: number
-          has_warnings?: boolean
-          health_insurance_employee?: number
-          health_insurance_employer?: number
-          id?: string
-          income_tax?: number
-          labor_insurance_employee?: number
-          labor_insurance_employer?: number
-          leave_deduction?: number
-          net_amount?: number
-          note?: string | null
-          other_allowances?: number
-          other_deductions?: number
-          overtime_pay?: number
-          payroll_run_id: string
-          pension_employer?: number
-          pension_voluntary?: number
-          period_month: number
-          period_year: number
-          sent_to_employee_at?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          warnings?: Json
-          workspace_id: string
-        }
-        Update: {
-          attendance_bonus?: number
-          attendance_bonus_deduction?: number
-          base_salary?: number
-          calc_breakdown?: Json
-          created_at?: string
-          created_by?: string | null
-          employee_id?: string
-          employee_snapshot?: Json
-          gross_amount?: number
-          has_warnings?: boolean
-          health_insurance_employee?: number
-          health_insurance_employer?: number
-          id?: string
-          income_tax?: number
-          labor_insurance_employee?: number
-          labor_insurance_employer?: number
-          leave_deduction?: number
-          net_amount?: number
-          note?: string | null
-          other_allowances?: number
-          other_deductions?: number
-          overtime_pay?: number
-          payroll_run_id?: string
-          pension_employer?: number
-          pension_voluntary?: number
-          period_month?: number
-          period_year?: number
-          sent_to_employee_at?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          warnings?: Json
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payslips_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payslips_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payslips_payroll_run_id_fkey"
-            columns: ["payroll_run_id"]
-            isOneToOne: false
-            referencedRelation: "payroll_runs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payslips_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payslips_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      pnr_records: {
-        Row: {
-          created_at: string | null
-          created_by: string | null
-          created_date: string | null
-          id: string
-          is_ticketed: boolean | null
-          notes: string | null
-          office_id: string | null
-          raw_content: string | null
-          record_locator: string
-          ticket_numbers: string[] | null
-          ticketing_deadline: string | null
-          ticketing_status: string | null
-          tour_id: string | null
-          updated_at: string | null
-          workspace_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          created_by?: string | null
-          created_date?: string | null
-          id?: string
-          is_ticketed?: boolean | null
-          notes?: string | null
-          office_id?: string | null
-          raw_content?: string | null
-          record_locator: string
-          ticket_numbers?: string[] | null
-          ticketing_deadline?: string | null
-          ticketing_status?: string | null
-          tour_id?: string | null
-          updated_at?: string | null
-          workspace_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          created_by?: string | null
-          created_date?: string | null
-          id?: string
-          is_ticketed?: boolean | null
-          notes?: string | null
-          office_id?: string | null
-          raw_content?: string | null
-          record_locator?: string
-          ticket_numbers?: string[] | null
-          ticketing_deadline?: string | null
-          ticketing_status?: string | null
-          tour_id?: string | null
-          updated_at?: string | null
-          workspace_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pnr_records_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pnr_records_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      premium_experiences: {
-        Row: {
-          advance_booking_days: number | null
-          available_seasons: string[] | null
-          awards: string[] | null
-          best_for_age_group: string | null
-          best_time_of_day: string | null
-          booking_contact: string | null
-          booking_email: string | null
-          booking_phone: string | null
-          cancellation_policy: string | null
-          category: string
-          certifications: string[] | null
-          city_id: string
-          combine_with: string[] | null
-          commission_rate: number | null
-          country_code: string | null
-          country_id: string
-          created_at: string | null
-          created_by: string | null
-          currency: string | null
-          description: string
-          description_en: string | null
-          difficulty_level: string | null
-          display_order: number | null
-          dress_code: string | null
-          duration_hours: number | null
-          eco_friendly: boolean | null
-          english_name: string | null
-          exclusivity_level: string
-          expert_credentials: string[] | null
-          expert_name: string | null
-          expert_profile: string | null
-          expert_title: string | null
-          group_size_max: number | null
-          group_size_min: number | null
-          highlights: string[] | null
-          id: string
-          images: string[] | null
-          inclusions: Json | null
-          internal_notes: string | null
-          is_active: boolean | null
-          is_featured: boolean | null
-          language_support: string[] | null
-          latitude: number | null
-          longitude: number | null
-          media_features: string[] | null
-          meeting_point: string | null
-          meeting_point_coords: Json | null
-          minimum_participants: number | null
-          name: string
-          name_local: string | null
-          net_price_per_person: number | null
-          physical_requirement: string | null
-          pickup_service: boolean | null
-          price_excludes: string[] | null
-          price_includes: string[] | null
-          price_per_person_max: number | null
-          price_per_person_min: number | null
-          ratings: Json | null
-          recommended_for: string[] | null
-          region_id: string | null
-          related_attractions: string[] | null
-          restrictions: string[] | null
-          review_count: number | null
-          specific_location: string | null
-          sub_category: string[] | null
-          suitable_for_children: boolean | null
-          supports_local_community: boolean | null
-          sustainability_practices: string[] | null
-          tagline: string | null
-          thumbnail: string | null
-          transportation_included: boolean | null
-          updated_at: string | null
-          updated_by: string | null
-          video_url: string | null
-          what_makes_it_special: string | null
-          what_to_bring: string[] | null
-          workspace_id: string
-        }
-        Insert: {
-          advance_booking_days?: number | null
-          available_seasons?: string[] | null
-          awards?: string[] | null
-          best_for_age_group?: string | null
-          best_time_of_day?: string | null
-          booking_contact?: string | null
-          booking_email?: string | null
-          booking_phone?: string | null
-          cancellation_policy?: string | null
-          category: string
-          certifications?: string[] | null
-          city_id: string
-          combine_with?: string[] | null
-          commission_rate?: number | null
-          country_code?: string | null
-          country_id: string
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string | null
-          description: string
-          description_en?: string | null
-          difficulty_level?: string | null
-          display_order?: number | null
-          dress_code?: string | null
-          duration_hours?: number | null
-          eco_friendly?: boolean | null
-          english_name?: string | null
-          exclusivity_level: string
-          expert_credentials?: string[] | null
-          expert_name?: string | null
-          expert_profile?: string | null
-          expert_title?: string | null
-          group_size_max?: number | null
-          group_size_min?: number | null
-          highlights?: string[] | null
-          id?: string
-          images?: string[] | null
-          inclusions?: Json | null
-          internal_notes?: string | null
-          is_active?: boolean | null
-          is_featured?: boolean | null
-          language_support?: string[] | null
-          latitude?: number | null
-          longitude?: number | null
-          media_features?: string[] | null
-          meeting_point?: string | null
-          meeting_point_coords?: Json | null
-          minimum_participants?: number | null
-          name: string
-          name_local?: string | null
-          net_price_per_person?: number | null
-          physical_requirement?: string | null
-          pickup_service?: boolean | null
-          price_excludes?: string[] | null
-          price_includes?: string[] | null
-          price_per_person_max?: number | null
-          price_per_person_min?: number | null
-          ratings?: Json | null
-          recommended_for?: string[] | null
-          region_id?: string | null
-          related_attractions?: string[] | null
-          restrictions?: string[] | null
-          review_count?: number | null
-          specific_location?: string | null
-          sub_category?: string[] | null
-          suitable_for_children?: boolean | null
-          supports_local_community?: boolean | null
-          sustainability_practices?: string[] | null
-          tagline?: string | null
-          thumbnail?: string | null
-          transportation_included?: boolean | null
-          updated_at?: string | null
-          updated_by?: string | null
-          video_url?: string | null
-          what_makes_it_special?: string | null
-          what_to_bring?: string[] | null
-          workspace_id: string
-        }
-        Update: {
-          advance_booking_days?: number | null
-          available_seasons?: string[] | null
-          awards?: string[] | null
-          best_for_age_group?: string | null
-          best_time_of_day?: string | null
-          booking_contact?: string | null
-          booking_email?: string | null
-          booking_phone?: string | null
-          cancellation_policy?: string | null
-          category?: string
-          certifications?: string[] | null
-          city_id?: string
-          combine_with?: string[] | null
-          commission_rate?: number | null
-          country_code?: string | null
-          country_id?: string
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string | null
-          description?: string
-          description_en?: string | null
-          difficulty_level?: string | null
-          display_order?: number | null
-          dress_code?: string | null
-          duration_hours?: number | null
-          eco_friendly?: boolean | null
-          english_name?: string | null
-          exclusivity_level?: string
-          expert_credentials?: string[] | null
-          expert_name?: string | null
-          expert_profile?: string | null
-          expert_title?: string | null
-          group_size_max?: number | null
-          group_size_min?: number | null
-          highlights?: string[] | null
-          id?: string
-          images?: string[] | null
-          inclusions?: Json | null
-          internal_notes?: string | null
-          is_active?: boolean | null
-          is_featured?: boolean | null
-          language_support?: string[] | null
-          latitude?: number | null
-          longitude?: number | null
-          media_features?: string[] | null
-          meeting_point?: string | null
-          meeting_point_coords?: Json | null
-          minimum_participants?: number | null
-          name?: string
-          name_local?: string | null
-          net_price_per_person?: number | null
-          physical_requirement?: string | null
-          pickup_service?: boolean | null
-          price_excludes?: string[] | null
-          price_includes?: string[] | null
-          price_per_person_max?: number | null
-          price_per_person_min?: number | null
-          ratings?: Json | null
-          recommended_for?: string[] | null
-          region_id?: string | null
-          related_attractions?: string[] | null
-          restrictions?: string[] | null
-          review_count?: number | null
-          specific_location?: string | null
-          sub_category?: string[] | null
-          suitable_for_children?: boolean | null
-          supports_local_community?: boolean | null
-          sustainability_practices?: string[] | null
-          tagline?: string | null
-          thumbnail?: string | null
-          transportation_included?: boolean | null
-          updated_at?: string | null
-          updated_by?: string | null
-          video_url?: string | null
-          what_makes_it_special?: string | null
-          what_to_bring?: string[] | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "premium_experiences_city_id_fkey"
-            columns: ["city_id"]
-            isOneToOne: false
-            referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "premium_experiences_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "premium_experiences_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "premium_experiences_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "premium_experiences_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "premium_experiences_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "premium_experiences_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          customer_id: string | null
-          display_name: string | null
-          email: string | null
-          employee_id: string | null
-          id: string
-          identity_verified_at: string | null
-          is_beta_tester: boolean | null
-          is_employee: boolean | null
-          is_traveler: boolean | null
-          linked_birthday: string | null
-          linked_id_number: string | null
-          name: string | null
-          nickname: string | null
-          updated_at: string | null
-          workspace_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          display_name?: string | null
-          email?: string | null
-          employee_id?: string | null
-          id: string
-          identity_verified_at?: string | null
-          is_beta_tester?: boolean | null
-          is_employee?: boolean | null
-          is_traveler?: boolean | null
-          linked_birthday?: string | null
-          linked_id_number?: string | null
-          name?: string | null
-          nickname?: string | null
-          updated_at?: string | null
-          workspace_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          customer_id?: string | null
-          display_name?: string | null
-          email?: string | null
-          employee_id?: string | null
-          id?: string
-          identity_verified_at?: string | null
-          is_beta_tester?: boolean | null
-          is_employee?: boolean | null
-          is_traveler?: boolean | null
-          linked_birthday?: string | null
-          linked_id_number?: string | null
-          name?: string | null
-          nickname?: string | null
-          updated_at?: string | null
-          workspace_id?: string | null
-        }
         Relationships: []
       }
-      quote_confirmation_logs: {
+      personal_expenses: {
         Row: {
-          action: string
-          confirmed_by_email: string | null
-          confirmed_by_name: string | null
-          confirmed_by_phone: string | null
-          confirmed_by_staff_id: string | null
-          confirmed_by_type: string | null
-          confirmed_version: number | null
+          amount: number
+          category: string
           created_at: string | null
+          currency: string | null
+          description: string | null
+          exchange_rate: number | null
+          expense_date: string
+          expense_time: string | null
           id: string
-          ip_address: string | null
-          notes: string | null
-          quote_id: string
-          user_agent: string | null
-          workspace_id: string | null
+          is_foreign_transaction: boolean | null
+          is_settled: boolean | null
+          is_split: boolean | null
+          location: string | null
+          payment_method: string | null
+          receipt_url: string | null
+          settlement_amount: number | null
+          settlement_currency: string | null
+          split_expense_id: string | null
+          split_group_id: string | null
+          tags: string[] | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          action: string
-          confirmed_by_email?: string | null
-          confirmed_by_name?: string | null
-          confirmed_by_phone?: string | null
-          confirmed_by_staff_id?: string | null
-          confirmed_by_type?: string | null
-          confirmed_version?: number | null
+          amount: number
+          category?: string
           created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          exchange_rate?: number | null
+          expense_date?: string
+          expense_time?: string | null
           id?: string
-          ip_address?: string | null
-          notes?: string | null
-          quote_id: string
-          user_agent?: string | null
-          workspace_id?: string | null
+          is_foreign_transaction?: boolean | null
+          is_settled?: boolean | null
+          is_split?: boolean | null
+          location?: string | null
+          payment_method?: string | null
+          receipt_url?: string | null
+          settlement_amount?: number | null
+          settlement_currency?: string | null
+          split_expense_id?: string | null
+          split_group_id?: string | null
+          tags?: string[] | null
+          title: string
+          type?: string
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          action?: string
-          confirmed_by_email?: string | null
-          confirmed_by_name?: string | null
-          confirmed_by_phone?: string | null
-          confirmed_by_staff_id?: string | null
-          confirmed_by_type?: string | null
-          confirmed_version?: number | null
+          amount?: number
+          category?: string
           created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          exchange_rate?: number | null
+          expense_date?: string
+          expense_time?: string | null
           id?: string
-          ip_address?: string | null
-          notes?: string | null
-          quote_id?: string
-          user_agent?: string | null
-          workspace_id?: string | null
+          is_foreign_transaction?: boolean | null
+          is_settled?: boolean | null
+          is_split?: boolean | null
+          location?: string | null
+          payment_method?: string | null
+          receipt_url?: string | null
+          settlement_amount?: number | null
+          settlement_currency?: string | null
+          split_expense_id?: string | null
+          split_group_id?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "quote_confirmation_logs_confirmed_by_staff_id_fkey"
-            columns: ["confirmed_by_staff_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_confirmation_logs_quote_id_fkey"
-            columns: ["quote_id"]
-            isOneToOne: false
-            referencedRelation: "quotes"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quote_confirmation_logs_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       quotes: {
         Row: {
@@ -5519,51 +5609,50 @@ export type Database = {
           versions?: Json | null
           workspace_id?: string
         }
+        Relationships: []
+      }
+      receipt_invoice_allocations: {
+        Row: {
+          allocated_amount: number
+          created_at: string
+          id: string
+          invoice_id: string
+          receipt_id: string
+          workspace_id: string
+        }
+        Insert: {
+          allocated_amount: number
+          created_at?: string
+          id?: string
+          invoice_id: string
+          receipt_id: string
+          workspace_id: string
+        }
+        Update: {
+          allocated_amount?: number
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          receipt_id?: string
+          workspace_id?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "quotes_country_code_fkey"
-            columns: ["country_code"]
+            foreignKeyName: "receipt_invoice_allocations_invoice_id_fkey"
+            columns: ["invoice_id"]
             isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "quotes_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
+            referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "quotes_customer_id_fkey"
-            columns: ["customer_id"]
+            foreignKeyName: "receipt_invoice_allocations_receipt_id_fkey"
+            columns: ["receipt_id"]
             isOneToOne: false
-            referencedRelation: "customers"
+            referencedRelation: "receipts"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "quotes_deleted_by_fkey"
-            columns: ["deleted_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotes_workspace_id_fkey"
+            foreignKeyName: "receipt_invoice_allocations_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -5571,28 +5660,11 @@ export type Database = {
           },
         ]
       }
-      rate_limits: {
-        Row: {
-          count: number
-          key: string
-          reset_at: string
-        }
-        Insert: {
-          count?: number
-          key: string
-          reset_at: string
-        }
-        Update: {
-          count?: number
-          key?: string
-          reset_at?: string
-        }
-        Relationships: []
-      }
       receipts: {
         Row: {
           accounting_subject_id: string | null
           actual_amount: number | null
+          bank_account_last5: string | null
           batch_id: string | null
           confirmed_at: string | null
           confirmed_by: string | null
@@ -5605,6 +5677,7 @@ export type Database = {
           deleted_reason: string | null
           fees: number | null
           id: string
+          invoice_id: string | null
           is_active: boolean
           notes: string | null
           order_id: string | null
@@ -5636,6 +5709,7 @@ export type Database = {
         Insert: {
           accounting_subject_id?: string | null
           actual_amount?: number | null
+          bank_account_last5?: string | null
           batch_id?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -5648,6 +5722,7 @@ export type Database = {
           deleted_reason?: string | null
           fees?: number | null
           id?: string
+          invoice_id?: string | null
           is_active?: boolean
           notes?: string | null
           order_id?: string | null
@@ -5679,6 +5754,7 @@ export type Database = {
         Update: {
           accounting_subject_id?: string | null
           actual_amount?: number | null
+          bank_account_last5?: string | null
           batch_id?: string | null
           confirmed_at?: string | null
           confirmed_by?: string | null
@@ -5691,6 +5767,7 @@ export type Database = {
           deleted_reason?: string | null
           fees?: number | null
           id?: string
+          invoice_id?: string | null
           is_active?: boolean
           notes?: string | null
           order_id?: string | null
@@ -5728,59 +5805,17 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "receipts_accounting_subject_id_fkey"
-            columns: ["accounting_subject_id"]
+            foreignKeyName: "receipts_invoice_id_fkey"
+            columns: ["invoice_id"]
             isOneToOne: false
-            referencedRelation: "chart_of_accounts"
+            referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "receipts_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipts_deleted_by_fkey"
-            columns: ["deleted_by"]
+            foreignKeyName: "receipts_verified_by_fkey"
+            columns: ["verified_by"]
             isOneToOne: false
             referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipts_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipts_refund_voucher_id_fkey"
-            columns: ["refund_voucher_id"]
-            isOneToOne: false
-            referencedRelation: "journal_vouchers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipts_refunded_by_fkey"
-            columns: ["refunded_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipts_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "receipts_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -5825,6 +5860,8 @@ export type Database = {
           city_name_zh: string | null
           country_code: string | null
           created_at: string | null
+          created_by_user_id: string | null
+          created_by_workspace_id: string | null
           iata_code: string
           icao_code: string | null
           is_favorite: boolean | null
@@ -5841,6 +5878,8 @@ export type Database = {
           city_name_zh?: string | null
           country_code?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           iata_code: string
           icao_code?: string | null
           is_favorite?: boolean | null
@@ -5857,6 +5896,8 @@ export type Database = {
           city_name_zh?: string | null
           country_code?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           iata_code?: string
           icao_code?: string | null
           is_favorite?: boolean | null
@@ -5866,6 +5907,45 @@ export type Database = {
           name_zh?: string | null
           timezone?: string | null
           usage_count?: number | null
+        }
+        Relationships: []
+      }
+      ref_banks: {
+        Row: {
+          bank_code: string
+          bank_name: string
+          created_at: string
+          created_by_user_id: string | null
+          created_by_workspace_id: string | null
+          display_order: number
+          english_name: string | null
+          is_active: boolean
+          swift_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          bank_code: string
+          bank_name: string
+          created_at?: string
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
+          display_order?: number
+          english_name?: string | null
+          is_active?: boolean
+          swift_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bank_code?: string
+          bank_name?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
+          display_order?: number
+          english_name?: string | null
+          is_active?: boolean
+          swift_code?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -5893,89 +5973,39 @@ export type Database = {
         }
         Relationships: []
       }
-      ref_cities: {
-        Row: {
-          code: string
-          country_code: string
-          created_at: string | null
-          display_order: number | null
-          iata_city_code: string | null
-          is_active: boolean | null
-          is_major: boolean | null
-          name_en: string | null
-          name_zh: string
-          primary_airport_iata: string | null
-          unlocode: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          code: string
-          country_code: string
-          created_at?: string | null
-          display_order?: number | null
-          iata_city_code?: string | null
-          is_active?: boolean | null
-          is_major?: boolean | null
-          name_en?: string | null
-          name_zh: string
-          primary_airport_iata?: string | null
-          unlocode?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          code?: string
-          country_code?: string
-          created_at?: string | null
-          display_order?: number | null
-          iata_city_code?: string | null
-          is_active?: boolean | null
-          is_major?: boolean | null
-          name_en?: string | null
-          name_zh?: string
-          primary_airport_iata?: string | null
-          unlocode?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ref_cities_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-        ]
-      }
       ref_countries: {
         Row: {
           code: string
           continent: string | null
           created_at: string | null
+          created_by_user_id: string | null
+          created_by_workspace_id: string | null
           is_active: boolean
           name_en: string
           name_zh: string
           sub_region: string | null
-          workspace_id: string
         }
         Insert: {
           code: string
           continent?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           is_active?: boolean
           name_en: string
           name_zh: string
           sub_region?: string | null
-          workspace_id?: string
         }
         Update: {
           code?: string
           continent?: string | null
           created_at?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           is_active?: boolean
           name_en?: string
           name_zh?: string
           sub_region?: string | null
-          workspace_id?: string
         }
         Relationships: []
       }
@@ -6040,15 +6070,49 @@ export type Database = {
           short_alias?: string | null
           type?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "ref_destinations_parent_code_fkey"
-            columns: ["parent_code"]
-            isOneToOne: false
-            referencedRelation: "ref_destinations"
-            referencedColumns: ["code"]
-          },
-        ]
+        Relationships: []
+      }
+      ref_insurance_salary_grades: {
+        Row: {
+          created_at: string
+          effective_from: string
+          effective_until: string | null
+          grade_number: number
+          id: string
+          kind: string
+          monthly_amount: number
+          notes: string | null
+          source_url: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          effective_from: string
+          effective_until?: string | null
+          grade_number: number
+          id?: string
+          kind: string
+          monthly_amount: number
+          notes?: string | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          effective_from?: string
+          effective_until?: string | null
+          grade_number?: number
+          id?: string
+          kind?: string
+          monthly_amount?: number
+          notes?: string | null
+          source_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       ref_ssr_codes: {
         Row: {
@@ -6138,29 +6202,7 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "regions_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "regions_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "regions_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       restaurants: {
         Row: {
@@ -6184,6 +6226,8 @@ export type Database = {
           country_id: string
           created_at: string | null
           created_by: string | null
+          created_by_user_id: string | null
+          created_by_workspace_id: string | null
           cuisine_type: string[] | null
           currency: string | null
           data_verified: boolean | null
@@ -6241,7 +6285,6 @@ export type Database = {
           updated_at: string | null
           updated_by: string | null
           website: string | null
-          workspace_id: string
         }
         Insert: {
           address?: string | null
@@ -6264,6 +6307,8 @@ export type Database = {
           country_id: string
           created_at?: string | null
           created_by?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           cuisine_type?: string[] | null
           currency?: string | null
           data_verified?: boolean | null
@@ -6321,7 +6366,6 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
-          workspace_id?: string
         }
         Update: {
           address?: string | null
@@ -6344,6 +6388,8 @@ export type Database = {
           country_id?: string
           created_at?: string | null
           created_by?: string | null
+          created_by_user_id?: string | null
+          created_by_workspace_id?: string | null
           cuisine_type?: string[] | null
           currency?: string | null
           data_verified?: boolean | null
@@ -6401,144 +6447,32 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
-          workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "restaurants_city_id_fkey"
-            columns: ["city_id"]
-            isOneToOne: false
-            referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "restaurants_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "restaurants_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "restaurants_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "restaurants_deleted_by_fkey"
-            columns: ["deleted_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "restaurants_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "regions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "restaurants_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      rich_documents: {
-        Row: {
-          canvas_id: string
-          content: string
-          created_at: string | null
-          created_by: string | null
-          format_data: Json | null
-          id: string
-          is_favorite: boolean | null
-          tags: string[] | null
-          title: string
-          updated_at: string | null
-          updated_by: string | null
-          workspace_id: string | null
-        }
-        Insert: {
-          canvas_id: string
-          content: string
-          created_at?: string | null
-          created_by?: string | null
-          format_data?: Json | null
-          id?: string
-          is_favorite?: boolean | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string | null
-          updated_by?: string | null
-          workspace_id?: string | null
-        }
-        Update: {
-          canvas_id?: string
-          content?: string
-          created_at?: string | null
-          created_by?: string | null
-          format_data?: Json | null
-          id?: string
-          is_favorite?: boolean | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string | null
-          updated_by?: string | null
-          workspace_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "rich_documents_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rich_documents_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "rich_documents_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       role_capabilities: {
         Row: {
+          can_write_others: boolean
           capability_code: string
           created_at: string
           enabled: boolean
+          id: string
           role_id: string
         }
         Insert: {
+          can_write_others?: boolean
           capability_code: string
           created_at?: string
           enabled?: boolean
+          id?: string
           role_id: string
         }
         Update: {
+          can_write_others?: boolean
           capability_code?: string
           created_at?: string
           enabled?: boolean
+          id?: string
           role_id?: string
         }
         Relationships: [
@@ -6547,6 +6481,145 @@ export type Database = {
             columns: ["role_id"]
             isOneToOne: false
             referencedRelation: "workspace_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      salary_settlement_items: {
+        Row: {
+          allowances: number
+          attendance_bonus: number
+          base_salary: number
+          breakdown: Json | null
+          created_at: string
+          deductions: number
+          employee_id: string
+          employee_name: string
+          employee_number: string | null
+          id: string
+          other_allowances: number
+          settlement_id: string
+          total_amount: number
+          workspace_id: string
+        }
+        Insert: {
+          allowances?: number
+          attendance_bonus?: number
+          base_salary?: number
+          breakdown?: Json | null
+          created_at?: string
+          deductions?: number
+          employee_id: string
+          employee_name: string
+          employee_number?: string | null
+          id?: string
+          other_allowances?: number
+          settlement_id: string
+          total_amount: number
+          workspace_id: string
+        }
+        Update: {
+          allowances?: number
+          attendance_bonus?: number
+          base_salary?: number
+          breakdown?: Json | null
+          created_at?: string
+          deductions?: number
+          employee_id?: string
+          employee_name?: string
+          employee_number?: string | null
+          id?: string
+          other_allowances?: number
+          settlement_id?: string
+          total_amount?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_settlement_items_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salary_settlement_items_settlement_id_fkey"
+            columns: ["settlement_id"]
+            isOneToOne: false
+            referencedRelation: "salary_settlements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salary_settlement_items_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      salary_settlements: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          employee_count: number
+          id: string
+          notes: string | null
+          payment_request_id: string | null
+          period: string
+          status: string
+          submitted_at: string | null
+          submitted_by: string | null
+          total_amount: number
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          employee_count?: number
+          id?: string
+          notes?: string | null
+          payment_request_id?: string | null
+          period: string
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          total_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          employee_count?: number
+          id?: string
+          notes?: string | null
+          payment_request_id?: string | null
+          period?: string
+          status?: string
+          submitted_at?: string | null
+          submitted_by?: string | null
+          total_amount?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_settlements_payment_request_id_fkey"
+            columns: ["payment_request_id"]
+            isOneToOne: false
+            referencedRelation: "payment_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salary_settlements_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -6581,6 +6654,63 @@ export type Database = {
           },
         ]
       }
+      setup_tokens: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          integration_code: string
+          token: string
+          updated_at: string
+          used_at: string | null
+          used_by_ip: string | null
+          used_by_user_agent: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          integration_code: string
+          token: string
+          updated_at?: string
+          used_at?: string | null
+          used_by_ip?: string | null
+          used_by_user_agent?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          integration_code?: string
+          token?: string
+          updated_at?: string
+          used_at?: string | null
+          used_by_ip?: string | null
+          used_by_user_agent?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "setup_tokens_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "setup_tokens_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplier_categories: {
         Row: {
           color: string | null
@@ -6602,7 +6732,7 @@ export type Database = {
           is_active?: boolean | null
           name: string
           updated_at?: string | null
-          workspace_id?: string
+          workspace_id: string
         }
         Update: {
           color?: string | null
@@ -6615,183 +6745,9 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string
         }
-        Relationships: []
-      }
-      suppliers: {
-        Row: {
-          address: string | null
-          bank_account: string | null
-          bank_account_name: string | null
-          bank_branch: string | null
-          bank_code_legacy: string | null
-          bank_name: string | null
-          category_id: string | null
-          code: string
-          contact: Json | null
-          contact_person: string | null
-          country: string | null
-          country_code: string | null
-          country_id: string | null
-          created_at: string
-          created_by: string | null
-          currency: string | null
-          deleted_at: string | null
-          deleted_by: string | null
-          deleted_reason: string | null
-          display_order: number | null
-          email: string | null
-          english_name: string | null
-          fax: string | null
-          id: string
-          is_active: boolean | null
-          is_preferred: boolean | null
-          name: string
-          notes: string | null
-          payment_terms: string | null
-          phone: string | null
-          rating: number | null
-          region: string | null
-          status: string
-          tax_id: string | null
-          total_orders: number | null
-          total_spent: number | null
-          type: string | null
-          updated_at: string
-          updated_by: string | null
-          website: string | null
-          workspace_id: string
-        }
-        Insert: {
-          address?: string | null
-          bank_account?: string | null
-          bank_account_name?: string | null
-          bank_branch?: string | null
-          bank_code_legacy?: string | null
-          bank_name?: string | null
-          category_id?: string | null
-          code: string
-          contact?: Json | null
-          contact_person?: string | null
-          country?: string | null
-          country_code?: string | null
-          country_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          deleted_at?: string | null
-          deleted_by?: string | null
-          deleted_reason?: string | null
-          display_order?: number | null
-          email?: string | null
-          english_name?: string | null
-          fax?: string | null
-          id: string
-          is_active?: boolean | null
-          is_preferred?: boolean | null
-          name: string
-          notes?: string | null
-          payment_terms?: string | null
-          phone?: string | null
-          rating?: number | null
-          region?: string | null
-          status?: string
-          tax_id?: string | null
-          total_orders?: number | null
-          total_spent?: number | null
-          type?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          website?: string | null
-          workspace_id: string
-        }
-        Update: {
-          address?: string | null
-          bank_account?: string | null
-          bank_account_name?: string | null
-          bank_branch?: string | null
-          bank_code_legacy?: string | null
-          bank_name?: string | null
-          category_id?: string | null
-          code?: string
-          contact?: Json | null
-          contact_person?: string | null
-          country?: string | null
-          country_code?: string | null
-          country_id?: string | null
-          created_at?: string
-          created_by?: string | null
-          currency?: string | null
-          deleted_at?: string | null
-          deleted_by?: string | null
-          deleted_reason?: string | null
-          display_order?: number | null
-          email?: string | null
-          english_name?: string | null
-          fax?: string | null
-          id?: string
-          is_active?: boolean | null
-          is_preferred?: boolean | null
-          name?: string
-          notes?: string | null
-          payment_terms?: string | null
-          phone?: string | null
-          rating?: number | null
-          region?: string | null
-          status?: string
-          tax_id?: string | null
-          total_orders?: number | null
-          total_spent?: number | null
-          type?: string | null
-          updated_at?: string
-          updated_by?: string | null
-          website?: string | null
-          workspace_id?: string
-        }
         Relationships: [
           {
-            foreignKeyName: "suppliers_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "supplier_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "suppliers_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "suppliers_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "suppliers_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "suppliers_deleted_by_fkey"
-            columns: ["deleted_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "suppliers_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "suppliers_workspace_id_fkey"
+            foreignKeyName: "supplier_categories_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -6799,48 +6755,155 @@ export type Database = {
           },
         ]
       }
-      tasks: {
+      suppliers: {
         Row: {
-          assignee: string | null
+          address: string | null
+          bank_account: string | null
+          bank_account_name: string | null
+          bank_branch: string | null
+          bank_code: string | null
+          bank_name: string | null
+          city: string | null
+          code: string
+          contact_person: string | null
+          country: string | null
           created_at: string | null
-          due_date: string | null
-          id: number
+          created_by: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          is_domestic: boolean
+          line_id: string | null
+          mobile: string | null
           name: string
           notes: string | null
-          progress: number | null
-          status: string | null
-          task_type: string
+          password_hash: string | null
+          phone: string | null
+          short_name: string | null
+          supplier_type_code: string | null
+          swift_code: string | null
+          tax_id: string | null
           updated_at: string | null
-          workflow_template: string | null
-          workspace_id: string
+          updated_by: string | null
+          usage_count: number
+          wechat_id: string | null
+          workspace_id: string | null
         }
         Insert: {
-          assignee?: string | null
+          address?: string | null
+          bank_account?: string | null
+          bank_account_name?: string | null
+          bank_branch?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
+          city?: string | null
+          code: string
+          contact_person?: string | null
+          country?: string | null
           created_at?: string | null
-          due_date?: string | null
-          id?: number
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_domestic?: boolean
+          line_id?: string | null
+          mobile?: string | null
           name: string
           notes?: string | null
-          progress?: number | null
-          status?: string | null
-          task_type?: string
+          password_hash?: string | null
+          phone?: string | null
+          short_name?: string | null
+          supplier_type_code?: string | null
+          swift_code?: string | null
+          tax_id?: string | null
           updated_at?: string | null
-          workflow_template?: string | null
-          workspace_id?: string
+          updated_by?: string | null
+          usage_count?: number
+          wechat_id?: string | null
+          workspace_id?: string | null
         }
         Update: {
-          assignee?: string | null
+          address?: string | null
+          bank_account?: string | null
+          bank_account_name?: string | null
+          bank_branch?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
+          city?: string | null
+          code?: string
+          contact_person?: string | null
+          country?: string | null
           created_at?: string | null
-          due_date?: string | null
-          id?: number
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_domestic?: boolean
+          line_id?: string | null
+          mobile?: string | null
           name?: string
           notes?: string | null
-          progress?: number | null
-          status?: string | null
-          task_type?: string
+          password_hash?: string | null
+          phone?: string | null
+          short_name?: string | null
+          supplier_type_code?: string | null
+          swift_code?: string | null
+          tax_id?: string | null
           updated_at?: string | null
-          workflow_template?: string | null
-          workspace_id?: string
+          updated_by?: string | null
+          usage_count?: number
+          wechat_id?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suppliers_bank_code_fkey"
+            columns: ["bank_code"]
+            isOneToOne: false
+            referencedRelation: "ref_banks"
+            referencedColumns: ["bank_code"]
+          },
+        ]
+      }
+      timebox_scheduled_boxes: {
+        Row: {
+          box_id: string
+          completed: boolean
+          created_at: string
+          data: Json | null
+          day_of_week: number
+          duration: number
+          id: string
+          start_time: string
+          updated_at: string
+          user_id: string
+          week_id: string
+        }
+        Insert: {
+          box_id: string
+          completed?: boolean
+          created_at?: string
+          data?: Json | null
+          day_of_week: number
+          duration: number
+          id?: string
+          start_time: string
+          updated_at?: string
+          user_id: string
+          week_id: string
+        }
+        Update: {
+          box_id?: string
+          completed?: boolean
+          created_at?: string
+          data?: Json | null
+          day_of_week?: number
+          duration?: number
+          id?: string
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+          week_id?: string
         }
         Relationships: []
       }
@@ -6849,10 +6912,8 @@ export type Database = {
           color: string | null
           created_at: string | null
           id: string
-          is_system: boolean | null
-          mapped_status: string | null
           name: string
-          sort_order: number
+          sort_order: number | null
           updated_at: string | null
           workspace_id: string
         }
@@ -6860,10 +6921,8 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           id?: string
-          is_system?: boolean | null
-          mapped_status?: string | null
           name: string
-          sort_order?: number
+          sort_order?: number | null
           updated_at?: string | null
           workspace_id: string
         }
@@ -6871,10 +6930,8 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           id?: string
-          is_system?: boolean | null
-          mapped_status?: string | null
           name?: string
-          sort_order?: number
+          sort_order?: number | null
           updated_at?: string | null
           workspace_id?: string
         }
@@ -6966,38 +7023,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "todos_assignee_fkey"
-            columns: ["assignee"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "todos_column_id_fkey"
+            foreignKeyName: "fk_todos_column_id"
             columns: ["column_id"]
             isOneToOne: false
             referencedRelation: "todo_columns"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "todos_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "todos_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "todos_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
         ]
@@ -7051,50 +7080,7 @@ export type Database = {
           updated_by?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_bonus_settings_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_bonus_settings_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_bonus_settings_payment_request_id_fkey"
-            columns: ["payment_request_id"]
-            isOneToOne: false
-            referencedRelation: "payment_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_bonus_settings_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_bonus_settings_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_bonus_settings_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tour_custom_cost_fields: {
         Row: {
@@ -7121,15 +7107,7 @@ export type Database = {
           tour_id?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_custom_cost_fields_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tour_departure_data: {
         Row: {
@@ -7174,15 +7152,7 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_departure_data_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: true
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tour_destinations: {
         Row: {
@@ -7191,8 +7161,6 @@ export type Database = {
           country: string
           created_at: string | null
           id: string
-          updated_at: string | null
-          workspace_id: string
         }
         Insert: {
           airport_code: string
@@ -7200,8 +7168,6 @@ export type Database = {
           country: string
           created_at?: string | null
           id?: string
-          updated_at?: string | null
-          workspace_id?: string
         }
         Update: {
           airport_code?: string
@@ -7209,10 +7175,89 @@ export type Database = {
           country?: string
           created_at?: string | null
           id?: string
-          updated_at?: string | null
-          workspace_id?: string
         }
         Relationships: []
+      }
+      tour_display_overrides: {
+        Row: {
+          canvas: Json
+          created_at: string
+          created_by: string | null
+          published: boolean
+          published_at: string | null
+          published_by: string | null
+          published_canvas: Json | null
+          theme: string
+          tour_id: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          canvas?: Json
+          created_at?: string
+          created_by?: string | null
+          published?: boolean
+          published_at?: string | null
+          published_by?: string | null
+          published_canvas?: Json | null
+          theme?: string
+          tour_id: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          canvas?: Json
+          created_at?: string
+          created_by?: string | null
+          published?: boolean
+          published_at?: string | null
+          published_by?: string | null
+          published_canvas?: Json | null
+          theme?: string
+          tour_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_display_overrides_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_display_overrides_published_by_fkey"
+            columns: ["published_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_display_overrides_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: true
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_display_overrides_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_display_overrides_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_documents: {
         Row: {
@@ -7266,43 +7311,7 @@ export type Database = {
           uploaded_by?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_documents_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_documents_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_documents_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_documents_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_documents_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tour_itinerary_items: {
         Row: {
@@ -7572,50 +7581,7 @@ export type Database = {
           vehicle_type?: string | null
           workspace_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_itinerary_items_assigned_by_fkey"
-            columns: ["assigned_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_itinerary_items_assignee_id_fkey"
-            columns: ["assignee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_itinerary_items_itinerary_id_fkey"
-            columns: ["itinerary_id"]
-            isOneToOne: false
-            referencedRelation: "itineraries"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_itinerary_items_override_by_fkey"
-            columns: ["override_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_itinerary_items_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_itinerary_items_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tour_meal_settings: {
         Row: {
@@ -7654,22 +7620,7 @@ export type Database = {
           updated_at?: string | null
           workspace_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_meal_settings_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_meal_settings_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tour_member_fields: {
         Row: {
@@ -7702,22 +7653,7 @@ export type Database = {
           tour_id?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_member_fields_order_member_id_fkey"
-            columns: ["order_member_id"]
-            isOneToOne: false
-            referencedRelation: "order_members"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_member_fields_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tour_role_assignments: {
         Row: {
@@ -7747,49 +7683,14 @@ export type Database = {
           role_id?: string | null
           tour_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "tour_role_assignments_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_role_assignments_field_id_fkey"
-            columns: ["field_id"]
-            isOneToOne: false
-            referencedRelation: "workspace_selector_fields"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_role_assignments_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_role_assignments_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "workspace_roles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tour_role_assignments_tour_id_fkey"
-            columns: ["tour_id"]
-            isOneToOne: false
-            referencedRelation: "tours"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tours: {
         Row: {
           airport_code: string | null
           archive_reason: string | null
           archived: boolean | null
+          branch_id: string | null
           checkin_qrcode: string | null
           closed_by: string | null
           closing_date: string | null
@@ -7802,6 +7703,7 @@ export type Database = {
           contract_notes: string | null
           contract_status: string
           contract_template: string | null
+          controller_id: string | null
           country_code: string | null
           country_id: string | null
           created_at: string
@@ -7853,6 +7755,7 @@ export type Database = {
           airport_code?: string | null
           archive_reason?: string | null
           archived?: boolean | null
+          branch_id?: string | null
           checkin_qrcode?: string | null
           closed_by?: string | null
           closing_date?: string | null
@@ -7865,6 +7768,7 @@ export type Database = {
           contract_notes?: string | null
           contract_status?: string
           contract_template?: string | null
+          controller_id?: string | null
           country_code?: string | null
           country_id?: string | null
           created_at?: string
@@ -7916,6 +7820,7 @@ export type Database = {
           airport_code?: string | null
           archive_reason?: string | null
           archived?: boolean | null
+          branch_id?: string | null
           checkin_qrcode?: string | null
           closed_by?: string | null
           closing_date?: string | null
@@ -7928,6 +7833,7 @@ export type Database = {
           contract_notes?: string | null
           contract_status?: string
           contract_template?: string | null
+          controller_id?: string | null
           country_code?: string | null
           country_id?: string | null
           created_at?: string
@@ -7977,6 +7883,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "tours_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tours_closed_by_fkey"
             columns: ["closed_by"]
             isOneToOne: false
@@ -7984,17 +7897,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "tours_country_code_fkey"
-            columns: ["country_code"]
+            foreignKeyName: "tours_controller_id_fkey"
+            columns: ["controller_id"]
             isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "tours_country_id_fkey"
-            columns: ["country_id"]
-            isOneToOne: false
-            referencedRelation: "countries"
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -8041,6 +7947,248 @@ export type Database = {
           },
         ]
       }
+      travel_allowances: {
+        Row: {
+          allowance_amount: number
+          allowance_date: string | null
+          allowance_number: string | null
+          created_at: string
+          id: string
+          invoice_id: string
+          issued_at: string | null
+          issued_by: string | null
+          provider_allowance_id: string | null
+          provider_response: Json | null
+          reason: string | null
+          status: string
+          tax_amount: number
+          total_amount: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          allowance_amount?: number
+          allowance_date?: string | null
+          allowance_number?: string | null
+          created_at?: string
+          id?: string
+          invoice_id: string
+          issued_at?: string | null
+          issued_by?: string | null
+          provider_allowance_id?: string | null
+          provider_response?: Json | null
+          reason?: string | null
+          status?: string
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          allowance_amount?: number
+          allowance_date?: string | null
+          allowance_number?: string | null
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          issued_at?: string | null
+          issued_by?: string | null
+          provider_allowance_id?: string | null
+          provider_response?: Json | null
+          reason?: string | null
+          status?: string
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "travel_allowances_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "travel_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_allowances_issued_by_fkey"
+            columns: ["issued_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_allowances_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      travel_invoice_voids: {
+        Row: {
+          created_at: string
+          id: string
+          invoice_id: string
+          provider_response: Json | null
+          void_reason: string
+          voided_at: string
+          voided_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invoice_id: string
+          provider_response?: Json | null
+          void_reason: string
+          voided_at?: string
+          voided_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          provider_response?: Json | null
+          void_reason?: string
+          voided_at?: string
+          voided_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "travel_invoice_voids_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "travel_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_invoice_voids_voided_by_fkey"
+            columns: ["voided_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_invoice_voids_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      travel_invoices: {
+        Row: {
+          buyer_address: string | null
+          buyer_ban: string | null
+          buyer_email: string | null
+          buyer_name: string | null
+          buyer_phone: string | null
+          carrier_number: string | null
+          carrier_type: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          invoice_date: string | null
+          invoice_number: string | null
+          issued_at: string | null
+          issued_by: string | null
+          note: string | null
+          provider_invoice_id: string | null
+          provider_response: Json | null
+          seller_ban: string
+          seller_name: string
+          source_id: string | null
+          source_type: string | null
+          status: string
+          tax_amount: number
+          tax_type: string
+          taxable_amount: number
+          total_amount: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          buyer_address?: string | null
+          buyer_ban?: string | null
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          carrier_number?: string | null
+          carrier_type?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string | null
+          issued_at?: string | null
+          issued_by?: string | null
+          note?: string | null
+          provider_invoice_id?: string | null
+          provider_response?: Json | null
+          seller_ban: string
+          seller_name: string
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          tax_amount?: number
+          tax_type?: string
+          taxable_amount?: number
+          total_amount?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          buyer_address?: string | null
+          buyer_ban?: string | null
+          buyer_email?: string | null
+          buyer_name?: string | null
+          buyer_phone?: string | null
+          carrier_number?: string | null
+          carrier_type?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          invoice_date?: string | null
+          invoice_number?: string | null
+          issued_at?: string | null
+          issued_by?: string | null
+          note?: string | null
+          provider_invoice_id?: string | null
+          provider_response?: Json | null
+          seller_ban?: string
+          seller_name?: string
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          tax_amount?: number
+          tax_type?: string
+          taxable_amount?: number
+          total_amount?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "travel_invoices_issued_by_fkey"
+            columns: ["issued_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_invoices_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           created_at: string | null
@@ -8066,44 +8214,6 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      vendor_costs: {
-        Row: {
-          cost: number
-          created_at: string | null
-          id: string
-          updated_at: string | null
-          vendor_name: string
-          visa_type: string
-          workspace_id: string
-        }
-        Insert: {
-          cost?: number
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          vendor_name: string
-          visa_type: string
-          workspace_id?: string
-        }
-        Update: {
-          cost?: number
-          created_at?: string | null
-          id?: string
-          updated_at?: string | null
-          vendor_name?: string
-          visa_type?: string
-          workspace_id?: string
-        }
         Relationships: []
       }
       webhook_idempotency_keys: {
@@ -8124,168 +8234,43 @@ export type Database = {
         }
         Relationships: []
       }
-      workspace_attendance_settings: {
+      workspace_ai_agents: {
         Row: {
-          allow_missed_clock_request: boolean
+          brand_description: string | null
+          channel_type: string
           created_at: string
-          early_leave_threshold_minutes: number
-          enable_web_clock: boolean
-          gps_latitude: number | null
-          gps_longitude: number | null
-          gps_radius_meters: number | null
-          late_threshold_minutes: number
-          require_gps: boolean
-          standard_work_hours: number
-          updated_at: string
-          work_end_time: string
-          work_start_time: string
-          workspace_id: string
-        }
-        Insert: {
-          allow_missed_clock_request?: boolean
-          created_at?: string
-          early_leave_threshold_minutes?: number
-          enable_web_clock?: boolean
-          gps_latitude?: number | null
-          gps_longitude?: number | null
-          gps_radius_meters?: number | null
-          late_threshold_minutes?: number
-          require_gps?: boolean
-          standard_work_hours?: number
-          updated_at?: string
-          work_end_time?: string
-          work_start_time?: string
-          workspace_id: string
-        }
-        Update: {
-          allow_missed_clock_request?: boolean
-          created_at?: string
-          early_leave_threshold_minutes?: number
-          enable_web_clock?: boolean
-          gps_latitude?: number | null
-          gps_longitude?: number | null
-          gps_radius_meters?: number | null
-          late_threshold_minutes?: number
-          require_gps?: boolean
-          standard_work_hours?: number
-          updated_at?: string
-          work_end_time?: string
-          work_start_time?: string
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "workspace_attendance_settings_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: true
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      workspace_bonus_defaults: {
-        Row: {
-          bonus: number
-          bonus_type: number
-          created_at: string
-          created_by: string | null
-          description: string | null
-          employee_id: string | null
+          data_sources: Json
           id: string
-          type: number
+          is_active: boolean
+          system_prompt_override: string | null
           updated_at: string
-          updated_by: string | null
           workspace_id: string
         }
         Insert: {
-          bonus?: number
-          bonus_type: number
+          brand_description?: string | null
+          channel_type?: string
           created_at?: string
-          created_by?: string | null
-          description?: string | null
-          employee_id?: string | null
+          data_sources?: Json
           id?: string
-          type: number
+          is_active?: boolean
+          system_prompt_override?: string | null
           updated_at?: string
-          updated_by?: string | null
           workspace_id: string
         }
         Update: {
-          bonus?: number
-          bonus_type?: number
+          brand_description?: string | null
+          channel_type?: string
           created_at?: string
-          created_by?: string | null
-          description?: string | null
-          employee_id?: string | null
+          data_sources?: Json
           id?: string
-          type?: number
+          is_active?: boolean
+          system_prompt_override?: string | null
           updated_at?: string
-          updated_by?: string | null
           workspace_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "workspace_bonus_defaults_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workspace_bonus_defaults_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workspace_bonus_defaults_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "workspace_bonus_defaults_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      workspace_countries: {
-        Row: {
-          country_code: string
-          created_at: string | null
-          is_enabled: boolean
-          updated_at: string | null
-          workspace_id: string
-        }
-        Insert: {
-          country_code: string
-          created_at?: string | null
-          is_enabled?: boolean
-          updated_at?: string | null
-          workspace_id: string
-        }
-        Update: {
-          country_code?: string
-          created_at?: string | null
-          is_enabled?: boolean
-          updated_at?: string | null
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "workspace_countries_country_code_fkey"
-            columns: ["country_code"]
-            isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
-          },
-          {
-            foreignKeyName: "workspace_countries_workspace_id_fkey"
+            foreignKeyName: "workspace_ai_agents_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -8295,30 +8280,65 @@ export type Database = {
       }
       workspace_ai_settings: {
         Row: {
+          api_token_encrypted: string | null
           created_at: string
+          created_by: string | null
           data_sources: string[]
+          is_active: boolean
+          last_used_at: string | null
+          model: string | null
           prompt_template: string | null
+          provider: string | null
           response_mode: string
           updated_at: string
+          updated_by: string | null
           workspace_id: string
         }
         Insert: {
+          api_token_encrypted?: string | null
           created_at?: string
+          created_by?: string | null
           data_sources?: string[]
+          is_active?: boolean
+          last_used_at?: string | null
+          model?: string | null
           prompt_template?: string | null
+          provider?: string | null
           response_mode?: string
           updated_at?: string
+          updated_by?: string | null
           workspace_id: string
         }
         Update: {
+          api_token_encrypted?: string | null
           created_at?: string
+          created_by?: string | null
           data_sources?: string[]
+          is_active?: boolean
+          last_used_at?: string | null
+          model?: string | null
           prompt_template?: string | null
+          provider?: string | null
           response_mode?: string
           updated_at?: string
+          updated_by?: string | null
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "workspace_ai_settings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_ai_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "workspace_ai_settings_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -8375,6 +8395,230 @@ export type Database = {
           },
         ]
       }
+      workspace_bonus_defaults: {
+        Row: {
+          bonus: number
+          bonus_type: number
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          employee_id: string | null
+          id: string
+          type: number
+          updated_at: string | null
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          bonus?: number
+          bonus_type?: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          employee_id?: string | null
+          id?: string
+          type: number
+          updated_at?: string | null
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          bonus?: number
+          bonus_type?: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          employee_id?: string | null
+          id?: string
+          type?: number
+          updated_at?: string | null
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_bonus_defaults_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_bonus_defaults_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_bonus_defaults_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_bonus_defaults_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_countries: {
+        Row: {
+          country_code: string
+          created_at: string | null
+          is_enabled: boolean
+          updated_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          country_code: string
+          created_at?: string | null
+          is_enabled?: boolean
+          updated_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string | null
+          is_enabled?: boolean
+          updated_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: []
+      }
+      workspace_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          file_type: string
+          id: string
+          name: string
+          size_bytes: number | null
+          storage_path: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          file_type: string
+          id?: string
+          name: string
+          size_bytes?: number | null
+          storage_path: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          file_type?: string
+          id?: string
+          name?: string
+          size_bytes?: number | null
+          storage_path?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_documents_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_facebook_settings: {
+        Row: {
+          app_secret_encrypted: string | null
+          bot_employee_id: string | null
+          bot_greeting: string | null
+          created_at: string
+          effective_from: string
+          effective_to: string | null
+          handoff_enabled: boolean
+          handoff_target: string | null
+          id: string
+          is_active: boolean
+          page_access_token_encrypted: string
+          page_id: string
+          page_name: string | null
+          updated_at: string
+          webhook_verified_at: string | null
+          webhook_verify_token: string | null
+          workspace_id: string
+        }
+        Insert: {
+          app_secret_encrypted?: string | null
+          bot_employee_id?: string | null
+          bot_greeting?: string | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          handoff_enabled?: boolean
+          handoff_target?: string | null
+          id?: string
+          is_active?: boolean
+          page_access_token_encrypted: string
+          page_id: string
+          page_name?: string | null
+          updated_at?: string
+          webhook_verified_at?: string | null
+          webhook_verify_token?: string | null
+          workspace_id: string
+        }
+        Update: {
+          app_secret_encrypted?: string | null
+          bot_employee_id?: string | null
+          bot_greeting?: string | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          handoff_enabled?: boolean
+          handoff_target?: string | null
+          id?: string
+          is_active?: boolean
+          page_access_token_encrypted?: string
+          page_id?: string
+          page_name?: string | null
+          updated_at?: string
+          webhook_verified_at?: string | null
+          webhook_verify_token?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_facebook_settings_bot_employee_id_fkey"
+            columns: ["bot_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_facebook_settings_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspace_features: {
         Row: {
           created_at: string | null
@@ -8416,73 +8660,222 @@ export type Database = {
           },
         ]
       }
-      workspace_facebook_settings: {
+      workspace_instagram_settings: {
         Row: {
-          id: string
-          workspace_id: string
-          page_id: string
-          page_name: string | null
-          page_access_token_encrypted: string
           app_secret_encrypted: string | null
-          webhook_verify_token: string | null
+          bot_employee_id: string | null
           bot_greeting: string | null
-          handoff_enabled: boolean
-          handoff_target: string | null
+          created_at: string
           effective_from: string
           effective_to: string | null
-          bot_employee_id: string | null
+          handoff_enabled: boolean
+          handoff_target: string | null
+          id: string
+          ig_business_account_id: string
+          ig_username: string | null
           is_active: boolean
-          webhook_verified_at: string | null
-          created_at: string
+          linked_fb_page_id: string | null
+          page_access_token_encrypted: string
           updated_at: string
+          webhook_verified_at: string | null
+          webhook_verify_token: string | null
+          workspace_id: string
         }
         Insert: {
-          id?: string
-          workspace_id: string
-          page_id: string
-          page_name?: string | null
-          page_access_token_encrypted: string
           app_secret_encrypted?: string | null
-          webhook_verify_token?: string | null
+          bot_employee_id?: string | null
           bot_greeting?: string | null
-          handoff_enabled?: boolean
-          handoff_target?: string | null
+          created_at?: string
           effective_from?: string
           effective_to?: string | null
-          bot_employee_id?: string | null
+          handoff_enabled?: boolean
+          handoff_target?: string | null
+          id?: string
+          ig_business_account_id: string
+          ig_username?: string | null
           is_active?: boolean
-          webhook_verified_at?: string | null
-          created_at?: string
+          linked_fb_page_id?: string | null
+          page_access_token_encrypted: string
           updated_at?: string
+          webhook_verified_at?: string | null
+          webhook_verify_token?: string | null
+          workspace_id: string
         }
         Update: {
-          id?: string
-          workspace_id?: string
-          page_id?: string
-          page_name?: string | null
-          page_access_token_encrypted?: string
           app_secret_encrypted?: string | null
-          webhook_verify_token?: string | null
+          bot_employee_id?: string | null
           bot_greeting?: string | null
-          handoff_enabled?: boolean
-          handoff_target?: string | null
+          created_at?: string
           effective_from?: string
           effective_to?: string | null
-          bot_employee_id?: string | null
+          handoff_enabled?: boolean
+          handoff_target?: string | null
+          id?: string
+          ig_business_account_id?: string
+          ig_username?: string | null
           is_active?: boolean
-          webhook_verified_at?: string | null
-          created_at?: string
+          linked_fb_page_id?: string | null
+          page_access_token_encrypted?: string
           updated_at?: string
+          webhook_verified_at?: string | null
+          webhook_verify_token?: string | null
+          workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workspace_instagram_settings_bot_employee_id_fkey"
+            columns: ["bot_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_instagram_settings_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_integrations: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by: string | null
+          enabled: boolean
+          id: string
+          integration_code: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          id?: string
+          integration_code: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          enabled?: boolean
+          id?: string
+          integration_code?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_integrations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_kb_agency_relations: {
+        Row: {
+          agency_id: string
+          created_at: string | null
+          created_by: string | null
+          credit_limit_twd: number | null
+          id: string
+          internal_notes: string | null
+          last_collaboration_date: string | null
+          last_collaboration_notes: string | null
+          our_discount_percent: number | null
+          payment_terms: string | null
+          primary_contact_email: string | null
+          primary_contact_line_id: string | null
+          primary_contact_person: string | null
+          primary_contact_phone: string | null
+          relationship_quality: string | null
+          total_collaboration_count: number | null
+          updated_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          agency_id: string
+          created_at?: string | null
+          created_by?: string | null
+          credit_limit_twd?: number | null
+          id?: string
+          internal_notes?: string | null
+          last_collaboration_date?: string | null
+          last_collaboration_notes?: string | null
+          our_discount_percent?: number | null
+          payment_terms?: string | null
+          primary_contact_email?: string | null
+          primary_contact_line_id?: string | null
+          primary_contact_person?: string | null
+          primary_contact_phone?: string | null
+          relationship_quality?: string | null
+          total_collaboration_count?: number | null
+          updated_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          agency_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          credit_limit_twd?: number | null
+          id?: string
+          internal_notes?: string | null
+          last_collaboration_date?: string | null
+          last_collaboration_notes?: string | null
+          our_discount_percent?: number | null
+          payment_terms?: string | null
+          primary_contact_email?: string | null
+          primary_contact_line_id?: string | null
+          primary_contact_person?: string | null
+          primary_contact_phone?: string | null
+          relationship_quality?: string | null
+          total_collaboration_count?: number | null
+          updated_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_kb_agency_relations_agency_id_fkey"
+            columns: ["agency_id"]
+            isOneToOne: false
+            referencedRelation: "kb_agencies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_kb_agency_relations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_kb_agency_relations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workspace_line_settings: {
         Row: {
           bot_employee_id: string | null
           bot_greeting: string | null
-          channel_access_token: string
+          channel_access_token: string | null
+          channel_access_token_encrypted: string | null
           channel_id: string
-          channel_secret: string
+          channel_secret: string | null
+          channel_secret_encrypted: string | null
           created_at: string
           daily_order_limit: number | null
           effective_from: string
@@ -8498,9 +8891,11 @@ export type Database = {
         Insert: {
           bot_employee_id?: string | null
           bot_greeting?: string | null
-          channel_access_token: string
+          channel_access_token?: string | null
+          channel_access_token_encrypted?: string | null
           channel_id: string
-          channel_secret: string
+          channel_secret?: string | null
+          channel_secret_encrypted?: string | null
           created_at?: string
           daily_order_limit?: number | null
           effective_from?: string
@@ -8516,9 +8911,11 @@ export type Database = {
         Update: {
           bot_employee_id?: string | null
           bot_greeting?: string | null
-          channel_access_token?: string
+          channel_access_token?: string | null
+          channel_access_token_encrypted?: string | null
           channel_id?: string
-          channel_secret?: string
+          channel_secret?: string | null
+          channel_secret_encrypted?: string | null
           created_at?: string
           daily_order_limit?: number | null
           effective_from?: string
@@ -8554,6 +8951,7 @@ export type Database = {
           description: string | null
           id: string
           is_admin: boolean | null
+          is_system_bot: boolean
           name: string
           sort_order: number | null
           updated_at: string | null
@@ -8564,6 +8962,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_admin?: boolean | null
+          is_system_bot?: boolean
           name: string
           sort_order?: number | null
           updated_at?: string | null
@@ -8574,6 +8973,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_admin?: boolean | null
+          is_system_bot?: boolean
           name?: string
           sort_order?: number | null
           updated_at?: string | null
@@ -8582,6 +8982,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "workspace_roles_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_seals: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_seals_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -8620,11 +9061,103 @@ export type Database = {
           updated_at?: string
           workspace_id?: string
         }
+        Relationships: []
+      }
+      workspace_travel_invoice_configs: {
+        Row: {
+          api_key_encrypted: string | null
+          created_at: string
+          default_carrier_type: string
+          default_seller_ban: string | null
+          default_seller_name: string | null
+          id: string
+          is_active: boolean
+          merchant_id: string | null
+          provider: string
+          sandbox_mode: boolean
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          api_key_encrypted?: string | null
+          created_at?: string
+          default_carrier_type?: string
+          default_seller_ban?: string | null
+          default_seller_name?: string | null
+          id?: string
+          is_active?: boolean
+          merchant_id?: string | null
+          provider?: string
+          sandbox_mode?: boolean
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          api_key_encrypted?: string | null
+          created_at?: string
+          default_carrier_type?: string
+          default_seller_ban?: string | null
+          default_seller_name?: string | null
+          id?: string
+          is_active?: boolean
+          merchant_id?: string | null
+          provider?: string
+          sandbox_mode?: boolean
+          updated_at?: string
+          workspace_id?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "workspace_selector_fields_workspace_id_fkey"
+            foreignKeyName: "workspace_travel_invoice_configs_workspace_id_fkey"
             columns: ["workspace_id"]
-            isOneToOne: false
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_worldmove_configs: {
+        Row: {
+          api_key_encrypted: string | null
+          auto_sync_products: boolean
+          created_at: string
+          id: string
+          is_active: boolean
+          last_synced_at: string | null
+          partner_code: string | null
+          sandbox_mode: boolean
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          api_key_encrypted?: string | null
+          auto_sync_products?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          partner_code?: string | null
+          sandbox_mode?: boolean
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          api_key_encrypted?: string | null
+          auto_sync_products?: boolean
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          partner_code?: string | null
+          sandbox_mode?: boolean
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_worldmove_configs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
             referencedRelation: "workspaces"
             referencedColumns: ["id"]
           },
@@ -8636,7 +9169,9 @@ export type Database = {
           bank_account: string | null
           bank_account_name: string | null
           bank_branch: string | null
+          bank_code: string | null
           bank_name: string | null
+          bonus_calculation_order: string
           brand_primary_hex: string | null
           code: string
           company_seal_url: string | null
@@ -8656,21 +9191,29 @@ export type Database = {
           id: string
           invoice_seal_image_url: string | null
           is_active: boolean | null
+          is_multi_branch: boolean
+          is_multi_department: boolean
+          leave_policy: string
           legal_name: string | null
           logo_url: string | null
           max_employees: number | null
           name: string
           payment_config: Json | null
+          pension_system: string
           personal_seal_url: string | null
           phone: string | null
           premium_enabled: boolean | null
           print_accent_hex: string | null
+          setup_banner_dismissed_at: string | null
+          setup_completed_at: string | null
           setup_state: Json | null
           subscription_period_end: string | null
           subscription_plan: string | null
           subtitle: string | null
           tax_id: string | null
-          type: string | null
+          transfer_fee_mode: string | null
+          transfer_fee_overflow_account_id: string | null
+          transfer_fee_unified_amount: number | null
           updated_at: string | null
           updated_by: string | null
           website: string | null
@@ -8680,7 +9223,9 @@ export type Database = {
           bank_account?: string | null
           bank_account_name?: string | null
           bank_branch?: string | null
+          bank_code?: string | null
           bank_name?: string | null
+          bonus_calculation_order?: string
           brand_primary_hex?: string | null
           code?: string
           company_seal_url?: string | null
@@ -8700,21 +9245,29 @@ export type Database = {
           id?: string
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
+          is_multi_branch?: boolean
+          is_multi_department?: boolean
+          leave_policy?: string
           legal_name?: string | null
           logo_url?: string | null
           max_employees?: number | null
           name: string
           payment_config?: Json | null
+          pension_system?: string
           personal_seal_url?: string | null
           phone?: string | null
           premium_enabled?: boolean | null
           print_accent_hex?: string | null
+          setup_banner_dismissed_at?: string | null
+          setup_completed_at?: string | null
           setup_state?: Json | null
           subscription_period_end?: string | null
           subscription_plan?: string | null
           subtitle?: string | null
           tax_id?: string | null
-          type?: string | null
+          transfer_fee_mode?: string | null
+          transfer_fee_overflow_account_id?: string | null
+          transfer_fee_unified_amount?: number | null
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
@@ -8724,7 +9277,9 @@ export type Database = {
           bank_account?: string | null
           bank_account_name?: string | null
           bank_branch?: string | null
+          bank_code?: string | null
           bank_name?: string | null
+          bonus_calculation_order?: string
           brand_primary_hex?: string | null
           code?: string
           company_seal_url?: string | null
@@ -8744,26 +9299,41 @@ export type Database = {
           id?: string
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
+          is_multi_branch?: boolean
+          is_multi_department?: boolean
+          leave_policy?: string
           legal_name?: string | null
           logo_url?: string | null
           max_employees?: number | null
           name?: string
           payment_config?: Json | null
+          pension_system?: string
           personal_seal_url?: string | null
           phone?: string | null
           premium_enabled?: boolean | null
           print_accent_hex?: string | null
+          setup_banner_dismissed_at?: string | null
+          setup_completed_at?: string | null
           setup_state?: Json | null
           subscription_period_end?: string | null
           subscription_plan?: string | null
           subtitle?: string | null
           tax_id?: string | null
-          type?: string | null
+          transfer_fee_mode?: string | null
+          transfer_fee_overflow_account_id?: string | null
+          transfer_fee_unified_amount?: number | null
           updated_at?: string | null
           updated_by?: string | null
           website?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "workspaces_bank_code_fkey"
+            columns: ["bank_code"]
+            isOneToOne: false
+            referencedRelation: "ref_banks"
+            referencedColumns: ["bank_code"]
+          },
           {
             foreignKeyName: "workspaces_created_by_fkey"
             columns: ["created_by"]
@@ -8772,11 +9342,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "workspaces_home_country_code_fkey"
-            columns: ["home_country_code"]
+            foreignKeyName: "workspaces_transfer_fee_overflow_account_id_fkey"
+            columns: ["transfer_fee_overflow_account_id"]
             isOneToOne: false
-            referencedRelation: "ref_countries"
-            referencedColumns: ["code"]
+            referencedRelation: "bank_accounts"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workspaces_updated_by_fkey"
@@ -8787,30 +9357,248 @@ export type Database = {
           },
         ]
       }
-    }
-    Views: {
-      v_attendance_daily: {
+      worldmove_esim_items: {
         Row: {
-          abnormal_count: number | null
-          clock_date: string | null
-          employee_id: string | null
-          first_clock_in: string | null
-          has_remote_clock: boolean | null
-          last_clock_out: string | null
-          late_minutes: number | null
-          work_hours: number | null
-          workspace_id: string | null
+          activation_code: string | null
+          created_at: string
+          data_limit_mb: number | null
+          data_used_mb: number
+          iccid: string | null
+          id: string
+          last_usage_synced_at: string | null
+          order_id: string
+          product_code: string
+          product_id: string | null
+          product_name: string
+          provider_item_id: string | null
+          provider_response: Json | null
+          qr_code_url: string | null
+          sm_dp_address: string | null
+          status: string
+          unit_price: number
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+          workspace_id: string
+        }
+        Insert: {
+          activation_code?: string | null
+          created_at?: string
+          data_limit_mb?: number | null
+          data_used_mb?: number
+          iccid?: string | null
+          id?: string
+          last_usage_synced_at?: string | null
+          order_id: string
+          product_code: string
+          product_id?: string | null
+          product_name: string
+          provider_item_id?: string | null
+          provider_response?: Json | null
+          qr_code_url?: string | null
+          sm_dp_address?: string | null
+          status?: string
+          unit_price?: number
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          workspace_id: string
+        }
+        Update: {
+          activation_code?: string | null
+          created_at?: string
+          data_limit_mb?: number | null
+          data_used_mb?: number
+          iccid?: string | null
+          id?: string
+          last_usage_synced_at?: string | null
+          order_id?: string
+          product_code?: string
+          product_id?: string | null
+          product_name?: string
+          provider_item_id?: string | null
+          provider_response?: Json | null
+          qr_code_url?: string | null
+          sm_dp_address?: string | null
+          status?: string
+          unit_price?: number
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          workspace_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "clock_records_employee_id_fkey"
-            columns: ["employee_id"]
+            foreignKeyName: "worldmove_esim_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "worldmove_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worldmove_esim_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "worldmove_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "worldmove_esim_items_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      worldmove_orders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          deleted_at: string | null
+          discount: number
+          id: string
+          note: string | null
+          provider_response: Json | null
+          source_id: string | null
+          source_type: string | null
+          status: string
+          subtotal: number
+          total_amount: number
+          updated_at: string
+          workspace_id: string
+          worldmove_order_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          deleted_at?: string | null
+          discount?: number
+          id?: string
+          note?: string | null
+          provider_response?: Json | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string
+          workspace_id: string
+          worldmove_order_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          deleted_at?: string | null
+          discount?: number
+          id?: string
+          note?: string | null
+          provider_response?: Json | null
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+          subtotal?: number
+          total_amount?: number
+          updated_at?: string
+          workspace_id?: string
+          worldmove_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worldmove_orders_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "clock_records_workspace_id_fkey"
+            foreignKeyName: "worldmove_orders_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      worldmove_products: {
+        Row: {
+          cost_price: number | null
+          coverage_countries: string[] | null
+          coverage_regions: string[] | null
+          created_at: string
+          currency: string
+          data_limit_mb: number | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          product_code: string
+          raw_data: Json | null
+          roaming_type: string
+          selling_price: number | null
+          stock_status: string
+          synced_at: string
+          updated_at: string
+          validity_days: number
+          workspace_id: string
+          worldmove_product_id: string
+        }
+        Insert: {
+          cost_price?: number | null
+          coverage_countries?: string[] | null
+          coverage_regions?: string[] | null
+          created_at?: string
+          currency?: string
+          data_limit_mb?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          product_code: string
+          raw_data?: Json | null
+          roaming_type?: string
+          selling_price?: number | null
+          stock_status?: string
+          synced_at?: string
+          updated_at?: string
+          validity_days: number
+          workspace_id: string
+          worldmove_product_id: string
+        }
+        Update: {
+          cost_price?: number | null
+          coverage_countries?: string[] | null
+          coverage_regions?: string[] | null
+          created_at?: string
+          currency?: string
+          data_limit_mb?: number | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          product_code?: string
+          raw_data?: Json | null
+          roaming_type?: string
+          selling_price?: number | null
+          stock_status?: string
+          synced_at?: string
+          updated_at?: string
+          validity_days?: number
+          workspace_id?: string
+          worldmove_product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "worldmove_products_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -8819,62 +9607,47 @@ export type Database = {
         ]
       }
     }
+    Views: {
+      v_disbursement_full: {
+        Row: {
+          batch_uuid: string | null
+          disbursement_code: string | null
+          disbursement_date: string | null
+          disbursement_order_id: string | null
+          disbursement_status: string | null
+          expense_type: string | null
+          from_bank_account_id: string | null
+          has_cross_bank_fee: boolean | null
+          item_amount: number | null
+          item_category: string | null
+          item_description: string | null
+          item_fee: number | null
+          link_id: string | null
+          link_mode: string | null
+          payment_request_code: string | null
+          payment_request_id: string | null
+          payment_request_item_id: string | null
+          payment_request_total: number | null
+          snapshot_supplier_bank_code: string | null
+          supplier_id: string | null
+          supplier_name: string | null
+          total_fee: number | null
+          tour_id: string | null
+          tour_name: string | null
+          workspace_id: string | null
+        }
+        Relationships: []
+      }
+    }
     Functions: {
-      add_employee_to_tour_conversation: {
-        Args: { p_employee_id: string; p_role?: string; p_tour_id: string }
+      _recalc_one_batch: { Args: { p_batch_id: string }; Returns: undefined }
+      _recalc_one_invoice: {
+        Args: { p_invoice_id: string }
         Returns: undefined
       }
-      auto_open_tour_conversations: { Args: never; Returns: number }
       auto_open_tour_conversations_with_logging: {
         Args: never
         Returns: undefined
-      }
-      can_manage_workspace: {
-        Args: { target_workspace_id: string }
-        Returns: boolean
-      }
-      check_leader_schedule_conflict: {
-        Args: {
-          p_end_date: string
-          p_exclude_id?: string
-          p_leader_id: string
-          p_start_date: string
-        }
-        Returns: boolean
-      }
-      check_my_tours_updates: {
-        Args: { p_last_synced_at?: string }
-        Returns: Json
-      }
-      check_rate_limit: {
-        Args: { p_key: string; p_limit: number; p_window_seconds: number }
-        Returns: boolean
-      }
-      check_vehicle_schedule_conflict: {
-        Args: {
-          p_end_date: string
-          p_exclude_id?: string
-          p_start_date: string
-          p_vehicle_id: string
-        }
-        Returns: boolean
-      }
-      cleanup_rate_limits: { Args: never; Returns: undefined }
-      compute_period_balances: {
-        Args: {
-          p_period_end: string
-          p_period_start: string
-          p_workspace_id: string
-        }
-        Returns: {
-          account_code: string
-          account_id: string
-          account_name: string
-          account_type: string
-          balance: number
-          total_credit: number
-          total_debit: number
-        }[]
       }
       compute_tour_pl: {
         Args: { p_tour_id: string }
@@ -8935,15 +9708,31 @@ export type Database = {
         }
         Returns: undefined
       }
-      create_default_leave_types: {
-        Args: { p_workspace_id: string }
-        Returns: undefined
-      }
-      ensure_conversation_exists: {
+      ensure_traveler_profile: {
         Args: {
-          p_conversation_type: string
-          p_target_id: string
-          p_target_name?: string
+          p_avatar_url?: string
+          p_email?: string
+          p_full_name?: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      fork_payment_request_for_partial_billing: {
+        Args: {
+          p_actor_id?: string
+          p_item_ids: string[]
+          p_request_id: string
+        }
+        Returns: string
+      }
+      generate_account_child_code: {
+        Args: { p_parent_code: string; p_workspace_id: string }
+        Returns: string
+      }
+      generate_company_payment_request_code: {
+        Args: {
+          p_expense_type: string
+          p_request_date?: string
           p_workspace_id: string
         }
         Returns: string
@@ -8953,16 +9742,21 @@ export type Database = {
         Args: { p_disbursement_date?: string; p_workspace_id: string }
         Returns: string
       }
-      generate_account_child_code: {
-        Args: { p_workspace_id: string; p_parent_code: string }
+      generate_employee_number: {
+        Args: { p_workspace_id: string }
         Returns: string
       }
-      generate_employee_number: { Args: { p_workspace_id: string }; Returns: string }
       generate_order_number: { Args: { p_tour_id: string }; Returns: string }
+      generate_quote_code: {
+        Args: { p_quote_type?: string; p_tour_id: string }
+        Returns: string
+      }
       generate_receipt_no: { Args: { p_tour_id: string }; Returns: string }
       generate_request_no: { Args: { p_tour_code: string }; Returns: string }
-      next_payment_request_item_number: { Args: { p_request_id: string }; Returns: string }
-      generate_supplier_code: { Args: { p_workspace_id: string }; Returns: string }
+      generate_supplier_code: {
+        Args: { p_workspace_id: string }
+        Returns: string
+      }
       generate_tour_code: {
         Args: {
           p_city_code: string
@@ -8973,22 +9767,6 @@ export type Database = {
       }
       generate_voucher_no: {
         Args: { p_voucher_date?: string; p_workspace_id: string }
-        Returns: string
-      }
-      generate_quote_code: {
-        Args: { p_tour_id: string; p_quote_type?: string }
-        Returns: string
-      }
-      generate_company_payment_request_code: {
-        Args: {
-          p_workspace_id: string
-          p_expense_type: string
-          p_request_date?: string
-        }
-        Returns: string
-      }
-      get_account_id_by_code: {
-        Args: { p_code: string; p_workspace_id: string }
         Returns: string
       }
       get_cron_job_status: {
@@ -9003,72 +9781,9 @@ export type Database = {
       }
       get_current_employee_id: { Args: never; Returns: string }
       get_current_user_workspace: { Args: never; Returns: string }
-      get_my_tour_details: { Args: { p_tour_code: string }; Returns: Json }
       get_or_create_direct_conversation: {
         Args: { other_user_id: string }
         Returns: string
-      }
-      get_person_workload: {
-        Args: { person_name: string }
-        Returns: {
-          in_progress_tasks: number
-          total_projects: number
-          total_tasks: number
-          urgent_tasks: number
-        }[]
-      }
-      get_projects_overview: {
-        Args: never
-        Returns: {
-          completed_projects: number
-          in_progress_projects: number
-          pending_projects: number
-          total_projects: number
-          urgent_projects: number
-        }[]
-      }
-      get_tour_conversations: {
-        Args: { p_workspace_id: string }
-        Returns: {
-          conversation_id: string
-          conversation_type: string
-          departure_date: string
-          is_open: boolean
-          last_message_at: string
-          last_message_preview: string
-          member_count: number
-          open_at: string
-          tour_code: string
-          tour_id: string
-          tour_name: string
-          traveler_count: number
-          unread_count: number
-        }[]
-      }
-      get_tour_pnl: {
-        Args: {
-          p_workspace_id: string
-          p_year_end: string
-          p_year_start: string
-        }
-        Returns: {
-          actual_cost: number
-          actual_profit: number
-          actual_revenue: number
-          closing_date: string
-          code: string
-          cost_diff: number
-          departure_date: string
-          estimated_cost: number
-          estimated_profit: number
-          estimated_revenue: number
-          id: string
-          max_participants: number
-          name: string
-          return_date: string
-          revenue_diff: number
-          status: string
-        }[]
       }
       get_unread_count: { Args: { p_conversation_id: string }; Returns: number }
       get_unread_counts_batch: {
@@ -9078,54 +9793,42 @@ export type Database = {
           unread_count: number
         }[]
       }
-      get_user_permission: {
-        Args: { p_itinerary_id: string; p_user_id: string }
-        Returns: string
-      }
-      get_user_project_ids: { Args: { uid: string }; Returns: string[] }
-      get_user_workspace_id: { Args: never; Returns: string }
-      has_attraction_license: {
-        Args: { p_kind?: string; p_source_workspace: string }
-        Returns: boolean
-      }
-      has_capability: { Args: { _code: string }; Returns: boolean }
       has_capability_for_workspace: {
         Args: { _code: string; _workspace_id: string }
         Returns: boolean
       }
-      has_permission: { Args: { permission_name: string }; Returns: boolean }
       increment_points: {
         Args: { customer_id_param: string; points_param: number }
         Returns: undefined
       }
-      is_admin:
-        | { Args: never; Returns: boolean }
-        | { Args: { p_user_id: string }; Returns: boolean }
-      is_country_enabled: {
-        Args: { p_code: string; p_workspace: string }
+      is_admin: { Args: { p_user_id: string }; Returns: boolean }
+      is_channel_member: {
+        Args: { p_channel_id: string; p_employee_id: string }
         Returns: boolean
       }
-      is_employee: { Args: never; Returns: boolean }
-      is_service_role: { Args: never; Returns: boolean }
-      is_super_admin: { Args: never; Returns: boolean }
-      log_file_download: { Args: { p_file_id: string }; Returns: undefined }
+      is_channel_owner: {
+        Args: { p_channel_id: string; p_employee_id: string }
+        Returns: boolean
+      }
+      is_row_editable: {
+        Args: { p_module: string; p_row_id: string }
+        Returns: boolean
+      }
       mark_conversation_read: {
         Args: { p_conversation_id: string }
         Returns: undefined
+      }
+      next_payment_request_item_number: {
+        Args: { p_request_id: string }
+        Returns: string
       }
       recalculate_order_totals: {
         Args: { p_order_id: string }
         Returns: undefined
       }
-      refresh_all_region_stats: { Args: never; Returns: undefined }
-      revoke_quote_confirmation: {
-        Args: {
-          p_quote_id: string
-          p_reason: string
-          p_staff_id: string
-          p_staff_name: string
-        }
-        Returns: Json
+      refresh_traveler_tour_cache: {
+        Args: { p_traveler_id?: string }
+        Returns: number
       }
       run_auto_open_now: {
         Args: never
@@ -9134,17 +9837,13 @@ export type Database = {
           opened_count: number
         }[]
       }
-      seed_default_roles_for_workspace: {
-        Args: { p_workspace_id: string }
-        Returns: {
-          action: string
-          role_id: string
-          role_name: string
-        }[]
+      scope_branch_match: {
+        Args: { p_my_branch: string; p_row_branch: string }
+        Returns: boolean
       }
-      seed_tenant_base_data: {
-        Args: { source_workspace_id: string; target_workspace_id: string }
-        Returns: undefined
+      scope_visible: {
+        Args: { p_module: string; p_row_id: string }
+        Returns: boolean
       }
       send_quote_confirmation: {
         Args: {
@@ -9154,21 +9853,8 @@ export type Database = {
         }
         Returns: Json
       }
-      send_tour_message: {
-        Args: {
-          p_attachments?: Json
-          p_content: string
-          p_conversation_id: string
-          p_type?: string
-        }
-        Returns: string
-      }
       set_audit_context: {
         Args: { p_actor_id: string; p_reason?: string; p_request_id?: string }
-        Returns: undefined
-      }
-      set_current_workspace: {
-        Args: { p_workspace_id: string }
         Returns: undefined
       }
       sync_my_tours: { Args: never; Returns: Json }
@@ -9185,32 +9871,12 @@ export type Database = {
         }
         Returns: number
       }
-      toggle_tour_conversation: {
-        Args: {
-          p_is_open: boolean
-          p_send_welcome?: boolean
-          p_tour_id: string
-        }
-        Returns: undefined
-      }
-      update_city_stats: { Args: { p_city_id: string }; Returns: undefined }
       verify_auth_password: {
         Args: { p_password: string; p_user_id: string }
         Returns: boolean
       }
     }
     Enums: {
-      accounting_event_status: "posted" | "reversed"
-      accounting_event_type:
-        | "customer_receipt_posted"
-        | "supplier_payment_posted"
-        | "group_settlement_posted"
-        | "bonus_paid"
-        | "tax_paid"
-        | "manual_voucher"
-      calendar_visibility: "private" | "workspace" | "company_wide"
-      channel_visibility: "private" | "public"
-      confirmation_type: "accommodation" | "flight"
       file_action:
         | "create"
         | "update"
@@ -9235,9 +9901,6 @@ export type Database = {
         | "photo"
         | "email_attachment"
         | "other"
-        | "request"
-        | "cancellation"
-        | "confirmation"
       folder_type:
         | "root"
         | "tour"
@@ -9382,18 +10045,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      accounting_event_status: ["posted", "reversed"],
-      accounting_event_type: [
-        "customer_receipt_posted",
-        "supplier_payment_posted",
-        "group_settlement_posted",
-        "bonus_paid",
-        "tax_paid",
-        "manual_voucher",
-      ],
-      calendar_visibility: ["private", "workspace", "company_wide"],
-      channel_visibility: ["private", "public"],
-      confirmation_type: ["accommodation", "flight"],
       file_action: [
         "create",
         "update",
@@ -9419,9 +10070,6 @@ export const Constants = {
         "photo",
         "email_attachment",
         "other",
-        "request",
-        "cancellation",
-        "confirmation",
       ],
       folder_type: [
         "root",
@@ -9445,4 +10093,3 @@ export const Constants = {
     },
   },
 } as const
-

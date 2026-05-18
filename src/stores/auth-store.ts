@@ -45,6 +45,7 @@ function buildUserFromEmployee(
     contracts: (employeeData.contracts ?? []) as unknown as EmployeeFull['contracts'],
     status: employeeData.status as EmployeeFull['status'],
     workspace_id: employeeData.workspace_id ?? undefined,
+    branch_id: (employeeData as Record<string, unknown>).branch_id as string | null | undefined,
     workspace_code: workspaceInfo.code,
     workspace_name: workspaceInfo.name,
     avatar: employeeData.avatar_url ?? undefined,

@@ -220,22 +220,14 @@ export function useAttractionSearch({
 
         if (error) throw error
 
-        const formatted = (data || []).map(
-          (item: {
-            id: string
-            name: string
-            english_name: string | null
-            category: string | null
-            description: string | null
-            images: string[] | null
-            country_id: string
-            region_id: string | null
-            city_id: string | null
-            latitude: number | null
-            longitude: number | null
-            address: string | null
-            cities: { name: string } | null
-          }): AttractionWithCity => ({
+        type AttractionWithCityRaw = {
+          id: string; name: string; english_name: string | null; category: string | null
+          description: string | null; images: string[] | null; country_id: string
+          region_id: string | null; city_id: string | null; latitude: number | null
+          longitude: number | null; address: string | null; cities: { name: string } | null
+        }
+        const formatted = ((data as unknown as AttractionWithCityRaw[]) || []).map(
+          (item): AttractionWithCity => ({
             id: item.id,
             name: item.name,
             english_name: item.english_name ?? undefined,

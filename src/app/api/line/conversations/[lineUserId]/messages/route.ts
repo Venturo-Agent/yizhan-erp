@@ -82,7 +82,7 @@ export async function POST(
   const result = await pushToLine({
     to: lineUserId,
     messages: [{ type: 'text', text }],
-    channelAccessToken: settings.channel_access_token,
+    channelAccessToken: settings.channel_access_token ?? '',
   })
 
   if (!result.ok) {

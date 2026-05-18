@@ -35,6 +35,7 @@ export interface LayoutContextPayload {
     role_id: string | null
     workspace_id: string | null
     status: string | null
+    branch_id?: string | null
   } | null
   workspace: {
     id: string

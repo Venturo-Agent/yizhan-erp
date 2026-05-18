@@ -22,6 +22,7 @@ import { logger } from '@/lib/utils/logger'
 import { deleteTour as deleteTourEntity } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
+import { CAPABILITIES } from '@/lib/permissions/capabilities'
 
 interface UseToursPaginatedParams {
   page: number
@@ -62,10 +63,15 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
 
   // Auth check - 只用於寫入操作，讀取不需要等待 hydration
   const user = useAuthStore(state => state.user)
+  const capabilities = useAuthStore(state => state.capabilities)
+  const hasCrossBranchRead = capabilities.includes(CAPABILITIES.CROSS_BRANCH_READ)
+
+  // 分公司過濾：有 branch_id 且沒 cross_branch.read → 只看自己分公司
+  const branchId = !hasCrossBranchRead ? (user?.branch_id ?? null) : null
 
   // ✅ 優化：讀取操作不等待 auth hydration，讓 SWR 立即從快取顯示資料
   // RLS 已在資料庫層保護資料，前端不需要重複驗證
-  const swrKey = buildSwrKey(params)
+  const swrKey = `${buildSwrKey(params)}-branch:${branchId ?? 'all'}`
 
   const {
     data,
@@ -82,12 +88,17 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
       let query = supabase
         .from('tours')
         .select(
-          'id, code, name, location, country_id, airport_code, status, departure_date, return_date, price, selling_price_per_person, max_participants, current_participants, total_revenue, total_cost, profit, archived, is_active, itinerary_id, workspace_id, created_at, days_count',
+          'id, code, name, location, country_id, airport_code, status, departure_date, return_date, price, selling_price_per_person, max_participants, current_participants, total_revenue, total_cost, profit, archived, is_active, itinerary_id, workspace_id, branch_id, created_at, days_count',
           { count: 'exact' }
         )
         .eq('is_active', true) // 過濾已刪除的團
         .range(from, to) // ✅ Server-side pagination
         .order(sortBy, { ascending: sortOrder === 'asc' })
+
+      // 分公司隔離：有 branch_id 且沒 cross_branch.read → 只看自己分公司的團
+      if (branchId) {
+        query = query.eq('branch_id', branchId)
+      }
 
       // ✅ Server-side status filtering（tour_type 已併入 status：template/proposal/upcoming/ongoing/returned/closed）
       // 「upcoming / ongoing / returned」顯示層可再用 departure_date / return_date 細分
@@ -216,6 +227,7 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
     const now = new Date().toISOString()
     const newTour = {
       ...tourData,
+      branch_id: tourData.branch_id ?? user?.branch_id ?? null,
       id: generateUUID(),
       created_at: now,
       updated_at: now,
