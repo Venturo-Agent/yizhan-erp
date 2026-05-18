@@ -42,7 +42,7 @@ export interface ProvisionResult {
 }
 
 function buildWebhookUrl(): string {
-  const base = process.env.LINE_WEBHOOK_BASE_URL || 'https://erp.venturo.tw'
+  const base = process.env.NEXT_PUBLIC_APP_URL || process.env.LINE_WEBHOOK_BASE_URL || 'https://erp.venturo.tw'
   return `${base.replace(/\/$/, '')}/api/line/webhook`
 }
 
@@ -120,7 +120,7 @@ export async function provisionLineBot(input: ProvisionInput): Promise<Provision
     .upsert(
       {
         workspace_id: input.workspaceId,
-        channel_id: input.channelId.trim(),
+        channel_id: botInfo.userId,
         channel_access_token: null,
         channel_secret: null,
         channel_access_token_encrypted: encryptIntegrationSecret(input.channelAccessToken.trim()),

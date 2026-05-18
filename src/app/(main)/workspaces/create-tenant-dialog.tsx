@@ -12,6 +12,7 @@ import { TenantBrandSection } from './_components/TenantBrandSection'
 import { TenantOrgSection } from './_components/TenantOrgSection'
 import { TenantAdminSection } from './_components/TenantAdminSection'
 import { TenantPlanSection } from './_components/TenantPlanSection'
+import { TenantPrepSection } from './_components/TenantPrepSection'
 
 interface CreateTenantDialogProps {
   open: boolean
@@ -48,13 +49,10 @@ export function CreateTenantDialog({
     updateBranch,
     addBranch,
     removeBranch,
-    updateDept,
-    addDept,
-    removeDept,
     toggleMultiBranch,
-    toggleMultiDept,
     handlePlanChange,
     handleAdvancePicksChange,
+    handleOptionalFeaturesChange,
   } = useCreateTenantForm(existingCodes)
 
   const handleOpenChange = useCallback(
@@ -84,8 +82,16 @@ export function CreateTenantDialog({
             <TenantPlanSection
               subscriptionPlan={form.subscriptionPlan}
               advancePicks={form.advancePicks}
+              optionalFeatures={form.optionalFeatures}
               onPlanChange={handlePlanChange}
               onAdvancePicksChange={handleAdvancePicksChange}
+              onOptionalFeaturesChange={handleOptionalFeaturesChange}
+            />
+
+            <TenantPrepSection
+              subscriptionPlan={form.subscriptionPlan}
+              advancePicks={form.advancePicks}
+              optionalFeatures={form.optionalFeatures}
             />
 
             <TenantBasicInfoSection
@@ -111,12 +117,6 @@ export function CreateTenantDialog({
               onUpdateBranch={updateBranch}
               onAddBranch={addBranch}
               onRemoveBranch={removeBranch}
-              isMultiDepartment={form.isMultiDepartment}
-              departments={form.departments}
-              onToggleMultiDept={toggleMultiDept}
-              onUpdateDept={updateDept}
-              onAddDept={addDept}
-              onRemoveDept={removeDept}
             />
 
             <TenantAdminSection form={form} setForm={setForm} />

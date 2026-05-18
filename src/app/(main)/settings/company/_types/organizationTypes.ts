@@ -1,10 +1,10 @@
 /**
  * organizationTypes.ts
- * 組織管理（品牌 / 分公司 / 部門）共用型別 + fetcher
- * 從 OrganizationSection.tsx 抽出、供 DimensionSection 和 BranchesWithDepartments 共用
+ * 組織管理（品牌 / 分公司）共用型別 + fetcher
+ * 從 OrganizationSection.tsx 抽出、供 DimensionSection 和 BranchesSection 共用
  */
 
-export type DimensionTable = 'brands' | 'branches' | 'departments'
+export type DimensionTable = 'brands' | 'branches'
 
 export interface DimensionRow {
   id: string
@@ -15,8 +15,8 @@ export interface DimensionRow {
   display_order: number
   created_at: string
   updated_at: string
-  /** 只有 departments 有、表示掛在哪個 branch 底下 */
-  branch_id?: string | null
+  /** 只有 branches 有、8 碼數字 */
+  tax_id?: string | null
 }
 
 export const fetcher = async (url: string): Promise<DimensionRow[]> => {

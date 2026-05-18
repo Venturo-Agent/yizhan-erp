@@ -3,9 +3,11 @@ import { createServerClient } from '@supabase/ssr'
 import { nanoid } from 'nanoid'
 
 /**
- * Next.js Middleware - 伺服器端路由保護 + CSP nonce 注入（SEC-007）
+ * Next.js Proxy - 伺服器端路由保護 + CSP nonce 注入（SEC-007）
  * 認證來源：Supabase Auth（session cookies 由 @supabase/ssr 管理）
  * CSP：每個 request 產生獨立 nonce、移除 unsafe-inline/unsafe-eval（script-src 嚴格模式）
+ *
+ * Next.js 16 起 middleware → proxy 命名變更、檔名 / 函式名同步改、行為不變。
  */
 
 /**
@@ -43,7 +45,7 @@ const EXACT_PUBLIC_PATHS = new Set<string>([
   // === 認證 API ===
   '/api/auth/validate-login',
   '/api/auth/logout',
-  // layout-context 自帶未登入處理（回 { ok: false }）、middleware 不需要攔截
+  // layout-context 自帶未登入處理（回 { ok: false }）、proxy 不需要攔截
   '/api/auth/layout-context',
   // sync-employee：解「登入時 session cookie 尚未就緒」的雞生蛋問題。
   // 自帶 access_token 驗證（比 cookie session 更嚴、已是 defense-in-depth）。
@@ -109,7 +111,7 @@ async function isAuthenticated(request: NextRequest, response: NextResponse): Pr
   return !!user
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // SEC-007：每個 request 產生獨立 nonce、透過 x-nonce header 傳給 Server Components
@@ -122,7 +124,7 @@ export async function middleware(request: NextRequest) {
 
   const response = NextResponse.next({ request: { headers: requestHeaders } })
 
-  // 在 response 上設 CSP（middleware 優先、會覆蓋 next.config.ts 的靜態 CSP）
+  // 在 response 上設 CSP（proxy 優先、會覆蓋 next.config.ts 的靜態 CSP）
   response.headers.set('Content-Security-Policy', cspHeader)
 
   // 根路由（Landing Page）為精確匹配
@@ -132,7 +134,7 @@ export async function middleware(request: NextRequest) {
 
   // 公開路由白名單、精確匹配。
   // 敏感 API（reset-employee-password / change-password 等）必須走登入守門
-  // （endpoint 本身有 getServerAuth 是第二道、middleware 是第一道）。
+  // （endpoint 本身有 getServerAuth 是第二道、proxy 是第一道）。
   if (isPublicPath(pathname)) {
     return response
   }

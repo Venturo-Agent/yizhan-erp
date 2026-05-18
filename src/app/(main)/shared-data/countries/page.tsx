@@ -68,7 +68,6 @@ export default function SharedDataCountriesPage() {
               <tr>
                 <th className='px-4 py-2 text-left'>{t('colCode')}</th>
                 <th className='px-4 py-2 text-left'>{t('colNameZh')}</th>
-                <th className='px-4 py-2 text-left'>{t('colNameEn')}</th>
                 <th className='px-4 py-2 text-left'>{t('colContinent')}</th>
                 <th className='px-4 py-2 text-left'>{t('colSubRegion')}</th>
                 <th className='px-4 py-2 text-center'>{t('colEnabled')}</th>
@@ -77,13 +76,13 @@ export default function SharedDataCountriesPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className='px-4 py-8 text-center text-muted-foreground'>
+                  <td colSpan={5} className='px-4 py-8 text-center text-muted-foreground'>
                     {t('loading')}
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className='px-4 py-8 text-center text-muted-foreground'>
+                  <td colSpan={5} className='px-4 py-8 text-center text-muted-foreground'>
                     {t('noData')}
                   </td>
                 </tr>
@@ -92,7 +91,6 @@ export default function SharedDataCountriesPage() {
                   <tr key={c.code} className='border-b last:border-0 hover:bg-muted/30'>
                     <td className='px-4 py-2 font-mono'>{c.code}</td>
                     <td className='px-4 py-2'>{c.name_zh}</td>
-                    <td className='px-4 py-2 text-muted-foreground'>{c.name_en}</td>
                     <td className='px-4 py-2 text-muted-foreground'>{c.continent ?? '—'}</td>
                     <td className='px-4 py-2 text-muted-foreground'>{c.sub_region ?? '—'}</td>
                     <td className='px-4 py-2 text-center'>{c.is_active ? '✓' : '—'}</td>

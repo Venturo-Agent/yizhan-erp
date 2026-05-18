@@ -4,8 +4,8 @@
  * 從 create-tenant-db.ts 再抽出：
  * - Step 5–6：建立預設職務 + 從 Corner 複製 role_capabilities
  * - Step 7：建立預設 workspace_features
- * - Step 8：建立三維 placeholder（brands / branches / departments）
- * - Step 9：把 admin 員工掛到三維 default（soft fail）
+ * - Step 8：建立維度 placeholder（brands / branches）
+ * - Step 9：把 admin 員工掛到維度 default（soft fail）
  * - Soft：從 Corner 複製基礎資料（countries）
  */
 
@@ -20,12 +20,6 @@ import {
   type AdvancePickId,
 } from '@/lib/permissions/subscription-plans'
 import type { BrandPayload } from './create-tenant-validation'
-
-// onboarding fix pack 2026-05-10：brands / branches / departments / employee_* 三維表
-// Supabase Database type 還沒 regenerate，先 cast 為 any 暫避型別衝突
-// migration apply 後跑 `supabase gen types` 即可拔掉
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SupabaseAny = any
 
 // Corner workspace 當全站職務模板的來源。
 // 2026-05-16 QDF R40：env 優先、fallback 保留歷史值
@@ -189,14 +183,16 @@ export async function seedWorkspaceFeatures(
   supabaseAdmin: SupabaseClient,
   workspaceId: string,
   planId: PlanId = 'custom',
-  advancePicks?: AdvancePickId[]
+  advancePicks?: AdvancePickId[],
+  /** 「其他可選功能」現場勾選的 feature_code、union 進方案 features */
+  optionalFeatures?: string[]
 ): Promise<ReturnType<typeof errorResponse> | null> {
   // All module-level features that exist in the system
   const allModuleFeatures = [
     'dashboard', 'calendar', 'workspace', 'todos', 'tours', 'orders',
     'quotes', 'finance', 'database', 'hr', 'hr_bonus_settlement',
     'hr_salary_settlement', 'settings', 'customers', 'itinerary',
-    'accounting', 'office',
+    'accounting', 'office', 'channels', 'esim', 'documents',
   ]
 
   // Determine which features are enabled based on the selected plan
@@ -210,8 +206,13 @@ export async function seedWorkspaceFeatures(
         'dashboard', 'calendar', 'workspace', 'todos', 'tours', 'orders',
         'quotes', 'finance', 'database', 'hr', 'hr_bonus_settlement',
         'hr_salary_settlement', 'settings', 'customers', 'itinerary',
+        ...(optionalFeatures ?? []),
       ])
-    : new Set([...getFeaturesForPlan(planId, advancePicks), ...ALWAYS_ENABLED])
+    : new Set([
+        ...getFeaturesForPlan(planId, advancePicks),
+        ...ALWAYS_ENABLED,
+        ...(optionalFeatures ?? []),
+      ])
 
   const defaultFeatures = allModuleFeatures.map(code => ({
     feature_code: code,
@@ -268,24 +269,22 @@ export async function seedWorkspaceFeatures(
 }
 
 // =========================================================================
-// Step 8：建立三維 placeholder（brands / branches / departments）
+// Step 8：建立維度 placeholder（brands / branches）
 // =========================================================================
 
 export interface CreateDimensionsParams {
   workspaceId: string
   workspaceName: string
+  workspaceTaxId: string
   newWorkspaceCode: string
   brands: BrandPayload[]
   isMultiBranch: boolean
   branches: BrandPayload[] | undefined
-  isMultiDepartment: boolean
-  departments: BrandPayload[] | undefined
 }
 
 export interface DimensionIds {
   defaultBrandId: string | undefined
   defaultBranchId: string | undefined
-  defaultDeptId: string | undefined
 }
 
 export async function createDimensions(
@@ -295,14 +294,12 @@ export async function createDimensions(
   const {
     workspaceId,
     workspaceName,
+    workspaceTaxId,
     newWorkspaceCode,
     brands,
     isMultiBranch,
     branches,
-    isMultiDepartment,
-    departments,
   } = params
-  const supaAny = supabaseAdmin as unknown as SupabaseAny
 
   // brands：空陣列 → seed default（用 workspace name + code、單品牌情境）
   const brandSource: BrandPayload[] =
@@ -314,7 +311,7 @@ export async function createDimensions(
     is_default: idx === 0,
     display_order: idx,
   }))
-  const { data: insertedBrands, error: brandError } = await supaAny
+  const { data: insertedBrands, error: brandError } = await supabaseAdmin
     .from('brands')
     .insert(brandRows)
     .select('id, is_default')
@@ -330,6 +327,7 @@ export async function createDimensions(
 
   // branches：勾「多分公司」依 onboarding 填、否則建 placeholder「總部」
   // type 欄位：第一筆 headquarters（總公司本身）、其餘 branch（分公司）
+  // tax_id：第一筆 fallback workspace.tax_id（總公司沿用公司統編）、其餘必須由 payload 帶
   // 2026-05-17：原本 5/14 trg_workspaces_onboarding_seed trigger 會自動建一筆 HQ、
   // 結果跟這段 API 撞 branches_workspace_code_unique、整個 tenant create 炸
   // → 改成 trigger 已 drop、API 是唯一 seed SSOT、自己設 type
@@ -342,8 +340,9 @@ export async function createDimensions(
     type: idx === 0 ? 'headquarters' : 'branch',
     is_default: idx === 0,
     display_order: idx,
+    tax_id: (br.tax_id?.trim() || (idx === 0 ? workspaceTaxId : '')) || workspaceTaxId,
   }))
-  const { data: insertedBranches, error: branchError } = await supaAny
+  const { data: insertedBranches, error: branchError } = await supabaseAdmin
     .from('branches')
     .insert(branchRows)
     .select('id, is_default')
@@ -357,44 +356,11 @@ export async function createDimensions(
     b => b.is_default
   )?.id
 
-  // 沒 default branch 就不能建 default dept（schema 強制 branch_id NOT NULL）
-  if (!defaultBranchId) {
-    return errorResponse('建立預設分公司失敗、無法後續建立部門', 500, ErrorCode.OPERATION_FAILED)
-  }
-
-  // departments：勾「多部門」依 onboarding 填、否則建 placeholder「總公司」
-  // 所有 default seed 部門都掛在 default branch 底下（2026-05-14 起 branch_id 必填）
-  // type 欄位：第一筆 headquarters（總部）、其餘 department（一般部門）
-  const departmentSource: BrandPayload[] =
-    isMultiDepartment && departments?.length ? departments : [{ code: 'MAIN', name: '總公司' }]
-  const deptRows = departmentSource.map((d: BrandPayload, idx: number) => ({
-    workspace_id: workspaceId,
-    branch_id: defaultBranchId,
-    code: (d.code?.trim() || `D${idx + 1}`).toUpperCase(),
-    name: d.name.trim(),
-    type: idx === 0 ? 'headquarters' : 'department',
-    is_default: idx === 0,
-    display_order: idx,
-  }))
-  const { data: insertedDepts, error: deptError } = await supaAny
-    .from('departments')
-    .insert(deptRows)
-    .select('id, is_default')
-
-  if (deptError || !insertedDepts) {
-    logger.error('Failed to create departments:', deptError)
-    return errorResponse('建立部門失敗', 500, ErrorCode.OPERATION_FAILED)
-  }
-
-  const defaultDeptId = (insertedDepts as Array<{ id: string; is_default: boolean }>).find(
-    d => d.is_default
-  )?.id
-
-  return { defaultBrandId, defaultBranchId, defaultDeptId }
+  return { defaultBrandId, defaultBranchId }
 }
 
 // =========================================================================
-// Step 9：把 admin 員工掛到三維 default（soft fail）
+// Step 9：把 admin 員工掛到維度 default（soft fail）
 // =========================================================================
 
 export async function linkEmployeeToDimensions(
@@ -402,28 +368,21 @@ export async function linkEmployeeToDimensions(
   employeeId: string,
   dims: DimensionIds
 ): Promise<void> {
-  const { defaultBrandId, defaultBranchId, defaultDeptId } = dims
-  if (!defaultBrandId || !defaultBranchId || !defaultDeptId) return
+  const { defaultBrandId, defaultBranchId } = dims
+  if (!defaultBrandId || !defaultBranchId) return
 
-  const supaAny = supabaseAdmin as unknown as SupabaseAny
-
-  const empBrandResult = await supaAny
+  const empBrandResult = await supabaseAdmin
     .from('employee_brands')
     .insert({ employee_id: employeeId, brand_id: defaultBrandId, is_primary: true })
-  const empBranchResult = await supaAny
+  const empBranchResult = await supabaseAdmin
     .from('employee_branches')
     .insert({ employee_id: employeeId, branch_id: defaultBranchId, is_primary: true })
-  const empDeptResult = await supaAny
-    .from('employee_departments')
-    .insert({ employee_id: employeeId, department_id: defaultDeptId, is_primary: true })
 
   // soft fail：不 rollback、log 即可（trigger 會接手 fallback）
   if (empBrandResult.error)
     logger.warn('employee_brands insert failed (non-fatal):', empBrandResult.error)
   if (empBranchResult.error)
     logger.warn('employee_branches insert failed (non-fatal):', empBranchResult.error)
-  if (empDeptResult.error)
-    logger.warn('employee_departments insert failed (non-fatal):', empDeptResult.error)
 }
 
 // =========================================================================

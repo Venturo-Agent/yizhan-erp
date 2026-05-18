@@ -96,6 +96,58 @@ export async function upsertDebounceAndCheckPrev(
 }
 
 /**
+ * 純累積版（給 after() 路徑用）。
+ *
+ * 每則訊息進來就累積 + 更新 reply_token / last_message_at，
+ * 不評估前一批、不清 accumulated_text。
+ * 原子 claim 由 after() 內的 UPDATE WHERE sent_at IS NULL AND last_message_at < now-10s 負責。
+ */
+export async function upsertDebounceAccumulate(
+  supabase: SupabaseClient,
+  opts: {
+    workspaceId: string
+    lineUserId: string
+    userText: string
+    replyToken: string | null
+  }
+): Promise<void> {
+  const { workspaceId, lineUserId, userText, replyToken } = opts
+  const now = new Date()
+
+  const { data: existing } = await (supabase as unknown as SupabaseClient)
+    .from('line_bot_reply_debounce')
+    .select('accumulated_text, sent_at')
+    .eq('workspace_id', workspaceId)
+    .eq('line_user_id', lineUserId)
+    .maybeSingle()
+
+  const newAccumulatedText =
+    existing && !existing.sent_at
+      ? [existing.accumulated_text, userText].filter(Boolean).join('\n')
+      : userText
+
+  const { error } = await (supabase as unknown as SupabaseClient)
+    .from('line_bot_reply_debounce')
+    .upsert(
+      {
+        workspace_id: workspaceId,
+        line_user_id: lineUserId,
+        accumulated_text: newAccumulatedText,
+        last_message_at: now.toISOString(),
+        reply_token: replyToken,
+        sent_at: null,
+        is_expired: false,
+        updated_at: now.toISOString(),
+      },
+      { onConflict: 'workspace_id,line_user_id' }
+    )
+
+  if (error) {
+    logger.error('[debounce] upsertDebounceAccumulate failed', error, { workspaceId, lineUserId })
+  }
+}
+
+/**
  * 標記 debounce state 為已送出。
  */
 export async function markDebounceSent(

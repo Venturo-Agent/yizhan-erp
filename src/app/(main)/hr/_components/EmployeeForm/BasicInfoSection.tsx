@@ -26,7 +26,6 @@ const LABELS = {
   ROLE_NOTE: '（由主管指派，如需調整請聯絡 HR）',
   SELECT_ROLE: '請選擇職務',
   BRANCH: '分公司',
-  DEPARTMENT: '部門',
   ELIGIBILITY: '個人資格',
   ELIGIBILITY_HINT: '勾選 = 此員工可被指派為對應角色（業務 / 助理 / 團控 / 代墊款人）。新員工會按職務預設帶入、可手動取消。',
   EMAIL: 'Email',
@@ -53,11 +52,6 @@ interface ScopeOption {
   name: string
 }
 
-interface Department extends ScopeOption {
-  branch_id?: string | null
-  is_default?: boolean
-}
-
 interface BasicInfoSectionProps {
   mode: 'hr' | 'self'
   isEditMode: boolean
@@ -67,7 +61,6 @@ interface BasicInfoSectionProps {
     job_title: string
     role_id: string
     branch_id: string
-    department_id: string
     eligibility_codes: string[]
     email: string
     phone: string
@@ -81,10 +74,8 @@ interface BasicInfoSectionProps {
   }
   roles: Role[]
   branches: ScopeOption[]
-  allDepartments: Department[]
   onChange: (patch: Partial<BasicInfoSectionProps['formData']>) => void
   onCreateBranch: () => void
-  onCreateDepartment: () => void
   onToggleEligibility: (code: string, checked: boolean) => void
 }
 
@@ -94,7 +85,6 @@ export function BasicInfoSection({
   formData,
   roles,
   branches,
-  allDepartments,
   onChange,
   onToggleEligibility,
 }: BasicInfoSectionProps) {
@@ -168,7 +158,7 @@ export function BasicInfoSection({
         )}
       </div>
 
-      {/* Phase A：分公司 / 部門 / 是否主管（HR 模式才顯示） */}
+      {/* Phase A：分公司（HR 模式才顯示） */}
       {mode === 'hr' && (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
@@ -183,60 +173,15 @@ export function BasicInfoSection({
             ) : (
               <select
                 value={formData.branch_id || (branches[0]?.id ?? '')}
-                onChange={e => {
-                  if (e.target.value !== '__new__') {
-                    // 切分公司同時清掉部門選擇、避免員工掛到不屬該分公司的部門
-                    onChange({ branch_id: e.target.value, department_id: '' })
-                  }
-                }}
+                onChange={e => onChange({ branch_id: e.target.value })}
                 className="w-full px-3 py-2 border border-morandi-gold/30 rounded-lg focus:border-morandi-gold focus:outline-none bg-card text-morandi-primary"
               >
                 {branches.map(b => (
                   <option key={b.id} value={b.id}>{b.name}</option>
                 ))}
-                {/* 5/15 William 拍板拔「新增分公司」選項：HR 不該能新增分公司、要去 /settings/company */}
               </select>
             )}
           </div>
-          {(() => {
-            // 級聯：只列當前 branch_id 底下的部門
-            // 5/15 William 拍板：
-            //   - 沒選分公司 → 不顯示部門欄位
-            //   - 選了但該分公司只有預設「總部」（is_default）→ 也不顯示（user 沒新增、就不必選）
-            //   - 有 user 新增的部門 → 才顯示 dropdown
-            const filteredDepartments = formData.branch_id
-              ? allDepartments.filter(d => d.branch_id === formData.branch_id)
-              : []
-            const hasUserCreatedDept = filteredDepartments.some(d => !d.is_default)
-            if (!formData.branch_id || !hasUserCreatedDept) {
-              return null
-            }
-            return (
-              <div className="space-y-1.5">
-                <Label className="text-xs font-semibold text-morandi-primary uppercase">
-                  {LABELS.DEPARTMENT}
-                </Label>
-                {filteredDepartments.length === 1 ? (
-                  <div className="w-full px-3 py-2 border border-morandi-gold/30 rounded-lg bg-morandi-background/50 text-morandi-primary">
-                    {filteredDepartments[0].name}
-                  </div>
-                ) : (
-                  <select
-                    value={formData.department_id || (filteredDepartments[0]?.id ?? '')}
-                    onChange={e => onChange({ department_id: e.target.value })}
-                    className="w-full px-3 py-2 border border-morandi-gold/30 rounded-lg focus:border-morandi-gold focus:outline-none bg-card text-morandi-primary"
-                  >
-                    <option value="">請選擇部門</option>
-                    {filteredDepartments.map(d => (
-                      <option key={d.id} value={d.id}>{d.name}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            )
-          })()}
-          {/* 2026-05-14 William 拍板：砍 is_dept_manager flag UI、改走 role 階層
-              部門主管/業務主管是獨立 role、不靠 flag。詳見 RBAC 設計卡。 */}
         </div>
       )}
 

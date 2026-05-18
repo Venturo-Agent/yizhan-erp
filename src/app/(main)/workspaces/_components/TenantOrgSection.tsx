@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * TenantOrgSection — 組織設定區塊（多分公司 / 多部門）
+ * TenantOrgSection — 組織設定區塊（多分公司）
  */
 
 import { Button } from '@/components/ui/button'
@@ -11,20 +11,12 @@ import { useTranslations } from 'next-intl'
 import type { DimensionRow, FormData } from './create-tenant-types'
 
 interface Props {
-  // 分公司
   isMultiBranch: FormData['isMultiBranch']
   branches: FormData['branches']
   onToggleMultiBranch: (checked: boolean) => void
   onUpdateBranch: (idx: number, field: keyof DimensionRow, value: string) => void
   onAddBranch: () => void
   onRemoveBranch: (idx: number) => void
-  // 部門
-  isMultiDepartment: FormData['isMultiDepartment']
-  departments: FormData['departments']
-  onToggleMultiDept: (checked: boolean) => void
-  onUpdateDept: (idx: number, field: keyof DimensionRow, value: string) => void
-  onAddDept: () => void
-  onRemoveDept: (idx: number) => void
 }
 
 export function TenantOrgSection({
@@ -34,12 +26,6 @@ export function TenantOrgSection({
   onUpdateBranch,
   onAddBranch,
   onRemoveBranch,
-  isMultiDepartment,
-  departments,
-  onToggleMultiDept,
-  onUpdateDept,
-  onAddDept,
-  onRemoveDept,
 }: Props) {
   const t = useTranslations('workspacesPage')
   return (
@@ -73,6 +59,20 @@ export function TenantOrgSection({
                   placeholder={`${t('fieldBranchName')}${idx === 0 ? '（主要）' : ''}`}
                   className="flex-1"
                 />
+                <Input
+                  value={br.tax_id ?? ''}
+                  onChange={e =>
+                    onUpdateBranch(
+                      idx,
+                      'tax_id',
+                      e.target.value.replace(/\D/g, '').slice(0, 8)
+                    )
+                  }
+                  placeholder="分公司統編（8 碼數字）"
+                  maxLength={8}
+                  inputMode="numeric"
+                  className="w-44 font-mono"
+                />
                 {branches.length > 1 && (
                   <Button
                     variant="ghost"
@@ -88,53 +88,6 @@ export function TenantOrgSection({
             ))}
             <Button variant="soft-gold" size="sm" onClick={onAddBranch} type="button">
               {t('btnAddBranch')}
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* 多部門 */}
-      <div className="space-y-2 pt-2">
-        <label className="flex items-start gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={isMultiDepartment}
-            onChange={e => onToggleMultiDept(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-morandi-muted"
-          />
-          <div>
-            <div className="text-sm font-medium text-morandi-primary">
-              {t('checkboxMultiDepartment')}
-            </div>
-            <p className="text-xs text-morandi-muted">{t('checkboxMultiDepartmentHint')}</p>
-          </div>
-        </label>
-
-        {isMultiDepartment && (
-          <div className="ml-6 space-y-2">
-            {departments.map((d, idx) => (
-              <div key={idx} className="flex gap-2 items-start">
-                <Input
-                  value={d.name}
-                  onChange={e => onUpdateDept(idx, 'name', e.target.value)}
-                  placeholder={`${t('fieldDepartmentName')}${idx === 0 ? '（主要）' : ''}`}
-                  className="flex-1"
-                />
-                {departments.length > 1 && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onRemoveDept(idx)}
-                    className="text-morandi-red"
-                    type="button"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button variant="soft-gold" size="sm" onClick={onAddDept} type="button">
-              {t('btnAddDepartment')}
             </Button>
           </div>
         )}

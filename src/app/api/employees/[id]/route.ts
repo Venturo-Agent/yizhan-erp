@@ -36,8 +36,6 @@ const updateEmployeeSchema = z
     job_title: z.string().nullable().optional(),
     monthly_salary: z.number().nullable().optional(),
     branch_id: z.string().uuid().nullable().optional(),
-    department_id: z.string().uuid().nullable().optional(),
-    is_dept_manager: z.boolean().optional(),
     // jsonb 結構欄位（zod v4 z.record 需指定 key+value）
     personal_info: z.record(z.string(), z.unknown()).optional(),
     job_info: z.record(z.string(), z.unknown()).optional(),

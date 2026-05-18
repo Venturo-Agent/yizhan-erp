@@ -1,26 +1,26 @@
 'use client'
 
 /**
- * 設定 → 組織管理（onboarding fix pack 2026-05-10）
+ * 設定 → 組織管理
  *
- * 三個 section：品牌管理 / 分公司管理 / 部門管理
+ * 兩個 section：品牌管理 / 分公司管理
  *
  * UI 規則（對應 01-架構決定.md 第十三節 + 第八節）：
  *   - 該維度只有 1 筆 placeholder（is_default=true）→ 該 section 折疊、預設藏
  *     用戶要管理就點「我要管理 X」展開
  *   - 該維度有 2+ 筆 → 該 section 預設展開、可 CRUD
  *
- * API：/api/organization/{brands,branches,departments}
+ * API：/api/organization/{brands,branches}
  */
 
 import React from 'react'
 import { Card } from '@/components/ui/card'
 import { Building2, Network, Plus } from 'lucide-react'
 import { DimensionSection } from './DimensionSection'
-import { BranchesWithDepartments } from './BranchesWithDepartments'
+import { BranchesSection } from './BranchesSection'
 
 const SECTIONS: Array<{
-  table: 'brands' | 'branches' | 'departments'
+  table: 'brands' | 'branches'
   label: string
   singular: string
   icon: React.ComponentType<{ className?: string }>
@@ -38,8 +38,6 @@ const SECTIONS: Array<{
     apiPath: '/api/organization/brands',
     emptyTip: '目前只有 1 個預設品牌（建立租戶時系統自動建）。新增第 2 個後業務單據會自動冒「品牌」欄位。',
   },
-  // 5/15 William 拍板：departments 整合進 branches 的每張 card 內、不再獨立 section
-  // BranchesWithDepartments 取代原 DimensionSection 通用邏輯
 ]
 
 export function OrganizationSection() {
@@ -51,7 +49,7 @@ export function OrganizationSection() {
           <h2 className="text-base font-semibold">組織管理</h2>
         </div>
         <p className="text-sm text-morandi-secondary">
-          管理「品牌 / 分公司 / 部門」三個維度。某維度只要新增第 2 筆、業務單據（旅遊團 / 訂單 / 請款 / 出納）就會自動冒對應下拉、員工編輯頁也會冒對應勾選。
+          管理「品牌 / 分公司」兩個維度。某維度只要新增第 2 筆、業務單據（旅遊團 / 訂單 / 請款 / 出納）就會自動冒對應下拉、員工編輯頁也會冒對應勾選。
         </p>
         <p className="text-xs text-morandi-muted mt-2">
           <strong>規則：</strong>
@@ -64,8 +62,8 @@ export function OrganizationSection() {
         <DimensionSection key={section.table} config={section} />
       ))}
 
-      {/* 分公司 + 部門：5/15 整合 card、部門 nested 在每個分公司內 */}
-      <BranchesWithDepartments />
+      {/* 分公司：5/18 拔掉 nested 部門、回到單純 branches CRUD（之後 nested 重設計） */}
+      <BranchesSection />
     </div>
   )
 }

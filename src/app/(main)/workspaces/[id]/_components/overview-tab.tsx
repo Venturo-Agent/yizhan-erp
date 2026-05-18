@@ -1,16 +1,14 @@
 'use client'
 
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { alert as showAlert } from '@/lib/ui/alert-dialog'
 import { apiMutate } from '@/lib/swr/api-mutate'
-import { Settings2, Users, Check } from 'lucide-react'
-import { FormDialog } from '@/components/dialog'
-import { MODULES } from '@/lib/permissions'
-import { ADVANCE_PICK_OPTIONS, getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
+import { Users, Check } from 'lucide-react'
+import { ADVANCE_PICK_OPTIONS } from '@/lib/permissions/subscription-plans'
 import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import { QuotaHistorySection } from './QuotaHistorySection'
 
 // ─── 方案卡增量顯示定義 ────────────────────────────────────────────────────────
 interface PlanFeature { name: string; note?: string; code?: string; kind?: 'module' | 'tab' }
@@ -41,12 +39,11 @@ const PLAN_INCREMENTAL: Record<
   premium: {
     base: '標準版',
     features: [
-      { name: '合約系統',     code: 'tours.contract',       kind: 'tab'    },
-      { name: '薪資結算',     code: 'hr_salary_settlement', kind: 'module' },
-      { name: '獎金結算',     code: 'hr_bonus_settlement',  kind: 'module' },
-      { name: '會計系統',     code: 'accounting',           kind: 'module' },
-      { name: 'AI Hub',      code: 'ai_hub',               kind: 'module' },
-      { name: 'Happy 機器人', code: 'channels.happy',       kind: 'tab'    },
+      { name: '薪資結算',      code: 'hr_salary_settlement', kind: 'module' },
+      { name: '獎金結算',      code: 'hr_bonus_settlement',  kind: 'module' },
+      { name: '會計系統',      code: 'accounting',           kind: 'module' },
+      { name: 'AI Hub',       code: 'ai_hub',               kind: 'module' },
+      { name: 'HAPPY 機器人',  code: 'channels.happy',       kind: 'tab'    },
     ],
   },
 }
@@ -65,30 +62,12 @@ const PLAN_ORDER: Exclude<PlanId, 'custom'>[] = ['lite', 'standard', 'advance', 
 
 // 獨立可開關的功能（不隸屬方案、可單獨開關）
 const OTHER_OPTIONAL_FEATURES: { code: string; name: string; note?: string; kind: 'module' | 'tab' }[] = [
-  { code: 'calendar',   name: '行事曆',   kind: 'module' },
-  { code: 'todos',      name: '待辦事項',  kind: 'module' },
-  { code: 'channels',   name: '溝通平臺',  kind: 'module' },
-  { code: 'esif',       name: 'ESIF',     note: '開發中', kind: 'module' },
-  { code: 'documents',  name: '文件中心',  kind: 'module' },
-]
-
-// 所有由方案管理的功能（非永遠開啟的 base 功能）
-const ALL_PLAN_MANAGED: {
-  code: string
-  name: string
-  subtitle?: string
-  kind: 'module' | 'tab'
-}[] = [
-  { code: 'tours',                 name: '旅遊團管理',                    kind: 'module' },
-  { code: 'orders',                name: '訂單管理',                      kind: 'module' },
-  { code: 'finance',               name: '財務系統',                      kind: 'module' },
-  { code: 'customers',             name: '顧客管理',                      kind: 'module' },
-  { code: 'accounting',            name: '會計系統',                      kind: 'module' },
-  { code: 'tours.contract',        name: '合約系統',    subtitle: '旅遊合約管理', kind: 'tab'    },
-  { code: 'hr_salary_settlement',  name: '薪資結算',    subtitle: '完整人資',      kind: 'module' },
-  { code: 'hr_bonus_settlement',   name: '獎金結算',    subtitle: '完整人資',      kind: 'module' },
-  { code: 'ai_hub',                name: 'AI Hub',                         kind: 'module' },
-  { code: 'channels.happy',        name: 'Happy 機器人', subtitle: '溝通平臺',     kind: 'tab'    },
+  { code: 'calendar',       name: '行事曆',     kind: 'module' },
+  { code: 'todos',          name: '待辦事項',    kind: 'module' },
+  { code: 'channels',       name: '溝通頻道',    kind: 'module' },
+  { code: 'esim',           name: 'eSIM 管理',   note: '開發中', kind: 'module' },
+  { code: 'documents',      name: '文件中心',    kind: 'module' },
+  { code: 'tours.contract', name: '電子合約系統', kind: 'tab'    },
 ]
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -151,23 +130,6 @@ export function OverviewTab({
   onPlanChange,
   onAdvancePicksChange,
 }: OverviewTabProps) {
-  const [tabModalModuleCode, setTabModalModuleCode] = useState<string | null>(null)
-
-  const activeTabModule = tabModalModuleCode
-    ? MODULES.find(m => m.code === tabModalModuleCode)
-    : null
-
-  // 計算未包含於目前方案的功能（custom 模式顯示全部）
-  const planFeatureSet = new Set(
-    subscriptionPlan !== 'custom' ? getFeaturesForPlan(subscriptionPlan, advancePicks) : []
-  )
-  const notInPlan = subscriptionPlan === 'custom'
-    ? ALL_PLAN_MANAGED
-    : ALL_PLAN_MANAGED.filter(f => !planFeatureSet.has(f.code))
-
-  const hasManageableTabs = (moduleCode: string) =>
-    !!MODULES.find(m => m.code === moduleCode)?.tabs.some(t => !t.isEligibility && t.category !== 'premium')
-
   return (
     <div className="space-y-6">
 
@@ -181,35 +143,8 @@ export function OverviewTab({
         </div>
 
         <div className="p-6 space-y-4">
-          {/* 其他可選功能 */}
-          <div>
-            <p className="text-xs text-morandi-secondary mb-2">其他可選功能</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-              {OTHER_OPTIONAL_FEATURES.map(f => {
-                const current = features.find(feat => feat.feature_code === f.code)
-                const isEnabled = current?.enabled ?? false
-                return (
-                  // eslint-disable-next-line venturo/no-forbidden-classes
-                  <div
-                    key={f.code}
-                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-[12px] bg-gradient-to-t from-morandi-cream-soft to-morandi-cream-warm shadow-[rgba(180,160,120,0.15)_0px_4px_12px_-4px]"
-                  >
-                    <div className="flex flex-col min-w-0 flex-1">
-                      <span className="text-xs font-medium text-morandi-primary truncate">{f.name}</span>
-                      {f.note && <span className="text-[10px] text-morandi-secondary">{f.note}</span>}
-                    </div>
-                    <Switch
-                      checked={isEnabled}
-                      onCheckedChange={() => onToggleFeature(f.code)}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
           {/* 4 張方案卡片 */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-3">
             {PLAN_ORDER.map(planId => {
               const meta = PLAN_META[planId]
               const def = PLAN_INCREMENTAL[planId]
@@ -220,10 +155,10 @@ export function OverviewTab({
                   key={planId}
                   type="button"
                   onClick={() => onPlanChange(planId)}
-                  className={`flex flex-col gap-2 p-4 rounded-[20px] border text-left transition-all ${
+                  className={`flex flex-col gap-2 p-4 rounded-[20px] text-left transition-all ${
                     isSelected
-                      ? 'border-morandi-gold/30 bg-morandi-gold/5 shadow-[rgba(180,160,120,0.25)_0px_8px_20px_-4px]'
-                      : 'border-morandi-border/20 bg-morandi-cream-soft hover:border-morandi-gold/20 hover:bg-morandi-cream-warm'
+                      ? 'bg-morandi-gold/5 shadow-[rgba(180,160,120,0.3)_0px_8px_20px_-4px]'
+                      : 'bg-morandi-cream-soft hover:bg-morandi-cream-warm hover:shadow-[rgba(180,160,120,0.15)_0px_4px_12px_-4px]'
                   }`}
                 >
                   {/* 方案名稱 + tagline 並排，無 chip */}
@@ -350,56 +285,41 @@ export function OverviewTab({
             </div>
           )}
 
-          {/* 功能開關（custom 模式專用、named plan 直接在方案卡 switch 操作） */}
-          {subscriptionPlan === 'custom' && notInPlan.length > 0 && (
-            <div className="pt-3 border-t border-morandi-border/30">
-              <p className="text-xs text-morandi-secondary mb-3">功能開關</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {notInPlan.map(f => {
-                  const current = features.find(feat => feat.feature_code === f.code)
-                  const isEnabled = current?.enabled ?? false
-                  const showTabBtn = f.kind === 'module' && hasManageableTabs(f.code)
-                  return (
-                    // eslint-disable-next-line venturo/no-forbidden-classes
-                    <div
-                      key={f.code}
-                      className="flex items-center justify-between gap-3 px-4 py-3 rounded-[16px] bg-gradient-to-t from-morandi-cream-soft to-morandi-cream-warm shadow-[rgba(180,160,120,0.3)_0px_8px_20px_-4px]"
-                    >
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-sm font-medium text-morandi-primary truncate">{f.name}</span>
-                        {f.subtitle && (
-                          <span className="text-xs text-morandi-secondary truncate">{f.subtitle}</span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {showTabBtn && (
-                          <button
-                            type="button"
-                            onClick={() => setTabModalModuleCode(f.code)}
-                            title="管理分頁"
-                            className="p-1 rounded hover:bg-morandi-gold/10 text-morandi-secondary hover:text-morandi-gold"
-                          >
-                            <Settings2 className="h-4 w-4" />
-                          </button>
-                        )}
-                        <Switch
-                          checked={isEnabled}
-                          onCheckedChange={next => {
-                            if (f.kind === 'module') {
-                              onToggleFeature(f.code)
-                            } else {
-                              const [mod, ...rest] = f.code.split('.')
-                              onToggleTabFeature(mod, rest.join('.'), next)
-                            }
-                          }}
-                        />
-                      </div>
+          {/* 其他可選功能 */}
+          <div>
+            <p className="text-xs text-morandi-secondary mb-2">其他可選功能</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+              {OTHER_OPTIONAL_FEATURES.map(f => {
+                const isEnabled = f.kind === 'tab'
+                  ? onIsTabFeatureEnabled(...(f.code.split('.') as [string, string]))
+                  : features.find(feat => feat.feature_code === f.code)?.enabled ?? false
+                return (
+                  // eslint-disable-next-line venturo/no-forbidden-classes
+                  <div
+                    key={f.code}
+                    className="flex items-center justify-between gap-2 px-3 py-2 rounded-[12px] bg-gradient-to-t from-morandi-cream-soft to-morandi-cream-warm shadow-[rgba(180,160,120,0.15)_0px_4px_12px_-4px]"
+                  >
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="text-xs font-medium text-morandi-primary truncate">{f.name}</span>
+                      {f.note && <span className="text-[10px] text-morandi-secondary">{f.note}</span>}
                     </div>
-                  )
-                })}
-              </div>
+                    <Switch
+                      checked={isEnabled}
+                      onCheckedChange={next => {
+                        if (f.kind === 'tab') {
+                          const [mod, ...rest] = f.code.split('.')
+                          onToggleTabFeature(mod, rest.join('.'), next)
+                        } else {
+                          onToggleFeature(f.code)
+                        }
+                      }}
+                    />
+                  </div>
+                )
+              })}
             </div>
-          )}
+          </div>
+
         </div>
       </div>
 
@@ -478,6 +398,9 @@ export function OverviewTab({
         </div>
       </div>
 
+      {/* ── 員工帳號配額紀錄 ── */}
+      <QuotaHistorySection workspaceId={workspaceId} />
+
       {/* ── HR 政策 ── */}
       {/* eslint-disable-next-line venturo/no-forbidden-classes */}
       <div className="rounded-[24px] overflow-hidden bg-gradient-to-t from-white to-morandi-cream border-[3px] border-white shadow-[rgba(180,160,120,0.15)_0px_12px_24px_-8px]">
@@ -520,39 +443,6 @@ export function OverviewTab({
         </div>
       </div>
 
-      {/* ── 管理分頁 Modal（Custom 模式用）── */}
-      <FormDialog
-        open={!!tabModalModuleCode}
-        onOpenChange={open => !open && setTabModalModuleCode(null)}
-        title={`${activeTabModule?.name} — 管理分頁`}
-        subtitle="勾選這家租戶能使用的基本分頁、付費加購項目請在客製化模式開通"
-        showFooter={false}
-        loading={false}
-        maxWidth="2xl"
-      >
-        <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto py-2">
-          {activeTabModule?.tabs
-            .filter(tab => !tab.isEligibility && tab.category !== 'premium')
-            .map(tab => {
-              const checked = onIsTabFeatureEnabled(activeTabModule.code, tab.code, tab.category)
-              return (
-                // eslint-disable-next-line venturo/no-forbidden-classes
-                <div key={tab.code} className="flex items-center justify-between px-4 py-3 rounded-[16px] bg-gradient-to-t from-morandi-cream-soft to-morandi-cream-warm shadow-[rgba(180,160,120,0.3)_0px_8px_20px_-4px]">
-                  <span className="text-sm font-medium text-morandi-primary truncate">{tab.name}</span>
-                  <Switch
-                    checked={checked}
-                    onCheckedChange={next => onToggleTabFeature(activeTabModule.code, tab.code, next)}
-                  />
-                </div>
-              )
-            })}
-        </div>
-        <div className="flex justify-end pt-4 border-t border-border">
-          <Button variant="soft-gold" onClick={() => setTabModalModuleCode(null)} className="border-morandi-gold text-morandi-gold hover:bg-morandi-gold/10">
-            關閉
-          </Button>
-        </div>
-      </FormDialog>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 // 組織管理共用型別定義 + 資料 fetcher
 
-export type DimensionTable = 'brands' | 'branches' | 'departments'
+export type DimensionTable = 'brands' | 'branches'
 
 export interface DimensionRow {
   id: string
@@ -11,8 +11,8 @@ export interface DimensionRow {
   display_order: number
   created_at: string
   updated_at: string
-  /** 只有 departments 有、表示掛在哪個 branch 底下 */
-  branch_id?: string | null
+  /** 只有 branches 有、8 碼數字 */
+  tax_id?: string | null
 }
 
 export const fetcher = async (url: string): Promise<DimensionRow[]> => {

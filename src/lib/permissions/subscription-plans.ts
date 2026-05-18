@@ -37,17 +37,17 @@ export const ADVANCE_PICK_OPTIONS: Record<
   { name: string; icon: string; features: string[] }
 > = {
   contracts: {
-    name: '合約系統',
+    name: '合約完整',
     icon: '📄',
     features: ['tours.contract'],
   },
   hr_full: {
-    name: '完整人資',
+    name: '人資',
     icon: '👥',
     features: ['hr_salary_settlement', 'hr_bonus_settlement'],
   },
   accounting: {
-    name: '會計系統',
+    name: '會計',
     icon: '🧾',
     features: ['accounting'],
   },

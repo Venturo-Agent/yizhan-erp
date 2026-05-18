@@ -16,7 +16,6 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useBranches } from '@/data/hooks'
 import {
   SquarePen,
   Trash2,
@@ -31,7 +30,7 @@ import { fetcher, type DimensionRow } from '../_types/organizationTypes'
 import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface DimensionSectionConfig {
-  table: 'brands' | 'branches' | 'departments'
+  table: 'brands' | 'branches'
   label: string
   singular: string
   icon: React.ComponentType<{ className?: string }>
@@ -59,10 +58,6 @@ export function DimensionSection({ config }: DimensionSectionProps) {
   const [formCode, setFormCode] = useState('')
   const [formName, setFormName] = useState('')
   const [formIsDefault, setFormIsDefault] = useState(false)
-  const [formBranchId, setFormBranchId] = useState('')
-  // departments section 需要 branches 列表（級聯選擇）
-  const { branches } = useBranches()
-  const isDeptSection = config.table === 'departments'
 
   const startCreate = () => {
     setEditing(null)
@@ -70,8 +65,6 @@ export function DimensionSection({ config }: DimensionSectionProps) {
     setFormCode('')
     setFormName('')
     setFormIsDefault(false)
-    // 預設選第一個 branch（通常是總部）、避免 user 必選
-    setFormBranchId(isDeptSection ? (branches[0]?.id ?? '') : '')
   }
 
   const startEdit = (row: DimensionRow) => {
@@ -80,7 +73,6 @@ export function DimensionSection({ config }: DimensionSectionProps) {
     setFormCode(row.code)
     setFormName(row.name)
     setFormIsDefault(row.is_default)
-    setFormBranchId(row.branch_id ?? '')
   }
 
   const cancelEdit = () => {
@@ -96,9 +88,6 @@ export function DimensionSection({ config }: DimensionSectionProps) {
         code: formCode.trim().toUpperCase(),
         name: formName.trim(),
         is_default: formIsDefault,
-      }
-      if (isDeptSection) {
-        body.branch_id = formBranchId
       }
       const res = await apiMutate(config.apiPath, {
         method: isUpdate ? 'PUT' : 'POST',
@@ -123,10 +112,6 @@ export function DimensionSection({ config }: DimensionSectionProps) {
   const handleSubmit = async () => {
     if (!formCode.trim() || !formName.trim()) {
       toast.error('代號與名稱必填')
-      return
-    }
-    if (isDeptSection && !formBranchId) {
-      toast.error('部門必須選擇所屬分公司')
       return
     }
     await executeSubmit()
@@ -198,21 +183,6 @@ export function DimensionSection({ config }: DimensionSectionProps) {
               <div className="text-sm font-medium text-morandi-primary">
                 {editing ? `編輯 ${editing.name}` : `新增${config.singular}`}
               </div>
-              {isDeptSection && (
-                <div>
-                  <Label className="text-xs">所屬分公司 <span className="text-red-500">*</span></Label>
-                  <select
-                    value={formBranchId}
-                    onChange={e => setFormBranchId(e.target.value)}
-                    className="w-full mt-1 px-3 py-2 border border-morandi-gold/30 rounded-lg focus:border-morandi-gold focus:outline-none bg-card text-morandi-primary text-sm"
-                  >
-                    <option value="">請選擇分公司</option>
-                    {branches.map(b => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
-                </div>
-              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs">代號</Label>
@@ -270,22 +240,10 @@ export function DimensionSection({ config }: DimensionSectionProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map(row => {
-                    // 顯示部門所屬分公司（從 branches 列表查名字）
-                    const deptBranch = isDeptSection && row.branch_id
-                      ? branches.find(b => b.id === row.branch_id)
-                      : null
-                    return (
+                  {rows.map(row => (
                     <tr key={row.id} className="border-t border-border">
                       <td className="px-3 py-2 font-mono">{row.code}</td>
-                      <td className="px-3 py-2 font-medium">
-                        {row.name}
-                        {deptBranch && (
-                          <span className="ml-2 text-xs text-morandi-muted font-normal">
-                            @{deptBranch.name}
-                          </span>
-                        )}
-                      </td>
+                      <td className="px-3 py-2 font-medium">{row.name}</td>
                       <td className="px-3 py-2">
                         {row.is_default && (
                           <span className="inline-flex items-center gap-1 text-morandi-gold">
@@ -317,8 +275,7 @@ export function DimensionSection({ config }: DimensionSectionProps) {
                         </div>
                       </td>
                     </tr>
-                    )
-                  })}
+                  ))}
                 </tbody>
               </table>
             </div>

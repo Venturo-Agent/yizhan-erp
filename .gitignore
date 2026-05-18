@@ -126,3 +126,7 @@ public/*.html
 !postcss.config.js
 !tailwind.config.js
 .gitnexus
+
+# Codex CLI workspace (副本 of CLAUDE.md、IDE 自動讀)
+.codex/
+AGENTS.md

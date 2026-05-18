@@ -278,6 +278,10 @@ export function AiConversationsTab() {
               messages={messages}
               loading={msgLoading}
               conversationId={selectedConv.id}
+              isGroup={
+                selectedConv.external_user_id.startsWith('group:') ||
+                selectedConv.external_user_id.startsWith('room:')
+              }
             />
             <ReplyComposer conversationId={selectedConv.id} listUrl={listUrl} />
           </>
@@ -301,13 +305,16 @@ function MessagesList({
   messages,
   loading,
   conversationId,
+  isGroup,
 }: {
   messages: MessageItem[]
   loading: boolean
   conversationId: string
+  isGroup: boolean
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef<number>(0)
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
 
   // 1. 切 conversation → 立刻跳到底（不要 smooth、user 期待立即）
   useEffect(() => {
@@ -329,22 +336,28 @@ function MessagesList({
   }, [messages.length])
 
   return (
-    <div
-      ref={containerRef}
-      className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-morandi-container/10"
-    >
-      {loading && (
-        <div className="text-center text-sm text-morandi-muted">載入中...</div>
+    <>
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-morandi-container/10"
+      >
+        {loading && (
+          <div className="text-center text-sm text-morandi-muted">載入中...</div>
+        )}
+        {!loading && messages.length === 0 && (
+          <div className="text-center text-sm text-morandi-muted py-12">
+            這個對話還沒有訊息
+          </div>
+        )}
+        {messages.map((m) => (
+          <MessageBubble key={m.id} msg={m} isGroup={isGroup} onImageClick={setLightboxUrl} />
+        ))}
+      </div>
+      {lightboxUrl && createPortal(
+        <ImageLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />,
+        document.body
       )}
-      {!loading && messages.length === 0 && (
-        <div className="text-center text-sm text-morandi-muted py-12">
-          這個對話還沒有訊息
-        </div>
-      )}
-      {messages.map((m) => (
-        <MessageBubble key={m.id} msg={m} />
-      ))}
-    </div>
+    </>
   )
 }
 
@@ -904,22 +917,47 @@ function QuickReplyDrawer({
   )
 }
 
-function MessageBubble({ msg }: { msg: MessageItem }) {
+function MessageBubble({
+  msg,
+  isGroup,
+  onImageClick,
+}: {
+  msg: MessageItem
+  isGroup: boolean
+  onImageClick: (url: string) => void
+}) {
   const isInbound = msg.direction === 'inbound'
-  const senderLabel =
-    msg.sender_type === 'contact'
+  const isImage = msg.message_type === 'image' && msg.media_url
+
+  // For group inbound messages, parse [name] prefix from content
+  let groupSenderName: string | null = null
+  let displayContent = msg.content
+  if (isGroup && isInbound && msg.content) {
+    const match = msg.content.match(/^\[([^\]]+)\] ([\s\S]*)$/)
+    if (match) {
+      groupSenderName = match[1]
+      displayContent = match[2]
+    }
+  }
+
+  const footerLabel =
+    groupSenderName ??
+    (msg.sender_type === 'contact'
       ? '客戶'
       : msg.sender_type === 'ai_agent'
         ? 'AI'
         : msg.sender_type === 'agent'
           ? '客服'
-          : '系統'
-
-  const isImage = msg.message_type === 'image' && msg.media_url
+          : '系統')
 
   return (
     <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'}`}>
       <div className="max-w-[75%]">
+        {groupSenderName && (
+          <p className="text-[0.65rem] text-morandi-secondary font-medium mb-0.5 px-1">
+            {groupSenderName}
+          </p>
+        )}
         <div
           className={`rounded-lg overflow-hidden ${
             isImage
@@ -934,16 +972,20 @@ function MessageBubble({ msg }: { msg: MessageItem }) {
           }`}
         >
           {isImage ? (
-            <a href={msg.media_url!} target="_blank" rel="noopener noreferrer">
+            <button
+              type="button"
+              onClick={() => onImageClick(msg.media_url!)}
+              className="block"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={msg.media_url!}
                 alt="客戶傳送的圖片"
                 className="max-w-[240px] max-h-[320px] rounded-lg object-contain border border-morandi-muted/20 cursor-pointer hover:opacity-90 transition-opacity"
               />
-            </a>
+            </button>
           ) : (
-            <p className="text-sm whitespace-pre-wrap break-words">{msg.content || '(無內容)'}</p>
+            <p className="text-sm whitespace-pre-wrap break-words">{displayContent || '(無內容)'}</p>
           )}
         </div>
         <p
@@ -951,9 +993,39 @@ function MessageBubble({ msg }: { msg: MessageItem }) {
             isInbound ? 'text-left' : 'text-right'
           }`}
         >
-          {senderLabel} ・ {new Date(msg.created_at).toLocaleString('zh-TW')}
+          {footerLabel} ・ {new Date(msg.created_at).toLocaleString('zh-TW')}
         </p>
       </div>
+    </div>
+  )
+}
+
+function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center"
+      onClick={onClose}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={url}
+        alt="圖片預覽"
+        className="max-w-[90vw] max-h-[90vh] object-contain rounded shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      />
+      <button
+        type="button"
+        className="absolute top-4 right-4 text-white/80 hover:text-white"
+        onClick={onClose}
+      >
+        <X className="w-6 h-6" />
+      </button>
     </div>
   )
 }

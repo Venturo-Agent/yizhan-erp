@@ -2,12 +2,12 @@
  * 建立租戶 API（onboarding fix pack 2026-05-10）
  *
  * 功能：
- * 1. 建立 workspace（含 tax_id / is_multi_branch / is_multi_department）
+ * 1. 建立 workspace（含 tax_id / is_multi_branch）
  * 2. 建立第一個系統主管 (employee + auth + profile)
  *    - 預設密碼：固定 `12345678`（William 2026-05-10 拍板、對齊教學脈絡 § B4-a）
  *    - must_change_password=true 強制改密
- * 3. 建立三維 placeholder（brands / branches / departments）
- * 4. 把 admin 員工掛到三維 default（is_primary=true）
+ * 3. 建立維度 placeholder（brands / branches）
+ * 4. 把 admin 員工掛到維度 default（is_primary=true）
  * 5. Seed 基礎資料 (countries)
  *
  * 權限：需要「租戶管理」功能權限（workspace_features + role_tab_permissions）
@@ -102,13 +102,12 @@ export async function POST(request: NextRequest) {
       brands,
       isMultiBranch,
       branches,
-      isMultiDepartment,
-      departments,
       adminEmployeeNumber,
       adminName,
       adminEmail,
       subscriptionPlan,
       advancePicks,
+      optionalFeatures,
     } = body
 
     const newWorkspaceCode = (rawWorkspaceCode || '').toUpperCase().trim()
@@ -150,7 +149,6 @@ export async function POST(request: NextRequest) {
       maxEmployees: body.maxEmployees,
       trimmedTaxId,
       isMultiBranch,
-      isMultiDepartment,
       subscriptionPlan: subscriptionPlan ?? 'custom',
     })
     if ('status' in wsResult) return wsResult
@@ -205,40 +203,61 @@ export async function POST(request: NextRequest) {
       return rolesError
     }
 
-    // 7. 建立預設 workspace_features（依所選方案配置功能開關）
+    // 7. 建立預設 workspace_features（依所選方案 + 現場勾選的可選功能配置）
     const featuresError = await seedWorkspaceFeatures(
       supabaseAdmin,
       wsResult.workspaceId,
       subscriptionPlan ?? 'custom',
-      advancePicks
+      advancePicks,
+      optionalFeatures
     )
     if (featuresError) {
       await rollback(supabaseAdmin, state, 'workspace_features insert failed')
       return featuresError
     }
 
-    // 8. 建立三維 placeholder
+    // 8. 建立維度 placeholder
     const dimsResult = await createDimensions(supabaseAdmin, {
       workspaceId: wsResult.workspaceId,
       workspaceName: body.workspaceName,
+      workspaceTaxId: trimmedTaxId,
       newWorkspaceCode,
       brands,
       isMultiBranch,
       branches,
-      isMultiDepartment,
-      departments,
     })
     if ('status' in dimsResult) {
       await rollback(supabaseAdmin, state, 'dimensions insert failed')
       return dimsResult
     }
 
-    // 9. 把 admin 員工掛到三維 default（soft fail）
+    // 9. 把 admin 員工掛到維度 default（soft fail）
     await linkEmployeeToDimensions(supabaseAdmin, empResult.employeeId, dimsResult)
 
     // ========== 以下為 soft 步驟：失敗不 rollback（影響小、可事後補） ==========
 
     await seedCountriesFromCorner(supabaseAdmin, wsResult.workspaceId)
+
+    // 寫入初始配額 log（新增租戶時記錄首次設定值）
+    // workspace_employee_quota_logs 是新表、typegen 尚未 regen，cast 繞過
+    if (body.maxEmployees != null) {
+      const { error: quotaLogError } = await (supabaseAdmin as unknown as {
+        from: (t: string) => {
+          insert: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>
+        }
+      }).from('workspace_employee_quota_logs')
+        .insert({
+          workspace_id: wsResult.workspaceId,
+          changed_by: guard.employeeId,
+          old_quota: null,
+          new_quota: body.maxEmployees,
+          reason: '初始建立',
+        })
+
+      if (quotaLogError) {
+        logger.warn('quota log insert failed (non-critical):', quotaLogError.message)
+      }
+    }
 
     logger.log(`Tenant created successfully: ${newWorkspaceCode}`)
 

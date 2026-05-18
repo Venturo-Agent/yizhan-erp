@@ -23,7 +23,9 @@
  * Phase 2 (T1.3) 接手：把 echo 換成 state machine（卡片 6.1 節）。
  */
 
-import { NextResponse } from 'next/server'
+export const maxDuration = 25 // after() 等 12s + buffer，Vercel Hobby 最高 60s
+
+import { NextResponse, after } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import type { Json } from '@/lib/supabase/types'
@@ -33,7 +35,7 @@ import { processIncomingTextMessage } from '@/lib/line/handler'
 import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile } from '@/lib/line/profile-client'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
 import { downloadAndStoreLineMedia } from '@/lib/line/media-client'
-import { upsertDebounceAndCheckPrev } from '@/lib/line/debounce'
+import { upsertDebounceAccumulate } from '@/lib/line/debounce'
 import { logger } from '@/lib/utils/logger'
 import type { BotContext } from '@/types/line.types'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -376,29 +378,39 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
     lineDisplayName: null,
   }
 
-  // 5e. Debounce：10s 靜默後才送 AI 回覆（避免快速連傳造成多次回覆）
-  const { prevBatchReady, prevAccumulatedText } = await upsertDebounceAndCheckPrev(supabase, {
+  // 5e. Debounce：累積訊息，靜默 10s 後用 Reply API 回（免費，不用 Push API）
+  await upsertDebounceAccumulate(supabase, {
     workspaceId,
     lineUserId,
     userText,
     replyToken: event.replyToken ?? null,
   })
 
-  if (prevBatchReady && prevAccumulatedText) {
-    // 前一批 ready：用 reply token（當前訊息的）送前一批的 AI 回覆
-    // 這是最常見的 debounce trigger path（user 停頓 > 10s 後又發訊）
-    //
-    // 注意：不呼叫 markDebounceSent。
-    // upsertDebounceAndCheckPrev 已在 upsert 時把目前訊息（B）開成新 window（sent_at=null）。
-    // 若這裡呼叫 markDebounceSent，同一個 row 的 sent_at 會被蓋成 now，
-    // 導致 B 永遠不會被 pg_cron 標 expired 也不會被 flush 送出（訊息 B 丟失）。
+  // after() 在 200 回給 LINE 後繼續跑（不佔 webhook response 時間）
+  // 等 12 秒後原子搶：UPDATE ... WHERE sent_at IS NULL AND last_message_at < now-10s
+  // 若有更新的訊息在 10s 內到達，last_message_at 較新，搶不到 → 讓那條的 after() 去搶
+  after(async () => {
+    await new Promise((r) => setTimeout(r, 12_000))
+
+    const supabaseInner = getSupabaseAdminClient() as unknown as SupabaseClient
+    const { data: claimed } = await supabaseInner
+      .from('line_bot_reply_debounce')
+      .update({ sent_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq('workspace_id', workspaceId)
+      .eq('line_user_id', lineUserId)
+      .is('sent_at', null)
+      .lt('last_message_at', new Date(Date.now() - 10_000).toISOString())
+      .select('accumulated_text, reply_token')
+
+    const row = claimed?.[0]
+    if (!row?.accumulated_text) return
+
     try {
-      await processIncomingTextMessage(ctx, prevAccumulatedText, event.replyToken)
+      await processIncomingTextMessage(ctx, row.accumulated_text, row.reply_token ?? null)
     } catch (err) {
-      logger.error(`${HANDLER_NAME}: processIncomingTextMessage (debounce prev batch) failed`, err)
+      logger.error(`${HANDLER_NAME}: processIncomingTextMessage (after debounce) failed`, err)
     }
-  }
-  // 目前訊息進入 debounce 累積、不立刻回覆（等下一輪靜默 > 10s 觸發）
+  })
 }
 
 /**

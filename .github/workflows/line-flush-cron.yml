@@ -19,7 +19,7 @@ jobs:
         run: |
           response=$(curl -s -w "\n%{http_code}" \
             -X GET \
-            "https://erp.venturo.tw/api/cron/line-flush" \
+            "https://yizhan-erp.vercel.app/api/cron/line-flush" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
           http_code=$(echo "$response" | tail -1)
           body=$(echo "$response" | head -1)

@@ -17,12 +17,6 @@ import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
 import type { PlanId } from '@/lib/permissions/subscription-plans'
 
-// onboarding fix pack 2026-05-10：brands / branches / departments / employee_* 三維表
-// Supabase Database type 還沒 regenerate，先 cast 為 any 暫避型別衝突
-// migration apply 後跑 `supabase gen types` 即可拔掉
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SupabaseAny = any
-
 // =========================================================================
 // Rollback 相關型別
 // =========================================================================
@@ -45,7 +39,7 @@ export async function rollback(
   // 所以 auth user 必須在 employee 被刪掉「之後」才能刪、否則 FK 擋住、
   // auth user 留成孤兒、下次拿同 email 建租戶會被「email 已被使用」擋。
   // 過去（2026-05-17 之前）寫的順序剛好相反、踩過這坑、現在按依賴方向重排：
-  //   role_capabilities → workspace_roles → features → 三維 → employees → auth user → workspace
+  //   role_capabilities → workspace_roles → features → 維度 → employees → auth user → workspace
   if (createdWorkspaceId) {
     const { data: wsRoles } = await supabaseAdmin
       .from('workspace_roles')
@@ -57,11 +51,9 @@ export async function rollback(
     }
     await supabaseAdmin.from('workspace_roles').delete().eq('workspace_id', createdWorkspaceId)
     await supabaseAdmin.from('workspace_features').delete().eq('workspace_id', createdWorkspaceId)
-    // 三維 placeholder
-    const supaAny = supabaseAdmin as unknown as SupabaseAny
-    await supaAny.from('brands').delete().eq('workspace_id', createdWorkspaceId)
-    await supaAny.from('branches').delete().eq('workspace_id', createdWorkspaceId)
-    await supaAny.from('departments').delete().eq('workspace_id', createdWorkspaceId)
+    // 維度 placeholder（brands / branches）
+    await supabaseAdmin.from('brands').delete().eq('workspace_id', createdWorkspaceId)
+    await supabaseAdmin.from('branches').delete().eq('workspace_id', createdWorkspaceId)
   }
   if (createdEmployeeId) {
     const { error } = await supabaseAdmin.from('employees').delete().eq('id', createdEmployeeId)
@@ -90,7 +82,6 @@ export interface CreateWorkspaceParams {
   maxEmployees: number | null
   trimmedTaxId: string
   isMultiBranch: boolean
-  isMultiDepartment: boolean
   subscriptionPlan?: PlanId
 }
 
@@ -104,7 +95,6 @@ export async function createWorkspace(
     maxEmployees,
     trimmedTaxId,
     isMultiBranch,
-    isMultiDepartment,
     subscriptionPlan,
   } = params
 
@@ -119,7 +109,7 @@ export async function createWorkspace(
       premium_enabled: false,
       tax_id: trimmedTaxId,
       is_multi_branch: !!isMultiBranch,
-      is_multi_department: !!isMultiDepartment,
+      is_multi_department: false,
       subscription_plan: subscriptionPlan ?? 'custom',
     })
     .select('id')

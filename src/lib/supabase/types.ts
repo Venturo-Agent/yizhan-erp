@@ -545,6 +545,7 @@ export type Database = {
           name: string
           parent_branch_id: string | null
           phone: string | null
+          tax_id: string
           type: string
           updated_at: string
           workspace_id: string
@@ -560,6 +561,7 @@ export type Database = {
           name: string
           parent_branch_id?: string | null
           phone?: string | null
+          tax_id: string
           type?: string
           updated_at?: string
           workspace_id: string
@@ -575,6 +577,7 @@ export type Database = {
           name?: string
           parent_branch_id?: string | null
           phone?: string | null
+          tax_id?: string
           type?: string
           updated_at?: string
           workspace_id?: string
@@ -1703,73 +1706,6 @@ export type Database = {
           },
         ]
       }
-      departments: {
-        Row: {
-          branch_id: string
-          code: string
-          created_at: string
-          display_order: number
-          id: string
-          is_active: boolean
-          is_default: boolean
-          name: string
-          parent_department_id: string | null
-          type: string
-          updated_at: string
-          workspace_id: string
-        }
-        Insert: {
-          branch_id: string
-          code: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          name: string
-          parent_department_id?: string | null
-          type?: string
-          updated_at?: string
-          workspace_id: string
-        }
-        Update: {
-          branch_id?: string
-          code?: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_active?: boolean
-          is_default?: boolean
-          name?: string
-          parent_department_id?: string | null
-          type?: string
-          updated_at?: string
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "departments_branch_id_fkey"
-            columns: ["branch_id"]
-            isOneToOne: false
-            referencedRelation: "branches"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "departments_parent_department_id_fkey"
-            columns: ["parent_department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "departments_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       disbursement_order_items: {
         Row: {
           amount: number
@@ -2185,42 +2121,6 @@ export type Database = {
           },
         ]
       }
-      employee_departments: {
-        Row: {
-          created_at: string
-          department_id: string
-          employee_id: string
-          is_primary: boolean
-        }
-        Insert: {
-          created_at?: string
-          department_id: string
-          employee_id: string
-          is_primary?: boolean
-        }
-        Update: {
-          created_at?: string
-          department_id?: string
-          employee_id?: string
-          is_primary?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: "employee_departments_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employee_departments_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: false
-            referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       employee_eligibilities: {
         Row: {
           created_at: string
@@ -2289,7 +2189,6 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           deleted_reason: string | null
-          department_id: string | null
           display_name: string | null
           email: string | null
           employee_number: string
@@ -2339,7 +2238,6 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           deleted_reason?: string | null
-          department_id?: string | null
           display_name?: string | null
           email?: string | null
           employee_number: string
@@ -2389,7 +2287,6 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           deleted_reason?: string | null
-          department_id?: string | null
           display_name?: string | null
           email?: string | null
           employee_number?: string
@@ -2438,13 +2335,6 @@ export type Database = {
             columns: ["deleted_by"]
             isOneToOne: false
             referencedRelation: "employees"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "employees_department_id_fkey"
-            columns: ["department_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
             referencedColumns: ["id"]
           },
           {
@@ -8537,6 +8427,51 @@ export type Database = {
           },
           {
             foreignKeyName: "workspace_documents_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_employee_quota_logs: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          id: string
+          new_quota: number | null
+          old_quota: number | null
+          reason: string | null
+          workspace_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_quota?: number | null
+          old_quota?: number | null
+          reason?: string | null
+          workspace_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          new_quota?: number | null
+          old_quota?: number | null
+          reason?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_employee_quota_logs_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspace_employee_quota_logs_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"

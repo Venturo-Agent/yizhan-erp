@@ -8,7 +8,6 @@ import { validateBody } from '@/lib/api/validation'
 import { createBranchSchema } from '@/lib/validations/api-schemas'
 import { logger } from '@/lib/utils/logger'
 import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
-import type { SupabaseClient } from '@supabase/supabase-js'
 
 /**
  * /api/branches — 分公司管理
@@ -28,7 +27,7 @@ export async function GET() {
     const supabase = await createApiClient()
     const { data, error } = await supabase
       .from('branches')
-      .select('id, name, code, display_order')
+      .select('id, name, code, display_order, tax_id')
       .eq('is_active', true)
       .order('display_order', { ascending: true })
       .order('name', { ascending: true })
@@ -52,37 +51,18 @@ export async function POST(request: NextRequest) {
     const validation = await validateBody(request, createBranchSchema)
     if (!validation.success) return validation.error
 
-    // 拆出 auto_create_hq_department flag、不能進 branches insert（不存在這欄）
-    const { auto_create_hq_department, ...branchPayload } = validation.data
-
     const { data: newBranch, error } = await supabase
       .from('branches')
       .insert({
-        ...branchPayload,
+        ...validation.data,
         workspace_id: guard.workspaceId,
       })
-      .select('id, name, code, display_order')
+      .select('id, name, code, display_order, tax_id')
       .single()
 
     if (error) {
       const t = translateDbError(error)
       return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
-    }
-
-    // 可選：同時建一個預設「總部」部門掛在這個 branch 底下
-    // 用 admin client 寫入、避免 RLS 擋（caller 已過 capability）
-    if (auto_create_hq_department && newBranch) {
-      const { getSupabaseAdminClient: getAdminClient } = await import('@/lib/supabase/admin')
-      // departments 尚未納入生成類型，用 unknown 中轉
-      const adminAny = getAdminClient() as unknown as SupabaseClient
-      await adminAny.from('departments').insert({
-        workspace_id: guard.workspaceId,
-        branch_id: newBranch.id,
-        name: '總部',
-        code: 'MAIN',
-        is_default: false,
-        type: 'headquarters',
-      })
     }
 
     return NextResponse.json(newBranch, { status: 201 })

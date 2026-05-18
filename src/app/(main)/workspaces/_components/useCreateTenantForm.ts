@@ -106,36 +106,28 @@ export function useCreateTenantForm(existingCodes: string[]) {
       return { ...prev, branches: next }
     })
   }
-  const addBranch = () => setForm(prev => ({ ...prev, branches: [...prev.branches, { code: '', name: prev.name }] }))
+  const addBranch = () =>
+    setForm(prev => ({
+      ...prev,
+      branches: [
+        ...prev.branches,
+        prev.branches.length === 0
+          ? { code: '', name: prev.name, tax_id: prev.taxId }
+          : { code: '', name: '', tax_id: '' },
+      ],
+    }))
   const removeBranch = (idx: number) =>
     setForm(prev => ({ ...prev, branches: prev.branches.filter((_, i) => i !== idx) }))
-
-  // 部門 list ops
-  const updateDept = (idx: number, field: keyof DimensionRow, value: string) => {
-    setForm(prev => {
-      const next = [...prev.departments]
-      next[idx] = { ...next[idx], [field]: value }
-      return { ...prev, departments: next }
-    })
-  }
-  const addDept = () => setForm(prev => ({ ...prev, departments: [...prev.departments, { code: '', name: '' }] }))
-  const removeDept = (idx: number) =>
-    setForm(prev => ({ ...prev, departments: prev.departments.filter((_, i) => i !== idx) }))
 
   const toggleMultiBranch = (checked: boolean) => {
     setForm(prev => ({
       ...prev,
       isMultiBranch: checked,
-      // 第一筆預填公司名稱（總公司），讓用戶在此基礎上加後綴（如「台北分公司」）
-      branches: checked && prev.branches.length === 0 ? [{ code: '', name: prev.name }] : prev.branches,
-    }))
-  }
-
-  const toggleMultiDept = (checked: boolean) => {
-    setForm(prev => ({
-      ...prev,
-      isMultiDepartment: checked,
-      departments: checked && prev.departments.length === 0 ? [{ code: '', name: '' }] : prev.departments,
+      // 第一筆預填公司名稱 + workspace 統編（總公司），讓用戶在此基礎上加後綴（如「台北分公司」）
+      branches:
+        checked && prev.branches.length === 0
+          ? [{ code: '', name: prev.name, tax_id: prev.taxId }]
+          : prev.branches,
     }))
   }
 
@@ -149,6 +141,10 @@ export function useCreateTenantForm(existingCodes: string[]) {
 
   const handleAdvancePicksChange = useCallback((picks: AdvancePickId[]) => {
     setForm(prev => ({ ...prev, advancePicks: picks }))
+  }, [])
+
+  const handleOptionalFeaturesChange = useCallback((features: string[]) => {
+    setForm(prev => ({ ...prev, optionalFeatures: features }))
   }, [])
 
   const isFormValid = (() => {
@@ -165,10 +161,11 @@ export function useCreateTenantForm(existingCodes: string[]) {
     if (form.isMultiBranch) {
       const valid = form.branches.filter(b => b.name.trim())
       if (valid.length === 0) return false
-    }
-    if (form.isMultiDepartment) {
-      const valid = form.departments.filter(d => d.name.trim())
-      if (valid.length === 0) return false
+      // 多分公司模式：每筆 tax_id 必填 8 碼
+      for (const b of form.branches) {
+        if (!b.name.trim()) continue
+        if (!/^\d{8}$/.test((b.tax_id ?? '').trim())) return false
+      }
     }
     return true
   })()
@@ -186,6 +183,7 @@ export function useCreateTenantForm(existingCodes: string[]) {
         taxId: form.taxId.trim(),
         subscriptionPlan: form.subscriptionPlan,
         advancePicks: form.advancePicks,
+        optionalFeatures: form.optionalFeatures,
         brands: form.brands
           .filter(b => b.name.trim())
           .map(b => ({ code: b.code.trim().toUpperCase(), name: b.name.trim() })),
@@ -193,13 +191,11 @@ export function useCreateTenantForm(existingCodes: string[]) {
         branches: form.isMultiBranch
           ? form.branches
               .filter(b => b.name.trim())
-              .map(b => ({ code: b.code.trim().toUpperCase(), name: b.name.trim() }))
-          : undefined,
-        isMultiDepartment: form.isMultiDepartment,
-        departments: form.isMultiDepartment
-          ? form.departments
-              .filter(d => d.name.trim())
-              .map(d => ({ code: d.code.trim().toUpperCase(), name: d.name.trim() }))
+              .map(b => ({
+                code: b.code.trim().toUpperCase(),
+                name: b.name.trim(),
+                tax_id: (b.tax_id ?? '').trim(),
+              }))
           : undefined,
         adminEmployeeNumber: form.employeeNumber.trim() || 'E001',
         adminName: form.adminName.trim(),
@@ -279,15 +275,11 @@ export function useCreateTenantForm(existingCodes: string[]) {
     updateBranch,
     addBranch,
     removeBranch,
-    // dept ops
-    updateDept,
-    addDept,
-    removeDept,
     // toggles
     toggleMultiBranch,
-    toggleMultiDept,
     // plan
     handlePlanChange,
     handleAdvancePicksChange,
+    handleOptionalFeaturesChange,
   }
 }

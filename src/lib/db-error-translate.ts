@@ -201,7 +201,6 @@ function humanizeField(field?: string): string | undefined {
     workspace_id: '分公司',
     role_id: '職務',
     branch_id: '分公司',
-    department_id: '部門',
     parent_id: '上層',
     parent_code: '上層代碼',
   }

@@ -11,10 +11,11 @@ import { useState, useRef, useEffect } from 'react'
 import { useUserStore } from '@/stores/user-store'
 import { useWorkspaceId } from '@/lib/workspace-context'
 import { generateEmployeeNumber } from '@/lib/codes'
-import { useBranches, useDepartments, useRoles } from '@/data/hooks'
+import { useBranches, useRoles } from '@/data/hooks'
 import { apiGet, apiPatch, apiPost, apiPut, extractHttpErrorMessage, HttpError } from '@/lib/api/client'
 import { useEmployee } from '@/data/entities/employees'
 import { invalidateEmployeeEligibilities } from '@/data/entities/employee-eligibilities'
+import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 import { EmployeeFull } from '@/stores/types'
 import { alertSuccess, alertError, prompt } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
@@ -61,7 +62,12 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
   const workspaceId = useWorkspaceId()
   const { roles: cachedRoles } = useRoles()
   const { branches: cachedBranches, mutate: mutateBranches } = useBranches()
-  const { departments: cachedDepartments, mutate: mutateDepartments } = useDepartments()
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+
+  // 進階人資（hr_full）feature gate：薪資結算 / 獎金結算任一開啟才顯示 SalarySection
+  // Lite / Standard plan 預設不開 → 員工編輯只看到基本資料 + 個人資格、不送薪資 / 銀行 / 入職日期
+  const salaryEnabled =
+    isFeatureEnabled('hr_salary_settlement') || isFeatureEnabled('hr_bonus_settlement')
 
   const { item: employeeRaw } = useEmployee(employeeId ?? null)
   const employee = employeeRaw ? (employeeRaw as unknown as EmployeeFull) : null
@@ -75,9 +81,8 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
   // 從 API 載入的職務列表
   const [roles, setRoles] = useState<Role[]>([])
 
-  // Phase A：分公司 / 部門 scope（SWR cache、跨頁共享）
+  // Phase A：分公司 scope（SWR cache、跨頁共享）
   const branches: ScopeOption[] = cachedBranches.map(b => ({ id: b.id, name: b.name }))
-  const allDepartments = cachedDepartments
 
   const [formData, setFormData] = useState({
     chinese_name: employee?.chinese_name || '',
@@ -99,8 +104,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     emergency_contact_address: employee?.personal_info?.emergency_contact?.address || '',
     role_id: ((employee as unknown as Record<string, unknown>)?.role_id as string) || '',
     branch_id: ((employee as unknown as Record<string, unknown>)?.branch_id as string) || (branches.length === 1 ? branches[0].id : ''),
-    department_id: ((employee as unknown as Record<string, unknown>)?.department_id as string) || '',
-    is_dept_manager: ((employee as unknown as Record<string, unknown>)?.is_dept_manager as boolean) || false,
     base_salary:
       Number(employee?.monthly_salary) || employee?.salary_info?.base_salary || 0,
     attendance_bonus: employee?.salary_info?.attendance_bonus || 0,
@@ -167,8 +170,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         emergency_contact_address: employee.personal_info?.emergency_contact?.address || '',
         role_id: ((employee as unknown as Record<string, unknown>).role_id as string) || '',
         branch_id: ((employee as unknown as Record<string, unknown>).branch_id as string) || '',
-        department_id: ((employee as unknown as Record<string, unknown>).department_id as string) || '',
-        is_dept_manager: ((employee as unknown as Record<string, unknown>).is_dept_manager as boolean) || false,
         base_salary:
           Number(employee.monthly_salary) || employee.salary_info?.base_salary || 0,
         attendance_bonus: employee.salary_info?.attendance_bonus || 0,
@@ -207,26 +208,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     } catch (err) {
       logger.error('新增分公司失敗', err)
       await alertError('新增分公司失敗')
-    }
-  }
-
-  const handleCreateDepartment = async () => {
-    if (!formData.branch_id) {
-      await alertError('請先選擇分公司、再建立部門')
-      return
-    }
-    const name = await prompt('輸入新部門名稱', { title: '新增部門', placeholder: '例如：業務部' })
-    if (!name?.trim()) return
-    try {
-      const created = await apiPost<ScopeOption>('/api/departments', {
-        name: name.trim(),
-        branch_id: formData.branch_id,
-      })
-      await mutateDepartments()
-      setFormData(prev => ({ ...prev, department_id: created.id }))
-    } catch (err) {
-      logger.error('新增部門失敗', err)
-      await alertError('新增部門失敗')
     }
   }
 
@@ -289,6 +270,35 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         employeeNumber = await generateEmployeeNumber(workspaceId)
       }
 
+      // 薪資相關欄位（含 hire_date / 月薪 / 獎金 / 津貼 / 勞健保 / 銀行）
+      // 只在 hr_full feature 開啟時送、否則略過避免用 default 值覆蓋原資料
+      const salaryPayload = salaryEnabled
+        ? {
+            job_info: {
+              position: formData.position,
+              hire_date: formData.hire_date,
+            },
+            monthly_salary: formData.base_salary,
+            salary_info: {
+              base_salary: formData.base_salary,
+              allowances: employee?.salary_info?.allowances || [],
+              attendance_bonus: formData.attendance_bonus,
+              other_allowances: formData.other_allowances,
+              insured_salary: formData.insured_salary,
+              pension_voluntary_rate: formData.pension_voluntary_rate,
+              pay_day: formData.pay_day,
+              salary_history: employee?.salary_info?.salary_history || [],
+              dependents_count: formData.dependents_count,
+              labor_insured_here: formData.labor_insured_here,
+              health_insured_here: formData.health_insured_here,
+            },
+            bank_code: formData.bank_code || null,
+            bank_name: formData.bank_name || null,
+            bank_account_number: formData.bank_account_number || null,
+            bank_account_name: formData.bank_account_name || null,
+          }
+        : {}
+
       const payload = {
         employee_number: employeeNumber,
         chinese_name: formData.chinese_name,
@@ -310,31 +320,8 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         },
         role_id: formData.role_id || null,
         branch_id: formData.branch_id || null,
-        department_id: formData.department_id || null,
-        is_dept_manager: formData.is_dept_manager || false,
-        job_info: {
-          position: formData.position,
-          hire_date: formData.hire_date,
-        },
-        monthly_salary: formData.base_salary,
-        salary_info: {
-          base_salary: formData.base_salary,
-          allowances: employee?.salary_info?.allowances || [],
-          attendance_bonus: formData.attendance_bonus,
-          other_allowances: formData.other_allowances,
-          insured_salary: formData.insured_salary,
-          pension_voluntary_rate: formData.pension_voluntary_rate,
-          pay_day: formData.pay_day,
-          salary_history: employee?.salary_info?.salary_history || [],
-          dependents_count: formData.dependents_count,
-          labor_insured_here: formData.labor_insured_here,
-          health_insured_here: formData.health_insured_here,
-        },
+        ...salaryPayload,
         status: 'active' as const,
-        bank_code: formData.bank_code || null,
-        bank_name: formData.bank_name || null,
-        bank_account_number: formData.bank_account_number || null,
-        bank_account_name: formData.bank_account_name || null,
       }
 
       if (isEditMode && employeeId) {
@@ -412,10 +399,9 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     setFormData,
     roles,
     branches,
-    allDepartments,
+    salaryEnabled,
     toggleEligibility,
     handleCreateBranch,
-    handleCreateDepartment,
     handleAvatarChange,
     handleSubmit,
   }

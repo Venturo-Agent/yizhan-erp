@@ -13,13 +13,13 @@ const employeeEntity = createEntityHook<Employee>('employees', {
     // 2026-05-15 對齊 DB schema：
     // - 砍 last_login_at（DB 沒這欄）
     // - 補 role_id / personal_info / job_info / salary_info / attendance / contracts
-    // - 補 branch_id / department_id / is_dept_manager / accessible_*（三維 scope）
+    // - 補 branch_id / accessible_branch_ids（branch scope；2026-05-18 department_id column 已 DROP）
     // - 補 bank_code / bank_name / bank_account_number / bank_account_name（代墊人對方銀行）
     // - 補 job_title / pinyin / birthday / employee_type / hidden_menu_items
     // - 補 終止 / 鎖定 / created_by
     // - 不 select password_hash / amadeus_totp_secret（敏感）
     select:
-      'id,employee_number,display_name,chinese_name,english_name,email,avatar_url,birth_date,id_number,status,monthly_salary,user_id,must_change_password,workspace_id,created_at,created_by,updated_at,updated_by,role_id,personal_info,job_info,salary_info,attendance,contracts,branch_id,department_id,is_dept_manager,accessible_branch_ids,accessible_department_ids,bank_code,bank_name,bank_account_number,bank_account_name,job_title,pinyin,birthday,employee_type,hidden_menu_items,login_failed_count,login_locked_until,terminated_at,terminated_by',
+      'id,employee_number,display_name,chinese_name,english_name,email,avatar_url,birth_date,id_number,status,monthly_salary,user_id,must_change_password,workspace_id,created_at,created_by,updated_at,updated_by,role_id,personal_info,job_info,salary_info,attendance,contracts,branch_id,accessible_branch_ids,bank_code,bank_name,bank_account_number,bank_account_name,job_title,pinyin,birthday,employee_type,hidden_menu_items,login_failed_count,login_locked_until,terminated_at,terminated_by',
     orderBy: { column: 'employee_number', ascending: true },
     filterSoftDeleted: true,
   },

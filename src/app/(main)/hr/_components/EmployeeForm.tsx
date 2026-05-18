@@ -68,10 +68,9 @@ export function EmployeeForm({
     setFormData,
     roles,
     branches,
-    allDepartments,
+    salaryEnabled,
     toggleEligibility,
     handleCreateBranch,
-    handleCreateDepartment,
     handleAvatarChange,
     handleSubmit,
   } = useEmployeeForm({ employeeId, mode, onSubmit })
@@ -151,15 +150,13 @@ export function EmployeeForm({
               formData={formData}
               roles={roles}
               branches={branches}
-              allDepartments={allDepartments}
               onChange={patch => setFormData(prev => ({ ...prev, ...patch }))}
               onCreateBranch={handleCreateBranch}
-              onCreateDepartment={handleCreateDepartment}
               onToggleEligibility={toggleEligibility}
             />
 
-            {/* 薪資設定（HR 模式才顯示） */}
-            {mode === 'hr' && (
+            {/* 薪資設定（HR 模式 + 進階人資 feature 才顯示） */}
+            {mode === 'hr' && salaryEnabled && (
               <SalarySection
                 formData={formData}
                 salaryHistory={employee?.salary_info?.salary_history}

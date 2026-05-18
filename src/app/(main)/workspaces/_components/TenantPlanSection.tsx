@@ -5,9 +5,24 @@
  * 每張卡片只顯示該方案「新增」的功能（增量顯示），避免重複列表。
  */
 
-import { Check } from 'lucide-react'
-import { ADVANCE_PICK_OPTIONS } from '@/lib/permissions/subscription-plans'
+import { useMemo } from 'react'
+import { Check, Lock } from 'lucide-react'
+import { ADVANCE_PICK_OPTIONS, getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
 import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+
+/**
+ * 「其他可選功能」chip 對照表
+ * 顯示文字 → workspace_features.feature_code
+ * 方案已含的 chip 自動勾且鎖住、其他可現場 toggle
+ */
+const OPTIONAL_FEATURES: ReadonlyArray<{ code: string; name: string }> = [
+  { code: 'calendar', name: '行事曆' },
+  { code: 'todos', name: '待辦事項' },
+  { code: 'channels', name: '溝通頻道' },
+  { code: 'esim', name: 'eSIM 管理' },
+  { code: 'documents', name: '文件中心' },
+  { code: 'tours.contract', name: '電子合約系統' },
+]
 
 interface PlanFeature {
   name: string
@@ -40,11 +55,10 @@ const PLAN_INCREMENTAL: Record<
   premium: {
     base: '標準版',
     features: [
-      { name: '合約系統' },
       { name: '完整人資（薪資 + 獎金）' },
       { name: '會計系統' },
       { name: 'AI Hub' },
-      { name: 'Happy 機器人' },
+      { name: 'HAPPY 機器人' },
     ],
   },
 }
@@ -64,11 +78,34 @@ const PLAN_ORDER: Exclude<PlanId, 'custom'>[] = ['lite', 'standard', 'advance', 
 interface Props {
   subscriptionPlan: PlanId
   advancePicks: AdvancePickId[]
+  optionalFeatures: string[]
   onPlanChange: (plan: PlanId) => void
   onAdvancePicksChange: (picks: AdvancePickId[]) => void
+  onOptionalFeaturesChange: (features: string[]) => void
 }
 
-export function TenantPlanSection({ subscriptionPlan, advancePicks, onPlanChange, onAdvancePicksChange }: Props) {
+export function TenantPlanSection({
+  subscriptionPlan,
+  advancePicks,
+  optionalFeatures,
+  onPlanChange,
+  onAdvancePicksChange,
+  onOptionalFeaturesChange,
+}: Props) {
+  // 方案已含的 feature 集合（chip 勾選 + 鎖住的依據）
+  const planFeatureSet = useMemo(
+    () => new Set(getFeaturesForPlan(subscriptionPlan, advancePicks)),
+    [subscriptionPlan, advancePicks]
+  )
+
+  const toggleOptional = (code: string) => {
+    if (planFeatureSet.has(code)) return // 方案內含、不可取消
+    if (optionalFeatures.includes(code)) {
+      onOptionalFeaturesChange(optionalFeatures.filter(c => c !== code))
+    } else {
+      onOptionalFeaturesChange([...optionalFeatures, code])
+    }
+  }
   return (
     <section className="space-y-3">
       <div>
@@ -76,24 +113,8 @@ export function TenantPlanSection({ subscriptionPlan, advancePicks, onPlanChange
         <p className="text-xs text-morandi-secondary mt-0.5">選擇後自動配置對應功能，建立後可在租戶詳情調整</p>
       </div>
 
-      {/* 其他可選功能 */}
-      <div className="space-y-1.5">
-        <p className="text-xs font-medium text-morandi-primary">其他可選功能</p>
-        <p className="text-[11px] text-morandi-secondary">建立後可在租戶詳情個別開關</p>
-        <div className="flex flex-wrap gap-1.5">
-          {(['行事曆', '待辦事項', '溝通平臺', 'ESIF', '文件中心'] as const).map(tag => (
-            <span
-              key={tag}
-              className="text-[11px] text-morandi-secondary px-2 py-0.5 rounded-full bg-morandi-container/20"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-
       {/* 4 張方案卡片 */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {PLAN_ORDER.map(planId => {
           const meta = PLAN_META[planId]
           const def = PLAN_INCREMENTAL[planId]
@@ -104,10 +125,10 @@ export function TenantPlanSection({ subscriptionPlan, advancePicks, onPlanChange
               key={planId}
               type="button"
               onClick={() => onPlanChange(planId)}
-              className={`flex flex-col gap-2 p-3.5 rounded-[16px] border text-left transition-all ${
+              className={`flex flex-col gap-2 p-3.5 rounded-[16px] text-left transition-all ${
                 isSelected
-                  ? 'border-morandi-gold/30 bg-morandi-gold/5 shadow-[rgba(180,160,120,0.2)_0px_6px_16px_-4px]'
-                  : 'border-morandi-border/20 bg-morandi-cream-soft hover:border-morandi-gold/20 hover:bg-morandi-cream-warm'
+                  ? 'bg-morandi-gold/5 shadow-[rgba(180,160,120,0.3)_0px_6px_16px_-4px]'
+                  : 'bg-morandi-cream-soft hover:bg-morandi-cream-warm hover:shadow-[rgba(180,160,120,0.15)_0px_4px_12px_-4px]'
               }`}
             >
               {/* 方案名稱 + tagline 並排，無 chip */}
@@ -155,6 +176,43 @@ export function TenantPlanSection({ subscriptionPlan, advancePicks, onPlanChange
             </button>
           )
         })}
+      </div>
+
+      {/* 其他可選功能 */}
+      <div className="space-y-1.5">
+        <p className="text-xs font-medium text-morandi-primary">其他可選功能</p>
+        <p className="text-[11px] text-morandi-secondary">
+          現場勾選要開通的功能。方案已含的會自動鎖住、建立後也可在租戶詳情調整。
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {OPTIONAL_FEATURES.map(({ code, name }) => {
+            const inPlan = planFeatureSet.has(code)
+            const checked = inPlan || optionalFeatures.includes(code)
+            return (
+              <button
+                key={code}
+                type="button"
+                onClick={() => toggleOptional(code)}
+                disabled={inPlan}
+                title={inPlan ? '方案已內含、無法取消' : checked ? '點擊取消' : '點擊開通'}
+                className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full transition-all ${
+                  checked
+                    ? inPlan
+                      ? 'bg-morandi-gold/15 text-morandi-gold cursor-not-allowed'
+                      : 'bg-morandi-gold/20 text-morandi-primary hover:bg-morandi-gold/30'
+                    : 'bg-morandi-container/20 text-morandi-secondary hover:bg-morandi-container/40'
+                }`}
+              >
+                {checked && (
+                  inPlan
+                    ? <Lock className="h-2.5 w-2.5" />
+                    : <Check className="h-2.5 w-2.5" />
+                )}
+                {name}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Advance 3選2 */}

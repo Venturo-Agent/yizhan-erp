@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { useWorkspaceStore } from '@/stores/workspace'
 import { useTranslations } from 'next-intl'
+import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface EditTenantDialogProps {
   open: boolean
@@ -42,10 +43,22 @@ export function EditTenantDialog({
   const { isSubmitting: saving, execute: executeSave } = useAsyncSubmit(
     async () => {
       if (!workspace || !name.trim()) return
+
+      // 更新公司名稱（走 store，直接寫 workspaces）
       await updateWorkspace(workspace.id, {
         name: name.trim(),
-        max_employees: maxEmployees ? parseInt(maxEmployees, 10) : null,
       } as Parameters<typeof updateWorkspace>[1])
+
+      // 更新員工帳號上限（走專屬 API，同步寫入配額變更紀錄）
+      const newQuota = maxEmployees ? parseInt(maxEmployees, 10) : null
+      const res = await apiMutate<{ error?: string }>(
+        `/api/workspaces/${workspace.id}/employee-quota`,
+        { method: 'PATCH', body: { max_employees: newQuota } }
+      )
+      if (!res.ok) {
+        throw new Error(res.data?.error || '員工帳號上限更新失敗')
+      }
+
       toast.success(t('toastEditSuccess'))
       onComplete()
     },

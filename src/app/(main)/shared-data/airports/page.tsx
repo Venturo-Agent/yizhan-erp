@@ -170,39 +170,19 @@ export default function SharedDataAirportsPage() {
               <table className="w-full text-sm">
                 <thead className="border-b bg-muted/30">
                   <tr>
-                    <th className="px-4 py-1.5 text-left text-xs font-medium">IATA</th>
-                    <th className="px-4 py-1.5 text-left text-xs font-medium">
-                      {t('colIcao')}
-                    </th>
-                    <th className="px-4 py-1.5 text-left text-xs font-medium">
-                      {t('colNameEn')}
-                    </th>
                     <th className="px-4 py-1.5 text-left text-xs font-medium">
                       {t('colNameZh')}
                     </th>
                     <th className="px-4 py-1.5 text-left text-xs font-medium">
-                      {t('colCity')}
-                    </th>
-                    <th className="px-4 py-1.5 text-left text-xs font-medium">
-                      {t('colTimezone')}
+                      {t('colIata')}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {list.map(a => (
                     <tr key={a.iata_code} className="border-b last:border-0 hover:bg-muted/30">
+                      <td className="px-4 py-1.5">{a.name_zh ?? '—'}</td>
                       <td className="px-4 py-1.5 font-mono font-semibold">{a.iata_code}</td>
-                      <td className="px-4 py-1.5 font-mono text-muted-foreground">
-                        {a.icao_code ?? '—'}
-                      </td>
-                      <td className="px-4 py-1.5">{a.name_en ?? '—'}</td>
-                      <td className="px-4 py-1.5 text-muted-foreground">{a.name_zh ?? '—'}</td>
-                      <td className="px-4 py-1.5">
-                        {a.city_name_zh ?? a.city_name_en ?? a.city_code ?? '—'}
-                      </td>
-                      <td className="px-4 py-1.5 text-xs text-muted-foreground">
-                        {a.timezone ?? '—'}
-                      </td>
                     </tr>
                   ))}
                 </tbody>

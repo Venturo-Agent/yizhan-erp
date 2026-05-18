@@ -1,45 +1,33 @@
 'use client'
 
 /**
- * 展示行程 Tab — 業務操作 + 內嵌預覽
+ * 展示行程 Tab — 左右雙欄編輯器（5/18 William 拍板）
  *
- * 設計思路（5/17 William 拍板重做、原版太碎）：
- * - 上方一排 toolbar、把所有功能集中（不要散在多張卡片）
- * - 下方直接 inline 渲染預覽（不用 iframe、避免 X-Frame 問題）
- * - 主題切換是下拉、不是兩張卡並排（永成款 / 標準是「同份行程的兩種視覺」、不是兩個獨立連結）
+ * 設計思路：
+ * - 有 TOURS_DISPLAY_ITINERARY_WRITE：左=預覽 / 右=EditorPanel，不跳另一頁
+ * - 無編輯權限：維持全寬唯讀預覽
  *
- * Toolbar 功能：
- *   主題切換  編輯模式  複製連結  新分頁開啟  ｜  連結效期  報名表
- *   ────────────────────────────────────────────  ←  目前 URL
- *
- * 下方：永成款選了就 inline render、標準選了就提示「請新分頁」
- * （標準頁面跟 yongcheng 不同框架、不適合在 tab 內嵌）
+ * 載入流程：
+ *   1. 同時等 capabilities + canvas 載入（避免一閃而過的 read-only → edit 切換）
+ *   2. canvas 優先用草稿版（API 回 canvas 欄）、沒有就 auto-generate
  */
 
 import { useState, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import {
   ExternalLink,
   Copy,
   Check,
-  Pencil,
-  Palette,
+  Sparkles,
   ClipboardList,
   Clock,
-  ChevronDown,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { supabase } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 import { ModuleLoading } from '@/components/module-loading'
 import { YongchengRenderer } from '@/components/tour-display-yongcheng'
 import type { YongchengCanvas } from '@/components/tour-display-yongcheng'
@@ -51,186 +39,215 @@ import type {
   CompanyInfo,
 } from '@/app/(public)/p/tour/[code]/_components/tour-types'
 import type { Tour } from '@/stores/types'
+import { useCanvasEditor } from '../[code]/display-editor/_hooks/useCanvasEditor'
+import type { SaveStatus } from '../[code]/display-editor/_hooks/useCanvasEditor'
+import {
+  fetchDisplayCanvas,
+  publishDisplayCanvas,
+  unpublishDisplayCanvas,
+} from '../[code]/display-editor/_hooks/useDisplayCanvasApi'
+import { EditorPanel } from '../[code]/display-editor/_components/EditorPanel'
+import { DeleteBlockDialog } from '../[code]/display-editor/_components/DeleteBlockDialog'
+import { AiAssistDialog } from '../[code]/display-editor/_components/AiAssistDialog'
+import {
+  deleteBlock,
+  findBlock,
+  applyAiPatch,
+} from '../[code]/display-editor/_components/canvas-utils'
+import type {
+  SelectionKey,
+  AiPatch,
+} from '../[code]/display-editor/_components/canvas-utils'
 
-type DisplayTheme = 'yongcheng' | 'sakura'
+// ── Props ─────────────────────────────────────────────────
 
 interface TourDisplayItineraryTabProps {
   tour: Tour
 }
 
-const THEME_LABELS: Record<DisplayTheme, string> = {
-  yongcheng: '永成款（精品提案）',
-  sakura: '標準（Tokyo Sakura）',
+// ── Bootstrap ─────────────────────────────────────────────
+
+interface BootstrapState {
+  loading: boolean
+  error: string | null
+  canvas: YongchengCanvas | null
+  updatedAt: string | null
+  published: boolean
 }
 
-export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) {
-  const router = useRouter()
-  const { has } = useMyCapabilities()
-  const canEdit = has(CAPABILITIES.TOURS_DISPLAY_ITINERARY_WRITE)
+function isCanvasEmpty(c: unknown): boolean {
+  if (c == null) return true
+  if (typeof c !== 'object') return true
+  return Object.keys(c as Record<string, unknown>).length === 0
+}
 
-  const [theme, setTheme] = useState<DisplayTheme>('yongcheng')
-  const [copied, setCopied] = useState(false)
+function useBootstrap(code: string): BootstrapState {
+  const [state, setState] = useState<BootstrapState>({
+    loading: true,
+    error: null,
+    canvas: null,
+    updatedAt: null,
+    published: false,
+  })
 
-  // 永成款 canvas 載入狀態
-  const [canvas, setCanvas] = useState<YongchengCanvas | null>(null)
-  const [canvasLoading, setCanvasLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
-
-  // 對外連結
-  const previewPath = useMemo(
-    () =>
-      theme === 'yongcheng'
-        ? `/p/tour/${tour.code}/yongcheng`
-        : `/p/tour/${tour.code}`,
-    [theme, tour.code]
-  )
-  const fullUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}${previewPath}`
-      : previewPath
-
-  // 載入 canvas（永成款 tab 內預覽用）
-  // 邏輯：
-  // 1. 先試從 API 拉 published canvas（業務發布過的版本）
-  // 2. 沒發布過 → 從 tour itinerary 自動生成（auto-generate fallback）
-  // 標準主題不 load canvas（標準頁面結構不同、要請業務新分頁開啟）
   useEffect(() => {
-    if (theme !== 'yongcheng') {
-      setCanvas(null)
-      setCanvasLoading(false)
-      return
-    }
-
+    if (!code) return
     let cancelled = false
-    setCanvasLoading(true)
-    setLoadError(null)
+    setState({ loading: true, error: null, canvas: null, updatedAt: null, published: false })
 
-    const loadCanvas = async () => {
-      // Step 1: 試 API（業務編輯過的會有 row）
+    const run = async () => {
       try {
-        const res = await fetch(`/api/tours/${tour.code}/display-canvas`)
-        if (res.ok) {
-          const json = (await res.json()) as { canvas?: YongchengCanvas }
-          if (json.canvas && Object.keys(json.canvas).length > 0) {
-            if (!cancelled) {
-              setCanvas(json.canvas)
-              setCanvasLoading(false)
+        // Step 1: 同時拉草稿 canvas + tour 基本資料
+        const [overrideRes, tourRes] = await Promise.all([
+          fetchDisplayCanvas(code).catch((err) => {
+            logger.warn('display-canvas API unavailable, fallback to auto-generate', {
+              code,
+              error: err instanceof Error ? err.message : String(err),
+            })
+            return {
+              canvas: null,
+              theme: 'yongcheng' as const,
+              published: false,
+              published_canvas: null,
+              published_at: null,
+              updated_at: null,
             }
-            return
+          }),
+          supabase
+            .from('tours')
+            .select(
+              `id, code, departure_date, selling_price_per_person, max_participants,
+               current_participants, days_count, airport_code, workspace_id`
+            )
+            .eq('code', code)
+            .not('is_active', 'is', false)
+            .maybeSingle(),
+        ])
+
+        if (cancelled) return
+
+        if (tourRes.error || !tourRes.data) {
+          setState({
+            loading: false,
+            error: tourRes.error
+              ? `資料庫錯誤：${tourRes.error.message}`
+              : `查不到團號 ${code}`,
+            canvas: null,
+            updatedAt: null,
+            published: false,
+          })
+          return
+        }
+
+        // Step 2: 草稿存在就直接用、不走 auto-generate
+        if (!isCanvasEmpty(overrideRes.canvas)) {
+          if (cancelled) return
+          setState({
+            loading: false,
+            error: null,
+            canvas: overrideRes.canvas!,
+            updatedAt: overrideRes.updated_at,
+            published: overrideRes.published,
+          })
+          return
+        }
+
+        // Step 3: Auto-generate fallback（兩步查 itinerary）
+        const { data: itineraryData, error: itinErr } = await supabase
+          .from('itineraries')
+          .select('id, title, subtitle, daily_itinerary, hotels')
+          .eq('tour_id', tourRes.data.id)
+          .maybeSingle()
+
+        if (cancelled) return
+
+        if (itinErr) {
+          logger.warn('itinerary fetch failed', { code, error: itinErr.message })
+        }
+
+        const rawDaily = (itineraryData?.daily_itinerary ?? null) as
+          | import('@/app/(public)/p/tour/[code]/_components/tour-types').DailyItinerary[]
+          | null
+        const enrichedDaily = await enrichDailyItinerary(supabase, rawDaily)
+
+        const tourData: TourData = {
+          ...tourRes.data,
+          itinerary: itineraryData
+            ? { ...itineraryData, daily_itinerary: enrichedDaily }
+            : null,
+        } as TourData
+
+        let heroImage: string | null = null
+        if (tourRes.data.airport_code) {
+          const { data: imageData } = await supabase
+            .from('airport_images')
+            .select('image_url')
+            .eq('airport_code', tourRes.data.airport_code)
+            .eq('is_default', true)
+            .maybeSingle()
+          if (imageData?.image_url) heroImage = imageData.image_url
+        }
+
+        let companyInfo: CompanyInfo = { name: '旅行社', phone: '' }
+        if (tourRes.data.workspace_id) {
+          const { data: workspace } = await supabase
+            .from('workspaces')
+            .select('legal_name, phone')
+            .eq('id', tourRes.data.workspace_id)
+            .maybeSingle()
+          if (workspace) {
+            companyInfo = {
+              name: workspace.legal_name || '旅行社',
+              phone: workspace.phone || '',
+            }
           }
         }
-        // API 沒回 row 或 row 是空 canvas → 走 fallback
-      } catch {
-        // API 沒 build（migration 沒 apply）也 fallback、不阻擋預覽
-      }
 
-      // Step 2: Fallback 自動生成
-      //
-      // 改成「兩步查」、不一次嵌入 itineraries：
-      // - 仙台團 SDJ260612A 用嵌入查詢吐錯誤、原因可能是 PostgREST fkey 推不出來、
-      //   或 itineraries 行不存在但嵌入查詢把整筆 tour 也吃掉
-      // - 兩步查容錯：itinerary 沒 row 不算 error、auto-generate 用空 daily_itinerary 跑骨架版
-      const { data: tourBasic, error: tourErr } = await supabase
-        .from('tours')
-        .select(
-          `id, code, departure_date, selling_price_per_person, max_participants,
-           current_participants, days_count, airport_code, workspace_id`
-        )
-        .eq('code', tour.code)
-        .maybeSingle()
-
-      if (cancelled) return
-
-      if (tourErr) {
-        setLoadError(`資料庫錯誤（tours）：${tourErr.message}`)
-        setCanvasLoading(false)
-        return
-      }
-
-      if (!tourBasic) {
-        setLoadError(
-          `查不到團號 ${tour.code} — 通常是登入 session 或工作區權限沒同步、請重新登入再試`
-        )
-        setCanvasLoading(false)
-        return
-      }
-
-      // 查 itinerary（找不到不算錯、給 null 讓 auto-generate 跑骨架）
-      const { data: itineraryData, error: itinErr } = await supabase
-        .from('itineraries')
-        .select('id, title, subtitle, daily_itinerary, hotels')
-        .eq('tour_id', tourBasic.id)
-        .maybeSingle()
-
-      if (cancelled) return
-
-      if (itinErr) {
-        setLoadError(`提示：行程資料讀取失敗（${itinErr.message}）、顯示骨架版`)
-      }
-
-      // Enrich daily_itinerary — 撈 attractions / hotels 補完描述跟圖
-      // 5/17 William 抓：原本只有標題、因為 activity.description 是空字串、實際描述在 attractions 表
-      // daily_itinerary 在 supabase 端是 jsonb、type 推成 union、cast 成具體陣列型別
-      const rawDaily = (itineraryData?.daily_itinerary ?? null) as
-        | import('@/app/(public)/p/tour/[code]/_components/tour-types').DailyItinerary[]
-        | null
-      const enrichedDaily = await enrichDailyItinerary(supabase, rawDaily)
-
-      const tourData: TourData = {
-        ...tourBasic,
-        itinerary: itineraryData
-          ? { ...itineraryData, daily_itinerary: enrichedDaily }
-          : null,
-      } as TourData
-
-      // 補抓 hero / company info（簡化版、tab 內預覽不需要 ref 業務員）
-      let heroImage: string | null = null
-      if (tourBasic.airport_code) {
-        const { data: imageData } = await supabase
-          .from('airport_images')
-          .select('image_url')
-          .eq('airport_code', tourBasic.airport_code)
-          .eq('is_default', true)
-          .maybeSingle()
-        if (imageData?.image_url) heroImage = imageData.image_url
-      }
-
-      let companyInfo: CompanyInfo = { name: '旅行社', phone: '' }
-      if (tourBasic.workspace_id) {
-        const { data: workspace } = await supabase
-          .from('workspaces')
-          .select('legal_name, phone')
-          .eq('id', tourBasic.workspace_id)
-          .maybeSingle()
-        if (workspace) {
-          companyInfo = {
-            name: workspace.legal_name || '旅行社',
-            phone: workspace.phone || '',
-          }
-        }
-      }
-
-      const employee: EmployeeInfo | null = null
-
-      setCanvas(
-        buildYongchengCanvasFromTour({
+        const employee: EmployeeInfo | null = null
+        const generatedCanvas = buildYongchengCanvasFromTour({
           tour: tourData,
           heroImage,
           employee,
           companyInfo,
         })
-      )
-      setCanvasLoading(false)
+
+        if (cancelled) return
+        setState({
+          loading: false,
+          error: null,
+          canvas: generatedCanvas,
+          updatedAt: overrideRes.updated_at,
+          published: overrideRes.published,
+        })
+      } catch (err) {
+        if (cancelled) return
+        const message = err instanceof Error ? err.message : '載入失敗'
+        logger.error('display-itinerary-tab bootstrap failed', err)
+        setState({ loading: false, error: message, canvas: null, updatedAt: null, published: false })
+      }
     }
 
-    loadCanvas()
-
+    void run()
     return () => {
       cancelled = true
     }
-  }, [tour.code, theme])
+  }, [code])
 
-  // ──────────────── handlers ────────────────
+  return state
+}
+
+// ── Main Tab ──────────────────────────────────────────────
+
+export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) {
+  const { has, loading: capLoading } = useMyCapabilities()
+  const bootstrap = useBootstrap(tour.code)
+  const [copied, setCopied] = useState(false)
+
+  const previewPath = `/p/tour/${tour.code}/yongcheng`
+  const fullUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}${previewPath}`
+      : previewPath
 
   const handleCopy = async () => {
     try {
@@ -247,48 +264,206 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
     window.open(previewPath, '_blank')
   }
 
-  const handleEdit = () => {
-    router.push(`/tours/${tour.code}/display-editor`)
+  if (bootstrap.loading || capLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <ModuleLoading />
+      </div>
+    )
   }
 
-  // ──────────────── render ────────────────
+  if (bootstrap.error || !bootstrap.canvas) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-muted-foreground">
+          {bootstrap.error ?? '無法載入預覽'}
+        </p>
+      </div>
+    )
+  }
+
+  const canEdit = has(CAPABILITIES.TOURS_DISPLAY_ITINERARY_WRITE)
+
+  if (canEdit) {
+    return (
+      <EditorView
+        code={tour.code}
+        initialCanvas={bootstrap.canvas}
+        initialUpdatedAt={bootstrap.updatedAt}
+        initialPublished={bootstrap.published}
+        copied={copied}
+        onCopy={handleCopy}
+        onOpen={handleOpen}
+      />
+    )
+  }
+
+  // 無編輯權限：唯讀預覽
+  return (
+    <div className="flex flex-col gap-2">
+      <ReadOnlyToolbar copied={copied} onCopy={handleCopy} onOpen={handleOpen} />
+      <YongchengRenderer canvas={bootstrap.canvas} />
+    </div>
+  )
+}
+
+// ── Read-only toolbar ─────────────────────────────────────
+
+function ReadOnlyToolbar({
+  copied,
+  onCopy,
+  onOpen,
+}: {
+  copied: boolean
+  onCopy: () => void
+  onOpen: () => void
+}) {
+  return (
+    <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 pb-2 bg-background">
+      <Button variant="outline" onClick={onCopy} className="gap-2">
+        {copied ? (
+          <Check className="h-4 w-4 text-green-500" />
+        ) : (
+          <Copy className="h-4 w-4" />
+        )}
+        {copied ? '已複製' : '複製連結'}
+      </Button>
+      <Button variant="outline" onClick={onOpen} className="gap-2">
+        <ExternalLink className="h-4 w-4" />
+        新分頁開啟
+      </Button>
+    </div>
+  )
+}
+
+// ── Save status badge ─────────────────────────────────────
+
+function SaveStatusBadge({ status }: { status: SaveStatus }) {
+  const variants: Record<SaveStatus, { label: string; className: string }> = {
+    saved: { label: '已儲存 ✓', className: 'text-green-600' },
+    pending: { label: '未儲存 ●', className: 'text-amber-500' },
+    saving: { label: '儲存中⋯', className: 'text-amber-500' },
+    error: { label: '儲存失敗 ●', className: 'text-red-500' },
+  }
+  const v = variants[status]
+  return <span className={`text-xs font-medium tabular-nums ${v.className}`}>{v.label}</span>
+}
+
+// ── Editor view ───────────────────────────────────────────
+
+interface EditorViewProps {
+  code: string
+  initialCanvas: YongchengCanvas
+  initialUpdatedAt: string | null
+  initialPublished: boolean
+  copied: boolean
+  onCopy: () => void
+  onOpen: () => void
+}
+
+function EditorView({
+  code,
+  initialCanvas,
+  initialUpdatedAt,
+  initialPublished,
+  copied,
+  onCopy,
+  onOpen,
+}: EditorViewProps) {
+  const { canvas, setCanvas, saveStatus, flushNow } = useCanvasEditor({
+    code,
+    initialCanvas,
+    initialUpdatedAt,
+  })
+
+  const [published, setPublished] = useState(initialPublished)
+  const [publishLoading, setPublishLoading] = useState(false)
+  const [unpublishLoading, setUnpublishLoading] = useState(false)
+  const [selection, setSelection] = useState<SelectionKey | null>(
+    initialCanvas.sections.some((s) => s.type === 'cover') ? { kind: 'cover' } : null
+  )
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [showAiDialog, setShowAiDialog] = useState(false)
+
+  const handlePublish = async () => {
+    if (publishLoading) return
+    setPublishLoading(true)
+    try {
+      await flushNow()
+      const res = await publishDisplayCanvas(code)
+      setPublished(res.published)
+      toast.success(published ? '已重新發布' : '已發布、客人可看到最新版本')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '發布失敗'
+      logger.error('display-canvas publish failed', err)
+      toast.error(`發布失敗：${message}`)
+    } finally {
+      setPublishLoading(false)
+    }
+  }
+
+  const handleUnpublish = async () => {
+    if (unpublishLoading) return
+    setUnpublishLoading(true)
+    try {
+      const res = await unpublishDisplayCanvas(code)
+      setPublished(res.published)
+      toast.success('已取消發布')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '取消發布失敗'
+      logger.error('display-canvas unpublish failed', err)
+      toast.error(`取消發布失敗：${message}`)
+    } finally {
+      setUnpublishLoading(false)
+    }
+  }
+
+  const handleConfirmDelete = () => {
+    if (!pendingDeleteId || !canvas) return
+    setDeleteLoading(true)
+    try {
+      const next = deleteBlock(canvas, pendingDeleteId)
+      setCanvas(next)
+      if (selection?.kind === 'block' && selection.blockId === pendingDeleteId) {
+        setSelection(null)
+      }
+      setPendingDeleteId(null)
+      toast.success('已刪除（下次發布生效）')
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
+  const pendingDeleteLabel = useMemo(() => {
+    if (!pendingDeleteId || !canvas) return ''
+    const hit = findBlock(canvas, pendingDeleteId)
+    return hit ? `${hit.block.type} block` : ''
+  }, [pendingDeleteId, canvas])
+
+  if (!canvas) return <ModuleLoading />
 
   return (
     <div className="flex flex-col">
-      {/* ─── Toolbar（sticky 頂部）─── */}
-      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 pb-2">
-        {/* 主題切換 */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="gap-2">
-              <Palette className="h-4 w-4" />
-              {THEME_LABELS[theme]}
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={() => setTheme('yongcheng')}>
-              永成款（精品提案）
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme('sakura')}>
-              標準（Tokyo Sakura）
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      {/* ─── Toolbar ─── */}
+      <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 pb-2 bg-background border-b border-border">
+        {/* 儲存狀態 */}
+        <SaveStatusBadge status={saveStatus} />
 
-        {/* 編輯模式 */}
-        {canEdit ? (
-          <Button variant="outline" onClick={handleEdit} className="gap-2">
-            <Pencil className="h-4 w-4" />
-            編輯
-          </Button>
-        ) : null}
+        <div className="mx-1 h-5 w-px bg-border" />
 
-        {/* 分隔線 */}
-        <div className="mx-1 h-6 w-px bg-border" />
+        {/* AI 助理 */}
+        <Button
+          variant="outline"
+          onClick={() => setShowAiDialog(true)}
+          className="gap-2"
+        >
+          <Sparkles className="h-4 w-4" />
+          AI 助理
+        </Button>
 
         {/* 複製連結 */}
-        <Button variant="outline" onClick={handleCopy} className="gap-2">
+        <Button variant="outline" onClick={onCopy} className="gap-2">
           {copied ? (
             <Check className="h-4 w-4 text-green-500" />
           ) : (
@@ -298,13 +473,12 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
         </Button>
 
         {/* 新分頁開啟 */}
-        <Button variant="outline" onClick={handleOpen} className="gap-2">
+        <Button variant="outline" onClick={onOpen} className="gap-2">
           <ExternalLink className="h-4 w-4" />
           新分頁開啟
         </Button>
 
-        {/* 分隔線 */}
-        <div className="mx-1 h-6 w-px bg-border" />
+        <div className="mx-1 h-5 w-px bg-border" />
 
         {/* 連結效期 */}
         <Popover>
@@ -318,19 +492,39 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
             <div className="space-y-3">
               <h4 className="font-medium text-sm">設定連結效期</h4>
               <p className="text-xs text-muted-foreground">
-                目前連結永久有效。一次性連結（24h / 72h / 7 日 過期）即將推出。
+                目前連結永久有效。一次性連結（24h / 72h / 7 日）即將推出。
               </p>
               <div className="space-y-1.5">
-                <Button variant="outline" size="sm" disabled className="w-full justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  className="w-full justify-start"
+                >
                   24 小時後過期
                 </Button>
-                <Button variant="outline" size="sm" disabled className="w-full justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  className="w-full justify-start"
+                >
                   72 小時後過期
                 </Button>
-                <Button variant="outline" size="sm" disabled className="w-full justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  className="w-full justify-start"
+                >
                   7 日後過期
                 </Button>
-                <Button variant="outline" size="sm" disabled className="w-full justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  className="w-full justify-start"
+                >
                   永久有效（預設）
                 </Button>
               </div>
@@ -359,40 +553,63 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
           </PopoverContent>
         </Popover>
 
+        <div className="mx-1 h-5 w-px bg-border" />
+
+        {/* 發布 */}
+        {published && (
+          <Button
+            variant="outline"
+            onClick={handleUnpublish}
+            disabled={unpublishLoading}
+          >
+            {unpublishLoading ? '處理中⋯' : '取消發布'}
+          </Button>
+        )}
+        <Button onClick={handlePublish} disabled={publishLoading}>
+          {publishLoading ? '發布中⋯' : published ? '重新發布' : '發布'}
+        </Button>
       </div>
 
-      {/* ─── 預覽區 ─── */}
-      <div className="flex-1">
-        {theme === 'yongcheng' ? (
-          canvasLoading ? (
-            <div className="flex items-center justify-center py-24">
-              <ModuleLoading />
-            </div>
-          ) : loadError ? (
-            <div className="flex items-center justify-center py-24">
-              <p className="text-sm text-muted-foreground">{loadError}</p>
-            </div>
-          ) : canvas ? (
-            <YongchengRenderer canvas={canvas} />
-          ) : (
-            <div className="flex items-center justify-center py-24">
-              <p className="text-sm text-muted-foreground">無法載入預覽</p>
-            </div>
-          )
-        ) : (
-          // 標準預覽：tokyo-sakura 是另一套框架、不適合 inline 嵌入
-          // 提示業務新分頁開啟、不破壞 tab 內結構
-          <div className="flex flex-col items-center justify-center gap-4 py-24">
-            <p className="text-sm text-muted-foreground">
-              標準（Tokyo Sakura）預覽不支援內嵌、請點新分頁開啟
-            </p>
-            <Button onClick={handleOpen} className="gap-2">
-              <ExternalLink className="h-4 w-4" />
-              開啟標準預覽
-            </Button>
-          </div>
-        )}
+      {/* ─── 雙欄主體 ─── */}
+      <div className="flex min-h-0">
+        {/* 左：展示區（預覽） */}
+        <div className="flex-1 min-w-0">
+          <YongchengRenderer canvas={canvas} />
+        </div>
+
+        {/* 右：編輯 panel */}
+        <EditorPanel
+          canvas={canvas}
+          selection={selection}
+          onSelect={setSelection}
+          onChange={setCanvas}
+          onRequestDeleteBlock={(id) => setPendingDeleteId(id)}
+        />
       </div>
+
+      {/* ─── Dialogs ─── */}
+      <DeleteBlockDialog
+        open={Boolean(pendingDeleteId)}
+        blockLabel={pendingDeleteLabel}
+        loading={deleteLoading}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setPendingDeleteId(null)}
+      />
+
+      {showAiDialog && (
+        <AiAssistDialog
+          code={code}
+          canvas={canvas}
+          onApply={(patches: AiPatch[]) => {
+            let next = canvas
+            for (const patch of patches) {
+              next = applyAiPatch(next, patch)
+            }
+            setCanvas(next)
+          }}
+          onClose={() => setShowAiDialog(false)}
+        />
+      )}
     </div>
   )
 }

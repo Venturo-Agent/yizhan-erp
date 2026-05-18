@@ -65,7 +65,6 @@ export default function SharedDataBanksPage() {
               <tr>
                 <th className='px-4 py-2 text-left'>{t('colCode')}</th>
                 <th className='px-4 py-2 text-left'>{t('colNameZh')}</th>
-                <th className='px-4 py-2 text-left'>{t('colNameEn')}</th>
                 <th className='px-4 py-2 text-left'>{t('colSwift')}</th>
                 <th className='px-4 py-2 text-center'>{t('colEnabled')}</th>
               </tr>
@@ -73,13 +72,13 @@ export default function SharedDataBanksPage() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className='px-4 py-8 text-center text-muted-foreground'>
+                  <td colSpan={4} className='px-4 py-8 text-center text-muted-foreground'>
                     {t('loading')}
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className='px-4 py-8 text-center text-muted-foreground'>
+                  <td colSpan={4} className='px-4 py-8 text-center text-muted-foreground'>
                     {t('noData')}
                   </td>
                 </tr>
@@ -88,7 +87,6 @@ export default function SharedDataBanksPage() {
                   <tr key={b.bank_code} className='border-b last:border-0 hover:bg-muted/30'>
                     <td className='px-4 py-2 font-mono'>{b.bank_code}</td>
                     <td className='px-4 py-2'>{b.bank_name}</td>
-                    <td className='px-4 py-2 text-muted-foreground'>{b.english_name ?? '—'}</td>
                     <td className='px-4 py-2 font-mono text-muted-foreground'>{b.swift_code ?? '—'}</td>
                     <td className='px-4 py-2 text-center'>{b.is_active ? '✓' : '—'}</td>
                   </tr>

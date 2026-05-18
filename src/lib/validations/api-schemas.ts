@@ -239,28 +239,18 @@ export const createEmployeeSchema = z.object({
   role_id: z.string().uuid().optional().nullable(),
   status: z.enum(['active', 'inactive', 'on_leave']).optional(),
   hire_date: z.string().optional().nullable(),
-  // Phase A 加：scope 欄位（branch / department / 是否部門主管）
+  // Phase A 加：scope 欄位（branch）
   branch_id: z.string().uuid().optional().nullable(),
-  department_id: z.string().uuid().optional().nullable(),
-  is_dept_manager: z.boolean().optional(),
   // 不收受信任欄位（must_change_password / workspace_id / user_id 由 server 強塞）
 })
 
-// 分公司 / 部門 CRUD（對齊既有 schema：name / code / display_order / is_active / is_default）
+// 分公司 CRUD（對齊既有 schema：name / code / display_order / is_active / is_default / tax_id）
 export const createBranchSchema = z.object({
   name: z.string().min(1).max(100),
   code: z.string().max(50).optional().nullable(),
   display_order: z.number().int().optional(),
-  // 建分公司時可選同時建一個「總部」預設部門、減少使用者進兩個頁面建兩次
-  auto_create_hq_department: z.boolean().optional(),
-})
-
-// 部門必須掛在某個分公司底下（2026-05-14 schema 加 branch_id NOT NULL）
-export const createDepartmentSchema = z.object({
-  name: z.string().min(1).max(100),
-  code: z.string().max(50).optional().nullable(),
-  display_order: z.number().int().optional(),
-  branch_id: z.string().uuid(),
+  /** 分公司統一編號、8 碼數字、必填（DB CHECK 已建） */
+  tax_id: z.string().regex(/^\d{8}$/, '統一編號必須為 8 碼數字'),
 })
 
 export const createTaskSchema = z.object({
