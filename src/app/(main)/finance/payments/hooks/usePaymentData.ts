@@ -24,7 +24,11 @@ import { apiMutate } from '@/lib/swr/api-mutate'
 export function usePaymentData() {
   const t = useTranslations('finance')
   const { items: orders, loading: ordersLoading } = useOrdersSlim()
-  const { items: receipts, loading: receiptsLoading } = useReceipts()
+  const {
+    items: receipts,
+    loading: receiptsLoading,
+    refresh: refreshReceiptsHook,
+  } = useReceipts()
 
   // 合併 loading 狀態
   const loading = ordersLoading || receiptsLoading
@@ -94,7 +98,10 @@ export function usePaymentData() {
     await recalculateReceiptStats(selectedOrderId, selectedOrder?.tour_id || null)
 
     // 重新載入資料
+    // 5/18 直擊：globalMutate(predicate) 對 entity hook cache key 不可靠、
+    // 改 await 本 hook 自己的 refresh()（individual mutate(swrKey)、SWR 對單一 key 行為穩）
     await invalidateReceipts()
+    await refreshReceiptsHook()
   }
 
   // 確認收款（狀態改 confirmed、actual_amount 沿用建單時自動算的值、不覆蓋）
@@ -132,7 +139,10 @@ export function usePaymentData() {
       logger.error('產生收款傳票失敗:', err)
     }
 
+    // 5/18 直擊：globalMutate(predicate) 對 entity hook cache key 不可靠、
+    // 改 await 本 hook 自己的 refresh()（individual mutate(swrKey)、SWR 對單一 key 行為穩）
     await invalidateReceipts()
+    await refreshReceiptsHook()
   }
 
   // 更新收款單（編輯模式使用）
@@ -147,7 +157,10 @@ export function usePaymentData() {
     })
 
     // 重新載入資料
+    // 5/18 直擊：globalMutate(predicate) 對 entity hook cache key 不可靠、
+    // 改 await 本 hook 自己的 refresh()（individual mutate(swrKey)、SWR 對單一 key 行為穩）
     await invalidateReceipts()
+    await refreshReceiptsHook()
   }
 
   // 刪除收款單
@@ -170,7 +183,10 @@ export function usePaymentData() {
     }
 
     // 重新載入資料
+    // 5/18 直擊：globalMutate(predicate) 對 entity hook cache key 不可靠、
+    // 改 await 本 hook 自己的 refresh()（individual mutate(swrKey)、SWR 對單一 key 行為穩）
     await invalidateReceipts()
+    await refreshReceiptsHook()
   }
 
   return {
