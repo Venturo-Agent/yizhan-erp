@@ -381,8 +381,12 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
       await alertSuccess(isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_SUCCESS : COMPONENT_LABELS.ALERT_CREATE_SUCCESS)
       onSubmit()
     } catch (error) {
+      // 把 server 回的具體訊息（譬如「email 已被使用、需聯絡管理員清孤兒」）直接顯示給用戶看、
+      // 不要用固定「建立失敗 / 更新失敗」蓋掉、不然用戶根本不知道怎麼跟管理員描述問題。
+      const fallback = isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_FAILED : COMPONENT_LABELS.ALERT_CREATE_FAILED
+      const detail = error instanceof Error && error.message ? error.message : fallback
       logger.error(isEditMode ? '更新失敗' : '建立員工失敗', error)
-      await alertError(isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_FAILED : COMPONENT_LABELS.ALERT_CREATE_FAILED)
+      await alertError(detail, isEditMode ? '更新員工失敗' : '建立員工失敗')
     } finally {
       setSubmitting(false)
     }
