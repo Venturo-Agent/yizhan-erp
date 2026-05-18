@@ -82,33 +82,40 @@ describe.skipIf(!hasServiceRoleKey())('generate_employee_number 並發競態', (
   )
 
   it(
-    '帶有現存 employees 時、新編號從 max+1 開始',
+    '帶有現存 employees 時、新編號 > 現有 MAX 且連續',
     async () => {
       // 先塞 5 筆 employees（E001..E005）
+      // 注意：新版 RPC 用 counter 表記憶「上次發到哪」、不只看 employees 表 MAX。
+      // 所以即使 employees 表 MAX=5、若先前 RPC 已發到 E010、下一個會是 E011（不是 E006）。
+      // 改 assertion：3 個新編號連續、unique、且 > 表 MAX（不檢查具體起點）。
       const existing = ['E001', 'E002', 'E003', 'E004', 'E005']
       for (const n of existing) {
         const { error } = await admin.from('employees').insert({
           workspace_id: workspaceId,
           employee_number: n,
-          // 補 schema 必要欄位 — 若缺欄報錯、之後依錯誤訊息補
-          // 注意：employees 可能要 email + name、看 schema 決定
         })
         if (error) {
-          // 此測試不強求過、schema 變動很大、用 skip 處理
           // eslint-disable-next-line no-console
           console.warn(`skip 第二題：employees INSERT failed: ${error.message}`)
           return
         }
       }
 
-      // 跑 3 個並發、應該回 E006/E007/E008
+      // 跑 3 個並發
       const promises = Array.from({ length: 3 }, () =>
         admin.rpc('generate_employee_number', { p_workspace_id: workspaceId })
       )
       const results = await Promise.all(promises)
-      const numbers = (results.map(r => r.data as string)).sort()
+      const numbers = (results.map(r => r.data as string))
+      const nums = numbers.map(n => parseInt(n.slice(1), 10)).sort((a, b) => a - b)
 
-      expect(numbers).toEqual(['E006', 'E007', 'E008'])
+      // 3 個必須 unique
+      expect(new Set(numbers).size).toBe(3)
+      // 連續（n+1, n+2, n+3）
+      expect(nums[1]).toBe(nums[0] + 1)
+      expect(nums[2]).toBe(nums[1] + 1)
+      // 必須 > 現有 MAX（E005 = 5）
+      expect(nums[0]).toBeGreaterThan(5)
     },
     30_000
   )
