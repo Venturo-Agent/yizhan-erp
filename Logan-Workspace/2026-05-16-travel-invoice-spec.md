@@ -3,7 +3,7 @@
 ```
 date: 2026-05-16
 status: 草稿 — 等 William 拍板
-author: Logan（從 PDF × Atlas 架構推導）
+author: Logan（從 PDF × yizhan-erp 架構推導）
 related:
   - TRINVI_1.0.12（開立/作廢/折讓主API）
   - TRINBI_1.0.8（批次查詢API）

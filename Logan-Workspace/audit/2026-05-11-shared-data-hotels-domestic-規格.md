@@ -16,7 +16,7 @@ related:
 
 ## 0. 背景與決策過程
 
-William 要在 venturo-aierp 做兩件事、source 是交通部觀光署旅宿網的開放 JSON：
+William 要在 yizhan-erp 做兩件事、source 是交通部觀光署旅宿網的開放 JSON：
 
 - **路由 1**：全台飯店事實目錄（直接接觸過交通部開放資料、3,296 家旅館、不含民宿）
 - **路由 2**：國內飯店業者管理（漫途主動經營的合作關係、含聯繫 / LINE / 業務員 / 合作狀態）
@@ -188,14 +188,14 @@ CREATE POLICY domestic_hotel_partners_write ON public.domestic_hotel_partners
 
 a. **Edge Function**：`supabase/functions/sync-motc-hotels/index.ts`
    - 用 supabase scheduled function（pg_cron 或 supabase scheduler）每日 03:00 UTC 觸發
-   - 優點：跟 venturo-aierp 同 Supabase 專案、無外部依賴
+   - 優點：跟 yizhan-erp 同 Supabase 專案、無外部依賴
 
 b. **Next.js API route + Vercel cron**：`/api/cron/sync-motc-hotels`
    - vercel.json 加 cron schedule
    - 守 `VENTURO_AIERP_CRON_SECRET`（既有 secret）
    - 優點：好 debug、跟 ERP 同 codebase
 
-> 推薦 b、因為 venturo-aierp 已有 cron secret 機制、好統一管理。
+> 推薦 b、因為 yizhan-erp 已有 cron secret 機制、好統一管理。
 
 ### 3-3 upsert 邏輯（pseudocode）
 

@@ -16,7 +16,6 @@
 import { useEffect, useState } from 'react'
 import { Plug, Save, Loader2, Link2, Copy, Check } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { IpFormSection } from './ip-form-section'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -220,9 +219,6 @@ export function IntegrationsTab({ workspaceId }: IntegrationsTabProps) {
         <Plug className="h-4 w-4" />
         每個 workspace 各自存自己的 API key、加密儲存。改了「啟用」要按儲存才生效。
       </div>
-
-      {/* 申請文件工具 */}
-      <IpFormSection workspaceId={workspaceId} />
 
       {/* 一次性 setup link 結果 modal */}
       {linkResult && (

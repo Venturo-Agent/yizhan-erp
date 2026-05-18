@@ -2,7 +2,7 @@
 date: 2026-05-12
 author: Logan（執行整理）
 status: spec v0 — 待黒羽 + William 圓桌討論細化
-context: venturo-aierp Channel 系統重做（5/2 才砍掉舊版、now 要重做、避免重蹈覆轍）
+context: yizhan-erp Channel 系統重做（5/2 才砍掉舊版、now 要重做、避免重蹈覆轍）
 ---
 
 # Venturo Channel 系統 spec v0
@@ -31,7 +31,7 @@ William 拍板要找你（處理靈魂資料庫的人員）一起做圓桌討論
 
 ## 2. 歷史脈絡（為什麼 5/2 砍掉）
 
-venturo-aierp 之前做過一整套：
+yizhan-erp 之前做過一整套：
 - 2025-12 ~ 2026-01：channels / messages / channel_members / channel_groups
 - 後續加 visibility / scope / features / DM RPC
 - **2026-05-02 William 拍板「內部聊天功能直接完全刪除」**

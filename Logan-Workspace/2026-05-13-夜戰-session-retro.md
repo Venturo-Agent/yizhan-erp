@@ -2,7 +2,7 @@
 date: 2026-05-13
 author: Logan（cctl session、context 滿前 handoff）
 status: 整夜 session、約 50 個 commit、約 40 個 fix
-related: 2026-05-12-修復筆記-夜戰計畫.md / 2026-05-13-venturo-aierp-上線戰略地圖.md / venturo-aierp/CLAUDE.md
+related: 2026-05-12-修復筆記-夜戰計畫.md / 2026-05-13-venturo-aierp-上線戰略地圖.md / yizhan-erp/CLAUDE.md
 ---
 
 # 2026-05-13 夜戰 session retro + handoff
@@ -28,10 +28,8 @@ William 從 03:00 → 13:00 一直丟問題、Logan 一直修、節奏亂但全 
 - codegen-fresh check pre-push / CI 防 drift
 - husky pre-commit / pre-push 三層守門
 
-### 🔒 戰略凍結 + 紀律
-- CLAUDE.md 加「戰略凍結中」section
+### 🔧 紀律
 - 加紅線 #0.1：不准用 admin / manager / super user 等字
-- 提案戰略地圖（3 個月內第一個付費客戶 milestone）
 
 ### 🛡 audit:rls L6.7 + L6.8 detector
 - L6.7：DELETED_COLUMNS watch list（orders.code / personal_info.email / suppliers.category_id）
@@ -133,9 +131,8 @@ William 從 03:00 → 13:00 一直丟問題、Logan 一直修、節奏亂但全 
 ## 下次 cctl session 開門讀
 
 1. 本檔（5 分鐘看完狀況）
-2. `Logan-Workspace/2026-05-13-venturo-aierp-上線戰略地圖.md`（戰略凍結 + 路線圖）
-3. `venturo-aierp/CLAUDE.md`（含戰略凍結 section + 紅線 + 6 層架構）
-4. `git log --oneline -30`（看今晚 ~50 commit 軌跡）
+2. `yizhan-erp/CLAUDE.md`（紅線 + 6 層架構）
+3. `git log --oneline -30`（看今晚 ~50 commit 軌跡）
 
 —
 

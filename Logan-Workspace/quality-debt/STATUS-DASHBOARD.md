@@ -7,7 +7,7 @@ owner: Logan
 
 # 🎯 QDF Status Dashboard
 
-> 一頁看完 venturo-aierp 品質債整體狀態。
+> 一頁看完 yizhan-erp 品質債整體狀態。
 > 最新指標：跑 `npm run audit:quality` 或看 `_audit-runs/{today}.md`。
 
 ## ⚪ 紅綠燈

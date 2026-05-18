@@ -123,7 +123,7 @@ CREATE TABLE travel_time_matrix (
 ### Phase 3：Google OR-Tools（Python 微服務）
 - 業界標準旅行商問題（TSP）求解器
 - 支援開放時間約束、天數分組、用餐時間預留
-- 需要獨立 Python 服務（Vultr 上起一個 container）
+- 需要獨立 Python 服務（部署方式 TBD：Vercel Functions / Supabase Edge Functions / Railway 等都評估、Vultr 已非主力）
 - 適合 10 天以上、50 個以上景點的複雜行程
 
 **初版用 Phase 1，有實際業者使用後再升級。**

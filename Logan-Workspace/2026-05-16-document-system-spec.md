@@ -141,9 +141,9 @@ CREATE TABLE workspace_documents (
 ```
 OnlyOffice Document Server（Docker container）
   → 部署在 Vultr（167.179.97.139）
-  → 與 venturo-aierp 同機或獨立 container
+  → 與 yizhan-erp 同機或獨立 container
 
-venturo-aierp（Next.js）
+yizhan-erp（Next.js）
   → 嵌入 OnlyOffice Editor iframe
   → 透過 Document Server 的 JavaScript API 通訊
   → 文件讀寫走 Supabase Storage（需要 OnlyOffice 能讀到的公開 URL）

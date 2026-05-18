@@ -22,7 +22,7 @@ status: spec / 待實作
 ### 觸發機制
 
 選 1：cron job（推薦）
-- 用 venturo-aierp 既有 cron infrastructure（看 `src/app/api/cron/` 目錄）
+- 用 yizhan-erp 既有 cron infrastructure（看 `src/app/api/cron/` 目錄）
 - 每年 1/1 00:00 觸發
 - 或：每年 12/15 早預警 + 1/1 提醒 + 1/15 後查驗
 
@@ -53,10 +53,10 @@ William 拍板：透過系統內 channels（既有 channels module、跟 Slack-l
 
 ### Cron 觸發
 
-venturo-aierp 既有 cron pattern：
+yizhan-erp 既有 cron pattern：
 - `src/app/api/cron/<task>/route.ts` — endpoint
 - VENTURO_AIERP_CRON_SECRET 守門
-- 外部排程器（Vercel Cron / Coolify cron / Supabase scheduled function）打 endpoint
+- 外部排程器（Vercel Cron / Supabase scheduled function）打 endpoint
 
 實作：
 1. 新 `src/app/api/cron/insurance-grade-reminder/route.ts`
@@ -76,7 +76,7 @@ venturo-aierp 既有 cron pattern：
 ## 實作 phase
 
 P1：寫 cron endpoint + 寫 channel message logic（半天）
-P2：cron schedule 設定（看用 Vercel Cron / Coolify cron）
+P2：cron schedule 設定（用 Vercel Cron 為主）
 P3：測試（2027/1/1 觸發）
 
 ## 此 spec 之後做、不在此次薪資結算 scope

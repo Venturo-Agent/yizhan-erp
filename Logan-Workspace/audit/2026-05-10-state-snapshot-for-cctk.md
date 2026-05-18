@@ -1,5 +1,5 @@
 ---
-title: 2026-05-10 venturo-aierp 當前 state 快照（給 cctk session 校對用）
+title: 2026-05-10 yizhan-erp 當前 state 快照（給 cctk session 校對用）
 created: 2026-05-10
 status: 動工中、cctk session 接手前看這份
 ---
@@ -49,7 +49,7 @@ Phase 2 patch 已 apply（commit 1b8a1df）：
 
 ## docs 層
 
-- 砍 35 份過時 docs（venturo-aierp/docs/）
+- 砍 35 份過時 docs（yizhan-erp/docs/）
 - 唯一保留的是 `docs/SECURITY.md`（已對齊新模型 + 加共用資料層概念）
 - 規範散在 vault：圓桌結論卡 / 三維架構卡 / sitemap / gap report / Phase 2 重建規劃
 - CLAUDE.md 加索引指 6 份必看卡

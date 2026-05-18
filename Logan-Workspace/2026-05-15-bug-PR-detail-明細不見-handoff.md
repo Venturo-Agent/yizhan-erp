@@ -2,7 +2,7 @@
 title: bug 移交 — PR detail 明細欄位全不見
 created: 2026-05-15
 resolved: 2026-05-15（Max 同 session 內修完、移交取消）
-owner: Max（venturo-aierp 男僕）
+owner: Max（yizhan-erp 男僕）
 status: ✅ resolved
 priority: high（user 看不到明細、業務阻塞）
 related: [[2026-05-15-出納單完整重構-spec]]
@@ -150,7 +150,7 @@ PR `BKK260325A-I01`（William 提到的「EKK260325A」、語音輸入錯）：
 
 ## 給接手 session 的 onboard
 
-新 session 進 venturo-aierp、先讀：
+新 session 進 yizhan-erp、先讀：
 1. `~/.claude/CLAUDE.md`（11 條鐵律）
 2. `~/.claude/INFRASTRUCTURE.md`（連線方式：Mac 走 Pooler `aws-1-ap-southeast-1.pooler.supabase.com:5432` + `postgres.aawrgygqgemgqssflfrx`）
 3. `Logan-Workspace/CLAUDE.md`（人格 SOP）

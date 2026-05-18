@@ -11,13 +11,13 @@ related:
 
 ## 為什麼寫這張卡
 
-William 5/14 拍板讓 Robin 接手「整合 Kimi 做的 AI 平台（/Users/william/Desktop/app）」進 venturo-aierp。
+William 5/14 拍板讓 Robin 接手「整合 Kimi 做的 AI 平台（/Users/william/Desktop/app）」進 yizhan-erp。
 跟執事長 5/14 寫的 [[2026-05-14-ai-integration-spec-v2-circle-table]] 有交集、純同步、不挖坑、不搶活。
 
 ## William 指示重點
 
-1. Kimi 那邊的 app 設計方向都是 William 要的、要整合進 venturo-aierp 加快撰寫
-2. ERP 整合 tab 不要（因為 venturo-aierp 本身就是 ERP）
+1. Kimi 那邊的 app 設計方向都是 William 要的、要整合進 yizhan-erp 加快撰寫
+2. ERP 整合 tab 不要（因為 yizhan-erp 本身就是 ERP）
 3. AI 模組要有分頁、Kimi 的側邊欄就是我們的分頁
 
 ## William 拍板的方案（主對話兩題）

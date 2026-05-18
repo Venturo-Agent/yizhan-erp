@@ -1,5 +1,5 @@
 ---
-title: Quality Debt Framework（QDF）— venturo-aierp 品質債管理框架
+title: Quality Debt Framework（QDF）— yizhan-erp 品質債管理框架
 created: 2026-05-15
 updated: 2026-05-16
 owner: Logan
@@ -87,5 +87,5 @@ quality-debt/
 所有 finding / fix 對齊：
 - 鐵律 #8 不刪 William 檔案 / 資料
 - 鐵律 #9 沒有特權、沒有 admin bypass
-- venturo-aierp 6 層架構（L1-L6）
+- yizhan-erp 6 層架構（L1-L6）
 - L4 狀態守門紅線 D「不開後門」

@@ -3,10 +3,10 @@
 ```
 date: 2026-05-16
 status: 草稿 — 等 William 拍板
-author: Logan（從 API doc v2.0.4 × Atlas 架構推導）
+author: Logan（從 API doc v2.0.4 × yizhan-erp 架構推導）
 related:
   - Worldmove Shipping System API Document v2.0.4_20260309.pdf
-  - 2026-05-13-venturo-atlas-概念架構-blueprint.md
+  - 2026-05-13-venturo-aierp-概念架構-blueprint.md
   - 2026-05-16-travel-invoice-spec.md（同批規格書）
 ```
 
@@ -530,7 +530,7 @@ POST /api/worldmove/callback/sim-closed    ← 5.6 SIM 關閉通知（Phase 2）
 | **流量更新延遲** | 每 2-3 小時 to 一天（電信商決定）| 告知旅行社不要期待即時數字 |
 | **預付卡不支援兌換** | IeSIM=false 的產品不能用模式 B | 下單前過濾 IeSIM=false 的產品 |
 | **encStr 不同計算方式** | 各 API encStr 串接順序不同（見文件每支 API 說明）| Service 層每個 method 各自計算，不共用 |
-| **Callback URL 需固定 IP** | WM 可能會 block 可疑 IP | 走 Vultr 167.179.97.139（固定 IP），Coolify 設定 |
+| **Callback URL 需固定 IP** | WM 可能 block 可疑 IP | ⚠️ 2026-05-18 部署改 Vercel、出口 IP 不固定、需重新評估（過 NAT gateway / Cloudflare worker / 留專用 Vultr 中繼） |
 | **Token 安全** | Token 泄漏 = 可以用我們身份下單 | AES-256-GCM 加密存 DB，傳輸不走 plaintext |
 
 ---
@@ -572,7 +572,7 @@ POST /api/worldmove/callback/sim-closed    ← 5.6 SIM 關閉通知（Phase 2）
 5. **申請正式環境**：測試通過後，取得正式 MerchantId / DeptId / Token
 6. **正式環境費率確認**：確認批發價 vs 旅行社對客售價的 margin
 
-漫途 Vultr server IP `167.179.97.139` 為固定 IP，符合 WM 要求。
+（過去）漫途 Vultr server IP `167.179.97.139` 為固定 IP、符合 WM 要求；2026-05-18 後部署改 Vercel、需另尋固定 IP 方案。
 
 ---
 

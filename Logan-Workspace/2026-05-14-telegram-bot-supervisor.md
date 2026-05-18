@@ -186,7 +186,7 @@ if (isMagicWord(msg.text)) {
 ccta() {
   export TELEGRAM_BOT_TOKEN="..."
   claude-bot-supervisor.sh alex \
-    ~/Projects/venturo-aierp \
+    ~/Projects/yizhan-erp \
     ~/.claude/personas/servants-common.md ~/.claude/personas/alex.md
 }
 ```

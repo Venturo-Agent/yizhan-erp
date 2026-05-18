@@ -2,16 +2,16 @@
 created: 2026-05-10
 updated: 2026-05-10（初版有重大失誤、第二版修正）
 author: 羅根 (Logan)
-project: venturo-aierp
+project: yizhan-erp
 audit_type: post-migration-drift
 status: v2-corrected-pending-william-review
 related:
-  - "[[../../venturo-aierp/docs/SITEMAP|venturo-aierp/docs/SITEMAP.md]]"
-  - "[[../../venturo-aierp/docs/SITEMAP-OVERVIEW|venturo-aierp/docs/SITEMAP-OVERVIEW.md]]"
-  - "[[../../venturo-aierp/docs/SECURITY|venturo-aierp/docs/SECURITY.md]]"
+  - "[[../../yizhan-erp/docs/SITEMAP|yizhan-erp/docs/SITEMAP.md]]"
+  - "[[../../yizhan-erp/docs/SITEMAP-OVERVIEW|yizhan-erp/docs/SITEMAP-OVERVIEW.md]]"
+  - "[[../../yizhan-erp/docs/SECURITY|yizhan-erp/docs/SECURITY.md]]"
 ---
 
-# venturo-aierp 全視角架構盤查報告（v2 修正版）
+# yizhan-erp 全視角架構盤查報告（v2 修正版、原 venturo-aierp 命名）
 
 > 老大要求的盤查 — 確認搬遷後 docs / 規範 / code 是否一致。資料抓自 2026-05-10、靜態快照、不是即時資料。
 >

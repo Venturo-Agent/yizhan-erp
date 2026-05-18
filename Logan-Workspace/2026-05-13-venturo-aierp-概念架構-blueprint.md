@@ -2,10 +2,10 @@
 date: 2026-05-13
 author: Logan（William 提案）
 status: 設計大樓圖、用來對照施工現場
-related: 2026-05-12-修復筆記-夜戰計畫.md / venturo-aierp/CLAUDE.md
+related: 2026-05-12-修復筆記-夜戰計畫.md / yizhan-erp/CLAUDE.md
 ---
 
-# venturo-aierp SaaS ERP 概念架構（建築設計圖）
+# yizhan-erp SaaS ERP 概念架構（建築設計圖）
 
 ## TL;DR
 

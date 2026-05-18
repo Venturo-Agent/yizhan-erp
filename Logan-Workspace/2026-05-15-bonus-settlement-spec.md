@@ -70,7 +70,7 @@ CREATE INDEX idx_bonus_pending_tour ON bonus_pending(tour_id);
 CREATE INDEX idx_bonus_pending_settled_in ON bonus_pending(settled_in_payment_request_id) WHERE settled_in_payment_request_id IS NOT NULL;
 ```
 
-注意：實際看 venturo-aierp 已有的 bonus / 獎金表、決定是新建還是 alter 加欄位。
+注意：實際看 yizhan-erp 已有的 bonus / 獎金表、決定是新建還是 alter 加欄位。
 
 ### tours 表
 

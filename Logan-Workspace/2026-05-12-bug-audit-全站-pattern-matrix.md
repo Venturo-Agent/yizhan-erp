@@ -2,11 +2,11 @@
 date: 2026-05-12
 author: Logan
 status: 待 William 拍板修法路徑
-related: venturo-aierp
+related: yizhan-erp
 supersedes: 2026-05-12-bug-audit-員工+供應商.md (子集、改用此份)
 ---
 
-# Venturo-aierp 全站 Bug 全圖 — Pattern × 頁面矩陣
+# yizhan-erp 全站 Bug 全圖 — Pattern × 頁面矩陣
 
 ## 給 William 三句話總結
 
@@ -280,7 +280,7 @@ export function translateDbError(error: unknown): { message: string; field?: str
 
 William、坦白講：
 
-**今天測到的「漏洞百出」、不是真的爛、是 venturo-aierp 還在「半搬遷狀態」**：
+**今天測到的「漏洞百出」、不是真的爛、是 yizhan-erp 還在「半搬遷狀態」**：
 - 新架構（entity hook + RLS Phase A3 + 中央錯誤層）已經設計好、做了一半
 - 舊架構（Zustand store + RLS DISABLED + 各頁各翻）還在用、沒收乾淨
 - 你今天測的兩個模組（員工 / 供應商）剛好都還沒搬完、所以撞到

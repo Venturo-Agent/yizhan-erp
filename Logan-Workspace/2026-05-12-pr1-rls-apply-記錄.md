@@ -2,7 +2,7 @@
 date: 2026-05-12
 author: Logan
 status: 完成
-related: venturo-aierp / PR-1
+related: yizhan-erp / PR-1
 ---
 
 # PR-1 RLS 補洞 — 執行紀錄 + 意外發現
@@ -100,7 +100,7 @@ WITH CHECK (workspace_id = get_current_user_workspace())
 ### 1. ⚠️ Supabase CLI link 到錯的專案
 
 `supabase/.temp/project-ref` = `wzvwmawpkapcmkfmkvav`（舊 Venturo-Erp）
-應該是 `aawrgygqgemgqssflfrx`（venturo-aierp）
+應該是 `aawrgygqgemgqssflfrx`（yizhan-erp）
 
 → **絕對不要跑 `supabase db push`**、會把 migration 推到舊 erp
 → 修法：`supabase link --project-ref aawrgygqgemgqssflfrx`（要 agency@ PAT、之後另開 PR 修）
@@ -117,5 +117,5 @@ WITH CHECK (workspace_id = get_current_user_workspace())
 
 ## 檔案位置
 
-- Migration（已 apply）：`venturo-aierp/supabase/migrations/20260512153000_phase_a4_contracts_rls_tightening.sql`
+- Migration（已 apply）：`yizhan-erp/supabase/migrations/20260512153000_phase_a4_contracts_rls_tightening.sql`
 - 原 pending 草稿：已移走、不留 ghost 檔

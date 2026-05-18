@@ -2,7 +2,7 @@
 date: 2026-05-10
 author: Logan
 type: audit
-scope: venturo-aierp / feature/onboarding-fix-pack-2026-05-10
+scope: yizhan-erp / feature/onboarding-fix-pack-2026-05-10
 purpose: 老大實測前的「預期失敗點 + 測試順序」清單
 related:
   - "[[2026-05-10-API-守門普及率盤點]]"
@@ -354,7 +354,7 @@ finance.settings.read / write
 ```
 
 > [!todo] 必須驗
-> 這 8 個 migrations **必須先 apply 到 venturo-aierp Supabase（ref=aawrgygqgemgqssflfrx）才能實測**。
+> 這 8 個 migrations **必須先 apply 到 yizhan-erp Supabase（ref=aawrgygqgemgqssflfrx）才能實測**。
 > - MCP 看不到這個專案（agency@venturo.tw 帳號）→ 要 source `secrets.env` 用 service_role 直連 REST
 > - 詳見 `~/.claude/INFRASTRUCTURE.md`
 > - **這部分等 D 跑得了、再回頭驗**

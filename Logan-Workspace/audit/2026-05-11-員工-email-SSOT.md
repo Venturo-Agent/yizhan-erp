@@ -4,7 +4,7 @@ created: 2026-05-11
 owner: William
 status: William 拍板、Logan 動工中
 related:
-  - "[[venturo-aierp/CLAUDE.md]] 一刀切純 email 登入鐵律"
+  - "[[yizhan-erp/CLAUDE.md]] 一刀切純 email 登入鐵律"
 trigger: 張文嘉（E002）case — William 填了 email、結果登不進、用系統帳號回頭看 employees.email 是空
 ---
 
@@ -98,7 +98,7 @@ auth.users.email = corner_e002@venturo.com  ← API 自動生成的 fallback
 ### 3-3 規格 + 文件 — 順便
 
 - 本卡（規格 + 設計拍板）
-- venturo-aierp/CLAUDE.md 紅線可加一條「員工 email = SSOT、新增 / 編輯都要 sync auth.users.email、禁止任何 hardcoded fallback」
+- yizhan-erp/CLAUDE.md 紅線可加一條「員工 email = SSOT、新增 / 編輯都要 sync auth.users.email、禁止任何 hardcoded fallback」
 
 ## 4. 影響面
 
@@ -125,7 +125,7 @@ ORDER BY e.created_at DESC;
 
 ## 5. 規範要更新的條目
 
-`venturo-aierp/CLAUDE.md` 紅線可加（需 William 拍板）：
+`yizhan-erp/CLAUDE.md` 紅線可加（需 William 拍板）：
 
 ```
 ### N. 員工 email = single source of truth
