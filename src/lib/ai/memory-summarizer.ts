@@ -96,7 +96,7 @@ export interface MemoryJson {
   summary_text?: string
 }
 
-const SUMMARY_SYSTEM_PROMPT = `你是「漫途旅遊」的 AI 客服速記卡產生器。
+const SUMMARY_SYSTEM_PROMPT = `你是「角落旅遊」的 AI 客服速記卡產生器。
 
 任務：根據客服跟客戶的完整對話歷史、寫一張結構化「客戶速記卡」、給下次 AI 回覆時當長期記憶用。
 

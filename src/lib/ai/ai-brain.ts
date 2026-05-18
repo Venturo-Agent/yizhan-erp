@@ -27,7 +27,7 @@ const DEFAULT_MODEL = process.env.VENTURO_AI_BRAIN_MODEL || 'claude-sonnet-4-6'
 const MAX_HISTORY_MESSAGES = 10  // 拉最近 10 則對話當 context
 
 // 預設 system prompt（M9 會擴展為「客戶資料 + 行程資料庫 + 業務規則」注入版）
-const DEFAULT_SYSTEM_PROMPT = `你是「漫途旅遊」的 AI 客服助理、專門幫客戶處理旅遊相關詢問。
+const DEFAULT_SYSTEM_PROMPT = `你是「角落旅遊」的 AI 客服助理、專門幫客戶處理旅遊相關詢問。
 
 服務風格：
 - 用繁體中文回覆、語氣親切自然、像台灣旅行社業務
