@@ -112,31 +112,19 @@ export function PaymentItemRow({
   const _currentCode = item.payment_method_code || currentMethod?.code || ''
 
   // 當收款方式變更時（method 為 SSOT、receipt_type 從 method.code 反推給 trigger 兼容）
+  // 手續費 / 實收金額不在新增當下算、等會計按「確認」時 ReceiptDialogFooter 才算
+  // （理由：pending 階段不該有實收、應該按下核准才依該付款方式的 fee_percent 才存檔）
   const handleReceiptTypeChange = (value: string) => {
     const method = paymentMethods.find(m => m.name === value)
     const code = method?.code || ''
-    const feePercent = Number((method as { fee_percent?: number } | undefined)?.fee_percent) || 0
-    const amount = Number(item.amount) || 0
 
-    const updates: Partial<PaymentItem> = {
+    onUpdate(item.id, {
       payment_method_id: method?.id,
       payment_method_code: code,
       // receipt_type 存 m.name 字串（跟 SelectItem value 對齊、UI 才會 highlight 已選）
       // mutation 寫入 DB 時會用 resolveMethodCode + codeToReceiptType 算 number
       receipt_type: value as unknown as ReceiptType,
-    }
-
-    // 自動算手續費 + 實收（切換到刷卡就自動扣、切回現金/匯款就還原）
-    if (feePercent > 0) {
-      const fees = Math.round((amount * feePercent) / 100)
-      updates.fees = fees
-      updates.actual_amount = Math.max(0, amount - fees)
-    } else {
-      updates.fees = 0
-      updates.actual_amount = amount
-    }
-
-    onUpdate(item.id, updates)
+    })
   }
 
   return (
@@ -150,7 +138,7 @@ export function PaymentItemRow({
             onValueChange={handleReceiptTypeChange}
             disabled={readonly || isLoading}
           >
-            <SelectTrigger className="h-8 text-sm w-full border-0 shadow-none bg-transparent px-0">
+            <SelectTrigger className="h-8 text-sm w-full border-0 shadow-none bg-transparent disabled:bg-transparent disabled:text-morandi-primary px-0">
               <SelectValue placeholder={isLoading ? '載入中...' : '請選擇'} />
             </SelectTrigger>
             <SelectContent align="start" className="min-w-0 w-[var(--radix-select-trigger-width)]">
@@ -181,7 +169,7 @@ export function PaymentItemRow({
               onValueChange={value => onUpdate(item.id, { accounting_subject_id: value })}
               disabled={readonly}
             >
-              <SelectTrigger className="h-8 text-sm w-full border-0 shadow-none bg-transparent px-0">
+              <SelectTrigger className="h-8 text-sm w-full border-0 shadow-none bg-transparent disabled:bg-transparent disabled:text-morandi-primary px-0">
                 <SelectValue placeholder="選擇收入科目" />
               </SelectTrigger>
               <SelectContent align="start">
@@ -232,19 +220,8 @@ export function PaymentItemRow({
                   .replace(/,/g, '')
                 const num = parseInt(raw, 10)
                 const amount = isNaN(num) ? 0 : num
-                const feePercent =
-                  Number((currentMethod as { fee_percent?: number } | undefined)?.fee_percent) || 0
-
-                const updates: Partial<PaymentItem> = { amount }
-                if (feePercent > 0) {
-                  const fees = Math.round((amount * feePercent) / 100)
-                  updates.fees = fees
-                  updates.actual_amount = Math.max(0, amount - fees)
-                } else {
-                  updates.fees = 0
-                  updates.actual_amount = amount
-                }
-                onUpdate(item.id, updates)
+                // 手續費 / 實收不在這算、等會計按「確認」時 ReceiptDialogFooter 才算
+                onUpdate(item.id, { amount })
               }}
               placeholder="0"
               disabled={readonly}
