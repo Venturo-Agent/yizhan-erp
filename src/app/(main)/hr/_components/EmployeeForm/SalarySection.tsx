@@ -9,7 +9,9 @@ import { Money } from '@/components/ui/money'
 import { cn } from '@/lib/utils'
 
 const LABELS = {
-  HIRE_DATE: '入職日期',
+  HIRE_DATE: '到職日（本公司）',
+  TOURISM_JOIN_DATE: '任職日（旅遊業二代）',
+  LABOR_INSURANCE_DATE: '加保日（勞保）',
   PAY_DAY: '發薪日',
   PAY_DAY_5: '每月 5 日',
   PAY_DAY_10: '每月 10 日',
@@ -49,6 +51,8 @@ interface SalaryHistoryRecord {
 interface SalarySectionProps {
   formData: {
     hire_date: string
+    tourism_join_date: string
+    labor_insurance_date: string
     pay_day: number | 'last'
     base_salary: number
     attendance_bonus: number
@@ -79,6 +83,24 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
           <DatePicker
             value={formData.hire_date || ''}
             onChange={v => onChange({ hire_date: v })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-morandi-primary uppercase">
+            {LABELS.TOURISM_JOIN_DATE}
+          </Label>
+          <DatePicker
+            value={formData.tourism_join_date || ''}
+            onChange={v => onChange({ tourism_join_date: v })}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-morandi-primary uppercase">
+            {LABELS.LABOR_INSURANCE_DATE}
+          </Label>
+          <DatePicker
+            value={formData.labor_insurance_date || ''}
+            onChange={v => onChange({ labor_insurance_date: v })}
           />
         </div>
         <div className="space-y-1.5">

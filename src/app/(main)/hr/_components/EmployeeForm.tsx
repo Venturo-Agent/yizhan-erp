@@ -155,8 +155,8 @@ export function EmployeeForm({
               onToggleEligibility={toggleEligibility}
             />
 
-            {/* 薪資設定（HR 模式 + 進階人資 feature 才顯示） */}
-            {mode === 'hr' && salaryEnabled && (
+            {/* 薪資設定（HR 模式 + 進階人資 feature + 編輯模式才顯示、新增不預填薪資） */}
+            {mode === 'hr' && salaryEnabled && isEditMode && (
               <SalarySection
                 formData={formData}
                 salaryHistory={employee?.salary_info?.salary_history}

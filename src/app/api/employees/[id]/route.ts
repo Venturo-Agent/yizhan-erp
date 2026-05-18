@@ -45,6 +45,9 @@ const updateEmployeeSchema = z
     bank_name: z.string().max(100).nullable().optional(),
     bank_account_number: z.string().max(50).nullable().optional(),
     bank_account_name: z.string().max(100).nullable().optional(),
+    // 旅行社業界日期（2026-05-18 加）
+    tourism_join_date: z.string().date().nullable().optional(),
+    labor_insurance_date: z.string().date().nullable().optional(),
   })
   .strict()
 

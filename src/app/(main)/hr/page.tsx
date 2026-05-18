@@ -243,34 +243,6 @@ export default function HRPage() {
           />
         ),
       },
-      {
-        key: 'hire_date',
-        label: t('colHireDate'),
-        sortable: true,
-        width: '100px',
-        render: (_value, employee: EmployeeFull) => {
-          if (!employee.job_info?.hire_date)
-            return <span className="text-morandi-muted text-sm">{t('notSet')}</span>
-          return <DateCell date={employee.job_info.hire_date} />
-        },
-      },
-      {
-        key: 'monthly_salary',
-        label: '月薪',
-        sortable: true,
-        width: '110px',
-        render: (_value, employee: EmployeeFull) => {
-          const salary =
-            Number(employee.monthly_salary) || employee.salary_info?.base_salary || 0
-          if (!salary)
-            return <span className="text-morandi-muted text-sm">{t('notSet')}</span>
-          return (
-            <span className="font-mono text-sm text-morandi-primary tabular-nums">
-              NT$ {salary.toLocaleString()}
-            </span>
-          )
-        },
-      },
     ],
     [rolesData, branchesData, t]
   )

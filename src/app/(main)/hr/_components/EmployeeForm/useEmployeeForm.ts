@@ -121,6 +121,9 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     bank_name: employee?.bank_name ?? '',
     bank_account_number: employee?.bank_account_number ?? '',
     bank_account_name: employee?.bank_account_name ?? '',
+    // 旅行社業界日期（2026-05-18 加）
+    tourism_join_date: ((employee as unknown as Record<string, unknown>)?.tourism_join_date as string) ?? '',
+    labor_insurance_date: ((employee as unknown as Record<string, unknown>)?.labor_insurance_date as string) ?? '',
   })
 
   // 職務列表改用 SWR 快取
@@ -184,6 +187,8 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         bank_name: employee.bank_name ?? '',
         bank_account_number: employee.bank_account_number ?? '',
         bank_account_name: employee.bank_account_name ?? '',
+        tourism_join_date: ((employee as unknown as Record<string, unknown>).tourism_join_date as string) ?? '',
+        labor_insurance_date: ((employee as unknown as Record<string, unknown>).labor_insurance_date as string) ?? '',
       }))
       setAvatarPreview(employee.avatar_url || null)
     }
@@ -320,6 +325,8 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         },
         role_id: formData.role_id || null,
         branch_id: formData.branch_id || null,
+        tourism_join_date: formData.tourism_join_date || null,
+        labor_insurance_date: formData.labor_insurance_date || null,
         ...salaryPayload,
         status: 'active' as const,
       }
