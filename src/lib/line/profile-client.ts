@@ -119,3 +119,47 @@ export async function fetchLineRoomMemberProfile(
     return null
   }
 }
+
+/**
+ * 拿群組摘要（群組名 / 頭像）
+ *
+ * Endpoint: GET /v2/bot/group/{groupId}/summary
+ * 回 { groupId, groupName, pictureUrl }
+ *
+ * 前提：Bot 還在群組內、且該 OA 有權限（一般 OA 即可、不需 Verified）
+ * — 2026-05-18 William 實測角落旅遊 OA 可拿到。
+ *
+ * 用途：webhook 收到群組訊息時、第一次見到此群組就 fetch、cache 到 inbox_conversations.display_name + picture_url
+ */
+export interface FetchLineGroupSummaryOptions {
+  groupId: string
+  channelAccessToken: string
+}
+
+export interface LineGroupSummary {
+  groupId: string
+  groupName: string
+  pictureUrl?: string
+}
+
+export async function fetchLineGroupSummary(
+  opts: FetchLineGroupSummaryOptions
+): Promise<LineGroupSummary | null> {
+  const { groupId, channelAccessToken } = opts
+  if (!channelAccessToken || !groupId) return null
+
+  try {
+    const url = `https://api.line.me/v2/bot/group/${encodeURIComponent(groupId)}/summary`
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${channelAccessToken}` },
+    })
+    if (!res.ok) {
+      logger.warn('LINE Get Group Summary non-2xx', { status: res.status, groupId })
+      return null
+    }
+    return (await res.json()) as LineGroupSummary
+  } catch (err) {
+    logger.error('LINE Get Group Summary failed', err)
+    return null
+  }
+}

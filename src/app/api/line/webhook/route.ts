@@ -32,7 +32,7 @@ import type { Json } from '@/lib/supabase/types'
 import { verifyLineSignature } from '@/lib/line/verify-signature'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { processIncomingTextMessage } from '@/lib/line/handler'
-import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile } from '@/lib/line/profile-client'
+import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile, fetchLineGroupSummary } from '@/lib/line/profile-client'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
 import { downloadAndStoreLineMedia } from '@/lib/line/media-client'
 import { upsertDebounceAccumulate } from '@/lib/line/debounce'
@@ -495,22 +495,42 @@ async function recordGroupOrRoomMessage(
     }
   }
 
-  // 群組 display_name 預設「群組 #末4碼」、但僅在對話尚未建立時設、不覆蓋 agent 已改的自訂名
-  // 之後 Phase 2 接 LINE getGroupSummary（Verified OA only）才換真實群組名
-  const defaultDisplayName = `群組 #${containerId.slice(-4)}`
   // 先查是否已有對話（有就不帶 displayName、避免蓋掉 agent 自訂名）
   const supabaseForConvCheck = getSupabaseAdminClient() as unknown as SupabaseClient
   const { data: existingGroupConv } = await supabaseForConvCheck
     .from('inbox_conversations')
-    .select('id, display_name')
+    .select('id, display_name, picture_url')
     .eq('workspace_id', workspaceId)
     .eq('channel_type', 'line')
     .eq('external_user_id', externalUserId)
-    .maybeSingle<{ id: string; display_name: string | null }>()
+    .maybeSingle<{ id: string; display_name: string | null; picture_url: string | null }>()
 
-  // 只在首次建立時傳 displayName（無對話 or display_name 仍是預設格式）
-  const shouldSetDisplayName =
-    !existingGroupConv || !existingGroupConv.display_name
+  // 是否要設 display_name：沒對話、或之前是預設格式（「群組 #xxxx」、「LINE 群組」）
+  // 重點：之前是「群組 #末4碼」格式的、也算「沒設過真名」、應該升級成 API 抓到的真名
+  const existingName = existingGroupConv?.display_name
+  const isDefaultName = !existingName || /^群組 #[0-9a-f]{4}$/i.test(existingName) || existingName === 'LINE 群組'
+  const shouldSetDisplayName = isDefaultName
+
+  // 群組名 Phase 2（2026-05-18 William 拍板）：
+  // 一般 OA 即可呼叫 getGroupSummary（實測角落旅遊 OA 可用、不需 Verified）。
+  // 只在「該設新名字」時 fetch、避免每則訊息都打 LINE API。
+  // room（多人臨時聊天室）沒對應 API、走 fallback。
+  const defaultDisplayName = isGroup
+    ? `群組 #${containerId.slice(-4)}`
+    : `多人聊天 #${containerId.slice(-4)}`
+
+  let resolvedDisplayName = defaultDisplayName
+  let resolvedPictureUrl: string | null = null
+  if (shouldSetDisplayName && isGroup) {
+    const summary = await fetchLineGroupSummary({
+      groupId: containerId,
+      channelAccessToken,
+    })
+    if (summary?.groupName) {
+      resolvedDisplayName = summary.groupName
+      resolvedPictureUrl = summary.pictureUrl ?? null
+    }
+  }
 
   const rawContent =
     event.type === 'message' && event.message?.type === 'text'
@@ -537,8 +557,8 @@ async function recordGroupOrRoomMessage(
     content: taggedContent,
     sourceId: event.message?.id ?? null,
     rawEvent: event,
-    ...(shouldSetDisplayName && { displayName: defaultDisplayName }),
-    pictureUrl: null, // 群組 conversation 不放單個成員頭像（避免被最後發訊者覆蓋）
+    ...(shouldSetDisplayName && { displayName: resolvedDisplayName }),
+    pictureUrl: shouldSetDisplayName ? resolvedPictureUrl : null,
   })
 
   // 群組秘書：偵測待辦任務關鍵字 → 自動建 todo
