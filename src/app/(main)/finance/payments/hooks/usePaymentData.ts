@@ -140,8 +140,31 @@ export function usePaymentData() {
     // 背景跑、不擋 button
     void (async () => {
       try {
+        // 撈付款方式設定算 fees + actual_amount（跟 dialog 內按確認一致）
+        // 為什麼：5/18 W 反饋 — 列表核准沒算實收、會計按完看到實收 0、得手動補
+        let calcActual = Number(receipt?.receipt_amount || 0)
+        let calcFees: number | null = null
+        const methodId =
+          (receipt as unknown as { payment_method_id?: string | null })?.payment_method_id ||
+          null
+        if (methodId) {
+          const { supabase } = await import('@/lib/supabase/client')
+          const { data: method } = await supabase
+            .from('payment_methods')
+            .select('fee_percent, fee_fixed')
+            .eq('id', methodId)
+            .maybeSingle()
+          const feePercent = Number(method?.fee_percent || 0)
+          const feeFixed = Number(method?.fee_fixed || 0)
+          const receiptAmount = Number(receipt?.receipt_amount || 0)
+          calcFees = Math.round((receiptAmount * feePercent) / 100) + feeFixed
+          calcActual = receiptAmount - calcFees
+        }
+
         await updateReceipt(receiptId, {
           status: 'confirmed',
+          actual_amount: calcActual,
+          fees: calcFees,
           updated_by: user.id,
         })
 
