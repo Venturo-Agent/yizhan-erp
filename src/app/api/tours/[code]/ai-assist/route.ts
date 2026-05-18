@@ -15,7 +15,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { logger } from '@/lib/utils/logger'
@@ -162,8 +161,7 @@ function parsePatches(raw: string): RawPatch[] {
 // ── Route handler ─────────────────────────────────────────────
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ code: string }> }) {
-  const supabase = await createSupabaseServerClient()
-  const capCheck = await requireCapability(supabase, CAPABILITIES.TOURS_DISPLAY_ITINERARY_WRITE)
+  const capCheck = await requireCapability(CAPABILITIES.TOURS_DISPLAY_ITINERARY_WRITE)
   if (!capCheck.ok) {
     return NextResponse.json({ error: '無展示行程編輯權限' }, { status: 403 })
   }
