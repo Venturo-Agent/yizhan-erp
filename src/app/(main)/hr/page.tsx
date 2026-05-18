@@ -166,13 +166,13 @@ export default function HRPage() {
         render: value => <span className="font-mono text-sm">{String(value || '')}</span>,
       },
       {
-        key: 'display_name',
+        key: 'chinese_name',
         label: t('colName'),
         sortable: true,
         width: '100px',
-        render: (value, employee: EmployeeFull) => (
+        render: (_value, employee: EmployeeFull) => (
           <span className="font-medium">
-            {String(value || employee.chinese_name || t('unnamedEmployee'))}
+            {String(employee.chinese_name || employee.display_name || t('unnamedEmployee'))}
           </span>
         ),
       },
@@ -323,7 +323,7 @@ export default function HRPage() {
         data={filteredEmployees}
         columns={columns}
         searchFields={
-          ['display_name', 'employee_number', 'personal_info'] as (keyof EmployeeFull)[]
+          ['chinese_name', 'display_name', 'employee_number', 'personal_info'] as (keyof EmployeeFull)[]
         }
         searchPlaceholder={t('searchPlaceholder')}
         onRowClick={handleEmployeeClick}

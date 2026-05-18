@@ -19,6 +19,7 @@ import {
 import { apiPost } from '@/lib/api/client'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
+import { cn } from '@/lib/utils'
 import type { ChannelMessage } from '@/types/channel.types'
 import { SendAnnouncementDialog } from './SendAnnouncementDialog'
 import { ChannelMembersDialog } from './ChannelMembersDialog'
@@ -39,11 +40,15 @@ export function ChannelView({ channelId }: Props) {
   const { items: aiAgents } = useAiAgentsSlim()
 
   const [draft, setDraft] = useState('')
-  // 5/14：sending state 已不再 await API、輸入區永不卡（只在 pendingBody 不為 null 時顯示 pending bubble）
-  const sending = false
-  // Optimistic：送出後立刻顯示 pending bubble、不等 API、Realtime 推到時 UI 自然 swap
-  // 5/14 修：原本 user 看「送出中」直到 API response、體感很慢
+  // 樂觀更新 v5（5/18、local state 兜底）：
+  //   - SWR mutate / invalidate / refresh 在 dedupingInterval=Infinity + fallbackData 配置下都不可靠
+  //   - 直接用 local state recentlySent 存 server return 的完整 row
+  //   - sortedMessages 合併 messages + recentlySent、dedupe by id 顯示
+  //   - 之後 realtime / SWR re-fetch 真的撈到時、useEffect 清掉 recentlySent 不重複顯示
+  //   - 換 channel 時清空 recentlySent
   const [pendingBody, setPendingBody] = useState<string | null>(null)
+  const [recentlySent, setRecentlySent] = useState<ChannelMessage[]>([])
+  const sending = pendingBody !== null
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [membersOpen, setMembersOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -85,11 +90,34 @@ export function ChannelView({ channelId }: Props) {
   }, [messages?.length])
 
   const sortedMessages = useMemo(() => {
-    return (messages ?? [])
+    // 合併 SWR cache 跟 local recentlySent（剛送出、SWR 還沒撈到的）
+    // dedupe by id：之後 realtime / re-fetch 撈到時不重複顯示
+    const combined = [...(messages ?? []), ...recentlySent]
+    const seen = new Set<string>()
+    return combined
+      .filter(m => {
+        if (seen.has(m.id)) return false
+        seen.add(m.id)
+        return true
+      })
       .filter(m => m.channel_id === channelId)
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
     // 撤回訊息仍 SELECT 出來、UI 顯示佔位「本訊息已撤回」、不從清單移除
-  }, [messages, channelId])
+  }, [messages, recentlySent, channelId])
+
+  // 清理 recentlySent：messages 已含的 id 從 local state 移除（避免無限累積）
+  useEffect(() => {
+    if (recentlySent.length === 0) return
+    const msgIds = new Set((messages ?? []).map(m => m.id))
+    if (recentlySent.some(m => msgIds.has(m.id))) {
+      setRecentlySent(prev => prev.filter(m => !msgIds.has(m.id)))
+    }
+  }, [messages, recentlySent])
+
+  // 換 channel 時清空 recentlySent、不要把 A channel 的訊息漏到 B channel
+  useEffect(() => {
+    setRecentlySent([])
+  }, [channelId])
 
   const channelMemberCount = useMemo(
     () => (members ?? []).filter(m => m.channel_id === channelId).length,
@@ -137,29 +165,42 @@ export function ChannelView({ channelId }: Props) {
       return
     }
 
-    // 樂觀體驗 v3（5/14、fire-and-forget）：
-    // 1. 立刻清 draft + 設 pendingBody（pending bubble 在列表末尾顯示）
-    // 2. 不 await API — Realtime postgres_changes 推回真實 row 時自動 swap
-    // 3. 失敗才 toast + 還原 draft
-    // 這樣 user 點送出後感受是「秒送」、API round-trip 在背景跑
+    // 樂觀更新 v4（5/18、await + invalidate、不靠 realtime）：
+    //   1. 立刻清 draft + 設 pendingBody（pending bubble 靠右瞬間出現）
+    //   2. await apiPost 拿 server 寫入 OK
+    //   3. invalidateChannelMessages() 重撈、真實 row 進 cache
+    //   4. finally setPendingBody(null)、pending bubble 被真實 row 接位
+    //   5. 失敗 toast + 還原 draft
+    //   pendingBody !== null 期間鎖住送出按鈕、防雙擊誤傳兩次
     const optimisticBody = body
     setDraft('')
     setPendingBody(optimisticBody)
-    void apiPost('/api/channels/messages', {
-      channel_id: channelId,
-      body: optimisticBody,
-      message_type: 'text',
-    })
-      .catch((err) => {
-        logger.error('發送訊息失敗', err)
-        toast.error('發送失敗、請再試一次')
-        setDraft(optimisticBody) // 失敗還原 draft、不掉字
-      })
-      .finally(() => {
-        // pending bubble 保留 1.5 秒、給 Realtime 推真實 message 進來覆蓋
-        // 太短會在 Realtime 慢時短暫消失再出現、太長 user 會覺得在等
-        setTimeout(() => setPendingBody(null), 1500)
-      })
+    try {
+      const response = await apiPost<{ message: ChannelMessage }>(
+        '/api/channels/messages',
+        {
+          channel_id: channelId,
+          body: optimisticBody,
+          message_type: 'text',
+        }
+      )
+      // Local state 兜底：server return 完整 row 直接 push 進 recentlySent
+      // sortedMessages 會合併 messages + recentlySent dedupe 顯示
+      // 不靠 SWR mutate / fetcher、保證秒看到
+      const serverMsg = response.message
+      if (serverMsg?.id) {
+        setRecentlySent(prev => {
+          if (prev.some(m => m.id === serverMsg.id)) return prev
+          return [...prev, serverMsg]
+        })
+      }
+    } catch (err) {
+      logger.error('發送訊息失敗', err)
+      toast.error('發送失敗、請再試一次')
+      setDraft(optimisticBody) // 失敗還原 draft、不掉字
+    } finally {
+      setPendingBody(null)
+    }
   }
 
   // 撤回訊息：is_active=false + revoked_at（拍板 Q7）
@@ -260,21 +301,42 @@ export function ChannelView({ channelId }: Props) {
         {sortedMessages.map(msg => {
           const isRevoked = !msg.is_active
           const isMine = msg.sender_employee_id === user?.id
+          const isSystem = msg.message_type === 'system'
+
+          // 系統訊息：完全置中、不分左右、不顯示頭像名字
+          if (isSystem) {
+            return (
+              <div key={msg.id} className="flex justify-center py-1">
+                <p className="text-xs text-morandi-muted italic">{msg.body}</p>
+              </div>
+            )
+          }
+
           const avatar = senderAvatar(msg)
           return (
-            <div key={msg.id} className="flex gap-3 group">
-              {/* 頭像 32×32 圓形、有圖顯圖、無圖顯姓氏首字 */}
-              <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
-                {avatar.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatar.url} alt={senderName(msg)} className="w-full h-full object-cover" />
-                ) : (
-                  <span>{avatar.initial}</span>
-                )}
-              </div>
-              <div className="flex-1 flex flex-col gap-1">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-sm font-medium text-morandi-primary">{senderName(msg)}</span>
+            <div
+              key={msg.id}
+              className={cn('flex gap-3 group', isMine && 'flex-row-reverse')}
+            >
+              {/* 對方 / bot 訊息才有頭像；自己訊息不顯示頭像（自己當然知道是自己） */}
+              {!isMine && (
+                <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
+                  {avatar.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatar.url} alt={senderName(msg)} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{avatar.initial}</span>
+                  )}
+                </div>
+              )}
+              <div className={cn('flex flex-col gap-1 max-w-[70%] min-w-0', isMine && 'items-end')}>
+                <div className={cn('flex items-baseline gap-2', isMine && 'flex-row-reverse')}>
+                  {/* 自己訊息不顯示自己名字；對方 / bot 訊息才顯示 */}
+                  {!isMine && (
+                    <span className="text-sm font-medium text-morandi-primary">
+                      {senderName(msg)}
+                    </span>
+                  )}
                   <span className="text-xs text-morandi-muted">
                     {new Date(msg.created_at).toLocaleTimeString('zh-TW', {
                       hour: '2-digit',
@@ -295,35 +357,36 @@ export function ChannelView({ channelId }: Props) {
                   <p className="text-xs text-morandi-muted italic bg-morandi-container/40 rounded px-2 py-1 inline-block w-fit">
                     本訊息已撤回
                   </p>
-                ) : msg.message_type === 'system' ? (
-                  <p className="text-xs text-morandi-muted italic">{msg.body}</p>
                 ) : (
-                  <p className="text-sm text-morandi-primary whitespace-pre-wrap">{msg.body}</p>
+                  <p
+                    className={cn(
+                      'text-sm text-morandi-primary whitespace-pre-wrap break-words rounded-2xl px-3 py-2 inline-block',
+                      isMine
+                        ? 'bg-morandi-gold/20 rounded-tr-sm'
+                        : 'bg-morandi-container/60 rounded-tl-sm'
+                    )}
+                  >
+                    {msg.body}
+                  </p>
                 )}
               </div>
             </div>
           )
         })}
 
-        {/* Optimistic pending bubble — 5/14 修：user 送出秒看到、不等 API */}
+        {/* Optimistic pending bubble — 自己送的、靠右、無頭像、轉圈圈代替時間 */}
         {pendingBody && (
-          <div className="flex gap-3 group opacity-60">
-            <div className="w-8 h-8 rounded-full bg-morandi-gold/40 flex items-center justify-center text-xs font-medium shrink-0">
-              {(getEmployee(user?.id || '')?.display_name || user?.email || '我')[0]}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-2">
-                <span className="text-sm font-medium text-morandi-primary">
-                  {getEmployee(user?.id || '')?.display_name || '我'}
-                </span>
+          <div className="flex flex-row-reverse gap-3 group opacity-60">
+            <div className="flex flex-col gap-1 max-w-[70%] min-w-0 items-end">
+              <div className="flex flex-row-reverse items-baseline gap-2">
                 <span className="text-xs text-morandi-muted flex items-center gap-1">
                   <Loader2 className="h-3 w-3 animate-spin" />
                   傳送中
                 </span>
               </div>
-              <div className="text-sm text-morandi-primary whitespace-pre-wrap break-words mt-0.5">
+              <p className="text-sm text-morandi-primary whitespace-pre-wrap break-words rounded-2xl rounded-tr-sm px-3 py-2 inline-block bg-morandi-gold/20">
                 {pendingBody}
-              </div>
+              </p>
             </div>
           </div>
         )}

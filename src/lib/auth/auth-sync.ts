@@ -227,15 +227,26 @@ export function resetAuthSyncState(): void {
 
 /**
  * 設定 Auth 狀態監聽器
- * 只處理登出，其他情況不需要自動同步（登入時已處理）
+ *
+ * 處理兩件事：
+ * 1. SIGNED_OUT 時重置 sync state
+ * 2. SIGNED_IN / TOKEN_REFRESHED / INITIAL_SESSION 時、把 JWT push 給 realtime client
+ *    這條是 @supabase/ssr 的 known gap：cookie session 走 REST 自動帶 token、
+ *    但 realtime websocket 預設用 anon token、不會跟 cookie sync。
+ *    沒這條 → realtime postgres_changes 對 RLS table 收不到任何 event。
  */
 function setupAuthSyncListener(): () => void {
   const {
     data: { subscription },
-  } = supabase.auth.onAuthStateChange(event => {
-    // 只在登出時重置狀態，其他事件不處理
+  } = supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
+      supabase.realtime.setAuth(null)
       resetAuthSyncState()
+      return
+    }
+
+    if (session?.access_token) {
+      supabase.realtime.setAuth(session.access_token)
     }
   })
 
@@ -246,7 +257,10 @@ function setupAuthSyncListener(): () => void {
 
 /**
  * 初始化 Auth 同步系統
- * 只設定登出監聽器，不主動檢查（登入時已處理）
+ *
+ * 1. 設定 onAuthStateChange listener（含 realtime token sync）
+ * 2. 開機先撈一次 session、有就立刻 push 給 realtime
+ *    修頁面初次 hydrate 時 race condition：listener 還沒掛上、session 已存在 cookie
  */
 let isInitialized = false
 
@@ -257,6 +271,12 @@ export function initAuthSync(): void {
 
   isInitialized = true
 
-  // 只設定登出監聽器
   setupAuthSyncListener()
+
+  // 開機 token 初始化、不擋主流程
+  void supabase.auth.getSession().then(({ data }) => {
+    if (data.session?.access_token) {
+      supabase.realtime.setAuth(data.session.access_token)
+    }
+  })
 }

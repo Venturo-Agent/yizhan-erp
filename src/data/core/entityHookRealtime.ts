@@ -16,6 +16,7 @@ import { useEffect } from 'react'
 import { mutate as globalMutate } from 'swr'
 import { supabase } from '@/lib/supabase/client'
 import { invalidate_cache_pattern } from '@/lib/cache/indexeddb-cache'
+import { logger } from '@/lib/utils/logger'
 
 /**
  * 訂閱某張 Supabase table 的所有 postgres_changes。
@@ -38,7 +39,13 @@ export function useRealtimeSync(tableName: string, cacheKeyPrefix: string): void
         // 同步清 IndexedDB 快取
         invalidate_cache_pattern(cacheKeyPrefix)
       })
-      .subscribe()
+      .subscribe((status, err) => {
+        // 訂閱結果觀測：SUBSCRIBED / TIMED_OUT / CHANNEL_ERROR / CLOSED
+        // 之前缺這條、realtime 靜默壞掉 user 看不出
+        if (status !== 'SUBSCRIBED') {
+          logger.warn(`realtime subscribe non-OK [${tableName}]`, { status, err })
+        }
+      })
 
     return () => {
       supabase.removeChannel(channel)

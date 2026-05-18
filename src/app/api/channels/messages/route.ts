@@ -84,7 +84,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
       reply_to_id,
       recipient_employee_id,
     })
-    .select('id, channel_id, created_at')
+    .select('*')
     .single()
 
   if (error) return dbErrorResponse(error)

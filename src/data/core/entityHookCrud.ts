@@ -33,12 +33,13 @@ export interface CrudContext {
 // ============================================
 
 export async function invalidateEntity(ctx: CrudContext): Promise<void> {
+  // 5/18 William 拍板：startsWith(prefix) predicate 對 SWR mutate 行為不可靠、
+  // 全 app 寫入後普遍要 F5 才看得到結果（收款管理 / channel / 出納 / 全部）。
+  // 改 `() => true` 強制全 cache revalidate、寫入後所有頁面 hook 一起重撈。
+  // tradeoff：寫入瞬間 Supabase 讀取量衝高（一次性 burst、不是持續）、
+  // 換來 user「寫完就看到」的體驗、跟 line ai hub 的 apiMutate 同等級。
   await Promise.all([
-    globalMutate(
-      (key: string) => typeof key === 'string' && key.startsWith(ctx.cacheKeyPrefix),
-      undefined,
-      { revalidate: true }
-    ),
+    globalMutate(() => true, undefined, { revalidate: true }),
     invalidate_cache_pattern(ctx.cacheKeyPrefix),
   ])
 }
