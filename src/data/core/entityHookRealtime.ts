@@ -27,6 +27,15 @@ import { logger } from '@/lib/utils/logger'
  */
 export function useRealtimeSync(tableName: string, cacheKeyPrefix: string): void {
   useEffect(() => {
+    // 5/18 強化：subscribe 時補一次 setAuth。
+    // client.ts module-level fire-and-forget 跟 useEffect mount 有 race、
+    // subscribe 比 setAuth 早跑就會用 anon token、RLS 擋光 events。
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.access_token) {
+        supabase.realtime.setAuth(data.session.access_token)
+      }
+    })
+
     const channel = supabase
       .channel(`realtime:${tableName}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: tableName }, () => {

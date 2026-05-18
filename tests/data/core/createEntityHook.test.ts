@@ -198,6 +198,14 @@ vi.mock('@/lib/supabase/client', () => ({
     })),
     channel: vi.fn((name: string) => mockMakeChannel(name)),
     removeChannel: vi.fn((channel: MockChannel) => mockDoRemoveChannel(channel)),
+    auth: {
+      getSession: vi.fn(() =>
+        Promise.resolve({ data: { session: { access_token: 'mock-token' } }, error: null })
+      ),
+    },
+    realtime: {
+      setAuth: vi.fn(),
+    },
   },
 }))
 
