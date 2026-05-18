@@ -5,6 +5,7 @@ import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
 import { Save, Loader2, AlertCircle } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { SettingsTabs } from '../components/SettingsTabs'
 import { supabase } from '@/lib/supabase/client'
@@ -55,7 +56,7 @@ export default function CompanySettingsPage() {
       const { data, error } = await supabase
         .from('workspaces')
         .select(
-          'name, description, logo_url, legal_name, subtitle, address, phone, fax, email, website, tax_id, bank_code, bank_name, bank_branch, bank_account, bank_account_name, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order'
+          'name, description, logo_url, legal_name, subtitle, address, phone, fax, email, website, tax_id, bank_code, bank_name, bank_branch, bank_account, bank_account_name, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order, finance_centralized'
         )
         .eq('id', workspaceId)
         .single()
@@ -97,6 +98,7 @@ export default function CompanySettingsPage() {
                 : null,
           transfer_fee_overflow_account_id:
             (d.transfer_fee_overflow_account_id as string) ?? null,
+          finance_centralized: Boolean(d.finance_centralized),
         })
         const ord = d.bonus_calculation_order as string | null
         setBonusCalculationOrder(
@@ -219,6 +221,23 @@ export default function CompanySettingsPage() {
             )}
           </Button>
         </div>
+
+        {/* 財務政策 — 集團出帳 toggle */}
+        <Card className="rounded-xl shadow-sm border border-border p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-base font-semibold text-morandi-primary">集團出帳</p>
+              <p className="text-sm text-morandi-secondary mt-1">
+                勾選後、會計可看跨分公司的請款 / 出納 / 收據 / 發票（適合總公司集中處理）。關閉則每個分公司只看自己的 finance。
+              </p>
+            </div>
+            <Switch
+              checked={form.finance_centralized}
+              onCheckedChange={v => updateField('finance_centralized', v)}
+              aria-label="集團出帳"
+            />
+          </div>
+        </Card>
 
         {/* 獎金政策（計算順序） */}
         <BonusPolicySection workspaceId={workspaceId} initialOrder={bonusCalculationOrder} />

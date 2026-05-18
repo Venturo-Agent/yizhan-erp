@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import { HR_ADMIN_TABS } from './components/hr-admin-tabs'
 import { Users, SquarePen, UserX, Plus, Trash2, Calculator } from 'lucide-react'
 import { useRoles } from '@/data/hooks'
+import { useBranches } from '@/data/hooks/useBranches'
 import { TableColumn } from '@/components/ui/enhanced-table'
 import { DateCell, ActionCell } from '@/components/table-cells'
 import { StatusBadge, type StatusTone } from '@/components/ui/status-badge'
@@ -33,6 +34,7 @@ export default function HRPage() {
 
   // 職務列表走 useRoles SWR hook、跨頁共享 cache、不再自己 fetch
   const { roles: rolesData } = useRoles()
+  const { branches: branchesData } = useBranches()
 
   useEffect(() => {
     fetchAll()
@@ -193,6 +195,21 @@ export default function HRPage() {
         },
       },
       {
+        key: 'branch_id',
+        label: '分公司',
+        sortable: false,
+        width: '110px',
+        render: (_value, employee: EmployeeFull) => {
+          const branchId = (employee as unknown as { branch_id?: string | null }).branch_id
+          const branch = branchesData.find(b => b.id === branchId)
+          return (
+            <span className={`text-sm ${branch ? 'text-morandi-primary' : 'text-morandi-muted'}`}>
+              {branch?.name || t('notSet')}
+            </span>
+          )
+        },
+      },
+      {
         key: 'personal_info',
         label: t('colContact'),
         sortable: false,
@@ -255,7 +272,7 @@ export default function HRPage() {
         },
       },
     ],
-    [rolesData]
+    [rolesData, branchesData, t]
   )
 
   const renderActions = useCallback(

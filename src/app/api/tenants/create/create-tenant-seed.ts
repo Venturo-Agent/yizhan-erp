@@ -22,9 +22,20 @@ import {
 import type { BrandPayload } from './create-tenant-validation'
 
 // Corner workspace 當全站職務模板的來源。
-// 2026-05-16 QDF R40：env 優先、fallback 保留歷史值
-const CORNER_WORKSPACE_ID =
-  process.env.PLATFORM_WORKSPACE_ID || '8ef05a74-1f87-48ab-afd3-9bfeb423935d'
+// 2026-05-18：原 hardcode fallback ID 過時、改成 env > 動態查 code='CORNER' > 最後 hardcode
+// （hardcode 留作雙保險、但實際走前兩條）
+const CORNER_HARDCODE_FALLBACK = '8ef05a74-1f87-48ab-afd3-9bfeb423935d'
+
+async function resolveCornerWorkspaceId(supabaseAdmin: SupabaseClient): Promise<string> {
+  const fromEnv = process.env.PLATFORM_WORKSPACE_ID
+  if (fromEnv) return fromEnv
+  const { data } = await supabaseAdmin
+    .from('workspaces')
+    .select('id')
+    .eq('code', 'CORNER')
+    .maybeSingle()
+  return (data as { id: string } | null)?.id || CORNER_HARDCODE_FALLBACK
+}
 
 // 4 角色對齊 William 03:55 拍板：管理員（系統主管） / 業務 / 助理 / 會計 / 團控
 const DEFAULT_ROLE_NAMES = ['系統主管', '業務', '會計', '助理', '團控'] as const
@@ -81,10 +92,11 @@ export async function seedRolesAndCapabilities(
 
   // 6. 從 Corner 模板複製 role_capabilities
   // 注意：'團控' 是新增的角色、Corner 可能還沒有、capability 數會偏少；fallback：直接給空（後續 William 手動補）
+  const cornerWorkspaceId = await resolveCornerWorkspaceId(supabaseAdmin)
   const { data: cornerRoles, error: cornerRolesError } = await supabaseAdmin
     .from('workspace_roles')
     .select('id, name')
-    .eq('workspace_id', CORNER_WORKSPACE_ID)
+    .eq('workspace_id', cornerWorkspaceId)
     .in('name', DEFAULT_ROLE_NAMES as unknown as string[])
 
   if (cornerRolesError) {
@@ -226,6 +238,10 @@ export async function seedWorkspaceFeatures(
       .filter(f => f.includes('.'))
   )
 
+  // 某些 tab.code 跟獨立 module feature 同名（例：database.customers tab vs customers module）
+  // 這種 tab 的開關必須對齊 module feature、不是看 parent module
+  const moduleFeatureCodes = new Set(allModuleFeatures)
+
   const tabFeatures: { feature_code: string; enabled: boolean }[] = []
   for (const m of MODULES) {
     for (const t of m.tabs) {
@@ -235,6 +251,9 @@ export async function seedWorkspaceFeatures(
       if (advancePickTabCodes.has(key)) {
         // Special tab only enabled if explicitly included in plan (e.g. tours.contract)
         enabled = planFeatureSet.has(key)
+      } else if (moduleFeatureCodes.has(t.code)) {
+        // tab 跟某 module feature 同名（如 customers）→ 對齊 module feature 狀態
+        enabled = planFeatureSet.has(t.code)
       } else {
         enabled = planFeatureSet.has(m.code) && t.category !== 'premium'
       }
@@ -394,12 +413,13 @@ export async function seedCountriesFromCorner(
   workspaceId: string
 ): Promise<void> {
   try {
+    const cornerWorkspaceId = await resolveCornerWorkspaceId(supabaseAdmin)
     const { data: cornerCountries } = await supabaseAdmin
       .from('countries')
       .select(
         'id, code, name, name_en, region, workspace_id, usage_count, emoji, has_regions, is_active, display_order'
       )
-      .eq('workspace_id', CORNER_WORKSPACE_ID)
+      .eq('workspace_id', cornerWorkspaceId)
     if (cornerCountries && cornerCountries.length > 0) {
       const newCountries = cornerCountries.map((c: Record<string, unknown>) => ({
         ...c,

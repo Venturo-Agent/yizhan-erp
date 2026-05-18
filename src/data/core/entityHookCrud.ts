@@ -123,7 +123,23 @@ export async function createEntity<T extends BaseEntity>(
         .single()
 
       if (!error) {
-        return created as unknown as T
+        // 樂觀 push 進 list / slim cache（避免 UI 跟 SWR refetch race、新增完不用等 refetch 就看得到）
+        // 注意：list / slim select 欄位不同、push 同一個 row 進兩個 cache、Supplier slim 沒包的欄位不會被存取（caller 自我克制）
+        const createdRow = created as unknown as T
+        globalMutate(
+          (key: unknown) =>
+            typeof key === 'string' &&
+            (key === ctx.cacheKeyList || key.startsWith(ctx.cacheKeyList + ':')),
+          (current: T[] | undefined) => [...(current || []), createdRow],
+          { revalidate: true }
+        )
+        globalMutate(
+          (key: unknown) =>
+            typeof key === 'string' && key.startsWith(ctx.cacheKeyPrefix + ':slim'),
+          (current: T[] | undefined) => [...(current || []), createdRow],
+          { revalidate: true }
+        )
+        return createdRow
       }
 
       const errorCode = (error as { code?: string })?.code

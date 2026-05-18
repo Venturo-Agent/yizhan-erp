@@ -27,6 +27,8 @@ export interface CompanyFormData {
   transfer_fee_unified_amount: number | null
   /** unified 模式下、差額入哪個 bank_account（公司收入） */
   transfer_fee_overflow_account_id: string | null
+  /** 集團出帳：勾選後會計可看跨分公司 finance（請款 / 出納 / 收據 / 發票）、適合總公司集中處理 */
+  finance_centralized: boolean
 }
 
 export interface BankAccountOption {
@@ -60,4 +62,5 @@ export const INITIAL_FORM: CompanyFormData = {
   transfer_fee_mode: 'average',
   transfer_fee_unified_amount: null,
   transfer_fee_overflow_account_id: null,
+  finance_centralized: false,
 }
