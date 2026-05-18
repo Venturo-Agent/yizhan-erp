@@ -3,7 +3,8 @@
  */
 
 import { logger } from '@/lib/utils/logger'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { useAuthStore } from '@/stores'
 import {
   useOrdersSlim,
@@ -25,10 +26,25 @@ export function usePaymentData() {
   const t = useTranslations('finance')
   const { items: orders, loading: ordersLoading } = useOrdersSlim()
   const {
-    items: receipts,
+    items: rawReceipts,
     loading: receiptsLoading,
     refresh: refreshReceiptsHook,
   } = useReceipts()
+
+  // 樂觀更新 state：收款核准等動作按下去立刻變狀態、後台慢慢跑
+  // 失敗 / refresh 完成後清掉、讓 server 真實值顯示
+  const [optimisticStatus, setOptimisticStatus] = useState<Record<string, string>>({})
+
+  // 合併 raw receipts + optimistic 覆寫
+  const receipts = useMemo(
+    () =>
+      rawReceipts.map(r =>
+        optimisticStatus[r.id]
+          ? ({ ...r, status: optimisticStatus[r.id] as typeof r.status })
+          : r
+      ),
+    [rawReceipts, optimisticStatus]
+  )
 
   // 合併 loading 狀態
   const loading = ordersLoading || receiptsLoading
@@ -106,43 +122,71 @@ export function usePaymentData() {
 
   // 確認收款（狀態改 confirmed、actual_amount 沿用建單時自動算的值、不覆蓋）
   // 確認後自動產生會計傳票（含手續費三行分錄）
+  //
+  // 5/18 改樂觀更新 + fire-and-forget：
+  //   - 按下去立刻 setOptimisticStatus、UI 秒變 confirmed、user 體感即時
+  //   - server 整串（update + recalc + voucher + refresh）背景跑
+  //   - 失敗 rollback optimistic + toast、user 看到 UI 變回 pending
   const handleConfirmReceipt = async (receiptId: string) => {
     if (!user?.id) {
       throw new Error(t('pleaseLogin'))
     }
 
-    const receipt = receipts.find(r => r.id === receiptId)
+    const receipt = rawReceipts.find(r => r.id === receiptId)
 
-    await updateReceipt(receiptId, {
-      status: 'confirmed',
-      updated_by: user.id,
-    })
+    // 樂觀更新：立刻在 UI 顯示 confirmed
+    setOptimisticStatus(prev => ({ ...prev, [receiptId]: 'confirmed' }))
 
-    if (receipt) {
-      await recalculateReceiptStats(receipt.order_id, receipt.tour_id || null)
-    }
-
-    // 產生傳票（沒啟用會計 / 沒綁科目 → API throw、catch 吞掉、不中斷確認流程）
-    try {
-      const wsId = user?.workspace_id
-      if (wsId) {
-        await apiMutate('/api/accounting/vouchers/auto-create', {
-          method: 'POST',
-          body: {
-            source_type: 'receipt',
-            source_id: receiptId,
-            workspace_id: wsId,
-          },
+    // 背景跑、不擋 button
+    void (async () => {
+      try {
+        await updateReceipt(receiptId, {
+          status: 'confirmed',
+          updated_by: user.id,
         })
-      }
-    } catch (err) {
-      logger.error('產生收款傳票失敗:', err)
-    }
 
-    // 5/18 直擊：globalMutate(predicate) 對 entity hook cache key 不可靠、
-    // 改 await 本 hook 自己的 refresh()（individual mutate(swrKey)、SWR 對單一 key 行為穩）
-    await invalidateReceipts()
-    await refreshReceiptsHook()
+        if (receipt) {
+          await recalculateReceiptStats(receipt.order_id, receipt.tour_id || null)
+        }
+
+        // 產生傳票（沒啟用會計 / 沒綁科目 → API throw、catch 吞掉、不中斷確認流程）
+        try {
+          const wsId = user?.workspace_id
+          if (wsId) {
+            await apiMutate('/api/accounting/vouchers/auto-create', {
+              method: 'POST',
+              body: {
+                source_type: 'receipt',
+                source_id: receiptId,
+                workspace_id: wsId,
+              },
+            })
+          }
+        } catch (err) {
+          logger.error('產生收款傳票失敗:', err)
+        }
+
+        await invalidateReceipts()
+        await refreshReceiptsHook()
+      } catch (err) {
+        // 失敗 rollback、UI 變回 pending
+        setOptimisticStatus(prev => {
+          const next = { ...prev }
+          delete next[receiptId]
+          return next
+        })
+        logger.error('確認收款失敗:', err)
+        toast.error('確認失敗、請再試一次')
+        return
+      }
+
+      // 成功 + refresh 完、清掉 optimistic（讓 server 真實值接位）
+      setOptimisticStatus(prev => {
+        const next = { ...prev }
+        delete next[receiptId]
+        return next
+      })
+    })()
   }
 
   // 更新收款單（編輯模式使用）

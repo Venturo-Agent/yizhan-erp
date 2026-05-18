@@ -285,8 +285,9 @@ export default function PaymentsPage() {
               if (row.status === 'pending_verify') {
                 await handleVerifyPayment(row.id)
               } else {
-                await handleConfirmReceipt(row.id)
-                await invalidateReceipts()
+                // handleConfirmReceipt 內部已 fire-and-forget + 樂觀更新 + invalidate
+                // 不要 await（會等不到、本來就 sync return）也不要再 invalidate（重複）
+                handleConfirmReceipt(row.id)
               }
             }}
             className="h-7 px-2 text-xs text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10"
