@@ -89,10 +89,19 @@ export function createEntityHook<T extends BaseEntity>(
   }
 
   // SWR 配置
+  // 5/18 修：dedupingInterval 解綁 staleTime、不用 Infinity。
+  //
+  // 原本綁 staleTime = Infinity → dedupingInterval = Infinity、假設「Realtime 推送一定通、
+  // 寫入靠推送更新、不靠 mutate revalidate」。實際 Realtime 因 supabase-js + ssr cookie
+  // INITIAL_SESSION 漏接 JWT bug 沒通（已修但生效要 hard reload），這個假設崩盤、
+  // 所有寫入後的 mutate revalidate 都被 Infinity dedupe 砍掉、UI 永遠卡 stale 要 F5。
+  //
+  // 改 2000ms（SWR 預設）：同 key 2 秒內重複 fetch 才 dedupe、mutate 強制 revalidate 不卡。
+  // staleTime 仍 Infinity（cache 永不過期、不主動 polling、不增加 Supabase 讀取量）。
   const swrConfig = {
     revalidateOnFocus: cacheConfig.revalidateOnFocus,
     revalidateOnReconnect: cacheConfig.revalidateOnReconnect,
-    dedupingInterval: cacheConfig.dedupe ? cacheConfig.staleTime : 0,
+    dedupingInterval: 2000,
   }
 
   // CRUD context（傳入各 CRUD 函式）
