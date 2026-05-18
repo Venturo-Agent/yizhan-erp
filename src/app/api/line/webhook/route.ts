@@ -32,7 +32,7 @@ import type { Json } from '@/lib/supabase/types'
 import { verifyLineSignature } from '@/lib/line/verify-signature'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { processIncomingTextMessage } from '@/lib/line/handler'
-import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile, fetchLineGroupSummary } from '@/lib/line/profile-client'
+import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile, fetchLineGroupSummary, fetchLineGroupMemberIds } from '@/lib/line/profile-client'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
 import { downloadAndStoreLineMedia } from '@/lib/line/media-client'
 import { upsertDebounceAccumulate } from '@/lib/line/debounce'
@@ -530,6 +530,14 @@ async function recordGroupOrRoomMessage(
       resolvedDisplayName = summary.groupName
       resolvedPictureUrl = summary.pictureUrl ?? null
     }
+
+    // 同時 backfill 全員 profile（連沒講過話的、未來看訊息能直接看到名字）
+    // 不擋主流程、async fire-and-forget
+    void backfillGroupMembers({
+      workspaceId,
+      groupId: containerId,
+      channelAccessToken,
+    })
   }
 
   const rawContent =
@@ -568,6 +576,84 @@ async function recordGroupOrRoomMessage(
       workspaceId,
       rawText: rawContent,
       senderName,
+    })
+  }
+}
+
+/**
+ * 群組第一次進來、把全員 profile 一次抓回來 cache 進 line_user_profiles。
+ *
+ * 為什麼：
+ *   原本只有「發訊者」才會被抓 profile、cache 起來。沒講過話的成員、後台
+ *   看不到名字。這個 helper 在 bot 第一次見到群組時、用 members/ids + 逐個
+ *   getGroupMemberProfile 把全員名字 + 頭像補齊。
+ *
+ * 設計：
+ *   - fire-and-forget 跑、不阻塞 webhook
+ *   - 只抓 line_user_profiles 沒 cache 過的成員、避免重打 API
+ *   - 失敗不擋（API 偶爾 429 也吞掉）
+ *
+ * 觸發點：recordGroupOrRoomMessage 內、shouldSetDisplayName=true 時呼叫
+ *   （= 第一次見群組 / 之前是預設名）。
+ */
+async function backfillGroupMembers(args: {
+  workspaceId: string
+  groupId: string
+  channelAccessToken: string
+}): Promise<void> {
+  const { workspaceId, groupId, channelAccessToken } = args
+  try {
+    const memberIds = await fetchLineGroupMemberIds({ groupId, channelAccessToken })
+    if (!memberIds || memberIds.length === 0) return
+
+    const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
+
+    // 篩出還沒 cache 過名字的（已有就跳、不重打 API）
+    const { data: existing } = await supabase
+      .from('line_user_profiles')
+      .select('line_user_id, display_name')
+      .eq('workspace_id', workspaceId)
+      .in('line_user_id', memberIds)
+
+    const cachedSet = new Set(
+      ((existing ?? []) as { line_user_id: string; display_name: string | null }[])
+        .filter(p => p.display_name)
+        .map(p => p.line_user_id)
+    )
+    const missing = memberIds.filter(id => !cachedSet.has(id))
+
+    logger.info(`${HANDLER_NAME}: backfill group members`, {
+      groupId,
+      total: memberIds.length,
+      cached: cachedSet.size,
+      toFetch: missing.length,
+    })
+
+    // 逐個抓（small group 100ms each 也才幾秒、不擋 webhook 因為 fire-and-forget）
+    for (const userId of missing) {
+      const profile = await fetchLineGroupMemberProfile({
+        groupId,
+        lineUserId: userId,
+        channelAccessToken,
+      })
+      if (!profile) continue
+      await supabase.from('line_user_profiles').upsert(
+        {
+          workspace_id: workspaceId,
+          line_user_id: userId,
+          display_name: profile.displayName,
+          picture_url: profile.pictureUrl ?? null,
+          language: profile.language ?? null,
+          last_seen_at: null, // 沒講過話、不該動 last_seen_at
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'workspace_id,line_user_id' }
+      )
+    }
+  } catch (err) {
+    logger.debug(`${HANDLER_NAME}: backfillGroupMembers failed (ignored)`, {
+      groupId,
+      err: err instanceof Error ? err.message : String(err),
     })
   }
 }
