@@ -64,7 +64,7 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
   // Auth check - 只用於寫入操作，讀取不需要等待 hydration
   const user = useAuthStore(state => state.user)
   const capabilities = useAuthStore(state => state.capabilities)
-  const hasCrossBranchRead = capabilities.includes(CAPABILITIES.CROSS_BRANCH_READ)
+  const hasCrossBranchRead = (capabilities ?? []).includes(CAPABILITIES.CROSS_BRANCH_READ)
 
   // 分公司過濾：有 branch_id 且沒 cross_branch.read → 只看自己分公司
   const branchId = !hasCrossBranchRead ? (user?.branch_id ?? null) : null
