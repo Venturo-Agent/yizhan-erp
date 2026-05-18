@@ -206,15 +206,49 @@ export function PaymentItemRow({
           )}
         </td>
 
-        {/* 備註（沒核帳權時、刪除按鈕掛這格右邊） */}
+        {/* 備註 */}
         <td className="py-2 px-3 border-b border-border/50">
-          <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={item.notes || ''}
+            onChange={e => onUpdate(item.id, { notes: e.target.value })}
+            placeholder={t('paymentItemRemarks')}
+            className="input-no-focus w-full bg-transparent text-sm"
+          />
+        </td>
+
+        {/* 收款金額:所有有 payments.write 的角色都能輸（業務、會計）
+            刪除按鈕在沒核帳權時掛這欄、有核帳權時跟在實收欄裡 */}
+        <td className="py-2 px-3 border-b border-border/50 text-right">
+          <div className="flex items-center justify-end gap-2">
             <input
               type="text"
-              value={item.notes || ''}
-              onChange={e => onUpdate(item.id, { notes: e.target.value })}
-              placeholder={t('paymentItemRemarks')}
-              className="input-no-focus w-full bg-transparent text-sm"
+              inputMode="numeric"
+              value={item.amount ? formatMoney(item.amount) : ''}
+              onChange={e => {
+                // 5/13 W 反饋：全形數字 → 半形（中文輸入法常打到全形「１２３４」、parseInt 會 NaN）
+                const raw = e.target.value
+                  .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
+                  .replace(/,/g, '')
+                const num = parseInt(raw, 10)
+                const amount = isNaN(num) ? 0 : num
+                const feePercent =
+                  Number((currentMethod as { fee_percent?: number } | undefined)?.fee_percent) || 0
+
+                const updates: Partial<PaymentItem> = { amount }
+                if (feePercent > 0) {
+                  const fees = Math.round((amount * feePercent) / 100)
+                  updates.fees = fees
+                  updates.actual_amount = Math.max(0, amount - fees)
+                } else {
+                  updates.fees = 0
+                  updates.actual_amount = amount
+                }
+                onUpdate(item.id, updates)
+              }}
+              placeholder="0"
+              disabled={readonly}
+              className="input-no-focus w-full bg-transparent text-sm text-right"
             />
             {!canConfirmReceipt && canRemove && (
               <Button
@@ -229,50 +263,16 @@ export function PaymentItemRow({
               </Button>
             )}
           </div>
+          {item.fees && item.fees > 0 ? (
+            <div className="text-[0.588rem] text-morandi-muted mt-0.5">
+              {t('paymentItemFee')} {formatMoney(item.fees)}
+            </div>
+          ) : null}
         </td>
 
-        {/* 收款金額 / 實收金額：只有核帳權限可見可填、沒權限時整 td 不渲染 */}
+        {/* 實收金額 + 刪除：只有核帳權限（finance.payments-confirm.write）可見可填 */}
         {canConfirmReceipt && (
           <>
-            {/* 收款金額 */}
-            <td className="py-2 px-3 border-b border-border/50 text-right">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={item.amount ? formatMoney(item.amount) : ''}
-                onChange={e => {
-                  // 5/13 W 反饋：全形數字 → 半形（中文輸入法常打到全形「１２３４」、parseInt 會 NaN）
-                  const raw = e.target.value
-                    .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xfee0))
-                    .replace(/,/g, '')
-                  const num = parseInt(raw, 10)
-                  const amount = isNaN(num) ? 0 : num
-                  const feePercent =
-                    Number((currentMethod as { fee_percent?: number } | undefined)?.fee_percent) || 0
-
-                  const updates: Partial<PaymentItem> = { amount }
-                  if (feePercent > 0) {
-                    const fees = Math.round((amount * feePercent) / 100)
-                    updates.fees = fees
-                    updates.actual_amount = Math.max(0, amount - fees)
-                  } else {
-                    updates.fees = 0
-                    updates.actual_amount = amount
-                  }
-                  onUpdate(item.id, updates)
-                }}
-                placeholder="0"
-                disabled={readonly}
-                className="input-no-focus w-full bg-transparent text-sm text-right"
-              />
-              {item.fees && item.fees > 0 ? (
-                <div className="text-[0.588rem] text-morandi-muted mt-0.5">
-                  {t('paymentItemFee')} {formatMoney(item.fees)}
-                </div>
-              ) : null}
-            </td>
-
-            {/* 實收金額 + 刪除 */}
             <td className="py-2 px-3 border-b border-border/50 text-right">
               <div className="flex items-center justify-end gap-2">
                 <input

@@ -92,15 +92,17 @@ export function AddReceiptDialog({
   const [batchPaymentMethod, setBatchPaymentMethod] = useState('')
   const [batchTotalAmount, setBatchTotalAmount] = useState(0)
 
-  // 收款項目表格欄位定義（canConfirmCheck 決定是否顯示實收金額欄）
+  // 收款項目表格欄位定義
+  // 收款金額：所有 payments.write 都能輸（業務也要能輸客戶承諾的金額）
+  // 實收金額：只有核帳權限（canConfirmCheck = finance.payments-confirm.write）才看得到
   const receiptColumns: InlineEditColumn<PaymentItem>[] = [
     { key: 'method', label: t('receiptColMethod'), width: '7rem', render: () => null },
     { key: 'date', label: t('receiptColDate'), width: '9.5rem', render: () => null },
     { key: 'detail', label: t('receiptColDetail'), width: '11rem', render: () => null },
     { key: 'remarks', label: t('receiptColRemarks'), render: () => null },
+    { key: 'amount', label: '收款金額', width: '7.5rem', align: 'right', render: () => null },
     ...(canConfirmCheck
       ? ([
-          { key: 'amount', label: '收款金額', width: '7.5rem', align: 'right', render: () => null },
           { key: 'actual', label: '實收金額', width: '7.5rem', align: 'right', render: () => null },
         ] as InlineEditColumn<PaymentItem>[])
       : []),
