@@ -57,18 +57,8 @@ export const INTEGRATIONS: readonly IntegrationDef[] = [
       { key: 'chinese_recognition', label: '啟用中文姓名辨識', type: 'checkbox', sensitive: false, required: false, hint: '開啟：嘗試辨識護照上的中文姓名（拍清楚時準）；關閉：只辨識 MRZ 純英文部分、不誤判。' },
     ],
   },
-  {
-    code: 'line_oa',
-    name: 'LINE 官方帳號',
-    description: '客戶服務 LINE 對話、AI 機器人回應、訂單通知。需要 LINE Developers Console 申請 Messaging API channel。',
-    affects: ['機器人管理（/bot）', 'Webhook 接收訊息'],
-    fields: [
-      { key: 'channel_id', label: 'Channel ID', type: 'text', sensitive: false, required: true },
-      { key: 'channel_secret', label: 'Channel Secret', type: 'password', sensitive: true, required: true },
-      { key: 'access_token', label: 'Channel Access Token', type: 'password', sensitive: true, required: true },
-      { key: 'oa_basic_id', label: '基本 ID（@xxxx）', type: 'text', sensitive: false, required: false, placeholder: '@venturo' },
-    ],
-  },
+  // 註：line_oa 於 2026-05-19 從 registry 移除（孤兒 UI、從未被任何 caller 讀取）
+  // 真正的 LINE OA 設定在 AI Hub → Setup wizard、寫入 workspace_line_settings 表
 ]
 
 export function getIntegrationByCode(code: string): IntegrationDef | undefined {

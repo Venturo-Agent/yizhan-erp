@@ -5,7 +5,9 @@
  *
  * tabs：
  *   - 總覽（overview）：基本資料 + 系統主管 + 基本功能 + 付費加購（既有）
- *   - AI 設定（ai_settings）：per-workspace AI 行為（prompt / data_sources / response_mode）
+ *   - AI 模型（ai_settings）：per-workspace LLM 底盤（provider / model / token / data sources）
+ *   - AI 健康度（ai_health）：訊息量 / 接管率 / LLM 用量（漫途 consulting 視角）
+ *   - 附加服務（addons）：加值資料庫 + API 加值（航班 / 護照辨識）+ AI 加值（未來）
  *   - 費用紀錄（billing）：訂閱方案 + 歷史付款紀錄
  */
 
@@ -14,14 +16,13 @@ import { useRouter } from 'next/navigation'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { toast } from 'sonner'
 import { COMMON_MESSAGES } from '@/constants/messages'
-import { Building2, Save, Sparkles, Plug, LayoutDashboard, Wallet, PackagePlus, Activity } from 'lucide-react'
+import { Building2, Save, Sparkles, LayoutDashboard, Wallet, PackagePlus, Activity } from 'lucide-react'
 import { ModuleLoading } from '@/components/module-loading'
 import { invalidateFeatureCache } from '@/lib/permissions/hooks'
 import { FEATURES } from '@/lib/permissions'
 import { AiSettingsTab } from './_components/ai-settings-tab'
 import { AiHealthTab } from './_components/ai-health-tab'
 import { BillingTab } from './_components/billing-tab'
-import { IntegrationsTab } from './_components/integrations-tab'
 import { AddonsTab } from './_components/addons-tab'
 import { OverviewTab } from './_components/overview-tab'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -35,7 +36,6 @@ const TAB_VALUES = {
   OVERVIEW: 'overview',
   AI_SETTINGS: 'ai_settings',
   AI_HEALTH: 'ai_health',
-  INTEGRATIONS: 'integrations',
   ADDONS: 'addons',
   BILLING: 'billing',
 } as const
@@ -44,9 +44,8 @@ type TabValue = (typeof TAB_VALUES)[keyof typeof TAB_VALUES]
 
 const TABS = [
   { value: TAB_VALUES.OVERVIEW, label: '總覽', icon: LayoutDashboard },
-  { value: TAB_VALUES.AI_SETTINGS, label: 'AI 設定', icon: Sparkles },
+  { value: TAB_VALUES.AI_SETTINGS, label: 'AI 模型', icon: Sparkles },
   { value: TAB_VALUES.AI_HEALTH, label: 'AI 健康度', icon: Activity },
-  { value: TAB_VALUES.INTEGRATIONS, label: 'API 整合', icon: Plug },
   { value: TAB_VALUES.ADDONS, label: '附加服務', icon: PackagePlus },
   { value: TAB_VALUES.BILLING, label: '費用紀錄', icon: Wallet },
 ]
@@ -339,8 +338,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
       )}
 
       {activeTab === TAB_VALUES.AI_HEALTH && <AiHealthTab workspaceId={id} />}
-
-      {activeTab === TAB_VALUES.INTEGRATIONS && <IntegrationsTab workspaceId={id} />}
 
       {activeTab === TAB_VALUES.ADDONS && (
         <AddonsTab
