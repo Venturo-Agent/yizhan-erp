@@ -1,10 +1,10 @@
 /**
  * POST /api/hr/bonus-settlements/write-pending
  *
- * 結團 callback：把 tour 內計算出的獎金寫進 bonus_pending（status=pending）。
+ * 結案 callback：把 tour 內計算出的獎金寫進 bonus_pending（status=pending）。
  * 由 tours/_components/TourClosingSections.tsx 的 handleConfirmCloseFromReport 呼叫。
  *
- * 2026-05-15 William 拍板：結團 ≠ 產請款、改寫 bonus_pending 待結算池。
+ * 2026-05-15 William 拍板：結案 ≠ 產請款、改寫 bonus_pending 待結算池。
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -25,7 +25,7 @@ interface BonusInput {
 }
 
 export const POST = apiHandler(async (request: NextRequest) => {
-  // 結團觸發、用 tours.write capability（caller 是改 tour 流程）
+  // 結案觸發、用 tours.write capability（caller 是改 tour 流程）
   const guard = await requireCapability(CAPABILITIES.TOURS_WRITE)
   if (!guard.ok) return guard.response
 
@@ -44,7 +44,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
   await recordApiAuditContext(supabase, {
     actorId: guard.employeeId,
-    reason: `結團寫入 bonus_pending（tour=${tour_code ?? tour_id}）`,
+    reason: `結案寫入 bonus_pending（tour=${tour_code ?? tour_id}）`,
     requestId: tour_id,
   })
 
@@ -66,7 +66,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     created_by: guard.employeeId,
   }))
 
-  // upsert by (tour_id, employee_id, bonus_kind) — 防同 tour 重複結團寫多次
+  // upsert by (tour_id, employee_id, bonus_kind) — 防同 tour 重複結案寫多次
   const { error } = await supabase
     .from('bonus_pending')
     .upsert(rows, { onConflict: 'tour_id,employee_id,bonus_kind' })

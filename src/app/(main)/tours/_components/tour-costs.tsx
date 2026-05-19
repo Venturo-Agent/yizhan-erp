@@ -86,6 +86,14 @@ export const TourCosts = React.memo(function TourCosts({
     status: string
   }) => {
     try {
+      // 守門：提案 / 模板狀態的旅遊團不可開立請款單（業務規則）
+      if (tour.status === 'proposal' || tour.status === 'template') {
+        toast.error(t('costsError'), {
+          description: '提案 / 模板狀態的旅遊團不可開立請款單、請先將提案轉為正式團',
+        })
+        return
+      }
+
       // 找到供應商
       const supplier = suppliers.find(s => s.name === data.vendor || s.id === data.vendor)
 

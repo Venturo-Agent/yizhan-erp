@@ -85,7 +85,7 @@ export const GET = apiHandler(async () => {
       bonus_count: agg.bonus_count,
     }))
     .sort((a, b) => {
-      // 結團日 desc
+      // 結案日 desc
       if (a.closing_date && b.closing_date) return b.closing_date.localeCompare(a.closing_date)
       if (a.closing_date) return -1
       if (b.closing_date) return 1

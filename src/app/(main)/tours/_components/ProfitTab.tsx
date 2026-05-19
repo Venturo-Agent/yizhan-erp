@@ -360,7 +360,7 @@ export function ProfitTab({ tour }: ProfitTabProps) {
   const netProfit = profitResult.net_profit
 
   // 已生成請款單 lookup（setting.payment_request_id → request.code）
-  // 顯示「已生成 PR-xxx」狀態用、實際生成由「列印並結團」一鍵自動跑
+  // 顯示「已生成 PR-xxx」狀態用、實際生成由「列印並結案」一鍵自動跑
   const requestCodeById = useMemo(() => {
     const map: Record<string, string> = {}
     for (const r of paymentRequests) {

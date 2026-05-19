@@ -150,7 +150,7 @@ export interface Todo {
 
   // 任務類型與關聯（新增）
   task_type?: TodoTaskType // 任務類型（決定右半部顯示什麼表單）
-  tour_id?: string // 連結團
+  tour_id?: string // 連結到旅遊團
   tags?: string[] // 個人標籤陣列（自定義、跟 visibility 共享無關）
 
   // 看板欄位（Trello 風格）

@@ -93,7 +93,9 @@ export const ToursPage: React.FC = () => {
   const {
     filteredTours,
     loading,
+    currentPage,
     setCurrentPage,
+    totalCount,
     activeStatusTab,
     setActiveStatusTab,
     searchQuery,
@@ -356,7 +358,10 @@ export const ToursPage: React.FC = () => {
     <div className="h-full flex flex-col">
       <TourFilters
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={(query: string) => {
+          setSearchQuery(query)
+          setCurrentPage(1)  // 搜尋時回第一頁、避免落在空頁
+        }}
         activeTab={activeStatusTab}
         onTabChange={(tab: string) => {
           setActiveStatusTab(tab)
@@ -379,6 +384,12 @@ export const ToursPage: React.FC = () => {
             ordersByTourId={ordersByTourId}
             activeTab={activeStatusTab}
             onConvertTour={handleConvertTour}
+            serverPagination={{
+              currentPage,
+              pageSize: state.pageSize,
+              totalCount,
+              onPageChange: setCurrentPage,
+            }}
           />
         </div>
       </div>

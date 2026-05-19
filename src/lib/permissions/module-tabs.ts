@@ -102,7 +102,7 @@ export const MODULES: ModuleDefinition[] = [
       {
         code: 'closing',
         name: '結案',
-        description: '結團報表、損益確認',
+        description: '結案報表、損益確認',
       },
     ],
   },

@@ -55,9 +55,9 @@ export interface Tour extends BaseEntity {
   contract_archived_date?: string | null // 合約封存日期
   envelope_records?: string | null // 信封記錄
 
-  // 結團相關欄位（結案真相看 status='closed'）
-  closing_date?: string | null // 結團日期
-  closed_by?: string | null // 結團操作人員 ID
+  // 結案相關欄位（結案真相看 status='closed'）
+  closing_date?: string | null // 結案日期
+  closed_by?: string | null // 結案操作人員 ID
 
   // 團服務類型
   tour_service_type?: TourServiceType | null // 團服務類型
@@ -113,10 +113,10 @@ export interface Tour extends BaseEntity {
 export type TourStatus =
   | 'template' // 模板：可被複製、不會出發
   | 'proposal' // 提案：詢價階段、無團號
-  | 'upcoming' // 待出發：已開團、有團號、出發日未到
-  | 'ongoing' // 進行中：出發日已到、回程日未過
-  | 'returned' // 未結團：回程日已過、還沒按結案
-  | 'closed' // 已結團：按了結案按鈕、發獎金
+  | 'upcoming' // 即將出發：已開團、有團號、出發日未到
+  | 'ongoing' // 旅行中：出發日已到、回程日未過
+  | 'returned' // 未結案：回程日已過、還沒按結案
+  | 'closed' // 已結案：按了結案按鈕、發獎金
 
 /**
  * ContractStatus - 合約狀態（英文）

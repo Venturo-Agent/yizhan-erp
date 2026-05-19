@@ -130,7 +130,7 @@ export default function BonusSettlementTourDetailPage({
             <h3 className="text-base font-semibold text-morandi-primary">{tour.name}</h3>
             <div className="text-xs text-morandi-muted mt-1 flex items-center gap-3">
               {tour.code && <span>團號：{tour.code}</span>}
-              {tour.closing_date && <span>結團 {tour.closing_date.slice(0, 10)}</span>}
+              {tour.closing_date && <span>結案 {tour.closing_date.slice(0, 10)}</span>}
               <span>{items.length} 筆獎金</span>
               <span className="text-morandi-gold font-semibold">{formatNT(totalAmount)}</span>
             </div>

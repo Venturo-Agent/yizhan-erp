@@ -10,7 +10,7 @@ export type PaymentRequestCategory = 'tour' | 'company'
 // 公司費用類型
 export type CompanyExpenseType =
   | 'SAL' // 薪資
-  | 'BNS' // 獎金（從結團衍生、跟薪資分開）
+  | 'BNS' // 獎金（從結案衍生、跟薪資分開）
   | 'ENT' // 公關費用
   | 'TRV' // 差旅費用
   | 'OFC' // 辦公費用

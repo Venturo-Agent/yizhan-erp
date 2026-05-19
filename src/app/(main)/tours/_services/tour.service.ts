@@ -103,7 +103,7 @@ class TourService extends BaseService<Tour & BaseEntity> {
     }
 
     // Tour 狀態檢查
-    if (tour.status === '已結團') {
+    if (tour.status === TOUR_STATUS.CLOSED) {
       return { canCancel: false, reason: '該旅遊團已經結案，無法取消' }
     }
 

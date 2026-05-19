@@ -10,9 +10,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Calendar, FileCheck, MapPin, Plane, Plus, FileText, Copy, PackageCheck } from 'lucide-react'
-import { TOUR_FILTERS } from '../_constants'
-import { TOUR_STATUS } from '@/lib/constants/status-maps'
+import { Calendar, FileCheck, MapPin, Plus, FileText, Copy, PackageCheck } from 'lucide-react'
+import { TOUR_FILTERS, TOUR_TAB } from '../_constants'
 
 interface TourFiltersProps {
   searchQuery: string
@@ -35,12 +34,11 @@ export const TourFilters: React.FC<TourFiltersProps> = ({
 }) => {
   const t = useTranslations('tour')
   const tabs = [
-    { value: TOUR_STATUS.UPCOMING, label: TOUR_FILTERS.tab_upcoming, icon: Calendar },
-    { value: TOUR_STATUS.ONGOING, label: TOUR_FILTERS.tab_ongoing, icon: Plane },
-    { value: TOUR_STATUS.RETURNED, label: TOUR_FILTERS.tab_returned, icon: PackageCheck },
-    { value: TOUR_STATUS.CLOSED, label: TOUR_FILTERS.tab_closed, icon: FileCheck },
-    { value: TOUR_STATUS.PROPOSAL, label: TOUR_FILTERS.tab_proposals, icon: FileText },
-    { value: TOUR_STATUS.TEMPLATE, label: TOUR_FILTERS.tab_templates, icon: Copy },
+    { value: TOUR_TAB.IN_PROGRESS, label: TOUR_FILTERS.tab_in_progress, icon: Calendar },
+    { value: TOUR_TAB.RETURNED, label: TOUR_FILTERS.tab_returned, icon: PackageCheck },
+    { value: TOUR_TAB.CLOSED, label: TOUR_FILTERS.tab_closed, icon: FileCheck },
+    { value: TOUR_TAB.PROPOSAL, label: TOUR_FILTERS.tab_proposals, icon: FileText },
+    { value: TOUR_TAB.TEMPLATE, label: TOUR_FILTERS.tab_templates, icon: Copy },
   ]
 
   return (

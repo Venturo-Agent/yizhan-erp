@@ -6,8 +6,8 @@
  * 獎金結算頁、按團勾選結算。
  *
  * 2026-05-15 William 拍板：
- *   - 來源：tour 結團時寫進 bonus_pending（status=pending）
- *   - 列表顯示「每團一行」（含團名、結團日、員工數、總獎金）
+ *   - 來源：tour 結案時寫進 bonus_pending（status=pending）
+ *   - 列表顯示「每團一行」（含團名、結案日、員工數、總獎金）
  *   - 勾選團 → 「結算選中」→ 每團產一張請款單
  */
 
@@ -168,7 +168,7 @@ export default function BonusSettlementListPage() {
         <Card className="p-12 text-center text-morandi-secondary">
           <p className="text-sm mb-2">目前無待結算獎金</p>
           <p className="text-xs text-morandi-muted">
-            旅遊團結團後、有設定獎金的會出現在這裡待勾選結算。
+            旅遊團結案後、有設定獎金的會出現在這裡待勾選結算。
           </p>
         </Card>
       )}
@@ -217,7 +217,7 @@ export default function BonusSettlementListPage() {
                       </span>
                     </div>
                     <div className="text-xs text-morandi-muted mt-0.5">
-                      {row.closing_date && `結團 ${row.closing_date.slice(0, 10)} · `}
+                      {row.closing_date && `結案 ${row.closing_date.slice(0, 10)} · `}
                       {row.employee_count} 員工 · {row.bonus_count} 筆獎金
                     </div>
                   </div>

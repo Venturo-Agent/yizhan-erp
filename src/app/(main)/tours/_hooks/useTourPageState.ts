@@ -5,7 +5,7 @@ import { Tour } from '@/stores/types'
 import { City } from '@/stores/region-store'
 import { NewTourData, TourExtraFields, DeleteConfirmState } from '../_types'
 import { OrderFormData } from '@/app/(main)/orders/_components/add-order-form'
-import { TOUR_STATUS } from '@/lib/constants/status-maps'
+import { TOUR_TAB } from '../_constants'
 
 export function useTourPageState() {
   // Selected tour
@@ -14,20 +14,20 @@ export function useTourPageState() {
   // Pagination and filtering state
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState('departure_date')
-  // 預設 tab 是「待出發」、出發日期近到遠（asc）合理；其他 tab user 可自行切 desc
+  // 預設 tab 是「進行中」（涵蓋即將出發+旅行中）、出發日期近到遠（asc）合理；其他 tab user 可自行切 desc
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [expandedRows, setExpandedRows] = useState<string[]>([])
 
-  // 每次進入預設「待出發」、不記憶上次的 tab
-  const [activeStatusTab, setActiveStatusTab] = useState<string>(TOUR_STATUS.UPCOMING)
+  // 每次進入預設「進行中」、不記憶上次的 tab
+  const [activeStatusTab, setActiveStatusTab] = useState<string>(TOUR_TAB.IN_PROGRESS)
   const [viewMode, setViewMode] = useState<'card' | 'list'>('list')
   const [searchQuery, setSearchQuery] = useState('')
   const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmState>({
     isOpen: false,
     tour: null,
   })
-  const pageSize = 10
+  const pageSize = 15  // 地方法律：列表分頁固定 15 筆、不給每頁筆數選擇器
 
   // UI state
   const [activeTabs, setActiveTabs] = useState<Record<string, string>>({})

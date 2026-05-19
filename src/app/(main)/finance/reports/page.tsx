@@ -103,7 +103,7 @@ export default function ReportsPage() {
       { value: 'overview', label: '收支總覽', icon: BarChart3 },
       { value: 'disbursement', label: '請款報表', icon: FileDown },
       { value: 'income', label: '收款報表', icon: TrendingUp },
-      { value: 'unclosed', label: '未結團', icon: AlertCircle },
+      { value: 'unclosed', label: '未結案', icon: AlertCircle },
       { value: 'pnl', label: '損益表', icon: PieChart },
       { value: 'sales', label: '業務員業績', icon: Trophy },
       { value: 'receivables', label: '應收帳款', icon: Receipt },

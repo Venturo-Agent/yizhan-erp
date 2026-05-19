@@ -245,49 +245,6 @@ export function useTourDetails(tour_id: string) {
       }
     : null
 
-  const updateTourStatus = async (newStatus: NonNullable<Tour['status']>) => {
-    if (!tour_id) return null
-
-    // 狀態轉換驗證
-    const VALID_TOUR_TRANSITIONS: Record<string, string[]> = {
-      開團: ['待出發', '取消'],
-      待出發: ['已出發', '取消', '開團'],
-      已出發: ['待結團'],
-      待結團: ['已結團'],
-      已結團: [],
-      取消: ['開團'],
-    }
-
-    const { data: current, error: fetchError } = await supabase
-      .from('tours')
-      .select('status')
-      .eq('id', tour_id)
-      .single()
-
-    if (fetchError || !current) throw new Error('無法取得目前狀態')
-
-    const currentStatus = current.status ?? ''
-    if (!currentStatus || !VALID_TOUR_TRANSITIONS[currentStatus]?.includes(newStatus)) {
-      throw new Error(
-        `無法從「${currentStatus || ''}」轉為「${newStatus}」`
-      )
-    }
-
-    const now = new Date().toISOString()
-    const { data, error } = await supabase
-      .from('tours')
-      .update({ status: newStatus, updated_at: now })
-      .eq('id', tour_id)
-      .select()
-      .single()
-
-    if (error) throw error
-
-    mutateTour(data as Tour)
-    mutate(TOURS_KEY)
-    return data as Tour
-  }
-
   const generateTourCode = async (cityCode: string, date: Date, _isSpecial?: boolean) => {
     const workspaceId = getCurrentWorkspaceId()
     if (!workspaceId) {
@@ -303,7 +260,6 @@ export function useTourDetails(tour_id: string) {
     loading,
     error: error?.message || null,
     actions: {
-      updateStatus: updateTourStatus,
       generateCode: generateTourCode,
       refresh: () => mutateTour(),
     },

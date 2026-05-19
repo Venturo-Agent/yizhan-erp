@@ -238,10 +238,10 @@ export const STATUS_LABEL_MAP: Record<StatusType, Record<string, string>> = {
   tour: {
     template: '模板',
     proposal: '提案',
-    upcoming: '待出發',
-    ongoing: '進行中',
-    returned: '未結團',
-    closed: '已結團',
+    upcoming: '即將出發',
+    ongoing: '旅行中',
+    returned: '未結案',
+    closed: '已結案',
     proposed: '提案', // 同 proposal alias
   },
   quote: {

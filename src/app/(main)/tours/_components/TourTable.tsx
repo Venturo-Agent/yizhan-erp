@@ -19,6 +19,12 @@ interface TourTableProps {
   ordersByTourId?: Map<string, { sales_person: string | null; assistant: string | null }>
   activeTab?: string
   onConvertTour?: (tour: Tour) => void
+  serverPagination?: {
+    currentPage: number
+    pageSize: number
+    totalCount: number
+    onPageChange: (page: number) => void
+  }
 }
 
 export const TourTable: React.FC<TourTableProps> = ({
@@ -31,6 +37,7 @@ export const TourTable: React.FC<TourTableProps> = ({
   ordersByTourId,
   activeTab,
   onConvertTour,
+  serverPagination,
 }) => {
   const officialColumns = useTourTableColumns({ ordersByTourId })
   const templateColumns = useTemplateTableColumns({ onConvert: onConvertTour })
@@ -52,6 +59,7 @@ export const TourTable: React.FC<TourTableProps> = ({
           onRowClick={onRowClick}
           bordered={true}
           striped
+          serverPagination={serverPagination}
         />
       </div>
 

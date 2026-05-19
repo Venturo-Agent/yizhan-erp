@@ -31,7 +31,7 @@ export const ToursModule = defineModule({
     },
     { code: 'quote', name: '報價', description: '報價計算、成本' },
     { code: 'contract', name: '合約', description: '旅遊合約、電子簽約', category: 'premium' },
-    { code: 'closing', name: '結案', description: '結團報表、損益確認' },
+    { code: 'closing', name: '結案', description: '結案報表、損益確認' },
     // ===== 下拉資格（勾寫入 = 出現在該下拉）=====
     {
       code: 'as_sales',

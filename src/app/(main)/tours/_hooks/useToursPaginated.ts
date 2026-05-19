@@ -22,12 +22,13 @@ import { logger } from '@/lib/utils/logger'
 import { deleteTour as deleteTourEntity, invalidateTours } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
+import { TOUR_TAB } from '../_constants'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 
 interface UseToursPaginatedParams {
   page: number
   pageSize: number
-  // 'all' | 'template' | 'proposal' | 'upcoming' | 'ongoing' | 'returned' | 'closed' | 'archived'
+  // tab value: 'in_progress'（虛擬、= upcoming+ongoing）| 'returned' | 'closed' | 'proposal' | 'template' | 'archived'
   status?: string
   search?: string
   sortBy?: string
@@ -56,7 +57,7 @@ function buildSwrKey(params: UseToursPaginatedParams): string {
 export function useToursPaginated(params: UseToursPaginatedParams): UseToursPaginatedResult {
   const { page, pageSize, status, search, sortOrder = 'desc' } = params
   const defaultSort =
-    status === TOUR_STATUS.PROPOSAL || status === TOUR_STATUS.TEMPLATE
+    status === TOUR_TAB.PROPOSAL || status === TOUR_TAB.TEMPLATE
       ? 'created_at'
       : 'departure_date'
   const sortBy = params.sortBy || defaultSort
@@ -100,33 +101,31 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
         query = query.eq('branch_id', branchId)
       }
 
-      // ✅ Server-side status filtering（tour_type 已併入 status：template/proposal/upcoming/ongoing/returned/closed）
-      // 「upcoming / ongoing / returned」顯示層可再用 departure_date / return_date 細分
-      const todayStr = new Date().toISOString().split('T')[0]
+      // 搜尋字串不空 → 跨 tab 搜尋（忽略 status filter、只排除封存）
+      // 業務理由：使用者搜「BKK260325A」時、不應因為停在錯誤 tab 而找不到團
+      const hasSearch = !!(search && search.trim())
 
-      if (status === TOUR_STATUS.PROPOSAL) {
+      if (hasSearch) {
+        // 跨 tab 搜尋：所有「真實成立的團」+ 提案 + 模板 都納入、只排除封存
+        query = query.neq('archived', true)
+      } else if (status === TOUR_TAB.PROPOSAL) {
         query = query.eq('status', TOUR_STATUS.PROPOSAL).neq('archived', true)
-      } else if (status === TOUR_STATUS.TEMPLATE) {
+      } else if (status === TOUR_TAB.TEMPLATE) {
         query = query.eq('status', TOUR_STATUS.TEMPLATE).neq('archived', true)
       } else if (status === 'archived') {
         // 封存是獨立欄位、不是 status 值
         query = query.eq('archived', true)
-      } else if (status === TOUR_STATUS.UPCOMING) {
-        // 即將出發：status='upcoming'，出發日未到
+      } else if (status === TOUR_TAB.IN_PROGRESS) {
+        // 進行中：即將出發 + 旅行中（業務上區分意義不大、合併呈現）
         query = query
           .neq('archived', true)
-          .eq('status', TOUR_STATUS.UPCOMING)
-      } else if (status === TOUR_STATUS.ONGOING) {
-        // 旅行中：status='ongoing'
-        query = query
-          .neq('archived', true)
-          .eq('status', TOUR_STATUS.ONGOING)
-      } else if (status === TOUR_STATUS.RETURNED) {
+          .in('status', [TOUR_STATUS.UPCOMING, TOUR_STATUS.ONGOING])
+      } else if (status === TOUR_TAB.RETURNED) {
         // 未結案：status='returned'，已回程但尚未結案
         query = query
           .neq('archived', true)
           .eq('status', TOUR_STATUS.RETURNED)
-      } else if (status === TOUR_STATUS.CLOSED) {
+      } else if (status === TOUR_TAB.CLOSED) {
         // 已結案：只看 status='closed'
         query = query
           .neq('archived', true)
@@ -144,8 +143,8 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
       }
 
       // ✅ Server-side search
-      if (search && search.trim()) {
-        const searchTerm = search.trim()
+      if (hasSearch) {
+        const searchTerm = (search as string).trim()
         query = query.or(
           `name.ilike.%${searchTerm}%,code.ilike.%${searchTerm}%,location.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`
         )
@@ -393,53 +392,11 @@ export function useTourDetailsPaginated(tourId: string | null) {
     }
   )
 
-  const updateStatus = async (newStatus: NonNullable<Tour['status']>) => {
-    if (!tourId) return null
-
-    // 狀態轉換驗證
-    const VALID_TOUR_TRANSITIONS: Record<string, string[]> = {
-      開團: ['待出發', '取消'],
-      待出發: ['已出發', '取消', '開團'],
-      已出發: ['待結團'],
-      待結團: ['已結團'],
-      已結團: [],
-      取消: ['開團'],
-    }
-
-    const { data: current, error: fetchError } = await supabase
-      .from('tours')
-      .select('status')
-      .eq('id', tourId)
-      .single()
-
-    if (fetchError || !current) throw new Error('無法取得目前狀態')
-
-    const currentStatus = current.status ?? ''
-    if (!currentStatus || !VALID_TOUR_TRANSITIONS[currentStatus]?.includes(newStatus)) {
-      throw new Error(
-        `無法從「${currentStatus || ''}」轉為「${newStatus}」`
-      )
-    }
-
-    const { data, error: updateError } = await supabase
-      .from('tours')
-      .update({ status: newStatus, updated_at: new Date().toISOString() })
-      .eq('id', tourId)
-      .select()
-      .single()
-
-    if (updateError) throw updateError
-
-    mutateTour(data as Tour)
-    return data as Tour
-  }
-
   return {
     tour: tour || null,
     loading: isLoading,
     error: error?.message || null,
     actions: {
-      updateStatus,
       refresh: () => mutateTour(),
     },
   }

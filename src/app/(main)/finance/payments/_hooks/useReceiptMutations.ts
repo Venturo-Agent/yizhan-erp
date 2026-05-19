@@ -96,6 +96,19 @@ export function useReceiptMutations() {
         throw new Error(t('receiptMutationCannotGetTourCode'))
       }
 
+      // 守門：提案 / 模板狀態的旅遊團不可開立收款單（業務規則）
+      // 譬喻：飯店不對「報價單客人」或「房型範本」開帳單、必須是已成立的訂單
+      if (tourId) {
+        const { data: tourRow } = await supabase
+          .from('tours')
+          .select('status')
+          .eq('id', tourId)
+          .maybeSingle()
+        if (tourRow?.status === 'proposal' || tourRow?.status === 'template') {
+          throw new Error('提案 / 模板狀態的旅遊團不可開立收款單、請先將提案轉為正式團')
+        }
+      }
+
       // 查詢 payment_methods 取得 ID 對照表
       const { data: paymentMethodsData } = await supabase
         .from('payment_methods')

@@ -5,9 +5,9 @@
  *
  * 設計：
  * - 直接 render `<PrintTourClosingPreview>` HTML、A4 比例容器
- * - 「列印並結團」用 iframe-print 模式（同 DisbursementPrintDialog）
+ * - 「列印並結案」用 iframe-print 模式（同 DisbursementPrintDialog）
  *   印出來跟畫面一致、不再走 jsPDF
- * - 對應 William 的概念：「按下『列印』 = 確認結團」
+ * - 對應 William 的概念：「按下『列印』 = 確認結案」
  */
 
 import { useCallback, useRef, useState } from 'react'
@@ -31,7 +31,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 const COMPONENT_LABELS = {
   PRINT_FAILED: '列印失敗、請再試一次',
-  CLOSE_TOUR_FAILED: '結團失敗、請再試一次',
+  CLOSE_TOUR_FAILED: '結案失敗、請再試一次',
 } as const
 
 interface ClosingReportDialogProps {
@@ -39,12 +39,12 @@ interface ClosingReportDialogProps {
   onOpenChange: (open: boolean) => void
   data: PrintTourClosingPreviewProps | null
   /**
-   * 按下「列印並結團」時呼叫。獎金不在此處結算、改用 bonus_pending 模型 —
-   * 結團只把獎金寫入 bonus_pending、HR 後續在「獎金結算」頁勾選結算。
+   * 按下「列印並結案」時呼叫。獎金不在此處結算、改用 bonus_pending 模型 —
+   * 結案只把獎金寫入 bonus_pending、HR 後續在「獎金結算」頁勾選結算。
    * 外部負責 write-pending + updateTour({status: CLOSED})。
    */
   onConfirmClose: () => Promise<void>
-  /** 已經結團 → 按鈕變「列印」、不再觸發結團 */
+  /** 已經結案 → 按鈕變「列印」、不再觸發結案 */
   alreadyClosed?: boolean
 }
 
@@ -131,7 +131,7 @@ export function ClosingReportDialog({
       }
       onOpenChange(false)
     } catch (err) {
-      logger.error('列印並結團失敗', err)
+      logger.error('列印並結案失敗', err)
       // caller 已自己 toast（err.handled = true）時、不要再蓋一層通用失敗訊息
       const handled = typeof err === 'object' && err !== null && 'handled' in err && (err as { handled?: boolean }).handled
       if (!handled) {
@@ -184,8 +184,8 @@ export function ClosingReportDialog({
         <DialogFooter className="px-6 py-4 border-t flex sm:justify-between items-center gap-2">
           <p className="text-xs text-morandi-secondary mr-auto">
             {alreadyClosed
-              ? '此團已結團、可重新列印報告'
-              : '按下「列印並結團」= 開啟瀏覽器列印 + 把此團標記為結團、獎金寫入 bonus_pending、後續由 HR 在「獎金結算」頁勾選結算'}
+              ? '此團已結案、可重新列印報告'
+              : '按下「列印並結案」= 開啟瀏覽器列印 + 把此團標記為結案、獎金寫入 bonus_pending、後續由 HR 在「獎金結算」頁勾選結算'}
           </p>
           <div className="flex gap-2">
             <Button variant="soft-gold" onClick={() => onOpenChange(false)} disabled={confirming}>

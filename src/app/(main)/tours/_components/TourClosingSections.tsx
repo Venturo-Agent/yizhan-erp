@@ -44,7 +44,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { apiMutate } from '@/lib/swr/api-mutate'
 const COMPONENT_LABELS = {
   STATUS_UPDATE_FAILED: '狀態更新失敗',
-  CLOSE_TOUR_FAILED: '結團失敗、請再試一次',
+  CLOSE_TOUR_FAILED: '結案失敗、請再試一次',
   CLOSING_STATUS: '結案狀態',
 } as const
 
@@ -126,8 +126,8 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
 
   const isClosed = tour.status === TOUR_STATUS.CLOSED
   const statusInfo = isClosed
-    ? { label: '已結團', color: 'bg-morandi-green/20 text-morandi-green' }
-    : { label: '進行中', color: 'bg-morandi-gold/20 text-morandi-gold' }
+    ? { label: '已結案', color: 'bg-morandi-green/20 text-morandi-green' }
+    : { label: '未結案', color: 'bg-morandi-gold/20 text-morandi-gold' }
 
   const handleToggleClosingStatus = useCallback(async () => {
     const nextStatus = isClosed ? TOUR_STATUS.RETURNED : TOUR_STATUS.CLOSED
@@ -142,7 +142,7 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
       // updateTour 只動「tours 列表」SWR cache、團詳情頁用另一條 key (`tour-${id}`)
       // 不手動 invalidate 這條、畫面會看不到狀態更新（重新開啟按鈕「沒反應」的 root cause）
       await globalMutate(`tour-${tour.id}`)
-      toast.success(nextStatus === TOUR_STATUS.CLOSED ? '已標記為結團' : '已重新開啟團')
+      toast.success(nextStatus === TOUR_STATUS.CLOSED ? '已標記為結案' : '已重新開啟團')
     } catch (err) {
       logger.error('更新結案狀態失敗', err)
       toast.error(COMPONENT_LABELS.STATUS_UPDATE_FAILED)
@@ -190,7 +190,7 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
 
   const handleConfirmCloseFromReport = useCallback(async () => {
     try {
-      // 2026-05-15 William 拍板：結團 ≠ 產請款。
+      // 2026-05-15 William 拍板：結案 ≠ 產請款。
       // 拿掉舊邏輯（generateBonusPaymentRequest 自動產獎金請款）、
       // 改寫進 bonus_pending（status=pending）、之後 HR /hr/bonus-settlement 勾選結算。
       const profitResult = reportData.profitResult
@@ -222,7 +222,7 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
         }
       }
 
-      // 鎖定團（標記結團 + 寫 closing_date）
+      // 鎖定團（標記結案 + 寫 closing_date）
       await updateTour(tour.id, {
         status: TOUR_STATUS.CLOSED,
         closing_date: new Date().toISOString(),
@@ -239,9 +239,9 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
         bonusesToWrite.length > 0
           ? `、${bonusesToWrite.length} 筆獎金已進入待結算池（人資 → 獎金結算 勾選結算）`
           : ''
-      toast.success(`已列印並標記為結團${writeMsg}`)
+      toast.success(`已列印並標記為結案${writeMsg}`)
     } catch (err) {
-      logger.error('結團失敗', err)
+      logger.error('結案失敗', err)
       toast.error(COMPONENT_LABELS.CLOSE_TOUR_FAILED)
       throw err
     }

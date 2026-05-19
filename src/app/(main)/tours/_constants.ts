@@ -11,8 +11,8 @@ export const TOUR_FILTERS = {
   breadcrumb_home: '首頁',
   breadcrumb_tours: '旅遊團管理',
   search_placeholder: '搜尋旅遊團...',
-  tab_upcoming: '即將出發',
-  tab_ongoing: '旅行中',
+  // 進行中 tab = 即將出發 + 旅行中 合併（虛擬 tab、業務上區分意義不大）
+  tab_in_progress: '進行中',
   tab_returned: '未結案',
   tab_closed: '已結案',
   tab_archived: '封存',
@@ -23,6 +23,18 @@ export const TOUR_FILTERS = {
   add_template: '新增模板',
   add_tour_direct: '開團',
 } as const
+
+// 列表頁 tab value SSOT
+// 注意：'in_progress' 是虛擬 tab（涵蓋 status=upcoming+ongoing）、其他直接對應 DB status
+export const TOUR_TAB = {
+  IN_PROGRESS: 'in_progress',
+  RETURNED: 'returned',
+  CLOSED: 'closed',
+  PROPOSAL: 'proposal',
+  TEMPLATE: 'template',
+} as const
+
+export type TourTabValue = (typeof TOUR_TAB)[keyof typeof TOUR_TAB]
 
 // ============================================================
 // TourTableColumns

@@ -3,9 +3,9 @@
 import { ContentContainer } from '@/components/layout/content-container'
 
 const COMPONENT_LABELS = {
-  UNCLOSED_TOURS_LIST: '未結團列表',
+  UNCLOSED_TOURS_LIST: '未結案列表',
   DAYS_UNIT: '天',
-  HEADER_NOTICE: '顯示回程日超過 7 天仍未結團的團體，請儘速完成結團作業。',
+  HEADER_NOTICE: '顯示回程日超過 7 天仍未結案的團體，請儘速完成結案作業。',
 } as const
 import { Card } from '@/components/ui/card'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
@@ -91,7 +91,7 @@ export function UnclosedToursTab() {
     },
     {
       key: 'expected_closing_date',
-      label: '預計結團日',
+      label: '預計結案日',
       width: '120',
       render: value => <DateCell date={value as string} />,
     },
@@ -190,7 +190,7 @@ export function UnclosedToursTab() {
         <EnhancedTable
           columns={columns}
           data={unclosedTours}
-          emptyMessage="目前沒有未結團的團體"
+          emptyMessage="目前沒有未結案的團體"
           searchable
           searchableFields={['code', 'name']}
           searchPlaceholder="搜尋團號或團名..."

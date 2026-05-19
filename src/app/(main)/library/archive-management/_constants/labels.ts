@@ -9,7 +9,7 @@ export const ARCHIVE_LABELS = {
   COL_NAME: '團名',
   COL_DEPARTURE_DATE: '出發日期',
   COL_ARCHIVED_TIME: '封存時間',
-  COL_CLOSING_DATE: '結團日期',
+  COL_CLOSING_DATE: '結案日期',
   COL_QUOTE_CODE: '報價單號',
   COL_CUSTOMER_NAME: '客戶名稱',
   COL_AMOUNT: '金額',
@@ -25,13 +25,13 @@ export const ARCHIVE_LABELS = {
 
   // Empty states
   EMPTY_ORPHANED_QUOTES: '沒有未關聯旅遊團的報價單',
-  EMPTY_CLOSED_TOURS: '沒有已結團的旅遊團',
+  EMPTY_CLOSED_TOURS: '沒有已結案的旅遊團',
   EMPTY_ARCHIVED_TOURS: '沒有封存的旅遊團',
   EMPTY_ARCHIVED_ITINERARIES: '沒有封存的行程表',
 
   // Tab labels (dynamic with count)
   TAB_ORPHANED_QUOTES: '未關聯報價單',
-  TAB_CLOSED_TOURS: '已結團旅遊團',
+  TAB_CLOSED_TOURS: '已結案旅遊團',
   TAB_ARCHIVED_TOURS: '封存旅遊團',
   TAB_ARCHIVED_ITINERARIES: '封存行程表',
 
@@ -61,7 +61,7 @@ export const ARCHIVE_LABELS = {
   CONFIRM_DELETE_QUOTE_TITLE: '刪除報價單',
   TOAST_QUOTE_DELETED: (code: string) => `已刪除報價單 ${code}`,
   CONFIRM_ARCHIVE_TOUR: (code: string) =>
-    `確定要將已結團旅遊團「${code}」封存嗎？\n\n封存後可在「封存旅遊團」標籤頁還原。`,
+    `確定要將已結案旅遊團「${code}」封存嗎？\n\n封存後可在「封存旅遊團」標籤頁還原。`,
   CONFIRM_ARCHIVE_TOUR_TITLE: '封存旅遊團',
   TOAST_TOUR_ARCHIVED: (code: string) => `已封存旅遊團 ${code}`,
   TOAST_ARCHIVE_ERROR: '封存失敗，請稍後再試',
