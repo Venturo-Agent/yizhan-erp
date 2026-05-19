@@ -36,3 +36,27 @@
 - 6 層架構的真相：不是「每表都要有 6 層」，是「每請求經過 6 道閘門」，有些表業務性質單純、L3/L4 可以 N/A。Audit 重點是確認「哪些層被跳過」的決策有被記錄。
 - 紅線 0 的紀律本質：不是技術問題，是 mindset。「isAdmin」變數名看起來無害，但會 leak 進設計決策。命名紀律跟代碼安全一樣重要。
 - 5 SSOT 對齊的本質：modules/ 是單一事實來源，其他 4 個都是衍生。當發現 drift 時，要問的是「modules/ 還是衍生檔錯了」，而不是兩邊調平。
+---
+
+## Round 2 追加心得（2026-05-21 凌晨）
+
+### 我在 Round 2 抓到的 Round 1 錯誤
+
+1. **紅線 B 口徑過嚴**：Round 1 寫「4 處違反」，實際只有 1 處確定（image_library 已在 B13 修） + 1 處非違反（file_system 業務語意正確）+ 2 處表不存在 production。以後遇到「疑似違反」要先問「這個表到底有沒有實際資料」。
+2. **LINE bot 完全沒廢**：Round 1 以為「整合進 ai_hub」= 「廢了」。實際是「前端 UI 整合、後端 webhook + capability 完全在跑」。判斷一個功能有沒有在用，要看後端 API route + DB table，不能只看 UI 資料夾。
+3. **紅線 D 不是 naming issue**：Round 1 grep `forceUnlock/reopenTour` 0 處就安心了。紅線 D 真實要求是「寫入前校驗 closed period」，全 codebase 零 check。這是真正的資安漏洞，不是 naming 問題。
+
+### Round 2 補漏的實際感受
+
+- CIS 模組：Page 已移除但 .next cache 殘留造成 tsc 炸，這種「已經修過但 cache 沒清」的情況特別容易被 audit 漏掉。下次遇到 tsc error 先問「是不是 stale .next」。
+- L4 狀態守門：`is_row_editable` 在 types 宣告了但零個 API route actual call，這種「有 types 無 implementation」比完全沒寫還危險，因為會讓人以為已經做了。
+
+### 給下次的提醒
+
+audit 報告寫「守住」之前，要先問：
+- 「這個功能有沒有人在實際呼叫」（LINE bot 後端活躍）
+- 「這個 table 有沒有資料」（image_library 0 row、B13 migration 已修）
+- 「這個 types 有沒有 implementation」（is_row_editable zero caller）
+- 「cache 有沒有殘留」（.next stale validator.ts）
+
+下次做 audit 要更習慣問「誰在用 / 有沒有實際執行」，而不是「code 存不存在」。
