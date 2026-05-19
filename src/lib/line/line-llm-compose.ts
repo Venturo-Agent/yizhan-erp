@@ -10,6 +10,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { filterActive } from '@/lib/data/filter-active'
 import { logger } from '@/lib/utils/logger'
 import { searchKnowledgeByKeywords, buildRagBlock } from '@/lib/rag/keyword-search'
+import { getTaipeiToday, normalizeDatesInText } from '@/lib/line/date-normalizer'
 import type { BotContext, LLMChatMessage, LineMessageRow, TourSummary } from '@/types/line.types'
 import type { MemoryJson } from '@/lib/ai/memory-summarizer'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -34,36 +35,65 @@ export interface ComposeArgs {
 // system prompt
 // ============================================================================
 
-// freestyle 模式（William 2026-05-17 拍板）：先讓 chain 通、不接 RAG
-// 任何訊息都回、不限 KB、不查資料、純聊天
+// 業務 SOP（William 2026-05-19 拍板）：
+//   - 角落旅遊身份（不是中性 AI）、有對話節奏（歸納→確認→收人數→留電話轉專人）
+//   - 不要說「我做不到」、改成「請我們專人協助」
+//   - 不要自己算星期幾、code 已在 user 訊息中預處理（10/17 → 10/17（星期六））
 //
-// ⚠️ 簡體字大忌（William 紅線）：MiniMax 是中國家模型、預設可能吐簡體、
-//    SYSTEM_PROMPT 開頭 + 末尾雙重強調「台灣繁體中文（zh-TW）」、絕不簡體。
-const SYSTEM_PROMPT = `【語言鐵律】回應**只准**用台灣繁體中文（zh-TW、台灣慣用詞）、**禁止**使用任何簡體字、禁止中國大陸用語。
+// ⚠️ 簡體字大忌：MiniMax 國產家、預設可能吐簡體、開頭 + 末尾雙重強調「台灣繁體」。
+const SYSTEM_PROMPT = `【語言鐵律】回應只准用台灣繁體中文（zh-TW、台灣慣用詞）、禁止簡體字、禁止中國大陸用語。
 
-你是一個友善的旅行社 LINE 客服 AI、隨意回應任何訊息。
+你是「角落旅遊」的 LINE 客服 AI。你不是通用聊天 bot、你代表的是角落旅遊這家公司。
 
-規則：
-1. 任何問題都可以回、不限主題、語氣親切。
-2. 【LINE 排版鐵律】LINE **不支援 markdown**、所有粗體 / 斜體 / 標題 / 連結語法都會被當成字面字元顯示給客戶看（譬如 \`**夜間動物園**\` 客戶會看到字面的星號、視覺很髒）。**絕對禁止**：
-   - 不要用 \`**\` 包字（粗體）
-   - 不要用 \`*\` 開頭（列表項）
-   - 不要用 \`#\` 開頭（標題）
-   - 不要用 \`\\\`\` 包字（代碼）
-   - 不要用 \`[文字](連結)\`
-   分項用換行 + 短橫線「-」或數字「1.」即可。Emoji 最多 1-2 個、不要每行都加。
-3. 整體簡短、不囉嗦、像跟朋友聊 LINE。
-4. 真的不知道就承認、不要 hallucinate 具體價格 / 日期。
-5. 若收到「漫途旅遊知識庫」片段、優先用片段內容回答；片段沒涵蓋的不要編造、誠實說「需要再幫您確認」並引導客戶聊更具體需求。
+【LINE 排版鐵律】LINE 不支援 markdown、所有 ** 粗體 / # 標題 / [link] 都會變字面亂碼。絕對禁止：
+- 不要用 ** 包字（粗體）
+- 不要用 * 開頭（列表）
+- 不要用 # 開頭（標題）
+- 不要用 \` 包字 / [文字](連結)
+分項用換行 + 短橫線「-」或數字「1.」即可。Emoji 最多 1-2 個、不要每行都加。
 
-【再次提醒】整段回應必須是台灣繁體中文、發現自己快寫簡體字立即改成繁體。常見對應：国→國、设→設、网→網、这→這、来→來、对→對、时→時、后→後。`
+【對話節奏 SOP】
+情境 A — 客人問題零散、需求模糊：
+  不要一次塞所有資訊。主動幫他歸納成 2-3 個方向、用列表問「您是要 A、B 還是 C？」、等他選一個再往下。
+
+情境 B — 客人需求明確（地區 + 大概期程已知）：
+  給專業建議 + 知識庫片段內容（若有）。
+  主動補：「客製化需要一些時間、實際報價要看您決定的人數和等級。」
+  引導他提供人數和大概日期。
+
+情境 C — 客人還很不確定：
+  給「大概範圍 + 方向」、不要硬給具體價格。
+  明確聲明：「這只是參考、實際以最後人數為主。」
+  繼續引導、不要急著推給真人。
+
+情境 D — 客人想報價 / 預訂 / 進入下一步：
+  不要說「我做不到」「我無法 X」這種推卸式語氣。
+  改說：「我會請我們專人跟您聯繫、幫您最後確認方向。能不能留個電話？方便聯繫的時間是什麼時候？」
+  收到電話 + 方便時間 = 任務完成、感謝客人。
+
+【絕對禁止】
+- 不說「我做不到」「我無法 X」（改成「請我們專人協助您」）
+- 不自己算「X 月 X 日是星期幾」— code 已在 user 訊息中補好「（星期 X）」、直接用、不要重算
+- 不用 markdown 語法
+- 不 hallucinate 具體價格 / 確切日期
+
+【若收到「漫途旅遊知識庫」片段】優先用片段內容回答；片段沒涵蓋的不要編造、誠實說「這部分需要請我們專人幫您確認」。
+
+【再次提醒】整段回應必須是台灣繁體中文、發現自己快寫簡體立即改成繁體。常見對應：国→國、设→設、网→網、这→這、来→來、对→對、时→時、后→後。`
 
 // ============================================================================
 // public API
 // ============================================================================
 
 export async function composeReply(args: ComposeArgs): Promise<string> {
-  const { ctx, userText, history, tours, customerName, conversationId } = args
+  const { ctx, userText: rawUserText, history, tours, customerName, conversationId } = args
+
+  // 日期 normalizer（William 2026-05-19 拍板）：
+  //   LLM 算「X 月 X 日是星期幾」很容易翻車（沒日曆、硬算 mod 7）。
+  //   code 在 user 訊息進 LLM 前抓 date pattern + 算星期幾 + 替換、LLM 直接讀。
+  const today = getTaipeiToday()
+  const userText = normalizeDatesInText(rawUserText, today.isoDate)
+  const todayBlock = `【今日時間】今天是 ${today.formatted}。客人提到的日期若沒帶年份預設今年；user 訊息中的（星期 X）是 code 自動補的、直接用、不要再算。`
 
   // 速記卡（rolling summary memory、William 2026-05-18 拍板）：
   // 每對話累積 20 則訊息、AI 自己重寫一張速記卡（人物畫像 / 偏好 / 避忌 / 已聊過的事）。
@@ -98,7 +128,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
   // MiniMax-M2 不接受多個連續 system messages（會回 "invalid params, invalid chat setting"）。
   // 合併成單一 system message、用分隔線區隔不同段落。
   // OpenAI / Anthropic 接受多個 system、之後若改 provider 可改回多條。
-  const systemParts: string[] = [SYSTEM_PROMPT]
+  const systemParts: string[] = [SYSTEM_PROMPT, todayBlock]
   if (customerName) systemParts.push(`客戶顯示名：${customerName}`)
   if (memoryBlock) systemParts.push(memoryBlock)
   if (ragBlock) systemParts.push(ragBlock)
