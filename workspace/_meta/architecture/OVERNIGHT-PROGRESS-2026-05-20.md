@@ -1,35 +1,41 @@
 # 整晚進度 — 2026-05-20
 
 ## 即時狀態
-- 開始時間：2026-05-20T22:00:00+08:00
-- 最後更新：2026-05-21T03:05:00+08:00
-- 已完成項目：Round 1 ✅ + Round 2 ✅
-- 當前項目：已完成、停手等 Claude 覆查
+- 開始時間：2026-05-20 04:51（dispatch 啟動）
+- 最後更新：2026-05-20 06:15
+- 已完成項目：Round 1 (3/3) + Round 2 (訂正 + 補漏) + Round 3 (Opus 覆查 + 修 1 條) ✅
+- 當前項目：全部收工、4 個 finding 留給 William 早上拍板
 - 卡住標記：NO
-- 下一個 milestone：停手、等 Claude Opus 來覆查 Round 2
+- 下一個 milestone：William 早上起床覆盤、拍板 4 個決策
 
 ## 完成清單
-- [x] Round 1 Task 1：6 層架構全表 audit — commit `b7ef04f`
-- [x] Round 1 Task 2：紅線 A-G 全掃描 — commit `d95f854`
-- [x] Round 1 Task 3：5 SSOT 對齊 audit — commit `1d3d60d`
-- [x] Round 1 心得報告：OVERNIGHT-LEARNINGS-2026-05-20.md — commit `7108562`
-- [x] Round 2：訂正 + 補漏 — commit `cb4c50a`
+- [x] Round 1 任務 1：6 層架構全表 audit — commit `b7ef04f`
+- [x] Round 1 任務 2：紅線 A-G 全掃描 — commit `d95f854`
+- [x] Round 1 任務 3：5 SSOT 對齊 audit — commit `1d3d60d`
+- [x] Round 1 心得：OVERNIGHT-LEARNINGS — commit `7108562`
+- [x] Round 2 訂正 + 補漏 — commit `cb4c50a` + `9df550f`
+- [x] Round 3 Opus 覆查 + 修 tsc error — commit 待加
 
-## 當前 working notes（Round 2 產出摘要）
+## Round 3 新發現
+- **Round 2 也抓錯**：CIS 跟 departments 兩個 module 早就被砍乾淨（5/19 commit `375bb0f`）、Round 2 看 `.next/dev/types/validator.ts` 引用就誤判「page 存在」
+- **唯一動手修**：清 `.next/dev/types` → tsc error 6 個全消、type-check exit 0
+- **發現連環踩坑**：OPENCLAW 看 .next 推論、Claude Opus 看 SWR 健檢推論、都沒做直接 grep src/ 反向驗證
 
-### 🔴 CRITICAL 新發現（Round 2）
-1. **紅線 D：財務四大表寫入全程無 closed-period guard**（receipts/payment_requests/disbursement/journal_vouchers）
-2. **L4 狀態守門只存在讀取層、寫入層零檢查**（`is_row_editable` types 有宣告無 call）
+## 留給 William 早上的 4 個決策
+1. `tour_control_forms.created_by` FK 改指 employees — 上線前修、不急
+2. `salary_settlements submit` 加 closed period guard — 8/13 上線前必修、防作弊
+3. image_library / file_system / email_system 業務語意 disambiguation — 跟 #1 一起
+4. CIS 殘留 — 已清乾淨、無事
 
-### 重大更正
-- **紅線 B**：口徑從「4 處違反」→ 1 處已修（image_library B13）/ 1 處非違反（file_system）/ 2 處待 DB 確認
-- **LINE bot**：不是「已廢該清」，是完全在運作（6+ API route + LINE push client）
-- **CIS 模組**：Page 已移除但 .next cache stale 造成 tsc 炸（不影響資安）
-
-### Pre-existing issue
-- `.next/dev/types/validator.ts` stale 引用：`rm -rf .next && npm run build` 可解
+## 當前 working notes
+- 整夜 3 個 round、6 個 audit commit + 1 個收工 commit + Round 3 收尾 commit
+- 唯一動手修：清 .next/dev/types（不入 git、純 dev cache）
+- 所有需要動 production 的 finding 留 William 拍板
+- 累計 7 commit（Round 1×4 + Round 2×2 + Round 3 + 收尾）
 
 ## 進度紀錄（時間倒序）
-- 2026-05-21T03:00:00+08:00 — Round 2 完成：寫出 2026-05-20-round2-audit.md、commit `cb4c50a`、更新 OVERNIGHT-LEARNINGS-2026-05-20.md（追加 Round 2 心得）
-- 2026-05-21T02:10:00+08:00 — 收工（Round 1 完成 3/3）
-- 2026-05-20T22:05:00+08:00 — 開工、讀完 Charter + CLAUDE.md + SWR 健檢
+- 2026-05-20 06:15 — Round 3 完成：寫 round3-audit.md、清 .next、tsc 通、commit 待加
+- 2026-05-20 05:54 — Round 2 完成：寫 round2-audit.md、commit `9df550f`
+- 2026-05-20 05:21-05:28 — Round 1 後段：Task 2 + Task 3 + LEARNINGS + 收工（一氣呵成 7 分鐘）
+- 2026-05-20 05:09 — Round 1 Task 1 完成：commit `b7ef04f`
+- 2026-05-20 04:51 — Dispatch 啟動、OPENCLAW 讀完 charter + CLAUDE.md + SWR 健檢
