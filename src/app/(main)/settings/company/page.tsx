@@ -21,6 +21,7 @@ import { BonusPolicySection } from './_components/BonusPolicySection'
 import { ModuleLoading } from '@/components/module-loading'
 import { type CompanyFormData, type BankAccountOption, INITIAL_FORM } from './types'
 import type { BonusCalculationOrder } from '@/app/(main)/tours/_services/profit-calculation.service'
+import { BonusSettingType } from '@/types/bonus.types'
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store'
@@ -33,6 +34,8 @@ export default function CompanySettingsPage() {
   const [loading, setLoading] = useState(true)
   const [bankAccounts, setBankAccounts] = useState<BankAccountOption[]>([])
   const [bonusCalculationOrder, setBonusCalculationOrder] = useState<BonusCalculationOrder>('independent')
+  // 結帳稅率（公司預設、從 workspace_bonus_defaults PROFIT_TAX row 抓）
+  const [initialTaxRate, setInitialTaxRate] = useState<number | null>(null)
   const workspaceId = user?.workspace_id
 
   // 載入 bank_accounts、供「統一收付差額入賬帳戶」selector 用
@@ -104,6 +107,20 @@ export default function CompanySettingsPage() {
         setBonusCalculationOrder(
           ord === 'op_first' || ord === 'sales_first' ? ord : 'independent'
         )
+      }
+
+      // 載入結帳稅率（workspace_bonus_defaults PROFIT_TAX row）
+      const { data: taxData } = await supabase
+        .from('workspace_bonus_defaults')
+        .select('bonus')
+        .eq('workspace_id', workspaceId)
+        .eq('type', BonusSettingType.PROFIT_TAX)
+        .maybeSingle()
+      if (taxData) {
+        const tax = taxData as unknown as { bonus: number | string }
+        setInitialTaxRate(typeof tax.bonus === 'number' ? tax.bonus : Number(tax.bonus))
+      } else {
+        setInitialTaxRate(null)
       }
     } catch (error) {
       logger.error(t('companyLoadFailed'), error)
@@ -203,6 +220,7 @@ export default function CompanySettingsPage() {
           workspaceId={workspaceId}
           bankAccounts={bankAccounts}
           updateField={updateField}
+          initialTaxRate={initialTaxRate}
         />
 
         {/* 儲存按鈕 */}

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Building2, Landmark, Stamp } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -7,6 +8,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { BankCombobox } from '@/components/bank-combobox'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
+import { logger } from '@/lib/utils/logger'
 import { ImageUploadField, LogoHeaderPreview } from './ImageUploadField'
 import type { CompanyFormData, BankAccountOption } from '../types'
 
@@ -25,6 +28,8 @@ interface CompanyInfoCardProps {
   workspaceId: string
   bankAccounts: BankAccountOption[]
   updateField: <K extends keyof CompanyFormData>(field: K, value: CompanyFormData[K]) => void
+  /** 公司預設稅率（%）— 從 workspace_bonus_defaults 抓 PROFIT_TAX row 帶入 */
+  initialTaxRate: number | null
 }
 
 export function CompanyInfoCard({
@@ -32,8 +37,71 @@ export function CompanyInfoCard({
   workspaceId,
   bankAccounts,
   updateField,
+  initialTaxRate,
 }: CompanyInfoCardProps) {
   const t = useTranslations('settingsPage')
+
+  // 結帳稅率 local state（從 workspace_bonus_defaults PROFIT_TAX row 來、auto-save）
+  const [taxRate, setTaxRate] = useState<string>(
+    initialTaxRate !== null ? String(initialTaxRate) : ''
+  )
+  const [savingTax, setSavingTax] = useState(false)
+
+  // transfer_fee_mode radio auto-save（修跟 BonusPolicy 不一致的 UX bug）
+  const [savingMode, setSavingMode] = useState(false)
+  const handleTransferFeeModeChange = async (mode: 'average' | 'unified') => {
+    if (savingMode) return
+    const previous = form.transfer_fee_mode
+    updateField('transfer_fee_mode', mode)
+    setSavingMode(true)
+    try {
+      const res = await fetch(`/api/workspaces/${workspaceId}/company-settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transfer_fee_mode: mode }),
+      })
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({ error: '儲存失敗' }))
+        throw new Error(j.error || '儲存失敗')
+      }
+      toast.success('匯款手續費模式已儲存')
+    } catch (err) {
+      logger.error('儲存匯款手續費模式失敗', err)
+      toast.error('儲存失敗、請重試')
+      updateField('transfer_fee_mode', previous)
+    } finally {
+      setSavingMode(false)
+    }
+  }
+
+  // 結帳稅率 auto-save（onBlur 觸發、走 API route）
+  const handleTaxRateBlur = async () => {
+    const trimmed = taxRate.trim()
+    const parsed = trimmed === '' ? null : Number(trimmed)
+    if (trimmed !== '' && (Number.isNaN(parsed) || parsed! < 0 || parsed! > 100)) {
+      toast.error('稅率請填 0-100 之間的數字')
+      return
+    }
+    if (parsed === initialTaxRate) return // 沒變、不存
+    setSavingTax(true)
+    try {
+      const res = await fetch(`/api/workspaces/${workspaceId}/company-settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profit_tax_rate: parsed }),
+      })
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({ error: '儲存失敗' }))
+        throw new Error(j.error || '儲存失敗')
+      }
+      toast.success('結帳稅率已儲存')
+    } catch (err) {
+      logger.error('儲存結帳稅率失敗', err)
+      toast.error('儲存失敗、請重試')
+    } finally {
+      setSavingTax(false)
+    }
+  }
   return (
     <Card className="rounded-xl shadow-sm border border-border p-6">
       {/* 卡 1 Header：公司資料 */}
@@ -291,7 +359,8 @@ export function CompanyInfoCard({
                     name="transfer_fee_mode"
                     value="average"
                     checked={form.transfer_fee_mode === 'average'}
-                    onChange={() => updateField('transfer_fee_mode', 'average')}
+                    onChange={() => handleTransferFeeModeChange('average')}
+                    disabled={savingMode}
                     className="accent-morandi-gold"
                   />
                   <span className="font-medium text-sm">平均分配</span>
@@ -316,7 +385,8 @@ export function CompanyInfoCard({
                     name="transfer_fee_mode"
                     value="unified"
                     checked={form.transfer_fee_mode === 'unified'}
-                    onChange={() => updateField('transfer_fee_mode', 'unified')}
+                    onChange={() => handleTransferFeeModeChange('unified')}
+                    disabled={savingMode}
                     className="accent-morandi-gold"
                   />
                   <span className="font-medium text-sm">統一收付</span>
@@ -381,6 +451,29 @@ export function CompanyInfoCard({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* 結帳稅率（公司預設、auto-save、開團獎金結算時自動帶入）*/}
+          <div className="pt-3 border-t border-border/30 max-w-md">
+            <Label className="text-sm font-medium text-morandi-primary">
+              結帳稅率（%）
+            </Label>
+            <Input
+              type="number"
+              value={taxRate}
+              onChange={e => setTaxRate(e.target.value)}
+              onBlur={handleTaxRateBlur}
+              placeholder="例如 10（空白 = 不扣稅）"
+              min={0}
+              max={100}
+              step="0.01"
+              disabled={savingTax}
+              className="mt-1.5"
+            />
+            <p className="text-xs text-morandi-muted mt-1">
+              利潤（總收入 − 總支出）的此百分比 = 稅金。
+              新團獎金結算自動帶入此預設、該團可個別調整不影響別團。
+            </p>
           </div>
         </div>
 
