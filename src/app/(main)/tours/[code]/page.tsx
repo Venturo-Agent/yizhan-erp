@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import useSWR from 'swr'
 import { useParams, useRouter } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
@@ -13,6 +13,7 @@ import { useTourDetails } from '@/app/(main)/tours/_hooks/useTours-advanced'
 import { useAuthStore } from '@/stores/auth-store'
 import { TOUR_TABS, TourTabContent } from '@/app/(main)/tours/_components/TourTabs'
 import { useVisibleModuleTabs } from '@/lib/permissions/hooks'
+import { needsItineraryServiceType } from '@/lib/constants/tour-service-types'
 import { useTranslations } from 'next-intl'
 
 export default function TourDetailPage() {
@@ -35,7 +36,7 @@ export default function TourDetailPage() {
   const [forceShowPnr, setForceShowPnr] = useState(false)
 
   // 依 workspace 功能權限過濾可見的 tab（會自動隱藏未開通的付費 tab，如合約、展示行程）
-  const visibleTabs = useVisibleModuleTabs('tours', TOUR_TABS)
+  const featureVisibleTabs = useVisibleModuleTabs('tours', TOUR_TABS)
 
   // 監聽分頁變更，更新 URL 和 localStorage
   useEffect(() => {
@@ -47,6 +48,14 @@ export default function TourDetailPage() {
 
   // 載入團詳情
   const { tour, loading, actions } = useTourDetails(tourId || '')
+
+  // 5/19 條件性 hide「行程 / 展示行程」：機票 / 機加酒 / 外丟 / 簽證 / 網卡 不需行程
+  const visibleTabs = useMemo(() => {
+    if (!tour || needsItineraryServiceType(tour.tour_service_type)) return featureVisibleTabs
+    return featureVisibleTabs.filter(
+      (t) => t.value !== 'itinerary' && t.value !== 'display-itinerary'
+    )
+  }, [featureVisibleTabs, tour])
 
   // 返回列表
   const handleBack = () => {

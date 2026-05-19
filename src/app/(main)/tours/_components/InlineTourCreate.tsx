@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Alert } from '@/components/ui/alert'
 import { X } from 'lucide-react'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
+import { needsControllerServiceType } from '@/lib/constants/tour-service-types'
 
 const COMPONENT_LABELS = {
   REMARKS: '備註',
@@ -96,8 +97,14 @@ export function InlineTourCreate({
 
   const isSubmitDisabled = () => {
     if (submitting || !newTour.name.trim()) return true
-    // 團控：提案 / 模板不問（轉開團時 dialog 補）、正式團必填
-    if (!isProposalOrTemplate && !newTour.controller_id) return true
+    // 團控：提案 / 模板不問（轉開團時 dialog 補）、旅遊團必填、其他類型不需
+    if (
+      needsControllerServiceType(newTour.tour_service_type) &&
+      !isProposalOrTemplate &&
+      !newTour.controller_id
+    ) {
+      return true
+    }
     if (isProposalOrTemplate) return false
     if (!newTour.departure_date || !newTour.return_date) return true
     if (!!newOrder.contact_person?.trim() && !newOrder.sales_person?.trim()) return true

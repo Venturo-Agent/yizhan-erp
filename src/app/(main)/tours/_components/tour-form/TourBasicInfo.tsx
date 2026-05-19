@@ -20,7 +20,11 @@ import { logger } from '@/lib/utils/logger'
 import type { NewTourData } from '../../_types'
 import { TOUR_BASIC_INFO } from '../../_constants'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
-import { TOUR_TYPE_CODE_PREFIX, isNoDestinationServiceType } from '@/lib/constants/tour-service-types'
+import {
+  TOUR_TYPE_CODE_PREFIX,
+  isNoDestinationServiceType,
+  needsControllerServiceType,
+} from '@/lib/constants/tour-service-types'
 
 const COMPONENT_LABELS = {
   SELECT_TOUR_TYPE_PLACEHOLDER: '選擇團類型...',
@@ -53,14 +57,10 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
     { id: 'esim', label: '網卡' },
   ]
 
-  // 不需選國家 / 機場的團類型：開團時只挑日期、tour code 用固定 prefix
-  // OUT / VISA / ESIM 直接當「城市代碼」傳進 generate_tour_code RPC
-  const NO_DESTINATION_TYPES: Record<string, string> = {
-    outsource: 'OUT',
-    visa: 'VISA',
-    esim: 'ESIM',
-  }
-  const isNoDestinationType = !!newTour.tour_service_type && newTour.tour_service_type in NO_DESTINATION_TYPES
+  // 不需選國家 / 機場的團類型：開團時只挑日期、tour code 用固定 prefix（從 SSOT 取）
+  const isNoDestinationType = isNoDestinationServiceType(newTour.tour_service_type)
+  // 是否需要選團控（除旅遊團外、其他類型不需）— 切回旅遊團時 form 紅星 + submit 禁用會擋著補齊
+  const needsController = needsControllerServiceType(newTour.tour_service_type)
 
   // 從租戶設定讀取啟用的團類型
   const { user } = useAuthStore()
@@ -131,19 +131,19 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
         ) =>
           setNewTour(prev => {
             // 切到「不需國家 / 機場」類型時、清掉之前選的國家 / 機場（避免殘留誤判）
-            if (value in NO_DESTINATION_TYPES) {
+            if (value in TOUR_TYPE_CODE_PREFIX) {
               return {
                 ...prev,
                 tour_service_type: value,
                 countryId: undefined,
                 countryName: '',
                 countryCode: '',
-                cityCode: NO_DESTINATION_TYPES[value], // 直接帶 OUT / VISA / ESIM 當城市代碼
+                cityCode: TOUR_TYPE_CODE_PREFIX[value], // 直接帶 OUT / VISA / ESIM 當城市代碼
                 cityName: '',
               }
             }
             // 從「不需」切回「需要」類型時、清掉前面塞的固定 prefix（讓使用者重選）
-            const prevWasNoDest = prev.tour_service_type && prev.tour_service_type in NO_DESTINATION_TYPES
+            const prevWasNoDest = prev.tour_service_type && prev.tour_service_type in TOUR_TYPE_CODE_PREFIX
             return {
               ...prev,
               tour_service_type: value,
@@ -196,8 +196,8 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
         </div>
       )}
 
-      {/* 團控 — 建正式團時必填；提案 / 模板不問（提案不選團控、轉開團時 dialog 強制補）*/}
-      {!isProposalOrTemplate && (
+      {/* 團控 — 旅遊團才需要、其他類型隱藏；提案 / 模板也不問（提案轉開團時 dialog 強制補）*/}
+      {!isProposalOrTemplate && needsController && (
         <div>
           <label className="text-sm font-medium text-morandi-primary">
             團控 <span className="text-morandi-red">*</span>
