@@ -6,6 +6,7 @@ import { logger } from '@/lib/utils/logger'
 import type { UserRole } from '@/lib/rbac-config'
 import type { Database } from '@/lib/supabase/types'
 import { ensureAuthSync, resetAuthSyncState } from '@/lib/auth/auth-sync'
+import { DEMO_MODE, demoCapabilities, demoFeatures } from '@/lib/demo/demo'
 
 const LAYOUT_CONTEXT_SWR_KEY = '/api/auth/layout-context'
 
@@ -140,6 +141,50 @@ export const useAuthStore = create<AuthState>()(
 
       validateLogin: async (email, password, code) => {
         try {
+          if (DEMO_MODE) {
+            set({
+              capabilities: demoCapabilities,
+              features: demoFeatures,
+              premium_enabled: true,
+            })
+
+            get().setUser({
+              id: 'demo-employee',
+              employee_number: 'DEMO',
+              english_name: 'Demo User',
+              display_name: 'Demo 使用者',
+              chinese_name: 'Demo 使用者',
+              personal_info: {
+                national_id: 'A000000000',
+                birth_date: '1990-01-01',
+                phone: '0900-000-000',
+                email: 'demo@local',
+                address: 'Demo Address',
+                emergency_contact: {
+                  name: 'Demo Contact',
+                  relationship: 'N/A',
+                  phone: '0900-000-001',
+                },
+              },
+              job_info: { hire_date: '2020-01-01' },
+              salary_info: { base_salary: 50000, allowances: [], salary_history: [] },
+              role_id: 'demo-role',
+              roles: [],
+              attendance: { leave_records: [], overtime_records: [] },
+              contracts: [],
+              status: 'active',
+              workspace_id: 'demo-workspace',
+              branch_id: null,
+              workspace_code: 'DEMO',
+              workspace_name: 'Demo Workspace',
+              avatar: undefined,
+              must_change_password: false,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            })
+            return { success: true }
+          }
+
           if (!code) {
             return { success: false, message: '請輸入辦公室或廠商代號' }
           }

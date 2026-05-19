@@ -86,9 +86,24 @@ function isPublicPath(pathname: string): boolean {
 }
 
 async function isAuthenticated(request: NextRequest, response: NextResponse): Promise<boolean> {
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+    return true
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.SUPABASE_URL
+  const supabaseAnonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    if (process.env.NODE_ENV !== 'production') {
+      return true
+    }
+    throw new Error('Missing Supabase env: NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {

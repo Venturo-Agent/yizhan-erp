@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from './types'
+import { DEMO_MODE } from '@/lib/demo/demo'
 
 /**
  * getSupabaseAdminClient
@@ -23,14 +24,18 @@ export function getSupabaseAdminClient(): SupabaseClient<Database> {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
   if (!supabaseUrl) {
-    throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+    if (!DEMO_MODE) {
+      throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable')
+    }
   }
 
   if (!serviceRoleKey) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+    if (!DEMO_MODE) {
+      throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+    }
   }
 
-  return createClient<Database>(supabaseUrl, serviceRoleKey, {
+  return createClient<Database>(supabaseUrl ?? 'https://placeholder.supabase.co', serviceRoleKey ?? 'placeholder-key', {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
