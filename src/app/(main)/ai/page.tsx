@@ -15,7 +15,7 @@
  *   - dashboard: AI 控制中心（統計卡 + 平台狀態 + 活動 feed + 7 日效能）
  *   - conversations: 多通路對話收件匣（合併原 /messaging）
  *   - setup: 通道設定（line / facebook / instagram）
- *   - settings: AI 助理設定（Phase 2 細化）
+ *   - settings: AI 機器人（HAPPY / LINE / FB 三卡 + LINE 快捷回覆模板）
  *
  * 切 tab 走 search param ?tab=xxx、可分享 URL、瀏覽器 back / forward 行為對。
  *
@@ -39,7 +39,7 @@ const TABS = [
   { value: 'conversations', label: '對話管理', icon: MessageSquare },
   { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
-  { value: 'settings', label: 'AI 設定', icon: Settings2 },
+  { value: 'settings', label: 'AI 機器人', icon: Settings2 },
 ] as const
 
 const VALID_TABS = new Set(TABS.map((t) => t.value))

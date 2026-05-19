@@ -1,18 +1,40 @@
 'use client'
 
 /**
- * AI Hub - Settings tab
+ * AI Hub - AI 機器人 tab（William 2026-05-19 改造）
  *
- * LINE postback template 管理（快捷回覆 + Rich Menu 自動回覆）
- * workspace_ai_agents 人格設定（Phase 2）
+ * 上半：AI 機器人卡片區（HAPPY / LINE / FB）
+ *   - HAPPY：對內查資料客服、一棧 ERP 預設身份、不能改（紅線）
+ *   - LINE Bot：對外客服、客戶自綁 LINE OA、可自訂 prompt
+ *   - FB Bot：未來（disabled）
+ *
+ * 下半：LINE 快捷回覆模板（原 PostbackTemplatesSection 保留、Rich Menu + AI Hub 抽屜共用）
  */
 
 import { useState } from 'react'
 import useSWR, { mutate } from 'swr'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Loader2, Plus, Trash2, Pencil, Check, X, GripVertical } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import {
+  Bot,
+  MessageCircle,
+  Facebook,
+  Loader2,
+  Plus,
+  Trash2,
+  Pencil,
+  Check,
+  X,
+  GripVertical,
+  ArrowRight,
+  ShieldCheck,
+  type LucideIcon,
+} from 'lucide-react'
 import { toast } from 'sonner'
+import { useLayoutContext } from '@/lib/auth/useLayoutContext'
+import { cn } from '@/lib/utils'
 
 interface PostbackTemplate {
   id: string
@@ -33,11 +55,172 @@ const API = '/api/line/postback-templates'
 
 export function AiSettingsTab() {
   return (
-    <div className="p-6 space-y-8 max-w-2xl">
+    <div className="p-6 space-y-8 max-w-3xl">
+      <BotsSection />
+      <div className="border-t border-morandi-muted/15" />
       <PostbackTemplatesSection />
     </div>
   )
 }
+
+// ============================================================
+// BotsSection — HAPPY / LINE / FB 三張卡
+// ============================================================
+
+interface LineStatusResp {
+  data: {
+    is_active: boolean
+    channel_id?: string | null
+    bot_greeting?: string | null
+  } | null
+}
+
+function BotsSection() {
+  const { featuresSet } = useLayoutContext()
+  const happyEnabled = featuresSet.has('channels.happy')
+
+  const { data: lineStatus, isLoading: lineLoading } = useSWR<LineStatusResp>(
+    '/api/line/setup/status',
+    fetcher,
+    { revalidateOnFocus: false }
+  )
+  const lineActive = !!lineStatus?.data?.is_active
+
+  return (
+    <section>
+      <div className="mb-4">
+        <h2 className="text-base font-semibold text-morandi-primary">AI 機器人</h2>
+        <p className="text-xs text-morandi-muted mt-0.5">
+          管理 workspace 內的 AI bot 啟用狀態。對外 bot（LINE / FB）可自訂人格、對內 HAPPY 統一身份不可變更。
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <BotCard
+          icon={Bot}
+          name="HAPPY"
+          subtitle="對內查資料客服"
+          description="員工在內部頻道問問題、HAPPY 幫忙查 ERP 系統內的訂單 / 客戶 / 行程資料。"
+          status={happyEnabled ? 'active' : 'inactive'}
+          statusLabel={happyEnabled ? '啟用中' : '未啟用'}
+          badge={{ label: '一棧 ERP 預設、不可變更身份', icon: ShieldCheck }}
+          hint={happyEnabled ? null : '由租戶管理 → 基本功能 → 公司頻道 → HAPPY 啟用'}
+        />
+        <BotCard
+          icon={MessageCircle}
+          name="LINE Bot"
+          subtitle="對外客服（LINE OA）"
+          description="綁定 LINE 官方帳號、自動回應客戶訊息。可自訂 prompt 跟人格。"
+          status={lineLoading ? 'loading' : lineActive ? 'active' : 'warning'}
+          statusLabel={lineLoading ? '載入中' : lineActive ? '已綁定' : '未綁定'}
+          actionHref="/ai?tab=setup&channel=line"
+          actionLabel={lineActive ? '管理 LINE Bot' : '前往綁定'}
+        />
+        <BotCard
+          icon={Facebook}
+          name="Facebook Bot"
+          subtitle="對外客服（FB Messenger）"
+          description="未來支援 Facebook Messenger 自動回應、跟 LINE Bot 共用 AI 邏輯。"
+          status="comingSoon"
+          statusLabel="開發中"
+        />
+      </div>
+    </section>
+  )
+}
+
+type BotStatus = 'active' | 'inactive' | 'warning' | 'comingSoon' | 'loading'
+
+interface BotCardProps {
+  icon: LucideIcon
+  name: string
+  subtitle: string
+  description: string
+  status: BotStatus
+  statusLabel: string
+  badge?: { label: string; icon: LucideIcon }
+  hint?: string | null
+  actionHref?: string
+  actionLabel?: string
+}
+
+function BotCard({
+  icon: Icon,
+  name,
+  subtitle,
+  description,
+  status,
+  statusLabel,
+  badge,
+  hint,
+  actionHref,
+  actionLabel,
+}: BotCardProps) {
+  const router = useRouter()
+  const isComingSoon = status === 'comingSoon'
+
+  const statusStyles: Record<BotStatus, string> = {
+    active: 'bg-green-50 text-green-700 border-green-200',
+    inactive: 'bg-morandi-container/30 text-morandi-muted border-morandi-muted/20',
+    warning: 'bg-amber-50 text-amber-700 border-amber-200',
+    comingSoon: 'bg-morandi-container/30 text-morandi-muted border-morandi-muted/20',
+    loading: 'bg-morandi-container/20 text-morandi-muted border-morandi-muted/20',
+  }
+
+  return (
+    <Card
+      className={cn(
+        'p-5 border transition-colors',
+        isComingSoon ? 'opacity-60 border-dashed' : 'border-morandi-muted/20'
+      )}
+    >
+      <div className="flex items-start justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className="p-1.5 rounded-md bg-morandi-gold/10">
+            <Icon className="w-4 h-4 text-morandi-gold" strokeWidth={1.5} />
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-morandi-primary">{name}</div>
+            <div className="text-[0.65rem] text-morandi-muted">{subtitle}</div>
+          </div>
+        </div>
+        <span
+          className={cn(
+            'text-[0.65rem] px-1.5 py-0.5 rounded-full border whitespace-nowrap',
+            statusStyles[status]
+          )}
+        >
+          {statusLabel}
+        </span>
+      </div>
+      <p className="text-xs text-morandi-secondary leading-relaxed mb-3">{description}</p>
+      {badge && (
+        <div className="inline-flex items-center gap-1 text-[0.65rem] text-morandi-muted bg-morandi-container/30 px-2 py-1 rounded-md mb-2">
+          <badge.icon className="w-3 h-3" />
+          {badge.label}
+        </div>
+      )}
+      {hint && (
+        <p className="text-[0.65rem] text-morandi-muted italic mb-2">{hint}</p>
+      )}
+      {actionHref && actionLabel && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1 text-xs"
+          onClick={() => router.push(actionHref)}
+        >
+          {actionLabel}
+          <ArrowRight className="w-3 h-3" />
+        </Button>
+      )}
+    </Card>
+  )
+}
+
+// ============================================================
+// PostbackTemplatesSection — LINE 快捷回覆模板（保留原邏輯不動）
+// ============================================================
 
 function PostbackTemplatesSection() {
   const { data, isLoading, error } = useSWR<{ data: PostbackTemplate[] }>(API, fetcher, {
