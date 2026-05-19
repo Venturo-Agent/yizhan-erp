@@ -29,12 +29,16 @@ type ResponseMode = (typeof ALLOWED_RESPONSE_MODES)[number]
 const ALLOWED_PROVIDERS = ['minimax', 'anthropic', 'openrouter'] as const
 type Provider = (typeof ALLOWED_PROVIDERS)[number]
 
+// 大顆粒模組級資料來源（William 2026-05-19 拍板：先做模組勾選、之後 RAG 開動再接細節）
+// 注意：tours / suppliers / customers 跟舊版同名但語意從「子表」改成「模組級」
+// CORNER workspace 的 data_sources 已驗證為空 []、無 migration 風險
 const ALLOWED_DATA_SOURCES = new Set([
-  'tours',
-  'attractions',
-  'suppliers',
-  'orders',
-  'customers',
+  'tours', // 旅遊團模組（行程 / 團員 / 行程編輯）
+  'finance', // 財務模組（收付款 / 出納 / 傳票 / 會計報表）
+  'customers', // 客戶 / CRM 模組（客戶 / 訂單 / 業績）
+  'hr', // HR 人資模組（員工 / 特休 / 薪資 / 組織）
+  'suppliers', // 供應商模組（供應商 / 合約 / 應付）
+  'shared_data', // 共用資料（景點 / 飯店 / 餐廳）
 ])
 
 interface AiSettingsBody {

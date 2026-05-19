@@ -5,8 +5,11 @@
  *
  * 顯示 / 編輯 per-workspace 的 AI 行為設定：
  *   - prompt template（多行 textarea）
- *   - 資料來源（checkbox：行程 / 景點 / 供應商 / 訂單 / 客戶）
+ *   - 資料來源（checkbox：模組級大顆粒：旅遊團 / 財務 / 客戶 / HR / 供應商 / 共用資料）
  *   - 回應語氣（select：formal / friendly / minimal）
+ *
+ * 2026-05-19 William 拍板：data_sources 從原 5 個子表細欄位（行程/景點/供應商/訂單/客戶）
+ *   改成 6 個模組級大顆粒。先擺設定不接邏輯、待 RAG 開動接 tool use 時讀此設定決定能查哪些。
  *
  * 守門：API 端守 workspaces.write、UI 不另檢、操作失敗會被 403 擋下並 toast
  */
@@ -36,12 +39,15 @@ const RESPONSE_MODE_OPTIONS = [
   { value: 'minimal', label: '極簡（minimal）' },
 ] as const
 
+// 大顆粒模組級資料來源（William 2026-05-19 拍板：先擺勾選、之後 RAG 開動再接細節）
+// 跟 src/app/api/workspaces/[id]/ai-settings/route.ts 的 ALLOWED_DATA_SOURCES 必須同步
 const DATA_SOURCE_OPTIONS = [
-  { value: 'tours', label: '行程' },
-  { value: 'attractions', label: '景點' },
-  { value: 'suppliers', label: '供應商' },
-  { value: 'orders', label: '訂單' },
-  { value: 'customers', label: '客戶' },
+  { value: 'tours', label: '旅遊團', description: '行程、團員、行程編輯、團體訂單' },
+  { value: 'finance', label: '財務', description: '收款、付款、出納、傳票、會計報表' },
+  { value: 'customers', label: '客戶 / CRM', description: '客戶、訂單、業績、聯絡紀錄' },
+  { value: 'hr', label: 'HR 人資', description: '員工、特休、薪資、組織' },
+  { value: 'suppliers', label: '供應商', description: '供應商、合約、應付帳款' },
+  { value: 'shared_data', label: '共用資料', description: '景點 / 飯店 / 餐廳' },
 ] as const
 
 type ResponseMode = (typeof RESPONSE_MODE_OPTIONS)[number]['value']
@@ -308,28 +314,40 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
 
           {/* Data Sources */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-morandi-primary">
-              允許讀取的資料來源
-            </Label>
-            <p className="text-xs text-morandi-secondary">
-              勾選 AI 在對話時可查詢的內部資料表。未勾選代表 AI 看不到這類資料。
+            <div className="flex items-center gap-2 flex-wrap">
+              <Label className="text-sm font-medium text-morandi-primary">
+                HAPPY 可讀取的資料模組
+              </Label>
+              <span className="text-[0.65rem] px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700">
+                設定保留、待 RAG 開動後生效
+              </span>
+            </div>
+            <p className="text-xs text-morandi-secondary leading-relaxed">
+              勾選 HAPPY（對內查資料客服）可以查的 ERP 模組。**目前僅儲存設定、HAPPY 尚未接 RAG / tool use、勾了還不會生效**。
+              之後 RAG 開動後、HAPPY 會根據此設定決定要不要查對應模組的資料。
             </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
               {DATA_SOURCE_OPTIONS.map(option => {
                 const checked = settings.data_sources.includes(option.value)
                 return (
                   // eslint-disable-next-line venturo/no-forbidden-classes
                   <label
                     key={option.value}
-                    className="flex items-center gap-2 px-4 py-3 rounded-[16px] cursor-pointer bg-gradient-to-t from-morandi-cream-soft to-morandi-cream-warm shadow-[rgba(180,160,120,0.3)_0px_8px_20px_-4px] hover:shadow-md transition-all"
+                    className="flex items-start gap-3 px-4 py-3 rounded-[16px] cursor-pointer bg-gradient-to-t from-morandi-cream-soft to-morandi-cream-warm shadow-[rgba(180,160,120,0.3)_0px_8px_20px_-4px] hover:shadow-md transition-all"
                   >
                     <Checkbox
                       checked={checked}
                       onCheckedChange={() => toggleDataSource(option.value)}
+                      className="mt-0.5"
                     />
-                    <span className="text-sm font-medium text-morandi-primary">
-                      {option.label}
-                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-morandi-primary">
+                        {option.label}
+                      </div>
+                      <div className="text-[0.65rem] text-morandi-secondary mt-0.5 leading-relaxed">
+                        {option.description}
+                      </div>
+                    </div>
                   </label>
                 )
               })}
