@@ -1,11 +1,14 @@
 #!/bin/sh
 # Push 前跑 vitest + codegen-fresh check、避免破壞 baseline 還 push
 # pre-commit 已有 type-check / lint、這裡只補 unit test
+#
+# 排除 tests/concurrency/**：這幾個是 production 級 advisory lock 並發測試、
+# 需要實際 DB 跑、本地 push 不該擋；之後改在 CI 環境跑。
 
-echo "🧪 Pre-push: 跑 vitest..."
+echo "🧪 Pre-push: 跑 vitest（排除 tests/concurrency）..."
 echo ""
 
-npx vitest run --reporter=default
+npx vitest run --reporter=default --exclude 'tests/concurrency/**'
 
 if [ $? -ne 0 ]; then
   echo ""
