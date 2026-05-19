@@ -4,11 +4,6 @@
       "count": 1
     }
   },
-  "src/app/(main)/accounting/accounts/components/EditAccountDialog.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 2
-    }
-  },
   "src/app/(main)/accounting/accounts/page.tsx": {
     "venturo/no-direct-supabase-writes": {
       "count": 1

@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { supabase } from '@/lib/supabase/client'
+import { updateChartOfAccount, deleteChartOfAccount } from '@/data'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { confirm } from '@/lib/ui/alert-dialog'
@@ -108,18 +108,13 @@ export function EditAccountDialog({
     setIsSubmitting(true)
 
     try {
-      const { error } = await supabase
-        .from('chart_of_accounts')
-        .update({
-          code: formData.code,
-          name: formData.name,
-          account_type: formData.account_type,
-          description: formData.description || null,
-          is_active: formData.is_active,
-        })
-        .eq('id', account.id)
-
-      if (error) throw error
+      await updateChartOfAccount(account.id, {
+        code: formData.code,
+        name: formData.name,
+        account_type: formData.account_type,
+        description: formData.description || null,
+        is_active: formData.is_active,
+      })
 
       toast.success(PAGE_LABELS.UPDATE_SUCCESS)
       onOpenChange(false)
@@ -150,9 +145,7 @@ export function EditAccountDialog({
     setIsSubmitting(true)
 
     try {
-      const { error } = await supabase.from('chart_of_accounts').delete().eq('id', account.id)
-
-      if (error) throw error
+      await deleteChartOfAccount(account.id)
 
       toast.success(PAGE_LABELS.DELETE_SUCCESS)
       onOpenChange(false)
