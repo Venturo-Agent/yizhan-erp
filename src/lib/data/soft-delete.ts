@@ -32,6 +32,11 @@ export interface SoftDeletePayload {
   reason?: string
   /** 軟刪除前的資料快照、寫進 audit log 給對帳用 */
   before?: Record<string, unknown>
+  /**
+   * Workspace 比對的欄位名、預設 `workspace_id`。
+   * Shared library 表（attractions / hotels / restaurants）用 `created_by_workspace_id`。
+   */
+  workspaceColumn?: string
 }
 
 interface OperationResult {
@@ -77,6 +82,8 @@ export async function softDelete(
   const payloadErr = validatePayload(payload)
   if (payloadErr) return { ok: false, error: payloadErr }
 
+  const workspaceColumn = payload.workspaceColumn ?? 'workspace_id'
+
   // 1. UPDATE 加 deleted_at + deleted_by + deleted_reason
   const builder = supabase
     .from(payload.table)
@@ -87,7 +94,7 @@ export async function softDelete(
     })
     .eq('id', payload.id) as UpdateBuilder
 
-  const final = (builder as UpdateBuilder).eq('workspace_id', ctx.workspaceId) as Promise<{
+  const final = (builder as UpdateBuilder).eq(workspaceColumn, ctx.workspaceId) as Promise<{
     error: null | { message: string }
   }>
 
@@ -112,12 +119,14 @@ export async function softDelete(
 export async function restoreSoftDeleted(
   supabase: SupabaseLike,
   ctx: SoftDeleteContext,
-  payload: { table: string; id: string }
+  payload: { table: string; id: string; workspaceColumn?: string }
 ): Promise<OperationResult> {
   const ctxErr = validateContext(ctx)
   if (ctxErr) return { ok: false, error: ctxErr }
   const payloadErr = validatePayload(payload)
   if (payloadErr) return { ok: false, error: payloadErr }
+
+  const workspaceColumn = payload.workspaceColumn ?? 'workspace_id'
 
   // 1. UPDATE 把 deleted_* 都清掉
   const builder = supabase
@@ -129,7 +138,7 @@ export async function restoreSoftDeleted(
     })
     .eq('id', payload.id) as UpdateBuilder
 
-  const final = (builder as UpdateBuilder).eq('workspace_id', ctx.workspaceId) as Promise<{
+  const final = (builder as UpdateBuilder).eq(workspaceColumn, ctx.workspaceId) as Promise<{
     error: null | { message: string }
   }>
 

@@ -99,7 +99,7 @@ export function buildResourceActions(opts: ResourceActionOptions) {
       const result = await softDelete(
         supabase as never,
         { workspaceId: opts.workspaceId, actorId: opts.actorId },
-        { table, id: opts.resourceId }
+        { table, id: opts.resourceId, workspaceColumn: 'created_by_workspace_id' }
       )
       if (!result.ok) throw new Error(result.error ?? '軟刪除失敗')
       toast.success(LABELS.TOAST_DELETED)
