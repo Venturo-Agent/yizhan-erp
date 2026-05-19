@@ -19,8 +19,8 @@
  *
  * 切 tab 走 search param ?tab=xxx、可分享 URL、瀏覽器 back / forward 行為對。
  *
- * 真正 AI logic（intent 分級 / proposal 開團 / 估價）由執事長 spec v2 接管、
- * 本檔只搭 UI 殼。
+ * 真正 AI 業務邏輯（intent 分級 / proposal 開團 / 估價 / 自動建單）待之後
+ * 業務 spec 拍板再接、本檔只搭 UI 殼。
  */
 
 import { useSearchParams, useRouter } from 'next/navigation'

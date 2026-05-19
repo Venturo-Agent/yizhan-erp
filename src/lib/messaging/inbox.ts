@@ -4,7 +4,7 @@
  * 把訊息寫進 inbox_conversations + inbox_messages（polymorphic across LINE/FB/IG）。
  *
  * 5/14 整合：原本 LINE 寫 line_conversation_messages、FB/IG 寫 inbox_*。整合後 LINE 也走 inbox_*、
- * 達成「全 channel 一張表、UI 一個 query」的設計（呼應執事長 5/13 unified_inbox migration）。
+ * 達成「全 channel 一張表、UI 一個 query」的設計（5/13 unified_inbox migration）。
  *
  * 使用：
  *   - LINE webhook（src/app/api/line/webhook/route.ts）寫 inbound

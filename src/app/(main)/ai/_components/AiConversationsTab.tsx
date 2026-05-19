@@ -9,7 +9,7 @@
  *   - 左：channel filter（all / line / fb / ig）+ 對話列表（SWR 10s refresh）
  *   - 右：訊息 thread + 回覆 composer + bot pause switch
  *
- * Phase 2（執事長 spec v2 接管）：
+ * Phase 2（待後續 AI 業務 spec 接管）：
  *   - 加最右側 AI 摘要面板（情緒分析 / 關鍵資訊 / 建議動作）
  *   - 對話 row 加 AI 信心三檔 🟢🟡🔴 標籤
  *   - 訊息分 sender_type: customer / agent / ai_agent 視覺區隔（已有、優化文案）

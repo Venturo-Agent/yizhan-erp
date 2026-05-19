@@ -168,8 +168,8 @@ export async function fetchLineGroupSummary(
  * 拿群組所有成員 line_user_id 陣列（cursor pagination）
  *
  * Endpoint: GET /v2/bot/group/{groupId}/members/ids
- * 文件寫「Verified / Premium only」、但 2026-05-18 角落旅遊（一般 OA）實測也通、
- * 走得通就用、走不通會回 403、caller 拿到 null fall back。
+ * 一般 OA 可用（2026-05-18 角落旅遊一般 OA 實測通）。文件曾標 Verified / Premium only、
+ * 但實測未限制；極端情況 API 回 403 / 401 時、caller 拿到 null fall back。
  *
  * 用途：bot 第一次見到群組時、把全員 ID 抓出來、再逐個 fetchLineGroupMemberProfile
  * cache 進 line_user_profiles。這樣連「沒發過訊息的成員」名字也有。

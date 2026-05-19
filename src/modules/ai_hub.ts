@@ -7,7 +7,7 @@ import { defineModule } from './_define'
  * - 路由：/ai
  * - capability：ai_hub.{read,write}
  * - tabs：UI 層 3 個（dashboard / conversations / settings）、capability 不分 tab
- * - category：premium（對應執事長 spec v2 NT$3000/月 ai_integration umbrella）
+ * - category：premium（AI 整合通常走加值方案）
  *
  * 功能：
  * - dashboard：AI 控制中心（4 統計卡 + 平台狀態 + 活動 feed + 7 日效能圖）
@@ -17,7 +17,7 @@ import { defineModule } from './_define'
  * 紀律：
  * - 跟 messaging_inbox 2026-05-14 拍板方向一致、走粗顆粒 module-level read/write
  * - UI tab 不對應 capability tab、避免 5/14 messaging_inbox 踩過的「tab capability 死碼」坑
- * - 真正 AI logic（intent 分級 / proposal 開團 / 估價 / 自動建單）由執事長 spec v2 接、
+ * - 真正 AI 業務邏輯（intent 分級 / proposal 開團 / 估價 / 自動建單）待後續 spec 拍板再接、
  *   此 module 只負責 UI 殼 + 路由 + feature gate
  */
 export const AiHubModule = defineModule({
