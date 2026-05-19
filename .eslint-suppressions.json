@@ -1,0 +1,376 @@
+{
+  "src/app/(main)/accounting/accounts/components/CreateAccountDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/accounting/accounts/components/EditAccountDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/accounting/accounts/page.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/accounting/checks/components/CreateCheckDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/accounting/checks/page.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/ai/_components/AiConversationsTab.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/ai/_components/AiRetrospectiveTab.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/ai/_components/AiSettingsTab.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/bot/[lineUserId]/_components/CustomerInfoSidebar.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/dashboard/_services/dashboard.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 3
+    }
+  },
+  "src/app/(main)/finance/payments/_components/AddReceiptDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/finance/payments/_components/ReceiptDialogFooter.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/finance/payments/_components/ReceiptTransferDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 5
+    }
+  },
+  "src/app/(main)/finance/payments/_services/disbursement-order.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 5
+    }
+  },
+  "src/app/(main)/finance/payments/_services/expense-core.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/finance/payments/_services/payment-request-items.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 4
+    }
+  },
+  "src/app/(main)/finance/payments/_services/payment-request.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/finance/payments/_services/receipt-core.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/finance/requests/_components/AddRequestDialog.edit-ops.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 3
+    }
+  },
+  "src/app/(main)/finance/requests/_components/CostTransferDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 10
+    }
+  },
+  "src/app/(main)/library/archive-management/page.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 3
+    }
+  },
+  "src/app/(main)/library/attractions/_components/tabs/RegionsTab.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    },
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/library/customers/_components/CustomerDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/library/customers/page.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_components/OrderMembersExpandable.toolbar.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_components/OrderMembersExpandable.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_components/OrderStatusChangeDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/orders/_components/member-edit/PassportSection.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/orders/_components/simple-order-table.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_components/usePnrMatchSave.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/orders/_hooks/passport/usePassportValidation.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 5
+    }
+  },
+  "src/app/(main)/orders/_hooks/useCustomerMatch.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/orders/_hooks/useEditModeSyncCustomers.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_hooks/useMemberEditDialog.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 5
+    }
+  },
+  "src/app/(main)/orders/_hooks/useMemberFieldHandlers.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_hooks/useMemberTableActions.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_hooks/useOrderMemberActions.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/orders/_hooks/useOrderMembers.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 4
+    }
+  },
+  "src/app/(main)/orders/_hooks/useOrderMembersData.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_quotes/_hooks/useQuoteVisibility.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/orders/_quotes/_utils/core-table-adapter.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 5
+    }
+  },
+  "src/app/(main)/orders/_services/order-stats.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/orders/_services/order_member.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/settings/company/_components/BonusPolicySection.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/settings/company/_components/BranchesSection.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/settings/company/_components/DimensionSection.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/settings/company/page.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/shared-data/airports/page.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/shared-data/banks/page.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/shared-data/countries/page.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/tours/[code]/page.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/tours/_components/ProfitTab.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/tours/_components/itinerary-editor/usePackageItinerary.actions.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/tours/_components/tour-quote-tab.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/tours/_hooks/useItinerarySave.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/tours/_hooks/useTourCreateOperation.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/tours/_hooks/useTourEdit.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 4
+    }
+  },
+  "src/app/(main)/tours/_hooks/useTourItineraryItems.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    },
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/tours/_hooks/useTourOperations.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 3
+    }
+  },
+  "src/app/(main)/tours/_hooks/useTours-advanced.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    },
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/tours/_hooks/useToursPaginated.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 3
+    }
+  },
+  "src/app/(main)/tours/_services/bonus-payment.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/tours/_services/tour-stats.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 2
+    }
+  },
+  "src/app/(main)/tours/_services/tour_dependency.service.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 10
+    }
+  },
+  "src/app/(main)/workspaces/[id]/_components/QuotaHistorySection.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/workspaces/[id]/_components/ai-health-tab.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/app/(main)/workspaces/page.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/components/bank-combobox.tsx": {
+    "venturo/no-direct-useswr-in-pages": {
+      "count": 1
+    }
+  },
+  "src/components/editor/tour-form/sections/daily-itinerary/ActivitiesSection.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/components/resource-panel/ResourceList.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/components/resource-panel/ResourceOverrideDialog.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  },
+  "src/components/resource-panel/useResourceActions.ts": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 5
+    }
+  },
+  "src/components/selectors/CountryAirportSelector.tsx": {
+    "venturo/no-direct-supabase-writes": {
+      "count": 1
+    }
+  }
+}
