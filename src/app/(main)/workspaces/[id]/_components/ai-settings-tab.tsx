@@ -376,6 +376,147 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
           </Button>
         </div>
       </div>
+
+      {/* ============================================================== */}
+      {/* HAPPY 機器人人格（漫途配、客戶看不到此 section） */}
+      {/* ============================================================== */}
+      <HappyPersonaSection workspaceId={workspaceId} />
+    </div>
+  )
+}
+
+// ============================================================
+// HAPPY 人格設定 — 漫途專用（client UI 完全不顯示給客戶看）
+// ============================================================
+interface HappyPersona {
+  brand_description: string | null
+  system_prompt_override: string | null
+  is_active: boolean
+}
+
+function HappyPersonaSection({ workspaceId }: { workspaceId: string }) {
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [persona, setPersona] = useState<HappyPersona>({
+    brand_description: '',
+    system_prompt_override: '',
+    is_active: false,
+  })
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/workspaces/${workspaceId}/happy-persona`)
+        if (!res.ok) return
+        const { data } = await res.json()
+        if (cancelled) return
+        setPersona({
+          brand_description: data.brand_description ?? '',
+          system_prompt_override: data.system_prompt_override ?? '',
+          is_active: data.is_active ?? false,
+        })
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    void load()
+    return () => { cancelled = true }
+  }, [workspaceId])
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/workspaces/${workspaceId}/happy-persona`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          brand_description: persona.brand_description?.trim() || null,
+          system_prompt_override: persona.system_prompt_override?.trim() || null,
+          is_active: persona.is_active,
+        }),
+      })
+      if (!res.ok) {
+        toast.error('儲存 HAPPY 人格失敗')
+        return
+      }
+      toast.success('已儲存 HAPPY 人格設定')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) return <ModuleLoading />
+
+  return (
+    // eslint-disable-next-line venturo/no-forbidden-classes
+    <div className="rounded-[24px] p-6 bg-gradient-to-t from-white to-morandi-cream border-[3px] border-white shadow-[rgba(180,160,120,0.15)_0px_12px_24px_-8px]">
+      <div className="flex items-center gap-2 mb-2">
+        <Sparkles className="h-4 w-4 text-morandi-gold" />
+        <h3 className="font-semibold text-morandi-primary">HAPPY 機器人人格（漫途專用）</h3>
+        <span className="text-[0.65rem] text-morandi-muted ml-auto">workspaces.write 守門 · 客戶看不到此區</span>
+      </div>
+      <p className="text-xs text-morandi-secondary mb-5 leading-relaxed">
+        HAPPY 是漫途提供給客戶的內部 AI 助手、客戶不能客製化、由漫途 staff 在此微調。
+        不填 → HAPPY 用預設人格。
+      </p>
+
+      <div className="space-y-5">
+        {/* 啟用 toggle */}
+        <div className="flex items-center gap-3">
+          <Checkbox
+            checked={persona.is_active}
+            onCheckedChange={c => setPersona(p => ({ ...p, is_active: Boolean(c) }))}
+          />
+          <Label className="text-sm font-medium text-morandi-primary cursor-pointer">
+            啟用自訂 HAPPY 人格（未啟用 = 用平台預設）
+          </Label>
+        </div>
+
+        {/* 品牌 / 客戶 context（append 進 base prompt 後面） */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-morandi-primary">
+            品牌 / 客戶 context（append 模式）
+          </Label>
+          <p className="text-xs text-morandi-secondary">
+            補充客戶品牌資訊、會接在 HAPPY 預設 prompt 後面。譬如「該客戶是角落旅行社、員工常問日本團行程」。
+          </p>
+          <Textarea
+            value={persona.brand_description ?? ''}
+            onChange={e => setPersona(p => ({ ...p, brand_description: e.target.value }))}
+            placeholder="（選填）譬如：該客戶是角落旅行社、主打日本團..."
+            rows={3}
+          />
+        </div>
+
+        {/* 完全覆寫 system prompt（最強力、慎用） */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-morandi-primary">
+            完全覆寫 System Prompt（override 模式、慎用）
+          </Label>
+          <p className="text-xs text-morandi-secondary">
+            若填、會完全取代 HAPPY 預設 prompt。沒填 → 上面「品牌 context」append 模式生效。
+          </p>
+          <Textarea
+            value={persona.system_prompt_override ?? ''}
+            onChange={e => setPersona(p => ({ ...p, system_prompt_override: e.target.value }))}
+            placeholder="（選填）完全覆寫的 prompt..."
+            rows={6}
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end pt-6 mt-6 border-t border-morandi-gold/20">
+        <Button
+          variant="soft-gold"
+          onClick={handleSave}
+          disabled={saving}
+          className="border-morandi-gold text-morandi-gold hover:bg-morandi-gold/10"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          {saving ? '儲存中...' : '儲存 HAPPY 人格'}
+        </Button>
+      </div>
     </div>
   )
 }
