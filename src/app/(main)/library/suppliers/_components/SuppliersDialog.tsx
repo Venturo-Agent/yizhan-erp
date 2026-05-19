@@ -30,11 +30,11 @@ const COMPONENT_LABELS = {
   COMPANY_FULL_NAME_PLACEHOLDER: '例：台灣銀行股份有限公司',
   TAX_ID: '公司統編',
   TAX_ID_PLACEHOLDER: '例：12345678',
-  BANK_BRANCH_NAME: '銀行／分行名稱',
+  BANK_NAME: '銀行',
+  BANK_BRANCH: '分行',
   BANK_NAME_PLACEHOLDER: '例：台灣銀行',
   BANK_BRANCH_PLACEHOLDER: '例：營業部',
-  BANK_CODE: '銀行代碼',
-  BANK_CODE_PLACEHOLDER: '例：004',
+  BANK_PICKER_PLACEHOLDER: '選擇銀行（004 / 822 ...）',
   BANK_ACCOUNT_NAME: '銀行戶名',
   BANK_ACCOUNT_NAME_PLACEHOLDER: '例：XX旅行社有限公司',
   BANK_ACCOUNT: '銀行帳號',
@@ -72,7 +72,6 @@ type SupplierFormData = {
   swift_code: string // is_domestic=false 用
   bank_name: string
   bank_branch: string
-  bank_code_legacy: string
   bank_account_name: string
   bank_account: string
   contact_person: string
@@ -201,40 +200,47 @@ export const SuppliersDialog: React.FC<SuppliersDialogProps> = ({
           </div>
         </div>
 
-        {/* 第3列 */}
+        {/* 第3列：銀行（國內下拉 / 國外文字）+ 分行 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>{COMPONENT_LABELS.BANK_BRANCH_NAME}</Label>
-            <div className="grid grid-cols-2 gap-2 mt-1">
-              <Input
-                value={formData.bank_name}
-                onChange={e => onFormFieldChange('bank_name', e.target.value)}
-                placeholder={COMPONENT_LABELS.BANK_NAME_PLACEHOLDER}
-              />
-              <Input
-                value={formData.bank_branch}
-                onChange={e => onFormFieldChange('bank_branch', e.target.value)}
-                placeholder={COMPONENT_LABELS.BANK_BRANCH_PLACEHOLDER}
-              />
-            </div>
-          </div>
-          <div>
-            <Label>
-              {formData.is_domestic ? COMPONENT_LABELS.BANK_CODE : 'SWIFT Code'}
-            </Label>
+            <Label>{COMPONENT_LABELS.BANK_NAME}</Label>
             {formData.is_domestic ? (
               <div className="mt-1">
                 <BankCombobox
                   value={formData.bank_code}
                   onChange={v => onFormFieldChange('bank_code', v)}
                   onSelect={ref => {
-                    if (ref) onFormFieldChange('bank_name', ref.bank_name)
+                    onFormFieldChange('bank_name', ref?.bank_name ?? '')
                   }}
-                  placeholder="選擇銀行（004 / 822 ...）"
+                  placeholder={COMPONENT_LABELS.BANK_PICKER_PLACEHOLDER}
                   disablePortal
                 />
               </div>
             ) : (
+              <Input
+                value={formData.bank_name}
+                onChange={e => onFormFieldChange('bank_name', e.target.value)}
+                placeholder={COMPONENT_LABELS.BANK_NAME_PLACEHOLDER}
+                className="mt-1"
+              />
+            )}
+          </div>
+          <div>
+            <Label>{COMPONENT_LABELS.BANK_BRANCH}</Label>
+            <Input
+              value={formData.bank_branch}
+              onChange={e => onFormFieldChange('bank_branch', e.target.value)}
+              placeholder={COMPONENT_LABELS.BANK_BRANCH_PLACEHOLDER}
+              className="mt-1"
+            />
+          </div>
+        </div>
+
+        {/* 第 3.5 列：SWIFT（只國外才出現） */}
+        {!formData.is_domestic && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>SWIFT Code</Label>
               <Input
                 value={formData.swift_code}
                 onChange={e => onFormFieldChange('swift_code', e.target.value.toUpperCase())}
@@ -242,9 +248,9 @@ export const SuppliersDialog: React.FC<SuppliersDialogProps> = ({
                 maxLength={11}
                 className="mt-1 font-mono"
               />
-            )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 第4列 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

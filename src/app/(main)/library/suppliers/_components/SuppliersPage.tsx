@@ -48,7 +48,6 @@ export const SuppliersPage: React.FC = () => {
     swift_code: '',
     bank_name: '',
     bank_branch: '',
-    bank_code_legacy: '',
     bank_account_name: '',
     bank_account: '',
     contact_person: '',
@@ -63,7 +62,7 @@ export const SuppliersPage: React.FC = () => {
     searchQuery
       ? supplier.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         supplier.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        supplier.bank_code_legacy?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        supplier.bank_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         supplier.bank_account?.toLowerCase().includes(searchQuery.toLowerCase())
       : true
   )
@@ -87,7 +86,6 @@ export const SuppliersPage: React.FC = () => {
       swift_code: supplier.swift_code || '',
       bank_name: supplier.bank_name || '',
       bank_branch: supplier.bank_branch || '',
-      bank_code_legacy: supplier.bank_code_legacy || '',
       bank_account_name: supplier.bank_account_name || '',
       bank_account: supplier.bank_account || '',
       contact_person: supplier.contact_person || '',
@@ -129,7 +127,6 @@ export const SuppliersPage: React.FC = () => {
       swift_code: '',
       bank_name: '',
       bank_branch: '',
-      bank_code_legacy: '',
       bank_account_name: '',
       bank_account: '',
       contact_person: '',
@@ -163,7 +160,6 @@ export const SuppliersPage: React.FC = () => {
           swift_code: formData.swift_code || null,
           bank_name: formData.bank_name || null,
           bank_branch: formData.bank_branch || null,
-          bank_code_legacy: formData.bank_code_legacy || null,
           bank_account_name: formData.bank_account_name || null,
           bank_account: formData.bank_account || null,
           contact_person: formData.contact_person || null,
@@ -190,7 +186,6 @@ export const SuppliersPage: React.FC = () => {
           swift_code: formData.swift_code || null,
           bank_name: formData.bank_name || null,
           bank_branch: formData.bank_branch || null,
-          bank_code_legacy: formData.bank_code_legacy || null,
           bank_account_name: formData.bank_account_name || null,
           bank_account: formData.bank_account || null,
           contact_person: formData.contact_person || null,

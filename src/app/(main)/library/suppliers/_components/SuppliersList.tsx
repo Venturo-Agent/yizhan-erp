@@ -56,7 +56,7 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
       ),
     },
     {
-      key: 'bank_code_legacy',
+      key: 'bank_code',
       label: '銀行代碼',
       sortable: true,
       render: value => <span className="text-morandi-primary">{String(value || '-')}</span>,

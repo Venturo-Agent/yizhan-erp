@@ -34,7 +34,6 @@ export interface Supplier extends BaseEntity {
   bank_name?: string | null
   bank_branch?: string | null // 分行
   bank_code?: string | null // 銀行代碼（FK to ref_banks、is_domestic=true 用）
-  bank_code_legacy?: string | null // 銀行代碼（舊文字、保留 fallback）
   swift_code?: string | null // SWIFT（is_domestic=false 用）
   bank_account_name?: string | null // 戶名
   bank_account?: string | null
