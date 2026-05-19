@@ -154,216 +154,137 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --btn-primary-bg: linear-gradient(135deg, #f8eede 0%, #f5e8d3 50%, #ecd9bb 100%);
   --btn-primary-fg: #5c4a2f;
   --btn-primary-border: #efe2c8;
-
-  /* Logo */
-  --logo-bg: #c9aa7c;
-  --logo-text: #ffffff;
-  --logo-shadow: rgba(201, 170, 124, 0.4);
-
-  --shadow-rgb: 180, 160, 120;
 }
 
 /* ─────────────────────────────────────────────
    鐵灰主題（iron gray）— 變數名保留 morandi-* 歷史名稱，值覆寫為冷調鐵灰
    ───────────────────────────────────────────── */
 [data-theme='iron'] {
-  --morandi-primary: #e7edf5;
-  --morandi-secondary: rgba(231, 237, 245, 0.68);
-  --morandi-gold: #d0a15f;
-  --morandi-gold-rgb: 208, 161, 95;
-  --morandi-gold-hover: #e1b477;
-  --morandi-gold-light: rgba(208, 161, 95, 0.12);
-  --morandi-gold-light-end: rgba(208, 161, 95, 0.06);
-  --morandi-green: #7fb59e;
-  --morandi-green-rgb: 127, 181, 158;
-  --morandi-red: #e08f86;
-  --morandi-container: #141b22;
-  --morandi-muted: rgba(231, 237, 245, 0.46);
+  --morandi-primary: #1f242b;
+  --morandi-secondary: #4d535c;
+  --morandi-gold: #5d6670;
+  --morandi-gold-rgb: 93, 102, 112;
+  --morandi-gold-hover: #484f57;
+  --morandi-gold-light: rgba(93, 102, 112, 0.12);
+  --morandi-gold-light-end: #e9ebee;
+  --morandi-green: #6f9285;
+  --morandi-green-rgb: 111, 146, 133;
+  --morandi-red: #b3716a;
+  --morandi-container: #e5e7ea;
+  --morandi-muted: #a8adb5;
 
   /* 類別色（冷調版本） */
-  --cat-purple: #b099ff;
-  --cat-purple-bg: rgba(176, 153, 255, 0.10);
-  --cat-orange: #ff8a3d;
-  --cat-orange-bg: rgba(255, 138, 61, 0.10);
-  --cat-pink: #ff7ab6;
-  --cat-pink-bg: rgba(255, 122, 182, 0.10);
-  --cat-indigo: #77a7ff;
-  --cat-indigo-bg: rgba(119, 167, 255, 0.10);
+  --cat-purple: #8e85a3;
+  --cat-purple-bg: #ebe8f0;
+  --cat-orange: #a68570;
+  --cat-orange-bg: #efe5dc;
+  --cat-pink: #a67587;
+  --cat-pink-bg: #efe1e6;
+  --cat-indigo: #7682a3;
+  --cat-indigo-bg: #e4e7f0;
 
-  /* Logo（跟著主題走的品牌標記色） */
-  --logo-bg: #3d2e1f;
-  --logo-text: #e8c68a;
-  --logo-shadow: rgba(208, 161, 95, 0.35);
+  --gradient-gold-light: #c9ccd1;
+  --gradient-gold-mid: #9ea3ac;
+  --gradient-gold-dark: #6c727a;
+  --gradient-brown-light: #c9ccd1;
+  --gradient-brown-mid: #8a9099;
+  --gradient-brown-dark: #5d6670;
+  --gradient-primary-dark: #3a3f46;
 
-  --gradient-gold-light: #2a2217;
-  --gradient-gold-mid: #d0a15f;
-  --gradient-gold-dark: #f1c186;
-  --gradient-brown-light: #1a2129;
-  --gradient-brown-mid: #2b3641;
-  --gradient-brown-dark: #364552;
-  --gradient-primary-dark: #0b0f14;
+  --background: #f4f5f7;
+  --page-bg: linear-gradient(to bottom right, rgba(229, 231, 234, 0.5), #fafafa, rgba(93, 102, 112, 0.08));
+  --border: #c9ccd1;
+  --popover-foreground: #2d3139;
+  --accent: #e5e7ea;
+  --accent-foreground: #2d3139;
 
-  --background: #0b0f14;
-  --page-bg: radial-gradient(1200px 900px at 15% 10%, rgba(208, 161, 95, 0.10) 0%, transparent 55%),
-    radial-gradient(1000px 700px at 85% 15%, rgba(127, 181, 158, 0.08) 0%, transparent 60%),
-    radial-gradient(900px 700px at 50% 90%, rgba(231, 237, 245, 0.06) 0%, transparent 65%),
-    linear-gradient(180deg, #0b0f14 0%, #0a0e13 55%, #080b10 100%);
-  --card: rgba(20, 27, 34, 0.78);
-  --border: rgba(231, 237, 245, 0.12);
-  --popover: rgba(18, 24, 31, 0.92);
-  --popover-foreground: #e7edf5;
-  --accent: rgba(231, 237, 245, 0.06);
-  --accent-foreground: #e7edf5;
+  --input-border: #c9ccd1;
+  --input-border-hover: #8a9099;
+  --input-border-focus: #5d6670;
+  --input-disabled-bg: #eef0f3;
+  --input-readonly-bg: #f6f7f9;
+  --input-text: #2d3139;
+  --input-placeholder: #a8adb5;
 
-  --status-info: #77a7ff;
-  --status-info-bg: rgba(119, 167, 255, 0.12);
-  --status-success: #7fb59e;
-  --status-success-bg: rgba(127, 181, 158, 0.14);
-  --status-warning: #d0a15f;
-  --status-warning-bg: rgba(208, 161, 95, 0.14);
-  --status-danger: #e08f86;
-  --status-danger-bg: rgba(224, 143, 134, 0.12);
-  --status-neutral: rgba(231, 237, 245, 0.62);
-  --status-neutral-bg: rgba(231, 237, 245, 0.10);
+  --primary: #5d6670;
+  --secondary: #e5e7ea;
+  --secondary-foreground: #2d3139;
+  --destructive: #b3716a;
+  --muted: #e5e7ea;
+  --muted-foreground: #787d85;
+  --ring: #5d6670;
+  --input: #c9ccd1;
 
-  --input-border: rgba(231, 237, 245, 0.16);
-  --input-border-hover: rgba(231, 237, 245, 0.24);
-  --input-border-focus: rgba(208, 161, 95, 0.55);
-  --input-bg: rgba(20, 27, 34, 0.64);
-  --input-disabled-bg: rgba(20, 27, 34, 0.38);
-  --input-readonly-bg: rgba(20, 27, 34, 0.42);
-  --input-text: #e7edf5;
-  --input-placeholder: rgba(231, 237, 245, 0.48);
-
-  --primary: rgba(208, 161, 95, 0.94);
-  --primary-foreground: #141b22;
-  --secondary: rgba(231, 237, 245, 0.06);
-  --secondary-foreground: #e7edf5;
-  --destructive: #e08f86;
-  --destructive-foreground: #141b22;
-  --muted: rgba(231, 237, 245, 0.06);
-  --muted-foreground: rgba(231, 237, 245, 0.56);
-  --ring: rgba(208, 161, 95, 0.55);
-  --input: rgba(231, 237, 245, 0.16);
-
-  /* Button Primary token（深色工業、琥珀金屬） */
-  --btn-primary-bg: linear-gradient(135deg, #1a2129 0%, #2b3641 45%, #364552 100%);
-  --btn-primary-fg: #e7edf5;
-  --btn-primary-border: rgba(231, 237, 245, 0.16);
-
-  --shadow-rgb: 0, 0, 0;
+  /* Button Primary token（鐵灰主題、淡灰漸層） */
+  --btn-primary-bg: linear-gradient(135deg, #eceef1 0%, #dde0e5 50%, #c8ccd2 100%);
+  --btn-primary-fg: #2d3139;
+  --btn-primary-border: #d8dbe0;
 }
 
 /* ─────────────────────────────────────────────
-   Forest 主題 — 文藝森林 Editorial Forest
-   概念：瑞士精準結構 × 森林綠 × 文藝紙張質感
-   感覺：文青、硬朗、高對比、編輯感、archival
-   色彩核心：深森林綠 + 鼠尾草灰 + 白底薄綠氣息
-   設計語言：編輯感排版 / 硬朗幾何 / 粗邊框 / 無裝飾
+   Airtable 主題 — Swiss-precision 企業風
+   白底 + 深海軍藍文字 + Airtable Blue 主色
    ───────────────────────────────────────────── */
 [data-theme='airtable'] {
-  /* ── 色彩 ── */
-  --morandi-primary: #1c3829;
-  --morandi-secondary: #5a6e60;
-  --morandi-gold: #2d6a4f;
-  --morandi-gold-rgb: 45, 106, 79;
-  --morandi-gold-hover: #1e4d38;
-  --morandi-gold-light: rgba(45, 106, 79, 0.08);
-  --morandi-gold-light-end: #f0f7f2;
-  --morandi-green: #40916c;
-  --morandi-green-rgb: 64, 145, 108;
-  --morandi-red: #b05c45;
-  --morandi-container: #f4f9f6;
-  --morandi-muted: rgba(28, 56, 41, 0.55);
+  --morandi-primary: #181d26; /* Deep Navy 文字 */
+  --morandi-secondary: #333333; /* Dark Gray 次要 */
+  --morandi-gold: #1b61c9; /* Airtable Blue（原金色位） */
+  --morandi-gold-rgb: 27, 97, 201;
+  --morandi-gold-hover: #254fad; /* Mid Blue hover */
+  --morandi-gold-light: rgba(27, 97, 201, 0.08);
+  --morandi-gold-light-end: #eaf2fc;
+  --morandi-green: #006400; /* Success Green */
+  --morandi-green-rgb: 0, 100, 0;
+  --morandi-red: #c44545;
+  --morandi-container: #f8fafc; /* Light Surface */
+  --morandi-muted: rgba(4, 14, 32, 0.45);
 
-  /* ── 類別色 ── */
+  /* 類別色（飽和清晰版本，跟 airtable 藍對比） */
   --cat-purple: #7c3aed;
   --cat-purple-bg: #f3e9ff;
-  --cat-orange: #a05c2c;
-  --cat-orange-bg: #fef3e8;
-  --cat-pink: #be185d;
+  --cat-orange: #d97706;
+  --cat-orange-bg: #fff0db;
+  --cat-pink: #ec4899;
   --cat-pink-bg: #fce4ef;
   --cat-indigo: #4f46e5;
   --cat-indigo-bg: #e6e5fc;
 
-  /* ── 漸層 ── */
-  --gradient-gold-light: #d4eadb;
-  --gradient-gold-mid: #40916c;
-  --gradient-gold-dark: #2d6a4f;
-  --gradient-brown-light: #e8f0eb;
-  --gradient-brown-mid: #52b788;
-  --gradient-brown-dark: #1e4d38;
-  --gradient-primary-dark: #0f1a12;
+  --gradient-gold-light: #cfdef5;
+  --gradient-gold-mid: #6b94d9;
+  --gradient-gold-dark: #1b61c9;
+  --gradient-brown-light: #cfdef5;
+  --gradient-brown-mid: #4a7bc7;
+  --gradient-brown-dark: #254fad;
+  --gradient-primary-dark: #0f1620;
 
-  /* ── 背景 ── */
   --background: #ffffff;
-  --page-bg: linear-gradient(
-      160deg,
-      rgba(244, 249, 246, 0.8) 0%,
-      #ffffff 45%,
-      rgba(45, 106, 79, 0.05) 100%
-    ),
-    linear-gradient(145deg, rgba(212, 234, 219, 0.25), #ffffff 55%);
-  --border: #2d6a4f;
-  --popover-foreground: #1c3829;
-  --accent: #f4f9f6;
-  --accent-foreground: #1c3829;
+  --page-bg: linear-gradient(to bottom right, rgba(248, 250, 252, 0.6), #ffffff, rgba(27, 97, 201, 0.05));
+  --border: #e0e2e6;
+  --popover-foreground: #181d26;
+  --accent: #f8fafc;
+  --accent-foreground: #181d26;
 
-  /* ── 表單 ── */
-  --input-border: #2d6a4f;
-  --input-border-hover: #1e4d38;
-  --input-border-focus: #2d6a4f;
-  --input-disabled-bg: #eef4f0;
-  --input-readonly-bg: #f4f9f6;
-  --input-text: #1c3829;
-  --input-placeholder: rgba(28, 56, 41, 0.45);
+  --input-border: #e0e2e6;
+  --input-border-hover: #1b61c9;
+  --input-border-focus: #1b61c9;
+  --input-disabled-bg: #f1f4f8;
+  --input-readonly-bg: #f8fafc;
+  --input-text: #181d26;
+  --input-placeholder: rgba(4, 14, 32, 0.45);
 
-  /* ── shadcn 標準 ── */
-  --primary: #2d6a4f;
-  --secondary: #f4f9f6;
-  --secondary-foreground: #1c3829;
-  --destructive: #b05c45;
-  --destructive-foreground: #ffffff;
-  --muted: #eef4f0;
-  --muted-foreground: rgba(28, 56, 41, 0.69);
-  --ring: #2d6a4f;
-  --input: #b8cec1;
+  --primary: #1b61c9;
+  --secondary: #f8fafc;
+  --secondary-foreground: #181d26;
+  --destructive: #c44545;
+  --muted: #f1f4f8;
+  --muted-foreground: rgba(4, 14, 32, 0.69);
+  --ring: #1b61c9;
+  --input: #e0e2e6;
 
-  /* ── Logo ── */
-  --logo-bg: #2d6a4f;
-  --logo-text: #ffffff;
-  --logo-shadow: rgba(45, 106, 79, 0.4);
-
-  /* ── Forest 主題專用設計語言 ── */
-  /* 圓角：硬朗方正，編輯感，無 soft corner */
-  --radius-sm: 2px;
-  --radius-md: 3px;
-  --radius-lg: 4px;
-  --radius-xl: 6px;
-
-  /* 陰影：硬朗方影（offset + 淺 blur），非 soft glow */
-  --shadow-sm: 1px 2px 0 rgba(28, 56, 41, 0.12);
-  --shadow-md: 2px 4px 0 rgba(28, 56, 41, 0.14);
-  --shadow-lg: 3px 6px 0 rgba(28, 56, 41, 0.16);
-
-  /* 按鈕 Primary：實心森林綠 + 白字，無漸層，硬朗線框感 */
-  --btn-primary-bg: #2d6a4f;
-  --btn-primary-fg: #ffffff;
-  --btn-primary-border: #2d6a4f;
-  /* 按鈕 Secondary：白底 + 森林綠字 + 粗邊框，編輯感襯線按鈕 */
-  --btn-secondary-bg: #ffffff;
-  --btn-secondary-fg: #2d6a4f;
-  --btn-secondary-border: #2d6a4f;
-  /* Ghost 按鈕：透明底 + 森林綠字 */
-  --btn-ghost-bg: transparent;
-  --btn-ghost-fg: #2d6a4f;
-  --btn-ghost-border: transparent;
-
-  /* 字體：編輯感 letter-spacing */
-  --font-tracking-tight: -0.015em;
-  --font-tracking-normal: 0.01em;
-
-  --shadow-rgb: 45, 106, 79;
+  /* Button Primary token（Airtable 藍主題、淡藍漸層） */
+  --btn-primary-bg: linear-gradient(135deg, #f0f5fc 0%, #dde7f4 50%, #b8cce8 100%);
+  --btn-primary-fg: #1b61c9;
+  --btn-primary-border: #cfdcef;
 }
 
 /* ─────────────────────────────────────────────
@@ -452,13 +373,6 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --btn-primary-bg: linear-gradient(135deg, #f8faff 0%, #dde3f0 50%, #c8d2e8 100%);
   --btn-primary-fg: #1F2D5A;
   --btn-primary-border: #e3e8f2;
-
-  /* Logo */
-  --logo-bg: #2C3E72;
-  --logo-text: #ffffff;
-  --logo-shadow: rgba(44, 62, 114, 0.3);
-
-  --shadow-rgb: 0, 0, 0;
 }
 
 @theme inline {
@@ -595,11 +509,11 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --color-danger-bg: var(--status-danger-bg);
 
   /* Shadow tokens — 莫蘭迪金底色陰影 */
-  --shadow-sm: 0 4px 12px -2px rgba(var(--shadow-rgb), 0.14);
-  --shadow-md: 0 10px 22px -8px rgba(var(--shadow-rgb), 0.18);
-  --shadow-lg: 0 16px 30px -10px rgba(var(--shadow-rgb), 0.22);
-  --shadow-xl: 0 22px 44px -12px rgba(var(--shadow-rgb), 0.28);
-  --shadow-2xl: 0 44px 60px -28px rgba(var(--shadow-rgb), 0.40);
+  --shadow-sm: 0 4px 12px -2px rgba(180, 160, 120, 0.08);
+  --shadow-md: 0 8px 16px -4px rgba(180, 160, 120, 0.12);
+  --shadow-lg: 0 12px 24px -8px rgba(180, 160, 120, 0.15);
+  --shadow-xl: 0 16px 32px -8px rgba(180, 160, 120, 0.20);
+  --shadow-2xl: 0 30px 30px -20px rgba(180, 160, 120, 0.45);
 
   /* Radius tokens */
   --radius-card: 1.5rem;       /* 24px */
@@ -608,7 +522,7 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --radius-input: 0.5rem;      /* 8px */
   --radius-badge: 9999px;
 
-  --font-sans: var(--font-noto-sans-tc), Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: var(--font-noto-sans-tc), var(--font-geist-sans);
   --font-serif: 'Noto Serif TC', 'Playfair Display', ui-serif, Georgia, serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-mono: var(--font-geist-mono);
 }

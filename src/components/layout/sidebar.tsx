@@ -291,15 +291,8 @@ export function Sidebar() {
       <div className="shrink-0 border-b border-border">
         <div className="h-18 flex items-center">
           <div className="w-16 flex justify-center shrink-0">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{
-                background: 'var(--logo-bg)',
-                color: 'var(--logo-text)',
-                boxShadow: '0 2px 8px var(--logo-shadow)',
-              }}
-            >
-              <span className="font-semibold text-lg">V</span>
+            <div className="w-10 h-10 rounded-lg bg-morandi-gold flex items-center justify-center shadow-sm opacity-90">
+              <span className="text-white font-semibold text-lg">V</span>
             </div>
           </div>
           {showExpanded && (
