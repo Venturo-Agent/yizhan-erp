@@ -30,6 +30,8 @@ interface WorkspaceLlmSettings {
   model: string | null
   api_token_encrypted: string | null
   is_active: boolean
+  /** 業務手動設定的提示詞、會 prepend 進 messages 開頭（system role） */
+  prompt_template: string | null
 }
 
 /**
@@ -59,7 +61,7 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
   const supabaseAny = supabase as unknown as SupabaseClient
   const { data: settings, error } = await supabaseAny
     .from('workspace_ai_settings')
-    .select('provider, model, api_token_encrypted, is_active')
+    .select('provider, model, api_token_encrypted, is_active, prompt_template')
     .eq('workspace_id', workspaceId)
     .maybeSingle<WorkspaceLlmSettings>()
 
@@ -106,9 +108,23 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
   }
 
   // 用設定的 model 覆寫 req 內的（除非 caller 明確指定）
+  // 同時把 workspace 的 prompt_template prepend 進 messages 開頭（system role）
+  //   - 客戶在「AI 設定」tab 設的提示詞、所有 caller（line-llm-compose / memory-summarizer
+  //     / retrospective / happy-handler 等）一律生效
+  //   - prepend 而不是 replace、caller 自己的 system prompt 仍然保留（譬如「你是速記卡產生器」）
+  //   - 客戶版人格描述放最前面、caller 角色描述放後面、LLM 兩個都看
+  const messagesWithPromptTemplate: typeof req.messages =
+    settings.prompt_template && settings.prompt_template.trim().length > 0
+      ? [
+          { role: 'system', content: settings.prompt_template.trim() },
+          ...req.messages,
+        ]
+      : req.messages
+
   const reqWithModel: LLMRequest = {
     ...req,
     model: req.model ?? settings.model,
+    messages: messagesWithPromptTemplate,
   }
 
   // Dispatch
