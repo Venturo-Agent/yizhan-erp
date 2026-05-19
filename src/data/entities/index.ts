@@ -37,17 +37,27 @@ export {
 
 // Members
 export {
-  
+
   useMembers,
   useMembersSlim,
-  
-  
-  
-  
-  
+
+
+
+
+
   deleteMember,
-  
+
 } from './members'
+
+// Order Members (5/19 補、原 125 處散刻 supabase.from('order_members'))
+export {
+  useOrderMembers,
+  useOrderMember,
+  createOrderMember,
+  updateOrderMember,
+  deleteOrderMember,
+  invalidateOrderMembers,
+} from './order-members'
 
 // Customers
 export {
@@ -314,6 +324,26 @@ export {
 // ============================================
 // Notes
 export * from './notes'
+
+// ============================================
+// Ref Master Tables（ref_banks / ref_countries / ref_airports）
+// 5/19 SWR 健檢曾規劃補 entity、但這些表 PK 非 id（bank_code / code / iata_code）、
+// createEntityHook 寫死 .eq('id', ...)、不支援自訂 PK；底層擴展是另一個工程。
+// 暫時保留 caller（bank-combobox / shared-data/*）直接用 useSWR、加 eslint-disable
+// + comment 註明理由。未來擴展 createEntityHook 支援 pkColumn 再回頭補。
+// ============================================
+
+// ============================================
+// Chart of Accounts（會計科目、5/19 補）
+// ============================================
+export {
+  useChartOfAccounts,
+  useChartOfAccount,
+  createChartOfAccount,
+  updateChartOfAccount,
+  deleteChartOfAccount,
+  invalidateChartOfAccounts,
+} from './chart-of-accounts'
 
 // Image Library
 export * from './image-library'
