@@ -310,10 +310,10 @@ export function BonusSettingsDialog({ open, onOpenChange, tour }: BonusSettingsD
 
   const customFooter = (
     <div className="flex items-center justify-end gap-2">
-      <Button variant="soft-gold" onClick={() => onOpenChange(false)} disabled={saving}>
+      <Button type="button" variant="soft-gold" onClick={() => onOpenChange(false)} disabled={saving}>
         {BONUS_TAB_LABELS.CANCEL}
       </Button>
-      <Button onClick={handleSave} disabled={saving}>
+      <Button type="button" onClick={handleSave} disabled={saving}>
         {saving ? <Spinner size="md" className="mr-2" /> : null}
         {BONUS_TAB_LABELS.SAVE}
       </Button>

@@ -12,6 +12,7 @@ import { Plane, Trash2, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DatePicker } from '@/components/ui/date-picker'
+import { useIsIntegrationEnabled } from '@/lib/permissions/useIntegrationEnabled'
 import type { FlightInfo, FlightSegmentInfo } from '@/types/flight.types'
 
 const AIRLINE_PLACEHOLDER = '長榮'
@@ -77,6 +78,10 @@ export function ItineraryFlightEditor({
   clearReturnSegments,
 }: ItineraryFlightEditorProps) {
   const t = useTranslations('tour')
+  // Integration 守門：航班搜尋（workspace_integrations.flight_search）
+  // 沒串 API 時、隱藏「航班號搜尋 input + DatePicker」、保留「+」加 row 按鈕
+  // 跟 PackageItineraryDialog 跟訂單成員護照 OCR 同 pattern
+  const { enabled: flightSearchEnabled } = useIsIntegrationEnabled('flight_search')
   const columnHeader = (
     <div className="flex items-center gap-1.5 text-xs bg-morandi-gold-header px-2 py-1.5">
       <span className="w-16">{t('flightEditorAirline')}</span>
@@ -180,23 +185,27 @@ export function ItineraryFlightEditor({
               />
               {index === 0 ? (
                 <div className="flex-1 flex items-center justify-end gap-1">
-                  <Input
-                    value={outboundFlightNumber}
-                    onChange={e => setOutboundFlightNumber(e.target.value.toUpperCase())}
-                    placeholder={FLIGHT_NUMBER_SEARCH_PLACEHOLDER}
-                    className="h-7 text-xs w-28 px-1"
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && outboundFlightNumber) {
-                        handleSearchOutboundFlight()
-                      }
-                    }}
-                  />
-                  <DatePicker
-                    value={outboundFlightDate}
-                    onChange={date => setOutboundFlightDate(date || '')}
-                    placeholder={t('flightEditorDatePlaceholder')}
-                    className="h-7 text-xs w-24"
-                  />
+                  {flightSearchEnabled && (
+                    <>
+                      <Input
+                        value={outboundFlightNumber}
+                        onChange={e => setOutboundFlightNumber(e.target.value.toUpperCase())}
+                        placeholder={FLIGHT_NUMBER_SEARCH_PLACEHOLDER}
+                        className="h-7 text-xs w-28 px-1"
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && outboundFlightNumber) {
+                            handleSearchOutboundFlight()
+                          }
+                        }}
+                      />
+                      <DatePicker
+                        value={outboundFlightDate}
+                        onChange={date => setOutboundFlightDate(date || '')}
+                        placeholder={t('flightEditorDatePlaceholder')}
+                        className="h-7 text-xs w-24"
+                      />
+                    </>
+                  )}
                   <Button
                     type="button"
                     size="sm"
@@ -339,23 +348,27 @@ export function ItineraryFlightEditor({
               />
               {index === 0 ? (
                 <div className="flex-1 flex items-center justify-end gap-1">
-                  <Input
-                    value={returnFlightNumber}
-                    onChange={e => setReturnFlightNumber(e.target.value.toUpperCase())}
-                    placeholder={FLIGHT_NUMBER_SEARCH_PLACEHOLDER}
-                    className="h-7 text-xs w-28 px-1"
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' && returnFlightNumber) {
-                        handleSearchReturnFlight()
-                      }
-                    }}
-                  />
-                  <DatePicker
-                    value={returnFlightDate}
-                    onChange={date => setReturnFlightDate(date || '')}
-                    placeholder={t('flightEditorDatePlaceholder')}
-                    className="h-7 text-xs w-24"
-                  />
+                  {flightSearchEnabled && (
+                    <>
+                      <Input
+                        value={returnFlightNumber}
+                        onChange={e => setReturnFlightNumber(e.target.value.toUpperCase())}
+                        placeholder={FLIGHT_NUMBER_SEARCH_PLACEHOLDER}
+                        className="h-7 text-xs w-28 px-1"
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && returnFlightNumber) {
+                            handleSearchReturnFlight()
+                          }
+                        }}
+                      />
+                      <DatePicker
+                        value={returnFlightDate}
+                        onChange={date => setReturnFlightDate(date || '')}
+                        placeholder={t('flightEditorDatePlaceholder')}
+                        className="h-7 text-xs w-24"
+                      />
+                    </>
+                  )}
                   <Button
                     type="button"
                     size="sm"

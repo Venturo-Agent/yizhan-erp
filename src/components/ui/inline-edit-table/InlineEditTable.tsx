@@ -90,7 +90,7 @@ export function InlineEditTable<T>({
           <div className="flex items-center gap-2">
             {headerExtra}
             {onAdd && !readonly && (
-              <Button onClick={onAdd} size="sm" variant="morandi-gold">
+              <Button type="button" onClick={onAdd} size="sm" variant="morandi-gold">
                 <Plus size="0.875em" className="mr-1" />
                 {addLabel}
               </Button>
