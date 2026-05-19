@@ -68,7 +68,7 @@ export function EmployeeForm({
     setFormData,
     roles,
     branches,
-    salaryEnabled,
+    hrFullEnabled,
     toggleEligibility,
     handleCreateBranch,
     handleAvatarChange,
@@ -155,8 +155,10 @@ export function EmployeeForm({
               onToggleEligibility={toggleEligibility}
             />
 
-            {/* 薪資設定（HR 模式 + 進階人資 feature + 編輯模式才顯示、新增不預填薪資） */}
-            {mode === 'hr' && salaryEnabled && isEditMode && (
+            {/* 薪資設定（HR 模式 + 完整人資 feature 才顯示、新增 / 編輯都要看到）
+                hr_full = hr_salary_settlement + hr_bonus_settlement 兩個都開
+                沒完整 HR 的租戶（Lite / Standard / Advance 沒選 hr_full）= form 收在「緊急聯絡人」 */}
+            {mode === 'hr' && hrFullEnabled && (
               <SalarySection
                 formData={formData}
                 salaryHistory={employee?.salary_info?.salary_history}

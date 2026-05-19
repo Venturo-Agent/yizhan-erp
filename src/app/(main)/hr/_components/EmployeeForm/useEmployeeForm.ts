@@ -10,12 +10,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { useUserStore } from '@/stores/user-store'
 import { useWorkspaceId } from '@/lib/workspace-context'
-import { generateEmployeeNumber } from '@/lib/codes'
 import { useBranches, useRoles } from '@/data/hooks'
 import { apiGet, apiPatch, apiPost, apiPut, extractHttpErrorMessage, HttpError } from '@/lib/api/client'
 import { useEmployee } from '@/data/entities/employees'
 import { invalidateEmployeeEligibilities } from '@/data/entities/employee-eligibilities'
 import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
+import { isHrFullEnabled } from '@/lib/permissions/subscription-plans'
 import { EmployeeFull } from '@/stores/types'
 import { alertSuccess, alertError, prompt } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
@@ -64,10 +64,10 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
   const { branches: cachedBranches, mutate: mutateBranches } = useBranches()
   const { isFeatureEnabled } = useWorkspaceFeatures()
 
-  // 進階人資（hr_full）feature gate：薪資結算 / 獎金結算任一開啟才顯示 SalarySection
-  // Lite / Standard plan 預設不開 → 員工編輯只看到基本資料 + 個人資格、不送薪資 / 銀行 / 入職日期
-  const salaryEnabled =
-    isFeatureEnabled('hr_salary_settlement') || isFeatureEnabled('hr_bonus_settlement')
+  // 完整人資（hr_full）feature gate：薪資結算 + 獎金結算「兩個都開」才算完整 HR
+  // 5/19 William 拍板：新增 / 編輯員工只要有完整 HR、緊急聯絡人以下整段（到職日 / 薪資 / 勞健保 / 銀行）都顯示
+  // SSOT：subscription-plans.ts HR_FULL_FEATURES
+  const hrFullEnabled = isHrFullEnabled(isFeatureEnabled)
 
   const { item: employeeRaw } = useEmployee(employeeId ?? null)
   const employee = employeeRaw ? (employeeRaw as unknown as EmployeeFull) : null
@@ -132,6 +132,15 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
       setRoles(cachedRoles as Role[])
     }
   }, [cachedRoles])
+
+  // 分公司預填：避免 select 畫面顯示第一個 branch、但 state 仍是空字串的 UI 假象
+  // 5/19 William 抓出：「下拉看起來有選、按建立後 DB branch_id 是 null」
+  // 規則：branches 載入完且當前 formData.branch_id 為空 → 預填第一個 branch（跟 UI 顯示對齊）
+  useEffect(() => {
+    if (branches.length > 0 && !formData.branch_id) {
+      setFormData(prev => ({ ...prev, branch_id: branches[0].id }))
+    }
+  }, [branches, formData.branch_id])
 
   // 編輯模式：載入既有員工 eligibility
   useEffect(() => {
@@ -269,15 +278,15 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
 
     setSubmitting(true)
     try {
-      let employeeNumber = employee?.employee_number
-      if (!isEditMode) {
-        if (!workspaceId) throw new Error('無法取得當前分公司、請重新登入')
-        employeeNumber = await generateEmployeeNumber(workspaceId)
+      // 5/19 William 改：新增員工不再 client 端配號
+      // 由 /api/employees/create server 端產生 employee_number、跟 INSERT 緊鄰、減少跳號
+      if (!isEditMode && !workspaceId) {
+        throw new Error('無法取得當前分公司、請重新登入')
       }
 
       // 薪資相關欄位（含 hire_date / 月薪 / 獎金 / 津貼 / 勞健保 / 銀行）
       // 只在 hr_full feature 開啟時送、否則略過避免用 default 值覆蓋原資料
-      const salaryPayload = salaryEnabled
+      const salaryPayload = hrFullEnabled
         ? {
             job_info: {
               position: formData.position,
@@ -305,7 +314,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         : {}
 
       const payload = {
-        employee_number: employeeNumber,
         chinese_name: formData.chinese_name,
         display_name: formData.display_name || formData.chinese_name,
         job_title: formData.job_title || null,
@@ -332,9 +340,8 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
       }
 
       if (isEditMode && employeeId) {
-        const { employee_number: _en, ...patchPayload } = payload
         try {
-          await apiPatch(`/api/employees/${employeeId}`, patchPayload)
+          await apiPatch(`/api/employees/${employeeId}`, payload)
         } catch (err) {
           if (err instanceof HttpError) {
             const body = err.body as { message?: string } | null
@@ -348,6 +355,7 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
       } else {
         const defaultPassword = '12345678'
         let newEmployeeId: string | undefined
+        let newEmployeeNumber: string | undefined
         try {
           const created = await apiPost<{ success: boolean; employee: { id: string; employee_number: string } }>(
             '/api/employees/create',
@@ -357,6 +365,7 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
             }
           )
           newEmployeeId = created?.employee?.id
+          newEmployeeNumber = created?.employee?.employee_number
         } catch (err) {
           if (err instanceof HttpError) {
             const body = err.body as { message?: string; error?: string } | null
@@ -377,7 +386,7 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         const { alert } = await import('@/lib/ui/alert-dialog')
         await alert(
           `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_SUCCESS_PREFIX}` +
-            `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_NUMBER_PREFIX}${employeeNumber}\n` +
+            `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_NUMBER_PREFIX}${newEmployeeNumber}\n` +
             `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_PASSWORD_PREFIX}${defaultPassword}` +
             `${COMPONENT_LABELS.ALERT_NEW_EMPLOYEE_FOOTER}`,
           'success',
@@ -410,7 +419,7 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     setFormData,
     roles,
     branches,
-    salaryEnabled,
+    hrFullEnabled,
     toggleEligibility,
     handleCreateBranch,
     handleAvatarChange,

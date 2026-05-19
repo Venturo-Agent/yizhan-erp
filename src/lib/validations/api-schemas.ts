@@ -227,7 +227,8 @@ export const createWorkspaceSchema = z.object({
 })
 
 export const createEmployeeSchema = z.object({
-  employee_number: z.string().min(1).max(20),
+  // employee_number 由 server 內呼叫 generate_employee_number RPC 配發
+  // 不再讓 client 配號（避免 client commit counter 後、server INSERT 失敗造成跳號）
   chinese_name: z.string().min(1).max(50),
   english_name: z.string().max(100).optional().nullable(),
   display_name: z.string().max(50).optional().nullable(),

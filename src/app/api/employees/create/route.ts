@@ -8,6 +8,7 @@ import { createEmployeeSchema } from '@/lib/validations/api-schemas'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
+import { generateEmployeeNumber } from '@/lib/codes'
 
 /**
  * POST /api/employees/create
@@ -104,11 +105,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 4. 建立員工資料
+    // 4. 配發員工編號（server 端產生、跟 INSERT 緊鄰、減少跳號）
+    // 5/19 William 改：原本 client-side 呼叫 generateEmployeeNumber、
+    // 跟 INSERT 拆成兩個 transaction、INSERT 失敗 counter 已推、編號丟失（corner E012 跳號事件）
+    let employeeNumber: string
+    try {
+      employeeNumber = await generateEmployeeNumber(currentUser.workspace_id, supabaseAdmin)
+    } catch (err) {
+      // 配號失敗 → 回退 auth user、不留孤兒
+      await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
+      logger.error('Generate employee_number failed:', err)
+      return NextResponse.json({ message: '配發員工編號失敗、請重試' }, { status: 500 })
+    }
+
+    // 5. 建立員工資料
     const { data: employee, error: empError } = await supabaseAdmin
       .from('employees')
       .insert({
         ...employeeData,
+        employee_number: employeeNumber,
         workspace_id: currentUser.workspace_id,
         user_id: authUser.user.id,
         must_change_password: true,
@@ -119,6 +134,18 @@ export async function POST(request: NextRequest) {
     if (empError) {
       // Rollback: 刪除剛建立的 auth user
       await supabaseAdmin.auth.admin.deleteUser(authUser.user.id)
+      // Rollback counter：只有當 next_value 還是我配號後的下一個（沒人在我後面拿過）才回退
+      // race-safe：若同時另一筆已 INSERT 成功並推 counter、此 UPDATE 不會生效、新編號不會撞號
+      const usedSeq = parseInt(employeeNumber.replace(/^E0*/, ''), 10)
+      if (Number.isFinite(usedSeq)) {
+        await supabaseAdmin
+          .from('workspace_code_counters')
+          .update({ next_value: usedSeq, updated_at: new Date().toISOString() })
+          .eq('workspace_id', currentUser.workspace_id)
+          .eq('code_type', 'employee')
+          .eq('scope', '')
+          .eq('next_value', usedSeq + 1)
+      }
       const translated = translateDbError(empError)
       return NextResponse.json(
         { message: translated.message, field: translated.field, code: translated.code },

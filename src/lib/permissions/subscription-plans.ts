@@ -218,3 +218,20 @@ export function getAdvancePicksFromFeatures(
 
   return picks
 }
+
+/**
+ * 「完整人資」對應的 feature code 集合（薪資結算 + 獎金結算）
+ * SSOT：來自 ADVANCE_PICK_OPTIONS.hr_full、避免散刻
+ * 用途：判定員工 form 是否顯示薪資 / 銀行 / 到職日等進階欄位
+ */
+export const HR_FULL_FEATURES: readonly string[] = ADVANCE_PICK_OPTIONS.hr_full.features
+
+/**
+ * 判定某 workspace 是否啟用「完整人資」(hr_full)
+ * = ADVANCE_PICK_OPTIONS.hr_full.features 全部都開
+ *
+ * @param check 給定 feature_code 判定是否啟用的函數（譬如 useWorkspaceFeatures.isFeatureEnabled）
+ */
+export function isHrFullEnabled(check: (featureCode: string) => boolean): boolean {
+  return HR_FULL_FEATURES.every(code => check(code))
+}
