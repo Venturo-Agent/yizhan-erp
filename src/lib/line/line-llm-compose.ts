@@ -135,7 +135,40 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     return composeReplyFallback(userText, tours)
   }
 
-  return llmRes.content.trim()
+  return stripMarkdownForLine(llmRes.content.trim())
+}
+
+/**
+ * LINE 不 render markdown、把 LLM 可能吐出的 markdown 語法在送出前砍掉。
+ *
+ * 為什麼用 post-process 而非只靠 prompt：
+ *   prompt 約束不是 100% 保證（MiniMax 有時忽略）、加 code 層 strip 雙保險。
+ *
+ * 不動：
+ *   - emoji（客戶喜歡）
+ *   - 換行 / 短橫線「-」/ 數字列表（這些 LINE 顯示正常）
+ *   - 全形符號（「」『』等）
+ */
+function stripMarkdownForLine(text: string): string {
+  return text
+    // **bold** → bold（最常見、必砍）
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    // __bold__ → bold
+    .replace(/__(.+?)__/g, '$1')
+    // *italic* → italic（但不動句首 * 列表符 / 已被前一條砍的粗體殘留）
+    // 用 lookbehind 避開列表項：星號前不能是行首 / 空白
+    .replace(/(?<=\S)\*([^*\n]+?)\*(?=\S|$)/g, '$1')
+    // # heading → heading
+    .replace(/^#{1,6}\s+/gm, '')
+    // [link](url) → link
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    // `inline code` → inline code
+    .replace(/`([^`\n]+)`/g, '$1')
+    // ```code block``` 整段保留內容、移除 fence
+    .replace(/```[a-z]*\n?([\s\S]*?)```/g, '$1')
+    // 連續 3 個以上換行壓縮成 2 個
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 // ============================================================================
