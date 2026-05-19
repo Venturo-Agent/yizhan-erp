@@ -63,6 +63,31 @@ audit 報告寫「守住」之前，要先問：
 
 ---
 
+## Round 5 追加心得（2026-05-20 早上 — SWR + 整體優化）
+
+### 這輪做了什麼
+
+Sub-task R5-2（最有意義）：發現 `.next/dev/types/validator.ts` 的 stale 引用問題、寫了 `scripts/audit-stale-refs.ts`。這個問題的本質是：「Next.js dev server 的類型驗證器 cache 不會跟著刪除的 source file 一起消失」。一個系統性問題、需要系統性防呆。
+
+Sub-task R5-3：確認 `.github/workflows/audit-rls.yml` 已經就位、`SUPABASE_DB_URL` secret 也有要求。William 在 GitHub 加 secret 就可以跑全量。這件事比我想的簡單、只是之前沒人去做。
+
+
+Sub-task R5-4：寫了整體優化建議報告、給 William 7:00 起床的 mental model。重點：系統健康度 7/10、主要債務是migration待apply + SWR baseline 高 + CI secret 未設定。
+
+
+Sub-task R5-1（SWR ratchet）：推遲。原因是環境限制 + 我沒有辦法在不造成新 warning 的情況下驗證改動效果。先專注做有意義的、跳過成本高回報不明確的。
+
+### 一個新的認知
+
+**audit tool 也是技術債務的一種**。一個複雜系統需要不只一個 audit 工具：
+- `audit:rls` — 藍圖對齊
+- `audit:stale-refs` — cache stale 引用
+- `audit:realtime` — publication 對齊
+
+這些工具發現的問題都不一樣。隨著系統變大、audit 工具箱也要跟著擴充。
+
+---
+
 ## Round 4 追加心得（2026-05-20 早上 — 真上線模式）
 
 ### 這輪做了什麼（Sub-task A → B → C）
