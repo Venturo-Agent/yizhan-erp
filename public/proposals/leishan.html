@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>永成 × 磊山｜2026 寰宇會獎勵旅遊・回標提案 — 框架版</title>
+
+<!--
+══════════════════════════════════════════════════════════════════════════
+排版守則（Yongcheng Typography Principles v1）
+══════════════════════════════════════════════════════════════════════════
+1. 斷行語意優先：<br> 必須斷在意群之間
+2. 行末只能是句號（。）— 逗號、頓號、分號、開引號絕不放行末
+3. 標題 / hero 最後一行 ≥ 4 中文字
+4. body / 引言用 text-wrap: pretty + max-width 控制行寬
+5. 改寫優於將就 — 文案斷不乾淨拆成多個短句
+══════════════════════════════════════════════════════════════════════════
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #2D1F18;        /* 深栗 主色 */
+    --copper: #C85A38;     /* 紅銅 accent */
+    --paper: #F5F0E8;      /* 霧米 分區 */
+    --rule: rgba(45,31,24,0.15);
+    --rule-strong: rgba(45,31,24,0.4);
+    --muted: rgba(45,31,24,0.55);
+  }
+  html, body { background: #fff; }
+  body {
+    font-family: 'Noto Serif TC', serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.7;
+  }
+  p, .quote, h1, h2, h3, .key-msg {
+    text-wrap: pretty;
+    word-break: keep-all;
+    line-break: strict;
+  }
+  scroll-behavior: smooth;
+  html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+
+  /* ============ TOOLBAR ============ */
+  .toolbar {
+    position: sticky; top: 0; z-index: 1000;
+    background: var(--ink); color: #fff;
+    padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .toolbar-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px; font-weight: 600; letter-spacing: 0.04em;
+  }
+  .toolbar-sub { font-size: 11px; color: rgba(255,255,255,0.55); letter-spacing: 0.06em; margin-left: 14px; }
+  .toolbar-mode {
+    display: flex; gap: 4px;
+  }
+  .mode-btn {
+    background: transparent; color: rgba(255,255,255,0.7);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 6px 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+    cursor: pointer; transition: all 0.18s;
+  }
+  .mode-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
+  .mode-btn.active { background: #fff; color: var(--ink); border-color: #fff; }
+
+  .disclaimer {
+    background: #fff8e1; border-top: 1px solid #f0d878;
+    padding: 12px 28px;
+    font-size: 11px; color: #6b5a20;
+    text-align: center; letter-spacing: 0.04em;
+  }
+  .disclaimer strong { color: #4a3d10; }
+  .disclaimer code { background: #fff3c4; padding: 1px 6px; font-family: 'Cormorant Garamond', serif; font-size: 11px; }
+
+  /* ============ LAYOUT ============ */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+
+  /* ============ SIDENAV ============ */
+  .sidenav {
+    position: sticky; top: 24px; align-self: start;
+    height: calc(100vh - 48px);
+    overflow-y: auto;
+    padding: 36px 24px 36px 32px;
+    border-right: 1px solid var(--rule);
+  }
+  .sidenav-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px; letter-spacing: 0.2em;
+    color: var(--copper);
+    margin-bottom: 8px; text-transform: uppercase;
+    font-weight: 500;
+  }
+  .sidenav-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .sidenav-subtitle {
+    font-size: 12px; color: var(--muted);
+    margin-bottom: 32px;
+    letter-spacing: 0.02em;
+    font-family: 'Noto Sans TC', sans-serif;
+    line-height: 1.6;
+  }
+  .sidenav-section {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px; letter-spacing: 0.18em;
+    color: var(--copper);
+    text-transform: uppercase;
+    margin: 24px 0 8px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .sidenav ol { list-style: none; padding: 0; }
+  .sidenav li { margin-bottom: 1px; }
+  .sidenav li a {
+    display: flex; align-items: baseline;
+    padding: 8px 0 8px 14px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px; color: var(--ink);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all 0.18s;
+    line-height: 1.4;
+  }
+  .sidenav li a:hover { border-left-color: var(--copper); }
+  .sidenav li a.active {
+    border-left-color: var(--copper);
+    color: var(--ink);
+    font-weight: 600;
+    background: var(--paper);
+  }
+  .sidenav li a .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px; color: var(--copper);
+    margin-right: 12px; font-weight: 500;
+    min-width: 22px;
+  }
+  .sidenav li a .meta {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+  }
+  .sidenav-foot {
+    margin-top: 40px; padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-size: 11px; line-height: 1.7;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+
+  /* ============ MAIN ============ */
+  .main { padding: 0 64px; min-width: 0; }
+
+  /* ============ COVER ============ */
+  .cover {
+    min-height: 100vh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 48px 0 64px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(180deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.15) 18%,
+        rgba(255,255,255,0.55) 38%,
+        rgba(255,255,255,0.9) 58%,
+        #fff 72%,
+        #fff 100%),
+      url('/proposals/leishan-images/city-night.jpg');
+    background-size: 100% 100%, cover;
+    background-position: top, center top;
+    background-repeat: no-repeat, no-repeat;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .cover > * { position: relative; z-index: 1; }
+  .cover-top {
+    text-shadow: 0 0 16px rgba(255,255,255,0.6);
+  }
+  .cover-center {
+    padding-top: 30vh;
+  }
+  .cover-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 20px;
+  }
+  .cover-brand {
+    font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+    font-size: 22px; font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+  .cover-brand .cn {
+    font-family: 'Noto Serif TC', serif;
+    margin-right: 10px; font-weight: 500;
+  }
+  .cover-meta {
+    text-align: right;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.08em; line-height: 1.6;
+  }
+  .cover-center {
+    align-self: center;
+    padding: 64px 0;
+  }
+  .cover-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px; color: var(--copper);
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+  .cover-eyebrow::before { content: '— '; }
+  .cover-title {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 80px; line-height: 1.2;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+    margin-bottom: 32px;
+    max-width: 14em;
+  }
+  .cover-subtitle {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 300;
+    font-size: 28px; color: var(--ink);
+    line-height: 1.6;
+    max-width: 22em;
+  }
+  .cover-subtitle .accent {
+    color: var(--copper);
+    font-weight: 500;
+  }
+  .cover-bottom {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    border-top: 1px solid var(--ink);
+    padding-top: 20px;
+  }
+  .cover-to {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px; color: var(--ink);
+    line-height: 1.7;
+  }
+  .cover-to small {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px; color: var(--copper);
+    letter-spacing: 0.18em;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+  }
+  .cover-from {
+    text-align: right;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.1em;
+    line-height: 1.7;
+  }
+
+  /* ============ SECTION ============ */
+  .section {
+    padding: 96px 0;
+    border-top: 1px solid var(--rule);
+    min-height: 60vh;
+  }
+  .section.bleed-paper {
+    background: var(--paper);
+    margin: 0 -64px;
+    padding: 96px 64px;
+  }
+  .sect-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; color: var(--copper);
+    letter-spacing: 0.18em;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .sect-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px; color: var(--copper);
+    margin-right: 16px;
+    letter-spacing: 0.12em;
+  }
+  .sect-title {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 56px;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 32px;
+    max-width: 16em;
+    letter-spacing: -0.005em;
+  }
+  .sect-title .accent { color: var(--copper); }
+  .key-msg {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 300;
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1.7;
+    margin-bottom: 56px;
+    max-width: 26em;
+  }
+
+  /* day card structure */
+  .day-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 48px;
+    margin-bottom: 32px;
+  }
+  .day-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; color: var(--copper);
+    letter-spacing: 0.1em;
+    padding-top: 6px;
+  }
+  .day-tag .day-num {
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--copper);
+    font-weight: 400;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .day-content h3 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 32px;
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.35;
+  }
+  .day-content .day-summary {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 17px;
+    color: var(--ink);
+    line-height: 1.85;
+    margin-bottom: 20px;
+    max-width: 28em;
+  }
+  .day-content .day-meta {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px; color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+  .day-content .day-meta strong {
+    color: var(--ink);
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 14px;
+    margin-left: 8px;
+  }
+
+  /* placeholder block — 框架待補 */
+  .tbd {
+    margin-top: 32px;
+    border: 1px dashed var(--rule-strong);
+    padding: 32px 36px;
+    background: rgba(245,240,232,0.4);
+    color: var(--muted);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    line-height: 1.8;
+  }
+  .tbd::before {
+    content: '◇ TBD ◇';
+    display: block;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    color: var(--copper);
+    letter-spacing: 0.3em;
+    margin-bottom: 10px;
+    font-style: normal;
+  }
+  .tbd ul {
+    margin: 8px 0 0 18px;
+    padding: 0;
+  }
+  .tbd li {
+    margin-bottom: 4px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    font-style: normal;
+  }
+
+  /* highlight block — 重點企劃（晚宴/蘋果派） */
+  .highlight {
+    margin-top: 36px;
+    padding: 36px 40px;
+    border-left: 4px solid var(--copper);
+    background: var(--paper);
+  }
+  .highlight .h-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--copper);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  .highlight h4 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 24px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .highlight p {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.85;
+    max-width: 30em;
+  }
+
+  /* =====================================================
+     晚宴章節專用（dinner section）
+     ===================================================== */
+  .dinner-hero {
+    position: relative;
+    margin: 0 -64px 56px -64px;
+    padding: 140px 64px 120px 64px;
+    background:
+      linear-gradient(180deg, rgba(45,31,24,0.78) 0%, rgba(45,31,24,0.45) 60%, rgba(45,31,24,0.78) 100%),
+      url('https://picsum.photos/seed/karuizawa-night-dinner/1800/900') center/cover no-repeat;
+    color: #F5F0E8;
+    overflow: hidden;
+  }
+  .dinner-hero::before {
+    display: none;
+  }
+  .dinner-hero .h-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #E8B97D;
+    letter-spacing: 0.18em;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+  }
+  .dinner-hero h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 64px;
+    color: #F5F0E8;
+    line-height: 1.3;
+    max-width: 14em;
+    margin-bottom: 24px;
+    letter-spacing: -0.005em;
+    text-wrap: pretty;
+  }
+  .dinner-hero h2 .accent { color: #E8B97D; }
+  .dinner-hero p.lead {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 300;
+    font-size: 20px;
+    color: rgba(245,240,232,0.92);
+    line-height: 1.75;
+    max-width: 26em;
+    text-wrap: pretty;
+  }
+
+  /* tab 切換 - 主推 / 備選 */
+  .plan-tabs {
+    display: flex; gap: 0;
+    margin-bottom: 56px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .plan-tab {
+    background: transparent;
+    border: none; cursor: pointer;
+    padding: 18px 28px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 16px; font-weight: 500;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.18s;
+    letter-spacing: 0.04em;
+  }
+  .plan-tab:hover { color: var(--ink); }
+  .plan-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--copper);
+    font-weight: 600;
+  }
+  .plan-tab .tab-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--copper);
+    margin-right: 10px;
+    letter-spacing: 0.15em;
+  }
+  .plan-panel { display: none; }
+  .plan-panel.active { display: block; }
+
+  /* 三大塊 grid（日系活動 / 儀式感 / 表演） */
+  .pillar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 48px;
+  }
+  .pillar {
+    background: #fff;
+    border-top: 3px solid var(--copper);
+    padding: 28px 28px 32px 28px;
+  }
+  .pillar .p-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    color: var(--copper);
+    letter-spacing: 0.18em;
+    margin-bottom: 6px;
+  }
+  .pillar h4 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .pillar .p-sub {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 18px;
+    line-height: 1.6;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .pillar ul { list-style: none; padding: 0; }
+  .pillar li {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.75;
+    padding: 6px 0 6px 16px;
+    position: relative;
+  }
+  .pillar li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--copper);
+  }
+  .pillar li small {
+    display: block;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 2px;
+    padding-left: 0;
+  }
+
+  /* 備選方案：屋形船特輯 */
+  .alt-feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    margin-top: 48px;
+    padding: 48px 0;
+  }
+  .alt-feature .alt-img {
+    aspect-ratio: 4/3;
+    background:
+      linear-gradient(180deg, rgba(45,31,24,0.25), rgba(45,31,24,0.55)),
+      url('/proposals/leishan-images/yakatabune.png') center/cover;
+    position: relative;
+    overflow: hidden;
+  }
+  .alt-feature .alt-img::after {
+    content: '隅田川屋形船';
+    position: absolute; bottom: 12px; left: 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    color: rgba(245,240,232,0.85);
+    letter-spacing: 0.18em;
+  }
+  .alt-feature .alt-text .alt-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--copper);
+    letter-spacing: 0.18em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .alt-feature .alt-text h3 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 36px;
+    color: var(--ink);
+    line-height: 1.3;
+    margin-bottom: 18px;
+    max-width: 12em;
+  }
+  .alt-feature .alt-text p {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 17px;
+    color: var(--ink);
+    line-height: 1.85;
+    max-width: 26em;
+    margin-bottom: 16px;
+  }
+  .alt-stats {
+    display: flex; gap: 36px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+  }
+  .alt-stat .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    color: var(--copper);
+    line-height: 1;
+    font-weight: 500;
+  }
+  .alt-stat .label {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  /* note block - 帶 jp 字 / 解釋 */
+  .jp-note {
+    background: rgba(232,185,125,0.08);
+    border-left: 3px solid #E8B97D;
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.75;
+  }
+  .jp-note strong {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--copper);
+  }
+
+
+  /* =====================================================
+     圖片組件 + 路線卡（route-card） — Day 2 / Day 4 共用
+     ===================================================== */
+  .pillar-img {
+    margin: -28px -28px 24px -28px;
+    aspect-ratio: 16/10;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .pillar-img::after {
+    content: attr(data-caption);
+    position: absolute; bottom: 8px; right: 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.12em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+
+  .route-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+    margin-top: 40px;
+  }
+  .route-grid.cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .route-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .route-card .r-img {
+    aspect-ratio: 16/10;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .route-card .r-img::after {
+    content: attr(data-caption);
+    position: absolute; bottom: 8px; right: 12px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    color: rgba(255,255,255,0.92);
+    letter-spacing: 0.12em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .route-card .r-body {
+    padding: 24px 28px 28px 28px;
+  }
+  .route-card .r-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--copper);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .route-card h4 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--ink);
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .route-card .r-sub {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.7;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--rule);
+    max-width: 22em;
+  }
+  .route-card .r-points {
+    list-style: none;
+    padding: 0;
+    margin-top: 0;
+  }
+  .route-card .r-points li {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.85;
+    padding: 3px 0 3px 16px;
+    position: relative;
+  }
+  .route-card .r-points li::before {
+    content: '・';
+    position: absolute;
+    left: 0;
+    color: var(--copper);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .route-card .r-meta {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+
+
+  /* =====================================================
+     晚宴 v3 · 鏡開大專題 + 攤位 grid + 體驗區
+     ===================================================== */
+  .ritual-spotlight {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+    margin-top: 32px;
+    padding: 48px 0;
+  }
+  .ritual-spotlight .rs-img {
+    aspect-ratio: 4/3;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .ritual-spotlight .rs-img::after {
+    content: attr(data-caption);
+    position: absolute; bottom: 12px; left: 16px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10px;
+    color: rgba(245,240,232,0.92);
+    letter-spacing: 0.12em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .ritual-spotlight .rs-text .rs-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--copper);
+    letter-spacing: 0.18em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .ritual-spotlight .rs-text h3 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 36px;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-bottom: 18px;
+    text-wrap: pretty;
+  }
+  .ritual-spotlight .rs-text .rs-lead {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--ink);
+    line-height: 1.85;
+    text-wrap: pretty;
+  }
+
+  .ritual-steps {
+    margin-top: 24px;
+    padding: 32px 36px;
+    background: #fff;
+    border: 1px solid var(--rule);
+  }
+  .ritual-steps .rs-step-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--copper);
+    letter-spacing: 0.18em;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .ritual-steps .rs-step {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .ritual-steps .rs-step:last-child { border-bottom: none; padding-bottom: 0; }
+  .ritual-steps .rs-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 28px;
+    color: var(--copper);
+    line-height: 1;
+    padding-top: 4px;
+    font-weight: 500;
+  }
+  .ritual-steps .rs-content h6 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .ritual-steps .rs-content p {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  /* 子區塊小標 */
+  .sub-block {
+    margin-top: 64px;
+    margin-bottom: 0;
+  }
+  .sub-block .sb-eyebrow {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--copper);
+    letter-spacing: 0.18em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .sub-block h3 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 36px;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-bottom: 14px;
+    max-width: 18em;
+    text-wrap: pretty;
+  }
+  .sub-block .sb-lead {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 400;
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.85;
+    max-width: 32em;
+    text-wrap: pretty;
+  }
+
+  /* 攤位 stall grid（4×2 = 8 攤） */
+  .stall-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .stall-card {
+    background: #fff;
+    border: 1px solid var(--rule);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .stall-card .s-img {
+    aspect-ratio: 1/1;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .stall-card .s-img::after {
+    content: attr(data-caption);
+    position: absolute; bottom: 6px; right: 8px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9px;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.1em;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .stall-card .s-body {
+    padding: 14px 16px 18px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .stall-card .s-jp {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 11px;
+    color: var(--copper);
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .stall-card h5 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .stall-card p {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* timeline list (overview) */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .tl-card {
+    border-top: 2px solid var(--copper);
+    padding: 16px 0 0 0;
+  }
+  .tl-card .tl-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 12px;
+    color: var(--copper);
+    letter-spacing: 0.2em;
+    margin-bottom: 8px;
+  }
+  .tl-card h5 {
+    font-family: 'Noto Serif TC', serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .tl-card p {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* footer */
+  .footer {
+    padding: 64px 0;
+    border-top: 1px solid var(--ink);
+    margin-top: 80px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 32px;
+  }
+  .footer h5 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 12px;
+  }
+  .footer p, .footer a {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.85;
+    text-decoration: none;
+    display: block;
+  }
+  .footer-brand-name {
+    font-family: 'Cormorant Garamond', 'Noto Serif TC', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .footer-brand-name .cn {
+    font-family: 'Noto Serif TC', serif;
+    margin-right: 10px;
+  }
+
+</style>
+</head>
+<body>
+
+<!-- toolbar + disclaimer 已拿掉（對外乾淨版、保留原 HTML 在 yongcheng-brand/proposal-leishan-framework.html） -->
+
+<div class="layout">
+
+  <!-- =============== SIDENAV =============== -->
+  <aside class="sidenav">
+    <div class="sidenav-brand">Proposal · v1</div>
+    <div class="sidenav-title">永成 × 磊山<br>2026 寰宇會獎勵旅遊</div>
+    <div class="sidenav-subtitle">東京 × 輕井澤・五日<br>For 磊山保經</div>
+
+    <div class="sidenav-section">序</div>
+    <ol>
+      <li><a href="#cover" class="active"><span class="num">00</span>序</a></li>
+      <li><a href="#why"><span class="num">01</span>為什麼是永成</a></li>
+      <li><a href="#overview"><span class="num">02</span>五天總覽</a></li>
+    </ol>
+
+    <div class="sidenav-section">行程</div>
+    <ol>
+      <li><a href="#day1"><span class="num">03</span>Day 1｜抵達・輕井澤</a></li>
+      <li><a href="#dinner"><span class="num">04</span>晚宴特別篇</a></li>
+      <li><a href="#day2"><span class="num">05</span>Day 2｜分流體驗</a></li>
+      <li><a href="#day3"><span class="num">06</span>Day 3｜川越・蘋果派</a></li>
+      <li><a href="#day4"><span class="num">07</span>Day 4｜自由活動</a></li>
+      <li><a href="#day5"><span class="num">08</span>Day 5｜送機</a></li>
+    </ol>
+
+    <div class="sidenav-section">附錄</div>
+    <ol>
+      <li><a href="#ops"><span class="num">10</span>行政配合・風險</a></li>
+      <li><a href="#promise"><span class="num">11</span>承諾 + 聯絡</a></li>
+    </ol>
+
+    <div class="sidenav-foot">
+      For 磊山保險經紀人股份有限公司<br>
+      永成旅行社・2026.06 提案<br>
+      Venturo Design 製作
+    </div>
+  </aside>
+
+  <!-- =============== MAIN =============== -->
+  <div class="main">
+
+    <!-- =============== 00 COVER =============== -->
+    <section class="cover" id="cover">
+      <div class="cover-top">
+        <div class="cover-brand">
+          <span class="cn">永成</span>Yongcheng Travel
+        </div>
+        <div class="cover-meta">
+          For 磊山保經<br>
+          2026.06
+        </div>
+      </div>
+
+      <div class="cover-center">
+        <div class="cover-eyebrow">2026 磊山寰宇會獎勵旅遊・月之港</div>
+        <h1 class="cover-title">城囂與森林之間</h1>
+        <p class="cover-subtitle">
+          東京．全行．輕井澤．五天
+        </p>
+      </div>
+
+      <div class="cover-bottom">
+        <div class="cover-to">
+          <small>提案致</small>
+          磊山保險經紀人股份有限公司
+        </div>
+        <div class="cover-from">
+          Yongcheng Travel Service<br>
+          永成旅行社・台中
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== 01 WHY =============== -->
+    <section class="section" id="why">
+      <div class="sect-eyebrow"><span class="sect-num">01</span>WHY YONGCHENG</div>
+      <h2 class="sect-title">永成</h2>
+      <p class="key-msg">
+        我們不是第一次接 400 人以上的獎勵團。<br>
+        我們是知道這種團真正會出包的地方在哪、所以提早替你擋掉的那種旅行社。
+      </p>
+      <div class="highlight">
+        <div class="h-tag">— 三件事</div>
+        <h4>合規．經驗．團隊</h4>
+        <p>
+          一、合規與保障：中華民國旅行業品質保障協會有效會員<br>
+          二、操團經驗：多場 300 人以上單一行程獎勵團執行記錄<br>
+          三、專屬團隊：專案 PM + 領隊群 + OP + 緊急應變窗口．從簽約到結團一條龍
+        </p>
+      </div>
+    </section>
+
+    <!-- =============== 02 OVERVIEW =============== -->
+    <section class="section bleed-paper" id="overview">
+      <div class="sect-eyebrow"><span class="sect-num">02</span>FIVE DAYS · OVERVIEW</div>
+      <h2 class="sect-title">五天行程一覽</h2>
+      <p class="key-msg">
+        前兩晚住輕井澤．後兩晚回東京．每天有不同主題
+      </p>
+      <div class="timeline">
+        <div class="tl-card">
+          <div class="tl-num">DAY 1</div>
+          <h5>抵達・<br>輕井澤之夜</h5>
+          <p>桃園機場分梯次出發。直奔輕井澤王子 / 1130 度假村。傍晚開幕晚宴。</p>
+        </div>
+        <div class="tl-card">
+          <div class="tl-num">DAY 2</div>
+          <h5>輕井澤・<br>分流體驗</h5>
+          <p>主題分流。森林、文化、購物、頂級業務專屬行程四線並行。</p>
+        </div>
+        <div class="tl-card">
+          <div class="tl-num">DAY 3</div>
+          <h5>琦玉川越・<br>東京進駐</h5>
+          <p>輕井澤撤店。藏造老街與冰川神社。世界第一蘋果派伴手。傍晚進東京山景花園酒店。</p>
+        </div>
+        <div class="tl-card">
+          <div class="tl-num">DAY 4</div>
+          <h5>東京・<br>自由活動</h5>
+          <p>整日自由活動。出發前提供餐廳推薦與私房景點建議。</p>
+        </div>
+        <div class="tl-card">
+          <div class="tl-num">DAY 5</div>
+          <h5>東京 → 桃園<br>送機</h5>
+          <p>分梯次退房送機。返抵桃園機場。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============== 03 DAY 1 =============== -->
+    <section class="section" id="day1">
+      <div class="sect-eyebrow"><span class="sect-num">03</span>DAY 1</div>
+      <div class="day-grid">
+        <div class="day-tag">
+          <span class="day-num">01</span>
+          DEC.<br>抵達日
+        </div>
+        <div class="day-content">
+          <h3>從桃園機場到輕井澤。<br>分梯次出發。同一個目的地。</h3>
+          <p class="day-summary">
+            從桃園機場出發、現場工作人員分批報到．抵達成田機場後巴士直奔輕井澤王子 / 1130 度假村．飯店預先發房卡、夥伴一抵達即可進房整理．傍晚於飯店宴會廳集合、開幕晚宴
+          </p>
+          <div class="day-meta">
+            <span>Stay <strong>輕井澤王子 / 1130 度假村</strong></span>
+            <span>Meal <strong>機餐 + 飯店宴會廳開幕晚宴</strong></span>
+            <span>Depart <strong>桃園機場・分梯次出發</strong></span>
+          </div>
+        </div>
+      </div>
+      <div class="highlight">
+        <div class="h-tag">— Day 1 重點</div>
+        <h4>四個動作。讓 400 人第一天就覺得「來對了」。</h4>
+        <p>
+          <strong>1. 分梯次出發</strong>：避免桃園機場大廳塞 400 人。<br>
+          <strong>2. 統一桃園機場</strong>：簡化集合、行李、報到動線。<br>
+          <strong>3. 飯店預發房卡</strong>：抵達直接進房、不擠飯店大廳。<br>
+          <strong>4. 飯店宴會廳開幕晚宴</strong>：第一晚高光、儀式感拉滿。
+        </p>
+      </div>
+    </section>
+
+    <!-- =============== 04 DINNER (對外乾淨版 v4 · 體驗 6 pillar、刪縁日攤位 grid) =============== -->
+    <section class="section bleed-paper" id="dinner" style="padding-top:0;">
+
+      <!-- HERO IMAGE 區（夜景晚宴 + 遮罩） -->
+      <div class="dinner-hero">
+        <div class="h-eyebrow">— SPECIAL · 04 · 晚宴特別篇</div>
+        <h2>第一晚的晚宴：<br><span class="accent">磊山旅程的開場白</span></h2>
+        <p class="lead">
+          為磊山夥伴打造
+        </p>
+      </div>
+
+      <p class="key-msg" style="margin-top:0;">
+        為磊山 400 位夥伴量身設計．<strong style="color:var(--copper);">主推：飯店宴會廳・輕井澤之夜</strong>．<strong>備選：屋形船晚宴</strong>
+      </p>
+
+      <div class="plan-tabs">
+        <button class="plan-tab active" data-plan="main"><span class="tab-num">PLAN A</span>主推 · 輕井澤之夜</button>
+        <button class="plan-tab" data-plan="alt"><span class="tab-num">PLAN B</span>備選 · 第三晚屋形船</button>
+      </div>
+
+      <!-- ============ PLAN A · 主推 ============ -->
+      <div class="plan-panel active" data-plan="main">
+
+        <div class="highlight">
+          <div class="h-tag">— 開場白</div>
+          <h4>不是吃飯。是 400 個人在輕井澤的森林裡、一起做完一件事。</h4>
+          <p>
+            把日本祭典 ／ 神社儀式 ／ 在地表演 ／ 客製清酒——全部搬進飯店宴會廳。<br>
+            開幕儀式。體驗區。表演。摸彩。每個梯次都有自己的高光時刻。
+          </p>
+        </div>
+
+        <!-- ========== 鏡開儀式大專題 ========== -->
+        <div class="ritual-spotlight">
+          <div class="rs-img" style="background-image:url('/proposals/leishan-images/leishan-opening.png')" data-caption="磊山開場儀式"></div>
+          <div class="rs-text">
+            <div class="rs-tag">— OPENING RITUAL · 鏡開</div>
+            <h3>主辦代表手持木槌。<br>清酒霧白噴出。<br><span style="color:var(--copper);">這是磊山的開場。</span></h3>
+            <p class="rs-lead">
+              鏡開（かがみびらき）—— 日本最具代表性的開幕儀式。<br>
+              四斗清酒樽 ／ 紅白幕 ／ 木槌齊敲 ／ 全場「乾杯！」<br>
+              攝影金句的一秒。團體合影必收的一張。
+            </p>
+          </div>
+        </div>
+
+        <div class="ritual-steps">
+          <div class="rs-step-head">— 6 步流程・時長 8-10 分鐘</div>
+          <div class="rs-step">
+            <div class="rs-num">01</div>
+            <div class="rs-content">
+              <h6>樽搬入 + 紅白幕拉開</h6>
+              <p>司儀宣告儀式開始。現場燈光收暗。聚光燈打在四斗樽上。</p>
+            </div>
+          </div>
+          <div class="rs-step">
+            <div class="rs-num">02</div>
+            <div class="rs-content">
+              <h6>主辦代表 3-5 人持木槌就位</h6>
+              <p>磊山高層 + 永成代表共同上台。白手套。木槌就位。</p>
+            </div>
+          </div>
+          <div class="rs-step">
+            <div class="rs-num">03</div>
+            <div class="rs-content">
+              <h6>司儀帶倒數「いち、にい、さん、よいしょ！」</h6>
+              <p>夥伴齊聲跟喊。全場期待感拉到最高。</p>
+            </div>
+          </div>
+          <div class="rs-step">
+            <div class="rs-num">04</div>
+            <div class="rs-content">
+              <h6>同時敲下、樽蓋應聲打開</h6>
+              <p>清酒霧白噴出。攝影定點 4-5 機抓畫面。這一秒鎖定全場照片。</p>
+            </div>
+          </div>
+          <div class="rs-step">
+            <div class="rs-num">05</div>
+            <div class="rs-content">
+              <h6>樽內清酒分裝・全體乾杯</h6>
+              <p>木桝（一合杯）發給夥伴。磊山高層致詞。全場「乾杯！」</p>
+            </div>
+          </div>
+          <div class="rs-step">
+            <div class="rs-num">06</div>
+            <div class="rs-content">
+              <h6>儀式合影 + 攝影抓拍</h6>
+              <p>全員合影 1 張。高層特寫 5 分鐘。後續活動接力進場。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== 體驗創意 6 pillars ========== -->
+        <div class="sub-block">
+          <div class="sb-eyebrow">— EXPERIENCE · 體驗創意</div>
+          <h3>換上浴衣。<br>走進另一個身分。</h3>
+          <p class="sb-lead">
+            6 個體驗區散落於宴會廳各角。每位夥伴領一張集點卡、走完 4 區即可換紀念品。<br>
+            動線輕鬆、不強制、夥伴可自由穿梭。
+          </p>
+        </div>
+
+        <div class="pillar-grid" style="grid-template-columns: repeat(3, 1fr);">
+
+          <div class="pillar">
+            <div class="pillar-img" style="background-image:url('/proposals/leishan-images/yukata.png')" data-caption="浴衣・和服"></div>
+            <div class="p-num">a</div>
+            <h4>浴衣・和服體驗</h4>
+            <p class="p-sub">入場前換上浴衣。日籍著裝師現場協助。</p>
+            <ul>
+              <li>浴衣（基本款）<small>男女款齊全、含腰帶 + 木屐</small></li>
+              <li>客製羽織<small>磊山專屬印製、可帶回</small></li>
+              <li>和服進階<small>含髮飾、定點專業攝影區</small></li>
+              <li>Photo Wall<small>櫻花 / 紅葉 / 富士山三大背板</small></li>
+            </ul>
+          </div>
+
+          <div class="pillar">
+            <div class="pillar-img" style="background-image:url('/proposals/leishan-images/shrine-entrance.png')" data-caption="神社風入口"></div>
+            <div class="p-num">b</div>
+            <h4>神社風入口・佈置</h4>
+            <p class="p-sub">場內設小型神社風入口。鳥居 + 提灯 + 蠟燭。</p>
+            <ul>
+              <li>神社風鳥居<small>進場通過、儀式感入口</small></li>
+              <li>提灯點燈<small>夥伴點亮自己名字的提灯</small></li>
+              <li>蠟燭夜空<small>燈光收暗、提燈 + 蠟燭點亮</small></li>
+              <li>合影定點<small>鳥居前專業攝影位</small></li>
+            </ul>
+          </div>
+
+          <div class="pillar">
+            <div class="pillar-img" style="background-image:url('/proposals/leishan-images/ema.png')" data-caption="繪馬祈願・磊山保經客製"></div>
+            <div class="p-num">c</div>
+            <h4>繪馬祈願</h4>
+            <p class="p-sub">木製繪馬。寫下心願掛上繪馬棚。帶回作紀念。</p>
+            <ul>
+              <li>木製繪馬<small>每人一片、磊山專屬印製</small></li>
+              <li>祈願主題<small>業績 ／ 家庭 ／ 健康願望皆可</small></li>
+              <li>繪馬棚<small>場內神社風棚、夥伴掛上</small></li>
+              <li>帶回紀念<small>結束時可取回家</small></li>
+            </ul>
+          </div>
+
+          <div class="pillar">
+            <div class="pillar-img" style="background-image:url('/proposals/leishan-images/omikuji.png')" data-caption="抽籤運勢・おみくじ"></div>
+            <div class="p-num">d</div>
+            <h4>抽籤運勢・おみくじ</h4>
+            <p class="p-sub">日式神社風抽籤。大吉到凶。配中文翻譯。</p>
+            <ul>
+              <li>抽籤筒<small>傳統籤筒、神社感十足</small></li>
+              <li>運勢結果<small>從大吉到凶七種運勢</small></li>
+              <li>中文翻譯<small>日文籤詩 + 中文白話翻譯</small></li>
+              <li>結籤台<small>不滿意可結籤、留好運</small></li>
+            </ul>
+          </div>
+
+          <div class="pillar">
+            <div class="pillar-img" style="background-image:url('/proposals/leishan-images/daruma.png')" data-caption="畫達磨・絵付け"></div>
+            <div class="p-num">e</div>
+            <h4>畫達磨・絵付け</h4>
+            <p class="p-sub">白底達磨彩繪。寫上業績心願。帶回家完成另一隻眼。</p>
+            <ul>
+              <li>白底達磨<small>每人一個、5-8 公分迷你版</small></li>
+              <li>彩繪工具<small>毛筆、墨、彩色顏料</small></li>
+              <li>祈願儀式<small>先畫一隻眼、達成願望再畫另一隻</small></li>
+              <li>帶回紀念<small>包裝盒 + 中文說明卡</small></li>
+            </ul>
+          </div>
+
+          <div class="pillar">
+            <div class="pillar-img" style="background-image:url('/proposals/leishan-images/fukubukuro.png')" data-caption="福袋抽獎・千本引き"></div>
+            <div class="p-num">f</div>
+            <h4>福袋抽獎・全員有獎</h4>
+            <p class="p-sub">日系摸彩 + 福袋形式。現場開獎。每位夥伴回家有故事可講。</p>
+            <ul>
+              <li>福袋摸彩<small>大中小三檔、每位夥伴必中一個</small></li>
+              <li>千本引き<small>抽繩抽獎、視覺感強</small></li>
+              <li>頭獎 SP<small>磊山客製大獎 + 業績冠軍特別獎</small></li>
+              <li>主舞台揭曉<small>司儀串接、攝影記錄</small></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ========== 表演活動 ========== -->
+        <div class="sub-block">
+          <div class="sb-eyebrow">— PERFORMANCE · 表演活動</div>
+          <h3>不只看一場。<br>每梯次都有不同節目。</h3>
+          <p class="sb-lead">
+            3-4 套表演輪播．每位夥伴看到的內容都不一樣<br>
+            回去聊天會有話題
+          </p>
+        </div>
+
+        <div class="route-grid cols-3">
+          <div class="route-card">
+            <div class="r-img" style="background-image:url('/proposals/leishan-images/wadaiko.png')" data-caption="和太鼓"></div>
+            <div class="r-body">
+              <div class="r-tag">— PERF 01</div>
+              <h4>和太鼓 開場</h4>
+              <p class="r-sub">力與美．震動心臟的鼓聲<br>&nbsp;</p>
+              <ul class="r-points">
+                <li>4-6 人團隊</li>
+                <li>15-20 分鐘演出</li>
+                <li>夥伴可上台敲鼓互動</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="route-card">
+            <div class="r-img" style="background-image:url('/proposals/leishan-images/local-music.png')" data-caption="在地音樂演出"></div>
+            <div class="r-body">
+              <div class="r-tag">— PERF 02</div>
+              <h4>在地音樂演出</h4>
+              <p class="r-sub">輕井澤．長野音樂家<br>Jazz、爵士三重奏、和洋融合</p>
+              <ul class="r-points">
+                <li>背景音樂 + 重點獨奏</li>
+                <li>晚宴用餐時段串接</li>
+                <li>4-5 套曲目輪換</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="route-card">
+            <div class="r-img" style="background-image:url('/proposals/leishan-images/kabuki.png')" data-caption="日本傳統技藝"></div>
+            <div class="r-body">
+              <div class="r-tag">— PERF 03</div>
+              <h4>日本傳統技藝</h4>
+              <p class="r-sub">剣舞、書道、茶道．看了就想學<br>&nbsp;</p>
+              <ul class="r-points">
+                <li>每場 10-15 分鐘</li>
+                <li>夥伴可現場體驗</li>
+                <li>師範 + 翻譯解說</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========== 客製清酒 ========== -->
+        <div class="ritual-spotlight" style="margin-top:64px;">
+          <div class="rs-text">
+            <div class="rs-tag">— TAKEAWAY · 客製清酒</div>
+            <h3>磊山專屬定製清酒</h3>
+            <p class="rs-lead">
+              清酒貼標客製：磊山 logo + 2026 寰宇會字樣 + 致夥伴一句話。<br>
+              晚宴桌酒 + 帶回伴手雙用。每位夥伴回家、書架上有一瓶屬於這趟旅行的酒。
+            </p>
+          </div>
+          <div class="rs-img" style="background-image:url('/proposals/leishan-images/sake-leishan.png')" data-caption="磊山保經・客製清酒"></div>
+        </div>
+
+        <!-- 鏡開的 jp-note -->
+        <div class="jp-note" style="margin-top:48px;">
+          <strong>鏡開（かがみびらき）</strong>—— 日本傳統開幕儀式。由主辦方代表用木槌敲開清酒樽蓋。象徵打破舊的、迎接新的。獎勵團場合常見、儀式感強。
+        </div>
+
+      </div>
+
+      <!-- ============ PLAN B · 備選 ============ -->
+      <div class="plan-panel" data-plan="alt">
+
+        <div class="highlight">
+          <div class="h-tag">— 備選邏輯</div>
+          <h4>第一晚簡單日式晚餐。把儀式感推到第三晚屋形船。</h4>
+          <p>
+            第一晚 Day 1 改為輕井澤王子 / 1130 度假村內簡單日式晚餐．讓夥伴抵達後快速 refresh<br>
+            高光時刻、儀式感、團體照——集中到 Day 3 回東京當晚的「屋形船」。
+          </p>
+        </div>
+
+        <div class="alt-feature">
+          <div class="alt-img"></div>
+          <div class="alt-text">
+            <div class="alt-tag">— DAY 3 EVENING · YAKATABUNE</div>
+            <h3>隅田川上的<br>10 艘船<br>1 場儀式</h3>
+            <p>
+              一般旅行社的獎勵團不會這樣安排<br>
+              直接把磊山拉到東京水上
+            </p>
+            <div class="alt-stats">
+              <div class="alt-stat"><div class="num">10</div><div class="label">艘船平行出航</div></div>
+              <div class="alt-stat"><div class="num">40</div><div class="label">人 / 船容量</div></div>
+              <div class="alt-stat"><div class="num">2.5h</div><div class="label">隅田川航程</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="jp-note">
+          <strong>屋形船（やかたぶね）</strong>—— 江戶時代起的傳統觀光船。船上設榻榻米座席與料理檯、可邊用餐邊觀賞水岸風景。隅田川航線最具代表、可看到東京晴空塔、淺草、台場等夜景。
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =============== 05 DAY 2 (對外乾淨版・四線分流) =============== -->
+    <section class="section" id="day2">
+      <div class="sect-eyebrow"><span class="sect-num">05</span>DAY 2 · 分流日</div>
+      <div class="day-grid">
+        <div class="day-tag">
+          <span class="day-num">02</span>
+          DEC.<br>分流日
+        </div>
+        <div class="day-content">
+          <h3>400 個人<br>不是 400 個一樣的人</h3>
+          <p class="day-summary">
+            Day 2 做主題分流．讓夥伴入住自己偏好的輕井澤飯店．四線並行、選自己想要的輕井澤
+          </p>
+          <div class="day-meta">
+            <span>Stay <strong>輕井澤王子 / 1130 度假村</strong></span>
+            <span>Meal <strong>早餐含 / 各線分流午餐 / 晚餐自由</strong></span>
+            <span>Move <strong>各線專屬接駁巴士</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-grid">
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/shiraito-falls.png')" data-caption="白絲瀑布"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 01 / FOREST</div>
+            <h4>森林線</h4>
+            <p class="r-sub">給想呼吸的夥伴。在地嚮導帶路。</p>
+            <ul class="r-points">
+              <li>白絲瀑布健行</li>
+              <li>雲場池倒影散策</li>
+              <li>輕井澤野鳥之森</li>
+              <li>森林便當（戶外野餐）</li>
+            </ul>
+            <div class="r-meta">
+              <span>· 4-6 小時</span>
+              <span>· 中強度徒步</span>
+              <span>· 約 80-100 人</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/stone-church.png')" data-caption="石之教會"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 02 / CULTURE</div>
+            <h4>文化線</h4>
+            <p class="r-sub">給想沉澱的夥伴。建築與藝術。</p>
+            <ul class="r-points">
+              <li>石之教會（內村鑑三紀念堂）</li>
+              <li>聖保羅天主教會</li>
+              <li>軽井沢千住博美術館</li>
+              <li>美術館 cafe 午食</li>
+            </ul>
+            <div class="r-meta">
+              <span>· 4-5 小時</span>
+              <span>· 輕度走動</span>
+              <span>· 約 80-100 人</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/outlet.png')" data-caption="王子購物廣場 outlet"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 03 / SHOPPING</div>
+            <h4>購物線</h4>
+            <p class="r-sub">給想 shopping 的夥伴。outlet + 老街。</p>
+            <ul class="r-points">
+              <li>王子購物廣場 outlet</li>
+              <li>舊輕井澤銀座通り</li>
+              <li>在地特色商店巡禮</li>
+              <li>美食街自選午食</li>
+            </ul>
+            <div class="r-meta">
+              <span>· 全日</span>
+              <span>· 自由步行</span>
+              <span>· 約 100-150 人</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/hoshino-onsen.png')" data-caption="星野溫泉"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 04 / VIP</div>
+            <h4>頂級業務專屬行程</h4>
+            <p class="r-sub">給想放空的夥伴。溫泉與河岸。</p>
+            <ul class="r-points">
+              <li>星野溫泉トンボの湯</li>
+              <li>Harunire Terrace 河岸散步</li>
+              <li>軽井沢高原教会（午後光）</li>
+              <li>河岸會席午食</li>
+            </ul>
+            <div class="r-meta">
+              <span>· 半日</span>
+              <span>· 完全放鬆</span>
+              <span>· 約 80-100 人</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="highlight" style="margin-top:48px;">
+        <div class="h-tag">— 分流機制</div>
+        <h4>出發前 1 個月開放選線。每線專屬領隊 + 回程錯開時間集合。</h4>
+        <p>
+          四線各自配置領隊與隨車人員。回程集合時間錯開、避免飯店大廳塞車。當晚四線回到飯店、可選擇按分流線收尾「主題餐桌」、增加團體記憶。
+        </p>
+      </div>
+
+    </section>
+
+    <!-- =============== 06 DAY 3 =============== -->
+    <section class="section" id="day3">
+      <div class="sect-eyebrow"><span class="sect-num">06</span>DAY 3 · 蘋果派之日</div>
+      <div class="day-grid">
+        <div class="day-tag">
+          <span class="day-num">03</span>
+          DEC.<br>移動日
+        </div>
+        <div class="day-content">
+          <h3>從輕井澤的森林。<br>到川越的老街。</h3>
+          <p class="day-summary">
+            上午輕井澤撤店。巴士南下琦玉川越小江戶。下午探訪藏造老街與冰川神社、感受江戶遺風。傍晚進東京山景花園酒店辦理團體登記。當天最重要的事：每位夥伴領取磊山專屬包裝的世界第一好吃蘋果派。
+          </p>
+          <div class="day-meta">
+            <span>Stay <strong>東京・山景花園酒店（Garden Hotel）</strong></span>
+            <span>Meal <strong>早餐 + 川越午食 + 東京自由晚餐</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 川越大專題 -->
+      <div class="ritual-spotlight">
+        <div class="rs-img" style="background-image:url('/proposals/leishan-images/kawagoe-hero.png')" data-caption="川越・小江戶"></div>
+        <div class="rs-text">
+          <div class="rs-tag">— KAWAGOE · 小江戶</div>
+          <h3>川越。<br>東京近郊保留最完整的<br><span style="color:var(--copper);">江戶風華。</span></h3>
+          <p class="rs-lead">
+            被稱為「小江戶」的琦玉川越、保留 17 世紀以來的藏造街屋。<br>
+            鐘樓「時の鐘」按時敲響。冰川神社的繪馬與緣結。<br>
+            菓子屋橫丁的傳統糖果。每一個轉角都是一張明信片。
+          </p>
+        </div>
+      </div>
+
+      <div class="route-grid cols-3" style="margin-top:48px;">
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/kawagoe-street.png')" data-caption="川越藏造老街"></div>
+          <div class="r-body">
+            <div class="r-tag">— SPOT 01</div>
+            <h4>藏造老街</h4>
+            <p class="r-sub" style="border:none; padding-bottom:0;">江戶風土倉建築。500 公尺老街、傳統商家、咖啡店。鐘樓「時の鐘」是地標。</p>
+          </div>
+        </div>
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/hikawa-shrine.png')" data-caption="川越冰川神社"></div>
+          <div class="r-body">
+            <div class="r-tag">— SPOT 02</div>
+            <h4>冰川神社</h4>
+            <p class="r-sub" style="border:none; padding-bottom:0;">緣結神社。鯛魚籤、繪馬隧道。日本人氣神社、夥伴可寫繪馬祈願帶回。</p>
+          </div>
+        </div>
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/kashiya-sweets.png')" data-caption="菓子屋橫丁"></div>
+          <div class="r-body">
+            <div class="r-tag">— SPOT 03</div>
+            <h4>菓子屋橫丁</h4>
+            <p class="r-sub" style="border:none; padding-bottom:0;">百年糖果老街。日式駄菓子、烤紅薯、芋頭甜品。穿梭其中像走進童年。</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 蘋果派 -->
+      <div class="ritual-spotlight" style="margin-top:64px;">
+        <div class="rs-text">
+          <div class="rs-tag">— TAKEAWAY · 蘋果派</div>
+          <h3>世界第一好吃。<br><span style="color:var(--copper);">磊山專屬包裝。</span></h3>
+          <p class="rs-lead">
+            不是冰箱貼．是夥伴在現場咬下第一口就會想拍照、回去口耳相傳的好滋味<br>
+            每位夥伴一份．磊山專屬包裝紙設計（together 配色 + 2026 寰宇會字樣）<br>
+            晚宴上、司儀順帶說一句「為什麼是這家」、把這份禮的故事講出來
+          </p>
+        </div>
+        <div class="rs-img" style="background-image:url('/proposals/leishan-images/apple-pie.png')" data-caption="世界第一好吃蘋果派"></div>
+      </div>
+    </section>
+
+    <!-- =============== 07 DAY 4 (對外乾淨版・五條建議路線) =============== -->
+    <section class="section" id="day4">
+      <div class="sect-eyebrow"><span class="sect-num">07</span>DAY 4 · 自由日</div>
+      <div class="day-grid">
+        <div class="day-tag">
+          <span class="day-num">04</span>
+          DEC.<br>自由日
+        </div>
+        <div class="day-content">
+          <h3>把這一天還給夥伴。<br>但不丟一份地圖就走。</h3>
+          <p class="day-summary">
+            整日自由活動。出發前提供 5 條建議路線、餐廳推薦與私房景點介紹。讓夥伴帶著答案出門、不是憑運氣。
+          </p>
+          <div class="day-meta">
+            <span>Stay <strong>東京・山景花園酒店</strong></span>
+            <span>Meal <strong>早餐含 / 午晚自理</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-grid cols-3">
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/tsukiji.png')" data-caption="築地・銀座"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 01</div>
+            <h4>築地・銀座</h4>
+            <p class="r-sub">早市美食 + 高端購物。給愛吃 + 愛買的夥伴。</p>
+            <ul class="r-points">
+              <li>築地場外市場早食</li>
+              <li>歌舞伎座建築巡禮</li>
+              <li>銀座中央通漫步</li>
+              <li>百貨地下美食街</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/asakusa.png')" data-caption="淺草・晴空塔"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 02</div>
+            <h4>淺草・晴空塔</h4>
+            <p class="r-sub">下町古蹟 + 東京新地標。給第一次來東京的夥伴。</p>
+            <ul class="r-points">
+              <li>淺草寺・雷門</li>
+              <li>仲見世通り老街</li>
+              <li>晴空塔展望台</li>
+              <li>下町割烹午食</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/omotesando.png')" data-caption="澀谷・表參道"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 03</div>
+            <h4>澀谷・表參道</h4>
+            <p class="r-sub">街頭文化 + 設計師品牌。給有時尚感的夥伴。</p>
+            <ul class="r-points">
+              <li>澀谷十字路口</li>
+              <li>表參道櫸木大道</li>
+              <li>原宿竹下通</li>
+              <li>創意咖啡廳</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/ueno.png')" data-caption="上野・谷根千"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 04</div>
+            <h4>上野・谷根千</h4>
+            <p class="r-sub">博物館 + 老下町散策。給文化深度愛好者。</p>
+            <ul class="r-points">
+              <li>上野公園</li>
+              <li>東京國立博物館</li>
+              <li>谷中銀座老街</li>
+              <li>下町老舖蕎麥</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="route-card">
+          <div class="r-img" style="background-image:url('/proposals/leishan-images/daikanyama.png')" data-caption="中目黑・代官山"></div>
+          <div class="r-body">
+            <div class="r-tag">— ROUTE 05</div>
+            <h4>中目黑・代官山</h4>
+            <p class="r-sub">文青咖啡 + 選物店。給喜歡安靜質感的夥伴。</p>
+            <ul class="r-points">
+              <li>代官山蔦屋書店</li>
+              <li>中目黑目黑川散策</li>
+              <li>選物店巡禮</li>
+              <li>河岸咖啡午食</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="route-card" style="background:var(--paper); border-color:var(--copper);">
+          <div class="r-body" style="padding:32px 28px;">
+            <div class="r-tag" style="margin-bottom:14px;">— PRE-DEPARTURE · 出發前準備</div>
+            <h4>不只給路線。<br>給你帶得走的答案。</h4>
+            <p class="r-sub" style="margin-top:14px; padding-bottom:0; border:none; max-width:none;">
+              出發前印製專屬手冊放夥伴房內。
+            </p>
+            <ul class="r-points">
+              <li>5 條建議路線詳細介紹</li>
+              <li>各路線餐廳推薦清單</li>
+              <li>私房景點與在地店家分享</li>
+              <li>常用日語會話卡</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =============== 08 DAY 5 (對外乾淨版・完整送機規劃) =============== -->
+    <section class="section bleed-paper" id="day5">
+      <div class="sect-eyebrow"><span class="sect-num">08</span>DAY 5 · 送機日</div>
+      <div class="day-grid">
+        <div class="day-tag">
+          <span class="day-num">05</span>
+          DEC.<br>送機日
+        </div>
+        <div class="day-content">
+          <h3>不是結束。<br>是這趟旅程的最後一個服務。</h3>
+          <p class="day-summary">
+            從東京飯店退房、到桃園機場接機、再到夥伴回家——整個流程由永成完整安排。最後一個動作仍由我們執行。
+          </p>
+          <div class="day-meta">
+            <span>Depart <strong>東京 → 桃園機場</strong></span>
+            <span>Meal <strong>飯店早餐 + 機餐</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ritual-steps" style="margin-top:48px;">
+        <div class="rs-step-head">— 完整送機流程・8 個動作</div>
+        <div class="rs-step">
+          <div class="rs-num">01</div>
+          <div class="rs-content">
+            <h6>退房與行李集中</h6>
+            <p>分梯次退房。避免飯店電梯與大廳擁塞。行李統一集中到大廳寄存區。</p>
+          </div>
+        </div>
+        <div class="rs-step">
+          <div class="rs-num">02</div>
+          <div class="rs-content">
+            <h6>送機巴士分梯出發</h6>
+            <p>按航班時間分梯。每車配領隊 + 隨車人員。確認名單、計人數、出發。</p>
+          </div>
+        </div>
+        <div class="rs-step">
+          <div class="rs-num">03</div>
+          <div class="rs-content">
+            <h6>抵達機場・行李托運</h6>
+            <p>領隊協助辦理團體 check-in。多櫃台同步避免長龍。行李超重費先行協助處理。</p>
+          </div>
+        </div>
+        <div class="rs-step">
+          <div class="rs-num">04</div>
+          <div class="rs-content">
+            <h6>登機門集合・發放紀念物</h6>
+            <p>登機前最後集合。發放團體合影紀念照、致謝小卡。確認所有夥伴護照與機票。</p>
+          </div>
+        </div>
+        <div class="rs-step">
+          <div class="rs-num">05</div>
+          <div class="rs-content">
+            <h6>登機・飛行回台</h6>
+            <p>領隊隨團返台。空中持續關注夥伴狀況。</p>
+          </div>
+        </div>
+        <div class="rs-step">
+          <div class="rs-num">06</div>
+          <div class="rs-content">
+            <h6>抵達桃園機場・領取行李</h6>
+            <p>領隊引導通關、領取行李、出關。確認所有夥伴順利出關。</p>
+          </div>
+        </div>
+        <div class="rs-step">
+          <div class="rs-num">07</div>
+          <div class="rs-content">
+            <h6>機場接送銜接</h6>
+            <p>按夥伴住址分區安排接送車輛。送達各區指定地點。</p>
+          </div>
+        </div>
+        <div class="rs-step">
+          <div class="rs-num">08</div>
+          <div class="rs-content">
+            <h6>結團問卷與後續關懷</h6>
+            <p>1 週內寄送結團問卷與旅程紀念照片電子相冊。3 個月後再次關懷、收集回饋。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 BUDGET 章節已拿掉 -->
+
+
+    <!-- =============== 10 OPS (對外乾淨版) =============== -->
+    <section class="section bleed-paper" id="ops">
+      <div class="sect-eyebrow"><span class="sect-num">10</span>OPERATIONS · 行政配合・風險</div>
+      <h2 class="sect-title"><span class="accent">執行力．回應力．細節規劃</span></h2>
+      <p class="key-msg">
+        我們把行政流程攤開。讓你知道接下來、誰在做什麼、何時做完。
+      </p>
+      <div class="highlight">
+        <div class="h-tag">— 執行架構</div>
+        <h4>四個系統</h4>
+        <p>
+          <strong>1. 專案時程</strong>：簽約 → 出發前 6 個月作業甘特圖、磊山可隨時對齊進度<br>
+          <strong>2. 雙邊窗口</strong>：磊山承辦 ↔ 永成 PM、固定週會 + 月度書面報告<br>
+          <strong>3. 個資安全</strong>：護照蒐集、飲食、房型、緊急聯絡、依個資法 SOP 管理<br>
+          <strong>4. 風險應變</strong>：航班延誤、雪季封路、飯店超賣、個別意外、皆有 SOP + 即時通報磊山
+        </p>
+      </div>
+    </section>
+
+    <!-- =============== 11 PROMISE (對外乾淨版) =============== -->
+    <section class="section" id="promise">
+      <div class="sect-eyebrow"><span class="sect-num">11</span>OUR PROMISE</div>
+      <h2 class="sect-title">最後一句話</h2>
+      <p class="key-msg" style="font-size:26px;">
+        磊山把 400 人的 5 天交給我們<br>
+        我們替你想了一整趟、然後一起替他們完成
+      </p>
+      <div class="highlight">
+        <div class="h-tag">— 我們的承諾</div>
+        <h4>四件事</h4>
+        <p>
+          <strong>準時</strong>：每個動作按時程交付。<br>
+          <strong>完整</strong>：從簽約到結團、不留尾巴。<br>
+          <strong>應變</strong>：突發狀況 30 分鐘內回應、2 小時內方案上桌。<br>
+          <strong>不另收費</strong>：報價包含的內容、絕不在現場加價。
+        </p>
+      </div>
+    </section>
+
+    <!-- =============== FOOTER =============== -->
+    <footer class="footer">
+      <div>
+        <div class="footer-brand-name"><span class="cn">永成旅行社</span>YONG CHEN TRAVEL SERVICE LTD.</div>
+        <p style="color:var(--muted); font-size:12px;">陪你走過、不是賣你一張票</p>
+      </div>
+      <div>
+        <h5>聯絡</h5>
+        <p>聯絡人　岳志剛</p>
+        <a href="tel:0423723883">電　話　04-2372-3883</a>
+        <p>傳　真　04-2376-3106</p>
+      </div>
+      <div>
+        <h5>辦公室</h5>
+        <p>台中市五廊街 105 號 1 樓</p>
+        <p>統一編號　84428324</p>
+      </div>
+      <div>
+        <h5>License</h5>
+        <p>交觀甲第 5288 號<br>品保中字第 0114 號</p>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+  // sidenav scroll-spy
+  const links = document.querySelectorAll('.sidenav li a');
+  const sections = Array.from(links)
+    .map(a => document.querySelector(a.getAttribute('href')))
+    .filter(Boolean);
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.sidenav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => obs.observe(s));
+
+  // 晚宴章節 PLAN A / PLAN B tab 切換
+  document.querySelectorAll('.plan-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.plan;
+      document.querySelectorAll('.plan-tab').forEach(b => b.classList.toggle('active', b.dataset.plan === target));
+      document.querySelectorAll('.plan-panel').forEach(p => p.classList.toggle('active', p.dataset.plan === target));
+    });
+  });
+
+  // ============================================================
+  // ============ EDIT SYSTEM v1 (本機 single-file 版) ===========
+  // ============================================================
+  const STORAGE_KEY = 'yongcheng-leishan-proposal-v1';
+
+  function markEditables() {
+    const textSel = [
+      'h1','h2','h3','h4','h5','h6',
+      '.key-msg','.day-summary','.r-sub','.p-sub','.sb-lead',
+      '.dinner-hero p.lead','.rs-lead',
+      '.cover-subtitle','.hero-quote','.case-title',
+      '.r-points li','.pillar ul li','.s-body p',
+      '.cover-eyebrow','.sb-eyebrow','.sect-eyebrow',
+      '.day-meta span','.alt-stat .label','.alt-stat .num',
+      '.rs-content h6','.rs-content p',
+      '.highlight p','.highlight h4',
+      '.jp-note','.tl-card h5','.tl-card p',
+      '.cover-to','.cover-from','.cover-meta',
+      '.footer p','.footer-brand-name'
+    ];
+    let id = 0;
+    document.querySelectorAll('.main ' + textSel.join(', .main ')).forEach(el => {
+      if (el.querySelector('.pillar-img, .r-img, .alt-img, .rs-img, .dinner-hero, ul, ol, div')) return;
+      el.setAttribute('data-editable', '1');
+      el.setAttribute('data-edit-id', 'text-' + (id++));
+    });
+
+    let imgId = 0;
+    document.querySelectorAll('.dinner-hero, .pillar-img, .r-img, .rs-img, .alt-img').forEach(el => {
+      el.classList.add('editable-img');
+      el.setAttribute('data-img-id', 'img-' + (imgId++));
+      el.addEventListener('click', (e) => {
+        if (!document.body.classList.contains('edit-mode')) return;
+        if (e.target.tagName === 'A' || e.target.closest('a')) return;
+        if (e.target.hasAttribute('data-editable')) return;
+        pickImage(el);
+      });
+    });
+    setStatus('就緒・' + id + ' 文字 / ' + imgId + ' 圖片');
+  }
+
+  function pickImage(target) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        if (!confirm('這張圖 ' + (file.size/1024/1024).toFixed(1) + 'MB、會讓檔案變肥。繼續？')) return;
+      }
+      setStatus('讀取圖片...');
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        target.style.backgroundImage = "url('" + ev.target.result + "')";
+        target.removeAttribute('data-caption');
+        setStatus('已替換 (' + (file.size/1024).toFixed(0) + ' KB)・記得 SAVE');
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }
+
+  function toggleEditMode() {
+    const isEdit = document.body.classList.toggle('edit-mode');
+    document.querySelectorAll('[data-editable]').forEach(el => {
+      el.contentEditable = isEdit;
+    });
+    document.getElementById('btn-edit').classList.toggle('active', isEdit);
+    setStatus(isEdit ? '編輯中・點文字改、點圖換、Cmd+S 儲存' : '預覽模式');
+  }
+
+  function saveToStorage() {
+    const data = { savedAt: Date.now(), text: {}, images: {} };
+    document.querySelectorAll('[data-edit-id]').forEach(el => {
+      data.text[el.dataset.editId] = el.innerHTML;
+    });
+    document.querySelectorAll('[data-img-id]').forEach(el => {
+      const bg = el.style.backgroundImage;
+      if (bg && bg !== 'none') {
+        const m = bg.match(/url\(["']?(.+?)["']?\)/);
+        if (m) data.images[el.dataset.imgId] = m[1];
+      }
+    });
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      const sizeKB = (JSON.stringify(data).length / 1024).toFixed(0);
+      setStatus('已存 (' + sizeKB + ' KB) ' + new Date().toLocaleTimeString());
+    } catch (e) {
+      setStatus('存失敗：' + e.message + '・改用 EXPORT');
+    }
+  }
+
+  function loadFromStorage() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+    try {
+      const data = JSON.parse(saved);
+      Object.entries(data.text || {}).forEach(([key, html]) => {
+        const el = document.querySelector('[data-edit-id="' + key + '"]');
+        if (el) el.innerHTML = html;
+      });
+      Object.entries(data.images || {}).forEach(([key, url]) => {
+        const el = document.querySelector('[data-img-id="' + key + '"]');
+        if (el) {
+          el.style.backgroundImage = "url('" + url + "')";
+          el.removeAttribute('data-caption');
+        }
+      });
+      const ago = Math.round((Date.now() - data.savedAt) / 60000);
+      setStatus('載入存檔 (' + ago + ' 分鐘前)');
+    } catch (e) { console.error(e); }
+  }
+
+  function exportHtml() {
+    saveToStorage();
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelector('.toolbar')?.remove();
+    clone.querySelector('.disclaimer')?.remove();
+    clone.querySelectorAll('[data-editable]').forEach(el => {
+      el.removeAttribute('data-editable');
+      el.removeAttribute('data-edit-id');
+      el.removeAttribute('contenteditable');
+    });
+    clone.querySelectorAll('[data-img-id]').forEach(el => {
+      el.removeAttribute('data-img-id');
+      el.classList.remove('editable-img');
+    });
+    clone.querySelector('body')?.classList.remove('edit-mode');
+    const html = '<!DOCTYPE html>\n' + clone.outerHTML;
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'yongcheng-leishan-proposal-' + new Date().toISOString().slice(0,10) + '.html';
+    a.click();
+    URL.revokeObjectURL(url);
+    setStatus('已下載乾淨版 HTML（不含 toolbar）');
+  }
+
+  function resetStorage() {
+    if (!confirm('清除所有編輯、回到原始版本？')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  }
+
+  function setStatus(msg) {
+    const el = document.getElementById('edit-status');
+    if (el) el.textContent = msg;
+  }
+
+  markEditables();
+  loadFromStorage();
+  document.getElementById('btn-edit')?.addEventListener('click', toggleEditMode);
+  document.getElementById('btn-save')?.addEventListener('click', saveToStorage);
+  document.getElementById('btn-export')?.addEventListener('click', exportHtml);
+  document.getElementById('btn-reset')?.addEventListener('click', resetStorage);
+
+  if (new URLSearchParams(location.search).get('edit') === '1') {
+    setTimeout(toggleEditMode, 100);
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+      e.preventDefault();
+      saveToStorage();
+    }
+  });
+</script>
+
+</body>
+</html>
