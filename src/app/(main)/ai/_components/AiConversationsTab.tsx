@@ -180,11 +180,13 @@ export function AiConversationsTab() {
   }, [selectedConv, listUrl])
 
   return (
-    <div className="flex gap-4 h-full">
+    <div className="flex gap-3 h-full">
+      {/* 合卡：左對話列表 + 中訊息 thread 用同一張 Card、中間 border 區隔（William 5/19 拍板）*/}
+      <Card className="flex-1 flex overflow-hidden border border-border min-w-0">
       {/* 左側：對話列表（Hub 模式、不分 channel） */}
-      <div className="w-[280px] flex flex-col flex-shrink-0 h-full">
+      <div className="w-[280px] flex flex-col flex-shrink-0 h-full border-r border-border">
         {/* List */}
-        <Card className="flex-1 overflow-y-auto p-0 border border-border">
+        <div className="flex-1 overflow-y-auto">
           {listLoading && (
             <div className="p-6 text-center text-sm text-morandi-muted">載入中...</div>
           )}
@@ -278,11 +280,11 @@ export function AiConversationsTab() {
               </div>
             </button>
           ))}
-        </Card>
+        </div>
       </div>
 
-      {/* 中間：對話 thread */}
-      <Card className="flex-1 flex flex-col overflow-hidden border border-border min-w-0">
+      {/* 中間：對話 thread（同 Card 內、不另設 border）*/}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {!selectedConv && (
           <div className="flex-1 flex items-center justify-center text-sm text-morandi-muted">
             選一個對話看訊息
@@ -312,6 +314,7 @@ export function AiConversationsTab() {
             <ReplyComposer conversationId={selectedConv.id} listUrl={listUrl} />
           </>
         )}
+      </div>
       </Card>
 
       {/* 右側業務面板 */}
@@ -575,7 +578,6 @@ function ReplyComposer({
 }) {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
 
   const handleSend = async () => {
     const trimmed = text.trim()
@@ -605,33 +607,30 @@ function ReplyComposer({
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
       e.preventDefault()
       void handleSend()
     }
   }
 
+  // 樣式對齊 src/app/(main)/channels/_components/ChannelView.tsx 的 composer
+  // William 2026-05-19 拍板：兩邊輸入介面樣式統一
   return (
-    <div className="px-4 py-3 border-t border-morandi-muted/20 bg-morandi-container/10">
-      <div className="flex gap-2 items-stretch">
-        <Input
-          ref={inputRef}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="輸入回覆內容、Enter 送出..."
-          disabled={sending}
-          className="flex-1 h-10"
-        />
-        <Button
-          onClick={handleSend}
-          disabled={sending || !text.trim()}
-          className="h-10 px-4"
-        >
-          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-        </Button>
-      </div>
+    <div className="border-t border-border px-4 py-3 bg-card flex items-end gap-2">
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder="輸入回覆內容（Enter 送出、Shift+Enter 換行）"
+        rows={1}
+        disabled={sending}
+        className="flex-1 resize-none rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-morandi-gold"
+      />
+      <Button onClick={handleSend} disabled={sending || !text.trim()} className="gap-1">
+        {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        送出
+      </Button>
     </div>
   )
 }
@@ -1611,15 +1610,15 @@ function MessageBubble({
           </p>
         )}
         <div
-          className={`rounded-lg overflow-hidden ${
+          className={`overflow-hidden ${
             isImage
-              ? ''
-              : `px-3 py-2 ${
+              ? 'rounded-2xl'
+              : `px-3 py-2 rounded-2xl ${
                   isInbound
-                    ? 'bg-white border border-morandi-muted/20'
+                    ? 'bg-morandi-container/60 rounded-tl-sm'
                     : msg.sender_type === 'ai_agent'
-                      ? 'bg-morandi-gold/20 text-morandi-primary'
-                      : 'bg-morandi-primary text-white'
+                      ? 'bg-morandi-gold/20 text-morandi-primary rounded-tr-sm'
+                      : 'bg-morandi-primary text-white rounded-tr-sm'
                 }`
           }`}
         >
