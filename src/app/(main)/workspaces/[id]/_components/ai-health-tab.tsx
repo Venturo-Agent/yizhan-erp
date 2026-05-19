@@ -16,7 +16,10 @@
 
 import useSWR from 'swr'
 import { Card } from '@/components/ui/card'
-import { Activity, MessageSquare, Sparkles, BookOpenCheck, BrainCircuit, AlertCircle } from 'lucide-react'
+import { Activity, MessageSquare, Sparkles, BookOpenCheck, BrainCircuit, AlertCircle, Coins } from 'lucide-react'
+
+// 簡單 USD → TWD 換算（用近期均匯率 30、不接外部 API、給人粗估用、實際計費另外算）
+const USD_TO_TWD = 30
 
 interface AiHealthData {
   conversations: {
@@ -55,6 +58,15 @@ interface AiHealthData {
     added_to_rag: number
     declined: number
     top_unanswered: Array<{ topic: string; count: number }>
+  }
+  llm_usage: {
+    last30d_calls: number
+    last30d_fail_calls: number
+    last30d_in_tokens: number
+    last30d_out_tokens: number
+    last30d_cost_usd: number
+    by_provider: Array<{ provider: string; calls: number; cost_usd: number }>
+    by_caller: Array<{ caller: string; calls: number; cost_usd: number }>
   }
 }
 
@@ -158,6 +170,53 @@ export function AiHealthDashboard({
         </div>
       </Card>
 
+      {/* LLM 用量 / 成本（近 30 天）*/}
+      <Card className="p-5 border border-border">
+        <div className="flex items-center gap-2 mb-3">
+          <Coins className="w-4 h-4 text-morandi-gold" />
+          <h3 className="text-sm font-semibold text-morandi-primary">LLM 用量（近 30 天）</h3>
+          <span className="text-[0.65rem] text-morandi-muted">— 漫途付給 LLM 廠的成本、不含售價 markup</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs mb-4">
+          <Metric label="呼叫次數" value={d.llm_usage.last30d_calls} />
+          <Metric label="🔴 失敗次數" value={d.llm_usage.last30d_fail_calls} highlight={d.llm_usage.last30d_fail_calls > 0 ? 'warn' : null} />
+          <Metric label="輸入 Token" value={formatTokens(d.llm_usage.last30d_in_tokens)} />
+          <Metric label="輸出 Token" value={formatTokens(d.llm_usage.last30d_out_tokens)} />
+          <Metric label={`成本（≈NT$${Math.round(d.llm_usage.last30d_cost_usd * USD_TO_TWD)}）`} value={`$${d.llm_usage.last30d_cost_usd.toFixed(4)}`} />
+        </div>
+
+        {d.llm_usage.by_provider.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-morandi-muted/10">
+            <div>
+              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">按 provider 拆分</p>
+              <ul className="space-y-1">
+                {d.llm_usage.by_provider.map(p => (
+                  <li key={p.provider} className="flex items-center justify-between text-xs">
+                    <span className="text-morandi-primary">{p.provider}</span>
+                    <span className="text-morandi-secondary">
+                      {p.calls} 次 · ${p.cost_usd.toFixed(4)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">按來源拆分（哪段 code 燒最多）</p>
+              <ul className="space-y-1">
+                {d.llm_usage.by_caller.slice(0, 6).map(c => (
+                  <li key={c.caller} className="flex items-center justify-between text-xs">
+                    <span className="text-morandi-primary truncate">{c.caller}</span>
+                    <span className="text-morandi-secondary shrink-0">
+                      {c.calls} 次 · ${c.cost_usd.toFixed(4)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </Card>
+
       {/* 復盤統計 */}
       <Card className="p-5 border border-border">
         <div className="flex items-center gap-2 mb-3">
@@ -247,13 +306,19 @@ function StatCard({
   )
 }
 
+function formatTokens(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return n.toString()
+}
+
 function Metric({
   label,
   value,
   highlight,
 }: {
   label: string
-  value: number
+  value: number | string
   highlight?: 'warn' | 'danger' | null
 }) {
   const valueColor =

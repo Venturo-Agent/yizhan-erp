@@ -92,6 +92,16 @@ export interface AiHealthResponse {
     declined: number
     top_unanswered: Array<{ topic: string; count: number }>
   }
+  /** LLM 用量（last 30d）— 給漫途 / 客戶看「燒多少錢」 */
+  llm_usage: {
+    last30d_calls: number
+    last30d_fail_calls: number
+    last30d_in_tokens: number
+    last30d_out_tokens: number
+    last30d_cost_usd: number
+    by_provider: Array<{ provider: string; calls: number; cost_usd: number }>
+    by_caller: Array<{ caller: string; calls: number; cost_usd: number }>
+  }
 }
 
 export async function GET(
@@ -219,12 +229,64 @@ export async function GET(
       .slice(0, 5)
       .map(r => ({ topic: r.topic_summary, count: r.occurrence_count }))
 
+    // ══════ LLM 用量（last 30d）══════
+    const { data: usageRows } = await supabase
+      .from('llm_usage_logs')
+      .select('provider, caller, prompt_tokens, completion_tokens, cost_usd, success')
+      .eq('workspace_id', workspaceId)
+      .gte('created_at', thirtyDaysAgo)
+      .returns<Array<{
+        provider: string
+        caller: string | null
+        prompt_tokens: number
+        completion_tokens: number
+        cost_usd: number
+        success: boolean
+      }>>()
+
+    const usageInit = {
+      last30d_calls: 0,
+      last30d_fail_calls: 0,
+      last30d_in_tokens: 0,
+      last30d_out_tokens: 0,
+      last30d_cost_usd: 0,
+    }
+    const byProviderMap = new Map<string, { calls: number; cost_usd: number }>()
+    const byCallerMap = new Map<string, { calls: number; cost_usd: number }>()
+
+    for (const u of usageRows ?? []) {
+      usageInit.last30d_calls++
+      if (!u.success) usageInit.last30d_fail_calls++
+      usageInit.last30d_in_tokens += u.prompt_tokens
+      usageInit.last30d_out_tokens += u.completion_tokens
+      usageInit.last30d_cost_usd += Number(u.cost_usd)
+
+      const provAgg = byProviderMap.get(u.provider) ?? { calls: 0, cost_usd: 0 }
+      provAgg.calls++
+      provAgg.cost_usd += Number(u.cost_usd)
+      byProviderMap.set(u.provider, provAgg)
+
+      const callerKey = u.caller ?? 'unknown'
+      const callerAgg = byCallerMap.get(callerKey) ?? { calls: 0, cost_usd: 0 }
+      callerAgg.calls++
+      callerAgg.cost_usd += Number(u.cost_usd)
+      byCallerMap.set(callerKey, callerAgg)
+    }
+
+    const byProvider = Array.from(byProviderMap.entries())
+      .map(([provider, v]) => ({ provider, ...v }))
+      .sort((a, b) => b.cost_usd - a.cost_usd)
+    const byCaller = Array.from(byCallerMap.entries())
+      .map(([caller, v]) => ({ caller, ...v }))
+      .sort((a, b) => b.cost_usd - a.cost_usd)
+
     const response: AiHealthResponse = {
       conversations: convStats,
       messages: { ...msgStats, ai_takeover_rate: aiTakeoverRate },
       memories: memStats,
       retrospectives: retroStats,
       rag_topics: { ...ragStats, top_unanswered: topUnanswered },
+      llm_usage: { ...usageInit, by_provider: byProvider, by_caller: byCaller },
     }
 
     return NextResponse.json({ data: response })
