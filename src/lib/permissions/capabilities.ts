@@ -125,13 +125,6 @@ export const CAPABILITIES = {
   SETTINGS_MANAGE_PERSONAL: 'settings.personal.write',
   SETTINGS_READ_COMPANY: 'settings.company.read',
   SETTINGS_MANAGE_COMPANY: 'settings.company.write',
-  // ── cis ──
-  CIS_READ_CLIENTS: 'cis.clients.read',
-  CIS_MANAGE_CLIENTS: 'cis.clients.write',
-  CIS_READ_VISITS: 'cis.visits.read',
-  CIS_MANAGE_VISITS: 'cis.visits.write',
-  CIS_READ_PRICING: 'cis.pricing.read',
-  CIS_MANAGE_PRICING: 'cis.pricing.write',
   // ── dashboard ──
   DASHBOARD_READ: 'dashboard.read',
   DASHBOARD_WRITE: 'dashboard.write',

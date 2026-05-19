@@ -20,7 +20,6 @@ import { DatabaseModule } from './database'
 // 既有 capability caller 已批次改寫成 CAPABILITIES.AI_HUB_*。
 import { AiHubModule } from './ai_hub'
 import { SettingsModule } from './settings'
-import { CisModule } from './cis'
 import { DashboardModule } from './dashboard'
 import { CustomersModule } from './customers'
 import { TourAttributesModule } from './tour_attributes'
@@ -57,7 +56,6 @@ export const ALL_MODULES = [
   DatabaseModule,
   AiHubModule,
   SettingsModule,
-  CisModule,
   // ===== 不暴露給 HR / 漫途專用 / 個人空間 =====
   DashboardModule,
   CustomersModule,

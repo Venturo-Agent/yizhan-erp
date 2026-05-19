@@ -379,44 +379,8 @@ export {
 // 見 migration 20260502120000_merge_tour_itinerary_days_into_items.sql
 
 // ============================================
-// CIS 工作流（漫途整合行銷專屬）
+// CIS 工作流（2026-05-19 砍除、保留 finance-summary export）
 // ============================================
-
-// CIS Clients
-export {
-  useCisClients,
-  useCisClientsSlim,
-  useCisClient,
-  useCisClientsPaginated,
-  useCisClientDictionary,
-  createCisClient,
-  updateCisClient,
-  deleteCisClient,
-  invalidateCisClients,
-} from './cis-clients'
-
-// CIS Visits
-export {
-  useCisVisits,
-  useCisVisit,
-  useCisVisitsPaginated,
-  createCisVisit,
-  updateCisVisit,
-  deleteCisVisit,
-  invalidateCisVisits,
-} from './cis-visits'
-
-// CIS Pricing Items
-export {
-  useCisPricingItems,
-  useCisPricingItemsSlim,
-  useCisPricingItem,
-  useCisPricingItemsPaginated,
-  createCisPricingItem,
-  updateCisPricingItem,
-  deleteCisPricingItem,
-  invalidateCisPricingItems,
-} from './cis-pricing-items'
 
 export { useTourPL, useTreasurySummary } from './finance-summary'
 

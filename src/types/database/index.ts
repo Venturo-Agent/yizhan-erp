@@ -231,14 +231,6 @@ export type CompanyContactRow = Tables['company_contacts']['Row']
 export type CompanyContactInsert = Tables['company_contacts']['Insert']
 export type CompanyContactUpdate = Tables['company_contacts']['Update']
 
-// ─── CIS（業務拜訪） ──────────────────────────────────────────
-
-// export type CisClientRow = Tables['cis_clients']['Row']  // 表已移除
-// export type CisClientInsert = Tables['cis_clients']['Insert']  // 表已移除
-// export type CisClientUpdate = Tables['cis_clients']['Update']  // 表已移除
-
-// export type CisPricingItemRow = Tables['cis_pricing_items']['Row']  // 表已移除
-// export type CisVisitRow = Tables['cis_visits']['Row']  // 表已移除
 export type ContractRow = Tables['contracts']['Row']
 
 // ─── 目的地 / 地理（Geography） ──────────────────────────────

@@ -152,14 +152,6 @@ export const SIDEBAR_META: Record<string, SidebarMeta> = {
       { href: '/shared-data/attractions', label: COMP_LAYOUT_LABELS.景點圈管理, icon: MapPin },
     ],
   },
-  cis: {
-    icon: Palette,
-    label: '漫途 CIS',
-    children: [
-      { href: '/cis', label: '客戶管理', icon: Contact },
-      { href: '/cis/pricing', label: '衍生項目價目', icon: Coins },
-    ],
-  },
   platform_integrations: {
     icon: Megaphone,
     label: COMP_LAYOUT_LABELS.AiToEarn,

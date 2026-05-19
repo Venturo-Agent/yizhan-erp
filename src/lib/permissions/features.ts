@@ -164,16 +164,6 @@ export const FEATURES: FeatureDefinition[] = [
     ],
   },
   {
-    code: 'cis',
-    name: '漫途 CIS 工作流',
-    description: '客戶識別系統規劃（漫途整合行銷專屬）',
-    category: 'enterprise',
-    routes: [
-      '/cis',
-      '/cis/pricing',
-    ],
-  },
-  {
     code: 'dashboard',
     name: '首頁',
     description: '系統首頁與儀表板',
