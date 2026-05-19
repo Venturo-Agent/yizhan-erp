@@ -28,11 +28,7 @@ describe('getFeatureByCode', () => {
     expect(getFeatureByCode('')).toBeUndefined()
   })
 
-  it('CIS（漫途整合行銷專屬）能查到、為 enterprise 級', () => {
-    const cis = getFeatureByCode('cis')
-    expect(cis).toBeDefined()
-    expect(cis?.category).toBe('enterprise')
-  })
+  // CIS feature 已於 2026-05-19 砍除（DB schema 移除、前端殘留也清乾淨）
 })
 
 describe('getFeatureByRoute', () => {
