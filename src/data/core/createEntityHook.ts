@@ -106,6 +106,9 @@ export function createEntityHook<T extends BaseEntity>(
     dedupingInterval: 2000,
   }
 
+  // PK 欄位（5/19 健檢補：支援非 id PK 表、ref_banks.bank_code 等）
+  const pkColumn = config.pkColumn ?? 'id'
+
   // CRUD context（傳入各 CRUD 函式）
   const crudCtx: CrudContext = {
     tableName,
@@ -113,6 +116,7 @@ export function createEntityHook<T extends BaseEntity>(
     cacheKeyList,
     isWorkspaceScoped,
     skipAudit,
+    pkColumn,
   }
 
   // ============================================
@@ -352,7 +356,7 @@ export function createEntityHook<T extends BaseEntity>(
         const { data, error } = await supabase
           .from(tableName as never /* dynamic table name requires runtime assertion */)
           .select(selectFields)
-          .eq('id', id)
+          .eq(pkColumn, id)
           .maybeSingle()
 
         if (error) {

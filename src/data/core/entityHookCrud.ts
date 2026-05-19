@@ -27,6 +27,8 @@ export interface CrudContext {
   cacheKeyList: string
   isWorkspaceScoped: boolean
   skipAudit: boolean
+  /** Primary key 欄位名、預設 'id'。非 id PK 表（ref_*）必傳 */
+  pkColumn: string
 }
 
 // ============================================
@@ -209,7 +211,7 @@ export async function updateEntity<T extends BaseEntity>(
     const { error } = await supabase
       .from(ctx.tableName as never /* dynamic table name requires runtime assertion */)
       .update(updateData as never)
-      .eq('id', id)
+      .eq(ctx.pkColumn, id)
 
     if (error) {
       logger.error(`[${ctx.tableName}] Update error:`, error.message)
@@ -249,7 +251,7 @@ export async function removeEntity<T extends BaseEntity>(
     const { error } = await supabase
       .from(ctx.tableName as never /* dynamic table name requires runtime assertion */)
       .delete()
-      .eq('id', id)
+      .eq(ctx.pkColumn, id)
 
     if (error) {
       logger.error(`[${ctx.tableName}] Delete error:`, error.message)

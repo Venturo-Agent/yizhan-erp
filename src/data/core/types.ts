@@ -116,6 +116,13 @@ export interface EntityConfig {
   workspaceScoped?: boolean
   /** 跳過自動加入 created_by / updated_by 欄位（適用於沒有 audit 欄位的表）*/
   skipAuditFields?: boolean
+  /**
+   * Primary key 欄位名（detail / update / delete 用）。
+   * 預設 'id'。
+   * 非 id PK 的表（譬如 ref_banks.bank_code / ref_countries.code / ref_airports.iata_code）
+   * 必傳此 option、否則 detail/update/delete 會炸。
+   */
+  pkColumn?: string
 }
 
 // ============================================
