@@ -57,6 +57,30 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
         { status: 409 }
       )
     }
+
+    // ── 紅線 D guard：檢查 period 是否已關帳 ─────────────────────────
+    const { data: period } = await supabase
+      .from('accounting_periods')
+      .select('id, period_name, is_closed, closed_at')
+      .eq('workspace_id', guard.workspaceId)
+      .eq('period_name', settlement.period)
+      .maybeSingle()
+
+    if (period && period.is_closed) {
+      return NextResponse.json(
+        {
+          error: `此薪資結算區間（${settlement.period}）已於 ${new Date(period.closed_at).toLocaleString('zh-TW')} 關帳、若要重新確認請先聯絡會計打開該月份`,
+          code: 'PERIOD_CLOSED',
+        },
+        { status: 409 }
+      )
+    } else if (!period) {
+      logger.warn('[salary-settlements/submit] accounting_period not found, skipping guard', {
+        workspaceId: guard.workspaceId,
+        period: settlement.period,
+      })
+    }
+    // ── END 紅線 D guard ───────────────────────────────────────────
     if (settlement.employee_count === 0) {
       return NextResponse.json(
         { error: '此 batch 無員工項目、不能確認' },
