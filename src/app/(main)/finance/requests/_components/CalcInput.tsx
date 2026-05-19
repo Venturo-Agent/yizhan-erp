@@ -22,8 +22,6 @@ export function CalcInput({
 }) {
   const [displayValue, setDisplayValue] = useState(value ? String(value) : '')
   const focusedRef = useRef(false)
-  // IME 組字中 ref：composition 期間不更新 state、避免全形/中文輸入法確認時重複觸發 onChange
-  const composingRef = useRef(false)
 
   // 只在非聚焦時同步外部值（避免打字中被蓋掉）
   useEffect(() => {
@@ -83,16 +81,12 @@ export function CalcInput({
       inputMode="decimal"
       value={displayValue}
       onChange={e => {
-        // IME 組字期間不 setState、否則中文輸入法確認瞬間會再觸發一次 onChange、值重複
-        if (!composingRef.current) {
+        // IME 組字期間不 setState（用 browser 原生 isComposing、不自寫 ref 避免卡死）
+        if (!(e.nativeEvent as InputEvent).isComposing) {
           setDisplayValue(e.target.value)
         }
       }}
-      onCompositionStart={() => {
-        composingRef.current = true
-      }}
       onCompositionEnd={e => {
-        composingRef.current = false
         // 確認時立即 normalize 全形→半形、user 看到的就是半形數字
         setDisplayValue(normalize((e.target as HTMLInputElement).value))
       }}
