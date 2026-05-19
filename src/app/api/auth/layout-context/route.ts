@@ -14,16 +14,11 @@
 import { NextResponse } from 'next/server'
 import { getLayoutContext } from '@/lib/auth/get-layout-context'
 import { apiHandler } from '@/lib/api/api-handler'
-import { DEMO_MODE, demoLayoutContextPayload } from '@/lib/demo/demo'
 
 /**
  * 故意不守 requireCapability：登入後 layout context、不需 capability
  */
 export const GET = apiHandler(async () => {
-  if (DEMO_MODE) {
-    return NextResponse.json(demoLayoutContextPayload)
-  }
-
   const ctx = await getLayoutContext()
 
   if (!ctx.user || !ctx.workspace_id) {
