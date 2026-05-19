@@ -70,7 +70,27 @@ export async function GET(
       return dbErrorResponse(error)
     }
 
-    return NextResponse.json({ data: (data ?? []) as MessageRow[] })
+    // 群組訊息頭像支援：拉該 workspace 全 line_user_profiles 一張 map
+    // 訊息 content 內 `[name]` prefix 對應 line_user_profiles.display_name、
+    // 前端用 display_name → picture_url 顯示頭像。
+    // 為效能小、一個 workspace 通常 < 100 個 LINE 用戶
+    const profileQuery = supabase
+      .from('line_user_profiles' as unknown as SupabaseTableName)
+      .select('display_name, picture_url')
+      .eq('workspace_id', workspaceId)
+
+    const { data: profiles } = await profileQuery
+    const sender_avatars: Record<string, string> = {}
+    for (const p of (profiles ?? []) as { display_name: string | null; picture_url: string | null }[]) {
+      if (p.display_name && p.picture_url) {
+        sender_avatars[p.display_name] = p.picture_url
+      }
+    }
+
+    return NextResponse.json({
+      data: (data ?? []) as MessageRow[],
+      sender_avatars,
+    })
   } catch (error) {
     logger.error('GET messages exception', { error })
     return ApiError.internal('系統錯誤')

@@ -147,13 +147,17 @@ export function AiConversationsTab() {
 
   const conversations = useMemo(() => listResp?.data ?? [], [listResp])
 
-  const { data: msgResp, isLoading: msgLoading } = useSWR<{ data: MessageItem[] }>(
+  const { data: msgResp, isLoading: msgLoading } = useSWR<{
+    data: MessageItem[]
+    sender_avatars?: Record<string, string>
+  }>(
     selectedId ? `/api/messaging/conversations/${selectedId}/messages` : null,
     fetcher,
     { refreshInterval: selectedId ? 5000 : 0, revalidateOnFocus: false }
   )
 
   const messages = useMemo(() => msgResp?.data ?? [], [msgResp])
+  const senderAvatars = useMemo(() => msgResp?.sender_avatars ?? {}, [msgResp])
   const selectedConv = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
     [conversations, selectedId]
@@ -295,6 +299,7 @@ export function AiConversationsTab() {
             />
             <MessagesList
               messages={messages}
+              senderAvatars={senderAvatars}
               loading={msgLoading}
               conversationId={selectedConv.id}
               isGroup={
@@ -325,11 +330,13 @@ function MessagesList({
   loading,
   conversationId,
   isGroup,
+  senderAvatars,
 }: {
   messages: MessageItem[]
   loading: boolean
   conversationId: string
   isGroup: boolean
+  senderAvatars: Record<string, string>
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef<number>(0)
@@ -369,7 +376,13 @@ function MessagesList({
           </div>
         )}
         {messages.map((m) => (
-          <MessageBubble key={m.id} msg={m} isGroup={isGroup} onImageClick={setLightboxUrl} />
+          <MessageBubble
+            key={m.id}
+            msg={m}
+            isGroup={isGroup}
+            onImageClick={setLightboxUrl}
+            senderAvatars={senderAvatars}
+          />
         ))}
       </div>
       {lightboxUrl && createPortal(
@@ -1519,10 +1532,12 @@ function MessageBubble({
   msg,
   isGroup,
   onImageClick,
+  senderAvatars,
 }: {
   msg: MessageItem
   isGroup: boolean
   onImageClick: (url: string) => void
+  senderAvatars: Record<string, string>
 }) {
   const isInbound = msg.direction === 'inbound'
   const isImage = msg.message_type === 'image' && msg.media_url
@@ -1548,8 +1563,25 @@ function MessageBubble({
           ? '客服'
           : '系統')
 
+  // 訊息頭像（樣式參考 channels ChannelView.tsx）
+  // - 群組訊息：用 groupSenderName 從 line_user_profiles map 拿 picture_url
+  // - 1-對-1 / 系統訊息：不顯示頭像（同 channels）
+  const avatarUrl = groupSenderName ? (senderAvatars[groupSenderName] ?? null) : null
+  const avatarInitial = (groupSenderName ?? '?').slice(0, 1)
+  const showAvatar = isInbound && isGroup && groupSenderName
+
   return (
-    <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'}`}>
+    <div className={`flex gap-2 ${isInbound ? 'justify-start' : 'justify-end'}`}>
+      {showAvatar && (
+        <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt={groupSenderName ?? ''} className="w-full h-full object-cover" />
+          ) : (
+            <span>{avatarInitial}</span>
+          )}
+        </div>
+      )}
       <div className="max-w-[75%]">
         {groupSenderName && (
           <p className="text-[0.65rem] text-morandi-secondary font-medium mb-0.5 px-1">
