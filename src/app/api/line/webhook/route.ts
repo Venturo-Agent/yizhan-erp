@@ -23,9 +23,9 @@
  * Phase 2 (T1.3) 接手：把 echo 換成 state machine（卡片 6.1 節）。
  */
 
-export const maxDuration = 60 // Vercel Hobby 最高 60s；after() 10s + LLM 最多 45s
+export const maxDuration = 60 // Vercel Hobby 最高 60s；背景 task 10s + LLM 最多 45s
 
-import { NextResponse, after } from 'next/server'
+import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import type { Json } from '@/lib/supabase/types'
@@ -386,30 +386,35 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
     replyToken: event.replyToken ?? null,
   })
 
-  // after() 在 200 回給 LINE 後繼續跑（不佔 webhook response 時間）
+  // 背景任務：webhook 回 200 後繼續跑（不佔 webhook response 時間）
   // 等 12 秒後原子搶：UPDATE ... WHERE sent_at IS NULL AND last_message_at < now-10s
-  // 若有更新的訊息在 10s 內到達，last_message_at 較新，搶不到 → 讓那條的 after() 去搶
-  after(async () => {
-    await new Promise((r) => setTimeout(r, 10_000))
-
-    const supabaseInner = getSupabaseAdminClient() as unknown as SupabaseClient
-
-    // SELECT 先確認 row 可以搶（不立刻設 sent_at）
-    const { data: rows } = await supabaseInner
-      .from('line_bot_reply_debounce')
-      .select('accumulated_text, reply_token')
-      .eq('workspace_id', workspaceId)
-      .eq('line_user_id', lineUserId)
-      .is('sent_at', null)
-      .lt('last_message_at', new Date(Date.now() - 10_000).toISOString())
-      .limit(1)
-
-    const row = rows?.[0]
-    if (!row?.accumulated_text) return
-
-    // 先跑 LLM + 送訊息，成功後才標 sent_at
-    // 若 Vercel 在這裡砍掉 → sent_at 仍是 null → flush 可以補送
+  // 若有更新的訊息在 10s 內到達，last_message_at 較新，搶不到 → 讓那條的背景任務去搶
+  //
+  // 為什麼用 void IIFE 而非 Next.js after()：
+  //   after() 在 Vercel 是平台級保留機制、self-hosted Coolify Docker 沒對應實作、
+  //   訊息會卡 debounce 表沒人沖（5/19 凌晨~晚上 7:30 跨平台搬遷後實際發生）。
+  //   void IIFE 是純 Node.js、event loop 有 setTimeout 就不釋放、Coolify 也跑得完。
+  void (async () => {
     try {
+      await new Promise((r) => setTimeout(r, 10_000))
+
+      const supabaseInner = getSupabaseAdminClient() as unknown as SupabaseClient
+
+      // SELECT 先確認 row 可以搶（不立刻設 sent_at）
+      const { data: rows } = await supabaseInner
+        .from('line_bot_reply_debounce')
+        .select('accumulated_text, reply_token')
+        .eq('workspace_id', workspaceId)
+        .eq('line_user_id', lineUserId)
+        .is('sent_at', null)
+        .lt('last_message_at', new Date(Date.now() - 10_000).toISOString())
+        .limit(1)
+
+      const row = rows?.[0]
+      if (!row?.accumulated_text) return
+
+      // 先跑 LLM + 送訊息，成功後才標 sent_at
+      // 若 process 在這裡被砍掉 → sent_at 仍是 null → flush cron 可以補送（用 Push API 兜底）
       await processIncomingTextMessage(ctx, row.accumulated_text, row.reply_token ?? null)
       await supabaseInner
         .from('line_bot_reply_debounce')
@@ -418,9 +423,9 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
         .eq('line_user_id', lineUserId)
         .is('sent_at', null)
     } catch (err) {
-      logger.error(`${HANDLER_NAME}: processIncomingTextMessage (after debounce) failed`, err)
+      logger.error(`${HANDLER_NAME}: background debounce task failed`, err)
     }
-  })
+  })()
 }
 
 /**
