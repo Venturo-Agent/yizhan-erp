@@ -18,6 +18,7 @@ import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { logger } from '@/lib/utils/logger'
 import { callMiniMax } from './providers/minimax-client'
 import { callAnthropic } from './providers/anthropic-client'
+import { recordLLMUsage } from './usage-tracker'
 import { toTraditional } from '@/lib/text/simplified-to-traditional'
 import type { LLMRequest, LLMResponse } from '@/types/line.types'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -170,6 +171,20 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
         }
       })
   }
+
+  // 用量記帳（fire-and-forget、不論成敗都記、給 SaaS 計費鋪路）
+  // William 2026-05-19 拍板：自建 llm_usage_logs、不接外部 Langfuse / Helicone
+  void recordLLMUsage({
+    workspaceId,
+    provider: settings.provider,
+    model: response.model ?? settings.model,
+    promptTokens: response.usage?.prompt_tokens,
+    completionTokens: response.usage?.completion_tokens,
+    latencyMs,
+    caller: req.caller,
+    success: response.ok,
+    errorCode: response.error ?? null,
+  })
 
   return response
 }

@@ -102,11 +102,12 @@ export async function tryHappyReply(channelId: string): Promise<void> {
       historyCount: history.length,
     })
 
-    // 5. call LLM（dispatchLLM 內部已含 opencc-js 簡→繁、log、last_used_at 更新）
+    // 5. call LLM（dispatchLLM 內部已含 opencc-js 簡→繁、log、last_used_at 更新、usage tracker）
     const llmRes = await dispatchLLM({
       messages,
       workspaceId: channel.workspace_id,
       temperature: 0.5,
+      caller: 'happy-handler',
     })
 
     if (!llmRes.ok || !llmRes.content) {

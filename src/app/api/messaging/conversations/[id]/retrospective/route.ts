@@ -142,6 +142,7 @@ ${transcript}
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
+      caller: 'conversation-retrospective',
     })
 
     if (!llmResult.ok || !llmResult.content) {

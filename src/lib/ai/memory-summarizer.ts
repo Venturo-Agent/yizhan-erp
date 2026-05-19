@@ -256,6 +256,7 @@ ${transcript}
         { role: 'system', content: SUMMARY_SYSTEM_PROMPT },
         { role: 'user', content: userPrompt },
       ],
+      caller: 'memory-summarizer',
     })
 
     if (!llmResult.ok || !llmResult.content) {

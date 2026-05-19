@@ -84,6 +84,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     messages,
     workspaceId: ctx.workspaceId,
     temperature: 0.3,
+    caller: 'line-llm-compose',
   })
 
   // 全部 provider 都不通（連 fallback 也沒）→ 純規則 fallback

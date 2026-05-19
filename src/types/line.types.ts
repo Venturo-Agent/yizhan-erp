@@ -180,6 +180,8 @@ export interface LLMRequest {
   temperature?: number
   /** 給 OpenRouter 做 cost / usage 標記 */
   workspaceId?: string
+  /** 呼叫來源（給 usage tracker 分類）：'ai-brain' / 'memory-summarizer' / 'retrospective-aggregator' / 'attraction-polish' / 'line-llm-compose' 等 */
+  caller?: string
 }
 
 export interface LLMResponse {

@@ -153,6 +153,7 @@ ${JSON.stringify(allQuestions, null, 2)}
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userPrompt },
       ],
+      caller: 'retrospective-aggregator',
     })
 
     if (!llmRes.ok || !llmRes.content) {

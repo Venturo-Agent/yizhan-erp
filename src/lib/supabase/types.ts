@@ -4676,6 +4676,72 @@ export type Database = {
           },
         ]
       }
+      llm_usage_logs: {
+        Row: {
+          caller: string | null
+          completion_tokens: number
+          cost_usd: number
+          created_at: string
+          created_by: string | null
+          error_code: string | null
+          id: string
+          latency_ms: number | null
+          model: string
+          prompt_tokens: number
+          provider: string
+          success: boolean
+          total_tokens: number | null
+          workspace_id: string
+        }
+        Insert: {
+          caller?: string | null
+          completion_tokens?: number
+          cost_usd?: number
+          created_at?: string
+          created_by?: string | null
+          error_code?: string | null
+          id?: string
+          latency_ms?: number | null
+          model: string
+          prompt_tokens?: number
+          provider: string
+          success?: boolean
+          total_tokens?: number | null
+          workspace_id: string
+        }
+        Update: {
+          caller?: string | null
+          completion_tokens?: number
+          cost_usd?: number
+          created_at?: string
+          created_by?: string | null
+          error_code?: string | null
+          id?: string
+          latency_ms?: number | null
+          model?: string
+          prompt_tokens?: number
+          provider?: string
+          success?: boolean
+          total_tokens?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "llm_usage_logs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "llm_usage_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notes: {
         Row: {
           content: string
@@ -10179,6 +10245,29 @@ export type Database = {
           workspace_id: string | null
         }
         Relationships: []
+      }
+      v_llm_usage_monthly: {
+        Row: {
+          call_count: number | null
+          fail_count: number | null
+          model: string | null
+          month: string | null
+          provider: string | null
+          total_cost_usd: number | null
+          total_in_tokens: number | null
+          total_out_tokens: number | null
+          total_tokens: number | null
+          workspace_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "llm_usage_logs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
