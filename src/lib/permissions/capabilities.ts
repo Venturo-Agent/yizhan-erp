@@ -183,6 +183,17 @@ export const CAPABILITIES = {
   ESIM_PRODUCTS_WRITE: 'esim.products.write',
   ESIM_SETTINGS_READ: 'esim.settings.read',
   ESIM_SETTINGS_WRITE: 'esim.settings.write',
+  // ── visas ──
+  VISAS_APPLICATIONS_READ: 'visas.applications.read',
+  VISAS_APPLICATIONS_WRITE: 'visas.applications.write',
+  VISAS_DOCUMENTS_READ: 'visas.documents.read',
+  VISAS_DOCUMENTS_WRITE: 'visas.documents.write',
+  VISAS_DOCUMENT_TYPES_READ: 'visas.document_types.read',
+  VISAS_DOCUMENT_TYPES_WRITE: 'visas.document_types.write',
+  VISAS_SERVICE_TYPES_READ: 'visas.service_types.read',
+  VISAS_SERVICE_TYPES_WRITE: 'visas.service_types.write',
+  VISAS_PRICING_READ: 'visas.pricing.read',
+  VISAS_PRICING_WRITE: 'visas.pricing.write',
 
   // ════ Non-module（scope / 全域 capability、不屬任何 module）════
   CROSS_BRANCH_READ: 'cross_branch.read',

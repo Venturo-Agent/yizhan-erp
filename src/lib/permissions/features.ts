@@ -294,6 +294,18 @@ export const FEATURES: FeatureDefinition[] = [
       '/esim/settings',
     ],
   },
+  {
+    code: 'visas',
+    name: '簽證代辦',
+    description: '證件代辦進度管理、客戶證件抽屜、代辦商價目（含版本歷史）',
+    category: 'basic',
+    routes: [
+      '/visas',
+      '/library/document-types',
+      '/library/application-service-types',
+      '/suppliers/[code]/pricing',
+    ],
+  },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
