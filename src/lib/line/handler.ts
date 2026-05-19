@@ -44,8 +44,9 @@ import { generateMemorySummary, MAX_FAILED_ATTEMPTS } from '@/lib/ai/memory-summ
 import type { BotContext, LineMessageRow, TourSummary } from '@/types/line.types'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-// 速記卡觸發門檻：每對話累積 N 則新訊息、AI 自動重寫一張速記卡（William 2026-05-18 拍板）
-const MEMORY_SUMMARY_THRESHOLD = 20
+// 速記卡觸發門檻：每對話累積 N 則新訊息、AI 自動重寫一張速記卡
+// 2026-05-18 William 拍板 20、5/19 改 50（RAG 接好後 AI 不靠速記卡記細節、頻率可拉低省 LLM 成本）
+const MEMORY_SUMMARY_THRESHOLD = 50
 
 // re-export so existing callers don't break
 export { parseIntent } from '@/lib/line/line-intent-parser'

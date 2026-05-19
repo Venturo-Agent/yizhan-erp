@@ -1,10 +1,13 @@
 /**
  * POST /api/messaging/conversations/[id]/retrospective
  *
- * 對話復盤（AI 摘要）：取該對話所有訊息 → 送 LLM 生成結構化摘要。
+ * 對話復盤（AI 摘要）：取該對話所有訊息 → 送 LLM 生成結構化摘要 →
+ * 寫進 conversation_retrospectives 表（每按一次存一筆、保留歷史）。
  *
- * 守 AI_HUB_READ capability（read-only 操作）。
+ * 守 AI_HUB_WRITE capability（會寫入 DB、不再是 read-only）。
  * 走 dispatchLLM → 遵守 workspace 的 provider / model 設定。
+ *
+ * 2026-05-19 William 拍板：1-對-1 + 群組共用此 endpoint、走同張表（type 欄位區分）。
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -36,7 +39,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const guard = await requireCapability(CAPABILITIES.AI_HUB_READ)
+    const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
     if (!guard.ok) return guard.response
 
     const feature = await requireWorkspaceFeature(guard.workspaceId, 'ai_hub', 'AI Hub')
@@ -141,7 +144,7 @@ ${transcript}
       ],
     })
 
-    if (!llmResult.ok) {
+    if (!llmResult.ok || !llmResult.content) {
       logger.error('retrospective: LLM failed', { error: llmResult.error, workspaceId: guard.workspaceId })
       return NextResponse.json(
         { success: false, error: llmResult.error || 'AI 摘要生成失敗，請稍後再試' },
@@ -149,7 +152,44 @@ ${transcript}
       )
     }
 
-    return NextResponse.json({ success: true, summary: llmResult.content })
+    const summaryText = llmResult.content
+
+    // 判定 conversation_type（給 UI 過濾用）
+    const conversationType: 'group' | 'room' | 'customer' =
+      conv.external_user_id.startsWith('group:') ? 'group' :
+      conv.external_user_id.startsWith('room:') ? 'room' :
+      'customer'
+
+    // 寫進歷史表（每按一次存一筆）
+    const { data: inserted, error: insErr } = await supabase
+      .from('conversation_retrospectives')
+      .insert({
+        workspace_id: guard.workspaceId,
+        conversation_id: conversationId,
+        conversation_type: conversationType,
+        summary_text: summaryText,
+        message_count_at_generation: messages.length,
+        generated_by: guard.employeeId,
+        created_by: guard.employeeId,
+        status: 'pending',
+      })
+      .select('id, created_at')
+      .single<{ id: string; created_at: string }>()
+
+    if (insErr) {
+      // DB 寫入失敗也不擋 user 看摘要、只 log
+      logger.warn('retrospective insert failed (UI still gets summary)', {
+        conversationId,
+        err: insErr.message,
+      })
+    }
+
+    return NextResponse.json({
+      success: true,
+      summary: summaryText,
+      retrospective_id: inserted?.id ?? null,
+      created_at: inserted?.created_at ?? null,
+    })
   } catch (err) {
     logger.error('POST retrospective error', { err })
     return ApiError.internal('系統錯誤')

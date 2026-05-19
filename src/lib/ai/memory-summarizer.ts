@@ -7,7 +7,7 @@
  *   - 結果寫 customer_memories.memory_json
  *
  * 並發保護：
- *   - 同對話幾乎不會同時觸發（每 20 則才一次）
+ *   - 同對話幾乎不會同時觸發（每 50 則才一次、5/19 William 拍板從 20 拉高）
  *   - 還是用 last_summarized_message_count 做 CAS（compare-and-swap）guard
  *
  * 失敗保護：

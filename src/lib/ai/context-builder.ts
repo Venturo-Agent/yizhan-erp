@@ -53,7 +53,7 @@ interface MemoryRow {
  * 組對話 thread 的 context string、塞進 system prompt。
  *
  * 順序（從「最個人」到「最通用」）：
- *   1. 客戶速記卡（長期記憶、AI 每 20 則訊息自己重寫）
+ *   1. 客戶速記卡（長期記憶、AI 每 50 則訊息自己重寫）
  *   2. workspace 可推薦的團
  *   3. 綁定的 ERP 客戶 + 最近訂單
  */

@@ -1397,6 +1397,93 @@ export type Database = {
           },
         ]
       }
+      conversation_retrospectives: {
+        Row: {
+          conversation_id: string
+          conversation_type: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          generated_by: string | null
+          id: string
+          message_count_at_generation: number
+          notes: string | null
+          status: string
+          summary_text: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          conversation_id: string
+          conversation_type?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          generated_by?: string | null
+          id?: string
+          message_count_at_generation?: number
+          notes?: string | null
+          status?: string
+          summary_text: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          conversation_id?: string
+          conversation_type?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          generated_by?: string | null
+          id?: string
+          message_count_at_generation?: number
+          notes?: string | null
+          status?: string
+          summary_text?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_retrospectives_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "inbox_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_retrospectives_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_retrospectives_generated_by_fkey"
+            columns: ["generated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_retrospectives_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_retrospectives_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       countries: {
         Row: {
           code: string | null
