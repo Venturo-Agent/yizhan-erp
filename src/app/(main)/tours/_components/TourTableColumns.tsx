@@ -12,7 +12,6 @@ import { DateCell } from '@/components/table-cells'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { TOUR_TABLE } from '../_constants'
 import { useTourDisplayResolver } from '../_utils/tour-display'
-import { TOUR_STATUS } from '@/lib/constants/status-maps'
 
 interface UseTourTableColumnsParams {
   ordersByTourId?: Map<string, { sales_person: string | null; assistant: string | null }>
@@ -75,22 +74,10 @@ export function useTourTableColumns({ ordersByTourId }: UseTourTableColumnsParam
         sortable: true,
         width: '5.5rem',
         render: (value, row) => {
+          // DB status 是 SSOT；自動推進靠 pg_cron job `tour-status-auto-advance`
+          // （每天台北 00:05、auto_advance_tour_status function）
           const tour = row as Tour
-          const today = new Date().toISOString().split('T')[0]
-
-          // 動態計算實際狀態
-          let actualStatus = tour.status || ''
-
-          if (tour.departure_date && tour.return_date) {
-            if (actualStatus === TOUR_STATUS.UPCOMING && tour.departure_date <= today) {
-              actualStatus = TOUR_STATUS.ONGOING
-            }
-            if (actualStatus === TOUR_STATUS.ONGOING && tour.return_date < today) {
-              actualStatus = TOUR_STATUS.RETURNED
-            }
-          }
-
-          return <StatusBadge type="tour" status={actualStatus} />
+          return <StatusBadge type="tour" status={tour.status || ''} />
         },
       },
     ],
