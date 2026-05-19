@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Plus, Star, Edit, ChevronRight, ChevronDown } from 'lucide-react'
 import type { TableColumn } from '@/components/ui/enhanced-table'
+import { updateChartOfAccount } from '@/data/entities/chart-of-accounts'
 import { supabase } from '@/lib/supabase/client'
 import { generateAccountChildCode } from '@/lib/codes'
 import { useAuthStore } from '@/stores/auth-store'
@@ -155,12 +156,7 @@ export default function AccountsPage() {
 
   const toggleFavorite = async (accountId: string, currentFavorite: boolean) => {
     try {
-      const { error } = await supabase
-        .from('chart_of_accounts')
-        .update({ is_favorite: !currentFavorite } as Record<string, unknown>)
-        .eq('id', accountId)
-
-      if (error) throw error
+      await updateChartOfAccount(accountId, { is_favorite: !currentFavorite })
 
       // 更新本地状态
       setAccounts(prev =>

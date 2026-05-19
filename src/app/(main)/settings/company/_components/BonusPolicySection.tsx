@@ -4,7 +4,8 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { HandCoins } from 'lucide-react'
 import { toast } from 'sonner'
-import { supabase } from '@/lib/supabase/client'
+import { updateWorkspace } from '@/data/entities/workspaces'
+import type { Database } from '@/lib/supabase/types'
 import { logger } from '@/lib/utils/logger'
 import type { BonusCalculationOrder } from '@/app/(main)/tours/_services/profit-calculation.service'
 
@@ -39,12 +40,7 @@ export function BonusPolicySection({ workspaceId, initialOrder }: BonusPolicySec
     setOrder(value)
     setSaving(true)
     try {
-      const { error } = await supabase
-        .from('workspaces')
-        .update({ bonus_calculation_order: value } as Record<string, unknown>)
-        .eq('id', workspaceId)
-      if (error) throw error
-      toast.success('獎金計算順序已儲存')
+      await updateWorkspace(workspaceId, { bonus_calculation_order: value } as Partial<Database['public']['Tables']['workspaces']['Update']>)
     } catch (err) {
       logger.error('儲存獎金計算順序失敗', err)
       toast.error('儲存失敗，請重試')

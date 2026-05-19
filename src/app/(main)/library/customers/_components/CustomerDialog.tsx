@@ -17,6 +17,7 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { FormField } from '@/components/ui/form-field'
 import { ManagedDialog, useDirtyState } from '@/components/dialog'
 import { ImageEditor, type ImageEditorSettings } from '@/components/ui/image-editor'
+import { updateCustomer } from '@/data/entities/customers'
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import type { Customer } from '@/types/customer.types'
@@ -185,10 +186,7 @@ export function CustomerDialog({
       setLocalImageUrl(fileName)
 
       // 更新資料庫（bare filename）
-      await supabase
-        .from('customers')
-        .update({ passport_image_url: fileName })
-        .eq('id', customer.id)
+      await updateCustomer(customer.id, { passport_image_url: fileName })
 
       // 刪除舊照片（helper 接受完整 URL 或 bare filename）
       await deletePassportImage(oldStored)

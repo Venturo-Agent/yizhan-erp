@@ -16,6 +16,7 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
+import { createChartOfAccount } from '@/data/entities/chart-of-accounts'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
@@ -139,18 +140,19 @@ export function CreateAccountDialog({
       return
     }
 
-    const { error } = await supabase.from('chart_of_accounts').insert({
-      workspace_id: user.workspace_id,
-      code: formData.code,
-      name: formData.name,
-      account_type: formData.account_type,
-      description: formData.description || null,
-      is_active: formData.is_active,
-      is_system_locked: false,
-      parent_id: formData.parent_id || null,
-    })
-
-    if (error) throw error
+    try {
+      await createChartOfAccount({
+        code: formData.code,
+        name: formData.name,
+        account_type: formData.account_type,
+        description: formData.description || null,
+        is_active: formData.is_active,
+        is_system_locked: false,
+        parent_id: formData.parent_id || null,
+      })
+    } catch (error) {
+      throw error
+    }
 
     toast.success(PAGE_LABELS.CREATE_SUCCESS)
     onOpenChange(false)
