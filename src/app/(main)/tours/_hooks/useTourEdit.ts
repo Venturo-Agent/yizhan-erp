@@ -3,11 +3,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Tour, Itinerary, DailyItineraryDay } from '@/stores/types'
 import type { Json } from '@/lib/supabase/types'
-import { useCountries } from '@/data'
+import {
+  useCountries,
+  invalidateTours,
+  invalidateOrders,
+  invalidateReceipts,
+  invalidateItineraries,
+} from '@/data'
 import { useAirports } from '@/app/(main)/tours/_hooks/useAirports'
 import { supabase } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { mutate } from '@/lib/swr/scoped-mutate'
 import { logger } from '@/lib/utils/logger'
 import { differenceInDays, addDays, format, parseISO } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
@@ -227,16 +232,8 @@ export function useTourEdit(params: UseTourEditParams) {
         await supabase.from('receipts').update({ tour_name: newName }).eq('tour_id', tour.id)
       }
 
-      // Reload data
-      mutate(`tour-${tour.id}`)
-      mutate('tours')
-      mutate('orders') // 刷新訂單快取
-      mutate('receipts') // 刷新收款快取
-      mutate(
-        (key: string) => typeof key === 'string' && key.startsWith('tours-paginated-'),
-        undefined,
-        { revalidate: true }
-      )
+      // Reload data — 走 entity hook 的 invalidate（key 走 entity:tours:* registry）
+      await Promise.all([invalidateTours(), invalidateOrders(), invalidateReceipts()])
 
       const updatedTour = data as Tour
 
@@ -365,9 +362,7 @@ export function useTourEdit(params: UseTourEditParams) {
           toast.error('同步行程表失敗')
         } else {
           toast.success('行程表已同步更新')
-          // Invalidate itinerary cache
-          mutate(`itinerary-${itinerary.id}`)
-          mutate('itineraries')
+          await invalidateItineraries()
         }
       } catch (error) {
         logger.error('同步行程表失敗:', error)

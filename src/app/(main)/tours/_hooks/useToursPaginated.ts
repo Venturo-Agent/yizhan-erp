@@ -13,14 +13,13 @@
 import { useEffect } from 'react'
 // eslint-disable-next-line venturo/no-direct-useswr-in-pages -- 分頁 CRUD hook，需要 keepPreviousData + realtime + 樂觀更新，entity hook 無法表達；寫入操作待 API route 建立後再遷移
 import useSWR from 'swr'
-import { mutate } from '@/lib/swr/scoped-mutate'
 import { supabase } from '@/lib/supabase/client'
 import { generateTourCode as generateTourCodeShared } from '@/lib/codes'
 import { Tour } from '@/stores/types'
 import { generateUUID } from '@/lib/utils/uuid'
 import type { Database } from '@/lib/supabase/types'
 import { logger } from '@/lib/utils/logger'
-import { deleteTour as deleteTourEntity } from '@/data'
+import { deleteTour as deleteTourEntity, invalidateTours } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
@@ -192,7 +191,7 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
   // Invalidate all paginated queries (used after mutations)
   const invalidateAllPaginatedQueries = async () => {
     await mutateSelf()
-    await mutate('tours')
+    await invalidateTours()
   }
 
   useEffect(() => {
@@ -211,7 +210,7 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
         },
         () => {
           mutateSelf()
-          mutate('tours')
+          invalidateTours()
         }
       )
       .subscribe()

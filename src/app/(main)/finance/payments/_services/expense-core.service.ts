@@ -13,7 +13,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
-import { mutate } from '@/lib/swr/scoped-mutate'
+import { invalidateTours } from '@/data'
 
 /**
  * 重算團的成本統計
@@ -95,9 +95,8 @@ export async function recalculateExpenseStats(tour_id: string): Promise<void> {
       throw updateError
     }
 
-    // 5. 刷新 SWR 快取
-    await mutate(`tour-${tour_id}`)
-    await mutate('tours')
+    // 5. 刷新 SWR 快取（走 entity registry）
+    await invalidateTours()
 
     logger.log('Tour 成本數據已更新:', { tour_id, total_cost, profit })
   } catch (error) {

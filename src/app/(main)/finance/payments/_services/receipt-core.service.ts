@@ -185,19 +185,12 @@ async function recalculateTourFinancials(sb: DbClient, tourId: string): Promise<
 }
 
 /**
- * 刷新 SWR 快取
+ * 刷新 SWR 快取（走 entity registry、命中所有 :list / :detail / :paginated key）
  */
-async function invalidateFinanceCache(tourId?: string | null): Promise<void> {
+async function invalidateFinanceCache(_tourId?: string | null): Promise<void> {
   // SWR 只在瀏覽器有意義；server context 跑到這裡會找不到 SWR cache、靜默 no-op
   if (typeof window === 'undefined') return
 
-  const { mutate } = await import('swr')
-
-  const promises: Promise<unknown>[] = [mutate('tours'), mutate('orders'), mutate('receipts')]
-
-  if (tourId) {
-    promises.push(mutate(`tour-${tourId}`))
-  }
-
-  await Promise.all(promises)
+  const { invalidateTours, invalidateOrders, invalidateReceipts } = await import('@/data')
+  await Promise.all([invalidateTours(), invalidateOrders(), invalidateReceipts()])
 }

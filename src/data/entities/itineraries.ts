@@ -32,4 +32,4 @@ const _useItineraryDictionary = itineraryEntity.useDictionary
 export const createItinerary = itineraryEntity.create
 export const updateItinerary = itineraryEntity.update
 const _deleteItinerary = itineraryEntity.delete
-const _invalidateItineraries = itineraryEntity.invalidate
+export const invalidateItineraries = itineraryEntity.invalidate

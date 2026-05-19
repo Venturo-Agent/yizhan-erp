@@ -6,7 +6,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
-import { mutate } from '@/lib/swr/scoped-mutate'
+import { invalidateOrders } from '@/data'
 
 /**
  * 重算訂單的 total_amount 和 remaining_amount
@@ -85,9 +85,8 @@ export async function recalculateOrderAmount(order_id: string): Promise<void> {
       throw updateError
     }
 
-    // 6. 刷新 SWR 快取
-    await mutate('orders')
-    await mutate(`order-${order_id}`)
+    // 6. 刷新 SWR 快取（走 entity registry）
+    await invalidateOrders()
 
     logger.log('訂單金額已重算:', {
       order_id,

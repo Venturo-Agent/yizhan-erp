@@ -7,7 +7,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
-import { mutate } from '@/lib/swr/scoped-mutate'
+import { invalidateTours } from '@/data'
 
 /**
  * 重算旅遊團的 current_participants
@@ -70,9 +70,8 @@ export async function recalculateParticipants(tour_id: string): Promise<void> {
       throw update_error
     }
 
-    // 刷新 SWR 快取
-    await mutate('tours')
-    await mutate(`tour-${tour_id}`)
+    // 刷新 SWR 快取（走 entity registry、所有 tours:list/detail/paginated key 一次失效）
+    await invalidateTours()
 
     logger.log('團人數已重算:', { tour_id, current_participants: participant_count })
   } catch (error) {
@@ -131,8 +130,7 @@ export async function recalculateTourRevenue(tour_id: string): Promise<void> {
       throw updateError
     }
 
-    await mutate('tours')
-    await mutate(`tour-${tour_id}`)
+    await invalidateTours()
 
     logger.log('團收入已重算:', { tour_id, total_revenue: totalRevenue })
   } catch (error) {
