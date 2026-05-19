@@ -342,6 +342,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
       {activeTab === TAB_VALUES.ADDONS && (
         <AddonsTab
           features={features}
+          workspaceId={id}
           onToggle={(code, enabled) => {
             setFeatures(prev => {
               const idx = prev.findIndex(f => f.feature_code === code)
