@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useTranslations } from 'next-intl'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { Card } from '@/components/ui/card'
+import { CISBar } from '@/components/ui/cis-bar'
 import { Settings } from 'lucide-react'
 import { useWidgets } from '@/app/(main)/dashboard/_hooks'
 import { WidgetSettingsDialog, AVAILABLE_WIDGETS } from '@/app/(main)/dashboard/_components'
@@ -40,7 +41,7 @@ function SortableWidget({ id, widget }: { id: string; widget: (typeof AVAILABLE_
 export function DashboardClient() {
   const t = useTranslations('dashboard')
   const router = useRouter()
-  const { isAuthenticated, _hasHydrated, user: _user } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, user } = useAuthStore()
   const [isLoading, setIsLoading] = useState(true)
   const { activeWidgets, toggleWidget, reorderWidgets, isLoading: widgetsLoading } = useWidgets()
 
@@ -89,6 +90,16 @@ export function DashboardClient() {
       }
       contentClassName="flex-1 overflow-visible min-h-0 flex flex-col"
     >
+      <CISBar
+        className="mb-6"
+        title="CIS"
+        subtitle={user?.workspace_code || 'WORKSPACE'}
+        items={[
+          { label: 'AUTH', value: isAuthenticated ? 'ON' : 'OFF', status: isAuthenticated ? 'ok' : 'err' },
+          { label: 'RLS', value: 'ARMED', status: 'ok' },
+          { label: 'MODE', value: 'ERP', status: 'info' },
+        ]}
+      />
       {filteredActiveWidgets.length === 0 ? (
         <Card className="p-12 text-center border-morandi-gold/20 shadow-sm rounded-2xl bg-card">
           <div className="max-w-md mx-auto">

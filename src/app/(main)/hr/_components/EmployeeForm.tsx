@@ -85,15 +85,14 @@ export function EmployeeForm({
   const bottomButtons = (
     <>
       {mode !== 'self' && (
-        <Button type="button" variant="soft-gold" onClick={onCancel}>
+        <Button type="button" variant="secondary" onClick={onCancel}>
           {LABELS.CANCEL}
         </Button>
       )}
       {mode === 'self' && (
         <Button
           type="button"
-          variant="soft-gold"
-          className="border-morandi-gold text-morandi-gold hover:bg-morandi-gold hover:text-white"
+          variant="outline"
           onClick={() => {
             if (onPasswordChange) onPasswordChange()
           }}
@@ -106,7 +105,6 @@ export function EmployeeForm({
       <Button
         type="submit"
         disabled={submitting}
-        className="bg-morandi-gold hover:bg-morandi-gold/90 text-white"
       >
         {submitting ? (
           <>

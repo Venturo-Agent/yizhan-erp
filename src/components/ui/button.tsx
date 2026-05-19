@@ -17,12 +17,12 @@ const buttonVariants = cva(
         destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
         // Outline：加輕漸層底 + 金色邊、跟 default 搭配有層次
         outline:
-          'border border-morandi-gold/30 bg-gradient-to-br from-background to-morandi-container/20 hover:from-morandi-gold/10 hover:to-morandi-gold/20 hover:border-morandi-gold/50 text-morandi-primary',
+          'border border-border bg-card hover:bg-accent text-morandi-primary',
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
         // Soft：柔和漸層、給次要/非主 CTA、跟 dashboard widget 按鈕同一套配方
-        soft: 'bg-gradient-to-br from-card to-morandi-container/30 border border-morandi-gold/30 text-morandi-primary hover:from-morandi-gold/10 hover:to-morandi-gold/20 hover:border-morandi-gold/50 shadow-sm hover:shadow-md',
+        soft: 'bg-card border border-border text-morandi-primary hover:bg-accent shadow-sm hover:shadow-md',
         // Morandi 色系常用組合（避免各檔案手寫 className）
         'morandi-gold':
           'text-morandi-gold border border-morandi-gold/50 hover:bg-morandi-gold/10 hover:border-morandi-gold',
@@ -38,7 +38,7 @@ const buttonVariants = cva(
         // 配方來源：dashboard 「小工具設定」按鈕
         // SSOT 規則：主操作走 ResponsiveHeader 的 primaryAction、輔助按鈕走 headerActions escape hatch、視覺一致
         'header-outline':
-          'bg-gradient-to-br from-card to-morandi-container/30 border border-morandi-gold/30 text-morandi-primary hover:from-morandi-gold/10 hover:to-morandi-gold/20 hover:border-morandi-gold/50 shadow-md hover:shadow-lg rounded-xl transition-all',
+          'bg-card border border-border text-morandi-primary hover:bg-accent shadow-md hover:shadow-lg rounded-xl transition-all',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -71,4 +71,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = 'Button'
 
-export { Button,  }
+export { Button }

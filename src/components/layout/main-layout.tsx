@@ -82,13 +82,17 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   // 登入頁或分享頁不需要側邊欄
   if (!shouldShowSidebar) {
-    return <div className="min-h-screen bg-[var(--page-bg)]">{children}</div>
+    return (
+      <div className="min-h-screen" style={{ background: 'var(--page-bg)' }}>
+        {children}
+      </div>
+    )
   }
 
   // 使用自定義 layout 的頁面只需要側邊欄
   if (hasCustomLayout) {
     return (
-      <div className="min-h-screen bg-[var(--page-bg)]">
+      <div className="min-h-screen" style={{ background: 'var(--page-bg)' }}>
         {/* 左下象限 - 側邊欄 */}
         <Sidebar />
         {/* 內容由頁面自己的 layout 處理 */}
@@ -98,9 +102,9 @@ export function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--page-bg)]">
-      {/* 左下象限 - 側邊欄 */}
+    <div className="min-h-screen" style={{ background: 'var(--page-bg)' }}>
       <Sidebar />
+
 
       {/* 右下象限 - 主內容區域 */}
       <main
