@@ -306,6 +306,8 @@ export function AiConversationsTab() {
                 selectedConv.external_user_id.startsWith('group:') ||
                 selectedConv.external_user_id.startsWith('room:')
               }
+              conversationDisplayName={selectedConv.display_name}
+              conversationPictureUrl={selectedConv.picture_url}
             />
             <ReplyComposer conversationId={selectedConv.id} listUrl={listUrl} />
           </>
@@ -331,12 +333,16 @@ function MessagesList({
   conversationId,
   isGroup,
   senderAvatars,
+  conversationDisplayName,
+  conversationPictureUrl,
 }: {
   messages: MessageItem[]
   loading: boolean
   conversationId: string
   isGroup: boolean
   senderAvatars: Record<string, string>
+  conversationDisplayName: string | null
+  conversationPictureUrl: string | null
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef<number>(0)
@@ -382,6 +388,8 @@ function MessagesList({
             isGroup={isGroup}
             onImageClick={setLightboxUrl}
             senderAvatars={senderAvatars}
+            conversationDisplayName={conversationDisplayName}
+            conversationPictureUrl={conversationPictureUrl}
           />
         ))}
       </div>
@@ -1533,11 +1541,15 @@ function MessageBubble({
   isGroup,
   onImageClick,
   senderAvatars,
+  conversationDisplayName,
+  conversationPictureUrl,
 }: {
   msg: MessageItem
   isGroup: boolean
   onImageClick: (url: string) => void
   senderAvatars: Record<string, string>
+  conversationDisplayName: string | null
+  conversationPictureUrl: string | null
 }) {
   const isInbound = msg.direction === 'inbound'
   const isImage = msg.message_type === 'image' && msg.media_url
@@ -1553,8 +1565,25 @@ function MessageBubble({
     }
   }
 
-  const footerLabel =
+  // 訊息頭像 + 名字（樣式參考 channels ChannelView.tsx）
+  // - 群組訊息：用 groupSenderName 從 line_user_profiles map 拿 picture_url
+  // - 1-對-1 訊息：用 conversation 的 display_name + picture_url（同一個發訊者）
+  // - 系統 / 出站訊息：不顯示頭像
+  const senderNameForDisplay =
     groupSenderName ??
+    (isInbound ? conversationDisplayName : null) ??
+    null
+
+  const avatarUrl = groupSenderName
+    ? (senderAvatars[groupSenderName] ?? null)
+    : isInbound
+      ? conversationPictureUrl
+      : null
+  const avatarInitial = (senderNameForDisplay ?? '?').slice(0, 1)
+  const showAvatar = isInbound && Boolean(senderNameForDisplay || conversationPictureUrl)
+
+  const footerLabel =
+    senderNameForDisplay ??
     (msg.sender_type === 'contact'
       ? '客戶'
       : msg.sender_type === 'ai_agent'
@@ -1563,29 +1592,22 @@ function MessageBubble({
           ? '客服'
           : '系統')
 
-  // 訊息頭像（樣式參考 channels ChannelView.tsx）
-  // - 群組訊息：用 groupSenderName 從 line_user_profiles map 拿 picture_url
-  // - 1-對-1 / 系統訊息：不顯示頭像（同 channels）
-  const avatarUrl = groupSenderName ? (senderAvatars[groupSenderName] ?? null) : null
-  const avatarInitial = (groupSenderName ?? '?').slice(0, 1)
-  const showAvatar = isInbound && isGroup && groupSenderName
-
   return (
     <div className={`flex gap-2 ${isInbound ? 'justify-start' : 'justify-end'}`}>
       {showAvatar && (
         <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={avatarUrl} alt={groupSenderName ?? ''} className="w-full h-full object-cover" />
+            <img src={avatarUrl} alt={senderNameForDisplay ?? ''} className="w-full h-full object-cover" />
           ) : (
             <span>{avatarInitial}</span>
           )}
         </div>
       )}
       <div className="max-w-[75%]">
-        {groupSenderName && (
+        {senderNameForDisplay && isInbound && (
           <p className="text-[0.65rem] text-morandi-secondary font-medium mb-0.5 px-1">
-            {groupSenderName}
+            {senderNameForDisplay}
           </p>
         )}
         <div
