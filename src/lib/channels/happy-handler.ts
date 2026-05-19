@@ -18,47 +18,37 @@ import type { LLMChatMessage } from '@/types/line.types'
 const HANDLER = 'happy-handler'
 
 /**
- * HAPPY base prompt — 接 workspace.name 動態組裝
+ * HAPPY base prompt（William 2026-05-19 拍板）
  *
- * HAPPY 是每個 SaaS 租戶共用的「官方客服 bot」、跑在每個 workspace 內、讀該公司資料。
- * 公司名不寫死、由 workspaces.name 注入；沒設 name fallback「公司」。
+ * 定位：HAPPY = 一棧 ERP 平台內建的「對內查資料客服」、跨所有 SaaS 租戶共用一個身份。
+ * 員工本來就知道自己公司用一棧 ERP、所以 HAPPY 統一掛「一棧 ERP 數位客服」這個牌、
+ * 不 white-label、客戶不能改身份。
+ * （客戶要 white-label 的對外 AI、走 AI Hub 內的 LINE / FB Bot、跟 HAPPY 分流）
  */
-function buildHappyBasePrompt(workspaceName: string): string {
-  return `【語言鐵律】回應**只准**用台灣繁體中文（zh-TW、台灣慣用詞）、絕對禁止簡體字、禁止中國大陸用語。
+const HAPPY_BASE_PROMPT = `【語言鐵律】回應**只准**用台灣繁體中文（zh-TW、台灣慣用詞）、絕對禁止簡體字、禁止中國大陸用語。
 
-你是 ${workspaceName} 內部 AI 助手「HAPPY」、同事在內部頻道問你問題。
+你是「一棧 ERP 數位客服 HAPPY」、一棧 ERP 平台內建的 AI 助手。
+員工會在公司內部頻道問你問題、你的本職是幫他們查 ERP 系統內的訂單 / 客戶 / 行程 / 員工資料。
 
 規則：
 1. 任何問題都可以回、不限主題、語氣親切自然像同事。
 2. 簡短、不要 markdown / emoji 過多（最多 1-2 個）。
-3. 之後會接 ERP RAG 給你訂單 / 客戶 / 行程資料、目前先當一般聊天 bot、**不要瞎掰具體業務資料**（例如「某客戶下了 X 訂單」）。
+3. 之後會接 ERP RAG 給你具體業務資料、目前先當一般聊天 bot、**不要瞎掰具體業務資料**（例如「某客戶下了 X 訂單」）。
 4. 真的不知道就承認、不要 hallucinate。
+5. 員工問「你是誰」「你哪家公司的」→ 回「一棧 ERP 數位客服」、不要說自己是員工所在公司的人。
 
 【再次提醒】整段回應必須是台灣繁體中文。`
-}
 
 /**
- * HAPPY 人格設定（每個 workspace 都有自己的 HAPPY、不寫死品牌）
+ * HAPPY 人格 — 統一身份、不 white-label
  *
- * 從 workspace_ai_agents 表讀（channel_type='happy'）：
- *   - system_prompt_override：完全覆寫 base prompt（個別客戶定制）
- *   - brand_description：append 進 base prompt 後面（補品牌 context）
- *
- * 沒設定 → 用 buildHappyBasePrompt(workspaceName) 預設。
+ * workspace_ai_agents 表的 system_prompt_override 路徑仍保留、但僅供漫途內部
+ * 特殊客戶定制使用（白牌大客戶月費合約等）、預設不開放租戶自改。
  */
 async function buildHappySystemPrompt(
   supabase: SupabaseClient,
   workspaceId: string
 ): Promise<string> {
-  // 撈 workspace name 注入 base prompt（HAPPY 不寫死任何公司名）
-  const { data: ws } = await supabase
-    .from('workspaces')
-    .select('name')
-    .eq('id', workspaceId)
-    .maybeSingle<{ name: string | null }>()
-  const workspaceName = ws?.name?.trim() || '公司'
-  const basePrompt = buildHappyBasePrompt(workspaceName)
-
   try {
     const { data: persona } = await supabase
       .from('workspace_ai_agents')
@@ -71,23 +61,23 @@ async function buildHappySystemPrompt(
         is_active: boolean
       }>()
 
-    if (!persona || !persona.is_active) return basePrompt
+    if (!persona || !persona.is_active) return HAPPY_BASE_PROMPT
 
     if (persona.system_prompt_override && persona.system_prompt_override.trim().length > 0) {
       return persona.system_prompt_override.trim()
     }
 
     if (persona.brand_description && persona.brand_description.trim().length > 0) {
-      return `${basePrompt}\n\n【品牌 / 客戶 context】\n${persona.brand_description.trim()}`
+      return `${HAPPY_BASE_PROMPT}\n\n【品牌 / 客戶 context】\n${persona.brand_description.trim()}`
     }
 
-    return basePrompt
+    return HAPPY_BASE_PROMPT
   } catch (err) {
     logger.debug(`${HANDLER}: persona lookup failed (use default)`, {
       workspaceId,
       err: err instanceof Error ? err.message : String(err),
     })
-    return basePrompt
+    return HAPPY_BASE_PROMPT
   }
 }
 
