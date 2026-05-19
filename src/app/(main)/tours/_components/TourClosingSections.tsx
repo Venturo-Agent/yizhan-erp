@@ -12,7 +12,7 @@
 
 import { useMemo, useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { mutate as globalMutate } from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { Unlock, FileDown, Settings2} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'

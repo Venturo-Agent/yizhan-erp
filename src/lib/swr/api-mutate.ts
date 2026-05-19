@@ -18,7 +18,7 @@
  *   if (!res.ok) toast.error(res.error)
  */
 
-import { mutate as globalMutate } from 'swr'
+import { mutate as globalMutate } from './scoped-mutate'
 import { logger } from '@/lib/utils/logger'
 
 export interface ApiMutateOptions {

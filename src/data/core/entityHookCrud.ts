@@ -9,7 +9,7 @@
  * CrudContext 由 createEntityHook 在工廠啟動時組裝好、傳入各操作。
  */
 
-import { mutate as globalMutate } from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { supabase } from '@/lib/supabase/client'
 import { invalidate_cache_pattern } from '@/lib/cache/indexeddb-cache'
 import { logger } from '@/lib/utils/logger'

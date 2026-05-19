@@ -1,7 +1,8 @@
 'use client'
 
 
-import useSWR, { mutate } from 'swr'
+import useSWR from 'swr'
+import { mutate } from '@/lib/swr/scoped-mutate'
 import { supabase } from '@/lib/supabase/client'
 import { Tour } from '@/stores/types'
 import { PageRequest, UseEntityResult } from '@/core/types/common'

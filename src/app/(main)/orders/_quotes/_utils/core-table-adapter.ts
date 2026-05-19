@@ -5,7 +5,7 @@
  * 將報價單的修改寫回核心表
  */
 
-import { mutate as globalMutate } from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { invalidate_cache_pattern } from '@/lib/cache/indexeddb-cache'
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'

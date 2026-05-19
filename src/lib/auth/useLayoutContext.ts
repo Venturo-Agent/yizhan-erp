@@ -17,7 +17,8 @@
  *   - refreshInterval: 0（不自動刷新；mutate 由 invalidateLayoutContext() 手動觸發）
  */
 
-import useSWR, { mutate as globalMutate } from 'swr'
+import useSWR from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { useMemo } from 'react'
 import { useAuthStore } from '@/stores'
 import { supabase } from '@/lib/supabase/client'

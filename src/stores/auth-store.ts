@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { mutate as globalMutate } from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { EmployeeFull } from './types'
 import { logger } from '@/lib/utils/logger'
 import type { UserRole } from '@/lib/rbac-config'

@@ -12,7 +12,8 @@
  */
 
 import { useState } from 'react'
-import useSWR, { mutate } from 'swr'
+import useSWR from 'swr'
+import { mutate } from '@/lib/swr/scoped-mutate'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'

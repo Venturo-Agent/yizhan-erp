@@ -13,7 +13,7 @@
  */
 
 import { useEffect } from 'react'
-import { mutate as globalMutate } from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { supabase } from '@/lib/supabase/client'
 import { invalidate_cache_pattern } from '@/lib/cache/indexeddb-cache'
 import { logger } from '@/lib/utils/logger'

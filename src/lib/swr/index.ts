@@ -3,3 +3,4 @@
 
 export { SWRProvider } from './provider'
 export {    CACHE_STRATEGY } from './config'
+export { mutate } from './scoped-mutate'

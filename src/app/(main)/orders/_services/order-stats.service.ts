@@ -6,7 +6,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
-import { mutate } from 'swr'
+import { mutate } from '@/lib/swr/scoped-mutate'
 
 /**
  * 重算訂單的 total_amount 和 remaining_amount

@@ -4,7 +4,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
-import { mutate as globalMutate } from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { invalidate_cache_pattern } from '@/lib/cache/indexeddb-cache'
 
 /** 刪除使用者所有筆記 */

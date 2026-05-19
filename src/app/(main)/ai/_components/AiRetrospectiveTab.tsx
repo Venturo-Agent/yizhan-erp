@@ -17,7 +17,8 @@
  */
 
 import { useState } from 'react'
-import useSWR, { mutate } from 'swr'
+import useSWR from 'swr'
+import { mutate } from '@/lib/swr/scoped-mutate'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Loader2, Sparkles, Check, X, Pencil } from 'lucide-react'

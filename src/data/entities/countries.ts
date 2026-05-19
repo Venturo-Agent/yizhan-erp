@@ -10,7 +10,8 @@
  * - 內部 transform 把 ref_countries 欄位 alias 成 Country 介面、所有 caller 不用改
  */
 
-import useSWR, { mutate as globalMutate } from 'swr'
+import useSWR from 'swr'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { dynamicFrom } from '@/lib/supabase/typed-client'
 import { logger } from '@/lib/utils/logger'
 import type { Country } from '@/stores/region-store'
