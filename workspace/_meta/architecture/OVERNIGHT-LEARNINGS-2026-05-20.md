@@ -60,3 +60,41 @@ audit 報告寫「守住」之前，要先問：
 - 「cache 有沒有殘留」（.next stale validator.ts）
 
 下次做 audit 要更習慣問「誰在用 / 有沒有實際執行」，而不是「code 存不存在」。
+
+---
+
+## Round 4 追加心得（2026-05-20 早上 — 真上線模式）
+
+### 這輪做了什麼（Sub-task A → B → C）
+
+Sub-task A（audit）：確認 `image_library` / `file_system.folders` / `file_system.files` 這 3 個表的 `created_by` FK 都是 workspace scope 員工操作、應指 employees(id)。只有 `email_accounts.owner_id` 是已正確的（personal account 明確綁員工）。
+
+Sub-task B（migration）：寫了一個涵蓋 4 個表的 migration（`20260520070000_fix_red_line_b_audit_fk.sql`），包含 reverse SQL 備份。Commit 了但不 apply、不 push，等 MCP。
+
+Sub-task C（src code）：在 `salary_settlements/[id]/submit/route.ts` 的 handler 開頭（fetch settlement 之前）加了 `accounting_periods.is_closed` check。如果 period 已關帳，回 409 + 中文訊息。
+
+### 學到的最重要的紀律
+
+**真的可以改 code 之後，纪律比 audit 更重要**。具體幾個：
+
+1. **`as any` 是高壓線**：submit route 裡有 `as unknown as SupabaseClient` 的 cast，是 legacy code 我沒動。但我在 guard block 裡完全沒碰任何 `as any`，純靠型別檢查通過。
+2. **`--no-verify` 是最後手段**：這次 type-check 真的 0 error（Round 3 修完了），pre-commit 鉤子直接讓我過去。說明 `--no-verify` 只有在「確認是 pre-existing」時才合理，不是 routine。
+3. **Sub-task 順序不能置換**：先 audit 再寫 migration，因乌 Sub-task A 的 disambiguation 直接決定了 Sub-task B 的範圍。如果先寫 migration 就會做過頭或做不足。
+4. **`db-error-translate` 是合約**：我本來想直接 `NextResponse.json({ error: '...' })`，但想起 charter 要求「用中央 module」，所以用了標準格式 `{ error, code }`（和 `translateDbError` 输出一致）。好處是前端可以統一處理。
+
+### 關於 salary_settlements guard 的質地
+
+目前這個 guard 是「落後保護」：查 `accounting_periods` 表的 `is_closed`。但真實的紅線 D 期望是「精確封鎖」：同一個 period 的所有寫入都要过 period 狀態校驗。
+
+我的實作有兩層保護：
+1. `salary_settlements.submit` → 查 `accounting_periods.is_closed` ✅
+2. `journal_vouchers` / `receipts` / `disbursement_orders` → 無 systematic check（仍需人工確認）
+
+這是「銀行級」不是「滴水不漏級」：對 HR 模組已足够，但其他模組還有洞口。需要 William 判断是否要現在修一併修其他模組。
+
+### 還需要 Claude Opus 做的事
+
+1. **覆查 migration**：`20260520070000_fix_red_line_b_audit_fk.sql` 的 constraint name 是否與現有撞到（需要實際 DB 才能確認）
+2. **走 MCP apply**：在 CI/Linux 環境 apply 這個 migration
+3. **跑 `npm run audit:rls`**：驗證 L3/L4/L5 全部綠燈
+4. **Push**：觸發 Coolify deploy
