@@ -88,11 +88,16 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     logger.warn(`${HANDLER}: rag search failed (ignored)`, { err })
   }
 
+  // MiniMax-M2 不接受多個連續 system messages（會回 "invalid params, invalid chat setting"）。
+  // 合併成單一 system message、用分隔線區隔不同段落。
+  // OpenAI / Anthropic 接受多個 system、之後若改 provider 可改回多條。
+  const systemParts: string[] = [SYSTEM_PROMPT]
+  if (customerName) systemParts.push(`客戶顯示名：${customerName}`)
+  if (memoryBlock) systemParts.push(memoryBlock)
+  if (ragBlock) systemParts.push(ragBlock)
+
   const messages: LLMChatMessage[] = [
-    { role: 'system', content: SYSTEM_PROMPT },
-    ...(customerName ? [{ role: 'system' as const, content: `客戶顯示名：${customerName}` }] : []),
-    ...(memoryBlock ? [{ role: 'system' as const, content: memoryBlock }] : []),
-    ...(ragBlock ? [{ role: 'system' as const, content: ragBlock }] : []),
+    { role: 'system', content: systemParts.join('\n\n═══════════════════\n\n') },
     // William 2026-05-17 拍板改 50 條、long context 給 LLM 記得久（MiniMax-M2 context window 夠）
     ...history.slice(-50).map(m => ({
       role: (m.direction === 'inbound' ? 'user' : 'assistant') as 'user' | 'assistant',
