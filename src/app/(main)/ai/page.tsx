@@ -24,16 +24,18 @@
  */
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Sparkles, MessageSquare, Plug, Settings2, BookOpenCheck } from 'lucide-react'
+import { Sparkles, MessageSquare, Plug, Settings2, BookOpenCheck, LayoutDashboard } from 'lucide-react'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { AiConversationsTab } from './_components/AiConversationsTab'
 import { AiSetupTab } from './_components/AiSetupTab'
 import { AiSettingsTab } from './_components/AiSettingsTab'
 import { AiRetrospectiveTab } from './_components/AiRetrospectiveTab'
+import { AiDashboardTab } from './_components/AiDashboardTab'
 
-// AI 控制中心暫時隱藏（dashboard tab）：placeholder 頁面、待真實數據量足夠再做統計
-// 之後恢復：加回 import AiDashboardTab + LayoutDashboard icon、TABS 加回 dashboard、default tab 改回 'dashboard'
+// 2026-05-19 William 拍板：dashboard 恢復、用 AiHealthDashboard 共用 component
+//   audience='customer'、客戶看自己 workspace 的 AI 表現
 const TABS = [
+  { value: 'dashboard', label: '總覽', icon: LayoutDashboard },
   { value: 'conversations', label: '對話管理', icon: MessageSquare },
   { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
@@ -46,8 +48,8 @@ export default function AiHubPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
-  const rawTab = searchParams.get('tab') ?? 'conversations'
-  const activeTab = VALID_TABS.has(rawTab as (typeof TABS)[number]['value']) ? rawTab : 'conversations'
+  const rawTab = searchParams.get('tab') ?? 'dashboard'
+  const activeTab = VALID_TABS.has(rawTab as (typeof TABS)[number]['value']) ? rawTab : 'dashboard'
 
   const handleTabChange = (next: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -63,6 +65,7 @@ export default function AiHubPage() {
       activeTab={activeTab}
       onTabChange={handleTabChange}
     >
+      {activeTab === 'dashboard' && <AiDashboardTab />}
       {activeTab === 'conversations' && <AiConversationsTab />}
       {activeTab === 'retrospective' && <AiRetrospectiveTab />}
       {activeTab === 'setup' && <AiSetupTab />}

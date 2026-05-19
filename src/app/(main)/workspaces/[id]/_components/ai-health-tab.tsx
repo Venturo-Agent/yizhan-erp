@@ -1,18 +1,17 @@
 'use client'
 
 /**
- * AI 健康度 tab（漫途專用、租戶管理 → 該 workspace 詳情頁）
+ * AI 健康度 / AI Hub 總覽 共用 dashboard
  *
- * William 2026-05-19 拍板：給漫途 staff 看每個客戶 workspace 的 AI 整體表現、
- * 不是給 SaaS 客戶自己用的工具。守 workspaces.write capability、一般 admin 沒此 tab。
+ * 一份 component 兩個受眾：
+ *   - 'tenant-admin'（漫途 staff、租戶管理頁）：看任一客戶 workspace 的 AI 表現、做 consulting
+ *   - 'customer'（SaaS 客戶 admin、AI Hub 總覽）：看自己 workspace 的 AI 表現
  *
- * 顯示指標：
- *   - 對話量（總 / 7d / 群組 vs 1-對-1 / bot 被暫停數）
- *   - 訊息量（30d 內、inbound / AI / 人類分）
- *   - AI 接管率
- *   - 速記卡狀態（總數 / 失敗 / tone 分布）
- *   - 復盤次數 + 狀態分布
- *   - 未解問題 top 5（給漫途看「這客戶 AI 卡哪些主題」）
+ * 資料 shape 完全相同、走不同 API：
+ *   - tenant-admin → /api/workspaces/[id]/ai-health（workspaces.write 守門）
+ *   - customer     → /api/ai/health（ai_hub.read 守門、自己 workspace）
+ *
+ * 文案 / 提示卡會依 audience 調整。
  */
 
 import useSWR from 'swr'
@@ -59,15 +58,34 @@ interface AiHealthData {
   }
 }
 
+type Audience = 'tenant-admin' | 'customer'
+
 const fetcher = async (url: string) => {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }
 
+/** 租戶管理頁包 — 給漫途 staff 看的版本 */
 export function AiHealthTab({ workspaceId }: { workspaceId: string }) {
+  return (
+    <AiHealthDashboard
+      apiUrl={`/api/workspaces/${workspaceId}/ai-health`}
+      audience="tenant-admin"
+    />
+  )
+}
+
+/** AI Hub 總覽 / 租戶管理 共用 dashboard */
+export function AiHealthDashboard({
+  apiUrl,
+  audience,
+}: {
+  apiUrl: string
+  audience: Audience
+}) {
   const { data: resp, error, isLoading } = useSWR<{ data: AiHealthData }>(
-    `/api/workspaces/${workspaceId}/ai-health`,
+    apiUrl,
     fetcher,
     { revalidateOnFocus: false }
   )
@@ -82,13 +100,17 @@ export function AiHealthTab({ workspaceId }: { workspaceId: string }) {
   const d = resp.data
   const takeoverPct = (d.messages.ai_takeover_rate * 100).toFixed(0)
 
+  const headerTitle = audience === 'tenant-admin' ? 'AI 健康度' : 'AI 總覽'
+  const headerSub =
+    audience === 'tenant-admin'
+      ? '漫途 consulting 視角：彙總此客戶 workspace 的 AI 整體表現。SaaS 客戶看不到此頁。'
+      : '你的 AI 客服 / AI 助理整體運作狀態。看訊息量、AI 接管程度、客戶聊得怎樣、答不出來的問題。'
+
   return (
     <div className="p-6 space-y-6 max-w-5xl">
       <div>
-        <h2 className="text-lg font-semibold text-morandi-primary">AI 健康度</h2>
-        <p className="text-xs text-morandi-secondary mt-1">
-          漫途 consulting 視角：彙總此客戶 workspace 的 AI 整體表現。SaaS 客戶看不到此頁。
-        </p>
+        <h2 className="text-lg font-semibold text-morandi-primary">{headerTitle}</h2>
+        <p className="text-xs text-morandi-secondary mt-1">{headerSub}</p>
       </div>
 
       {/* 統計卡片區 */}
@@ -181,12 +203,15 @@ export function AiHealthTab({ workspaceId }: { workspaceId: string }) {
         )}
       </Card>
 
-      {/* 漫途 consulting 提示 */}
+      {/* 受眾不同、提示文案不同 */}
       <Card className="p-4 border border-morandi-gold/30 bg-morandi-gold/5">
         <p className="text-xs text-morandi-secondary leading-relaxed">
           <span className="font-medium text-morandi-primary">使用建議</span>：
-          進客戶對應 AI Hub 看實際對話、看 AI 答不出來的主題建議客戶優先補哪些知識、
-          速記卡 🔴 失敗多代表 AI 設定可能有問題（prompt / model / token）需要協助調整。
+          {audience === 'tenant-admin' ? (
+            <>進客戶對應 AI Hub 看實際對話、看 AI 答不出來的主題建議客戶優先補哪些知識、速記卡 🔴 失敗多代表 AI 設定可能有問題（prompt / model / token）需要協助調整。</>
+          ) : (
+            <>切到「對話管理」看實際對話、「對話復盤」跑 AI 答不出來的主題清單建知識庫、若速記卡有 🔴 表示 AI 連續失敗、聯絡漫途協助調整 prompt / model。</>
+          )}
         </p>
       </Card>
     </div>
