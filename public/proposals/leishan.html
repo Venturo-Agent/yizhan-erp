@@ -175,21 +175,28 @@
     min-height: 100vh;
     display: grid;
     grid-template-rows: auto 1fr auto;
+    grid-row-gap: 0;
     padding: 48px 0 64px;
+  }
+  .cover-center {
     position: relative;
     overflow: hidden;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 70vh;
   }
-  .cover::after {
+  .cover-center::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
       linear-gradient(180deg,
         rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0.15) 18%,
-        rgba(255,255,255,0.55) 38%,
-        rgba(255,255,255,0.9) 58%,
-        #fff 72%,
+        rgba(255,255,255,0.1) 35%,
+        rgba(255,255,255,0.5) 62%,
+        rgba(255,255,255,0.92) 88%,
         #fff 100%),
       url('/proposals/leishan-images/city-night.jpg');
     background-size: 100% 100%, cover;
@@ -198,12 +205,12 @@
     z-index: 0;
     pointer-events: none;
   }
-  .cover > * { position: relative; z-index: 1; }
-  .cover-top {
-    text-shadow: 0 0 16px rgba(255,255,255,0.6);
+  .cover-center > * {
+    position: relative;
+    z-index: 1;
   }
-  .cover-center {
-    padding-top: 30vh;
+  .cover-center .cover-eyebrow {
+    margin-bottom: 20px;
   }
   .cover-top {
     display: flex; justify-content: space-between; align-items: flex-start;
@@ -1068,6 +1075,107 @@
     margin-right: 10px;
   }
 
+  /* ============ RESPONSIVE · 手機版（≤ 900px） ============ */
+  @media (max-width: 900px) {
+    /* sidenav 隱藏（手機不顯示左側導航） */
+    .layout { grid-template-columns: 1fr; }
+    .sidenav { display: none; }
+
+    /* main 內距縮 */
+    .main { padding: 0 20px; min-width: 0; }
+
+    /* cover 縮 */
+    .cover { padding: 24px 0 40px; min-height: auto; }
+    .cover-top { flex-wrap: wrap; gap: 12px 16px; padding-bottom: 14px; }
+    .cover-brand { font-size: 18px; }
+    .cover-meta { font-size: 11px; text-align: left; }
+    .cover-center { min-height: 50vh; padding: 28px 0; }
+    .cover-eyebrow { font-size: 13px; letter-spacing: 0.08em; margin-bottom: 14px; }
+    .cover-title { font-size: 44px; margin-bottom: 20px; max-width: none; }
+    .cover-subtitle { font-size: 18px; max-width: none; }
+    .cover-bottom { flex-direction: column; gap: 16px; padding-top: 16px; }
+    .cover-from { text-align: left; }
+
+    /* section 縮 */
+    .section { padding: 64px 0; min-height: auto; }
+    .section.bleed-paper { margin: 0 -20px; padding: 64px 20px; }
+    .sect-title { font-size: 32px; margin-bottom: 24px; }
+    .key-msg { font-size: 17px; margin-bottom: 32px; max-width: none; }
+
+    /* timeline */
+    .timeline { grid-template-columns: 1fr; gap: 16px; }
+
+    /* day grid */
+    .day-grid { grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
+    .day-tag { padding-top: 0; }
+    .day-tag .day-num { font-size: 40px; }
+    .day-content h3 { font-size: 24px; }
+    .day-content .day-summary { font-size: 16px; }
+    .day-content .day-meta { gap: 8px; }
+
+    /* highlight + tbd */
+    .highlight { padding: 24px 22px; }
+    .highlight h4 { font-size: 20px; }
+    .highlight p { font-size: 15px; }
+
+    /* dinner hero */
+    .dinner-hero { margin: 0 -20px 32px; padding: 64px 20px; }
+    .dinner-hero h2 { font-size: 38px; }
+    .dinner-hero p.lead { font-size: 16px; }
+
+    /* plan tabs */
+    .plan-tabs { overflow-x: auto; }
+    .plan-tab { padding: 12px 16px; font-size: 14px; flex: 0 0 auto; }
+
+    /* ritual spotlight */
+    .ritual-spotlight,
+    .ritual-spotlight[style*="margin-top"] { grid-template-columns: 1fr; gap: 24px; }
+    .ritual-spotlight .rs-img { min-height: 240px; }
+    .ritual-spotlight .rs-text h3 { font-size: 26px; }
+    .ritual-spotlight .rs-text p.rs-lead { font-size: 15px; }
+
+    /* ritual steps */
+    .ritual-steps { padding: 0; }
+    .rs-step { grid-template-columns: 50px 1fr; gap: 16px; }
+    .rs-step .rs-num { font-size: 32px; }
+    .rs-step .rs-content h6 { font-size: 17px; }
+    .rs-step .rs-content p { font-size: 14px; }
+
+    /* pillar grid */
+    .pillar-grid,
+    .pillar-grid[style*="grid-template-columns"] { grid-template-columns: 1fr !important; gap: 20px; }
+    .pillar { padding: 20px 18px; }
+    .pillar h4 { font-size: 18px; }
+
+    /* route grid */
+    .route-grid,
+    .route-grid.cols-3 { grid-template-columns: 1fr; gap: 20px; }
+    .route-card .r-body { padding: 20px; }
+    .route-card h4 { font-size: 20px; }
+
+    /* alt-feature (PLAN B 屋形船) */
+    .alt-feature { grid-template-columns: 1fr; gap: 24px; }
+    .alt-feature .alt-img { aspect-ratio: 16/10; }
+    .alt-text h3 { font-size: 32px; }
+
+    /* alt-stats */
+    .alt-stats { gap: 12px; flex-wrap: wrap; }
+    .alt-stat .num { font-size: 32px; }
+
+    /* sub-block 三大塊 */
+    .sub-block h3 { font-size: 26px; }
+    .sub-block p.sb-lead { font-size: 15px; }
+
+    /* jp-note */
+    .jp-note { padding: 18px 20px; font-size: 14px; }
+
+    /* footer */
+    .footer { grid-template-columns: 1fr; gap: 24px; padding: 48px 20px; }
+    .footer-brand-name { font-size: 22px; }
+
+    /* scroll padding */
+    html { scroll-padding-top: 12px; }
+  }
 </style>
 </head>
 <body>
@@ -1128,7 +1236,7 @@
       </div>
 
       <div class="cover-center">
-        <div class="cover-eyebrow">2026 磊山寰宇會獎勵旅遊・月之港</div>
+        <div class="cover-eyebrow">磊山寰宇會獎勵旅遊</div>
         <h1 class="cover-title">城囂與森林之間</h1>
         <p class="cover-subtitle">
           東京．全行．輕井澤．五天
