@@ -102,7 +102,13 @@ export async function softDelete(
     })
     .eq('id', payload.id) as UpdateBuilder
 
-  const final = (builder as UpdateBuilder).eq(workspaceColumn, ctx.workspaceId) as Promise<{
+  // 對 platform-shared row（workspaceColumn IS NULL）允許刪除、依賴 RLS 擋未授權
+  // shared library 99.9% 是 NULL、enforce workspace eq 會 0 rows updated（假成功）
+  const final = (
+    payload.allowPlatformShared
+      ? (builder as UpdateBuilder).or(`${workspaceColumn}.is.null,${workspaceColumn}.eq.${ctx.workspaceId}`)
+      : (builder as UpdateBuilder).eq(workspaceColumn, ctx.workspaceId)
+  ) as Promise<{
     error: null | { message: string }
   }>
 
