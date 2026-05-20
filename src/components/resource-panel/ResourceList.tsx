@@ -20,10 +20,6 @@ interface ResourceListProps {
   countryId: string | undefined
   onEdit: (resource: ResourceItem) => void
   onCreatingChange: (creating: boolean) => void
-  // 新增成功後通知 ResourcePanel bump search refresh trigger
-  // 用戶有搜尋（filteredResources = searchResults）時、新 row 才會出現在搜尋結果
-  // entity hook invalidate 對 list 有效、但搜尋走 raw query、需手動觸發重撈
-  onAfterCreate?: () => void
 }
 
 // 共用：依 tab 選對應 entity hook create
@@ -56,7 +52,6 @@ export function ResourceList({
   countryId,
   onEdit,
   onCreatingChange,
-  onAfterCreate,
 }: ResourceListProps) {
   // Phase A.6（5/20）：根治版本
   // 改用 entity hook 的 createAttraction / createHotel / createRestaurant、內建 invalidate
@@ -107,10 +102,9 @@ export function ResourceList({
 
       try {
         const created = await createByType(activeTab, insertData)
-        // 篩選保留（不清 searchQuery）、但通知 ResourcePanel 重撈搜尋結果
-        // 這樣搜尋「測試」+ 新增「測試」、新 row 會出現在搜尋結果中
+        // entity hook create 內建 invalidate、entity items 變動會自動觸發
+        // useResourceSearch 重撈（綁在 entityItems deps）、不再手動接線
         toast.success(`已新增「${created.name}」`)
-        onAfterCreate?.()
       } catch (dbError: unknown) {
         const translated = translateDbError(dbError as { code?: string; message?: string })
         toast.error(translated.message)

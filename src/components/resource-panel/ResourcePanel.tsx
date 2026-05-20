@@ -63,8 +63,6 @@ export function ResourcePanel({
   const [activeTab, setActiveTab] = useState<ResourceType>('attraction')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreating, setIsCreating] = useState(false) // 防止重複點擊
-  // 新增成功後 bump、強迫 useResourceSearch 重撈、新 row 才會出現在搜尋結果
-  const [searchRefreshTrigger, setSearchRefreshTrigger] = useState(0)
 
   // 編輯 Dialog
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -198,12 +196,15 @@ export function ResourcePanel({
   }
 
   // 搜尋結果（委托給 useResourceSearch hook、保留 raw ilike + bigram fallback）
-  // refreshTrigger：新增成功後 bump、強迫 hook 重撈、新 row 出現在搜尋結果
+  // 把 entity hook items 當依賴：寫入任何路徑（新增/刪除/編輯/驗證/圖片）
+  // → entity hook items 變動 → 搜尋機自動重撈、不需手動接線
+  const currentTabItems =
+    activeTab === 'attraction' ? attractionsRaw : activeTab === 'hotel' ? hotelsRaw : restaurantsRaw
   const { searchResults, isSearching } = useResourceSearch({
     searchQuery,
     activeTab,
     resolvedCountryId,
-    refreshTrigger: searchRefreshTrigger,
+    entityItems: currentTabItems,
   })
 
   // 顯示的資源：有搜尋時用搜尋結果，沒搜尋時用 entity hook 預載資料
@@ -287,9 +288,7 @@ export function ResourcePanel({
             setEditDialogOpen(true)
           }}
           onCreatingChange={setIsCreating}
-          // 新增成功後 bump search refresh trigger、useResourceSearch 重撈
-          // 搜尋詞保留、新 row 出現在搜尋結果中（W 截圖 5/20 16:37 的 bug：「測試」新增成功但搜尋找不到）
-          onAfterCreate={() => setSearchRefreshTrigger(t => t + 1)}
+          // 不再手動接線：useResourceSearch 已綁 entity items、寫入任何路徑自動觸發
         />
       </div>
 

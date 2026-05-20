@@ -9,7 +9,9 @@ interface UseResourceSearchOptions {
   searchQuery: string
   activeTab: ResourceType
   resolvedCountryId: string | undefined
-  refreshTrigger?: number // bump 此值會強制重撈搜尋結果（新增 row 後 caller 用）
+  // 把當前 tab 的 entity hook items 當依賴：items 變動（新增/刪除/編輯）
+  // 自動觸發搜尋重撈、概念跟主目錄機綁定、不需手動接線
+  entityItems?: unknown[]
 }
 
 // Phase A.6（5/20）保留 raw query 的理由（紅線 F 例外、有正當理由）：
@@ -29,7 +31,7 @@ export function useResourceSearch({
   searchQuery,
   activeTab,
   resolvedCountryId,
-  refreshTrigger = 0,
+  entityItems,
 }: UseResourceSearchOptions) {
   const [searchResults, setSearchResults] = useState<ResourceItem[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -134,7 +136,7 @@ export function useResourceSearch({
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchQuery, activeTab, resolvedCountryId, refreshTrigger])
+  }, [searchQuery, activeTab, resolvedCountryId, entityItems])
 
   return { searchResults, isSearching }
 }
