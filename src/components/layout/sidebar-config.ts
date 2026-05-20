@@ -78,6 +78,7 @@ export const SIDEBAR_ORDER: readonly string[] = [
   'accounting',
   'documents',
   'database',
+  'marketing',
   'hr',
   'workspaces',
   'shared_data_management',
@@ -137,6 +138,19 @@ export const SIDEBAR_META: Record<string, SidebarMeta> = {
     ],
   },
   documents: { icon: FolderOpen, label: '文件中心' },
+  marketing: {
+    icon: Megaphone,
+    label: '行銷管理',
+    href: '/marketing/website',
+    children: [
+      {
+        href: '/marketing/website',
+        label: '官網管理',
+        icon: Globe,
+        feature: 'marketing.website',
+      },
+    ],
+  },
   hr_salary_settlement: { hidden: true },
   hr_bonus_settlement: { hidden: true },
   workspaces: { icon: UsersRound, label: COMP_LAYOUT_LABELS.租戶管理 },

@@ -194,6 +194,9 @@ export const CAPABILITIES = {
   VISAS_SERVICE_TYPES_WRITE: 'visas.service_types.write',
   VISAS_PRICING_READ: 'visas.pricing.read',
   VISAS_PRICING_WRITE: 'visas.pricing.write',
+  // ── marketing ──
+  MARKETING_WEBSITE_READ: 'marketing.website.read',
+  MARKETING_WEBSITE_WRITE: 'marketing.website.write',
 
   // ════ Non-module（scope / 全域 capability、不屬任何 module）════
   CROSS_BRANCH_READ: 'cross_branch.read',

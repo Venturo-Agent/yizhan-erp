@@ -546,3 +546,13 @@ export {
   invalidateEmployeeEligibilities,
 } from './employee-eligibilities'
 export type { EmployeeEligibility } from './employee-eligibilities'
+
+// ============================================
+// 行銷管理（2026-05-20、Corner 官網行程上架）
+// ============================================
+export {
+  useWebsiteTours,
+  useWebsiteToursSlim,
+  useWebsiteTourDetail,
+  invalidateWebsiteTours,
+} from './website-tours'

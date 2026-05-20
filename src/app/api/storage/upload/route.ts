@@ -18,6 +18,8 @@ const BUCKET_MIME_WHITELIST: Record<string, RegExp> = {
   'passport-images': /^image\/(png|jpeg|jpg|webp)$/,
   'member-documents': /^(image\/(png|jpeg|jpg|webp)|application\/pdf)$/,
   'user-avatars': /^image\/(png|jpeg|jpg|webp)$/,
+  // 2026-05-20 Corner 官網對外圖檔（封面 hero / SEO og:image）
+  'corner-website-assets': /^image\/(png|jpeg|jpg|webp|avif)$/,
 }
 
 export async function POST(request: NextRequest) {

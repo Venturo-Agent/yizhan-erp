@@ -50,6 +50,11 @@ export const BREADCRUMB_CONFIG: Record<string, BreadcrumbConfig> = {
   '/library/suppliers': { label: '供應商', parent: '/library' },
   '/library/archive-management': { label: '檔案管理', parent: '/library' },
 
+  // ========== 行銷管理 ==========
+  '/marketing': { label: '行銷管理', parent: '/' },
+  '/marketing/website': { label: '官網管理', parent: '/marketing' },
+  '/marketing/website/[code]': { label: '行程編輯', parent: '/marketing/website' },
+
   // ========== 其他功能 ==========
   '/calendar': { label: '行事曆', parent: '/' },
   '/todos': { label: '待辦事項', parent: '/' },

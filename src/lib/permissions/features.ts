@@ -306,6 +306,16 @@ export const FEATURES: FeatureDefinition[] = [
       '/suppliers/[code]/pricing',
     ],
   },
+  {
+    code: 'marketing',
+    name: '行銷管理',
+    description: '官網行程上架、行銷文案、SEO 設定（Corner 官網等）',
+    category: 'basic',
+    routes: [
+      '/marketing/website',
+      '/marketing/website/[code]',
+    ],
+  },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -462,6 +462,18 @@ export const MODULES: ModuleDefinition[] = [
       },
     ],
   },
+  {
+    code: 'marketing',
+    name: '行銷管理',
+    description: '官網行程上架、行銷文案、SEO 設定（Corner 官網等）',
+    tabs: [
+      {
+        code: 'website',
+        name: '官網管理',
+        description: '管理哪些團上架到 Corner 官網、編輯行銷文案 / SEO / 封面圖、觸發 rebuild',
+      },
+    ],
+  },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────

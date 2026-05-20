@@ -40,6 +40,8 @@ import { TravelInvoiceModule } from './travel_invoice'
 import { EsimModule } from './esim'
 // 2026-05-20 簽證代辦（5/7 砍 visas 表後重啟、改成「客戶證件抽屜 + 申辦事件 + 代辦商價目」三層架構）
 import { VisasModule } from './visas'
+// 2026-05-20 行銷管理（Corner 官網行程上架）
+import { MarketingModule } from './marketing'
 
 /**
  * 所有 module 集中匯出（順序：side bar / module-tabs.ts 順序、再接 features-only）
@@ -80,6 +82,8 @@ export const ALL_MODULES = [
   EsimModule,
   // ===== 簽證代辦（basic）=====
   VisasModule,
+  // ===== 行銷管理（basic、Corner 官網行程上架）=====
+  MarketingModule,
 ] as const
 
 export type AllModulesType = typeof ALL_MODULES
