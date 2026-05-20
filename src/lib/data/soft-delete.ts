@@ -84,10 +84,12 @@ export async function softDelete(
 
   const workspaceColumn = payload.workspaceColumn ?? 'workspace_id'
 
-  // 1. UPDATE 加 deleted_at + deleted_by + deleted_reason
+  // 1. UPDATE 加 is_active=false + audit timestamp + actor + reason
+  // 地方法律 #3：軟刪除統一 is_active=false（業務狀態）、audit 欄位輔助、不准散刻
   const builder = supabase
     .from(payload.table)
     .update!({
+      is_active: false,
       deleted_at: new Date().toISOString(),
       deleted_by: ctx.actorId,
       deleted_reason: payload.reason ?? null,
@@ -132,6 +134,7 @@ export async function restoreSoftDeleted(
   const builder = supabase
     .from(payload.table)
     .update!({
+      is_active: true,
       deleted_at: null,
       deleted_by: null,
       deleted_reason: null,

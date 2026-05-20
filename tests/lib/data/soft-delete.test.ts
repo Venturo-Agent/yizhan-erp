@@ -165,6 +165,7 @@ describe('restoreSoftDeleted', () => {
       await restoreSoftDeleted(supabase, validCtx, { table: 'orders', id: 'O1' })
 
       expect(updateMock).toHaveBeenCalledWith({
+        is_active: true,
         deleted_at: null,
         deleted_by: null,
         deleted_reason: null,

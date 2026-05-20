@@ -112,9 +112,9 @@ export function buildResourceActions(opts: ResourceActionOptions) {
   }
 
   // 2026-05-20 Phase A.7：handleDelete 保留 softDelete + 結束後 invalidate 兜底
-  //   - entity hook .delete 是 hard delete、會丟掉 softDelete 的 audit log + deleted_at 軟刪除語意
+  //   - entity hook .delete 是 hard delete、會丟掉 softDelete 的 audit log 軟刪除語意
   //   - shared library（attractions/hotels/restaurants）走 softDelete（ADR-0002）、不能換成 hard delete
-  //   - 折衷：保留 softDelete 寫 deleted_at、結束後 invalidateXxx 讓 entity hook cache 知道 row 已軟刪
+  //   - 折衷：保留 softDelete + 結束後 invalidateXxx 讓 entity hook cache 知道 row 已軟刪
   //   - 走 invalidateXxx 而不是 entity hook delete、跟紅線 F「不直接 useSWR」精神不違背
   //     （仍透過 entity hook SSOT 失效 cache、只是寫入用 softDelete helper 保留 audit）
   const handleDelete = async () => {

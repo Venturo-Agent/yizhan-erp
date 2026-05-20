@@ -62,6 +62,7 @@ export function useResourceSearch({
         const trimmed = searchQuery.trim()
 
         // Step 1: 精確子字串搜尋
+        // is_active=true 已自動隱藏軟刪除 row（softDelete helper 同時設 is_active=false）
         let baseQuery = supabase
           .from(table)
           .select(selectStr as 'id, name, category, images')
