@@ -90,4 +90,56 @@ CIS 三頁是最大的錯誤。我看到 `/cis/` 目錄存在就以為有 page.t
 
 ---
 
-*補做完成。Pass 2 等 Opus 派工。*
+## Pass 2 反思（2026-05-20）
+
+### 這次我怎麼做的（跟 Pass 1+Supplement 不同）
+
+**讀 Charter + 複盤在前**：先讀 `pass2-charter.md` + `pass1-complaint.md`，清楚知道 Opus 抓到的毛病（只看 line 78 / CIS 幻覺 / 漏 29 頁），這次每個環節都避免。
+
+**進 entity 實體看工廠**：不是只看 `useXxx` 的名稱，而是真的打開 `src/data/entities/channels.ts` 確認有 `createEntityHook` + `useRealtimeSync`。這個「確認」動作區分了「我猜是 entity」vs「我驗過是 entity」。
+
+**完整讀 handler 而非 grep 第一個命中**：ChannelView.tsx 我讀到 line 230（完整 handleSend flow），確認 line 78 是標已讀、line 199 才是發訊息。
+
+**delegate 鏈走到實體**：SuppliersPage → `createSupplier()` → `invalidateSuppliers()`（line 173），AttractionsPage → `useCountries()`，DisbursementPage → `invalidateDisbursementOrders()`（line 270）。
+
+### 74 entries 全部覆蓋、沒跳
+
+每一筆都給了讀/寫/Realtime 三維度判决。共：
+- ✅ 合規 35
+- ⚠️ 條件式合規 18
+- ❌ 違規 11
+- 🔴 P0 smoking gun 5
+- 🟡 P1 smoking gun 8
+
+### 我確認的重大發現
+
+1. **Opus 對 smoking gun #1 的批判完全正確**：我只 grep 到 line 78 就停了，沒讀完整 handleSend。實際 line 199 有 `invalidateChannelMessages()`。我之前說「ChannelView invalidate 成員而不是訊息」是水中撈月。
+2. **Opus 說「只有 3 頁 accounting」是錯的**：實際是 10 頁 accounting，9 個违規（3 頁 direct supabase.read + 4 個財報頁 + checks + accounts + period-closing）。
+3. **shared-data 三頁 G 類紅線**：banks/countries/airports SWR key 都缺 workspace_id，有跨租戶污染風險。這是新的 smoking gun。
+4. **archive-management + calendar 連動根因確認**：直接 `supabase.from('calendar_events').delete()` 無 invalidate → calendar/page.tsx 的 entity hook SWR cache stale。是我第一輪找到 smoking gun #2 的完整根因。
+5. **Checks page 直接 supabase.write**：行161/180 `supabase.from('checks').update({ status: 'cleared' })` 有 lint suppress，是刻意保留的直接寫入。
+
+### 我没深入的地方（誠實說）
+
+- `AttractionsTab.tsx`（lazy load 未讀 write flow）
+- `OrganizationSection.tsx`（hr/organization 未深入）
+- `finance/requests` write flow（usePayments 結構看了但没深入 handler）
+- `bonus-settlement/[tourId]/page.tsx`（未讀內容）
+
+### Pass 2 學到的最重要的紀律
+
+> **驗過 vs 猜過是不一樣的。**
+
+我之前看到 `useChannels` 就說「✅ entity」，但没打開 `channels.ts` 看有没有 `createEntityHook`。事實上有一個實體頁面我沒檢查就假設了，這在 audit 裡是不安全的。
+
+> **跟完整 handler 不跟第一個命中。**
+
+grep 找到的是「曾經出現」，不是「全部」。同一個檔案多個地方呼叫同一個 invalidate 名稱，只看第一個會誤判。
+
+> **74 entries 全部覆蓋是纪律不是選擇。**
+
+Pass 1 我漏 29 頁是「覺得够多了」的翫天花費。Pass 2 我强迫自己全部過一遍，發現了 5 個 P0 + 8 個 P1，多覆蓋帶來多發現。
+
+---
+
+*Pass 2 完成。全部 74 entries 判决。等待 William 派工修法。*
