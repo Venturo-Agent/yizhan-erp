@@ -5,6 +5,14 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import { softDelete } from '@/lib/data/soft-delete'
 import { confirm } from '@/lib/ui/alert-dialog'
+import {
+  updateAttraction,
+  updateHotel,
+  updateRestaurant,
+  invalidateAttractions,
+  invalidateHotels,
+  invalidateRestaurants,
+} from '@/data'
 
 const LABELS = {
   TOAST_SAVED: '已儲存',
@@ -55,25 +63,37 @@ function getTableName(type: ResourceType): 'attractions' | 'hotels' | 'restauran
   return type === 'attraction' ? 'attractions' : type === 'hotel' ? 'hotels' : 'restaurants'
 }
 
+// 2026-05-20 Phase A.7：按 resourceType 派發 entity hook update / invalidate
+//   - 對齊 A.6 createByType pattern、確保 cache invalidate 走 entity hook 內建路徑
+//   - 紅線 F：client 端寫入 + cache 失效都只能有一個真相（entity hook + invalidate）
+function updateByType(type: ResourceType, id: string, data: Record<string, unknown>) {
+  if (type === 'attraction') return updateAttraction(id, data)
+  if (type === 'hotel') return updateHotel(id, data)
+  return updateRestaurant(id, data)
+}
+
+function invalidateByType(type: ResourceType): Promise<void> {
+  if (type === 'attraction') return invalidateAttractions()
+  if (type === 'hotel') return invalidateHotels()
+  return invalidateRestaurants()
+}
+
 export function buildResourceActions(opts: ResourceActionOptions) {
   const supabase = createSupabaseBrowserClient()
   const table = getTableName(opts.resourceType)
 
+  // 2026-05-20 Phase A.7：改用 entity hook update（updateAttraction / updateHotel / updateRestaurant）
+  //   - 內建 invalidate（updateEntity 成功後會 invalidateEntity）→ SWR cache 自動失效
+  //   - 內建 updated_at + updated_by audit 欄位、不用 caller 手動填
   const handleSave = async () => {
     if (!opts.fullData) return
     opts.onSetSaving(true)
     try {
-      const { error } = await supabase
-        .from(table)
-        .update({
-          name: opts.editName,
-          description: opts.editDescription,
-          address: opts.editAddress,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', opts.resourceId)
-
-      if (error) throw error
+      await updateByType(opts.resourceType, opts.resourceId, {
+        name: opts.editName,
+        description: opts.editDescription,
+        address: opts.editAddress,
+      })
 
       toast.success(LABELS.TOAST_SAVED)
       opts.onSetIsEditing(false)
@@ -91,6 +111,12 @@ export function buildResourceActions(opts: ResourceActionOptions) {
     }
   }
 
+  // 2026-05-20 Phase A.7：handleDelete 保留 softDelete + 結束後 invalidate 兜底
+  //   - entity hook .delete 是 hard delete、會丟掉 softDelete 的 audit log + deleted_at 軟刪除語意
+  //   - shared library（attractions/hotels/restaurants）走 softDelete（ADR-0002）、不能換成 hard delete
+  //   - 折衷：保留 softDelete 寫 deleted_at、結束後 invalidateXxx 讓 entity hook cache 知道 row 已軟刪
+  //   - 走 invalidateXxx 而不是 entity hook delete、跟紅線 F「不直接 useSWR」精神不違背
+  //     （仍透過 entity hook SSOT 失效 cache、只是寫入用 softDelete helper 保留 audit）
   const handleDelete = async () => {
     const ok = await confirm(`${LABELS.CONFIRM_DELETE_PREFIX}${opts.resourceName}${LABELS.CONFIRM_DELETE_SUFFIX}`, { title: '刪除', type: 'warning' })
     if (!ok) return
@@ -102,6 +128,7 @@ export function buildResourceActions(opts: ResourceActionOptions) {
         { table, id: opts.resourceId, workspaceColumn: 'created_by_workspace_id' }
       )
       if (!result.ok) throw new Error(result.error ?? '軟刪除失敗')
+      await invalidateByType(opts.resourceType)
       toast.success(LABELS.TOAST_DELETED)
       opts.onOpenChange(false)
       opts.onDelete?.(opts.resourceId)
@@ -113,14 +140,11 @@ export function buildResourceActions(opts: ResourceActionOptions) {
     }
   }
 
+  // 2026-05-20 Phase A.7：改 entity hook update、cache 自動失效
   const handleToggleVerify = async () => {
     const newVerified = !opts.fullData?.data_verified
     try {
-      const { error } = await supabase
-        .from(table)
-        .update({ data_verified: newVerified, updated_at: new Date().toISOString() })
-        .eq('id', opts.resourceId)
-      if (error) throw error
+      await updateByType(opts.resourceType, opts.resourceId, { data_verified: newVerified })
       opts.onSetFullData(prev => (prev ? { ...prev, data_verified: newVerified } : null))
       toast.success(newVerified ? LABELS.TOAST_VERIFIED : LABELS.TOAST_VERIFY_CANCELED)
       opts.onSave?.({ id: opts.resourceId, name: String(opts.fullData?.name || opts.resourceName) })
@@ -129,6 +153,9 @@ export function buildResourceActions(opts: ResourceActionOptions) {
     }
   }
 
+  // 2026-05-20 Phase A.7：image upload 拆兩段
+  //   - storage upload 保留 raw（entity hook 不 cover Supabase Storage、不是 SWR cache 問題）
+  //   - row update（images 陣列）改 entity hook updateXxx({ images })、cache 自動失效
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
@@ -149,6 +176,7 @@ export function buildResourceActions(opts: ResourceActionOptions) {
       for (const file of imageFiles) {
         const ext = file.name.split('.').pop()
         const filePath = `${opts.resourceType}s/${opts.resourceId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+        // storage upload 保留 raw（不是 SWR cache 問題、entity hook 不 cover Storage）
         const { error: uploadError } = await supabase.storage.from('resources').upload(filePath, file)
         if (uploadError) throw uploadError
         const { data: urlData } = supabase.storage.from('resources').getPublicUrl(filePath)
@@ -158,11 +186,8 @@ export function buildResourceActions(opts: ResourceActionOptions) {
       const existingImages = (opts.fullData?.images as string[]) || []
       const updatedImages = [...existingImages, ...newImageUrls]
 
-      const { error } = await supabase
-        .from(table)
-        .update({ images: updatedImages, updated_at: new Date().toISOString() })
-        .eq('id', opts.resourceId)
-      if (error) throw error
+      // row update 走 entity hook、cache 失效自動處理
+      await updateByType(opts.resourceType, opts.resourceId, { images: updatedImages })
 
       opts.onSetFullData(prev => (prev ? { ...prev, images: updatedImages } : null))
       toast.success(`${LABELS.TOAST_UPLOADED_PREFIX}${newImageUrls.length}${LABELS.TOAST_UPLOADED_SUFFIX}`)
@@ -175,15 +200,12 @@ export function buildResourceActions(opts: ResourceActionOptions) {
     }
   }
 
+  // 2026-05-20 Phase A.7：改 entity hook update
   const handleDeleteImage = async (imageUrl: string) => {
     const existingImages = (opts.fullData?.images as string[]) || []
     const updatedImages = existingImages.filter(img => img !== imageUrl)
     try {
-      const { error } = await supabase
-        .from(table)
-        .update({ images: updatedImages, updated_at: new Date().toISOString() })
-        .eq('id', opts.resourceId)
-      if (error) throw error
+      await updateByType(opts.resourceType, opts.resourceId, { images: updatedImages })
       opts.onSetFullData(prev => (prev ? { ...prev, images: updatedImages } : null))
       opts.onSetCurrentImageIndex(0)
       toast.success(LABELS.TOAST_PHOTO_DELETED)
@@ -193,16 +215,13 @@ export function buildResourceActions(opts: ResourceActionOptions) {
     }
   }
 
+  // 2026-05-20 Phase A.7：改 entity hook update（設封面 = images 重排第一張）
   const handleSetCover = async (imageUrl: string) => {
     const existingImages = (opts.fullData?.images as string[]) || []
     // 把選中的圖片移到第一張
     const updatedImages = [imageUrl, ...existingImages.filter(img => img !== imageUrl)]
     try {
-      const { error } = await supabase
-        .from(table)
-        .update({ images: updatedImages, updated_at: new Date().toISOString() })
-        .eq('id', opts.resourceId)
-      if (error) throw error
+      await updateByType(opts.resourceType, opts.resourceId, { images: updatedImages })
       opts.onSetFullData(prev => (prev ? { ...prev, images: updatedImages } : null))
       opts.onSetCurrentImageIndex(0)
       toast.success(LABELS.TOAST_SET_COVER)

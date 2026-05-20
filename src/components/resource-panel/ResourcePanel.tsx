@@ -10,14 +10,7 @@ import { ResourceList } from './ResourceList'
 import { useResourceSearch } from './useResourceSearch'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import {
-  useAttractions,
-  useHotels,
-  useRestaurants,
-  invalidateAttractions,
-  invalidateHotels,
-  invalidateRestaurants,
-} from '@/data'
+import { useAttractions, useHotels, useRestaurants } from '@/data'
 import { ResourceType, ResourceItem } from './types'
 
 const COMPONENT_LABELS = {
@@ -34,6 +27,11 @@ const COMPONENT_LABELS = {
 // - 砍 A.5 兜底：onNewItem push local state / onAfterCreate 清搜尋
 // - 搜尋仍保留 raw（useResourceSearch）— entity hook usePaginated 沒 bigram fallback、不擴 entity hook
 // - 預設顯示前 20 筆：在 component 層 slice(0, 20)，不動 entity hook signature
+//
+// Phase A.7（5/20 收尾）：
+// - hotels entity select 補 star_rating、toResourceItem('hotel') 映射成「X 星」（A.6 UX regression）
+// - useResourceActions 5 條 raw 改 entity hook（updateXxx / softDelete + invalidateXxx）
+// - 砍 A.6 的 onSave 邊界兜底（entity hook 內建 invalidate、不需要）
 
 interface TourItineraryItem {
   id: string
@@ -317,15 +315,11 @@ export function ResourcePanel({
         onOverrideSave={() => {
           onOverrideSave?.()
         }}
-        onSave={() => {
-          // ⚠️ useResourceActions.handleSave 內仍是 raw supabase.from().update()、沒 invalidate
-          // 此 callback 是 ResourcePanel 邊界處的兜底：detail dialog 改完名稱 / verify 後
-          // 主動讓 entity hook cache 失效、列表自動 refetch 顯示新名稱
-          // 完整根治（useResourceActions 改用 updateAttraction/Hotel/Restaurant）留給後續任務
-          if (activeTab === 'attraction') void invalidateAttractions()
-          else if (activeTab === 'hotel') void invalidateHotels()
-          else if (activeTab === 'restaurant') void invalidateRestaurants()
-        }}
+        // 2026-05-20 Phase A.7：砍 A.6 加的 onSave 兜底
+        //   - useResourceActions 5 條已全改 entity hook（handleSave/handleToggleVerify/
+        //     handleImageUpload/handleDeleteImage/handleSetCover 走 updateXxx；
+        //     handleDelete 保留 softDelete + invalidate）
+        //   - 內建 invalidate 後、ResourcePanel 邊界處的兜底已多餘、紅線 F 達標
       />
     </div>
   )
@@ -334,18 +328,28 @@ export function ResourcePanel({
 // ============================================
 // helper：entity row → ResourceItem
 // ============================================
+// 2026-05-20 Phase A.7：hotel 的 category 顯示「X 星」（對齊 useResourceSearch 行為）
+//   - hotels 表有 star_rating 欄位、attractions / restaurants 沒有
+//   - 舊行為（A.6 之前 raw query）：搜尋結果 hotel item.category = `${star_rating}星`
+//   - A.6 改 entity hook 後沒映射、卡片不顯示星等 → 此次回補
 function toResourceItem(type: ResourceType) {
-  return (row: Record<string, unknown>): ResourceItem => ({
-    id: row.id as string,
-    name: row.name as string,
-    type,
-    category: (row.category as string | null) ?? null,
-    images: (row.images as string[]) || [],
-    data_verified: row.data_verified as boolean | undefined,
-    latitude: (row.latitude as number | null) ?? null,
-    longitude: (row.longitude as number | null) ?? null,
-    address: (row.address as string | null) ?? null,
-    description: (row.description as string | null) ?? null,
-    region_id: (row.region_id as string | null) ?? null,
-  })
+  return (row: Record<string, unknown>): ResourceItem => {
+    const category =
+      type === 'hotel' && row.star_rating != null
+        ? `${row.star_rating}星`
+        : (row.category as string | null) ?? null
+    return {
+      id: row.id as string,
+      name: row.name as string,
+      type,
+      category,
+      images: (row.images as string[]) || [],
+      data_verified: row.data_verified as boolean | undefined,
+      latitude: (row.latitude as number | null) ?? null,
+      longitude: (row.longitude as number | null) ?? null,
+      address: (row.address as string | null) ?? null,
+      description: (row.description as string | null) ?? null,
+      region_id: (row.region_id as string | null) ?? null,
+    }
+  }
 }
