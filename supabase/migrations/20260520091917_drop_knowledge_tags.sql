@@ -35,8 +35,18 @@
 BEGIN;
 
 -- 1. 移除 FK constraints（SOP：先斷鏈再砍表）
-ALTER TABLE public.knowledge_base
-  DROP CONSTRAINT IF EXISTS knowledge_base_tag_id_fkey;
+-- 注意：knowledge_base 表在 production 不存在（OPENCLAW Round 11 寫此段時假設錯誤）
+-- 改為 EXISTS 守門、避免 db push 對沒有此表的環境 fail
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'knowledge_base'
+  ) THEN
+    ALTER TABLE public.knowledge_base
+      DROP CONSTRAINT IF EXISTS knowledge_base_tag_id_fkey;
+  END IF;
+END $$;
 
 -- 2. 砍 table
 DROP TABLE IF EXISTS public.knowledge_tags CASCADE;
