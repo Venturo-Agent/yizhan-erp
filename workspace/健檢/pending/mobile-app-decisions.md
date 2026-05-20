@@ -1,7 +1,8 @@
 # Mobile App 待決策清單 — 2026-05-21
 
 > 自動產出（Claude Opus、夜間檢查到 /app namespace 新增）
-> 性質：**我不可控、需要 William 拍板**才能繼續
+> **2026-05-21 William 拍板更新：mobile app 目前只是測試框架、就停在這、不追 5/5**
+> 性質：~~需要 William 拍板~~ → **凍住、等未來真要做 mobile app 時重啟**
 
 ---
 
@@ -90,12 +91,18 @@
 
 ---
 
-## 我下一步建議
+## 我下一步建議（凍住版）
 
-1. **6/1 前不動**（focus on web 6/1 ready）
-2. **6/1 後**：William 拍板 5 個決策後我接 Phase 1（最痛的 #1 + #2）
+1. **不追 5/5**（測試框架、保留現狀）
+2. 我已修的 3 件保留：
+   - useRequireAppAuth 守門（即使測試框架、登入守門是好習慣）
+   - 拿掉 dashboard 死連結（即使測試、UI 不該 404）
+   - /app/settings placeholder（同上）
+3. 未來真要做 mobile app 時、再重啟此文件、跑 Phase 1
+
+**這份文件目前是「凍住的決策清單」、不是 active 待辦**。
 
 ---
 
 *建立：2026-05-21、由 Claude Opus 夜間 detect mobile app 新增後產出*
-*更新：當 William 拍板任一決策、移該段到 decided/*
+*凍住：2026-05-21 William 拍板「app 是測試框架、到這就好」*
