@@ -7,6 +7,7 @@ import {
   BookOpenCheck,
   Plug,
   Sliders,
+  Bot,
   type LucideIcon,
 } from 'lucide-react'
 import {
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { AiSetupTab } from './AiSetupTab'
+import { AiSettingsTab } from './AiSettingsTab'
 import { AiDashboardTab } from './AiDashboardTab'
 import { AiConversationsTab } from './AiConversationsTab'
 import { AiRetrospectiveTab } from './AiRetrospectiveTab'
@@ -39,13 +41,14 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-type SettingsTab = 'dashboard' | 'conversations' | 'retrospective' | 'setup' | 'policy'
+type SettingsTab = 'dashboard' | 'conversations' | 'retrospective' | 'setup' | 'bots' | 'policy'
 
 const TABS: Array<{ value: SettingsTab; label: string; icon: LucideIcon }> = [
   { value: 'dashboard', label: '總覽', icon: LayoutDashboard },
   { value: 'conversations', label: '對話管理', icon: MessageSquare },
   { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
+  { value: 'bots', label: 'AI 機器人', icon: Bot },
   { value: 'policy', label: '全域 AI Policy', icon: Sliders },
 ]
 
@@ -93,6 +96,7 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
           {activeTab === 'conversations' && <AiConversationsTab />}
           {activeTab === 'retrospective' && <AiRetrospectiveTab />}
           {activeTab === 'setup' && <AiSetupTab />}
+          {activeTab === 'bots' && <AiSettingsTab />}
           {activeTab === 'policy' && (
             <div className="p-8 text-sm text-morandi-secondary">
               <p className="mb-2 font-medium text-morandi-primary">全域 AI Policy（規劃中）</p>

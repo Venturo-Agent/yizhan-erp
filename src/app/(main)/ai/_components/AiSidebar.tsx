@@ -5,60 +5,59 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   Sparkles,
-  Bot,
-  MessageCircle,
-  Facebook,
+  MessageSquare,
+  Users,
+  LayoutGrid,
+  User,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
   type LucideIcon,
 } from 'lucide-react'
-import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { useWorkspaceFeatures } from '@/lib/permissions'
 import { AiSettingsDialog } from './AiSettingsDialog'
-import { BotConfigDialog } from './BotConfigDialog'
 
 /**
- * AI Hub Sidebar — 2026-05-21 William 拍板 v2：sidebar 純 bot 列表
+ * AI Hub Sidebar — 2026-05-21 William 拍板 v3
  *
  * 結構：
- *   Header（h-[calc(3.75rem-1px)]）：標題 + 兩顆 icon（收側欄 / 設定齒輪）
- *     - 砍掉「新增」按鈕（AI Hub 不需要使用者自己新增 bot）
- *   Body：只有 AI 機器人 section（HAPPY / LINE / FB）
- *     - 概覽 / 對話管理 / 對話復盤全進齒輪 dialog
+ *   Header（h-[calc(3.75rem-1px)]）：標題 + 收側欄 + 設定齒輪
  *
- * 收側欄狀態：w-12、只顯示 bot icon column（跟 ChannelsSidebar 同款）
+ *   Section 1 — 主功能（3 個 nav 項目、view 切換）：
+ *     - 對話（view=conversations）        → 多通路對話收件匣（預設 view）
+ *     - 人員（view=people）              → 傳訊息進來的客戶列表
+ *     - Rich Menu（view=richmenu）       → LINE OA rich menu 設定
  *
- * 「設定齒輪」(header) → 滿版 AiSettingsDialog：放總覽 / 對話管理 / 對話復盤 / 通道設定 / 全域 policy
- * 「Bot 卡片小齒輪」(每行) → BotConfigDialog：放該 bot 的個別 prompt / shortcut / few-shot
+ *   Section 2 — 進行中對話（直接 click 進客戶 1-on-1 chat）：
+ *     - LINE 客戶列表（傳訊息進來的人）
+ *     - Phase 1 暫 placeholder、之後接 line_user_profiles
+ *
+ * 齒輪 → 滿版 AiSettingsDialog（總覽 / 對話管理 / 對話復盤 / 通道設定 / 全域 policy / AI 機器人）
+ *   - 「AI 機器人」tab 把 HAPPY / LINE / FB 個別配置都吸進去（v2 的 per-bot gear 廢掉）
  */
 
-interface BotItem {
+interface NavItem {
   view: string
   label: string
   icon: LucideIcon
-  disabled?: boolean
-  /** 該 bot 對應的 feature flag、沒開就不顯示 */
-  requireFeature?: string
 }
 
-const BOT_ITEMS: BotItem[] = [
-  { view: 'bot-happy', label: 'HAPPY', icon: Bot, requireFeature: 'channels.happy' },
-  { view: 'bot-line', label: 'LINE Bot', icon: MessageCircle, requireFeature: 'line_bot' },
-  { view: 'bot-fb', label: 'Facebook Bot', icon: Facebook, disabled: true },
+const NAV_ITEMS: NavItem[] = [
+  { view: 'conversations', label: '對話', icon: MessageSquare },
+  { view: 'people', label: '人員', icon: Users },
+  { view: 'richmenu', label: 'Rich Menu', icon: LayoutGrid },
 ]
 
 export function AiSidebar() {
   const searchParams = useSearchParams()
-  const activeView = searchParams.get('view') ?? 'dashboard'
-  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const activeView = searchParams.get('view') ?? 'conversations'
 
   const [collapsed, setCollapsed] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [botConfigOpen, setBotConfigOpen] = useState<string | null>(null)
 
-  const visibleBots = BOT_ITEMS.filter(b => !b.requireFeature || isFeatureEnabled(b.requireFeature))
+  // Phase 1：客戶列表暫無資料源、show empty placeholder
+  // Phase 2 接 line_user_profiles + line_conversation_messages 算出進行中對話
+  const activeCustomers: Array<{ id: string; displayName: string; avatarUrl: string | null }> = []
 
   const buildHref = (view: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -66,12 +65,11 @@ export function AiSidebar() {
     return `/ai?${params.toString()}`
   }
 
-  // 收起狀態：sidebar 變窄、顯示三區 icon 列（跟 ChannelsSidebar 同款）
+  // 收起狀態：sidebar 變窄、顯示 3 個 nav icon + 客戶頭像（跟 ChannelsSidebar 同款）
   if (collapsed) {
     return (
       <>
         <aside className="w-12 shrink-0 border-r border-border bg-card flex flex-col transition-all">
-          {/* Header */}
           <div className="w-full h-[calc(3.75rem_-_1px)] flex items-center justify-center border-b border-border shrink-0">
             <button
               type="button"
@@ -83,32 +81,46 @@ export function AiSidebar() {
             </button>
           </div>
 
-          {/* Icon 列 — 只有 bot 列表 */}
           <div className="flex-1 w-full overflow-y-auto py-2 flex flex-col items-center gap-1">
-            {visibleBots.map(bot => {
-              const Icon = bot.icon
-              const isActive = activeView === bot.view
+            {NAV_ITEMS.map(item => {
+              const Icon = item.icon
+              const isActive = activeView === item.view
               return (
                 <Link
-                  key={bot.view}
-                  href={bot.disabled ? '#' : buildHref(bot.view)}
-                  onClick={e => {
-                    if (bot.disabled) {
-                      e.preventDefault()
-                      toast.info(`${bot.label} 尚未開放`)
-                    }
-                  }}
-                  title={bot.label}
+                  key={item.view}
+                  href={buildHref(item.view)}
+                  title={item.label}
                   className={cn(
                     'w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0',
-                    bot.disabled
-                      ? 'text-morandi-muted opacity-50'
-                      : isActive
-                        ? 'bg-morandi-gold-light text-morandi-primary'
-                        : 'text-morandi-secondary hover:bg-morandi-gold-light hover:text-morandi-primary'
+                    isActive
+                      ? 'bg-morandi-gold-light text-morandi-primary'
+                      : 'text-morandi-secondary hover:bg-morandi-gold-light hover:text-morandi-primary'
                   )}
                 >
                   <Icon className="h-4 w-4" />
+                </Link>
+              )
+            })}
+
+            {activeCustomers.length > 0 && (
+              <div className="w-6 my-1 border-t border-border/50 shrink-0" />
+            )}
+
+            {activeCustomers.map(c => {
+              const initial = c.displayName[0] ?? '?'
+              return (
+                <Link
+                  key={c.id}
+                  href={buildHref(`customer:${c.id}`)}
+                  title={c.displayName}
+                  className="w-9 h-9 rounded-full flex items-center justify-center bg-morandi-gold/20 text-morandi-gold text-xs font-medium shrink-0 hover:ring-2 hover:ring-morandi-gold/50 transition-all"
+                >
+                  {c.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.avatarUrl} alt={c.displayName} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    initial
+                  )}
                 </Link>
               )
             })}
@@ -116,13 +128,6 @@ export function AiSidebar() {
         </aside>
 
         <AiSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-        {botConfigOpen && (
-          <BotConfigDialog
-            botView={botConfigOpen}
-            open={!!botConfigOpen}
-            onOpenChange={open => !open && setBotConfigOpen(null)}
-          />
-        )}
       </>
     )
   }
@@ -130,8 +135,7 @@ export function AiSidebar() {
   return (
     <>
       <aside className="w-72 shrink-0 border-r border-border bg-card flex flex-col transition-all">
-        {/* Header — 高度對齊全局側欄 h-18 logo 區的 divider：
-            h-18 (4.5rem) - layout p-3 (0.75rem) - card border (1px) = calc(3.75rem - 1px) */}
+        {/* Header — 高度對齊全局側欄 h-18 logo 區的 divider */}
         <div className="flex items-center justify-between px-4 h-[calc(3.75rem_-_1px)] border-b border-border">
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-morandi-gold" />
@@ -158,71 +162,78 @@ export function AiSidebar() {
         </div>
 
         <div className="flex-1 overflow-y-auto py-2">
-          {/* AI 機器人（唯一 section） — 概覽 / 對話管理 / 對話復盤都搬進齒輪 dialog */}
-          {visibleBots.length > 0 && (
-            <div className="mb-4">
-              <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
-                <Bot className="h-3 w-3" />
-                AI 機器人
-              </div>
+          {/* Section 1: 主功能（對話 / 人員 / Rich Menu） */}
+          <div className="mb-4">
+            <ul>
+              {NAV_ITEMS.map(item => {
+                const Icon = item.icon
+                const isActive = activeView === item.view
+                return (
+                  <li key={item.view}>
+                    <Link
+                      href={buildHref(item.view)}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-morandi-gold-light transition-colors',
+                        isActive
+                          ? 'bg-morandi-gold-light text-morandi-primary font-medium'
+                          : 'text-morandi-secondary'
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                      <span className="flex-1 truncate">{item.label}</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+
+          {/* Section 2: 進行中對話（LINE 客戶列表） */}
+          <div className="mb-4">
+            <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
+              <User className="h-3 w-3" />
+              進行中對話
+            </div>
+            {activeCustomers.length === 0 ? (
+              <p className="px-4 py-2 text-xs text-morandi-muted">
+                尚無進行中對話
+              </p>
+            ) : (
               <ul>
-                {visibleBots.map(bot => {
-                  const Icon = bot.icon
-                  const isActive = activeView === bot.view
+                {activeCustomers.map(c => {
+                  const isActive = activeView === `customer:${c.id}`
+                  const initial = c.displayName[0] ?? '?'
                   return (
-                    <li key={bot.view} className="group">
-                      <div
+                    <li key={c.id}>
+                      <Link
+                        href={buildHref(`customer:${c.id}`)}
                         className={cn(
-                          'flex items-center gap-2 px-4 py-1.5 text-sm transition-colors',
-                          bot.disabled
-                            ? 'text-morandi-muted opacity-50'
-                            : isActive
-                              ? 'bg-morandi-gold-light text-morandi-primary font-medium'
-                              : 'text-morandi-secondary hover:bg-morandi-gold-light'
+                          'flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-morandi-gold-light transition-colors',
+                          isActive
+                            ? 'bg-morandi-gold-light text-morandi-primary font-medium'
+                            : 'text-morandi-secondary'
                         )}
                       >
-                        {bot.disabled ? (
-                          <>
-                            <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                            <span className="flex-1 truncate">{bot.label}</span>
-                          </>
-                        ) : (
-                          <>
-                            <Link
-                              href={buildHref(bot.view)}
-                              className="flex items-center gap-2 flex-1 min-w-0"
-                            >
-                              <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                              <span className="flex-1 truncate">{bot.label}</span>
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => setBotConfigOpen(bot.view)}
-                              className="p-0.5 rounded text-morandi-muted hover:text-morandi-primary hover:bg-morandi-gold-light/50 opacity-0 group-hover:opacity-100 transition-opacity"
-                              title={`${bot.label} 設定`}
-                            >
-                              <Settings className="h-3.5 w-3.5" />
-                            </button>
-                          </>
-                        )}
-                      </div>
+                        <div className="shrink-0 w-5 h-5 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-[0.588rem] font-medium text-morandi-gold">
+                          {c.avatarUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={c.avatarUrl} alt={c.displayName} className="w-full h-full object-cover" />
+                          ) : (
+                            <span>{initial}</span>
+                          )}
+                        </div>
+                        <span className="flex-1 truncate">{c.displayName}</span>
+                      </Link>
                     </li>
                   )
                 })}
               </ul>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </aside>
 
       <AiSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
-      {botConfigOpen && (
-        <BotConfigDialog
-          botView={botConfigOpen}
-          open={!!botConfigOpen}
-          onOpenChange={open => !open && setBotConfigOpen(null)}
-        />
-      )}
     </>
   )
 }
