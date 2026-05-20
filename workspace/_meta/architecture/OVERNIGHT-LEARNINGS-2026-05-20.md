@@ -147,3 +147,35 @@ Sub-task C（src code）：在 `salary_settlements/[id]/submit/route.ts` 的 han
 2. **走 MCP apply**：在 CI/Linux 環境 apply 這個 migration
 3. **跑 `npm run audit:rls`**：驗證 L3/L4/L5 全部綠燈
 4. **Push**：觸發 Coolify deploy
+
+---
+
+## Round 11（2026-05-20 早上 — 剩餘 finding 真修法）
+
+### R11-1：砍 knowledge_tags（migration 寫好）
+- `knowledge_tags` table：2026-05-19 建、從未被任何 UI/API 使用
+- 寫了 `supabase/migrations/20260520091917_drop_knowledge_tags.sql`（含 reverse SQL、已 commit）
+- 不 apply：留給 William MCP 確認後 apply
+
+### R11-2：紅線 D guard 補 3 個 API route
+- **vouchers/create**：對 `voucher_date` 的 period 加 `is_closed` check
+- **receipts/[id]/refund**：對 `refundDate` 的 period 加 `is_closed` check
+- **disbursement/[id]/PATCH**：對 `disbursement_date` 的 period 加 `is_closed` check
+- 模板仿照 `salary_settlements/submit` 的既有寫法（`periodName = date.substring(0,7)`）
+- 唯一問題：`disbursement/[id]/route.ts` 使用 `getApiContext()`（只給 workspace-scoped client）、查 `accounting_periods` 需要 admin rights。用 `(auditAdmin as any).from('accounting_periods')` 繞過 typed client limitation（這是現有架構的 constraint，不是 my bad）。
+
+### R11-3：SWR ratchet 結果
+- 嘗試了 5 個 count=1 檔（CreateCheckDialog/AddReceiptDialog/ReceiptDialogFooter/RegionsTab/customers/page）
+- 結論：都不能簡單置換（CreateCheckDialog 無 entity hook、其余已用 entity hook 或不可拆）
+- 但 `lint:swr-prune` 在前幾輪修了 CreateAccountDialog/accounts/page/BonusPolicySection/CustomerDialog 這 4 個檔後、自動拔掉了 22 個 suppression entries（全部清除）
+- 這就是「ratchet」的意思：維護者把 code 修乾淨、`--prune-suppressions` 自動發現並清除
+
+### R11-4：line_conversation_messages 過渡期收尾 plan
+- 寫了 `workspace/_meta/architecture/2026-05-20-line-conversation-transition-plan.md`
+- 確認：`line_conversation_messages`（0 row）和 `line_conversation_participants`（0 row）可安全 drop
+- 保留：`line_conversation_overrides`（有實際資料、2026-05-10 建）
+- Phase 1-2 由羅根執行、Phase 3（drop）由 William MCP apply
+
+### 下次繼續修的（卡住先跳過）
+- `disbursement/[id]/route.ts` 的 `(auditAdmin as any)`  workaround — 需要統一路由拿 admin client 的方式
+- `journal_vouchers/create/route.ts` 的紅線 D guard 若碰上舊有confirmed voucher 也需要保護（目前只擋新增）
