@@ -40,12 +40,14 @@ export function ChannelView({ channelId }: Props) {
   const { items: aiAgents } = useAiAgentsSlim()
 
   const [draft, setDraft] = useState('')
-  // 樂觀更新 v5（5/18、local state 兜底）：
+  // 樂觀更新 v7（5/20、Phase A.8 解閃爍）：
   //   - SWR mutate / invalidate / refresh 在 dedupingInterval=Infinity + fallbackData 配置下都不可靠
   //   - 直接用 local state recentlySent 存 server return 的完整 row
-  //   - sortedMessages 合併 messages + recentlySent、dedupe by id 顯示
-  //   - 之後 realtime / SWR re-fetch 真的撈到時、useEffect 清掉 recentlySent 不重複顯示
-  //   - 換 channel 時清空 recentlySent
+  //   - sortedMessages 合併 messages + recentlySent、dedupe by id（messages 優先）
+  //   - **v7 移除 prune useEffect**：之前 SWR refetch 完成後 prune recentlySent →
+  //     第二次 state update → 第二次 re-render → sortedMessages 再算一次 → 雙段抖動 =「閃爍」
+  //     dedupe by id 已經做了功能去重、recentlySent 即使保留也不會雙顯示
+  //   - 換 channel 時清空 recentlySent（避免無限累積、A channel 訊息漏到 B channel）
   const [pendingBody, setPendingBody] = useState<string | null>(null)
   const [recentlySent, setRecentlySent] = useState<ChannelMessage[]>([])
   const sending = pendingBody !== null
@@ -91,7 +93,9 @@ export function ChannelView({ channelId }: Props) {
 
   const sortedMessages = useMemo(() => {
     // 合併 SWR cache 跟 local recentlySent（剛送出、SWR 還沒撈到的）
-    // dedupe by id：之後 realtime / re-fetch 撈到時不重複顯示
+    // dedupe by id：messages 在前、先佔據 seen → SWR refetch 拿到同 id row 時、
+    // 該 row 用 SWR cache 版本（DB 真實 row）、recentlySent 的會被 filter 掉、不會雙顯示
+    // v7 不再 prune recentlySent state（避免雙段 re-render 閃爍）、dedupe 在這層做就夠
     const combined = [...(messages ?? []), ...recentlySent]
     const seen = new Set<string>()
     return combined
@@ -105,16 +109,8 @@ export function ChannelView({ channelId }: Props) {
     // 撤回訊息仍 SELECT 出來、UI 顯示佔位「本訊息已撤回」、不從清單移除
   }, [messages, recentlySent, channelId])
 
-  // 清理 recentlySent：messages 已含的 id 從 local state 移除（避免無限累積）
-  useEffect(() => {
-    if (recentlySent.length === 0) return
-    const msgIds = new Set((messages ?? []).map(m => m.id))
-    if (recentlySent.some(m => msgIds.has(m.id))) {
-      setRecentlySent(prev => prev.filter(m => !msgIds.has(m.id)))
-    }
-  }, [messages, recentlySent])
-
   // 換 channel 時清空 recentlySent、不要把 A channel 的訊息漏到 B channel
+  // 同時防止 recentlySent 無限累積（一個 channel 內最多累到換 channel 才清）
   useEffect(() => {
     setRecentlySent([])
   }, [channelId])

@@ -152,10 +152,14 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
       m => m.channel_id === channel.id && m.employee_id === user.id
     )
     if (!myMember) return false
-    // 沒讀過 → 不顯紅點（避免 migration 改 channel 觸發 updated_at 變動造成假未讀）
-    // 新訊息 trigger 會 touch updated_at、進去後 set last_read_at、之後正常比較
-    if (!myMember.last_read_at) return false
-    return new Date(channel.updated_at).getTime() > new Date(myMember.last_read_at).getTime()
+    // Phase A.8 修：last_read_at 為 null 時 fallback joined_at 當基準。
+    // 之前邏輯「沒讀過 → 永遠不顯紅點」是 bug、新員工 / 沒進過該 channel 的人即使收新訊息也看不到紅點。
+    // 新邏輯：channel.updated_at > (last_read_at ?? joined_at) 才算未讀。
+    // - 新訊息 trigger touch updated_at → updated_at 超過 baseline → 顯紅點
+    // - 進入頻道 ChannelView 寫 last_read_at = now() → 之後 updated_at 不再超過、紅點消
+    // - 罕見 migration 改 channel 觸發 updated_at 變動 → 用戶看到紅點、點進去 last_read_at 寫進 DB → 恢復
+    const baseline = myMember.last_read_at ?? myMember.joined_at
+    return new Date(channel.updated_at).getTime() > new Date(baseline).getTime()
   }
 
   // 三 section 分組（官方扁平、不再分子標題）
