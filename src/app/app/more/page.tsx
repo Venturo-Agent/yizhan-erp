@@ -10,8 +10,10 @@ import {
   LogOut,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { useRequireAppAuth } from '../_hooks/useRequireAppAuth'
 
 export default function AppMorePage() {
+  useRequireAppAuth()
   const router = useRouter()
   const { logout } = useAuthStore()
 

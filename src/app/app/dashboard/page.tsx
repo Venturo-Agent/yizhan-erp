@@ -2,11 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
+import { useRequireAppAuth } from '../_hooks/useRequireAppAuth'
 import {
   Bell,
   FileText,
-  CheckCircle2,
-  MessageSquare,
   Calendar,
   Settings,
   Monitor,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react'
 
 export default function AppDashboard() {
+  useRequireAppAuth()
   const router = useRouter()
   const { user } = useAuthStore()
 
@@ -25,24 +25,14 @@ export default function AppDashboard() {
     return '晚安'
   }
 
+  // 2026-05-21 修：拿掉 dead link `/app/todos` / `/app/messages`（pages 不存在、按下去 404）
+  // 等對應 page 補完再加回 quickActions
   const quickActions = [
     {
       label: '我的訂單',
       icon: FileText,
       href: '/app/orders',
       desc: '查看與管理',
-    },
-    {
-      label: '待辦事項',
-      icon: CheckCircle2,
-      href: '/app/todos',
-      desc: '待處理任務',
-    },
-    {
-      label: '訊息中心',
-      icon: MessageSquare,
-      href: '/app/messages',
-      desc: '最新通知',
     },
     {
       label: '行事曆',

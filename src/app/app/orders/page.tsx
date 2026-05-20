@@ -2,8 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Search } from 'lucide-react'
+import { useRequireAppAuth } from '../_hooks/useRequireAppAuth'
 
 export default function AppOrdersPage() {
+  useRequireAppAuth()
   const router = useRouter()
 
   return (

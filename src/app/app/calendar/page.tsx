@@ -2,8 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Plus } from 'lucide-react'
+import { useRequireAppAuth } from '../_hooks/useRequireAppAuth'
 
 export default function AppCalendarPage() {
+  useRequireAppAuth()
   const router = useRouter()
 
   return (
