@@ -37,6 +37,11 @@ export interface SoftDeletePayload {
    * Shared library 表（attractions / hotels / restaurants）用 `created_by_workspace_id`。
    */
   workspaceColumn?: string
+  /**
+   * 對 platform-shared row（workspaceColumn IS NULL）允許刪除、依賴 RLS 擋未授權。
+   * Shared library（attractions/hotels/restaurants）99.9% 是 NULL、需設此 flag 才刪得到。
+   */
+  allowPlatformShared?: boolean
 }
 
 interface OperationResult {
@@ -46,6 +51,7 @@ interface OperationResult {
 
 interface UpdateBuilder {
   eq: (column: string, value: unknown) => UpdateBuilder | Promise<{ error: null | { message: string } }>
+  or: (filter: string) => UpdateBuilder | Promise<{ error: null | { message: string } }>
   then?: (resolve: (value: { error: null | { message: string } }) => void) => void
 }
 

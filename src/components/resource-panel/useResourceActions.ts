@@ -125,7 +125,14 @@ export function buildResourceActions(opts: ResourceActionOptions) {
       const result = await softDelete(
         supabase as never,
         { workspaceId: opts.workspaceId, actorId: opts.actorId },
-        { table, id: opts.resourceId, workspaceColumn: 'created_by_workspace_id' }
+        {
+          table,
+          id: opts.resourceId,
+          workspaceColumn: 'created_by_workspace_id',
+          // shared library row 99.9% 是 NULL workspace（平台共用）、需此 flag 才刪得到
+          // RLS attractions_update / hotels_update / restaurants_update 已寫 OR is null 條件、會擋未授權
+          allowPlatformShared: true,
+        }
       )
       if (!result.ok) throw new Error(result.error ?? '軟刪除失敗')
       await invalidateByType(opts.resourceType)
