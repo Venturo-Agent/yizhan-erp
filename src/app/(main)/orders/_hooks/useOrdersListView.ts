@@ -17,7 +17,7 @@
  *
  * 紅線守門：
  * - workspace_id 過濾：透過 RLS（DB 層）保護、前端不刻 admin 特權。
- * - 軟刪除：deleted_at IS NULL（跟 entity hook list 設定一致）。
+ * - 軟刪除：過濾掉軟刪 row（跟 entity hook list 設定一致）。
  * - 排序、select 欄位、cache 行為跟 useOrdersPaginated 對齊、避免列表 UI 拿不到欄位。
  */
 

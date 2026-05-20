@@ -12,6 +12,7 @@
 import { dispatchLLM } from '@/lib/ai/llm-dispatcher'
 import { logger } from '@/lib/utils/logger'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { buildHappyErpContext } from '@/lib/channels/happy-erp-context'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { LLMChatMessage } from '@/types/line.types'
 
@@ -25,17 +26,18 @@ const HANDLER = 'happy-handler'
  *      跑在一棧 ERP 上」、不 white-label、客戶不能改身份。
  *      （客戶要 white-label 的對外 AI、走 AI Hub 內的 LINE / FB Bot、跟 HAPPY 分流）
  */
-const HAPPY_BASE_PROMPT = `【語言鐵律】回應**只准**用台灣繁體中文（zh-TW、台灣慣用詞）、絕對禁止簡體字、禁止中國大陸用語。
+const HAPPY_BASE_PROMPT = `【語言鐵律】回應只准用台灣繁體中文（zh-TW、台灣慣用詞）、絕對禁止簡體字、禁止中國大陸用語。
 
 你是「HAPPY」、漫途整合行銷打造的一棧 ERP 數位客服 AI、跑在一棧 ERP 平台內建。
 員工會在公司內部頻道問你問題、你的本職是幫他們查 ERP 系統內的訂單 / 客戶 / 行程 / 員工資料。
 
 規則：
 1. 任何問題都可以回、不限主題、語氣親切自然像同事。
-2. 簡短、不要 markdown / emoji 過多（最多 1-2 個）。
-3. 之後會接 ERP RAG 給你具體業務資料、目前先當一般聊天 bot、**不要瞎掰具體業務資料**（例如「某客戶下了 X 訂單」）。
-4. 真的不知道就承認、不要 hallucinate。
+2. 簡短、不要 markdown / emoji 過多（最多 1-2 個）。LINE 不 render markdown、不要用 ** 粗體 / # 標題、分項用換行 + 短橫線「-」。
+3. 你會收到「ERP 即時資料」block、那是公司內部資料庫的真實資料、優先用這些回答員工問題、不要瞎掰。
+4. 若 ERP 資料 block 沒涵蓋客人問的細節（譬如某張訂單的細項、某客戶的舊出團紀錄）、誠實說「我這邊看到的資料沒涵蓋這部分、要請你到 ERP 系統 X 頁面查」。
 5. 員工問「你是誰」「你哪家公司」→ 回「我是漫途整合行銷做的一棧 ERP 數位客服 HAPPY」、不要說自己是員工所在公司的人。
+6. 員工問「你接上 ERP 了嗎」→ 回「接上了、可以幫你查旅遊團、員工、客戶這些資料」、不要說「還沒接上」。
 
 【再次提醒】整段回應必須是台灣繁體中文。`
 
@@ -140,8 +142,31 @@ export async function tryHappyReply(channelId: string): Promise<void> {
     // 4. 組 LLMRequest messages
     // HAPPY 人格走 workspace_ai_agents（漫途配、客戶不能改）
     const happyPrompt = await buildHappySystemPrompt(supabase, channel.workspace_id)
+
+    // 讀 workspace_ai_settings.data_sources、依勾選 query 對應 ERP 資料
+    // 注入 system prompt block（William 2026-05-20 拍板）
+    let erpContext: string | null = null
+    try {
+      const { data: aiSettings } = await supabase
+        .from('workspace_ai_settings')
+        .select('data_sources')
+        .eq('workspace_id', channel.workspace_id)
+        .maybeSingle<{ data_sources: string[] | null }>()
+      erpContext = await buildHappyErpContext(supabase, channel.workspace_id, aiSettings?.data_sources)
+    } catch (err) {
+      logger.warn(`${HANDLER}: build erp context failed (ignored)`, {
+        workspaceId: channel.workspace_id,
+        err: err instanceof Error ? err.message : String(err),
+      })
+    }
+
+    // MiniMax-M2 不接連續多個 system messages、合併成 1 個
+    const systemContent = erpContext
+      ? `${happyPrompt}\n\n${erpContext}`
+      : happyPrompt
+
     const messages: LLMChatMessage[] = [
-      { role: 'system', content: happyPrompt },
+      { role: 'system', content: systemContent },
       ...history
         .filter(m => m.message_type === 'text' && m.body)
         .map(m => ({
@@ -154,6 +179,8 @@ export async function tryHappyReply(channelId: string): Promise<void> {
       workspaceId: channel.workspace_id,
       channelId,
       historyCount: history.length,
+      hasErpContext: erpContext !== null,
+      erpContextLength: erpContext?.length ?? 0,
     })
 
     // 5. call LLM（dispatchLLM 內部已含 opencc-js 簡→繁、log、last_used_at 更新、usage tracker）

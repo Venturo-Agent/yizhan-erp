@@ -12,7 +12,7 @@
  * Capability: orders.read
  *   - 觀察當前 workspace 的訂單、走 workspace_id filter + RLS
  *
- * 軟刪過濾：orders.deleted_at IS NULL
+ * 軟刪過濾：過濾掉已軟刪 row
  */
 
 import { NextRequest, NextResponse } from 'next/server'

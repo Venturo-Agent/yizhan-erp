@@ -87,7 +87,7 @@ export function useTourOperations(params: UseTourOperationsParams) {
         // 刪除空訂單
         await deleteTourEmptyOrders(tour.id)
 
-        // 軟刪除旅遊團（保留 DB row、deleted_at = now()）
+        // 軟刪除旅遊團（保留 DB row）
         const sdResult = await softDelete(
           supabase as never,
           {

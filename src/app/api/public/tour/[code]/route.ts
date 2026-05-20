@@ -1,18 +1,25 @@
 /**
  * 公開旅程 API
  * 獲取公開的旅程資訊（展示行程用）
- * 
+ *
  * 安全性：
  * - Rate Limiting：60 req/min per IP
  * - 只回傳必要欄位（無 internal 資料）
  * - 不暴露 workspace_id、internal notes 等敏感資訊
+ *
+ * 5/20：加 CORS（Corner 官網用）+ OPTIONS preflight
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { withPublicCors, optionsResponse } from '@/lib/cors/public-cors'
 
 export const dynamic = 'force-dynamic'
+
+export async function OPTIONS(request: NextRequest) {
+  return optionsResponse(request)
+}
 
 export async function GET(
   request: NextRequest,
@@ -20,15 +27,18 @@ export async function GET(
 ) {
   // Rate Limiting
   const rateLimited = await checkRateLimit(request, 'public-tour', 60, 60_000)
-  if (rateLimited) return rateLimited
+  if (rateLimited) return withPublicCors(request, rateLimited)
 
   // 解析 params
   const { code } = await params
 
   if (!code) {
-    return NextResponse.json(
-      { success: false, error: '缺少團號' },
-      { status: 400 }
+    return withPublicCors(
+      request,
+      NextResponse.json(
+        { success: false, error: '缺少團號' },
+        { status: 400 }
+      )
     )
   }
 
@@ -53,9 +63,12 @@ export async function GET(
     .single()
 
   if (error || !tour) {
-    return NextResponse.json(
-      { success: false, error: '找不到該旅程' },
-      { status: 404 }
+    return withPublicCors(
+      request,
+      NextResponse.json(
+        { success: false, error: '找不到該旅程' },
+        { status: 404 }
+      )
     )
   }
 
@@ -69,27 +82,30 @@ export async function GET(
   const itineraryData = itinerariesData?.[0] || null
 
   // 回傳乾淨的資料（不包含 workspace_id 等）
-  return NextResponse.json({
-    success: true,
-    data: {
-      id: tour.id,
-      code: tour.code,
-      name: tour.name,
-      departureDate: tour.departure_date,
-      daysCount: tour.days_count || 0,
-      nightsCount: (tour.days_count || 1) - 1,
-      price: tour.selling_price_per_person,
-      maxParticipants: tour.max_participants || 0,
-      currentParticipants: tour.current_participants || 0,
-      remainingSlots: (tour.max_participants || 0) - (tour.current_participants || 0),
-      airportCode: tour.airport_code,
-      itinerary: itineraryData ? {
-        id: itineraryData.id,
-        title: itineraryData.title,
-        subtitle: itineraryData.subtitle,
-        dailyItinerary: itineraryData.daily_itinerary,
-        hotels: itineraryData.hotels,
-      } : null,
-    },
-  })
+  return withPublicCors(
+    request,
+    NextResponse.json({
+      success: true,
+      data: {
+        id: tour.id,
+        code: tour.code,
+        name: tour.name,
+        departureDate: tour.departure_date,
+        daysCount: tour.days_count || 0,
+        nightsCount: (tour.days_count || 1) - 1,
+        price: tour.selling_price_per_person,
+        maxParticipants: tour.max_participants || 0,
+        currentParticipants: tour.current_participants || 0,
+        remainingSlots: (tour.max_participants || 0) - (tour.current_participants || 0),
+        airportCode: tour.airport_code,
+        itinerary: itineraryData ? {
+          id: itineraryData.id,
+          title: itineraryData.title,
+          subtitle: itineraryData.subtitle,
+          dailyItinerary: itineraryData.daily_itinerary,
+          hotels: itineraryData.hotels,
+        } : null,
+      },
+    })
+  )
 }

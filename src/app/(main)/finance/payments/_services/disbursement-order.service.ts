@@ -68,7 +68,7 @@ class DisbursementOrderService extends BaseService<DisbursementOrder> {
           .eq('disbursement_order_id', id)
         if (releaseErr) throw new Error(releaseErr.message)
 
-        // 2. 軟刪除出納單本身（保留 DB row、deleted_at = now()）
+        // 2. 軟刪除出納單本身（保留 DB row）
         const currentUser = useAuthStore.getState().user
         const sdResult = await softDelete(
           supabase as never,

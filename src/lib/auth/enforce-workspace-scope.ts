@@ -14,8 +14,8 @@
  * Admin 跨 workspace 場景明確 opt-out：
  *   enforceWorkspaceScope(query, ctx, { allowCrossWorkspace: true })
  *
- * 未來擴展（搬完伺服器、deleted_at 欄位上線後）：
- *   - 預設加 .is('deleted_at', null)
+ * 未來擴展（搬完伺服器、軟刪欄位上線後）：
+ *   - 預設過濾掉軟刪 row
  *   - includeDeleted=true opt-out
  */
 
