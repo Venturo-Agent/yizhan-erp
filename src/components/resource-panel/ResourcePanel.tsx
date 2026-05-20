@@ -304,6 +304,9 @@ export function ResourcePanel({
               [activeTab]: [newItem, ...(prev[activeTab] || [])],
             }))
           }}
+          // 新增成功後清搜尋 → filteredResources 切回 resources[activeTab]
+          // 用戶才能立刻看到剛建的那筆（搜「大黃」沒結果時、按 + 新增、清搜尋即顯示）
+          onAfterCreate={() => setSearchQuery('')}
         />
       </div>
 

@@ -165,12 +165,14 @@ export function ChannelView({ channelId }: Props) {
       return
     }
 
-    // 樂觀更新 v4（5/18、await + invalidate、不靠 realtime）：
+    // 樂觀更新 v6（5/20、解耦 sending 跟 invalidate、不再閃爍）：
     //   1. 立刻清 draft + 設 pendingBody（pending bubble 靠右瞬間出現）
     //   2. await apiPost 拿 server 寫入 OK
-    //   3. invalidateChannelMessages() 重撈、真實 row 進 cache
-    //   4. finally setPendingBody(null)、pending bubble 被真實 row 接位
-    //   5. 失敗 toast + 還原 draft
+    //   3. server return 完整 row 推進 recentlySent（local 兜底、自己秒看到）
+    //   4. **立刻** setPendingBody(null)、UI 切回正常（不等 invalidate）
+    //   5. void invalidateChannelMessages() 在背景跑、讓別人 / cross-tab SWR 也更新
+    //      v5 之前 await invalidate 卡住 setPendingBody(null) → UI「傳送中」狀態多停 500-1500ms、體感閃爍
+    //   6. 失敗 toast + 還原 draft
     //   pendingBody !== null 期間鎖住送出按鈕、防雙擊誤傳兩次
     const optimisticBody = body
     setDraft('')
@@ -194,15 +196,15 @@ export function ChannelView({ channelId }: Props) {
           return [...prev, serverMsg]
         })
       }
-      // S2 修補：跟 handleRevoke / SendAnnouncementDialog 對齊
-      // 一般送訊息也讓 SWR cache 失效、別人 / 自己 cross-tab 才會看到
-      // recentlySent 是 local 兜底、SWR cache 才是 SSOT
-      await invalidateChannelMessages()
+      // 立刻切回非 sending 狀態、UI 不卡（recentlySent 已有真實 row、bubble 已接位）
+      setPendingBody(null)
+      // 跟 handleRevoke / SendAnnouncementDialog 對齊、讓 SWR cache 失效
+      // **背景跑、不擋 UI**：別人 / 自己 cross-tab 透過 SWR refetch 收到、不影響本 tab 體驗
+      void invalidateChannelMessages()
     } catch (err) {
       logger.error('發送訊息失敗', err)
       toast.error('發送失敗、請再試一次')
       setDraft(optimisticBody) // 失敗還原 draft、不掉字
-    } finally {
       setPendingBody(null)
     }
   }

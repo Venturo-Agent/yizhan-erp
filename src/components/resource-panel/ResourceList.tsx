@@ -3,6 +3,7 @@
 import { Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
+import { invalidateAttractions, invalidateHotels, invalidateRestaurants } from '@/data'
 import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
 import { DraggableResourceCard } from './DraggableResourceCard'
@@ -20,6 +21,7 @@ interface ResourceListProps {
   onEdit: (resource: ResourceItem) => void
   onCreatingChange: (creating: boolean) => void
   onNewItem: (item: ResourceItem) => void
+  onAfterCreate?: () => void // 新增成功後讓 ResourcePanel 清搜尋 / 切回 resources 列表
 }
 
 export function ResourceList({
@@ -34,6 +36,7 @@ export function ResourceList({
   onEdit,
   onCreatingChange,
   onNewItem,
+  onAfterCreate,
 }: ResourceListProps) {
   const handleCreate = async () => {
     if (isCreating) return
@@ -89,10 +92,14 @@ export function ResourceList({
         }
       }
 
+      // select 完整欄位（包含 category / images / latitude / longitude / address / region_id）
+      // 避免 newItem 缺欄位、其他地方（地圖 / 卡片）渲染異常
       const { data, error: dbError } = await supabase
         .from(table as 'attractions')
         .insert(insertData as never)
-        .select('id, name')
+        .select(
+          'id, name, category, images, data_verified, latitude, longitude, address, description, region_id'
+        )
         .single()
 
       if (dbError) {
@@ -100,14 +107,30 @@ export function ResourceList({
         return
       }
 
+      const row = data as unknown as Record<string, unknown>
       const newItem: ResourceItem = {
-        id: (data as unknown as Record<string, unknown>).id as string,
-        name: (data as unknown as Record<string, unknown>).name as string,
+        id: row.id as string,
+        name: row.name as string,
         type: activeTab,
-        category: '',
-        data_verified: false,
+        category: (row.category as string | null) || null,
+        images: (row.images as string[]) || [],
+        data_verified: (row.data_verified as boolean | undefined) ?? false,
+        latitude: (row.latitude as number | null) ?? null,
+        longitude: (row.longitude as number | null) ?? null,
+        address: (row.address as string | null) ?? null,
+        description: (row.description as string | null) ?? null,
+        region_id: (row.region_id as string | null) ?? null,
       }
       onNewItem(newItem)
+      // 修補（5/20）：通知 ResourcePanel「我建好了」、讓它清掉 searchQuery 切回 resources 列表
+      // 不然搜「大黃」→ 找不到 → 新增 → filteredResources 還是 searchResults（empty）、用戶看不到剛建的
+      onAfterCreate?.()
+      // 走 entity hook invalidate、讓別頁 / library/attractions 列表也跟著更新
+      // 紅線 F：寫入後讓 SWR cache 失效、不留 local state 跟 SWR cache 撕裂
+      if (activeTab === 'attraction') void invalidateAttractions()
+      else if (activeTab === 'hotel') void invalidateHotels()
+      else if (activeTab === 'restaurant') void invalidateRestaurants()
+      toast.success(`已新增「${trimmed}」`)
     } catch (err) {
       logger.error('[ResourceList] 建立失敗:', err)
     } finally {
