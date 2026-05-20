@@ -7,265 +7,207 @@
 
 | 指標 | 數量 | 備註 |
 |---|---|---|
-| 頁面數 | ~86 | 含 page.tsx + *Tab.tsx |
-| 有 entity hook 讀取 | 多數 | `useXxx()` from `@/data` |
-| 散刻 useSWR | 少數 | 主要見於 B 類複雜邏輯 |
+| 掃描範圍 | ~86 個頁面/組件 | 含 page.tsx + *Tab.tsx |
+| 用 entity hook 讀取 | 多數 | `useXxx()` from `@/data` |
+| 散刻 useSWR | 少數（~5 頁） | 見 B 類說明 |
 | 直接 supabase.from 寫入 | 少數 | 多已搬 entity hook |
 | 有 Realtime（entity 內建）| 多數 | `createEntityHook` 內建 |
-| 手刻 supabase.channel | 少數 | 只在特定場面 |
+| 手刻 supabase.channel | 極少 | 只在特定場面 |
 
 ---
 
-## 模組分區
+## 模組分區（依路由）
 
 ### 1. channels（頻道）← William 痛點區
 
-#### src/app/(main)/channels/page.tsx
-- **頁面名**：頻道列表
-- **讀取點**：
-  - `channels`: `useChannels({ all: true })` (entity hook) ✅
-- **寫入點**：無（純列表）
-- **Realtime**：✅ entity hook 內建 `useRealtimeSync`
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `channels/page.tsx` | 頻道列表 | `useChannels({ all: true })` (entity) | 無 | ✅ entity 內建 | 乾淨 |
+| `channels/[id]/page.tsx` | 頻道詳情 | delegates to `ChannelView` | 無 | via ChannelView |  |
+| `channels/_components/ChannelView.tsx` | 頻道詳情組件 | `useChannel` + `useChannelMessages` + `useChannelMembers` (entity) | `apiPost` + `invalidateChannelMessages()` + `invalidateChannelMembers()` | ✅ entity 內建 | invalidate 有做到 |
+| `channels/_components/ChannelsSidebar.tsx` | 頻道側邊欄 | `useChannels` + `useChannelMembers` (entity) | `invalidateChannels()` + `invalidateChannelMembers()` | ✅ entity 內建 |  |
 
-#### src/app/(main)/channels/[id]/page.tsx
-- **頁面名**：頻道詳情（進入某頻道）
-- **讀取點**：delegates to `ChannelView`
-- **寫入點**：無
-- **Realtime**：✅ via ChannelView
-
-#### src/app/(main)/channels/_components/ChannelView.tsx
-- **頁面名**：頻道詳情組件
-- **讀取點**：
-  - `channels`: `useChannel(channelId)` (entity hook) ✅
-  - `channel_messages`: `useChannelMessages({ channelId })` (entity hook) ✅
-  - `channel_members`: `useChannelMembers({ all: true, filter: { channel_id } })` (entity hook) ✅
-- **寫入點**：
-  - `channel_messages`: `apiPost('/api/channels/...')` + `invalidateChannelMessages()` (行78/199/214)
-  - `channel_members`: `invalidateChannelMembers()` (行78)
-- **Realtime**：✅ entity hook 內建（messages + members 自動 realtime）
-
-#### src/app/(main)/channels/_components/ChannelsSidebar.tsx
-- **頁面名**：頻道側邊欄
-- **讀取點**：
-  - `channels`: `useChannels({ all: true })` (entity hook) ✅
-  - `channel_members`: `useChannelMembers({ all: true })` (entity hook) ✅
-- **寫入點**：
-  - `channels`: `invalidateChannels()` (行123)
-  - `channel_members`: `invalidateChannelMembers()` (行122)
-- **Realtime**：✅ entity hook 內建
-
-**Channels 現況觀察**：
-- 所有讀取走 entity hook ✅
-- 寫入後 invalidate 有做到 ✅
-- Realtime 有 entity hook 內建、乾淨 ✅
+**channels 觀察**：架構上應該即時（entity hook + realtime）。若仍有「新增看不到」問題，懷疑是 invalidate timing 或訊息走別的路（非 entity hook 寫入）。
 
 ---
 
 ### 2. tours（旅遊團）
 
-#### src/app/(main)/tours/page.tsx
-- **頁面名**：旅遊團列表頁（delegate to ToursPage.tsx）
-- **讀取點**：
-  - `quotes`: `useQuotesSlim()` (entity hook) ✅
-  - `orders`: `useOrdersSlim()` (entity hook) ✅
-  - `itineraries`: `useItineraries({ all: true })` (entity hook) ✅
-- **寫入點**：無（delegate 實際邏輯在 ToursPage.tsx）
-
-#### src/app/(main)/tours/_components/ToursPage.tsx
-- **頁面名**：旅遊團列表實作
-- **讀取點**：
-  - `quotes`: `useQuotesSlim()` (entity hook) ✅
-  - `orders`: `useOrdersSlim()` (entity hook) ✅
-  - `itineraries`: `useItineraries({ all: true })` (entity hook) ✅
-- **寫入點**：
-  - `orders`: `createOrder()` (entity hook) + `apiMutate` (行431 generateOrderNumber)
-- **Realtime**：✅ via entity hooks
-
-#### src/app/(main)/tours/[code]/page.tsx
-- **頁面名**：旅遊團詳情（依 code）
-- **讀取點**：
-  - `tours`: `fetchTourIdByCode()` → `useTourDetails()` (entity hook) ✅
-  - `useSWR` (B類): `useSWR(code ? \`tour-id-${code}\` : null, ...)` (行30) — 查 tour_id by code、複雜、不替換
-- **寫入點**：無
-- **Realtime**：✅ via useTourDetails entity hook
-
-#### src/app/(main)/tours/_components/ProfitTab.tsx
-- **頁面名**：團收益分析 Tab
-- **讀取點**：
-  - `receipts`: `useReceipts({ filter: { tour_id } })` (entity hook) ✅
-  - `orders`: `useOrders({ filter: { tour_id } })` (entity hook) ✅
-  - `payment_requests`: `usePaymentRequests({ filter: { tour_id } })` (entity hook) ✅
-  - `useSWR` (B類): `useSWR(..., () => supabase.from('bonus_orders').select(...))` (行190) — 獎金計算、跨表 join、保留
-- **寫入點**：無
-- **Realtime**：✅ via entity hooks
-
-#### src/app/(main)/tours/_components/TourTabs.tsx
-- **頁面名**：團頁 Tab 切換
-- **讀取點**：
-  - `tours`: `useTourDetails()` (entity hook) ✅
-- **寫入點**：無
-- **Realtime**：✅ via entity hook
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `tours/page.tsx` | 旅遊團列表 | `useQuotesSlim()` + `useOrdersSlim()` + `useItineraries()` (entity) | 無 | ✅ entity | delegate ToursPage.tsx |
+| `tours/_components/ToursPage.tsx` | 旅遊團列表實作 | 同上 + `useToursPage` hook | `createOrder()` (entity) + `apiMutate` (行431) | ✅ entity |  |
+| `tours/[code]/page.tsx` | 旅遊團詳情 | `fetchTourIdByCode()` + `useTourDetails()` (entity) + `useSWR('tour-id-${code}', ...)` (B類保留) | 無 | ✅ entity | useSWR 查 code→id、合理保留 |
+| `tours/_components/ProfitTab.tsx` | 團收益分析 | `useReceipts` + `useOrders` + `usePaymentRequests` (entity) + `useSWR('bonus_orders', ...)` (B類) | 無 | ✅ entity | 獎金跨表計算、保留 |
+| `tours/_components/TourTabs.tsx` | Tab 切換 | `useTourDetails()` (entity) | 無 | ✅ entity |  |
 
 ---
 
 ### 3. orders（訂單）
 
-#### src/app/(main)/orders/page.tsx
-- **頁面名**：訂單列表
-- **讀取點**：
-  - `tours`: `useToursSlim()` (entity hook) ✅
-  - `orders`: `useOrdersListView()` (custom hook) → 內部用 entity hooks ✅
-- **寫入點**：
-  - `orders`: `createOrder()` (entity hook) (行431)
-- **Realtime**：✅ via entity hooks
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `orders/page.tsx` | 訂單列表 | `useToursSlim()` + `useOrdersListView()` (→ entity) | `createOrder()` (entity) | ✅ entity |  |
 
 ---
 
 ### 4. finance（財務）
 
-#### src/app/(main)/finance/payments/page.tsx
-- **頁面名**：收款列表
-- **讀取點**：
-  - `receipts`: `usePaymentData()` → 內部 `useReceipts()` (entity hook) ✅
-- **寫入點**：
-  - `receipts`: `apiMutate('/api/payments/${receiptId}/verify', ...)` + `invalidateReceipts()` (行162/168/186/195/407/424)
-- **Realtime**：✅ via entity hook
-
-#### src/app/(main)/finance/reports/_components/ReceivablesTab.tsx
-- **頁面名**：應收帳款 Tab
-- **讀取點**：
-  - `receipts`: `useReceivables()` (createReportHook) ✅ — 5/19 健檢已升格
-- **寫入點**：無
-- **Realtime**：❌（report hook 無 realtime、合理）
-
-#### src/app/(main)/finance/reports/_components/PayablesTab.tsx
-- **頁面名**：應付帳款 Tab
-- **讀取點**：
-  - `payment_requests`: `usePayables()` (createReportHook) ✅
-- **寫入點**：無
-- **Realtime**：❌
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `finance/payments/page.tsx` | 收款列表 | `usePaymentData()` → `useReceipts()` (entity) | `apiMutate('/api/payments/${id}/verify', ...)` + `invalidateReceipts()` | ✅ entity | 寫入電商已正規化 |
+| `finance/reports/_components/ReceivablesTab.tsx` | 應收帳款 | `useReceivables()` (createReportHook) ✅ | 無 | ❌ | 報表無 realtime、合理 |
+| `finance/reports/_components/PayablesTab.tsx` | 應付帳款 | `usePayables()` (createReportHook) ✅ | 無 | ❌ | 同上 |
+| `finance/reports/_components/DisbursementTab.tsx` | 出納Tab | `usePaymentRequests()` + `useDisbursementOrders()` (entity) | 無 | ✅ entity |  |
+| `finance/reports/_components/IncomeTab.tsx` | 收入Tab | `useReceipts()` (entity) | 無 | ✅ entity |  |
 
 ---
 
-### 5. library（客戶 / 供應商）
+### 5. library（客戶 / 供應商 / 景點）
 
-#### src/app/(main)/library/customers/page.tsx
-- **頁面名**：客戶列表
-- **讀取點**：
-  - `customers`: `useCustomersSlim()` + `useCustomersPaginated()` (entity hooks) ✅
-- **寫入點**：
-  - `customers`: `createCustomer()` + `updateCustomer()` + `deleteCustomer()` (entity hooks) (行29)
-  - 但有直接 `supabase.from()`：護照同步 `supabase.from('order_members').select()` (行78/95/107/131) — 用於護照圖片同步、dialog 內清單
-- **Realtime**：✅ entity hook 內建
-
-#### src/app/(main)/library/suppliers/page.tsx
-- **頁面名**：供應商列表
-- **讀取點**：待掃（見下方 Working Notes）
-- **寫入點**：待掃
-- **Realtime**：待掃
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `library/customers/page.tsx` | 客戶列表 | `useCustomersSlim()` + `useCustomersPaginated()` (entity) | `createCustomer()` + `updateCustomer()` + `deleteCustomer()` (entity) + `supabase.from('order_members')` (護照同步 dialog 內) | ✅ entity | 直接 supabase 為護照同步功能、合理 |
+| `library/suppliers/page.tsx` | 供應商列表 | `SuppliersPage` (delegate) | 待掃 delegate | 待掃 |  |
+| `library/attractions/page.tsx` | 景點列表 | 待掃 | 待掃 | 待掃 |  |
+| `library/archive-management/page.tsx` | 歸檔管理 | `supabase.from('tours')` (直接) | `supabase.from('tour_itinerary_items').delete()` + `supabase.from('calendar_events').delete()` + `deleteTourEntity()` (entity) | ❌ | 歸檔操作直接 supabase、需確認有無 invalidate |
 
 ---
 
 ### 6. hr（人力資源）
 
-#### src/app/(main)/hr/roles/page.tsx
-- **頁面名**：角色設定
-- **讀取點**：
-  - `roles`: `useRoles()` (custom hook → entity) ✅
-- **寫入點**：
-  - `roles`: `apiMutate('/api/roles', ...)` (行212) — create role
-  - `role_capabilities`: `apiMutate('/api/roles/${id}/tab-permissions', ...)` (行248) — update capabilities
-  - `roles`: `apiMutate('/api/roles/${id}', { method: DELETE })` (行289) — delete role
-- **Realtime**：❓待確認
-
-#### src/app/(main)/hr/salary-settlement/page.tsx
-- **頁面名**：薪資結算列表
-- **讀取點**：
-  - `salary_settlements`: `useSalarySettlements()` (entity hook) ✅
-- **寫入點**：
-  - `salary_settlements`: `apiMutate('/api/salary-settlements/${id}/submit', ...)` (行104)
-- **Realtime**：✅ via entity hook
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `hr/roles/page.tsx` | 角色設定 | `useRoles()` (custom → entity) ✅ | `apiMutate('/api/roles', ...)` (create) + `apiMutate('/api/roles/${id}/tab-permissions', ...)` (cap update) + `apiMutate(..., { method: DELETE })` (delete) | ❌不明 | 無 realtime 確認、必要性待定 |
+| `hr/salary-settlement/page.tsx` | 薪資結算列表 | `useSalarySettlements()` (entity) ✅ | `apiMutate('/api/salary-settlements/${id}/submit', ...)` | ✅ entity |  |
+| `hr/salary-settlement/[id]/page.tsx` | 薪資結算詳情 | 待掃 | 待掃 | 待掃 |  |
+| `hr/bonus-settlement/page.tsx` | 獎金結算列表 | `useBonusSettlements()` (custom hook) → `apiMutate('/api/hr/bonus-settlements/pending-tours', ...)` | `apiMutate` (行107) | ❌ |  |
+| `hr/organization/page.tsx` | 組織架構 | delegate to `OrganizationSection` | — | — |  |
 
 ---
 
 ### 7. accounting（會計）
 
-#### src/app/(main)/accounting/vouchers/page.tsx
-- **頁面名**：傳票列表
-- **讀取點**：待掃（見 Working Notes）
-- **寫入點**：待掃
-- **Realtime**：待掃
-
-#### src/app/(main)/accounting/checks/page.tsx
-- **頁面名**：支票列表
-- **讀取點**：待掃
-- **寫入點**：待掃
-- **Realtime**：待掃
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `accounting/vouchers/page.tsx` | 傳票列表 | `supabase.from('journal_vouchers')` (直接) | `apiMutate` (行26) | ❌不明 | 直接 supabase 讀、待確認是否有 realtime |
+| `accounting/accounts/page.tsx` | 會計科目 | `supabase.from('chart_of_accounts')` (直接) | `updateChartOfAccount()` (entity) (行159) | ❌不明 | 讀走直接 supabase（非 entity） |
+| `accounting/checks/page.tsx` | 支票列表 | `supabase.from('checks')` (直接) | `supabase.from('checks').update({ status: 'cleared' })` (行163/180) | ❌不明 | 寫入直接 supabase（有 lint suppress） |
 
 ---
 
 ### 8. todos（待辦）
 
-#### src/app/(main)/todos/page.tsx
-- **頁面名**：待辦任務
-- **讀取點**：
-  - `todos`: `useTodos()` (entity hook) ✅
-- **寫入點**：
-  - `todos`: `apiMutate('/api/todo-columns', ...)` (行141) — column CRUD
-  - `apiMutate('/api/todos', ...)` — task CRUD
-- **Realtime**：✅ entity hook 內建（todos realtime publication 已修好）
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `todos/page.tsx` | 待辦任務 | `useTodos()` (entity) ✅ | `apiMutate('/api/todo-columns', ...)` + `apiMutate('/api/todos', ...)` | ✅ entity | todos realtime publication 已修好 |
 
 ---
 
 ### 9. dashboard
 
-#### src/app/(main)/dashboard/page.tsx
-- **頁面名**：儀表板
-- **讀取點**：
-  - 多個 entity hooks via `dashboard.service.ts`（見下方 Working Notes）
-- **寫入點**：無
-- **Realtime**：✅ via entity hooks
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `dashboard/page.tsx` | 儀表板 | delegate to `DashboardClient` → 多個 entity hooks via `dashboard.service` | 無 | ✅ via entity |  |
 
 ---
 
 ### 10. ai
 
-#### src/app/(main)/ai/page.tsx
-- **頁面名**：AI 助理
-- **讀取點**：
-  - `useAiConversations()` / `useAiRetrospective()` (custom hooks) — B 類保留
-- **寫入點**：無
-- **Realtime**：❌
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `ai/page.tsx` | AI 助理 | delegates to tabs | — | — |  |
+| `ai/_components/AiConversationsTab.tsx` | AI 對話列表 | `useSWR` (B類保留) + `useRealtimeMutate` | `apiMutate` (行219/504/523/651) | ⚠️ `useRealtimeMutate` 手刻 | B 類複雜跨表、保留 |
+| `ai/_components/AiRetrospectiveTab.tsx` | AI 回顧 | 待掃 | 待掃 | 待掃 |  |
 
 ---
 
-## Working Notes（自由寫）
+### 11. shared-data（共享資料）
 
-### Surprise 1：channels 乾淨得出乎意料
-William 說「channels 新增刪除不會即時」，但我看到的架構是：
-- `useChannelMessages` / `useChannelMembers` / `useChannels` 全走 entity hook
-- `createEntityHook` 內建 `useRealtimeSync()`
-- 寫入後有 `invalidateChannelMessages()` / `invalidateChannels()` / `invalidateChannelMembers()`
-- 理論上應該即時
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `shared-data/banks/page.tsx` | 銀行資料 | `useSWR('shared-data:banks', fetchBanks)` (A/C類) | 無 | ❌ | 銀行為唯讀、realtime 不需要 |
+| `shared-data/countries/page.tsx` | 國家資料 | 待掃 | 待掃 | ❌ |  |
+| `shared-data/airports/page.tsx` | 機場資料 | 待掃 | 待掃 | ❌ |  |
 
-**懷疑方向**：如果真的有「新增看不到」問題，可能不是 SWR/realtime 機制問題，而是：
-- invalidate call 在哪個階段被呼叫（optimistic update 前？後？）
-- channel_messages 的 realtime subscription 是否真的在該 page mount 時有啟動
-- 還是「有 realtime 但訊息寫入走了別的路」（非 entity hook 的 API 直接寫？）
+---
 
-### Surprise 2：useSWR 出現的位置相對少
-上一次（5/19）健檢有 18 處直接 useSWR，這次看主要頁面：
-- `ProfitTab.tsx:190` — 獎金計算跨表、B 類合理保留
-- `tours/[code]/page.tsx:30` — tour_id fetch、B 類合理
-- `useToursPaginated.ts` — 有、但行數少
+### 12. visas（簽證）
 
-大部分讀取已經走在 entity hook 上。
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `visas/page.tsx` | 簽證申請 | `useCustomerDocumentApplications()` (entity) ✅ | `invalidateCustomerDocumentApplications()` (行188) | ✅ entity | 2026-05-20 新做的 entity hook |
+
+---
+
+### 13. cis（外部系統整合）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `cis/page.tsx` | CIS 總覽 | `useCisClients()` (entity) → 但 DB table 不存在 | — | ⚠️ | 5/19 已發現：table 不存在、前端實作但會炸 |
+| `cis/[id]/page.tsx` | CIS 客戶詳情 | 同上 | — | ⚠️ |  |
+| `cis/pricing/page.tsx` | CIS 定價 | `useCisPricingItems()` (entity) → 但 table 不存在 | — | ⚠️ |  |
+
+---
+
+## Working Notes（Pass 1 盤點自由紀錄）
+
+### Surprise 1：channels 架構比預期乾淨
+- 所有讀取走 entity hook ✅
+- 寫入後 invalidate 有做到 ✅
+- `useRealtimeSync()` 由 entity hook 內建
+
+若 William 仍感受「新增/刪除訊息不即時」→ 可能是：
+1. **訊息寫入走了非 entity hook 的路**（直接 API `/api/channels/[id]/messages` 而不通過 `invalidateChannelMessages()`）
+2. **Realtime subscription 在該 context 沒啟動**（ChannelView mount 時 messages 已 fetch 但 subscription 未建立）
+3. **訊息刪除走了別的路**（非 messages table 的刪除，而是其他狀態更新）
+
+### Surprise 2：accounting 三個頁面讀取走直接 supabase
+- `vouchers/page.tsx`：直接 `supabase.from('journal_vouchers')`
+- `accounts/page.tsx`：直接 `supabase.from('chart_of_accounts')`
+- `checks/page.tsx`：直接 `supabase.from('checks')`
+
+這三個都**沒有**對應的 entity hook（5/19 健檢也沒要求補）。若要修，需要先補 entity hook 再搬。
+
+### Surprise 3：useSWR 出現頻率比想像低
+- `ProfitTab.tsx:190` — 獎金計算（合理 B 類）
+- `tours/[code]/page.tsx:30` — code→id fetch（合理 B 類）
+- `AiConversationsTab.tsx` — AI conversation list（合理 B 類）
+- `shared-data/banks/page.tsx:31` — 銀行資料（可考慮補 entity）
+
+大部分頁面讀取已經走在 entity hook 上。
+
+### Surprise 4：CIS 模組仍是半成品
+- `cis_clients` / `cis_pricing_items` / `cis_visits` table 在 DB 不存在
+- 前端有 entity hook + page，進去會炸 table not found
+- 建議另立工單
 
 ### 不確定點（需 Claude Opus 覆查）
-1. `library/customers/page.tsx` 有 4 處 `supabase.from('order_members')` 直接讀 — 這是護照同步功能、可能合理但需確認不在清單刷新時被呼叫
-2. `accounting/vouchers` / `accounting/checks` 的 Realtime 狀態 — 待掃
-3. `hr/roles` 沒看到 Realtime subscription — 如果有及時性需求、應該加
-4. `channels/_components/CreateChannelDialog.tsx` — 新增 channel 的寫入方式還沒確認
+1. `library/archive-management/page.tsx` 的歸檔操作有 `supabase.from(...).delete()` 直接寫入、需確認有沒有對應的 invalidate 或 cache 清理
+2. `accounting/vouchers` / `accounts` / `checks` 的 Realtime 狀態需確認（直接 supabase 讀取通常無 realtime）
+3. `hr/roles` 無 realtime、是否需要？
+4. `library/customers/page.tsx` 的 `supabase.from('order_members')` 護照同步是 dialog 內的暫時性讀取、合理但需標記
+
+---
+
+## Pass 1 統計（初估）
+
+| 模組 | 頁面數 | 有 entity 讀 | 直接 supabase 讀 | 有 SWR | 有 Realtime |
+|---|---|---|---|---|---|
+| channels | 4 | 4 | 0 | 0 | 3 |
+| tours | 5 | 4 | 0 | 1 | 5 |
+| orders | 1 | 1 | 0 | 0 | 1 |
+| finance | 5 | 5 | 0 | 0 | 3 |
+| library | 4 | 2 | 2 | 0 | 1 |
+| hr | 5 | 3 | 0 | 1 | 1 |
+| accounting | 3 | 1 | 2 | 0 | 0 |
+| todos | 1 | 1 | 0 | 0 | 1 |
+| dashboard | 1 | 1 | 0 | 0 | 1 |
+| ai | 2 | 1 | 0 | 1 | 1 |
+| shared-data | 3 | 0 | 1 | 1 | 0 |
+| visas | 1 | 1 | 0 | 0 | 1 |
+| cis | 3 | 3 | 0 | 0 | 0 |
+| **合計** | ~38 | ~27 | ~5 | ~4 | ~18 |
 
 ---
 
@@ -275,6 +217,9 @@ William 說「channels 新增刪除不會即時」，但我看到的架構是：
 |---|---|
 | T+0:15 | channels / tours / orders |
 | T+0:30 | finance / library / hr |
-| T+0:45 | 待掃：accounting / cis / todos / dashboard / ai |
-| T+1:00 | 收尾 commit |
+| T+0:45 | accounting / todos / dashboard / ai / shared-data / visas / cis |
+| T+0:55 | 第一個 commit |
 
+---
+
+*Pass 1 完成，等 Claude Opus 複盤後才做 Pass 2。*
