@@ -63,6 +63,8 @@ export function ResourcePanel({
   const [activeTab, setActiveTab] = useState<ResourceType>('attraction')
   const [searchQuery, setSearchQuery] = useState('')
   const [isCreating, setIsCreating] = useState(false) // 防止重複點擊
+  // 新增成功後 bump、強迫 useResourceSearch 重撈、新 row 才會出現在搜尋結果
+  const [searchRefreshTrigger, setSearchRefreshTrigger] = useState(0)
 
   // 編輯 Dialog
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -196,7 +198,13 @@ export function ResourcePanel({
   }
 
   // 搜尋結果（委托給 useResourceSearch hook、保留 raw ilike + bigram fallback）
-  const { searchResults, isSearching } = useResourceSearch({ searchQuery, activeTab, resolvedCountryId })
+  // refreshTrigger：新增成功後 bump、強迫 hook 重撈、新 row 出現在搜尋結果
+  const { searchResults, isSearching } = useResourceSearch({
+    searchQuery,
+    activeTab,
+    resolvedCountryId,
+    refreshTrigger: searchRefreshTrigger,
+  })
 
   // 顯示的資源：有搜尋時用搜尋結果，沒搜尋時用 entity hook 預載資料
   const filteredResources = searchQuery.trim() ? searchResults : resources[activeTab]
@@ -279,11 +287,9 @@ export function ResourcePanel({
             setEditDialogOpen(true)
           }}
           onCreatingChange={setIsCreating}
-          // Phase A.9（5/20 William 拍板）：
-          // 砍 onAfterCreate 清 searchQuery — 用戶感覺「篩選被刷、像重啟」
-          // 新行為：篩選保留、entity hook invalidate 後 SWR cache 會自動 push 新 row
-          // 如果新 row 在當前 filter 內、會出現在列表；不在就不顯示（用戶可自己改篩選找）
-          // toast.success「已新增」由 ResourceList 自己負責、用戶仍知道成功
+          // 新增成功後 bump search refresh trigger、useResourceSearch 重撈
+          // 搜尋詞保留、新 row 出現在搜尋結果中（W 截圖 5/20 16:37 的 bug：「測試」新增成功但搜尋找不到）
+          onAfterCreate={() => setSearchRefreshTrigger(t => t + 1)}
         />
       </div>
 

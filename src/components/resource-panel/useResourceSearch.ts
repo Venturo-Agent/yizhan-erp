@@ -9,6 +9,7 @@ interface UseResourceSearchOptions {
   searchQuery: string
   activeTab: ResourceType
   resolvedCountryId: string | undefined
+  refreshTrigger?: number // bump 此值會強制重撈搜尋結果（新增 row 後 caller 用）
 }
 
 // Phase A.6（5/20）保留 raw query 的理由（紅線 F 例外、有正當理由）：
@@ -28,6 +29,7 @@ export function useResourceSearch({
   searchQuery,
   activeTab,
   resolvedCountryId,
+  refreshTrigger = 0,
 }: UseResourceSearchOptions) {
   const [searchResults, setSearchResults] = useState<ResourceItem[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -132,7 +134,7 @@ export function useResourceSearch({
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchQuery, activeTab, resolvedCountryId])
+  }, [searchQuery, activeTab, resolvedCountryId, refreshTrigger])
 
   return { searchResults, isSearching }
 }
