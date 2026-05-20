@@ -191,27 +191,11 @@ export const CAPABILITIES = {
 
   // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════
   CHANNELS_MANAGE: 'channels.manage',
-  FACEBOOK_BOT_CONFIG: 'facebook_bot.config',
-  FACEBOOK_BOT_WRITE: 'facebook_bot.write',
   FINANCE_ADVANCE_PAYMENT_WRITE: 'finance.advance_payment.write',
-  INSTAGRAM_BOT_CONFIG: 'instagram_bot.config',
-  INSTAGRAM_BOT_WRITE: 'instagram_bot.write',
   LINE_BOT_CONFIG: 'line_bot.config',
   LINE_BOT_READ: 'line_bot.read',
   LINE_BOT_WRITE: 'line_bot.write',
   MANAGE_ENV_SETTINGS: 'settings.env.write',
-  TRAVEL_INVOICE_ALLOWANCE_READ: 'travel_invoice.allowance.read',
-  TRAVEL_INVOICE_ALLOWANCE_WRITE: 'travel_invoice.allowance.write',
-  TRAVEL_INVOICE_ISSUE_READ: 'travel_invoice.issue.read',
-  TRAVEL_INVOICE_ISSUE_WRITE: 'travel_invoice.issue.write',
-  TRAVEL_INVOICE_QUERY_READ: 'travel_invoice.query.read',
-  TRAVEL_INVOICE_QUERY_WRITE: 'travel_invoice.query.write',
-  TRAVEL_INVOICE_RESEND_READ: 'travel_invoice.resend.read',
-  TRAVEL_INVOICE_RESEND_WRITE: 'travel_invoice.resend.write',
-  TRAVEL_INVOICE_SETTINGS_READ: 'travel_invoice.settings.read',
-  TRAVEL_INVOICE_SETTINGS_WRITE: 'travel_invoice.settings.write',
-  TRAVEL_INVOICE_VOID_READ: 'travel_invoice.void.read',
-  TRAVEL_INVOICE_VOID_WRITE: 'travel_invoice.void.write',
 } as const
 
 export type Capability = (typeof CAPABILITIES)[keyof typeof CAPABILITIES]
