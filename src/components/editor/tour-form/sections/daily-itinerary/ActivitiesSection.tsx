@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { List, LayoutGrid, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase/client'
+import { createAttraction } from '@/data'
 import { toast } from 'sonner'
 import {
   DndContext,
@@ -131,29 +131,22 @@ export function ActivitiesSection({
   )
 
   // 將景點存到資料庫
+  // Phase A.6（5/20）：改用 entity hook createAttraction、內建 invalidateAttractions
+  // 紅線 F：寫入後 SWR cache 真的失效、library/attractions 列表 + ResourcePanel 同步更新
   const handleSaveToDatabase = async (activity: Activity, _dayIndex: number, actIndex: number) => {
     try {
-      // 建立新的景點資料（country_id 使用預設值，之後可在景點管理編輯）
-      const newAttraction = {
+      const created = await createAttraction({
         name: activity.title,
-        description: activity.description || null,
+        description: activity.description || undefined,
         images: activity.image ? [activity.image] : [],
         is_active: true,
         display_order: 0,
-        country_id: 'unknown', // 預設值，可在景點管理中修改
-      }
-
-      const { data, error } = await supabase
-        .from('attractions')
-        .insert(newAttraction as never)
-        .select()
-        .single()
-
-      if (error) throw error
+        country_id: 'unknown', // 預設值、可在景點管理中修改
+      })
 
       // 更新活動的 attraction_id 為新建立的資料庫 ID
-      if (data) {
-        updateActivity(dayIndex, actIndex, 'attraction_id', data.id)
+      if (created?.id) {
+        updateActivity(dayIndex, actIndex, 'attraction_id', created.id)
         toast.success(`已將「${activity.title}」存到景點資料庫`)
       }
     } catch (error) {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { Search, MapPin, Building2, UtensilsCrossed } from 'lucide-react'
 
@@ -10,7 +10,14 @@ import { ResourceList } from './ResourceList'
 import { useResourceSearch } from './useResourceSearch'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-import { logger } from '@/lib/utils/logger'
+import {
+  useAttractions,
+  useHotels,
+  useRestaurants,
+  invalidateAttractions,
+  invalidateHotels,
+  invalidateRestaurants,
+} from '@/data'
 import { ResourceType, ResourceItem } from './types'
 
 const COMPONENT_LABELS = {
@@ -20,6 +27,13 @@ const COMPONENT_LABELS = {
 // ============================================
 // 資源庫面板主元件
 // ============================================
+//
+// Phase A.6（5/20 William 拍板「根治」）：
+// - 砍 useState<Record<ResourceType, ResourceItem[]>> 自管 cache（紅線 F 違反）
+// - 改用 entity hook（useAttractions / useHotels / useRestaurants）→ SWR cache + realtime + invalidate 全內建
+// - 砍 A.5 兜底：onNewItem push local state / onAfterCreate 清搜尋
+// - 搜尋仍保留 raw（useResourceSearch）— entity hook usePaginated 沒 bigram fallback、不擴 entity hook
+// - 預設顯示前 20 筆：在 component 層 slice(0, 20)，不動 entity hook signature
 
 interface TourItineraryItem {
   id: string
@@ -60,19 +74,8 @@ export function ResourcePanel({
   // 篩選：只用國家（簡化版）
   const [resolvedCountryId, setResolvedCountryId] = useState<string | undefined>(undefined)
 
-  // 選項列表
+  // 選項列表（countries 用 raw、跟症狀 #1 無關、保留）
   const [countries, setCountries] = useState<{ id: string; name: string }[]>([])
-
-  const [resources, setResources] = useState<Record<ResourceType, ResourceItem[]>>({
-    attraction: [],
-    hotel: [],
-    restaurant: [],
-  })
-  const [loading, setLoading] = useState<Record<ResourceType, boolean>>({
-    attraction: true,
-    hotel: true,
-    restaurant: true,
-  })
 
   // ── 第一步：解析 countryId prop → resolvedCountryId ──
   useEffect(() => {
@@ -156,68 +159,49 @@ export function ResourcePanel({
     void resolve()
   }, [countryId, locationName, tourCode])
 
-  // ── 第二步：載入資源（等國家解析完再查、避免列全世界景點）──
+  // ── 第二步：載入資源（走 entity hook + filter）──
+  // 等國家解析完再 enable、避免列全世界景點（egress 殺手）
   const isResolving = (!!countryId || !!tourCode) && !resolvedCountryId
-  useEffect(() => {
-    if (isResolving) return // 等待國家解析完成
+  const hookEnabled = !isResolving
+  // entity hook filter：resolvedCountryId 存在才掛 country_id eq filter
+  const filter = useMemo<Record<string, string | number | boolean | null>>(() => {
+    const f: Record<string, string | number | boolean | null> = { is_active: true }
+    if (resolvedCountryId) f.country_id = resolvedCountryId
+    return f
+  }, [resolvedCountryId])
 
-    const supabase = createSupabaseBrowserClient()
+  // 紅線 F：使用 entity hook 讀取、不自己 useSWR / useState 管 cache
+  const { items: attractionsRaw, loading: attractionsLoading } = useAttractions({ enabled: hookEnabled, filter })
+  const { items: hotelsRaw, loading: hotelsLoading } = useHotels({ enabled: hookEnabled, filter })
+  const { items: restaurantsRaw, loading: restaurantsLoading } = useRestaurants({ enabled: hookEnabled, filter })
 
-    const fetchResources = async (
-      table: 'attractions' | 'hotels' | 'restaurants',
-      type: ResourceType,
-      extraSelect = ''
-    ) => {
-      const selectStr = `id, name, category, images, data_verified, latitude, longitude, address, description, region_id${extraSelect}`
-      let query = supabase
-        .from(table)
-        .select(selectStr as 'id, name, category, images')
-        .eq('is_active', true)
+  // 把 entity row 映射成 ResourceItem（hotel star_rating 不在 hotels entity select、簡化掉）
+  // 預設只顯示前 20 筆（保持原 UX，避免一次渲染上千張卡）
+  const resources: Record<ResourceType, ResourceItem[]> = useMemo(
+    () => ({
+      attraction: (attractionsRaw || [])
+        .slice(0, 20)
+        .map(r => toResourceItem('attraction')(r as unknown as Record<string, unknown>)),
+      hotel: (hotelsRaw || [])
+        .slice(0, 20)
+        .map(r => toResourceItem('hotel')(r as unknown as Record<string, unknown>)),
+      restaurant: (restaurantsRaw || [])
+        .slice(0, 20)
+        .map(r => toResourceItem('restaurant')(r as unknown as Record<string, unknown>)),
+    }),
+    [attractionsRaw, hotelsRaw, restaurantsRaw]
+  )
 
-      // 簡化版：只用國家篩選
-      if (resolvedCountryId) query = query.eq('country_id', resolvedCountryId)
+  const loading: Record<ResourceType, boolean> = {
+    attraction: attractionsLoading,
+    hotel: hotelsLoading,
+    restaurant: restaurantsLoading,
+  }
 
-      // 只載入前 20 筆作為預設顯示，搜尋時會重新查詢
-      const { data, error } = await query.order('name').limit(20)
-
-      if (error) {
-        logger.error(`[ResourcePanel] 載入${type}失敗:`, error)
-      }
-
-      setResources(prev => ({
-        ...prev,
-        [type]: (data || []).map((item: Record<string, unknown>) => ({
-          id: item.id as string,
-          name: item.name as string,
-          type,
-          category:
-            type === 'hotel' && item.star_rating
-              ? `${item.star_rating}星`
-              : (item.category as string | null),
-          images: (item.images as string[]) || [],
-          data_verified: item.data_verified as boolean | undefined,
-          latitude: item.latitude as number | null,
-          longitude: item.longitude as number | null,
-          address: item.address as string | null,
-          description: item.description as string | null,
-          region_id: item.region_id as string | null,
-        })),
-      }))
-      setLoading(prev => ({ ...prev, [type]: false }))
-    }
-
-    setLoading({ attraction: true, hotel: true, restaurant: true })
-    void Promise.all([
-      fetchResources('attractions', 'attraction'),
-      fetchResources('hotels', 'hotel', ', star_rating'),
-      fetchResources('restaurants', 'restaurant'),
-    ])
-  }, [resolvedCountryId, isResolving])
-
-  // 搜尋結果（委托給 useResourceSearch hook）
+  // 搜尋結果（委托給 useResourceSearch hook、保留 raw ilike + bigram fallback）
   const { searchResults, isSearching } = useResourceSearch({ searchQuery, activeTab, resolvedCountryId })
 
-  // 顯示的資源：有搜尋時用搜尋結果，沒搜尋時用預載資料
+  // 顯示的資源：有搜尋時用搜尋結果，沒搜尋時用 entity hook 預載資料
   const filteredResources = searchQuery.trim() ? searchResults : resources[activeTab]
 
   const tabs: { key: ResourceType; label: string; icon: React.ReactNode }[] = [
@@ -298,24 +282,12 @@ export function ResourcePanel({
             setEditDialogOpen(true)
           }}
           onCreatingChange={setIsCreating}
-          onNewItem={newItem => {
-            setResources(prev => ({
-              ...prev,
-              [activeTab]: [newItem, ...(prev[activeTab] || [])],
-            }))
+          onAfterCreate={() => {
+            // 新建成功 → 清搜尋、切回 entity hook 列表（剛建的 row 已被 invalidateXxx 推進 SWR cache）
+            setSearchQuery('')
           }}
-          // 新增成功後清搜尋 → filteredResources 切回 resources[activeTab]
-          // 用戶才能立刻看到剛建的那筆（搜「大黃」沒結果時、按 + 新增、清搜尋即顯示）
-          onAfterCreate={() => setSearchQuery('')}
         />
       </div>
-
-      {/* 地圖面板（可收合）- 暫時隱藏 */}
-      {/* <ResourceMapPanel
-        tourId={tourId || null}
-        tourCode={tourCode || null}
-        countryId={resolvedCountryId || null}
-      /> */}
 
       {/* 資源詳情 Dialog */}
       <ResourceDetailDialog
@@ -345,16 +317,35 @@ export function ResourcePanel({
         onOverrideSave={() => {
           onOverrideSave?.()
         }}
-        onSave={updated => {
-          // 更新列表中的資源名稱
-          setResources(prev => ({
-            ...prev,
-            [activeTab]: prev[activeTab].map(r =>
-              r.id === updated.id ? { ...r, name: updated.name } : r
-            ),
-          }))
+        onSave={() => {
+          // ⚠️ useResourceActions.handleSave 內仍是 raw supabase.from().update()、沒 invalidate
+          // 此 callback 是 ResourcePanel 邊界處的兜底：detail dialog 改完名稱 / verify 後
+          // 主動讓 entity hook cache 失效、列表自動 refetch 顯示新名稱
+          // 完整根治（useResourceActions 改用 updateAttraction/Hotel/Restaurant）留給後續任務
+          if (activeTab === 'attraction') void invalidateAttractions()
+          else if (activeTab === 'hotel') void invalidateHotels()
+          else if (activeTab === 'restaurant') void invalidateRestaurants()
         }}
       />
     </div>
   )
+}
+
+// ============================================
+// helper：entity row → ResourceItem
+// ============================================
+function toResourceItem(type: ResourceType) {
+  return (row: Record<string, unknown>): ResourceItem => ({
+    id: row.id as string,
+    name: row.name as string,
+    type,
+    category: (row.category as string | null) ?? null,
+    images: (row.images as string[]) || [],
+    data_verified: row.data_verified as boolean | undefined,
+    latitude: (row.latitude as number | null) ?? null,
+    longitude: (row.longitude as number | null) ?? null,
+    address: (row.address as string | null) ?? null,
+    description: (row.description as string | null) ?? null,
+    region_id: (row.region_id as string | null) ?? null,
+  })
 }

@@ -2,8 +2,8 @@
 
 import { Loader2, Plus } from 'lucide-react'
 import { toast } from 'sonner'
+import { createAttraction, createHotel, createRestaurant } from '@/data'
 import { supabase } from '@/lib/supabase/client'
-import { invalidateAttractions, invalidateHotels, invalidateRestaurants } from '@/data'
 import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
 import { DraggableResourceCard } from './DraggableResourceCard'
@@ -20,8 +20,28 @@ interface ResourceListProps {
   countryId: string | undefined
   onEdit: (resource: ResourceItem) => void
   onCreatingChange: (creating: boolean) => void
-  onNewItem: (item: ResourceItem) => void
-  onAfterCreate?: () => void // 新增成功後讓 ResourcePanel 清搜尋 / 切回 resources 列表
+  // Phase A.6（5/20）：onNewItem 砍除 — entity hook create 內建 invalidate 後、
+  // entity hook 自動 push 新 row 進 SWR cache、不需 caller push local state
+  onAfterCreate?: () => void // 新增成功後讓 ResourcePanel 清搜尋 / 切回 entity hook 列表
+}
+
+// 共用：依 tab 選對應 entity hook create
+async function createByType(
+  type: ResourceType,
+  payload: Record<string, unknown>
+): Promise<{ id: string; name: string }> {
+  // entity hook 的 create signature 用 Attraction 型別、
+  // attractions / hotels / restaurants 三表共用同一 type、欄位差異由 caller 控
+  if (type === 'attraction') {
+    const row = await createAttraction(payload as never)
+    return { id: row.id, name: row.name }
+  }
+  if (type === 'hotel') {
+    const row = await createHotel(payload as never)
+    return { id: row.id, name: row.name }
+  }
+  const row = await createRestaurant(payload as never)
+  return { id: row.id, name: row.name }
 }
 
 export function ResourceList({
@@ -35,9 +55,12 @@ export function ResourceList({
   countryId,
   onEdit,
   onCreatingChange,
-  onNewItem,
   onAfterCreate,
 }: ResourceListProps) {
+  // Phase A.6（5/20）：根治版本
+  // 改用 entity hook 的 createAttraction / createHotel / createRestaurant、內建 invalidate
+  // 不再 raw supabase.from().insert()、不再 onNewItem push local state
+  // 紅線 F：寫入後 SWR cache 真的失效 → ResourcePanel + library/attractions 列表 + 其他 caller 同步更新
   const handleCreate = async () => {
     if (isCreating) return
     onCreatingChange(true)
@@ -52,19 +75,6 @@ export function ResourceList({
         return
       }
 
-      const workspaceId = (await supabase.auth.getUser()).data.user?.user_metadata?.workspace_id
-      if (!workspaceId) {
-        toast.error('未登入或缺少 workspace')
-        return
-      }
-
-      const TABLE_MAP = {
-        attraction: 'attractions',
-        hotel: 'hotels',
-        restaurant: 'restaurants',
-      }
-      const table = TABLE_MAP[activeTab]
-
       // 預設分類
       const DEFAULT_CATEGORY: Record<string, string> = {
         attraction: '景點 / Attraction',
@@ -78,8 +88,10 @@ export function ResourceList({
         category: DEFAULT_CATEGORY[activeTab] || null,
         data_verified: false,
         is_active: true,
+        display_order: 0,
       }
 
+      // hotel / restaurant 預填 city_id（跟舊行為對齊、避免 schema NOT NULL 撞 23502）
       if (activeTab !== 'attraction') {
         const { data: cities } = await supabase
           .from('cities')
@@ -92,45 +104,17 @@ export function ResourceList({
         }
       }
 
-      // select 完整欄位（包含 category / images / latitude / longitude / address / region_id）
-      // 避免 newItem 缺欄位、其他地方（地圖 / 卡片）渲染異常
-      const { data, error: dbError } = await supabase
-        .from(table as 'attractions')
-        .insert(insertData as never)
-        .select(
-          'id, name, category, images, data_verified, latitude, longitude, address, description, region_id'
-        )
-        .single()
-
-      if (dbError) {
-        toast.error(translateDbError(dbError).message)
+      try {
+        const created = await createByType(activeTab, insertData)
+        // 通知 ResourcePanel「我建好了」、讓它清掉 searchQuery 切回 entity hook 列表
+        // entity hook create 內建 invalidate、列表會自動 refetch 拿到新 row
+        onAfterCreate?.()
+        toast.success(`已新增「${created.name}」`)
+      } catch (dbError: unknown) {
+        const translated = translateDbError(dbError as { code?: string; message?: string })
+        toast.error(translated.message)
         return
       }
-
-      const row = data as unknown as Record<string, unknown>
-      const newItem: ResourceItem = {
-        id: row.id as string,
-        name: row.name as string,
-        type: activeTab,
-        category: (row.category as string | null) || null,
-        images: (row.images as string[]) || [],
-        data_verified: (row.data_verified as boolean | undefined) ?? false,
-        latitude: (row.latitude as number | null) ?? null,
-        longitude: (row.longitude as number | null) ?? null,
-        address: (row.address as string | null) ?? null,
-        description: (row.description as string | null) ?? null,
-        region_id: (row.region_id as string | null) ?? null,
-      }
-      onNewItem(newItem)
-      // 修補（5/20）：通知 ResourcePanel「我建好了」、讓它清掉 searchQuery 切回 resources 列表
-      // 不然搜「大黃」→ 找不到 → 新增 → filteredResources 還是 searchResults（empty）、用戶看不到剛建的
-      onAfterCreate?.()
-      // 走 entity hook invalidate、讓別頁 / library/attractions 列表也跟著更新
-      // 紅線 F：寫入後讓 SWR cache 失效、不留 local state 跟 SWR cache 撕裂
-      if (activeTab === 'attraction') void invalidateAttractions()
-      else if (activeTab === 'hotel') void invalidateHotels()
-      else if (activeTab === 'restaurant') void invalidateRestaurants()
-      toast.success(`已新增「${trimmed}」`)
     } catch (err) {
       logger.error('[ResourceList] 建立失敗:', err)
     } finally {

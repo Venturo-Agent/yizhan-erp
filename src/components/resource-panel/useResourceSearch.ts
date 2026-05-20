@@ -11,6 +11,19 @@ interface UseResourceSearchOptions {
   resolvedCountryId: string | undefined
 }
 
+// Phase A.6（5/20）保留 raw query 的理由（紅線 F 例外、有正當理由）：
+//
+// 「資源主列表」(useAttractions / useHotels / useRestaurants) 已改用 entity hook。
+// 此 hook 是「搜尋 only」場景、用 ilike + bigram fallback 模糊匹配中文景點名（譬如
+// 搜「大黃」→ 找不到精確匹配 → 退而切 bigram「大黃」「黃蜂」找近似）。
+//
+// 為什麼不擴 entity hook 支援？
+// - entity hook usePaginated 的 search 只做單一 ilike、沒 bigram fallback
+// - 加 bigram 進 createEntityHook 會 ripple 全 41 個 entity 的 cache key、風險高
+// - 搜尋是 transient query（每個 keyword 不同、不重複命中）、用 SWR cache 反而浪費 key
+//
+// 收益點：寫入仍走 entity hook 的 createAttraction/Hotel/Restaurant、invalidate 後
+// 主列表會 refetch；搜尋結果是「server side query → 暫時 state」、不會跟 SWR cache 撕裂。
 export function useResourceSearch({
   searchQuery,
   activeTab,
