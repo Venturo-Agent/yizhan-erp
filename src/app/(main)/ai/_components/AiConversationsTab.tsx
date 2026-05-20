@@ -21,7 +21,7 @@
  *   - PATCH /api/messaging/conversations/:id  (bot_paused toggle)
  */
 
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useState, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import useSWR from 'swr'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -393,26 +393,40 @@ function MessagesList({
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef<number>(0)
+  const lastConversationIdRef = useRef<string>(conversationId)
   const [lightboxUrl, setLightboxUrl] = useState<string | null>(null)
 
-  // 1. 切 conversation → 立刻跳到底（不要 smooth、user 期待立即）
-  useEffect(() => {
+  // Phase A.9（5/20 William 拍板）：切對話「從第一封滑到最後一封」UX bug 修法
+  // 過去：useEffect 在 paint 後 fire、user 看到「先 render 在最上方、再 scroll 到底」中間態
+  // 現在：useLayoutEffect 在 paint 前同步 mutate scrollTop、user 直接看到「停在最後一封」
+  //
+  // 觸發時機分兩類：
+  //  - 切 conversation：conversationId 變、或同 conversationId 但 messages 從空→有（async 載入完）
+  //    → instant jump（scrollTop = scrollHeight）
+  //  - 同 conversation 新訊息進來：messages.length 變大、且不是初次載入
+  //    → smooth scroll（保留「新訊息進來」的動畫感）
+  useLayoutEffect(() => {
     const el = containerRef.current
     if (!el) return
-    el.scrollTop = el.scrollHeight
-    lastMessageCountRef.current = messages.length
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationId])
 
-  // 2. 同 conversation 內有新訊息 → smooth scroll 到底（user 看得到「新訊息進來」感）
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    if (messages.length > lastMessageCountRef.current) {
+    const isConversationSwitch = lastConversationIdRef.current !== conversationId
+    const isInitialLoad = lastMessageCountRef.current === 0 && messages.length > 0
+    const isNewMessage =
+      messages.length > lastMessageCountRef.current &&
+      !isConversationSwitch &&
+      !isInitialLoad
+
+    if (isConversationSwitch || isInitialLoad) {
+      // Instant jump：切對話 / 初次載入、直接到底、不要動畫
+      el.scrollTop = el.scrollHeight
+    } else if (isNewMessage) {
+      // Smooth scroll：同對話新訊息進來、保留動畫
       el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' })
     }
+
+    lastConversationIdRef.current = conversationId
     lastMessageCountRef.current = messages.length
-  }, [messages.length])
+  }, [conversationId, messages.length])
 
   return (
     <>

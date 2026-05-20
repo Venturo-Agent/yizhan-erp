@@ -279,10 +279,11 @@ export function ResourcePanel({
             setEditDialogOpen(true)
           }}
           onCreatingChange={setIsCreating}
-          onAfterCreate={() => {
-            // 新建成功 → 清搜尋、切回 entity hook 列表（剛建的 row 已被 invalidateXxx 推進 SWR cache）
-            setSearchQuery('')
-          }}
+          // Phase A.9（5/20 William 拍板）：
+          // 砍 onAfterCreate 清 searchQuery — 用戶感覺「篩選被刷、像重啟」
+          // 新行為：篩選保留、entity hook invalidate 後 SWR cache 會自動 push 新 row
+          // 如果新 row 在當前 filter 內、會出現在列表；不在就不顯示（用戶可自己改篩選找）
+          // toast.success「已新增」由 ResourceList 自己負責、用戶仍知道成功
         />
       </div>
 

@@ -22,7 +22,9 @@ interface ResourceListProps {
   onCreatingChange: (creating: boolean) => void
   // Phase A.6（5/20）：onNewItem 砍除 — entity hook create 內建 invalidate 後、
   // entity hook 自動 push 新 row 進 SWR cache、不需 caller push local state
-  onAfterCreate?: () => void // 新增成功後讓 ResourcePanel 清搜尋 / 切回 entity hook 列表
+  // Phase A.9（5/20）：onAfterCreate 砍除 — A.5/A.6 用它清 searchQuery、
+  // 但 William 體感是「篩選被刷、像重啟」。現在直接讓 entity hook invalidate 推 row、
+  // 篩選保留、用戶看 toast.success 確認成功即可
 }
 
 // 共用：依 tab 選對應 entity hook create
@@ -55,7 +57,6 @@ export function ResourceList({
   countryId,
   onEdit,
   onCreatingChange,
-  onAfterCreate,
 }: ResourceListProps) {
   // Phase A.6（5/20）：根治版本
   // 改用 entity hook 的 createAttraction / createHotel / createRestaurant、內建 invalidate
@@ -106,9 +107,9 @@ export function ResourceList({
 
       try {
         const created = await createByType(activeTab, insertData)
-        // 通知 ResourcePanel「我建好了」、讓它清掉 searchQuery 切回 entity hook 列表
-        // entity hook create 內建 invalidate、列表會自動 refetch 拿到新 row
-        onAfterCreate?.()
+        // Phase A.9：不再清 searchQuery、保留用戶當前篩選
+        // entity hook create 內建 invalidate、SWR cache 自動 refetch
+        // 若新 row 落在當前 filter 內、會自動出現在列表；toast 通知成功即可
         toast.success(`已新增「${created.name}」`)
       } catch (dbError: unknown) {
         const translated = translateDbError(dbError as { code?: string; message?: string })
