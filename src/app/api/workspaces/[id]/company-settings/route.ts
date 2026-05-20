@@ -39,6 +39,8 @@ export async function PATCH(
   let body: {
     transfer_fee_mode?: 'average' | 'unified'
     profit_tax_rate?: number | null
+    logo_scale?: number
+    logo_offset_x?: number
   }
   try {
     body = await request.json()
@@ -55,6 +57,34 @@ export async function PATCH(
       const { error } = await supabase
         .from('workspaces')
         .update({ transfer_fee_mode: body.transfer_fee_mode })
+        .eq('id', workspaceId)
+      if (error) {
+        const t = translateDbError(error)
+        return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      }
+    }
+
+    // 1b. logo_scale / logo_offset_x：Logo 在 PrintHeader 內的位置 + 縮放
+    // 範圍 logo_scale 0.5-2.0(DB 有 CHECK constraint 兜底)、logo_offset_x 容許負值
+    const logoPatch: Record<string, number> = {}
+    if (body.logo_scale !== undefined) {
+      const s = body.logo_scale
+      if (typeof s !== 'number' || !Number.isFinite(s) || s < 0.5 || s > 2.0) {
+        return NextResponse.json({ error: 'logo_scale 範圍 0.5-2.0' }, { status: 400 })
+      }
+      logoPatch.logo_scale = s
+    }
+    if (body.logo_offset_x !== undefined) {
+      const x = body.logo_offset_x
+      if (typeof x !== 'number' || !Number.isInteger(x) || x < -200 || x > 800) {
+        return NextResponse.json({ error: 'logo_offset_x 範圍 -200 到 800' }, { status: 400 })
+      }
+      logoPatch.logo_offset_x = x
+    }
+    if (Object.keys(logoPatch).length > 0) {
+      const { error } = await supabase
+        .from('workspaces')
+        .update(logoPatch)
         .eq('id', workspaceId)
       if (error) {
         const t = translateDbError(error)

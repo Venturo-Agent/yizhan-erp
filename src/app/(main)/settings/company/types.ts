@@ -29,6 +29,10 @@ export interface CompanyFormData {
   transfer_fee_overflow_account_id: string | null
   /** 集團出帳：勾選後會計可看跨分公司 finance（請款 / 出納 / 收據 / 發票）、適合總公司集中處理 */
   finance_centralized: boolean
+  /** Logo 在 PrintHeader 內的縮放比例（0.5-2.0、120×40 為 1.0） */
+  logo_scale: number
+  /** Logo 在 PrintHeader 內的水平位移 px（相對左邊界、Y 軸鎖頂） */
+  logo_offset_x: number
 }
 
 export interface BankAccountOption {
@@ -63,4 +67,6 @@ export const INITIAL_FORM: CompanyFormData = {
   transfer_fee_unified_amount: null,
   transfer_fee_overflow_account_id: null,
   finance_centralized: false,
+  logo_scale: 1.0,
+  logo_offset_x: 0,
 }

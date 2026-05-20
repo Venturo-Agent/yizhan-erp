@@ -5001,44 +5001,6 @@ export type Database = {
           },
         ]
       }
-      knowledge_tags: {
-        Row: {
-          category: string
-          code: string
-          created_at: string
-          id: string
-          label: string
-          sort_order: number
-          workspace_id: string
-        }
-        Insert: {
-          category: string
-          code: string
-          created_at?: string
-          id?: string
-          label: string
-          sort_order?: number
-          workspace_id: string
-        }
-        Update: {
-          category?: string
-          code?: string
-          created_at?: string
-          id?: string
-          label?: string
-          sort_order?: number
-          workspace_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "knowledge_tags_workspace_id_fkey"
-            columns: ["workspace_id"]
-            isOneToOne: false
-            referencedRelation: "workspaces"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       line_bot_reply_debounce: {
         Row: {
           accumulated_text: string
@@ -8988,8 +8950,10 @@ export type Database = {
           enable_checkin: boolean | null
           envelope_records: string | null
           features: Json | null
+          hero_image_url: string | null
           id: string
           is_active: boolean
+          is_public_listed: boolean
           itinerary_id: string | null
           last_unlocked_at: string | null
           last_unlocked_by: string | null
@@ -9001,6 +8965,9 @@ export type Database = {
           locked_itinerary_version: number | null
           locked_quote_id: string | null
           locked_quote_version: number | null
+          marketing_body: string | null
+          marketing_subtitle: string | null
+          marketing_title: string | null
           max_participants: number | null
           medical_insurance_coverage: number | null
           modification_reason: string | null
@@ -9008,10 +8975,14 @@ export type Database = {
           outbound_flight: Json | null
           price: number | null
           profit: number
+          published_at: string | null
+          published_by: string | null
           quote_cost_structure: Json | null
           return_date: string | null
           return_flight: Json | null
           selling_price_per_person: number | null
+          seo_description: string | null
+          seo_title: string | null
           status: string
           total_cost: number
           total_revenue: number
@@ -9053,8 +9024,10 @@ export type Database = {
           enable_checkin?: boolean | null
           envelope_records?: string | null
           features?: Json | null
+          hero_image_url?: string | null
           id: string
           is_active?: boolean
+          is_public_listed?: boolean
           itinerary_id?: string | null
           last_unlocked_at?: string | null
           last_unlocked_by?: string | null
@@ -9066,6 +9039,9 @@ export type Database = {
           locked_itinerary_version?: number | null
           locked_quote_id?: string | null
           locked_quote_version?: number | null
+          marketing_body?: string | null
+          marketing_subtitle?: string | null
+          marketing_title?: string | null
           max_participants?: number | null
           medical_insurance_coverage?: number | null
           modification_reason?: string | null
@@ -9073,10 +9049,14 @@ export type Database = {
           outbound_flight?: Json | null
           price?: number | null
           profit?: number
+          published_at?: string | null
+          published_by?: string | null
           quote_cost_structure?: Json | null
           return_date?: string | null
           return_flight?: Json | null
           selling_price_per_person?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
           status?: string
           total_cost?: number
           total_revenue?: number
@@ -9118,8 +9098,10 @@ export type Database = {
           enable_checkin?: boolean | null
           envelope_records?: string | null
           features?: Json | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean
+          is_public_listed?: boolean
           itinerary_id?: string | null
           last_unlocked_at?: string | null
           last_unlocked_by?: string | null
@@ -9131,6 +9113,9 @@ export type Database = {
           locked_itinerary_version?: number | null
           locked_quote_id?: string | null
           locked_quote_version?: number | null
+          marketing_body?: string | null
+          marketing_subtitle?: string | null
+          marketing_title?: string | null
           max_participants?: number | null
           medical_insurance_coverage?: number | null
           modification_reason?: string | null
@@ -9138,10 +9123,14 @@ export type Database = {
           outbound_flight?: Json | null
           price?: number | null
           profit?: number
+          published_at?: string | null
+          published_by?: string | null
           quote_cost_structure?: Json | null
           return_date?: string | null
           return_flight?: Json | null
           selling_price_per_person?: number | null
+          seo_description?: string | null
+          seo_title?: string | null
           status?: string
           total_cost?: number
           total_revenue?: number
@@ -9196,6 +9185,13 @@ export type Database = {
           {
             foreignKeyName: "tours_locked_by_fkey"
             columns: ["locked_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tours_published_by_fkey"
+            columns: ["published_by"]
             isOneToOne: false
             referencedRelation: "employees"
             referencedColumns: ["id"]
@@ -10571,6 +10567,8 @@ export type Database = {
           is_multi_branch: boolean
           leave_policy: string
           legal_name: string | null
+          logo_offset_x: number
+          logo_scale: number
           logo_url: string | null
           max_employees: number | null
           name: string
@@ -10625,6 +10623,8 @@ export type Database = {
           is_multi_branch?: boolean
           leave_policy?: string
           legal_name?: string | null
+          logo_offset_x?: number
+          logo_scale?: number
           logo_url?: string | null
           max_employees?: number | null
           name: string
@@ -10679,6 +10679,8 @@ export type Database = {
           is_multi_branch?: boolean
           leave_policy?: string
           legal_name?: string | null
+          logo_offset_x?: number
+          logo_scale?: number
           logo_url?: string | null
           max_employees?: number | null
           name?: string
@@ -11527,3 +11529,4 @@ export const Constants = {
     },
   },
 } as const
+

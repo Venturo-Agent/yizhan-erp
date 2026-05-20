@@ -17,7 +17,7 @@ import type { ProfitCalculationResult } from '@/types/bonus.types'
 import { BonusSettingType, BonusCalculationType } from '@/types/bonus.types'
 import { formatDate } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
-import { useWorkspaceSettings, getLogoStyle } from '@/hooks/useWorkspaceSettings'
+import { useWorkspaceSettings, getPrintLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 import { BONUS_TYPE_LABELS } from '../_constants/bonus-labels'
 import { COLORS, fmt } from './print-templates/print-closing-shared'
 import { PrintClosingIncomeTable } from './print-templates/PrintClosingIncomeTable'
@@ -206,8 +206,17 @@ export const PrintTourClosingPreview = forwardRef<HTMLDivElement, PrintTourClosi
           }}
         >
           {logoUrl && (
-            <div style={{ position: 'absolute', left: 0, top: 0 }}>
-              <img src={logoUrl} alt="logo" style={getLogoStyle('print')} />
+            <div style={getPrintLogoBoxStyle(ws)}>
+              <img
+                src={logoUrl}
+                alt="logo"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'left top',
+                }}
+              />
             </div>
           )}
 

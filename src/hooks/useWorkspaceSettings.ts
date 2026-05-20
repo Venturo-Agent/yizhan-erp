@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import type React from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
@@ -22,6 +23,9 @@ interface WorkspaceSettings {
   company_seal_url: string
   personal_seal_url: string
   invoice_seal_image_url: string
+  // Logo 列印頁首位置設定(公司設定頁可拖滑桿微調)
+  logo_scale: number
+  logo_offset_x: number
 }
 
 const EMPTY_SETTINGS: WorkspaceSettings = {
@@ -43,10 +47,12 @@ const EMPTY_SETTINGS: WorkspaceSettings = {
   company_seal_url: '',
   personal_seal_url: '',
   invoice_seal_image_url: '',
+  logo_scale: 1.0,
+  logo_offset_x: 0,
 }
 
 const SELECT_FIELDS =
-  'name, phone, address, bank_name, bank_branch, bank_account, bank_account_name, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url' as const
+  'name, phone, address, bank_name, bank_branch, bank_account, bank_account_name, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, logo_scale, logo_offset_x' as const
 
 /**
  * Logo 規範
@@ -79,6 +85,32 @@ export function getLogoStyle(usage: 'print' | 'header' = 'print') {
 }
 
 /**
+ * 取得列印頁首 logo wrapper 樣式(套用公司設定的 scale + offsetX)
+ *
+ * 用法:
+ *   const ws = useWorkspaceSettings()
+ *   <div style={getPrintLogoBoxStyle(ws)}>
+ *     <img src={ws.logo_url} style={{ width:'100%', height:'100%', objectFit:'contain' }} />
+ *   </div>
+ *
+ * Base size 120×40(對齊 src/lib/print/PrintHeader.tsx)、scale 1.0 = 100%。
+ * left 位移 = offsetX px、top 鎖 0(只允許水平移動)。
+ */
+export function getPrintLogoBoxStyle(
+  ws: Pick<WorkspaceSettings, 'logo_scale' | 'logo_offset_x'>
+): React.CSSProperties {
+  const scale = typeof ws.logo_scale === 'number' && ws.logo_scale > 0 ? ws.logo_scale : 1.0
+  const offsetX = typeof ws.logo_offset_x === 'number' ? ws.logo_offset_x : 0
+  return {
+    position: 'absolute',
+    left: `${offsetX}px`,
+    top: 0,
+    width: `${120 * scale}px`,
+    height: `${40 * scale}px`,
+  }
+}
+
+/**
  * 取得目前 workspace 的公司設定（銀行資訊、電話、地址、logo 等）
  * 用於列印模板、信封等需要動態讀取公司資訊的場景
  */
@@ -105,6 +137,8 @@ export function useWorkspaceSettings(): WorkspaceSettings {
         }
 
         if (!cancelled && data) {
+          const rawScale = (data as Record<string, unknown>).logo_scale
+          const rawOffsetX = (data as Record<string, unknown>).logo_offset_x
           setSettings({
             name: data.name ?? '',
             phone: data.phone ?? '',
@@ -124,6 +158,13 @@ export function useWorkspaceSettings(): WorkspaceSettings {
             company_seal_url: data.company_seal_url ?? '',
             personal_seal_url: data.personal_seal_url ?? '',
             invoice_seal_image_url: data.invoice_seal_image_url ?? '',
+            logo_scale:
+              typeof rawScale === 'number'
+                ? rawScale
+                : rawScale != null
+                  ? Number(rawScale) || 1.0
+                  : 1.0,
+            logo_offset_x: typeof rawOffsetX === 'number' ? rawOffsetX : 0,
           })
         }
       } catch (err) {

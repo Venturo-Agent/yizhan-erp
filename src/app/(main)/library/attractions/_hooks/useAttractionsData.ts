@@ -107,12 +107,14 @@ export function useAttractionsData(tableName: AttractionsTableName = 'attraction
         }
 
         await createFn(baseData as Omit<Attraction, 'id' | 'created_at' | 'updated_at'>)
+        // S1.1b 修補：跟 updateAttraction 對齊、強制 SWR 重撈、避免列表 stale
+        await invalidateFn()
         return { success: true }
       } catch (error) {
         return { success: false, error }
       }
     },
-    [tableName, createFn]
+    [tableName, createFn, invalidateFn]
   )
 
   // 更新（處理表單資料轉換）

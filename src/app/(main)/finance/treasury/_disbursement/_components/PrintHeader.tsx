@@ -9,7 +9,7 @@ import React from 'react'
 import type { DisbursementOrder } from '@/stores/types'
 import { formatDate } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
-import { getLogoStyle } from '@/hooks/useWorkspaceSettings'
+import { useWorkspaceSettings, getPrintLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 
 // Morandi 色系（與主檔共用、保持一致）
 const COLORS = {
@@ -26,6 +26,7 @@ interface PrintHeaderProps {
 
 export function PrintHeader({ order, logoUrl }: PrintHeaderProps) {
   const t = useTranslations('finance')
+  const ws = useWorkspaceSettings()
   return (
     <div
       style={{
@@ -35,19 +36,18 @@ export function PrintHeader({ order, logoUrl }: PrintHeaderProps) {
         borderBottom: `1px solid ${COLORS.gold}`,
       }}
     >
-      {/* Logo 區域 - 左上（沒設 logo_url 就留空、避免洩漏其他租戶 logo）*/}
+      {/* Logo 區域 - 套用 workspace 設定的 scale + offsetX */}
       {logoUrl && (
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-          }}
-        >
+        <div style={getPrintLogoBoxStyle(ws)}>
           <img
             src={logoUrl}
             alt={t('disbursementCompanyLogoAlt')}
-            style={getLogoStyle('print')}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              objectPosition: 'left top',
+            }}
           />
         </div>
       )}

@@ -6,6 +6,7 @@
 import React from 'react'
 import { MORANDI_COLORS } from './print-styles'
 import { useAuthStore } from '@/stores/auth-store'
+import { useWorkspaceSettings, getPrintLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 
 const LABELS = {
   公司_Logo_Alt: '公司 Logo',
@@ -23,15 +24,16 @@ export const PrintHeader: React.FC<PrintHeaderProps> = ({
   subtitle = 'QUOTATION',
 }) => {
   const workspaceName = useAuthStore(state => state.user?.workspace_name) || ''
+  const ws = useWorkspaceSettings()
 
   return (
     <div
       className="relative pb-4 mb-6"
       style={{ borderBottom: `1px solid ${MORANDI_COLORS.gold}` }}
     >
-      {/* Logo - 左上角 */}
+      {/* Logo - 套用 workspace 設定的 scale + offsetX */}
       {logoUrl ? (
-        <div className="absolute left-0 top-0" style={{ width: '120px', height: '40px' }}>
+        <div style={getPrintLogoBoxStyle(ws)}>
           <img
             src={logoUrl}
             alt={LABELS.公司_Logo_Alt}

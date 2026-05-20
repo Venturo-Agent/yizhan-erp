@@ -149,14 +149,10 @@ export const WORKSPACE_SCOPED_TABLES = [
   'airport_images',
   'request_responses',
   'request_response_items',
-  // === 資料庫（景點/飯店等、Venturo schema 上是 per-workspace、不是 cross-tenant 公用主檔）===
-  'countries',
-  'cities',
-  'regions',
-  'ref_airports',
-  'attractions',
-  'hotels',
-  'restaurants',
+  // === 資料庫（景點/飯店/餐廳/國家/城市/區域/機場：平台共用層、漫途/角落人員維護、workspace_id 為 NULL）===
+  // 2026-05-20 S1.1a 拔除：entity config workspaceScoped 已是 false/undefined、量測
+  // attractions 99.9% / hotels 99.6% / restaurants 100% 已是 NULL workspace_id；
+  // cities/regions 0 筆、countries 已遷 ref_countries。零跨公司串味風險、解 SSOT 撕裂（紅線 F）。
   'suppliers',
   // === 獎金系統 ===
   'tour_bonus_settings',

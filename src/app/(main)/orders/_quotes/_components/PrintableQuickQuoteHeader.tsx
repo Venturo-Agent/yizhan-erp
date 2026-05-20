@@ -2,15 +2,22 @@
  * PrintableQuickQuoteHeader - Logo 與標題區塊（純 render、無 state）
  */
 import React from 'react'
+import { getPrintLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 
 interface PrintableQuickQuoteHeaderProps {
   logoUrl: string
   wsName: string | undefined
+  /** Logo 縮放(0.5-2.0、預設 1.0) */
+  logoScale?: number
+  /** Logo 水平位移 px、預設 0 */
+  logoOffsetX?: number
 }
 
 export const PrintableQuickQuoteHeader: React.FC<PrintableQuickQuoteHeaderProps> = ({
   logoUrl,
   wsName,
+  logoScale,
+  logoOffsetX,
 }) => {
   return (
     <div
@@ -25,7 +32,10 @@ export const PrintableQuickQuoteHeader: React.FC<PrintableQuickQuoteHeaderProps>
       {logoUrl ? (
         <div
           className="logo"
-          style={{ position: 'absolute', left: 0, top: 0, width: '120px', height: '40px' }}
+          style={getPrintLogoBoxStyle({
+            logo_scale: logoScale ?? 1.0,
+            logo_offset_x: logoOffsetX ?? 0,
+          })}
         >
           <img
             src={logoUrl}

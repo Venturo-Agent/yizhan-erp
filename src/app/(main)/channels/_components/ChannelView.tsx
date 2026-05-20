@@ -194,6 +194,10 @@ export function ChannelView({ channelId }: Props) {
           return [...prev, serverMsg]
         })
       }
+      // S2 修補：跟 handleRevoke / SendAnnouncementDialog 對齊
+      // 一般送訊息也讓 SWR cache 失效、別人 / 自己 cross-tab 才會看到
+      // recentlySent 是 local 兜底、SWR cache 才是 SSOT
+      await invalidateChannelMessages()
     } catch (err) {
       logger.error('發送訊息失敗', err)
       toast.error('發送失敗、請再試一次')

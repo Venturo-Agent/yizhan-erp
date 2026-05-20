@@ -144,7 +144,12 @@ export const PrintableQuickQuote: React.FC<PrintableQuickQuoteProps> = ({
         {/* 預覽與列印內容（使用純 inline style，不依賴 Tailwind） */}
         <div style={{ backgroundColor: 'white', padding: '32px' }} ref={printContentRef}>
           {/* Logo 和標題 */}
-          <PrintableQuickQuoteHeader logoUrl={logoUrl} wsName={ws?.name} />
+          <PrintableQuickQuoteHeader
+            logoUrl={logoUrl}
+            wsName={ws?.name}
+            logoScale={ws?.logo_scale}
+            logoOffsetX={ws?.logo_offset_x}
+          />
 
           {/* 客戶資訊 */}
           <PrintableQuickQuoteInfoGrid quote={quote} />

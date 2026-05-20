@@ -47,6 +47,32 @@ export function CompanyInfoCard({
   )
   const [savingTax, setSavingTax] = useState(false)
 
+  // Logo 位置 + 大小 auto-save(滑桿放開觸發 PATCH)
+  const [savingLogoLayout, setSavingLogoLayout] = useState(false)
+  const handleLogoLayoutCommit = async () => {
+    if (savingLogoLayout) return
+    setSavingLogoLayout(true)
+    try {
+      const res = await fetch(`/api/workspaces/${workspaceId}/company-settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          logo_scale: Number(form.logo_scale.toFixed(2)),
+          logo_offset_x: Math.round(form.logo_offset_x),
+        }),
+      })
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({ error: '儲存失敗' }))
+        throw new Error(j.error || '儲存失敗')
+      }
+    } catch (err) {
+      logger.error('儲存 logo 位置失敗', err)
+      toast.error('儲存失敗、請重試')
+    } finally {
+      setSavingLogoLayout(false)
+    }
+  }
+
   // transfer_fee_mode radio auto-save（修跟 BonusPolicy 不一致的 UX bug）
   const [savingMode, setSavingMode] = useState(false)
   const handleTransferFeeModeChange = async (mode: 'average' | 'unified') => {
@@ -217,7 +243,17 @@ export function CompanyInfoCard({
             fieldName="logo"
             workspaceId={workspaceId}
           />
-          {form.logo_url && <LogoHeaderPreview logoUrl={form.logo_url} />}
+          {form.logo_url && (
+            <LogoHeaderPreview
+              logoUrl={form.logo_url}
+              scale={form.logo_scale}
+              offsetX={form.logo_offset_x}
+              onScaleChange={v => updateField('logo_scale', v)}
+              onOffsetXChange={v => updateField('logo_offset_x', v)}
+              onCommit={handleLogoLayoutCommit}
+              saving={savingLogoLayout}
+            />
+          )}
         </div>
         <div className="md:col-span-3">
           <Label className="text-sm font-medium text-morandi-primary">
