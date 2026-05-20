@@ -13,6 +13,7 @@
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
+import { broadcastInboxUpdate } from '@/lib/messaging/broadcast'
 
 export type ChannelType = 'line' | 'facebook' | 'instagram'
 
@@ -186,6 +187,15 @@ export async function recordInboundMessage(input: InboundMessageInput): Promise<
     // RPC 沒建也沒關係、unread_count 之後 v2 補
     logger.debug('increment_inbox_unread RPC not available, skipping', { rpcError })
   }
+
+  // 主動推 broadcast 給訂閱 workspace inbox 的 client（AUDIT_SWR_REALTIME.md S3 修法 1）
+  // 跟 messaging/inbox.ts 的 recordInboxMessage 對齊、FB/IG webhook 也走這條
+  await broadcastInboxUpdate({
+    workspaceId: input.workspaceId,
+    conversationId: input.conversationId,
+    event: 'new-message',
+    payload: { direction: 'inbound' },
+  })
 }
 
 /**
@@ -225,4 +235,12 @@ export async function recordOutboundMessage(input: OutboundMessageInput): Promis
   if (convError) {
     logger.warn('recordOutboundMessage update conv preview failed', { error: convError })
   }
+
+  // 主動推 broadcast：bot/agent 回覆也要通知 client（聊天視窗即時更新對話流）
+  await broadcastInboxUpdate({
+    workspaceId: input.workspaceId,
+    conversationId: input.conversationId,
+    event: 'new-message',
+    payload: { direction: 'outbound', senderType: input.senderType },
+  })
 }

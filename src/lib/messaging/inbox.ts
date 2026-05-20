@@ -17,6 +17,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/utils/logger'
+import { broadcastInboxUpdate } from './broadcast'
 
 const HANDLER = 'inbox-helper'
 
@@ -150,4 +151,20 @@ export async function recordInboxMessage(
       }
     }
   }
+
+  // 4. 主動推 broadcast 給訂閱 workspace inbox 的 client
+  //    對應 AUDIT_SWR_REALTIME.md S3 修法 1：不靠 postgres_changes（RLS + ssr cookie 已知不穩）、
+  //    server 端寫完直接 broadcast、client 端的 useRealtimeMutate/AiConversationsTab 收得到。
+  //    broadcast 失敗靜默吞（helper 內部已 try/catch、不擋寫入主流程）。
+  //    LINE / FB / IG 共用這條（FB/IG 的 inbox-service helper 也會掛同樣 broadcast）。
+  await broadcastInboxUpdate({
+    workspaceId,
+    conversationId: conv.id,
+    event: 'new-message',
+    payload: {
+      channelType,
+      direction,
+      senderType,
+    },
+  })
 }

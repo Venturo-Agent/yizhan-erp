@@ -26,6 +26,8 @@ import { createPortal } from 'react-dom'
 import useSWR from 'swr'
 import { apiMutate } from '@/lib/swr/api-mutate'
 import { useRealtimeMutate } from '@/lib/swr/use-realtime-mutate'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
+import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
 import { formatDateTaipei } from '@/lib/utils/format-date'
 import { Card } from '@/components/ui/card'
@@ -126,7 +128,47 @@ export function AiConversationsTab() {
       ? '/api/messaging/conversations'
       : `/api/messaging/conversations?channel=${channelFilter}`
 
-  // 🔴 SWR Realtime：別人改 inbox_conversations / 該 conversation 的 messages → 我這邊立刻更新
+  // 🔴 Phase C 主路徑（AUDIT_SWR_REALTIME.md S3 修法 1 + L3）：
+  //   webhook / inbox-service 寫完訊息會用 broadcast 推一個 event 到
+  //   workspace:${workspaceId}:inbox channel、這邊訂閱、收到就 mutate SWR。
+  //   不依賴 postgres_changes（RLS + ssr cookie 已知不穩、5/18 註解寫得清楚）。
+  //   selectedIdRef 給 channel callback 用、避免 effect deps 把 channel 重訂閱
+  //   每次切對話都重訂 → race window。
+  const selectedIdForBroadcast = useRef<string | null>(selectedId)
+  useEffect(() => {
+    selectedIdForBroadcast.current = selectedId
+  }, [selectedId])
+
+  useEffect(() => {
+    if (!workspaceId) return
+
+    const channelName = `workspace:${workspaceId}:inbox`
+    const channel = supabase
+      .channel(channelName)
+      .on('broadcast', { event: 'new-message' }, (msg) => {
+        // 對話列表 mutate（無論哪個 conversation 動了、列表都要重撈最新 last_message_*）
+        void globalMutate(listUrl)
+        // 該 conversation 的訊息流 mutate（只有當下選的對話才重撈）
+        const payload = msg.payload as { conversationId?: string } | undefined
+        const convId = payload?.conversationId
+        if (convId && convId === selectedIdForBroadcast.current) {
+          void globalMutate(`/api/messaging/conversations/${convId}/messages`)
+        }
+      })
+      .subscribe()
+
+    return () => {
+      void supabase.removeChannel(channel)
+    }
+    // listUrl 變（切 channel filter）也要重訂閱、確保 mutate 對的 key
+  }, [workspaceId, listUrl])
+
+  // 保留 postgres_changes 訂閱當第二保險：
+  //   broadcast 是主路徑、cover LINE/FB/IG webhook + bot reply 走中央 helper 的情境。
+  //   但 inbox_* 表還可能有「不走中央 helper 的寫入」（譬如直接 supabase.from('inbox_*').update
+  //   做的 mark_as_read / display_name backfill / bot_paused toggle 等），這時 broadcast 沒推、
+  //   postgres_changes 仍會 fire（即使不穩、有時就是會到）。雙路徑都收進同一 mutate、
+  //   SWR 自己 dedupe、不會雙撈。
   useRealtimeMutate({
     table: 'inbox_conversations',
     filter: workspaceId ? `workspace_id=eq.${workspaceId}` : undefined,
@@ -141,9 +183,11 @@ export function AiConversationsTab() {
     enabled: Boolean(selectedId),
   })
 
+  // Phase C.4：拿掉 refreshInterval polling（既有 broadcast 主路徑 + postgres_changes 兜底、
+  // 不再雙路兜底、避免每 5/10 秒一次全 workspace inbox SELECT 的 Supabase egress 浪費）。
   const { data: listResp, error: listError, isLoading: listLoading } = useSWR<{
     data: ConversationItem[]
-  }>(listUrl, fetcher, { refreshInterval: 10000, revalidateOnFocus: false })
+  }>(listUrl, fetcher, { revalidateOnFocus: false })
 
   const conversations = useMemo(() => listResp?.data ?? [], [listResp])
 
@@ -153,7 +197,7 @@ export function AiConversationsTab() {
   }>(
     selectedId ? `/api/messaging/conversations/${selectedId}/messages` : null,
     fetcher,
-    { refreshInterval: selectedId ? 5000 : 0, revalidateOnFocus: false }
+    { revalidateOnFocus: false }
   )
 
   const messages = useMemo(() => msgResp?.data ?? [], [msgResp])
