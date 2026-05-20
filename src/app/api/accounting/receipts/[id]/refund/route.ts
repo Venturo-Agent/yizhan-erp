@@ -106,6 +106,23 @@ export async function POST(
 
     const refundDate = validated.refund_date || new Date().toISOString().split('T')[0]
 
+    // ── 紅線 D guard：檢查 refundDate 所屬區間是否已關帳 ──
+    const periodName = refundDate.substring(0, 7) // "2026-05"
+    const { data: period } = await supabase
+      .from('accounting_periods')
+      .select('id, period_name, is_closed, closed_at')
+      .eq('workspace_id', workspaceId)
+      .eq('period_name', periodName)
+      .maybeSingle()
+
+    if (period && period.is_closed) {
+      return NextResponse.json(
+        { error: `此區間（${periodName}）已關帳、不能執行退款`, code: 'PERIOD_CLOSED' },
+        { status: 409 }
+      )
+    }
+    // ── END 紅線 D guard ───────────────────────────────────────────
+
     // 檢查 workspace 是否啟用會計
     const { data: feat } = await supabase
       .from('workspace_features')

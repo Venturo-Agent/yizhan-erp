@@ -284,6 +284,26 @@ export async function PATCH(
   if (body.from_bank_account_id !== undefined) orderUpdate.bank_account_id = body.from_bank_account_id
   if (body.total_fee !== undefined) orderUpdate.total_fee = body.total_fee
 
+  // ── 紅線 D guard：檢查 disbursement_date 所屬區間是否已關帳 ──
+  if (body.disbursement_date !== undefined) {
+    const periodName = body.disbursement_date.substring(0, 7) // "2026-05"
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: period } = await (auditAdmin as any)
+      .from('accounting_periods')
+      .select('id, period_name, is_closed, closed_at')
+      .eq('workspace_id', workspaceId)
+      .eq('period_name', periodName)
+      .maybeSingle()
+
+    if (period && period.is_closed) {
+      return NextResponse.json(
+        { error: `此區間（${periodName}）已關帳、不能修改出納單日期`, code: 'PERIOD_CLOSED' },
+        { status: 409 }
+      )
+    }
+  }
+  // ── END 紅線 D guard ───────────────────────────────────────────
+
   const { error: ordErr } = await updateDisbursementOrder(disbursementId, orderUpdate)
   if (ordErr) {
     const t3 = translateDbError(ordErr)

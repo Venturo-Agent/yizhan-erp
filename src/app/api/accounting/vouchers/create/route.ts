@@ -84,6 +84,26 @@ export async function POST(request: NextRequest) {
     // 生成傳票編號
     const voucherNo = await generateVoucherNo(workspaceId, validated.voucher_date, supabase)
 
+    // ── 紅線 D guard：檢查 voucher_date 所屬期間是否已關帳 ──
+    const periodName = validated.voucher_date.substring(0, 7) // "2026-05"
+    const { data: period } = await supabase
+      .from('accounting_periods')
+      .select('id, period_name, is_closed, closed_at')
+      .eq('workspace_id', workspaceId)
+      .eq('period_name', periodName)
+      .maybeSingle()
+
+    if (period && period.is_closed) {
+      return NextResponse.json(
+        {
+          error: `此區間（${periodName}）已關帳、不能新增傳票`,
+          code: 'PERIOD_CLOSED',
+        },
+        { status: 409 }
+      )
+    }
+    // ── END 紅線 D guard ───────────────────────────────────────────
+
     // 插入傳票
     const { data: voucher, error: voucherError } = await supabase
       .from('journal_vouchers')
