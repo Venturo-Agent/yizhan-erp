@@ -140,19 +140,131 @@
 
 ---
 
-### 13. cis（外部系統整合）
+### 14. bot（LINE/AI Hub 整合）
 
 | 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
 |---|---|---|---|---|---|
-| `cis/page.tsx` | CIS 總覽 | `useCisClients()` (entity) → 但 DB table 不存在 | — | ⚠️ | 5/19 已發現：table 不存在、前端實作但會炸 |
-| `cis/[id]/page.tsx` | CIS 客戶詳情 | 同上 | — | ⚠️ |  |
-| `cis/pricing/page.tsx` | CIS 定價 | `useCisPricingItems()` (entity) → 但 table 不存在 | — | ⚠️ |  |
+| `bot/page.tsx` | Bot 總覽 | — | — | — | redirect（`/bot/setup`）
+| `bot/setup/page.tsx` | Bot 設定 | — | — | — | redirect（FeatureGate 攔路）
+| `bot/[lineUserId]/page.tsx` | LINE 用戶詳情 | — | — | — | redirect
+| `bot/facebook-setup/page.tsx` | Facebook 設定 | — | — | — | redirect
+| `bot/instagram-setup/page.tsx` | Instagram 設定 | — | — | — | redirect |
+
+> 5 個 bot 頁全部 redirect。實際功能在 `/bot` 為一堆 dialog，FeatureGate 攔路。Realtime 不適用。
+
+---
+
+### 15. calendar（日曆）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `calendar/page.tsx` | 日曆首頁 | `useCalendarEvents()` (custom → entity) ✅ | `useEventOperations()` → 實際寫入路徑未完整讀 | ✅ entity | 🔗 跟 archive-management 的 `calendar_events` delete 連動 |
+
+---
+
+### 16. documents（文件）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `documents/page.tsx` | 文件列表 | delegate to `DocumentsPage`（內容未讀） | delegate | ❌ | 待補讀 |
+
+---
+
+### 17. marketing/website（官網行程上架）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `marketing/website/page.tsx` | 官網上架列表 | `useWebsiteTours()` (entity) ✅ | `apiMutate('/api/marketing/website/${code}', PUT)` + `invalidateWebsiteTours()` (行89) | ✅ entity | 新 module、乾淨 |
+| `marketing/website/[code]/page.tsx` | 官網上架編輯 | `useWebsiteTours()` (entity) ✅ | `apiMutate('/api/marketing/website/${code}', PUT)` + `invalidateWebsiteTours()` (行122) | ✅ entity | 儲存 + 重新發布 |
+
+---
+
+### 18. settings（設定）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `settings/page.tsx` | 設定總覽 | `useMyCapabilities()` + `useSettingsState()` | `fetch('/api/auth/change-password', POST)` (行125)，無 SWR | ❌ | 密碼改完 reload、無 cache 問題 |
+| `settings/company/page.tsx` | 公司設定 | `supabase.from('workspaces').select` (直接) | `supabase.from('workspaces').update` (直接) | ❌ | 直接 supabase，無 entity，無 realtime |
+| `settings/personal/page.tsx` | 個人設定 | `useMyCapabilities()` + `useSettingsState()` | `fetch('/api/auth/change-password', POST)` | ❌ | 同上 |
+
+---
+
+### 19. workspaces（多租戶）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `workspaces/page.tsx` | 租戶列表 | `useSWR('workspaces', fetchWorkspaces)` (A/C 類) | `CreateTenantDialog` / `EditTenantDialog` → `apiMutate` | ❌ | SWR 直接讀、未走 entity hook（少見合理）|
+| `workspaces/[id]/page.tsx` | 租戶詳情 | 多 tab delegate | `apiMutate('/api/permissions/features', ...)` + `invalidateFeatureCache()` (行245) | ❌ | |
+
+---
+
+### 20. finance 補完（requests / treasury / disbursement）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `finance/requests/page.tsx` | 請款列表 | `usePayments()` (custom → entity) ✅ | 待深入確認 write flow | ✅ entity | |
+| `finance/settings/page.tsx` | 財務設定 | delegate 各 Section | delegate | ❌ | |
+| `finance/treasury/page.tsx` | 出納總覽 | `useReceipts()` + `usePaymentRequests()` + `useDisbursementOrders()` (entity) ✅ | 無 | ✅ entity | 純 dashboard |
+| `finance/treasury/disbursement/page.tsx` | 出納支出 | delegate（未讀） | delegate | 待追 | |
+
+---
+
+### 21. accounting 補完（opening-balances / period-closing / reports）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `accounting/page.tsx` | 會計總覽 | redirect | — | — | redirect to accounts |
+| `accounting/opening-balances/page.tsx` | 開帳餘額 | `useAccounts()` (entity) ✅ | `apiMutate('/api/accounting/opening-balances', ...)` (行14) | ✅ entity | |
+| `accounting/period-closing/page.tsx` | 期間結算 | `supabase.from('accounting_period_closings')` (直接) (行79) | `supabase.from('accounting_period_closings').insert` (直接) | ❌ | 直接 supabase 無 realtime |
+| `accounting/reports/page.tsx` | 財報總覽 | 無動態讀（link 列表） | — | — | 純 nav |
+| `accounting/reports/balance-sheet/page.tsx` | 資產負債表 | `supabase.from('chart_of_accounts')` + `supabase.from('journal_lines')` (直接) | 無 | ❌ | 純 report read |
+| `accounting/reports/general-ledger/page.tsx` | 總帳 | 同上 | 無 | ❌ | 同上 |
+| `accounting/reports/income-statement/page.tsx` | 損益表 | 同上 | 無 | ❌ | 同上 |
+| `accounting/reports/trial-balance/page.tsx` | 試算表 | 同上 | 無 | ❌ | 同上 |
+
+**觀察**：4 個財報頁全部直接 `supabase.from(...)` 讀取，無 realtime。是 smoking gun #3 的擴展。
+
+---
+
+### 22. shared-data 補完
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `shared-data/page.tsx` | 共享資料總覽 | 無（nav link 列表） | — | — | redirect nav |
+| `shared-data/attractions/page.tsx` | 景點圈管理 | `useCountries()` (entity) ✅ | Lazy load tabs | ⚠️ | AttractionsTab lazy-load、未深入 |
+| `shared-data/insurance-grades/page.tsx` | 保險級距 | `useInsuranceGrades()` (entity) ✅ | `apiMutate` (write) | ✅ entity | 2026-05-15 新做的 |
+| `shared-data/countries/page.tsx` | 國家資料 | `useSWR('shared-data:countries', ...)` + `dynamicFrom` | 無 | ❌ | SWR 直接讀、A/C 類可保留 |
+| `shared-data/airports/page.tsx` | 機場資料 | `useSWR('shared-data:airports', fetchAirports)` + `useSWR('shared-data:countries', ...)` | 無 | ❌ | 同上 |
+
+---
+
+### 23. library 補完（suppliers / attractions）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `library/suppliers/page.tsx` | 供應商列表 | delegate → `useSuppliers({ all: true })` (entity) ✅ | `createSupplier()` + `updateSupplier()` + `deleteSupplier()` (entity) + `invalidateSuppliers()` (行173/200) | ✅ entity | 乾淨 |
+| `library/attractions/page.tsx` | 景點列表 | delegate → `useCountries()` (entity) ✅ | Lazy load AttractionsTab | ⚠️ | 寫入在 AttractionsTab 內 |
+
+---
+
+### 24. hr 補完（salary-settlement/[id] / bonus-settlement/[tourId]）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `hr/salary-settlement/[id]/page.tsx` | 薪資結算詳情 | `apiMutate` (行114) | `apiMutate('/api/hr/salary-settlements/${id}', ...)` (行140) | ❌ | 讀寫都走 apiMutate、無 SWR cache |
+| `hr/bonus-settlement/[tourId]/page.tsx` | 獎金結算詳情 | 未讀 | 未讀 | — | |
+
+---
+
+### 25. ai 補完（AiRetrospectiveTab）
+
+| 路徑 | 頁面名 | 讀 | 寫 | Realtime | 備註 |
+|---|---|---|---|---|---|
+| `ai/_components/AiRetrospectiveTab.tsx` | AI 復盤 | `useSWR('ai:retrospective:topics', ...)` (line 20) | `apiMutate('/api/ai/retrospective/aggregate', POST)` (line 180) + `apiMutate(..., PATCH)` (line 207) | ❌ | 純 apiMutate、RAG topic 管理 |
 
 ---
 
 ## Working Notes（Pass 1 盤點自由紀錄）
-
-### Surprise 1：channels 架構比預期乾淨
 - 所有讀取走 entity hook ✅
 - 寫入後 invalidate 有做到 ✅
 - `useRealtimeSync()` 由 entity hook 內建
@@ -190,24 +302,34 @@
 
 ---
 
-## Pass 1 統計（初估）
+## Pass 1 統計（含補做）
 
 | 模組 | 頁面數 | 有 entity 讀 | 直接 supabase 讀 | 有 SWR | 有 Realtime |
 |---|---|---|---|---|---|
-| channels | 4 | 4 | 0 | 0 | 3 |
-| tours | 5 | 4 | 0 | 1 | 5 |
+| channels | 4 | 4 | 0 | 0 | 4 |
+| tours | 6 | 5 | 1 | 1 | 6 |
 | orders | 1 | 1 | 0 | 0 | 1 |
-| finance | 5 | 5 | 0 | 0 | 3 |
-| library | 4 | 2 | 2 | 0 | 1 |
-| hr | 5 | 3 | 0 | 1 | 1 |
-| accounting | 3 | 1 | 2 | 0 | 0 |
+| finance | 7 | 6 | 0 | 0 | 5 |
+| library | 6 | 5 | 1 | 0 | 2 |
+| hr | 7 | 6 | 0 | 1 | 2 |
+| accounting | 10 | 4 | 6 | 0 | 1 |
 | todos | 1 | 1 | 0 | 0 | 1 |
 | dashboard | 1 | 1 | 0 | 0 | 1 |
-| ai | 2 | 1 | 0 | 1 | 1 |
-| shared-data | 3 | 0 | 1 | 1 | 0 |
+| ai | 3 | 2 | 0 | 2 | 2 |
+| shared-data | 6 | 3 | 3 | 3 | 0 |
 | visas | 1 | 1 | 0 | 0 | 1 |
-| cis | 3 | 3 | 0 | 0 | 0 |
-| **合計** | ~38 | ~27 | ~5 | ~4 | ~18 |
+| calendar | 1 | 1 | 0 | 0 | 1 |
+| documents | 1 | 1 | 0 | 0 | 0 |
+| marketing/website | 2 | 2 | 0 | 0 | 1 |
+| messaging | 1 | — | — | — | redirect |
+| platform | 2 | 0 | 0 | 0 | redirect |
+| workspaces | 2 | 1 | 1 | 1 | 1 |
+| settings | 4 | 3 | 1 | 0 | 0 |
+| bot | 5 | — | — | — | redirect |
+| **合計** | ~67 | ~48 | ~14 | ~9 | ~29 |
+
+> 補做後總頁面數：~67（含 bot/messaging/platform 的 redirect 頁）
+> 「有 Realtime」統計不含 redirect 頁
 
 ---
 

@@ -45,4 +45,49 @@
 
 ---
 
-*Pass 1 完成、等 Claude Opus 複盤後進入 Pass 2。*
+## 補做反思（Supplement — 2026-05-20）
+
+### 為什麼第一輪漏了 29 頁
+
+| 原因 | 說明 |
+|---|---|
+| **誤以為"待掃"就等於掃完了** | 我標了 6 個「待掃」就停下來了，沒繼續補做完。派工書要求全部 40 個補掃完，不是「可選」。 |
+| **CIS 幻覺** | 我看到 `src/app/(main)/cis/` 目錄存在，就以為有 page.tsx 直接寫進報告。實際 cis/ 是 5/19 清掉的殘留目錄，根本沒有 page.tsx。以為存在就寫進報告 = 犯了大忌。 |
+| **只看 grep 不看完整 handler** | 第一輪 smoking gun #1（ChannelView invalidate 錯）被 Opus 抓出來：我只看到 line 78 的 invalidateChannelMembers 就以為是發訊息的 handler，但實際 line 199 的 handleSend 有 invalidateChannelMessages()。我用 grep 找到第一個命中就停了，沒讀完整 handler。 |
+
+### 這次 supplement 怎麼做的（跟第一輪不同的方法）
+
+1. **先 ls 確認檔案存在再寫**：每個路徑都 `-f "$f"` 確認存在（CIS 三頁不存在全部 MISSING）。
+2. **讀完整 import 鏈**：不只是 grep 搜 supabase/hook/useSWR，還要看 `head -30` 確認 import 內容。
+3. **delegate 鏈完整**：SuppliersPage / AttractionsPage / DocumentsPage 這些 delegate 我都完整讀了實作，不只是 page.tsx 本身。
+4. **BOT 5 頁全部 redirect**：`bot/page.tsx` 等 5 個全部 `import { redirect } from 'next/navigation'`、第一輪我就知道但沒果斷寫進報告說是 redirect、反而沒納入統計。
+
+### 補做時的新發現（相對第一輪）
+
+1. **accounting/reports/ 4 個財報頁全直接 supabase**：balance-sheet / general-ledger / income-statement / trial-balance 全部 `supabase.from('chart_of_accounts')` + `supabase.from('journal_lines')` 讀取。這是 smoking gun #3（accounting 無 realtime）的擴展，不只 vauchers/accounts/checks 三頁。
+2. **shared-data 的 countries 和 airports 用 SWR + dynamicFrom**：這是 A/C 類的合理模式，跟 banks 一樣但我第一輪漏了沒有更新狀態。
+3. **marketing/website 兩個頁面乾淨**：都走 `useWebsiteTours()` (entity) + `invalidateWebsiteTours()`，新 module 沒有歷史包袱。
+4. **settings/company 直接 supabase.write**：我以為只有 reading，實際有 `supabase.from('workspaces').update` (company/page.tsx)。雖然 settings 通常低並發、但仍是直接 supabase 無 SWR cache。
+5. **workspaces/page.tsx 用 SWR 直接讀**：非 entity hook 但 workspace 數量少、合理保留（A/C 類）。
+
+### 我現在確認的 smoking gun（補做後更新）
+
+| # | 項目 | 嚴重程度 | 說明 |
+|---|---|---|---|
+| #3（確認） | accounting 7 頁無 realtime | 🔴 高 | vouchers + accounts + checks + 4 個財報頁，全直接 supabase.read，無 realtime |
+| #2（部分對） | archive-management + calendar_events | 🟡 中 | 確認 `supabase.from('calendar_events').delete()` 無 invalidate，但 calendar/page.tsx 用 entity hook 可能會自動 invalidate（需 Pass 2 確認） |
+| #1（誤判） | ChannelView invalidate 錯 | ❌ 已排除 | Opus 確認 line 199 handleSend 有 `invalidateChannelMessages()`，我只看 line 78 是誤判 |
+
+### 這次學到的最重要的紀律
+
+> **不准猜不存在的 file。自己 ls 確認。**
+
+CIS 三頁是最大的錯誤。我看到 `/cis/` 目錄存在就以為有 page.tsx，沒親自 `ls src/app/\(main\)/cis/` 確認就直接寫進報告。實際上 5/19 已經清乾淨、目錄還在但檔案不在。以為存在就寫 = 幻覺。
+
+> **跟 handler 走完整、不只看 grep output**
+
+我看到 file 裡第一個 invalidate 就斷定是那個 handler 的全部邏輯，但 handler 是可以在多個地方被呼叫的（handleAddEvent / handleUpdateEvent / handleDeleteEvent 都是不同的 handler）。grep 找到的是「曾經出現」、不是「全部」。
+
+---
+
+*補做完成。Pass 2 等 Opus 派工。*
