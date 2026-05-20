@@ -8,7 +8,6 @@ import {
   MessageSquare,
   Users,
   LayoutGrid,
-  User,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
@@ -18,22 +17,23 @@ import { cn } from '@/lib/utils'
 import { AiSettingsDialog } from './AiSettingsDialog'
 
 /**
- * AI Hub Sidebar — 2026-05-21 William 拍板 v3
+ * AI Hub Sidebar — 2026-05-21 William 拍板 v3.1（修正）
  *
  * 結構：
  *   Header（h-[calc(3.75rem-1px)]）：標題 + 收側欄 + 設定齒輪
  *
- *   Section 1 — 主功能（3 個 nav 項目、view 切換）：
- *     - 對話（view=conversations）        → 多通路對話收件匣（預設 view）
- *     - 人員（view=people）              → 傳訊息進來的客戶列表
- *     - Rich Menu（view=richmenu）       → LINE OA rich menu 設定
- *
- *   Section 2 — 進行中對話（直接 click 進客戶 1-on-1 chat）：
- *     - LINE 客戶列表（傳訊息進來的人）
+ *   Section 1 — 對話（section header + 客戶列表）：
+ *     - section header 寫「對話」
+ *     - 列出進行中對話的客戶（傳訊息到 LINE Bot 的人）
  *     - Phase 1 暫 placeholder、之後接 line_user_profiles
+ *     - 點客戶 row → 主畫面跟他 1-on-1 對話
  *
- * 齒輪 → 滿版 AiSettingsDialog（總覽 / 對話管理 / 對話復盤 / 通道設定 / 全域 policy / AI 機器人）
- *   - 「AI 機器人」tab 把 HAPPY / LINE / FB 個別配置都吸進去（v2 的 per-bot gear 廢掉）
+ *   Section 2 — 其他 nav（單獨 row）：
+ *     - 人員（view=people）→ 客戶總列表（管理 / 綁定 ERP 客戶）
+ *     - Rich Menu（view=richmenu）→ LINE OA rich menu 配置
+ *
+ * 齒輪 → 滿版 AiSettingsDialog：總覽 / 對話管理 / 對話復盤 / 通道設定 / AI 機器人 / 全域 policy
+ *   - 「AI 機器人」tab 把 HAPPY / LINE / FB 個別配置都吸進去
  */
 
 interface NavItem {
@@ -42,15 +42,14 @@ interface NavItem {
   icon: LucideIcon
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { view: 'conversations', label: '對話', icon: MessageSquare },
+const SECONDARY_NAV: NavItem[] = [
   { view: 'people', label: '人員', icon: Users },
   { view: 'richmenu', label: 'Rich Menu', icon: LayoutGrid },
 ]
 
 export function AiSidebar() {
   const searchParams = useSearchParams()
-  const activeView = searchParams.get('view') ?? 'conversations'
+  const activeView = searchParams.get('view') ?? ''
 
   const [collapsed, setCollapsed] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -82,7 +81,36 @@ export function AiSidebar() {
           </div>
 
           <div className="flex-1 w-full overflow-y-auto py-2 flex flex-col items-center gap-1">
-            {NAV_ITEMS.map(item => {
+            {/* 對話客戶頭像列 */}
+            {activeCustomers.map(c => {
+              const initial = c.displayName[0] ?? '?'
+              const isActive = activeView === `customer:${c.id}`
+              return (
+                <Link
+                  key={c.id}
+                  href={buildHref(`customer:${c.id}`)}
+                  title={c.displayName}
+                  className={cn(
+                    'w-9 h-9 rounded-full flex items-center justify-center bg-morandi-gold/20 text-morandi-gold text-xs font-medium shrink-0 transition-all',
+                    isActive ? 'ring-2 ring-morandi-gold ring-offset-1 ring-offset-card' : 'hover:ring-2 hover:ring-morandi-gold/50'
+                  )}
+                >
+                  {c.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.avatarUrl} alt={c.displayName} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    initial
+                  )}
+                </Link>
+              )
+            })}
+
+            {activeCustomers.length > 0 && (
+              <div className="w-6 my-1 border-t border-border/50 shrink-0" />
+            )}
+
+            {/* 次要 nav icon */}
+            {SECONDARY_NAV.map(item => {
               const Icon = item.icon
               const isActive = activeView === item.view
               return (
@@ -98,29 +126,6 @@ export function AiSidebar() {
                   )}
                 >
                   <Icon className="h-4 w-4" />
-                </Link>
-              )
-            })}
-
-            {activeCustomers.length > 0 && (
-              <div className="w-6 my-1 border-t border-border/50 shrink-0" />
-            )}
-
-            {activeCustomers.map(c => {
-              const initial = c.displayName[0] ?? '?'
-              return (
-                <Link
-                  key={c.id}
-                  href={buildHref(`customer:${c.id}`)}
-                  title={c.displayName}
-                  className="w-9 h-9 rounded-full flex items-center justify-center bg-morandi-gold/20 text-morandi-gold text-xs font-medium shrink-0 hover:ring-2 hover:ring-morandi-gold/50 transition-all"
-                >
-                  {c.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.avatarUrl} alt={c.displayName} className="w-full h-full rounded-full object-cover" />
-                  ) : (
-                    initial
-                  )}
                 </Link>
               )
             })}
@@ -162,41 +167,15 @@ export function AiSidebar() {
         </div>
 
         <div className="flex-1 overflow-y-auto py-2">
-          {/* Section 1: 主功能（對話 / 人員 / Rich Menu） */}
-          <div className="mb-4">
-            <ul>
-              {NAV_ITEMS.map(item => {
-                const Icon = item.icon
-                const isActive = activeView === item.view
-                return (
-                  <li key={item.view}>
-                    <Link
-                      href={buildHref(item.view)}
-                      className={cn(
-                        'flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-morandi-gold-light transition-colors',
-                        isActive
-                          ? 'bg-morandi-gold-light text-morandi-primary font-medium'
-                          : 'text-morandi-secondary'
-                      )}
-                    >
-                      <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                      <span className="flex-1 truncate">{item.label}</span>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-
-          {/* Section 2: 進行中對話（LINE 客戶列表） */}
+          {/* 對話 — section header + 客戶列表 */}
           <div className="mb-4">
             <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
-              <User className="h-3 w-3" />
-              進行中對話
+              <MessageSquare className="h-3 w-3" />
+              對話
             </div>
             {activeCustomers.length === 0 ? (
               <p className="px-4 py-2 text-xs text-morandi-muted">
-                尚無進行中對話
+                尚無對話、客戶傳訊息進來會列在這
               </p>
             ) : (
               <ul>
@@ -229,6 +208,32 @@ export function AiSidebar() {
                 })}
               </ul>
             )}
+          </div>
+
+          {/* 次要 nav: 人員 / Rich Menu */}
+          <div className="mb-4 border-t border-border/50 pt-3">
+            <ul>
+              {SECONDARY_NAV.map(item => {
+                const Icon = item.icon
+                const isActive = activeView === item.view
+                return (
+                  <li key={item.view}>
+                    <Link
+                      href={buildHref(item.view)}
+                      className={cn(
+                        'flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-morandi-gold-light transition-colors',
+                        isActive
+                          ? 'bg-morandi-gold-light text-morandi-primary font-medium'
+                          : 'text-morandi-secondary'
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                      <span className="flex-1 truncate">{item.label}</span>
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
           </div>
         </div>
       </aside>
