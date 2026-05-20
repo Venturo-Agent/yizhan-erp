@@ -486,6 +486,60 @@ export {
 } from './worldmove-esim-items'
 export type { WorldmoveEsimItem } from './worldmove-esim-items'
 
+// Customer Document Applications（Round 10、簽證代辦）
+export {
+  useCustomerDocumentApplications,
+  useCustomerDocumentApplication,
+  createCustomerDocumentApplication,
+  updateCustomerDocumentApplication,
+  deleteCustomerDocumentApplication,
+  invalidateCustomerDocumentApplications,
+} from './customer-document-applications'
+export type { CustomerDocumentApplication } from './customer-document-applications'
+
+// Document Types（Round 10、簽證代辦字典）
+export {
+  useDocumentTypes,
+  useDocumentType,
+  useDocumentTypesSlim,
+  invalidateDocumentTypes,
+} from './document-types'
+export type { DocumentType } from './document-types'
+
+// Application Service Types（Round 10、簽證代辦服務類型）
+export {
+  useApplicationServiceTypes,
+  useApplicationServiceType,
+  useApplicationServiceTypesSlim,
+  createApplicationServiceType,
+  updateApplicationServiceType,
+  deleteApplicationServiceType,
+  invalidateApplicationServiceTypes,
+} from './application-service-types'
+export type { ApplicationServiceType } from './application-service-types'
+
+// Customer Documents（Round 10、客戶證件檔）
+export {
+  useCustomerDocuments,
+  useCustomerDocument,
+  createCustomerDocument,
+  updateCustomerDocument,
+  deleteCustomerDocument,
+  invalidateCustomerDocuments,
+} from './customer-documents'
+export type { CustomerDocument } from './customer-documents'
+
+// Supplier Pricing（Round 10、代辦商報價）
+export {
+  useSupplierPricings,
+  useSupplierPricing,
+  createSupplierPricing,
+  updateSupplierPricing,
+  deleteSupplierPricing,
+  invalidateSupplierPricings,
+} from './supplier-pricing'
+export type { SupplierPricing } from './supplier-pricing'
+
 // Employee Eligibilities（5/13、員工資格、從 role_capabilities 移過來）
 export {
   useEmployeeEligibilities,
