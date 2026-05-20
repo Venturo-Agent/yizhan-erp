@@ -172,6 +172,86 @@ export type Database = {
         }
         Relationships: []
       }
+      application_service_types: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          document_type_id: string
+          estimated_business_days: number | null
+          id: string
+          is_active: boolean
+          is_urgent: boolean
+          label: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          document_type_id: string
+          estimated_business_days?: number | null
+          id?: string
+          is_active?: boolean
+          is_urgent?: boolean
+          label: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          document_type_id?: string
+          estimated_business_days?: number | null
+          id?: string
+          is_active?: boolean
+          is_urgent?: boolean
+          label?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_service_types_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_service_types_document_type_id_fkey"
+            columns: ["document_type_id"]
+            isOneToOne: false
+            referencedRelation: "document_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_service_types_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_service_types_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attractions: {
         Row: {
           address: string | null
@@ -1592,6 +1672,309 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_document_application_history: {
+        Row: {
+          application_id: string
+          changed_at: string
+          changed_by: string | null
+          from_status: string | null
+          id: string
+          reason: string | null
+          to_status: string
+          workspace_id: string
+        }
+        Insert: {
+          application_id: string
+          changed_at?: string
+          changed_by?: string | null
+          from_status?: string | null
+          id?: string
+          reason?: string | null
+          to_status: string
+          workspace_id: string
+        }
+        Update: {
+          application_id?: string
+          changed_at?: string
+          changed_by?: string | null
+          from_status?: string | null
+          id?: string
+          reason?: string | null
+          to_status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_document_application_history_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "customer_document_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_application_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_application_history_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_document_applications: {
+        Row: {
+          actual_price: number | null
+          application_service_type_id: string
+          collected_at: string | null
+          created_at: string
+          created_by: string | null
+          customer_document_id: string
+          deleted_at: string | null
+          fee_charged: number | null
+          id: string
+          notes: string | null
+          order_id: string | null
+          order_member_id: string | null
+          rejected_at: string | null
+          returned_to_customer_at: string | null
+          reverses_application_id: string | null
+          standard_price: number | null
+          status: string
+          submitted_at: string | null
+          supplier_id: string | null
+          tour_id: string | null
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          actual_price?: number | null
+          application_service_type_id: string
+          collected_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_document_id: string
+          deleted_at?: string | null
+          fee_charged?: number | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          order_member_id?: string | null
+          rejected_at?: string | null
+          returned_to_customer_at?: string | null
+          reverses_application_id?: string | null
+          standard_price?: number | null
+          status?: string
+          submitted_at?: string | null
+          supplier_id?: string | null
+          tour_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          actual_price?: number | null
+          application_service_type_id?: string
+          collected_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_document_id?: string
+          deleted_at?: string | null
+          fee_charged?: number | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          order_member_id?: string | null
+          rejected_at?: string | null
+          returned_to_customer_at?: string | null
+          reverses_application_id?: string | null
+          standard_price?: number | null
+          status?: string
+          submitted_at?: string | null
+          supplier_id?: string | null
+          tour_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_document_applications_application_service_type_id_fkey"
+            columns: ["application_service_type_id"]
+            isOneToOne: false
+            referencedRelation: "application_service_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_customer_document_id_fkey"
+            columns: ["customer_document_id"]
+            isOneToOne: false
+            referencedRelation: "customer_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_order_member_id_fkey"
+            columns: ["order_member_id"]
+            isOneToOne: false
+            referencedRelation: "order_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_reverses_application_id_fkey"
+            columns: ["reverses_application_id"]
+            isOneToOne: false
+            referencedRelation: "customer_document_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_document_applications_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          customer_id: string
+          deleted_at: string | null
+          document_name: string | null
+          document_name_print: string | null
+          document_number: string | null
+          document_type_id: string
+          expires_on: string | null
+          id: string
+          image_url: string | null
+          is_primary: boolean
+          notes: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+          valid_from: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          customer_id: string
+          deleted_at?: string | null
+          document_name?: string | null
+          document_name_print?: string | null
+          document_number?: string | null
+          document_type_id: string
+          expires_on?: string | null
+          id?: string
+          image_url?: string | null
+          is_primary?: boolean
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string
+          deleted_at?: string | null
+          document_name?: string | null
+          document_name_print?: string | null
+          document_number?: string | null
+          document_type_id?: string
+          expires_on?: string | null
+          id?: string
+          image_url?: string | null
+          is_primary?: boolean
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_documents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_documents_document_type_id_fkey"
+            columns: ["document_type_id"]
+            isOneToOne: false
+            referencedRelation: "document_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_documents_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_documents_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_memories: {
         Row: {
           conversation_id: string
@@ -2121,6 +2504,73 @@ export type Database = {
           },
         ]
       }
+      document_types: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          group_label: string | null
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          group_label?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          group_label?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_types_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_types_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_types_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       driver_tasks: {
         Row: {
           accepted_at: string | null
@@ -2634,6 +3084,7 @@ export type Database = {
           icon: string
           id: string
           is_active: boolean | null
+          is_system: boolean
           name: string
           sort_order: number | null
           type: string
@@ -2648,6 +3099,7 @@ export type Database = {
           icon: string
           id?: string
           is_active?: boolean | null
+          is_system?: boolean
           name: string
           sort_order?: number | null
           type?: string
@@ -2662,6 +3114,7 @@ export type Database = {
           icon?: string
           id?: string
           is_active?: boolean | null
+          is_system?: boolean
           name?: string
           sort_order?: number | null
           type?: string
@@ -4421,6 +4874,171 @@ export type Database = {
           },
         ]
       }
+      knowledge_chunks: {
+        Row: {
+          chunk_type: string
+          content: string
+          created_at: string
+          document_id: string
+          embedding: string | null
+          id: string
+          metadata: Json
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          chunk_type: string
+          content: string
+          created_at?: string
+          document_id: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          chunk_type?: string
+          content?: string
+          created_at?: string
+          document_id?: string
+          embedding?: string | null
+          id?: string
+          metadata?: Json
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_chunks_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_chunks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_documents: {
+        Row: {
+          country: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          id: string
+          metadata: Json
+          positioning: string | null
+          region: string
+          region_en: string | null
+          source_file: string | null
+          source_version: string | null
+          title: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          country: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          metadata?: Json
+          positioning?: string | null
+          region: string
+          region_en?: string | null
+          source_file?: string | null
+          source_version?: string | null
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          id?: string
+          metadata?: Json
+          positioning?: string | null
+          region?: string
+          region_en?: string | null
+          source_file?: string | null
+          source_version?: string | null
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_documents_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_documents_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_tags: {
+        Row: {
+          category: string
+          code: string
+          created_at: string
+          id: string
+          label: string
+          sort_order: number
+          workspace_id: string
+        }
+        Insert: {
+          category: string
+          code: string
+          created_at?: string
+          id?: string
+          label: string
+          sort_order?: number
+          workspace_id: string
+        }
+        Update: {
+          category?: string
+          code?: string
+          created_at?: string
+          id?: string
+          label?: string
+          sort_order?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_tags_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       line_bot_reply_debounce: {
         Row: {
           accumulated_text: string
@@ -5340,6 +5958,9 @@ export type Database = {
           supplier_id: string | null
           supplier_name: string | null
           tour_id: string | null
+          transferred_at: string | null
+          transferred_by: string | null
+          transferred_from_tour_id: string | null
           unit_price: number
           updated_at: string | null
           updated_by: string | null
@@ -5367,6 +5988,9 @@ export type Database = {
           supplier_id?: string | null
           supplier_name?: string | null
           tour_id?: string | null
+          transferred_at?: string | null
+          transferred_by?: string | null
+          transferred_from_tour_id?: string | null
           unit_price?: number
           updated_at?: string | null
           updated_by?: string | null
@@ -5394,6 +6018,9 @@ export type Database = {
           supplier_id?: string | null
           supplier_name?: string | null
           tour_id?: string | null
+          transferred_at?: string | null
+          transferred_by?: string | null
+          transferred_from_tour_id?: string | null
           unit_price?: number
           updated_at?: string | null
           updated_by?: string | null
@@ -5433,6 +6060,20 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_request_items_transferred_by_fkey"
+            columns: ["transferred_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_request_items_transferred_from_tour_id_fkey"
+            columns: ["transferred_from_tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
             referencedColumns: ["id"]
           },
           {
@@ -7192,6 +7833,90 @@ export type Database = {
           },
         ]
       }
+      supplier_pricing: {
+        Row: {
+          application_service_type_id: string
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          effective_from: string
+          id: string
+          notes: string | null
+          price: number
+          superseded_at: string | null
+          supplier_id: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          application_service_type_id: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          id?: string
+          notes?: string | null
+          price: number
+          superseded_at?: string | null
+          supplier_id: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          application_service_type_id?: string
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          effective_from?: string
+          id?: string
+          notes?: string | null
+          price?: number
+          superseded_at?: string | null
+          supplier_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_pricing_application_service_type_id_fkey"
+            columns: ["application_service_type_id"]
+            isOneToOne: false
+            referencedRelation: "application_service_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_pricing_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_pricing_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_pricing_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "supplier_pricing_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
           address: string | null
@@ -7207,6 +7932,7 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           email: string | null
+          english_name: string | null
           id: string
           is_active: boolean | null
           is_domestic: boolean
@@ -7240,6 +7966,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           email?: string | null
+          english_name?: string | null
           id?: string
           is_active?: boolean | null
           is_domestic?: boolean
@@ -7273,6 +8000,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           email?: string | null
+          english_name?: string | null
           id?: string
           is_active?: boolean | null
           is_domestic?: boolean
@@ -8135,6 +8863,66 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      tour_registrations: {
+        Row: {
+          created_at: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          notes: string | null
+          passenger_count: number | null
+          sales_ref_code: string | null
+          status: string | null
+          tour_id: string | null
+          updated_at: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          notes?: string | null
+          passenger_count?: number | null
+          sales_ref_code?: string | null
+          status?: string | null
+          tour_id?: string | null
+          updated_at?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          notes?: string | null
+          passenger_count?: number | null
+          sales_ref_code?: string | null
+          status?: string | null
+          tour_id?: string | null
+          updated_at?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tour_registrations_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_registrations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_role_assignments: {
         Row: {
@@ -10275,6 +11063,13 @@ export type Database = {
       _recalc_one_invoice: {
         Args: { p_invoice_id: string }
         Returns: undefined
+      }
+      auto_advance_tour_status: {
+        Args: never
+        Returns: {
+          advanced_to_ongoing: number
+          advanced_to_returned: number
+        }[]
       }
       auto_open_tour_conversations_with_logging: {
         Args: never
