@@ -289,10 +289,18 @@
 
 大部分頁面讀取已經走在 entity hook 上。
 
-### Surprise 4：CIS 模組仍是半成品
-- `cis_clients` / `cis_pricing_items` / `cis_visits` table 在 DB 不存在
-- 前端有 entity hook + page，進去會炸 table not found
-- 建議另立工單
+### ~~Surprise 4：CIS 模組仍是半成品~~ ✏️ 修正
+
+**這段是錯誤判斷、CIS 已於 5/19 清光**。
+- 5/19 migration `20260519090000_remove_cis_residue.sql` 已執行
+- src/app/(main)/cis/ 目錄不存在
+- src/data/entities/ 無 cis-* hook
+- 5/20 我（Claude Opus）發現 openclaw 把 5/19 audit 檔的 CIS 紀錄當作現況、是幻覺
+- Pass 1 補做時刪除 cis 章節、但本段 Surprise 4 漏清、現補
+
+**唯一殘留**：sidebar-config.ts:85 的 `'cis'` 字串、5/20 18:19 commit `dc00c13` 已清。
+
+詳見 [`2026-05-20-swr-realtime-page-audit-pass1-complaint.md`](2026-05-20-swr-realtime-page-audit-pass1-complaint.md) D 章節。
 
 ### 不確定點（需 Claude Opus 覆查）
 1. `library/archive-management/page.tsx` 的歸檔操作有 `supabase.from(...).delete()` 直接寫入、需確認有沒有對應的 invalidate 或 cache 清理

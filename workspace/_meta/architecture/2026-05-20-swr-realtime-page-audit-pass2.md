@@ -14,8 +14,10 @@
 | ⚠️ 條件式合規 | 8 | B 類 SWR / lazy load / fire-and-forget |
 | ❌ 違規 | 16 | 直接 supabase / 無 entity hook |
 | 🔴 smoking gun P0 | 5 | 立即可修 / 直接影響 daily workflow |
-| 🟡 smoking gun P1 | 8 | 需補 entity hook / 多人併發風險 |
+| 🟡 smoking gun P1 | ~~8~~ → **5** | ✏️ Pass 2 複盤後修正：扣 shared-data 三頁 false positive |
 | ⚠️ P2 待討論 | 3 | 架構抉擇 |
+
+> ✏️ **2026-05-20 19:55 修正**：見 [`2026-05-20-swr-realtime-page-audit-pass2-complaint.md`](2026-05-20-swr-realtime-page-audit-pass2-complaint.md) E 章節。下方 P1 清單第 10/11/12 列為 false positive、已劃線修正。
 
 ---
 
@@ -39,10 +41,12 @@
 | 7 | `accounting/checks/page.tsx` | F | 直接 `supabase.from('checks').update()` 寫入，無 SWR invalidate，無 realtime | 補 `useChecks` entity |
 | 8 | `accounting/period-closing/page.tsx` | F | 直接 `supabase.from('accounting_period_closings').insert()` 無 realtime | 補 entity 或接受低頻 |
 | 9 | `settings/company/page.tsx` | F | 直接 `supabase.from('workspaces').update()` 寫入，低並發但架構不合規 | 補 `useWorkspace` entity |
-| 10 | `shared-data/banks/page.tsx` | G | `useSWR('shared-data:banks', ...)` 無 workspace_id cache key，跨workspace可見 | 加 workspace_id key |
-| 11 | `shared-data/countries/page.tsx` | G | 同上 | 同上 |
-| 12 | `shared-data/airports/page.tsx` | G | 同上 | 同上 |
-| 13 | `library/attractions/page.tsx` | — | AttractionsTab lazy load 未深入，未確認完整 write flow | 進 AttractionsTab 補讀 |
+| ~~10~~ ✏️ | ~~`shared-data/banks/page.tsx`~~ | ~~G~~ | ~~useSWR 無 workspace_id cache key~~ | **❌ false positive**：ref_banks 是全域 master、無 workspace_id 欄位。SWR cache key 已透過 `getCurrentCacheKey()` 自動加 user_id prefix、跨 user namespace 隔開。**不需要修**。 |
+| ~~11~~ ✏️ | ~~`shared-data/countries/page.tsx`~~ | ~~G~~ | ~~同上~~ | **❌ false positive**：同上、全域 master |
+| ~~12~~ ✏️ | ~~`shared-data/airports/page.tsx`~~ | ~~G~~ | ~~同上~~ | **❌ false positive**：同上、全域 master |
+| 10 | `library/attractions/page.tsx` | — | AttractionsTab lazy load 未深入，未確認完整 write flow | 進 AttractionsTab 補讀 |
+
+> ✏️ **2026-05-20 19:55 修正**：原 P1 #10-12 是 shared-data 三頁、判定為紅線 G 違反。Pass 2 複盤後抓出此判定 false positive：`ref_banks` / `ref_countries` / `ref_airports` 是全域 master table（無 workspace_id 欄位）、SWR 全域 cache key 自動有 user_id namespace 隔離。**P1 真實人數 5、不是 8**。
 
 ---
 
