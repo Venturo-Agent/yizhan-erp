@@ -123,7 +123,9 @@ export function ResourceList({
     }
   }
 
-  if (loading || isSearching) {
+  // 只在「還沒有任何結果」時顯示 loading spinner
+  // 已有結果就保留、refresh 時不再轉圈（避免「新增成功 toast → 又轉圈 → 結果」的中間態）
+  if ((loading || isSearching) && filteredResources.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 size="1.25em" className="animate-spin text-muted-foreground" />
