@@ -561,6 +561,61 @@ grep -n "workspace_features\|role_capabilities" supabase/migrations*/*新功能*
 
 ---
 
+## 健檢框架 5 維度（2026-05-20 加、每個 module 都該對齊）
+
+> 「8 維度」是**動手前** checklist（per-feature）。「5 維度」是**回頭審視**框架（per-module health check）。
+> 兩者並行：寫新功能對 8 維度、做 audit 看 5 維度。
+
+### 5 維度定義
+
+| 維度 | 評估什麼 | 報告檔 |
+|---|---|---|
+| **讀取效能** | 每頁讀資料走 entity hook？有無散刻 useSWR / 直接 supabase.from？ | `workspace/健檢/reports/效能層面健檢.md` |
+| **資安** | 紅線 0-G 守了？特別查 created_by FK / closed period / SWR cache key | `workspace/健檢/reports/資安層面健檢.md` |
+| **架構** | 6 層架構過全？L1-L6 各層對齊？ | `workspace/健檢/reports/架構層面健檢.md` |
+| **開發品管** | 測試覆蓋？lint suppress？type 完整？ | `workspace/健檢/reports/開發品管健檢.md` |
+| **清理** | unused exports？dead code？已廢 module 殘留？ | `workspace/健檢/reports/清理層面健檢.md` |
+
+### 滿分 5/5 紀律（William 拍板）
+
+每個 module 都要追 5/5、沒滿分等於沒進步。
+27 個 module × 5 維度 = 135 個判決、目標全綠。
+
+矩陣現況：`workspace/健檢/reports/26-modules-x-5-dimensions-matrix.md`
+每 module 升 5/5 計劃：`workspace/健檢/pending/upgrades/{module}-to-5of5.md`
+
+### Ratchet baseline 機制（已落地）
+
+- 凍結 145 個 baseline 違規（127 supabase-writes + 18 useswr）
+- `npm run lint` 用 `.eslint-suppressions.json` 過濾、新違規 → CI 擋
+- `npm run lint:swr-prune` 自動清已修好的
+- 詳：`workspace/健檢/decided/ratchet-baseline.md`
+
+### 夜間自動健檢（launchd）
+
+- 00:00 daily：git pull main（com.venturo.yizhan-erp-autopull）
+- 00:10 daily：跑 9 個 audit、產報告到桌面（com.venturo.yizhan-erp-nightly-audit）
+- 報告位置：`~/Desktop/yizhan-erp-nightly-{日期}.md`
+- 設定檔：`~/Library/LaunchAgents/com.venturo.*.plist`
+
+### 收工複盤紀律（cleanup pollution sources）
+
+任何 audit 跑完、發現錯誤判斷 → 回頭把污染源清掉：
+1. 加 ✏️ 修正註記到原 audit 報告（保留 audit trail）
+2. 過期清單 / drift 條目從清單刪
+3. 不留誤導下個工程師的訊息
+
+詳：`~/.claude/CLAUDE.md` § 收工複盤紀律。
+
+### 已凍 / 半成品 module（不算 active）
+
+- `travel_invoice`：2026-05-20 凍住、DB+entity 保留、Phase 2（8 月後）補 UI/API
+- `office`：routes:[]、待 William 拍板凍或補完
+
+凍住 pattern：comment out `_registry.ts` 的 import + ALL_MODULES、跑 `codegen:permissions`、不 rm 檔（鐵律 #8）。
+
+---
+
 ## Build / Commit 規則
 
 ```bash

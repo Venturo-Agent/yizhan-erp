@@ -20,9 +20,26 @@
 ```
 workspace/
 ├── README.md
-└── _meta/                     長青參考、不變的框架
-    ├── architecture/          🏛 治國大綱（6 層藍圖 / 建表 SOP / 隱私 / RBAC / SSOT）
-    └── modules/               🏢 職權說明書（27 份功能模組 spec）
+├── _meta/                     長青參考、不變的框架
+│   ├── architecture/          🏛 治國大綱（6 層藍圖 / 建表 SOP / SSOT / audit 報告）
+│   └── modules/               🏢 職權說明書（27 份功能模組 spec）
+└── 健檢/                       🩺 五維度健檢框架（2026-05-20 加）
+    ├── SPEC.md                健檢總覽
+    ├── DELIVERABLE-2026-05-20.md  總交付（給 William 看的）
+    ├── reports/               各維度健檢報告（5 份）
+    │   ├── 架構層面健檢.md
+    │   ├── 資安層面健檢.md
+    │   ├── 效能層面健檢.md
+    │   ├── 開發品管健檢.md
+    │   ├── 清理層面健檢.md
+    │   └── 26-modules-x-5-dimensions-matrix.md  ← 27 modules × 5 維度矩陣
+    ├── decided/               已拍板、可直接執行
+    │   └── ratchet-baseline.md
+    └── pending/               等 William 拍板
+        ├── p0-p1-p2-修法清單.md
+        ├── upgrades/{module}-to-5of5.md ← 27 份升 5/5 計劃
+        ├── proposals/         具體修法 code 草稿（P0-X-XXX.proposal.md）
+        └── *-charter.md       openclaw 派工書
 ```
 
 > 「執行草案」`active/` 已斷捨離、未來新增 spec 直接放 root 或重建 active/。
@@ -49,8 +66,10 @@ workspace/
 新 session 接手 yizhan-erp、按順序看：
 
 1. `~/.claude/CLAUDE.md` — 全國憲法（協作 / 紅線）
-2. `~/Projects/yizhan-erp/CLAUDE.md` — 地方法律（紅線 / 連線 / 6 層架構）
+2. `~/Projects/yizhan-erp/CLAUDE.md` — 地方法律（紅線 / 連線 / 6 層架構 / 5 維度健檢）
 3. `workspace/_meta/architecture/2026-05-13-建表-SOP.md` — 新表必過 6 層 checklist
+4. `workspace/健檢/DELIVERABLE-2026-05-20.md` — 5 維度健檢現況 + P0/P1 真痛點
+5. `~/Desktop/yizhan-erp-nightly-{今天}.md` — 每天 00:10 自動健檢報告
 
 ---
 
