@@ -788,14 +788,16 @@ describe('createEntityHook — refresh', () => {
 // 對應 src/data/core/createEntityHook.ts:177–196 的 useRealtimeSync
 // ============================================================
 describe('createEntityHook — Realtime sync', () => {
-  it('mount 時建好 channel、命名 realtime:<table>', async () => {
+  it('mount 時建好 channel、命名 realtime:<table>:<suffix>', async () => {
+    // Phase C.2（2026-05-20）：channel name 加 random suffix 避免快速切 page collide
+    // 命名格式：realtime:<table>:<8 字 base36 suffix>
     pushResponse({ data: [], error: null })
     const hook = createEntityHook<Tour>('tours', { list: { select: '*' } })
     renderHook(() => hook.useList(), { wrapper: makeWrapper() })
 
     await waitFor(() => expect(mockChannelRegistry.channels.length).toBeGreaterThan(0))
     const channel = mockChannelRegistry.channels[0]!
-    expect(channel.name).toBe('realtime:tours')
+    expect(channel.name).toMatch(/^realtime:tours:[a-z0-9]{1,8}$/)
     // 註冊 postgres_changes 監聽
     expect(channel.events.length).toBe(1)
     expect(channel.events[0]!.event).toBe('postgres_changes')
@@ -819,8 +821,9 @@ describe('createEntityHook — Realtime sync', () => {
     renderHook(() => orders.useList(), { wrapper: makeWrapper() })
 
     await waitFor(() => expect(mockChannelRegistry.channels.length).toBe(2))
-    const names = mockChannelRegistry.channels.map(c => c.name).sort()
-    expect(names).toEqual(['realtime:customers', 'realtime:tours'])
+    // Phase C.2：每 channel 加 random suffix、用 startsWith 比 prefix 即可
+    const prefixes = mockChannelRegistry.channels.map(c => c.name.replace(/:[a-z0-9]+$/, '')).sort()
+    expect(prefixes).toEqual(['realtime:customers', 'realtime:tours'])
     // 兩個都 subscribed
     expect(mockChannelRegistry.channels.every(c => c.subscribed)).toBe(true)
   })
@@ -909,8 +912,8 @@ describe('createEntityHook — Realtime sync', () => {
     expect(mockChannelRegistry.channels.length).toBe(3)
     expect(mockChannelRegistry.channels.every(c => c.removed)).toBe(true)
     expect(mockChannelRegistry.removeCalls.length).toBe(3)
-    // 每個 channel 名字都對
-    expect(mockChannelRegistry.channels.every(c => c.name === 'realtime:tours')).toBe(true)
+    // 每個 channel 名字都對（Phase C.2 加 suffix、前綴比對）
+    expect(mockChannelRegistry.channels.every(c => /^realtime:tours:[a-z0-9]{1,8}$/.test(c.name))).toBe(true)
   })
 
   it('useListSlim 也會 subscribe 對應 table 的 channel', async () => {
@@ -922,7 +925,8 @@ describe('createEntityHook — Realtime sync', () => {
     renderHook(() => hook.useListSlim(), { wrapper: makeWrapper() })
 
     await waitFor(() => expect(mockChannelRegistry.channels.length).toBeGreaterThan(0))
-    expect(mockChannelRegistry.channels[0]!.name).toBe('realtime:customers')
+    // Phase C.2 channel name 加 suffix、用 prefix 比對
+    expect(mockChannelRegistry.channels[0]!.name).toMatch(/^realtime:customers:[a-z0-9]{1,8}$/)
     expect(mockChannelRegistry.channels[0]!.subscribed).toBe(true)
   })
 })
