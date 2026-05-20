@@ -5,13 +5,9 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {
   Sparkles,
-  LayoutDashboard,
-  MessageSquare,
-  BookOpenCheck,
   Bot,
   MessageCircle,
   Facebook,
-  Plus,
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
@@ -24,31 +20,19 @@ import { AiSettingsDialog } from './AiSettingsDialog'
 import { BotConfigDialog } from './BotConfigDialog'
 
 /**
- * AI Hub Sidebar — 2026-05-21 William 拍板：跟 /channels sidebar 視覺對齊
+ * AI Hub Sidebar — 2026-05-21 William 拍板 v2：sidebar 純 bot 列表
  *
  * 結構：
- *   Header（h-[calc(3.75rem-1px)]）：標題 + 三顆 icon（新增 / 收側欄 / 設定齒輪）
- *   Body：兩個 section
- *     1. 概覽 — 總覽 / 對話管理 / 對話復盤
- *     2. AI 機器人 — HAPPY / LINE / FB（每個 row 右側內嵌小齒輪 → 個別 BotConfigDialog）
+ *   Header（h-[calc(3.75rem-1px)]）：標題 + 兩顆 icon（收側欄 / 設定齒輪）
+ *     - 砍掉「新增」按鈕（AI Hub 不需要使用者自己新增 bot）
+ *   Body：只有 AI 機器人 section（HAPPY / LINE / FB）
+ *     - 概覽 / 對話管理 / 對話復盤全進齒輪 dialog
  *
- * 收側欄狀態：w-12、只顯示 icon column（跟 ChannelsSidebar 同款）
+ * 收側欄狀態：w-12、只顯示 bot icon column（跟 ChannelsSidebar 同款）
  *
- * 「設定齒輪」(header) → 滿版 AiSettingsDialog：放通道設定 / 全域 AI policy / 對話復盤入口
+ * 「設定齒輪」(header) → 滿版 AiSettingsDialog：放總覽 / 對話管理 / 對話復盤 / 通道設定 / 全域 policy
  * 「Bot 卡片小齒輪」(每行) → BotConfigDialog：放該 bot 的個別 prompt / shortcut / few-shot
  */
-
-interface ViewItem {
-  view: string
-  label: string
-  icon: LucideIcon
-}
-
-const OVERVIEW_VIEWS: ViewItem[] = [
-  { view: 'dashboard', label: '總覽', icon: LayoutDashboard },
-  { view: 'conversations', label: '對話管理', icon: MessageSquare },
-  { view: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
-]
 
 interface BotItem {
   view: string
@@ -99,32 +83,8 @@ export function AiSidebar() {
             </button>
           </div>
 
-          {/* Icon 列 */}
+          {/* Icon 列 — 只有 bot 列表 */}
           <div className="flex-1 w-full overflow-y-auto py-2 flex flex-col items-center gap-1">
-            {OVERVIEW_VIEWS.map(item => {
-              const Icon = item.icon
-              const isActive = activeView === item.view
-              return (
-                <Link
-                  key={item.view}
-                  href={buildHref(item.view)}
-                  title={item.label}
-                  className={cn(
-                    'w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0',
-                    isActive
-                      ? 'bg-morandi-gold-light text-morandi-primary'
-                      : 'text-morandi-secondary hover:bg-morandi-gold-light hover:text-morandi-primary'
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                </Link>
-              )
-            })}
-
-            {OVERVIEW_VIEWS.length > 0 && visibleBots.length > 0 && (
-              <div className="w-6 my-1 border-t border-border/50 shrink-0" />
-            )}
-
             {visibleBots.map(bot => {
               const Icon = bot.icon
               const isActive = activeView === bot.view
@@ -180,14 +140,6 @@ export function AiSidebar() {
           <div className="flex items-center gap-1">
             <button
               type="button"
-              onClick={() => toast.info('新增 AI 機器人功能尚未開放')}
-              className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
-              title="新增 AI 機器人"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-            <button
-              type="button"
               onClick={() => setCollapsed(true)}
               className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
               title="收起 AI Hub 側邊欄"
@@ -206,37 +158,7 @@ export function AiSidebar() {
         </div>
 
         <div className="flex-1 overflow-y-auto py-2">
-          {/* Section 1: 概覽 */}
-          <div className="mb-4">
-            <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
-              <LayoutDashboard className="h-3 w-3" />
-              概覽
-            </div>
-            <ul>
-              {OVERVIEW_VIEWS.map(item => {
-                const Icon = item.icon
-                const isActive = activeView === item.view
-                return (
-                  <li key={item.view}>
-                    <Link
-                      href={buildHref(item.view)}
-                      className={cn(
-                        'flex items-center gap-2 px-4 py-1.5 text-sm hover:bg-morandi-gold-light transition-colors',
-                        isActive
-                          ? 'bg-morandi-gold-light text-morandi-primary font-medium'
-                          : 'text-morandi-secondary'
-                      )}
-                    >
-                      <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" />
-                      <span className="flex-1 truncate">{item.label}</span>
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-
-          {/* Section 2: AI 機器人 */}
+          {/* AI 機器人（唯一 section） — 概覽 / 對話管理 / 對話復盤都搬進齒輪 dialog */}
           {visibleBots.length > 0 && (
             <div className="mb-4">
               <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
