@@ -84,13 +84,6 @@ export function ChannelView({ channelId }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId, user?.id])
 
-  // 訊息更新自動 scroll 到底
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-    }
-  }, [messages?.length])
-
   const sortedMessages = useMemo(() => {
     // 合併 SWR cache 跟 local recentlySent（剛送出、SWR 還沒撈到的）
     // dedupe by id：messages 在前、先佔據 seen → SWR refetch 拿到同 id row 時、
@@ -108,6 +101,17 @@ export function ChannelView({ channelId }: Props) {
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
     // 撤回訊息仍 SELECT 出來、UI 顯示佔位「本訊息已撤回」、不從清單移除
   }, [messages, recentlySent, channelId])
+
+  // 訊息更新自動 scroll 到底
+  // 2026-05-20 修：dep 從 `messages?.length` 改成 `sortedMessages.length` + `pendingBody`
+  // 原因：發訊息後 recentlySent 立刻 push、但 messages?.length 要等 SWR refetch 才變
+  //      會造成「訊息出現但沒 scroll → 等 200ms 才 scroll」的視覺跳動
+  // 改 dep 後送出當下立即 scroll
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [sortedMessages.length, pendingBody])
 
   // 換 channel 時清空 recentlySent、不要把 A channel 的訊息漏到 B channel
   // 同時防止 recentlySent 無限累積（一個 channel 內最多累到換 channel 才清）
@@ -290,8 +294,8 @@ export function ChannelView({ channelId }: Props) {
         )}
       </header>
 
-      {/* Message list */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+      {/* Message list — 2026-05-20 William 拍板：px 從 6 縮到 3、對方頭像更靠左邊 */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4 space-y-3">
         {messagesLoading && (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-4 w-4 animate-spin text-morandi-muted" />

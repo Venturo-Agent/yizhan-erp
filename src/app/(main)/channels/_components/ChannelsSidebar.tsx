@@ -14,6 +14,8 @@ import {
   Pin,
   Users,
   Plus,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -71,6 +73,8 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
   const { isFeatureEnabled } = useWorkspaceFeatures()
   const happyEnabled = isFeatureEnabled('channels.happy')
   const [openingDm, setOpeningDm] = useState<string | null>(null)
+  // 2026-05-20 William 拍板：頻道 sidebar 可收起、跟全站 sidebar 一樣的感覺
+  const [collapsed, setCollapsed] = useState(false)
 
   // 同事清單（合併「同事 + 私訊」成單一「私訊」section）：
   //   當前 workspace active human、排除自己、排除 bot / system_bot / integration
@@ -230,24 +234,51 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
     )
   }
 
+  // 收起狀態：sidebar 變窄、只顯示 MessagesSquare icon + 展開按鈕
+  if (collapsed) {
+    return (
+      <aside className="w-12 shrink-0 border-r border-border bg-card flex flex-col items-center py-3 gap-2 transition-all">
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          className="p-1.5 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
+          title="展開頻道側邊欄"
+        >
+          <PanelLeftOpen className="h-4 w-4" />
+        </button>
+        <MessagesSquare className="h-4 w-4 text-morandi-gold mt-2" />
+      </aside>
+    )
+  }
+
   return (
-    <aside className="w-72 shrink-0 border-r border-border bg-card flex flex-col">
+    <aside className="w-72 shrink-0 border-r border-border bg-card flex flex-col transition-all">
       {/* Sidebar header — 取代主標題區、放「頻道」label + 新增按鈕 */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border">
         <div className="flex items-center gap-2">
           <MessagesSquare className="h-4 w-4 text-morandi-gold" />
           <h2 className="text-sm font-semibold text-morandi-primary">頻道</h2>
         </div>
-        {onCreateChannel && (
+        <div className="flex items-center gap-1">
+          {onCreateChannel && (
+            <button
+              type="button"
+              onClick={onCreateChannel}
+              className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
+              title="新增頻道"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          )}
           <button
             type="button"
-            onClick={onCreateChannel}
+            onClick={() => setCollapsed(true)}
             className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
-            title="新增頻道"
+            title="收起頻道側邊欄"
           >
-            <Plus className="h-4 w-4" />
+            <PanelLeftClose className="h-4 w-4" />
           </button>
-        )}
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto py-2">
         {loading && (
