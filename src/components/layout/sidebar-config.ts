@@ -82,7 +82,6 @@ export const SIDEBAR_ORDER: readonly string[] = [
   'hr',
   'workspaces',
   'shared_data_management',
-  'cis',
   'platform_integrations',
 ] as const
 
