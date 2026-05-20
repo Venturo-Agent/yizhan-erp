@@ -29,9 +29,8 @@ const COMPONENT_LABELS = {
 // - 預設顯示前 20 筆：在 component 層 slice(0, 20)，不動 entity hook signature
 //
 // Phase A.7（5/20 收尾）：
-// - hotels entity select 補 star_rating、toResourceItem('hotel') 映射成「X 星」（A.6 UX regression）
 // - useResourceActions 5 條 raw 改 entity hook（updateXxx / softDelete + invalidateXxx）
-// - 砍 A.6 的 onSave 邊界兜底（entity hook 內建 invalidate、不需要）
+// - 砍 A.6 的 onSave 邊界兜底（entity hook 內建 invalidate、不需要)
 
 interface TourItineraryItem {
   id: string
@@ -328,16 +327,9 @@ export function ResourcePanel({
 // ============================================
 // helper：entity row → ResourceItem
 // ============================================
-// 2026-05-20 Phase A.7：hotel 的 category 顯示「X 星」（對齊 useResourceSearch 行為）
-//   - hotels 表有 star_rating 欄位、attractions / restaurants 沒有
-//   - 舊行為（A.6 之前 raw query）：搜尋結果 hotel item.category = `${star_rating}星`
-//   - A.6 改 entity hook 後沒映射、卡片不顯示星等 → 此次回補
 function toResourceItem(type: ResourceType) {
   return (row: Record<string, unknown>): ResourceItem => {
-    const category =
-      type === 'hotel' && row.star_rating != null
-        ? `${row.star_rating}星`
-        : (row.category as string | null) ?? null
+    const category = (row.category as string | null) ?? null
     return {
       id: row.id as string,
       name: row.name as string,

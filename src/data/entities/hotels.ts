@@ -12,9 +12,6 @@ import { CACHE_PRESETS } from '../core/types'
 import type { Attraction } from '@/app/(main)/library/attractions/_types'
 
 // 飯店表中與 Attraction 相容的欄位
-// 2026-05-20 Phase A.7：補 star_rating
-//   - hotels 表特有欄位、UI 卡片用「X 星」顯示（ResourcePanel toResourceItem 映射成 category）
-//   - 之前 A.6 改 entity hook 漏掉、卡片不再顯示星等 → 此次回補
 const HOTEL_SELECT_FIELDS = [
   'id',
   'name',
@@ -38,7 +35,6 @@ const HOTEL_SELECT_FIELDS = [
   'updated_at',
   'fax',
   'country_code',
-  'star_rating',
 ].join(',')
 
 // 5/13：hotels shared reference data、DB 沒 workspace_id
