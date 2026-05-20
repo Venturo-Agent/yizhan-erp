@@ -1,0 +1,24 @@
+{
+  "name": "VENTURO App",
+  "short_name": "VENTURO",
+  "description": "VENTURO ERP - 旅遊業管理系統",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#1a1f2e",
+  "theme_color": "#00D9A5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

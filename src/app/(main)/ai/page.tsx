@@ -1,75 +1,51 @@
 'use client'
 
 /**
- * /ai — AI Hub
+ * /ai — AI Hub 主內容區
  *
- * 整合 Kimi 設計的 AI 平台、合併原 /messaging 多通路收件匣。
+ * 2026-05-21 William 拍板（Phase 1）：
+ *   - 拿掉 ContentPageLayout + 內嵌 tabs
+ *   - layout.tsx 提供 sidebar + 滿版殼、本檔只負責「主內容區」
+ *   - 切換靠 ?view=xxx search param、sidebar 用 Link 寫進 URL
  *
- * 對應：src/modules/ai_hub.ts
- *   - feature: ai_hub (premium)
- *   - capabilities: ai_hub.read / ai_hub.write
+ * 對應 sidebar：
+ *   概覽 section → view: dashboard / conversations / retrospective
+ *   AI 機器人 section → view: bot-happy / bot-line / bot-fb
  *
- * Layout：2026-05-15 William 拍板從沉浸式改回標準 ContentPageLayout（跟租戶管理頁一致）
- *
- * Tab 結構（UI 層、跟 capability 不一一對應、走粗顆粒）：
- *   - dashboard: AI 控制中心（統計卡 + 平台狀態 + 活動 feed + 7 日效能）
- *   - conversations: 多通路對話收件匣（合併原 /messaging）
- *   - setup: 通道設定（line / facebook / instagram）
- *   - settings: AI 機器人（HAPPY / LINE / FB 三卡 + LINE 快捷回覆模板）
- *
- * 切 tab 走 search param ?tab=xxx、可分享 URL、瀏覽器 back / forward 行為對。
- *
- * 真正 AI 業務邏輯（intent 分級 / proposal 開團 / 估價 / 自動建單）待之後
- * 業務 spec 拍板再接、本檔只搭 UI 殼。
+ * Phase 1 暫時：bot-xxx view 共用 AiSettingsTab 的 bot 區（HAPPY/LINE/FB 三卡）
+ * Phase 3 之後：各 bot 自己有獨立主內容區（對話列表 + 表現 / 設定快捷）
  */
 
-import { useSearchParams, useRouter } from 'next/navigation'
-import { Sparkles, MessageSquare, Plug, Settings2, BookOpenCheck, LayoutDashboard } from 'lucide-react'
-import { ContentPageLayout } from '@/components/layout/content-page-layout'
+import { useSearchParams } from 'next/navigation'
 import { AiConversationsTab } from './_components/AiConversationsTab'
-import { AiSetupTab } from './_components/AiSetupTab'
 import { AiSettingsTab } from './_components/AiSettingsTab'
 import { AiRetrospectiveTab } from './_components/AiRetrospectiveTab'
 import { AiDashboardTab } from './_components/AiDashboardTab'
 
-// 2026-05-19 William 拍板：dashboard 恢復、用 AiHealthDashboard 共用 component
-//   audience='customer'、客戶看自己 workspace 的 AI 表現
-const TABS = [
-  { value: 'dashboard', label: '總覽', icon: LayoutDashboard },
-  { value: 'conversations', label: '對話管理', icon: MessageSquare },
-  { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
-  { value: 'setup', label: '通道設定', icon: Plug },
-  { value: 'settings', label: 'AI 機器人', icon: Settings2 },
-] as const
-
-const VALID_TABS = new Set(TABS.map((t) => t.value))
+const VALID_VIEWS = new Set([
+  'dashboard',
+  'conversations',
+  'retrospective',
+  'bot-happy',
+  'bot-line',
+  'bot-fb',
+])
 
 export default function AiHubPage() {
   const searchParams = useSearchParams()
-  const router = useRouter()
+  const rawView = searchParams.get('view') ?? 'dashboard'
+  const activeView = VALID_VIEWS.has(rawView) ? rawView : 'dashboard'
 
-  const rawTab = searchParams.get('tab') ?? 'dashboard'
-  const activeTab = VALID_TABS.has(rawTab as (typeof TABS)[number]['value']) ? rawTab : 'dashboard'
-
-  const handleTabChange = (next: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('tab', next)
-    router.replace(`/ai?${params.toString()}`, { scroll: false })
-  }
+  // bot-xxx view 都導到 AiSettingsTab（三張 bot 卡）
+  // Phase 3 之後可以做 per-bot 各自的主內容區、用 botView prop 切
+  const isBot = activeView.startsWith('bot-')
 
   return (
-    <ContentPageLayout
-      title="AI Hub"
-      icon={Sparkles}
-      tabs={[...TABS]}
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-    >
-      {activeTab === 'dashboard' && <AiDashboardTab />}
-      {activeTab === 'conversations' && <AiConversationsTab />}
-      {activeTab === 'retrospective' && <AiRetrospectiveTab />}
-      {activeTab === 'setup' && <AiSetupTab />}
-      {activeTab === 'settings' && <AiSettingsTab />}
-    </ContentPageLayout>
+    <div className="flex-1 min-h-0 overflow-auto">
+      {activeView === 'dashboard' && <AiDashboardTab />}
+      {activeView === 'conversations' && <AiConversationsTab />}
+      {activeView === 'retrospective' && <AiRetrospectiveTab />}
+      {isBot && <AiSettingsTab />}
+    </div>
   )
 }

@@ -54,21 +54,26 @@ export function ChannelView({ channelId }: Props) {
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [membersOpen, setMembersOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const markedReadRef = useRef<Set<string>>(new Set())
+  // 只記「目前已標記為已讀的 channelId」、不累積 Set。
+  // 切到別的 channel 時 ref 自動被新 channelId 蓋掉、切回來會重新寫 last_read_at（消新進的紅點）。
+  const markedReadForRef = useRef<string | null>(null)
   const { can } = useCapabilities()
 
   // 進頻道時更新 last_read_at（消未讀紅點）
-  // 效能：用 ref 紀錄已標記、避免 members 任何變動都重觸發 UPDATE + invalidate（會 cascade re-fetch）
-  // dependency 不含 members.length、只在 channelId / user 變才跑
+  // 2026-05-21 修：dep 補 members、ref 改 single value
+  //   舊 bug：dep 沒包 members → members SWR 還沒 load 完時 myMember=undefined return、
+  //          之後 members 載入完 useEffect 不重跑 → last_read_at 永遠沒寫 → 紅點不消
+  //          且原本 Set ref 累積、切回同 channel 也被擋、新訊息進來消不掉紅點
+  //   現在：members 變動會重跑、但 ref 比對 channelId、同一個 channel 內只寫一次
   useEffect(() => {
     if (!user?.id || !channelId) return
-    if (markedReadRef.current.has(channelId)) return
+    if (markedReadForRef.current === channelId) return
 
     const myMember = (members ?? []).find(
       m => m.channel_id === channelId && m.employee_id === user.id
     )
     if (!myMember) return
-    markedReadRef.current.add(channelId)
+    markedReadForRef.current = channelId
 
     void (async () => {
       try {
@@ -78,11 +83,11 @@ export function ChannelView({ channelId }: Props) {
         await invalidateChannelMembers()
       } catch (err) {
         logger.warn('更新 last_read_at 失敗', err)
-        markedReadRef.current.delete(channelId) // 失敗了允許下次重試
+        // 失敗了允許下次重試：ref 還原讓下次 effect 通過
+        if (markedReadForRef.current === channelId) markedReadForRef.current = null
       }
     })()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId, user?.id])
+  }, [channelId, user?.id, members])
 
   const sortedMessages = useMemo(() => {
     // 合併 SWR cache 跟 local recentlySent（剛送出、SWR 還沒撈到的）
@@ -268,8 +273,10 @@ export function ChannelView({ channelId }: Props) {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      {/* Header — title + description inline、跟 Slack 一樣同行、不堆兩行 */}
-      <header className="px-6 py-3 border-b border-border bg-card flex items-center justify-between">
+      {/* Header — title + description inline、跟 Slack 一樣同行、不堆兩行
+          高度對齊 sidebar header / 全局側欄 logo 區的 divider：
+          h-18 (4.5rem) - layout p-3 (0.75rem) - card border (1px) = calc(3.75rem - 1px) */}
+      <header className="px-6 h-[calc(3.75rem_-_1px)] border-b border-border bg-card flex items-center justify-between">
         <div className="flex items-baseline gap-3 min-w-0">
           <h1 className="text-base font-semibold text-morandi-primary shrink-0">
             {displayChannelName}

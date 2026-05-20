@@ -234,27 +234,157 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
     )
   }
 
-  // 收起狀態：sidebar 變窄、只顯示 MessagesSquare icon + 展開按鈕
+  // 收起狀態：sidebar 變窄、顯示三區 icon 列：
+  //   官方頻道（公告/機器人/系統 icon）/ 私訊（同事頭像）/ 專案&群組（# / 公事包）
+  //   header 區高度 = 展開時 calc(3.75rem - 1px)、divider 跟全局側欄對齊
   if (collapsed) {
     return (
-      <aside className="w-12 shrink-0 border-r border-border bg-card flex flex-col items-center py-3 gap-2 transition-all">
-        <button
-          type="button"
-          onClick={() => setCollapsed(false)}
-          className="p-1.5 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
-          title="展開頻道側邊欄"
-        >
-          <PanelLeftOpen className="h-4 w-4" />
-        </button>
-        <MessagesSquare className="h-4 w-4 text-morandi-gold mt-2" />
+      <aside className="w-12 shrink-0 border-r border-border bg-card flex flex-col transition-all">
+        {/* Header: 展開按鈕、高度對齊全局側欄的 logo 區 divider */}
+        <div className="w-full h-[calc(3.75rem_-_1px)] flex items-center justify-center border-b border-border shrink-0">
+          <button
+            type="button"
+            onClick={() => setCollapsed(false)}
+            className="p-1.5 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
+            title="展開頻道側邊欄"
+          >
+            <PanelLeftOpen className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Icon 列：可滾動 */}
+        <div className="flex-1 w-full overflow-y-auto py-2 flex flex-col items-center gap-1">
+          {/* 官方頻道 */}
+          {sections.officialFlat.map(c => {
+            const Icon = OFFICIAL_ICON[c.type as 'announcement' | 'bot' | 'system_notice']
+            const display =
+              c.type === 'bot' && c.agent_id
+                ? (aiAgents ?? []).find(a => a.id === c.agent_id)?.name || c.name || 'HAPPY'
+                : c.name ?? '未命名'
+            const unread = isUnread(c) && activeChannelId !== c.id
+            const isActive = activeChannelId === c.id
+            return (
+              <Link
+                key={c.id}
+                href={`/channels/${c.id}`}
+                title={display}
+                className={cn(
+                  'relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0',
+                  isActive
+                    ? 'bg-morandi-gold-light text-morandi-primary'
+                    : unread
+                      ? 'text-morandi-primary hover:bg-morandi-gold-light'
+                      : 'text-morandi-secondary hover:bg-morandi-gold-light hover:text-morandi-primary'
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {unread && (
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-morandi-gold" />
+                )}
+              </Link>
+            )
+          })}
+
+          {/* 官方 / 私訊分隔 */}
+          {sections.officialFlat.length > 0 && coworkers.length > 0 && (
+            <div className="w-6 my-1 border-t border-border/50 shrink-0" />
+          )}
+
+          {/* 私訊（同事頭像圈） */}
+          {coworkers.map(emp => {
+            const display = emp.display_name || emp.chinese_name || emp.english_name || '未命名'
+            const avatarUrl = (emp as { avatar_url?: string | null }).avatar_url ?? null
+            const initial = display[0] ?? '?'
+            const isOpening = openingDm === emp.id
+            const existingDm = dmChannelByPeer.get(emp.id)
+            const unread = existingDm ? isUnread(existingDm) : false
+            const isActive = existingDm?.id === activeChannelId
+
+            const handleClick = () => {
+              if (existingDm) {
+                router.push(`/channels/${existingDm.id}`)
+              } else {
+                void openDmWith(emp.id)
+              }
+            }
+
+            return (
+              <button
+                key={emp.id}
+                type="button"
+                onClick={handleClick}
+                disabled={isOpening}
+                title={display}
+                className={cn(
+                  'relative w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0',
+                  isActive
+                    ? 'ring-2 ring-morandi-gold ring-offset-1 ring-offset-card'
+                    : 'hover:ring-2 hover:ring-morandi-gold/50',
+                  isOpening && 'opacity-60 cursor-wait'
+                )}
+              >
+                <div className="w-full h-full rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt={display} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{initial}</span>
+                  )}
+                </div>
+                {isOpening && (
+                  <Loader2 className="absolute inset-0 m-auto h-4 w-4 animate-spin text-morandi-gold" />
+                )}
+                {unread && (
+                  <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-morandi-gold ring-2 ring-card" />
+                )}
+              </button>
+            )
+          })}
+
+          {/* 私訊 / 專案分隔 */}
+          {coworkers.length > 0 && sections.projectsAndGroups.length > 0 && (
+            <div className="w-6 my-1 border-t border-border/50 shrink-0" />
+          )}
+
+          {/* 專案 & 群組 */}
+          {sections.projectsAndGroups.map(c => {
+            const hasTour = !!c.tour_id
+            const Icon = hasTour ? Briefcase : Hash
+            const display = c.name ?? '未命名'
+            const unread = isUnread(c) && activeChannelId !== c.id
+            const isActive = activeChannelId === c.id
+            return (
+              <Link
+                key={c.id}
+                href={`/channels/${c.id}`}
+                title={display}
+                className={cn(
+                  'relative w-9 h-9 rounded-lg flex items-center justify-center transition-colors shrink-0',
+                  isActive
+                    ? 'bg-morandi-gold-light text-morandi-primary'
+                    : unread
+                      ? 'text-morandi-primary hover:bg-morandi-gold-light'
+                      : 'text-morandi-secondary hover:bg-morandi-gold-light hover:text-morandi-primary'
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {unread && (
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-morandi-gold" />
+                )}
+              </Link>
+            )
+          })}
+        </div>
       </aside>
     )
   }
 
   return (
     <aside className="w-72 shrink-0 border-r border-border bg-card flex flex-col transition-all">
-      {/* Sidebar header — 取代主標題區、放「頻道」label + 新增按鈕 */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+      {/* Sidebar header — 高度對齊全局側欄 h-18 logo 區的 divider：
+          h-18 (4.5rem) - layout p-3 (0.75rem) - card border (1px) = calc(3.75rem - 1px)
+          純 rem-based → 跟 font-scale-switcher 一起縮放 */}
+      <div className="flex items-center justify-between px-4 h-[calc(3.75rem_-_1px)] border-b border-border">
         <div className="flex items-center gap-2">
           <MessagesSquare className="h-4 w-4 text-morandi-gold" />
           <h2 className="text-sm font-semibold text-morandi-primary">頻道</h2>
