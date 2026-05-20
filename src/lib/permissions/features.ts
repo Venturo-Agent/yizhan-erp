@@ -268,21 +268,6 @@ export const FEATURES: FeatureDefinition[] = [
     ],
   },
   {
-    code: 'travel_invoice',
-    name: '電子收據',
-    description: '台灣電子發票開立、作廢、折讓、查詢與重寄',
-    category: 'premium',
-    routes: [
-      '/travel-invoice',
-      '/travel-invoice/issue',
-      '/travel-invoice/void',
-      '/travel-invoice/allowance',
-      '/travel-invoice/query',
-      '/travel-invoice/resend',
-      '/travel-invoice/settings',
-    ],
-  },
-  {
     code: 'esim',
     name: 'eSIM 管理',
     description: '旅遊 eSIM 訂單管理（Worldmove）、產品目錄與 API 設定',

@@ -372,43 +372,6 @@ export const MODULES: ModuleDefinition[] = [
     ],
   },
   {
-    code: 'travel_invoice',
-    name: '電子收據',
-    description: '台灣電子發票開立、作廢、折讓、查詢與重寄',
-    tabs: [
-      {
-        code: 'issue',
-        name: '開立發票',
-        description: '開立電子收據 / B2B 統編發票',
-      },
-      {
-        code: 'void',
-        name: '作廢發票',
-        description: '發票作廢作業',
-      },
-      {
-        code: 'allowance',
-        name: '折讓管理',
-        description: '折讓單開立與查詢',
-      },
-      {
-        code: 'query',
-        name: '發票查詢',
-        description: '發票狀態查詢與歷史紀錄',
-      },
-      {
-        code: 'resend',
-        name: '重寄發票',
-        description: '重寄電子收據至客戶信箱',
-      },
-      {
-        code: 'settings',
-        name: '發票設定',
-        description: '串接設定（財政部 / 雲端發票）',
-      },
-    ],
-  },
-  {
     code: 'esim',
     name: 'eSIM 管理',
     description: '旅遊 eSIM 訂單管理（Worldmove）、產品目錄與 API 設定',
