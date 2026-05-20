@@ -1,14 +1,4 @@
 {
-  "src/app/(main)/accounting/accounts/components/CreateAccountDialog.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
-  "src/app/(main)/accounting/accounts/page.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
   "src/app/(main)/accounting/checks/components/CreateCheckDialog.tsx": {
     "venturo/no-direct-supabase-writes": {
       "count": 1
@@ -104,11 +94,6 @@
       "count": 1
     },
     "venturo/no-direct-useswr-in-pages": {
-      "count": 1
-    }
-  },
-  "src/app/(main)/library/customers/_components/CustomerDialog.tsx": {
-    "venturo/no-direct-supabase-writes": {
       "count": 1
     }
   },
@@ -212,11 +197,6 @@
       "count": 1
     }
   },
-  "src/app/(main)/settings/company/_components/BonusPolicySection.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
   "src/app/(main)/settings/company/_components/BranchesSection.tsx": {
     "venturo/no-direct-useswr-in-pages": {
       "count": 1
@@ -297,7 +277,7 @@
   },
   "src/app/(main)/tours/_hooks/useTours-advanced.ts": {
     "venturo/no-direct-supabase-writes": {
-      "count": 2
+      "count": 1
     },
     "venturo/no-direct-useswr-in-pages": {
       "count": 1
@@ -305,7 +285,7 @@
   },
   "src/app/(main)/tours/_hooks/useToursPaginated.ts": {
     "venturo/no-direct-supabase-writes": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/(main)/tours/_services/bonus-payment.service.ts": {
