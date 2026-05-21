@@ -23,6 +23,7 @@
 
 import { useEffect, useLayoutEffect, useState, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { useSearchParams, useRouter } from 'next/navigation'
 import useSWR from 'swr'
 import { apiMutate } from '@/lib/swr/api-mutate'
 import { useRealtimeMutate } from '@/lib/swr/use-realtime-mutate'
@@ -116,9 +117,23 @@ function formatRelative(ts: string | null): string {
   return formatDateTaipei(d)
 }
 
-export function AiConversationsTab() {
+/**
+ * @param hideList 主畫面在 sidebar 已經 render 一份對話列表時、傳 true 隱藏內建的 280px 列表
+ *                 William 2026-05-21 v3.3：sidebar 列表 + 主畫面 thread、selectedId 走 URL ?conv=
+ */
+export function AiConversationsTab({ hideList = false }: { hideList?: boolean } = {}) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
   const [channelFilter, setChannelFilter] = useState<ChannelFilter>('all')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  // selectedId 走 URL search param ?conv=<id>、跟 sidebar 共用 state
+  const selectedId = searchParams.get('conv')
+  const setSelectedId = (id: string | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (id) params.set('conv', id)
+    else params.delete('conv')
+    router.replace(`/ai?${params.toString()}`, { scroll: false })
+  }
   const [panelOpen, setPanelOpen] = useState(false)
   const { user } = useAuthStore()
   const workspaceId = user?.workspace_id ?? null
@@ -225,9 +240,11 @@ export function AiConversationsTab() {
 
   return (
     <div className="flex gap-3 h-full">
-      {/* 合卡：左對話列表 + 中訊息 thread 用同一張 Card、中間 border 區隔（William 5/19 拍板）*/}
+      {/* 合卡：左對話列表 + 中訊息 thread 用同一張 Card、中間 border 區隔（William 5/19 拍板）
+          v3.3 hideList 時 sidebar 已 render 列表、這裡只 render thread */}
       <Card className="flex-1 flex overflow-hidden border border-border min-w-0">
       {/* 左側：對話列表（Hub 模式、不分 channel） */}
+      {!hideList && (
       <div className="w-[280px] flex flex-col flex-shrink-0 h-full border-r border-border">
         {/* List */}
         <div className="flex-1 overflow-y-auto">
@@ -326,6 +343,7 @@ export function AiConversationsTab() {
           ))}
         </div>
       </div>
+      )}
 
       {/* 中間：對話 thread（同 Card 內、不另設 border）*/}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
