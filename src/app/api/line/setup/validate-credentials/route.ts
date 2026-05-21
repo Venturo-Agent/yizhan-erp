@@ -38,17 +38,17 @@ export async function POST(request: NextRequest) {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
     if (!guard.ok) return guard.response
 
-    // workspace 必須開了 line_bot feature（平台 admin 賣的）
+    // workspace 必須開了 ai_hub feature（買了 AI Hub 三通路就全有：LINE / FB / IG）
     const supabase = getSupabaseAdminClient()
     const { data: feature } = await supabase
       .from('workspace_features')
       .select('enabled')
       .eq('workspace_id', auth.data.workspaceId)
-      .eq('feature_code', 'line_bot')
+      .eq('feature_code', 'ai_hub')
       .maybeSingle()
 
     if (!feature?.enabled) {
-      return ApiError.forbidden('此 workspace 尚未開通 LINE Bot 整合（請聯絡平台管理員）')
+      return ApiError.forbidden('此 workspace 尚未開通 AI Hub（請聯絡平台管理員）')
     }
 
     const validation = await validateBody(request, schema)

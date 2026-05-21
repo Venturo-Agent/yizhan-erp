@@ -12,8 +12,8 @@ type Channel = 'line' | 'facebook' | 'instagram'
 
 const CHANNELS: { value: Channel; label: string; icon: typeof Bot; brand: string; disabled?: boolean }[] = [
   { value: 'line', label: 'LINE', icon: Bot, brand: 'text-[#06c755]' },
-  { value: 'facebook', label: 'Facebook', icon: Facebook, brand: 'text-[#1877f2]', disabled: true },
-  { value: 'instagram', label: 'Instagram', icon: Instagram, brand: 'text-[#e4405f]', disabled: true },
+  { value: 'facebook', label: 'Facebook', icon: Facebook, brand: 'text-[#1877f2]' },
+  { value: 'instagram', label: 'Instagram', icon: Instagram, brand: 'text-[#e4405f]' },
 ]
 
 const VALID = new Set<Channel>(['line', 'facebook', 'instagram'])

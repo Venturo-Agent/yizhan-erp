@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
       .from('workspace_features')
       .select('enabled')
       .eq('workspace_id', auth.data.workspaceId)
-      .eq('feature_code', 'instagram_bot')
+      .eq('feature_code', 'ai_hub')
       .maybeSingle()
 
     if (!feature?.enabled) {
-      return ApiError.forbidden('此 workspace 尚未開通 Instagram DM 整合')
+      return ApiError.forbidden('此 workspace 尚未開通 AI Hub')
     }
 
     const validation = await validateBody(request, schema)
