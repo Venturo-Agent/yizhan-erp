@@ -22,6 +22,8 @@ interface OnePageViewProps {
   availableItems: UnbilledItem[]
   stagedBatches: StagedBatch[]
   pickedItemIds: string[]
+  /** 每團已收款 map（tour_id → 累計 receipt actual_amount）— 警示超支用 */
+  incomeByTourId?: Map<string, number>
   onChangePicked: (ids: string[]) => void
   onRemoveStaged: (id: string) => void
   /** 編輯模式不傳（編輯時手續費在 header 改、不在 chips 內）*/
@@ -32,6 +34,7 @@ export function OnePageView({
   availableItems,
   stagedBatches,
   pickedItemIds,
+  incomeByTourId,
   onChangePicked,
   onRemoveStaged,
   onUpdateStagedFee,
@@ -84,6 +87,7 @@ export function OnePageView({
         <GroupedDisbursementItemsTable
           items={availableItems}
           pickedItemIds={pickedItemIds}
+          incomeByTourId={incomeByTourId}
           onChangePicked={onChangePicked}
         />
       </div>

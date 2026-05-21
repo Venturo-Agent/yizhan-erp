@@ -13,7 +13,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { ChevronRight, ChevronDown } from 'lucide-react'
+import { ChevronRight, ChevronDown, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import type { UnbilledItem } from './disbursement-wizard-types'
@@ -28,6 +28,8 @@ interface Group {
 interface GroupedDisbursementItemsTableProps {
   items: UnbilledItem[]
   pickedItemIds: string[]
+  /** 每團已收款 map（tour_id → 累計 receipt actual_amount）超支警示用 */
+  incomeByTourId?: Map<string, number>
   onChangePicked: (ids: string[]) => void
 }
 
@@ -36,6 +38,7 @@ const NO_TOUR_KEY = '__no_tour__'
 export function GroupedDisbursementItemsTable({
   items,
   pickedItemIds,
+  incomeByTourId,
   onChangePicked,
 }: GroupedDisbursementItemsTableProps) {
   const groups = useMemo<Group[]>(() => {
@@ -152,9 +155,16 @@ export function GroupedDisbursementItemsTable({
                 const isExpanded = expanded.has(g.key)
                 const state = groupState(g)
                 const selectedCount = groupSelectedCount(g)
-                // 整個 group（含 group row + items）算一個 entity 穿插
-                // 偶數 group：淡灰 / 奇數 group：白 — 跟旅遊團 striped 同色系
                 const stripedBg = idx % 2 === 0 ? 'bg-morandi-container/20' : 'bg-card'
+                // 該團已勾選支出 sum
+                const pickedAmount = g.items.reduce(
+                  (sum, i) => (pickedSet.has(i.id) ? sum + i.subtotal : sum),
+                  0
+                )
+                // 該團已收款（client-side aggregated from receipts）
+                const income = g.key !== NO_TOUR_KEY && incomeByTourId
+                  ? (incomeByTourId.get(g.key) ?? 0)
+                  : null
                 return (
                   <GroupRows
                     key={g.key}
@@ -163,6 +173,8 @@ export function GroupedDisbursementItemsTable({
                     isExpanded={isExpanded}
                     groupCheckState={state}
                     selectedCount={selectedCount}
+                    pickedAmount={pickedAmount}
+                    income={income}
                     pickedSet={pickedSet}
                     stripedBg={stripedBg}
                     onToggleExpanded={() => toggleExpanded(g.key)}
@@ -185,6 +197,8 @@ interface GroupRowsProps {
   isExpanded: boolean
   groupCheckState: 'all' | 'partial' | 'none'
   selectedCount: number
+  pickedAmount: number
+  income: number | null
   pickedSet: Set<string>
   stripedBg: string
   onToggleExpanded: () => void
@@ -198,12 +212,17 @@ function GroupRows({
   isExpanded,
   groupCheckState,
   selectedCount,
+  pickedAmount,
+  income,
   pickedSet,
   stripedBg,
   onToggleExpanded,
   onToggleGroupAll,
   onToggleItem,
 }: GroupRowsProps) {
+  // 超支警示：勾選支出 > 該團已收款
+  const isOverspend = income !== null && pickedAmount > 0 && pickedAmount > income
+  const showIncomeCompare = income !== null && pickedAmount > 0
   // 整個 group（含 group row + items）用同個 stripedBg、跨 group 穿插
   // group row 跟 items 視覺一塊、跟下一團對比
   return (
@@ -220,7 +239,7 @@ function GroupRows({
           />
         </td>
         <td colSpan={4} className="px-3 py-2.5">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-morandi-secondary">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </span>
@@ -228,6 +247,20 @@ function GroupRows({
             <span className="text-xs text-morandi-secondary">
               {selectedCount}/{group.items.length} 筆
             </span>
+            {showIncomeCompare && (
+              <span
+                className={`text-xs inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded ${
+                  isOverspend
+                    ? 'bg-status-danger/10 text-status-danger font-medium'
+                    : 'text-morandi-secondary'
+                }`}
+              >
+                {isOverspend && <AlertTriangle size={12} />}
+                已收 NT$ {(income ?? 0).toLocaleString()} / 已勾 NT$ {pickedAmount.toLocaleString()}
+                {isOverspend &&
+                  ` ・超支 NT$ ${(pickedAmount - (income ?? 0)).toLocaleString()}`}
+              </span>
+            )}
           </div>
         </td>
         <td className="px-3 py-2.5 text-right font-semibold text-morandi-gold whitespace-nowrap">

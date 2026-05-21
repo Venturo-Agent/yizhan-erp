@@ -35,6 +35,7 @@ import type { DisbursementOrder } from '@/stores/types'
 import type { WizardStep, BankAccountOption } from './disbursement-wizard-types'
 import { useWizardData, getInitialDisbursementDate, type PreFilledData } from './useWizardData'
 import { OnePageView } from './OnePageView'
+import { useReceipts } from '@/data/entities/receipts'
 
 interface CreateDisbursementWizardDialogProps {
   open: boolean
@@ -98,6 +99,18 @@ export function CreateDisbursementWizardDialog({
       setDisbursementDate(preFilledData.disbursementDate)
     }, []),
   })
+
+  // 每團已收款 map（status='confirmed' 才算實際入帳）— 給 wizard 列表「超支警示」用
+  const { items: receipts } = useReceipts({ all: true })
+  const incomeByTourId = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const r of receipts) {
+      if (!r.tour_id || r.status !== 'confirmed') continue
+      const amt = Number(r.actual_amount ?? r.receipt_amount ?? 0)
+      map.set(r.tour_id, (map.get(r.tour_id) ?? 0) + amt)
+    }
+    return map
+  }, [receipts])
 
   // 已被 staged 的 item ids
   const stagedItemIds = useMemo(() => {
@@ -366,6 +379,7 @@ export function CreateDisbursementWizardDialog({
               availableItems={availableItems}
               stagedBatches={stagedBatches}
               pickedItemIds={pickedItemIds}
+              incomeByTourId={incomeByTourId}
               onChangePicked={setPickedItemIds}
               onRemoveStaged={handleRemoveStaged}
               onUpdateStagedFee={editingOrder ? undefined : handleUpdateStagedFee}
