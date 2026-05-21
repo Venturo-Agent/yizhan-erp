@@ -30,7 +30,6 @@ import { DateCell, CurrencyCell } from '@/components/table-cells'
 import { DisbursementOrder } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
 import { CreateDisbursementWizardDialog } from './CreateDisbursementWizardDialog'
-import { DisbursementDetailDialog } from './DisbursementDetailDialog'
 import { DisbursementPrintDialog } from './DisbursementPrintDialog'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
@@ -121,8 +120,6 @@ export function DisbursementPage() {
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingOrder, setEditingOrder] = useState<DisbursementOrder | null>(null)
-  const [selectedOrder, setSelectedOrder] = useState<DisbursementOrder | null>(null)
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false)
   const [printOrder, setPrintOrder] = useState<DisbursementOrder | null>(null)
 
@@ -207,14 +204,15 @@ export function DisbursementPage() {
     [payment_requests, bankGroupSummaries]
   )
 
-  // 點擊列：pending → 編輯、paid → 詳情
+  // 2026-05-22 William 拍板：砍 detail dialog（內容跟列印單重複）
+  // 點擊列：pending → 編輯 / paid → 直接開列印預覽
   const handleRowClick = useCallback((order: DisbursementOrder) => {
     if (order.status === 'pending') {
       setEditingOrder(order)
       setIsCreateDialogOpen(true)
     } else {
-      setSelectedOrder(order)
-      setIsDetailDialogOpen(true)
+      setPrintOrder(order)
+      setIsPrintDialogOpen(true)
     }
   }, [])
 
@@ -396,11 +394,7 @@ export function DisbursementPage() {
         onSuccess={handleCreateSuccess}
         editingOrder={editingOrder}
       />
-      <DisbursementDetailDialog
-        order={selectedOrder}
-        open={isDetailDialogOpen}
-        onOpenChange={setIsDetailDialogOpen}
-      />
+      {/* 2026-05-22 William 拍板：砍 DisbursementDetailDialog、paid row 點擊直接開列印單（內容相同、避免維護兩套 UI） */}
       <DisbursementPrintDialog
         order={printOrder}
         open={isPrintDialogOpen}
