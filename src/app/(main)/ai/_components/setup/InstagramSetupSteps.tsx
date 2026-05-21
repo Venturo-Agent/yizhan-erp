@@ -5,11 +5,14 @@
  * 從 InstagramSetup.tsx 拆分出來，保持主組件在 500 行以內
  */
 
+import { useState } from 'react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Instagram, Check, Copy, Loader2, AlertCircle, ExternalLink } from 'lucide-react'
+import { Instagram, Check, Copy, Loader2, AlertCircle, ExternalLink, Sparkles } from 'lucide-react'
+import { logger } from '@/lib/utils/logger'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 共用型別（供主組件 import 使用）
@@ -127,6 +130,34 @@ export function StepCredentials({
     credentials.page_access_token.trim().length > 0 &&
     credentials.ig_business_account_id.trim().length > 0
 
+  const [autoDetecting, setAutoDetecting] = useState(false)
+  const [autoDetectInfo, setAutoDetectInfo] = useState<{ name: string | null; username: string | null } | null>(null)
+
+  const handleAutoDetect = async () => {
+    setAutoDetecting(true)
+    try {
+      const res = await fetch('/api/instagram/setup/lookup-from-fb', { method: 'GET' })
+      const json = await res.json()
+      if (!res.ok || !json.success) {
+        toast.error('自動偵測失敗', { description: json.error || '請手動填 IG Business Account ID' })
+        return
+      }
+      const data = json.data as {
+        igBusinessAccountId: string
+        igUsername: string | null
+        igName: string | null
+      }
+      onChange('ig_business_account_id', data.igBusinessAccountId)
+      setAutoDetectInfo({ name: data.igName, username: data.igUsername })
+      toast.success(`偵測到 IG 帳號：${data.igName || data.igUsername || data.igBusinessAccountId}`)
+    } catch (e) {
+      logger.error('IG auto detect failed', e)
+      toast.error('自動偵測失敗', { description: e instanceof Error ? e.message : '請手動填' })
+    } finally {
+      setAutoDetecting(false)
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div>
@@ -134,6 +165,36 @@ export function StepCredentials({
         <p className="text-xs text-morandi-secondary">
           token 用 FB Page Access Token（IG 透過綁定的 FB Page 操作）、ID 是 IG Business Account ID。
         </p>
+      </div>
+
+      {/* 一鍵從已開通 FB Page 自動偵測 IG */}
+      <div className="rounded-md border border-morandi-gold/30 bg-morandi-gold/5 p-3 space-y-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-morandi-primary">
+              <Sparkles className="w-4 h-4 text-morandi-gold" />
+              從已開通的 FB Page 自動偵測 IG
+            </div>
+            <p className="text-[0.7rem] text-morandi-secondary mt-1">
+              不用跑 Graph API Explorer 找 IG Business Account ID、用已存的 FB Page Token 自動反查。前提：FB Messenger 已開通 + IG 帳號已連結該 FB Page。
+            </p>
+            {autoDetectInfo && (
+              <p className="text-xs text-morandi-green mt-2 flex items-center gap-1">
+                <Check className="w-3 h-3" />
+                偵測到：{autoDetectInfo.name || autoDetectInfo.username || '(已填入 ID)'}
+              </p>
+            )}
+          </div>
+          <Button
+            variant="soft-gold"
+            size="sm"
+            onClick={handleAutoDetect}
+            disabled={autoDetecting}
+            className="shrink-0"
+          >
+            {autoDetecting ? <Loader2 className="w-3 h-3 animate-spin" /> : '自動偵測'}
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-1.5">
