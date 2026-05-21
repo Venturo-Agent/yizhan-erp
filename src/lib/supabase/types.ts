@@ -11261,6 +11261,10 @@ export type Database = {
         Args: { p_request_id: string }
         Returns: string
       }
+      next_payment_request_item_numbers: {
+        Args: { p_request_id: string; p_count: number }
+        Returns: string[]
+      }
       recalculate_order_totals: {
         Args: { p_order_id: string }
         Returns: undefined

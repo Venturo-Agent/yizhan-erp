@@ -8,7 +8,7 @@ import { PaymentRequest, PaymentRequestItem } from '@/stores/types'
 import { logger } from '@/lib/utils/logger'
 import { supabase } from '@/lib/supabase/client'
 import { invalidatePaymentRequestItems } from '@/data'
-import { nextPaymentRequestItemNumber } from '@/lib/codes'
+import { nextPaymentRequestItemNumber, nextPaymentRequestItemNumbers } from '@/lib/codes'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
 
 // ============ DB select fragment（避免重複） ============
@@ -127,9 +127,13 @@ export async function addItem(
 }
 
 /**
- * 批次新增請款項目（sequential insert、防撞號）
- * 2026-05-15 修撞號 bug：N 次 RPC 全先拿、DB 看到同狀態、全回相同號 → batch UNIQUE 衝突
- * 改成「拿一號 → insert 一筆」sequential、保證下次 RPC 看到上一筆已 insert。
+ * 批次新增請款項目（batch insert）
+ *
+ * 2026-05-21 William 拍板：改用批次 RPC `nextPaymentRequestItemNumbers`
+ * 一次拿 N 個 item_number（單 transaction + advisory lock + 內部遞增）
+ * 再一次 batch insert、避免 sequential 慢、且永遠不撞 unique。
+ *
+ * 史前 5/15 用「拿一號 → insert 一筆」sequential pattern、雖然不撞但慢、改批次。
  */
 export async function addItems(
   request: PaymentRequest,
@@ -140,47 +144,44 @@ export async function addItems(
   if (itemsData.length === 0) return []
 
   const existingItems = await getItemsByRequestIdAsync(request.id)
-  const createdItems: PaymentRequestItem[] = []
 
-  for (const itemData of itemsData) {
-    const itemNumber = await nextPaymentRequestItemNumber(request.id)
-    const row = {
-      id: crypto.randomUUID(),
-      request_id: request.id,
-      item_number: itemNumber,
-      category: itemData.category,
-      supplier_id: itemData.supplier_id || null,
-      supplier_name: itemData.supplier_name,
-      description: itemData.description,
-      unit_price: itemData.unit_price,
-      quantity: itemData.quantity,
-      subtotal: itemData.unit_price * itemData.quantity,
-      notes: itemData.notes,
-      sort_order: itemData.sort_order,
-      payment_method_id: itemData.payment_method_id || null,
-      custom_request_date: null,
-      tour_id: ((itemData as Record<string, unknown>).tour_id as string) || null,
-      advanced_by:
-        ((itemData as Record<string, unknown>).advanced_by as string | null | undefined) || null,
-      advanced_by_name:
-        ((itemData as Record<string, unknown>).advanced_by_name as
-          | string
-          | null
-          | undefined) || null,
-      created_at: now,
-      updated_at: now,
-    }
-    const { data: created, error } = await supabase
-      .from('payment_request_items')
-      .insert(row)
-      .select()
-      .single()
-    if (error) {
-      logger.error('addItems insert 失敗:', error, 'row:', row)
-      throw error
-    }
-    createdItems.push(created as unknown as PaymentRequestItem)
+  // 批次拿 N 個編號（單一 transaction、advisory lock 內遞增）
+  const itemNumbers = await nextPaymentRequestItemNumbers(request.id, itemsData.length)
+
+  const rows = itemsData.map((itemData, idx) => ({
+    id: crypto.randomUUID(),
+    request_id: request.id,
+    item_number: itemNumbers[idx],
+    category: itemData.category,
+    supplier_id: itemData.supplier_id || null,
+    supplier_name: itemData.supplier_name,
+    description: itemData.description,
+    unit_price: itemData.unit_price,
+    quantity: itemData.quantity,
+    subtotal: itemData.unit_price * itemData.quantity,
+    notes: itemData.notes,
+    sort_order: itemData.sort_order,
+    payment_method_id: itemData.payment_method_id || null,
+    custom_request_date: null,
+    tour_id: ((itemData as Record<string, unknown>).tour_id as string) || null,
+    advanced_by:
+      ((itemData as Record<string, unknown>).advanced_by as string | null | undefined) || null,
+    advanced_by_name:
+      ((itemData as Record<string, unknown>).advanced_by_name as string | null | undefined) ||
+      null,
+    created_at: now,
+    updated_at: now,
+  }))
+
+  const { data: created, error } = await supabase
+    .from('payment_request_items')
+    .insert(rows)
+    .select()
+  if (error) {
+    logger.error('addItems batch insert 失敗:', error, 'rows:', rows)
+    throw error
   }
+  const createdItems = (created as unknown as PaymentRequestItem[]) ?? []
 
   await invalidatePaymentRequestItems()
 

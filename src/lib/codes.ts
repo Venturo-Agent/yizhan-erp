@@ -287,3 +287,37 @@ export async function nextPaymentRequestItemNumber(
   }
   return data as string
 }
+
+/**
+ * 批次產生 N 個請款品項編號（{request.code}-{index1..N}）
+ *
+ * ⚠ 加新 items 必用本批次 wrapper、不可在迴圈呼叫單個 nextPaymentRequestItemNumber：
+ *   單個 RPC 每次新 transaction、讀 DB 內既有 max+1、但 loop 中新 items 還沒 insert、
+ *   max 不變、N 個新 items 拿到同 item_number → 撞 unique constraint。
+ *
+ * 本 RPC 在單一 transaction 內 advisory lock + 內部遞增、保證 N 個編號全不同。
+ *
+ * @param requestId 對應 payment_request 的 id
+ * @param count 要拿幾個編號（必 > 0、上限 1000）
+ * @returns 如 ['TYO241218A-R01-3', 'TYO241218A-R01-4', 'TYO241218A-R01-5']
+ * @throws 找不到 request、count 不合法、或 RPC fail
+ *
+ * 走 advisory lock 防並發撞號（migration 20260521061500）。
+ */
+export async function nextPaymentRequestItemNumbers(
+  requestId: string,
+  count: number,
+  client?: CodesDbClient
+): Promise<string[]> {
+  if (count <= 0) {
+    return []
+  }
+  const { data, error } = await pickClient(client).rpc('next_payment_request_item_numbers', {
+    p_request_id: requestId,
+    p_count: count,
+  })
+  if (error || !data) {
+    throw error ?? new Error('next_payment_request_item_numbers returned null')
+  }
+  return data as string[]
+}

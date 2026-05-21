@@ -15,7 +15,7 @@ import {
 } from '@/data'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
 import { paymentRequestService } from '@/app/(main)/finance/payments/_services/payment-request.service'
-import { nextPaymentRequestItemNumber } from '@/lib/codes'
+import { nextPaymentRequestItemNumbers } from '@/lib/codes'
 import { COMPONENT_LABELS } from './AddRequestDialog.types'
 import { RequestItem } from '../_types'
 import { PaymentRequest } from '@/stores/types'
@@ -85,11 +85,12 @@ export async function saveEditedRequest({
     // 不再用 `${currentRequest.code}-${length + idx + 1}` 硬算、刪過 item 後 length 對不上會撞
     const newItems = localItems.filter(i => newItemIds.includes(i.id))
     if (newItems.length > 0) {
-      // 序列 await：advisory_xact_lock 各自 hold + release、確保拿到不同號
-      const itemNumbers: string[] = []
-      for (let i = 0; i < newItems.length; i++) {
-        itemNumbers.push(await nextPaymentRequestItemNumber(currentRequest.id))
-      }
+      // 批次拿 N 個編號（單一 transaction + advisory lock + 內部遞增）
+      // 修原 in-loop 呼叫 single RPC 撞 unique 的 bug（5/21 William 拍板）
+      const itemNumbers = await nextPaymentRequestItemNumbers(
+        currentRequest.id,
+        newItems.length
+      )
       const rows = newItems.map((item, idx) => ({
         request_id: currentRequest.id,
         category: item.category || null,
