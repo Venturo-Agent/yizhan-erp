@@ -47,6 +47,13 @@ interface EmployeeFormProps {
    * settings 傳「顯示偏好」（主題 + 字體大小）進來、HR 編輯員工不傳
    */
   headerRightSlot?: React.ReactNode
+  /**
+   * 2026-05-21 William 拍板：self 模式底部按鈕重複、改由 page 用 ContentPageLayout primaryAction 提供
+   * formId：外部 submit 按鈕用 form="X" attribute 觸發 form submit
+   * onSubmittingChange：讓 page 拿到 submitting state、控制 primaryAction disabled
+   */
+  formId?: string
+  onSubmittingChange?: (submitting: boolean) => void
 }
 
 export function EmployeeForm({
@@ -56,6 +63,8 @@ export function EmployeeForm({
   mode = 'hr',
   onPasswordChange,
   headerRightSlot,
+  formId,
+  onSubmittingChange,
 }: EmployeeFormProps) {
   const {
     employee,
@@ -123,8 +132,13 @@ export function EmployeeForm({
     </>
   )
 
+  // 2026-05-21：通知外部 submitting 變化（給 ContentPageLayout primaryAction 控 disabled）
+  React.useEffect(() => {
+    onSubmittingChange?.(submitting)
+  }, [submitting, onSubmittingChange])
+
   return (
-    <form onSubmit={handleSubmit} className="h-full overflow-y-auto">
+    <form id={formId} onSubmit={handleSubmit} className="h-full overflow-y-auto">
       {/* Character Card 風格 */}
       <div className="bg-card rounded-xl border border-border shadow-sm">
         {/* 照片那一列：照片 + 姓名 + (settings 用)顯示偏好 slot */}
@@ -166,11 +180,7 @@ export function EmployeeForm({
               />
             )}
 
-            {mode === 'self' && (
-              <div className="pt-6 flex justify-end gap-3">
-                {bottomButtons}
-              </div>
-            )}
+            {/* 2026-05-21 William 拍板：self 模式底部按鈕砍掉、由 ContentPageLayout primaryAction 提供存檔、headerRightSlot 提供修改密碼 */}
           </div>
 
           {mode !== 'self' && (

@@ -3,10 +3,10 @@
 import { useAuthStore } from '@/stores/auth-store'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
-import { Lock } from 'lucide-react'
+import { Lock, Save } from 'lucide-react'
 import { useSettingsState } from '../hooks/useSettingsState'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { SettingsTabs } from '../components/SettingsTabs'
 import { EmployeeForm } from '@/app/(main)/hr/_components/EmployeeForm'
 import { FormDialog } from '@/components/dialog'
@@ -48,6 +48,10 @@ export default function SettingsPage() {
   const { canReadAnyInModule } = useMyCapabilities()
   const hasSettingsAccess = canReadAnyInModule('settings')
 
+  // 2026-05-21 William 拍板：存檔按鈕移到主標題區 primaryAction、跟公司設定一致
+  const [submitting, setSubmitting] = useState(false)
+  const FORM_ID = 'settings-personal-form'
+
   return (
     <ContentPageLayout
       title={t('settings')}
@@ -57,11 +61,23 @@ export default function SettingsPage() {
           {hasSettingsAccess && <SettingsTabs />}
         </div>
       }
+      primaryAction={{
+        label: submitting ? t('saving') : t('saveChanges'),
+        icon: Save,
+        onClick: () => {
+          // 觸發 form submit（form 在 EmployeeForm 內、id 為 FORM_ID）
+          const formEl = document.getElementById(FORM_ID) as HTMLFormElement | null
+          formEl?.requestSubmit()
+        },
+        disabled: submitting,
+      }}
     >
       {/* 5/13 William 拍板 v3：顯示偏好放照片右邊、跟照片同一橫排、不獨立卡片 */}
       <EmployeeForm
         employeeId={user?.id}
         mode="self"
+        formId={FORM_ID}
+        onSubmittingChange={setSubmitting}
         onSubmit={() => {
           window.location.reload()
         }}
