@@ -97,8 +97,9 @@ export function PaymentRequestOverviewTable({ tour }: PaymentRequestOverviewTabl
         </span>
       </div>
       <table className="w-full text-sm table-fixed min-w-[900px]">
-        {/* colgroup 加總 = 100%、避免 table-fixed normalize 把所有 column 等比放大
-            最右 2 欄（狀態 10% / 金額 9%）必跟 tour-receipts 一致、垂直線對齊 */}
+        {/* 請款欄位多、column 不該被擠：還原業務需要寬度
+            加總 100%（避免 table-fixed normalize 拉變形）
+            收款 colgroup 配合本表的左半段對齊（方式/付款人/備註 對應 類別/供應商/項目描述）*/}
         <colgroup>
           <col style={{ width: '12%' }} />
           <col style={{ width: '6%' }} />

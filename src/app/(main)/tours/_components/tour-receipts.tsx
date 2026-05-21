@@ -103,14 +103,18 @@ export const TourReceipts = React.memo(function TourReceipts({
         </span>
       </div>
       <table className="w-full text-sm table-fixed" style={{ minWidth: 900 }}>
-        {/* 最右 2 欄（狀態 10% / 金額 9%）對齊請款表 PaymentRequestOverviewTable colgroup */}
+        {/* 配合請款 PaymentRequestOverviewTable colgroup：
+            col 1-5 完全一致（單號 12 / 日期 6 / 方式 8 / 付款人 9 / 備註 25）
+            → 視覺對齊請款「類別 / 供應商 / 項目描述」起始位置
+            col 7-8 也一致（狀態 10 / 金額 9）
+            col 6 待核金額 = 100 - 60 - 19 = 21%（吸收請款右半段 單價 8 + 數量 5 + 小計 8 = 21%） */}
         <colgroup>
           <col style={{ width: '12%' }} />
+          <col style={{ width: '6%' }} />
           <col style={{ width: '8%' }} />
-          <col style={{ width: '10%' }} />
-          <col style={{ width: '14%' }} />
+          <col style={{ width: '9%' }} />
           <col style={{ width: '25%' }} />
-          <col style={{ width: '12%' }} />
+          <col style={{ width: '21%' }} />
           <col style={{ width: '10%' }} />
           <col style={{ width: '9%' }} />
         </colgroup>
