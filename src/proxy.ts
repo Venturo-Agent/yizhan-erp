@@ -54,8 +54,11 @@ const EXACT_PUBLIC_PATHS = new Set<string>([
   '/api/health',
   // === 客戶簽單確認（透過分享連結）===
   '/api/contracts/sign',
-  // === LINE Webhook（LINE 伺服器打過來、不需認證）===
+  // === LINE / FB / IG Webhook（外部平台伺服器打過來、不需認證）
+  //     webhook 自己有 verify_token + HMAC signature 雙保險守門 ===
   '/api/line/webhook',
+  '/api/facebook/webhook',
+  '/api/instagram/webhook',
 ])
 
 const PREFIX_PUBLIC_PATHS: readonly string[] = [
