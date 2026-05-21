@@ -556,3 +556,40 @@ export {
   useWebsiteTourDetail,
   invalidateWebsiteTours,
 } from './website-tours'
+
+// ============================================
+// 財務設定（2026-05-21、補紅線 H 修法配套）
+// ============================================
+
+// Payment Methods（付款方式）
+export {
+  usePaymentMethods,
+  usePaymentMethod,
+  invalidatePaymentMethods,
+  createPaymentMethod,
+  updatePaymentMethod,
+  deletePaymentMethod,
+} from './payment-methods'
+export type { PaymentMethod } from './payment-methods'
+
+// Bank Accounts（銀行帳戶）
+export {
+  useBankAccounts,
+  useBankAccount,
+  invalidateBankAccounts,
+  createBankAccount,
+  updateBankAccount,
+  deleteBankAccount,
+} from './bank-accounts'
+export type { BankAccount } from './bank-accounts'
+
+// Expense Categories（請款類別、含團體 + 公司）
+export {
+  useExpenseCategories,
+  useExpenseCategory,
+  invalidateExpenseCategories,
+  createExpenseCategory,
+  updateExpenseCategory,
+  deleteExpenseCategory,
+} from './expense-categories'
+export type { ExpenseCategory } from './expense-categories'
