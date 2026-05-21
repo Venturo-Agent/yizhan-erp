@@ -18,6 +18,8 @@ const COLORS = {
 
 interface PrintFooterProps {
   totalAmount: number
+  /** 銀行手續費（跨行轉帳費）2026-05-21 加 */
+  bankFee?: number
   paymentMethod?: {
     name: string
   } | null
@@ -32,15 +34,35 @@ interface PrintFooterProps {
 
 export function PrintFooter({
   totalAmount,
+  bankFee = 0,
   paymentMethod,
   bankAccount,
   subtitle,
   companyFullName,
 }: PrintFooterProps) {
   const t = useTranslations('finance')
+  const grandTotal = totalAmount + bankFee
   return (
     <>
-      {/* 總計 - 獨立區塊 */}
+      {/* 銀行手續費（有就顯示）2026-05-21 William 拍板加 */}
+      {bankFee > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '8px 8px',
+            fontSize: '12px',
+            color: COLORS.gray,
+            borderTop: `1px dashed ${COLORS.gold}50`,
+          }}
+        >
+          <span>銀行手續費</span>
+          <span style={{ fontFamily: 'monospace' }}>NT$ {bankFee.toLocaleString()}</span>
+        </div>
+      )}
+
+      {/* 總計 - 獨立區塊（含手續費） */}
       <div
         style={{
           display: 'flex',
@@ -67,7 +89,7 @@ export function PrintFooter({
             color: COLORS.gold,
           }}
         >
-          NT$ {totalAmount.toLocaleString()}
+          NT$ {grandTotal.toLocaleString()}
         </span>
       </div>
 

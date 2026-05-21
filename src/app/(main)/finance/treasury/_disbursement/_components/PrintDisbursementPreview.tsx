@@ -131,6 +131,8 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
     const companyTotal = companyItems.reduce((sum, item) => sum + item.amount, 0)
     const tourTotal = tourItems.reduce((sum, item) => sum + item.amount, 0)
     const totalAmount = order.amount || 0
+    // 銀行手續費 2026-05-21 加（disbursement_orders.total_fee、generated types 可能還沒 regen、cast 過去）
+    const bankFee = Number((order as unknown as { total_fee?: number | null }).total_fee || 0)
 
     return (
       <div
@@ -180,6 +182,7 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
 
         <PrintFooter
           totalAmount={totalAmount}
+          bankFee={bankFee}
           paymentMethod={paymentMethod}
           bankAccount={bankAccount}
           subtitle={subtitle}

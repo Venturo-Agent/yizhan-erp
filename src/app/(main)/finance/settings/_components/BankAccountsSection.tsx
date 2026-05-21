@@ -101,16 +101,17 @@ export function BankAccountsSection({
     <>
       <div className="space-y-4">
         <Card className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+          {/* 2026-05-21 William 拍板：砍 code 欄位（無 caller 引用）、加跨行手續費、列寬重排、操作 center 對齊鉛筆 */}
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">{PAGE_LABELS.COL_CODE}</TableHead>
-                <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
-                <TableHead>{PAGE_LABELS.COL_BANK}</TableHead>
-                <TableHead>{PAGE_LABELS.COL_ACCOUNT_NUMBER}</TableHead>
-                <TableHead className="w-[80px]">{PAGE_LABELS.COL_DEFAULT}</TableHead>
-                <TableHead className="w-[100px]">可出帳</TableHead>
-                <TableHead className="w-[100px] text-right">{PAGE_LABELS.COL_ACTION}</TableHead>
+                <TableHead className="w-[180px]">{PAGE_LABELS.COL_NAME}</TableHead>
+                <TableHead className="w-[180px]">{PAGE_LABELS.COL_BANK}</TableHead>
+                <TableHead className="w-[200px]">{PAGE_LABELS.COL_ACCOUNT_NUMBER}</TableHead>
+                <TableHead className="w-[110px] text-right">跨行手續費</TableHead>
+                <TableHead className="w-[70px] text-center">{PAGE_LABELS.COL_DEFAULT}</TableHead>
+                <TableHead className="w-[80px] text-center">可出帳</TableHead>
+                <TableHead className="w-[90px] text-center">{PAGE_LABELS.COL_ACTION}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -123,26 +124,30 @@ export function BankAccountsSection({
               ) : (
                 bankAccounts.map(bank => (
                   <TableRow key={bank.id}>
-                    <TableCell className="font-mono">{bank.code}</TableCell>
                     <TableCell className="font-medium">{bank.name}</TableCell>
                     <TableCell>{bank.bank_name || '-'}</TableCell>
                     <TableCell className="font-mono">{bank.account_number || '-'}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-right font-mono">
+                      {bank.cross_bank_fee && bank.cross_bank_fee > 0
+                        ? `$${bank.cross_bank_fee}`
+                        : <span className="text-morandi-muted">-</span>}
+                    </TableCell>
+                    <TableCell className="text-center">
                       {bank.is_default && (
                         <Badge className="bg-morandi-gold/20 text-morandi-gold">
                           {PAGE_LABELS.DEFAULT_BADGE}
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-center">
                       {bank.is_disbursement_eligible !== false ? (
                         <Badge className="bg-morandi-green/20 text-morandi-green">可</Badge>
                       ) : (
                         <Badge className="bg-morandi-muted/20 text-morandi-muted">不可</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
+                    <TableCell className="text-center">
+                      <div className="flex justify-center gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
