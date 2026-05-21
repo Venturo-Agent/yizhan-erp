@@ -144,28 +144,29 @@ export function GroupedDisbursementItemsTable({
               <col className="w-48" />
               <col className="w-32" />
             </colgroup>
-            <thead className="bg-morandi-gold-header sticky top-0 z-10">
+            {/* sticky thead：bg 套在 th（套 thead 沒效）+ 高 z-index 蓋住底下捲動內容 */}
+            <thead className="sticky top-0 z-20">
               <tr className="border-b border-border">
-                <th className="px-3 py-2.5"></th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                <th className="bg-morandi-gold-header px-3 py-2.5"></th>
+                <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   出帳日期
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   請款單號
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   請款人
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   品項
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   付款對象
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   對方銀行
                 </th>
-                <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                <th className="bg-morandi-gold-header text-right px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   金額
                 </th>
               </tr>
