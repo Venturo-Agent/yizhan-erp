@@ -233,6 +233,7 @@ async function submitBatch({
         order_id: allocation.order_id || null,
         order_number: allocation.order_number || null,
         code: requestCode,
+        request_number: requestCode,
         tour_code: allocation.tour_code,
         tour_name: allocation.tour_name,
         request_date: batchDate,
@@ -256,6 +257,7 @@ async function submitBatch({
         quantity: 1,
         notes: '',
         sort_order: 1,
+        payment_method_id: batchPaymentMethodId || null,
       })
       successCount++
     } catch (itemError) {

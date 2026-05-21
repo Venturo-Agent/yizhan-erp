@@ -149,6 +149,7 @@ export async function saveEditedRequest({
       .from('payment_requests')
       .update({
         amount: newTotal,
+        total_amount: newTotal,
         payment_method_id: localPaymentMethodId || null,
         order_id: formData.order_id || null,
         order_number: editedOrder?.order_number ?? null,

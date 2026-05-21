@@ -10568,6 +10568,7 @@ export type Database = {
           leave_policy: string
           legal_name: string | null
           logo_offset_x: number
+          logo_offset_y: number
           logo_scale: number
           logo_url: string | null
           max_employees: number | null
@@ -10624,6 +10625,7 @@ export type Database = {
           leave_policy?: string
           legal_name?: string | null
           logo_offset_x?: number
+          logo_offset_y?: number
           logo_scale?: number
           logo_url?: string | null
           max_employees?: number | null
@@ -10680,6 +10682,7 @@ export type Database = {
           leave_policy?: string
           legal_name?: string | null
           logo_offset_x?: number
+          logo_offset_y?: number
           logo_scale?: number
           logo_url?: string | null
           max_employees?: number | null

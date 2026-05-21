@@ -124,7 +124,12 @@ class PaymentRequestService extends BaseService<PaymentRequest> {
     amount: number,
     updatedAt: string
   ): Promise<void> {
-    await this.update(requestId, { amount, updated_at: updatedAt })
+    // amount 是主欄、total_amount 為冗餘同步、保持兩欄一致避免報表讀錯
+    await this.update(requestId, {
+      amount,
+      total_amount: amount,
+      updated_at: updatedAt,
+    } as Partial<PaymentRequest>)
   }
 
   // ============ PaymentRequestItem 管理（委派給 items service） ============
@@ -193,8 +198,9 @@ class PaymentRequestService extends BaseService<PaymentRequest> {
 
     await this.update(requestId, {
       amount: totalAmount,
+      total_amount: totalAmount,
       updated_at: this.now(),
-    })
+    } as Partial<PaymentRequest>)
 
     return totalAmount
   }

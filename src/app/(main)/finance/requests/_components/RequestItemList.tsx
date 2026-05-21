@@ -180,16 +180,36 @@ export function EditableRequestItemList({
       key: 'supplier',
       label: payeeIsEmployee ? '員工' : t('requestItemsSupplier'),
       render: ({ row, onUpdate }) => {
-        const opts = payeeIsEmployee
+        const baseOpts = payeeIsEmployee
           ? suppliers
               .filter(s => s.type === 'employee')
               .map(s => ({ value: s.id, label: s.name || '未命名', group: s.group }))
           : supplierOptions
+        // 保留歷史 free text supplier_name（請款前換廠商來不及建檔的情境）
+        // 編輯模式打開舊單時、原字串以「（原紀錄）」標示注入下拉、避免空白誤導
+        // 用戶選新供應商會自然覆寫；不選則 saveEditedRequest 經 resolveSupplierName 保留原字串
+        const FREETEXT_PREFIX = '__freetext__:'
+        const hasFreeTextSupplier = Boolean(
+          !payeeIsEmployee && row.supplierName && !row.supplier_id && !row.selected_id
+        )
+        const opts = hasFreeTextSupplier
+          ? [
+              {
+                value: `${FREETEXT_PREFIX}${row.supplierName}`,
+                label: `${row.supplierName}（原紀錄）`,
+              },
+              ...baseOpts,
+            ]
+          : baseOpts
+        const comboboxValue = hasFreeTextSupplier
+          ? `${FREETEXT_PREFIX}${row.supplierName}`
+          : row.selected_id || row.supplier_id
         return (
           <Combobox
             options={opts}
-            value={row.selected_id || row.supplier_id}
+            value={comboboxValue}
             onChange={value => {
+              if (value.startsWith(FREETEXT_PREFIX)) return
               const supplier = suppliers.find(s => s.id === value)
               const isEmployee = payeeIsEmployee || supplier?.type === 'employee'
               onUpdate({

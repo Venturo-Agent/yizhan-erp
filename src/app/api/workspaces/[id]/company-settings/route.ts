@@ -41,6 +41,7 @@ export async function PATCH(
     profit_tax_rate?: number | null
     logo_scale?: number
     logo_offset_x?: number
+    logo_offset_y?: number
   }
   try {
     body = await request.json()
@@ -64,13 +65,13 @@ export async function PATCH(
       }
     }
 
-    // 1b. logo_scale / logo_offset_x：Logo 在 PrintHeader 內的位置 + 縮放
-    // 範圍 logo_scale 0.5-2.0(DB 有 CHECK constraint 兜底)、logo_offset_x 容許負值
+    // 1b. logo_scale / logo_offset_x / logo_offset_y：Logo 在 PrintHeader 內的位置 + 縮放
+    // 範圍 logo_scale 0.25-4.0(DB 有 CHECK constraint 兜底)、offsetX/Y 容許負值
     const logoPatch: Record<string, number> = {}
     if (body.logo_scale !== undefined) {
       const s = body.logo_scale
-      if (typeof s !== 'number' || !Number.isFinite(s) || s < 0.5 || s > 2.0) {
-        return NextResponse.json({ error: 'logo_scale 範圍 0.5-2.0' }, { status: 400 })
+      if (typeof s !== 'number' || !Number.isFinite(s) || s < 0.25 || s > 4.0) {
+        return NextResponse.json({ error: 'logo_scale 範圍 0.25-4.0' }, { status: 400 })
       }
       logoPatch.logo_scale = s
     }
@@ -80,6 +81,13 @@ export async function PATCH(
         return NextResponse.json({ error: 'logo_offset_x 範圍 -200 到 800' }, { status: 400 })
       }
       logoPatch.logo_offset_x = x
+    }
+    if (body.logo_offset_y !== undefined) {
+      const y = body.logo_offset_y
+      if (typeof y !== 'number' || !Number.isInteger(y) || y < -100 || y > 200) {
+        return NextResponse.json({ error: 'logo_offset_y 範圍 -100 到 200' }, { status: 400 })
+      }
+      logoPatch.logo_offset_y = y
     }
     if (Object.keys(logoPatch).length > 0) {
       const { error } = await supabase

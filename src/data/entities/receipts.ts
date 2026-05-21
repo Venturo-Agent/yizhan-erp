@@ -14,7 +14,7 @@ const receiptEntity = createEntityHook<Receipt>('receipts', {
   list: {
     // 2026-05-15 補 退款 5 欄 / 發票連動 / 驗證 / accounting_subject
     select:
-      'id,receipt_number,order_id,order_number,tour_id,tour_name,customer_id,customer_name,actual_amount,receipt_amount,fees,status,payment_method,payment_method_id,payment_methods!fk_receipts_payment_method(name,code),payment_date,receipt_date,receipt_type,receipt_account,accounting_subject_id,bank_account_last5,confirmed_at,confirmed_by,is_active,workspace_id,created_at,created_by,updated_at,updated_by,notes,batch_id,transferred_pair_id,refunded_at,refund_amount,refund_voucher_id,refund_notes,refunded_by,invoice_id,verified_by,verified_at,rejected_reason',
+      'id,receipt_number,order_id,order_number,tour_id,tour_name,customer_id,customer_name,actual_amount,receipt_amount,fees,status,payment_method,payment_method_id,payment_methods!fk_receipts_payment_method(name,code),payment_date,receipt_date,receipt_type,receipt_account,accounting_subject_id,bank_account_last5,confirmed_at,confirmed_by,is_active,workspace_id,branch_id,created_at,created_by,updated_at,updated_by,notes,batch_id,transferred_pair_id,refunded_at,refund_amount,refund_voucher_id,refund_notes,refunded_by,invoice_id,verified_by,verified_at,rejected_reason',
     orderBy: { column: 'created_at', ascending: false },
     filterSoftDeleted: true,
   },

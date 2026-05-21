@@ -34,7 +34,6 @@ import { DisbursementDetailDialog } from './DisbursementDetailDialog'
 import { DisbursementPrintDialog } from './DisbursementPrintDialog'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
-import { useBranches } from '@/data/hooks/useBranches'
 import { apiPost } from '@/lib/api/client'
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth-store'
@@ -117,7 +116,6 @@ export function DisbursementPage() {
 
   const user = useAuthStore(state => state.user)
   const bankGroupSummaries = useDisbursementBankGroupSummaries(user?.workspace_id)
-  const { branches } = useBranches()
   const { can, loading: permLoading } = useCapabilities()
   const canManage = can(CAPABILITIES.FINANCE_MANAGE_DISBURSEMENT)
 
@@ -144,20 +142,9 @@ export function DisbursementPage() {
           </div>
         ),
       },
-      {
-        key: 'branch_id' as keyof DisbursementOrder,
-        label: '分公司',
-        width: '100px',
-        render: (_value: unknown, row: DisbursementOrder) => {
-          const branchId = (row as unknown as { branch_id?: string | null }).branch_id
-          const branch = branches.find(b => b.id === branchId)
-          return (
-            <div className={`text-sm ${branch ? 'text-morandi-primary' : 'text-morandi-muted'}`}>
-              {branch?.name || '—'}
-            </div>
-          )
-        },
-      },
+      // 「分公司」column 拿掉(William 2026-05-20 拍板):出納單是 batch 動作、
+      // 一張出納單可能跨多個分公司請款合在一起匯、列「分公司」反而誤導
+      // (集中管帳場景下、一張出納單可能塞台北 3 張 + 高雄 2 張、貼一個分公司標籤無意義)
       {
         key: 'disbursement_date',
         label: '出帳日期',
@@ -209,7 +196,7 @@ export function DisbursementPage() {
         ),
       },
     ],
-    [payment_requests, bankGroupSummaries, branches]
+    [payment_requests, bankGroupSummaries]
   )
 
   // 點擊列：pending → 編輯、paid → 詳情

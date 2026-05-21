@@ -58,9 +58,11 @@ import { apiMutate } from '@/lib/swr/api-mutate'
 
 // Types
 import type { Receipt } from '@/stores'
+import { useBranches } from '@/data/hooks/useBranches'
 
 export default function PaymentsPage() {
   const t = useTranslations('finance')
+  const { branches } = useBranches()
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -218,6 +220,21 @@ export default function PaymentsPage() {
       sortable: true,
       width: '90px',
       render: value => <DateCell date={String(value)} showIcon={false} />,
+    },
+    {
+      // 分公司 column(2026-05-20 加):集中管帳場景下、會計要分清這筆收款是哪間分公司的
+      key: 'branch_id' as keyof Receipt,
+      label: '分公司',
+      width: '100px',
+      render: (_value, row) => {
+        const branchId = (row as unknown as { branch_id?: string | null }).branch_id
+        const branch = branches.find(b => b.id === branchId)
+        return (
+          <div className={`text-sm ${branch ? 'text-morandi-primary' : 'text-morandi-muted'}`}>
+            {branch?.name || '—'}
+          </div>
+        )
+      },
     },
     { key: 'tour_name', label: t('tourNameCol'), sortable: true },
     {

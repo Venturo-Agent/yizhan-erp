@@ -7,10 +7,12 @@ import { getPrintLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 interface PrintableQuickQuoteHeaderProps {
   logoUrl: string
   wsName: string | undefined
-  /** Logo 縮放(0.5-2.0、預設 1.0) */
+  /** Logo 縮放(0.25-3.0、預設 1.0) */
   logoScale?: number
   /** Logo 水平位移 px、預設 0 */
   logoOffsetX?: number
+  /** Logo 垂直位移 px、預設 0 */
+  logoOffsetY?: number
 }
 
 export const PrintableQuickQuoteHeader: React.FC<PrintableQuickQuoteHeaderProps> = ({
@@ -18,6 +20,7 @@ export const PrintableQuickQuoteHeader: React.FC<PrintableQuickQuoteHeaderProps>
   wsName,
   logoScale,
   logoOffsetX,
+  logoOffsetY,
 }) => {
   return (
     <div
@@ -35,6 +38,7 @@ export const PrintableQuickQuoteHeader: React.FC<PrintableQuickQuoteHeaderProps>
           style={getPrintLogoBoxStyle({
             logo_scale: logoScale ?? 1.0,
             logo_offset_x: logoOffsetX ?? 0,
+            logo_offset_y: logoOffsetY ?? 0,
           })}
         >
           <img

@@ -94,6 +94,7 @@ export function useRequestOperations() {
         const request = await createPaymentRequest({
           workspace_id: workspaceId,
           code: requestCode,
+          request_number: requestCode,
           request_date: formData.request_date,
           amount: 0,
           status: 'pending',
@@ -124,6 +125,9 @@ export function useRequestOperations() {
               sort_order: i + 1,
               // 2026-05-14：item.tour_id 帶 parent 或 client 各自選；代墊人走 supplier_id
               tour_id: (item as unknown as { tour_id?: string }).tour_id || formData.tour_id || null,
+              payment_method_id: item.payment_method_id || formData.payment_method_id || null,
+              advanced_by: item.advanced_by || null,
+              advanced_by_name: item.advanced_by_name || null,
             }))
           )
         } catch (itemError) {
@@ -145,6 +149,7 @@ export function useRequestOperations() {
           workspace_id: workspaceId,
           tour_id: formData.tour_id,
           code: requestCode,
+          request_number: requestCode,
           tour_code: tourCode, // 保存團號供查詢用
           tour_name: tourName,
           order_id: formData.order_id || undefined,
@@ -178,6 +183,9 @@ export function useRequestOperations() {
               sort_order: i + 1,
               // 2026-05-14：item.tour_id 帶 parent 或 client 各自選；代墊人走 supplier_id
               tour_id: (item as unknown as { tour_id?: string }).tour_id || formData.tour_id || null,
+              payment_method_id: item.payment_method_id || formData.payment_method_id || null,
+              advanced_by: item.advanced_by || null,
+              advanced_by_name: item.advanced_by_name || null,
             }))
           )
         } catch (itemError) {
@@ -230,6 +238,7 @@ export function useRequestOperations() {
           workspace_id: workspaceId,
           tour_id: tourId,
           code: requestCode,
+          request_number: requestCode,
           tour_code: selectedTour.code, // 保存團號供查詢用
           tour_name: selectedTour.name,
           request_date: formData.request_date,
@@ -253,6 +262,9 @@ export function useRequestOperations() {
               quantity: item.quantity,
               notes: '',
               sort_order: i + 1,
+              payment_method_id: item.payment_method_id || formData.payment_method_id || null,
+              advanced_by: item.advanced_by || null,
+              advanced_by_name: item.advanced_by_name || null,
             }))
           )
         } catch (itemError) {

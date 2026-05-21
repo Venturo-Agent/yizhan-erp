@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+'use client'
+
 import type React from 'react'
+import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
+import { mutate } from '@/lib/swr/scoped-mutate'
 import { useAuthStore } from '@/stores/auth-store'
-import { logger } from '@/lib/utils/logger'
 
 interface WorkspaceSettings {
   name: string
@@ -12,7 +14,6 @@ interface WorkspaceSettings {
   bank_branch: string
   bank_account: string
   bank_account_name: string
-  // 新增欄位
   legal_name: string
   subtitle: string
   logo_url: string
@@ -26,6 +27,7 @@ interface WorkspaceSettings {
   // Logo 列印頁首位置設定(公司設定頁可拖滑桿微調)
   logo_scale: number
   logo_offset_x: number
+  logo_offset_y: number
 }
 
 const EMPTY_SETTINGS: WorkspaceSettings = {
@@ -36,7 +38,6 @@ const EMPTY_SETTINGS: WorkspaceSettings = {
   bank_branch: '',
   bank_account: '',
   bank_account_name: '',
-  // 新增欄位
   legal_name: '',
   subtitle: '',
   logo_url: '',
@@ -49,10 +50,17 @@ const EMPTY_SETTINGS: WorkspaceSettings = {
   invoice_seal_image_url: '',
   logo_scale: 1.0,
   logo_offset_x: 0,
+  logo_offset_y: 0,
 }
 
 const SELECT_FIELDS =
-  'name, phone, address, bank_name, bank_branch, bank_account, bank_account_name, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, logo_scale, logo_offset_x' as const
+  'name, phone, address, bank_name, bank_branch, bank_account, bank_account_name, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, logo_scale, logo_offset_x, logo_offset_y' as const
+
+// SWR cache key (給 invalidateWorkspaceSettings 用)
+const SWR_KEY_PREFIX = 'workspace-settings'
+function buildSwrKey(workspaceId: string): readonly [string, string] {
+  return [SWR_KEY_PREFIX, workspaceId] as const
+}
 
 /**
  * Logo 規範
@@ -60,14 +68,8 @@ const SELECT_FIELDS =
  * - 網頁 Header：max-width: 120px, max-height: 36px
  */
 const LOGO_CONSTRAINTS = {
-  print: {
-    maxWidth: 150,
-    maxHeight: 40,
-  },
-  header: {
-    maxWidth: 120,
-    maxHeight: 36,
-  },
+  print: { maxWidth: 150, maxHeight: 40 },
+  header: { maxWidth: 120, maxHeight: 36 },
 } as const
 
 /**
@@ -85,7 +87,7 @@ export function getLogoStyle(usage: 'print' | 'header' = 'print') {
 }
 
 /**
- * 取得列印頁首 logo wrapper 樣式(套用公司設定的 scale + offsetX)
+ * 取得列印頁首 logo wrapper 樣式(套用公司設定的 scale + offsetX + offsetY)
  *
  * 用法:
  *   const ws = useWorkspaceSettings()
@@ -94,17 +96,17 @@ export function getLogoStyle(usage: 'print' | 'header' = 'print') {
  *   </div>
  *
  * Base size 120×40(對齊 src/lib/print/PrintHeader.tsx)、scale 1.0 = 100%。
- * left 位移 = offsetX px、top 鎖 0(只允許水平移動)。
  */
 export function getPrintLogoBoxStyle(
-  ws: Pick<WorkspaceSettings, 'logo_scale' | 'logo_offset_x'>
+  ws: Pick<WorkspaceSettings, 'logo_scale' | 'logo_offset_x' | 'logo_offset_y'>
 ): React.CSSProperties {
   const scale = typeof ws.logo_scale === 'number' && ws.logo_scale > 0 ? ws.logo_scale : 1.0
   const offsetX = typeof ws.logo_offset_x === 'number' ? ws.logo_offset_x : 0
+  const offsetY = typeof ws.logo_offset_y === 'number' ? ws.logo_offset_y : 0
   return {
     position: 'absolute',
     left: `${offsetX}px`,
-    top: 0,
+    top: `${offsetY}px`,
     width: `${120 * scale}px`,
     height: `${40 * scale}px`,
   }
@@ -112,72 +114,76 @@ export function getPrintLogoBoxStyle(
 
 /**
  * 取得目前 workspace 的公司設定（銀行資訊、電話、地址、logo 等）
- * 用於列印模板、信封等需要動態讀取公司資訊的場景
+ *
+ * SWR cache 策略(2026-05-20 加):
+ * - dedupingInterval: 30 min — 公司設定改動極稀疏(一個月一次)、不需要頻繁 refetch
+ * - revalidateOnFocus: false — 切回 tab 不重撈、省 Supabase 流量
+ * - 寫入後手動 call invalidateWorkspaceSettings(workspaceId) 失效 cache
+ *
+ * 為什麼 30 min 而不是 5 min(預設):公司設定一旦設好幾乎不變、列印流程一天觸發數十次、
+ * 5 min TTL 意義不大、30 min 已經足夠覆蓋大部分使用情境、節省流量。
  */
 export function useWorkspaceSettings(): WorkspaceSettings {
   const workspaceId = useAuthStore(state => state.user?.workspace_id)
-  const [settings, setSettings] = useState<WorkspaceSettings>(EMPTY_SETTINGS)
+  const { data } = useSWR<WorkspaceSettings>(
+    workspaceId ? buildSwrKey(workspaceId) : null,
+    async (key: readonly [string, string]) => {
+      const wsId = key[1]
+      const { data, error } = await supabase
+        .from('workspaces')
+        .select(SELECT_FIELDS)
+        .eq('id', wsId)
+        .single()
+      if (error) throw error
+      if (!data) return EMPTY_SETTINGS
 
-  useEffect(() => {
-    if (!workspaceId) return
-
-    let cancelled = false
-
-    const load = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('workspaces')
-          .select(SELECT_FIELDS)
-          .eq('id', workspaceId)
-          .single()
-
-        if (error) {
-          logger.error('載入 workspace 設定失敗:', error)
-          return
-        }
-
-        if (!cancelled && data) {
-          const rawScale = (data as Record<string, unknown>).logo_scale
-          const rawOffsetX = (data as Record<string, unknown>).logo_offset_x
-          setSettings({
-            name: data.name ?? '',
-            phone: data.phone ?? '',
-            address: data.address ?? '',
-            bank_name: data.bank_name ?? '',
-            bank_branch: data.bank_branch ?? '',
-            bank_account: data.bank_account ?? '',
-            bank_account_name: data.bank_account_name ?? '',
-            // 新增欄位
-            legal_name: data.legal_name ?? '',
-            subtitle: data.subtitle ?? '',
-            logo_url: data.logo_url ?? '',
-            fax: data.fax ?? '',
-            email: data.email ?? '',
-            website: data.website ?? '',
-            tax_id: data.tax_id ?? '',
-            company_seal_url: data.company_seal_url ?? '',
-            personal_seal_url: data.personal_seal_url ?? '',
-            invoice_seal_image_url: data.invoice_seal_image_url ?? '',
-            logo_scale:
-              typeof rawScale === 'number'
-                ? rawScale
-                : rawScale != null
-                  ? Number(rawScale) || 1.0
-                  : 1.0,
-            logo_offset_x: typeof rawOffsetX === 'number' ? rawOffsetX : 0,
-          })
-        }
-      } catch (err) {
-        logger.error('載入 workspace 設定錯誤:', err)
+      const rawScale = (data as Record<string, unknown>).logo_scale
+      const rawOffsetX = (data as Record<string, unknown>).logo_offset_x
+      const rawOffsetY = (data as Record<string, unknown>).logo_offset_y
+      return {
+        name: data.name ?? '',
+        phone: data.phone ?? '',
+        address: data.address ?? '',
+        bank_name: data.bank_name ?? '',
+        bank_branch: data.bank_branch ?? '',
+        bank_account: data.bank_account ?? '',
+        bank_account_name: data.bank_account_name ?? '',
+        legal_name: data.legal_name ?? '',
+        subtitle: data.subtitle ?? '',
+        logo_url: data.logo_url ?? '',
+        fax: data.fax ?? '',
+        email: data.email ?? '',
+        website: data.website ?? '',
+        tax_id: data.tax_id ?? '',
+        company_seal_url: data.company_seal_url ?? '',
+        personal_seal_url: data.personal_seal_url ?? '',
+        invoice_seal_image_url: data.invoice_seal_image_url ?? '',
+        logo_scale:
+          typeof rawScale === 'number'
+            ? rawScale
+            : rawScale != null
+              ? Number(rawScale) || 1.0
+              : 1.0,
+        logo_offset_x: typeof rawOffsetX === 'number' ? rawOffsetX : 0,
+        logo_offset_y: typeof rawOffsetY === 'number' ? rawOffsetY : 0,
       }
+    },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 30 * 60 * 1000, // 30 分鐘
     }
+  )
+  return data ?? EMPTY_SETTINGS
+}
 
-    void load()
-
-    return () => {
-      cancelled = true
-    }
-  }, [workspaceId])
-
-  return settings
+/**
+ * 寫入 workspace 設定後 invalidate SWR cache、讓全站 useWorkspaceSettings refetch 一次。
+ *
+ * 何時 call:
+ *   - 公司設定頁 PATCH /api/workspaces/[id]/company-settings 成功後
+ *   - 公司設定頁 「儲存」按鈕(寫整個 form 進 workspaces)成功後
+ *   - 上傳 / 移除 logo / 印章後(這些經由 form 寫入、走儲存鈕)
+ */
+export function invalidateWorkspaceSettings(workspaceId: string): void {
+  void mutate(buildSwrKey(workspaceId))
 }
