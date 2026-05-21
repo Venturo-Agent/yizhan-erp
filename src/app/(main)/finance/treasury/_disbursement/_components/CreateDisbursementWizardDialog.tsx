@@ -157,37 +157,55 @@ export function CreateDisbursementWizardDialog({
     }
 
     // 新增模式：吸入勾選 items 進 stagedBatches、清勾選
+    // 2026-05-22 William 拍板：購物車合併 — 同帳戶 batch 已存在 → 追加 items、不建新 batch
     const pickedItemsNow = pickedItems
-    // 2026-05-21 William 拍板：自動算預估手續費 = unique payer 數 × bank.cross_bank_fee
-    // payer_key 推導順序：advanced_by > payee_employee_id > supplier_id > item.id（同 backend）
     const crossBankFee = Number(bank.cross_bank_fee || 0)
-    let estimatedFee = 0
-    if (crossBankFee > 0) {
-      const uniquePayers = new Set<string>()
-      for (const it of pickedItemsNow) {
-        const key =
-          it.advanced_by
-            ? `e:${it.advanced_by}`
-            : it.payee_employee_id
-              ? `e:${it.payee_employee_id}`
-              : it.supplier_id
-                ? `s:${it.supplier_id}`
-                : `i:${it.id}`
-        uniquePayers.add(key)
+
+    const payerKeyOf = (it: typeof pickedItemsNow[0]): string =>
+      it.advanced_by
+        ? `e:${it.advanced_by}`
+        : it.payee_employee_id
+          ? `e:${it.payee_employee_id}`
+          : it.supplier_id
+            ? `s:${it.supplier_id}`
+            : `i:${it.id}`
+
+    setStagedBatches(prev => {
+      const existing = prev.find(b => b.from_bank_account_id === bank.id)
+      if (existing) {
+        // 合併：追加 items 進原 batch、重算 estimatedFee
+        const mergedItems = [...existing.items, ...pickedItemsNow]
+        const mergedItemIds = [...existing.item_ids, ...pickedItemIds]
+        let newFee = 0
+        if (crossBankFee > 0) {
+          const uniquePayers = new Set<string>()
+          for (const it of mergedItems) uniquePayers.add(payerKeyOf(it))
+          newFee = uniquePayers.size * crossBankFee
+        }
+        return prev.map(b =>
+          b.batch_id === existing.batch_id
+            ? { ...b, items: mergedItems, item_ids: mergedItemIds, total_fee: newFee }
+            : b,
+        )
       }
-      estimatedFee = uniquePayers.size * crossBankFee
-    }
-    const batch: import('./disbursement-wizard-types').StagedBatch = {
-      batch_id: crypto.randomUUID(),
-      from_bank_account_id: bank.id,
-      from_bank_label: bank.name + (bank.bank_name ? `(${bank.bank_name})` : ''),
-      from_bank_code: bank.bank_code,
-      item_ids: [...pickedItemIds],
-      items: [...pickedItemsNow],
-      total_fee: estimatedFee, // 系統預估、user 可在 staged list 改
-      fee_distribution: 'equal',
-    }
-    setStagedBatches(prev => [...prev, batch])
+      let estimatedFee = 0
+      if (crossBankFee > 0) {
+        const uniquePayers = new Set<string>()
+        for (const it of pickedItemsNow) uniquePayers.add(payerKeyOf(it))
+        estimatedFee = uniquePayers.size * crossBankFee
+      }
+      const batch: import('./disbursement-wizard-types').StagedBatch = {
+        batch_id: crypto.randomUUID(),
+        from_bank_account_id: bank.id,
+        from_bank_label: bank.name + (bank.bank_name ? `(${bank.bank_name})` : ''),
+        from_bank_code: bank.bank_code,
+        item_ids: [...pickedItemIds],
+        items: [...pickedItemsNow],
+        total_fee: estimatedFee,
+        fee_distribution: 'equal',
+      }
+      return [...prev, batch]
+    })
     setPickedItemIds([])
   }, [bankAccounts, pickedItemIds, pickedItems, editingOrder])
 
