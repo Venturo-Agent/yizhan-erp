@@ -634,6 +634,91 @@ module.exports = {
      * 偵測：supabase.from('...').insert/update/upsert/delete 呼叫鏈
      * 適用範圍：src/app/(main)/**（排除 src/app/api/、lib 工廠）
      */
+    /**
+     * 禁止在 for / while 迴圈內 await 單筆 RPC（譬如 nextPaymentRequestItemNumber）
+     *
+     * 為什麼：單筆 RPC 每次新 transaction、loop 內 N 次呼叫看到的是 DB 既有 max
+     *        新 row 還沒 insert、max 不變、N 個 row 拿到同一個編號 → 撞 unique
+     *
+     * 修法：改用批次 RPC（譬如 nextPaymentRequestItemNumbers）一次拿 N 個編號
+     *
+     * 對應紅線：「批次寫入必用批次 RPC、不在 loop 內 await 單筆 RPC」
+     * 5/21 William 拍板「方案 A」、修 AddRequestDialog.edit-ops.ts 撞 unique bug。
+     */
+    'no-in-loop-number-rpc': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description: '禁止在 for / while 迴圈內 await 單筆編號 RPC、會撞 unique',
+          category: 'Venturo Data Safety',
+          recommended: true,
+        },
+        messages: {
+          inLoopRpc:
+            '禁止在迴圈內 await {{name}}() — 會撞 unique constraint。改用批次 wrapper（譬如 {{batchName}}）一次拿 N 個。',
+        },
+        schema: [],
+      },
+      create(context) {
+        // 抓 next*Number / generate*No 結尾的 single-row 編號 RPC
+        const SINGLE_RPC_PATTERN = /^(next|generate).+(Number|No|Code)$/
+        // 批次 wrapper 命名：複數結尾（Numbers / Codes）— 不算違反
+        const BATCH_PATTERN = /^(next|generate).+(Numbers|Codes)$/
+
+        function suggestBatchName(name) {
+          // nextPaymentRequestItemNumber → nextPaymentRequestItemNumbers
+          if (name.endsWith('Number')) return name + 's'
+          if (name.endsWith('No')) return name + 's'
+          if (name.endsWith('Code')) return name + 's'
+          return name + ' batch wrapper'
+        }
+
+        function isInLoop(node) {
+          let parent = node.parent
+          while (parent) {
+            if (
+              parent.type === 'ForStatement' ||
+              parent.type === 'ForInStatement' ||
+              parent.type === 'ForOfStatement' ||
+              parent.type === 'WhileStatement' ||
+              parent.type === 'DoWhileStatement'
+            ) {
+              return true
+            }
+            // 不穿越 function boundary（譬如 .map callback 內的 await 也算問題、保守 detect）
+            if (
+              parent.type === 'FunctionDeclaration' ||
+              parent.type === 'FunctionExpression' ||
+              parent.type === 'ArrowFunctionExpression'
+            ) {
+              return false
+            }
+            parent = parent.parent
+          }
+          return false
+        }
+
+        return {
+          AwaitExpression(node) {
+            const arg = node.argument
+            if (!arg || arg.type !== 'CallExpression') return
+            const callee = arg.callee
+            // 抓 identifier 形式：await nextPaymentRequestItemNumber(...)
+            if (callee.type !== 'Identifier') return
+            const name = callee.name
+            if (!SINGLE_RPC_PATTERN.test(name)) return
+            if (BATCH_PATTERN.test(name)) return // 批次版本豁免
+            if (!isInLoop(node)) return
+
+            context.report({
+              node,
+              messageId: 'inLoopRpc',
+              data: { name, batchName: suggestBatchName(name) },
+            })
+          },
+        }
+      },
+    },
     'no-direct-supabase-writes': {
       meta: {
         type: 'suggestion',

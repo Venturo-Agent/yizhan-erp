@@ -82,6 +82,10 @@ export default tseslint.config(
       // 2026-05-19 升 'error' + 既有違反走 .eslint-suppressions.json baseline
       'venturo/no-direct-supabase-writes': 'error',
 
+      // 5/21 William 拍板：禁止在迴圈內 await 單筆編號 RPC、會撞 unique
+      // 必用批次 wrapper（譬如 nextPaymentRequestItemNumbers）
+      'venturo/no-in-loop-number-rpc': 'error',
+
       // 暫時保留原設定中被放寬的規則，以避免一次性出現大量新錯誤
       'prefer-const': 'off',
       // 2026-05-06 Phase 2: no-unused-vars 'off' → 'warn'（後續 PR 逐步清）
