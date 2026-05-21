@@ -90,10 +90,11 @@ export function useWizardData({
               .from('payment_request_items')
               .select(`
                 id, request_id, description, subtotal, supplier_id, supplier_name, tour_id,
-                advanced_by, advanced_by_name,
+                advanced_by, advanced_by_name, payee_employee_id,
                 payment_requests:request_id(code, tour_name, status, disbursement_order_id),
                 suppliers:supplier_id(bank_code, bank_name),
-                advanced_by_employee:employees!payment_request_items_advanced_by_fkey(chinese_name, display_name, bank_code, bank_name)
+                advanced_by_employee:employees!payment_request_items_advanced_by_fkey(chinese_name, display_name, bank_code, bank_name),
+                payee_employee:employees!payment_request_items_payee_employee_id_fkey(chinese_name, display_name, bank_code, bank_name)
               `)
               .eq('workspace_id', workspaceId),
             // 全 workspace 的 disbursement_order_items（決定哪些 item 被佔用）
@@ -135,6 +136,7 @@ export function useWizardData({
           tour_id: string | null
           advanced_by: string | null
           advanced_by_name: string | null
+          payee_employee_id: string | null
           payment_requests?: {
             code: string | null
             tour_name: string | null
@@ -143,6 +145,12 @@ export function useWizardData({
           } | null
           suppliers?: { bank_code: string | null; bank_name: string | null } | null
           advanced_by_employee?: {
+            chinese_name: string | null
+            display_name: string | null
+            bank_code: string | null
+            bank_name: string | null
+          } | null
+          payee_employee?: {
             chinese_name: string | null
             display_name: string | null
             bank_code: string | null
@@ -166,14 +174,44 @@ export function useWizardData({
 
         setUnbilledItems(
           filtered.map(it => {
-            const empName =
+            const advEmpName =
               it.advanced_by_employee?.display_name ??
               it.advanced_by_employee?.chinese_name ??
               null
-            const advName = empName ?? it.advanced_by_name
+            const advName = advEmpName ?? it.advanced_by_name
             const advBankCode = it.advanced_by_employee?.bank_code ?? null
             const advBankName = it.advanced_by_employee?.bank_name ?? null
             const hasAdvanced = Boolean(it.advanced_by)
+
+            const payeeEmpName =
+              it.payee_employee?.display_name ??
+              it.payee_employee?.chinese_name ??
+              null
+            const payeeBankCode = it.payee_employee?.bank_code ?? null
+            const payeeBankName = it.payee_employee?.bank_name ?? null
+            const hasPayeeEmployee = Boolean(it.payee_employee_id)
+
+            // payer_label 優先序：
+            // 1. payee_employee_id（公司直接付員工：獎金 / 薪資）→ 「員工名（員工）」
+            // 2. advanced_by（員工代墊）→ 「員工名（代墊）」
+            // 3. supplier_name（一般供應商付款）
+            let payerLabel: string
+            let payerBankCode: string | null
+            let payerBankName: string | null
+            if (hasPayeeEmployee && payeeEmpName) {
+              payerLabel = `${payeeEmpName}（員工）`
+              payerBankCode = payeeBankCode
+              payerBankName = payeeBankName
+            } else if (hasAdvanced && advName) {
+              payerLabel = `${advName}（代墊）`
+              payerBankCode = advBankCode
+              payerBankName = advBankName
+            } else {
+              payerLabel = it.supplier_name ?? '-'
+              payerBankCode = it.suppliers?.bank_code ?? null
+              payerBankName = it.suppliers?.bank_name ?? null
+            }
+
             return {
               id: it.id,
               request_id: it.request_id,
@@ -190,9 +228,9 @@ export function useWizardData({
               advanced_by_name: advName,
               advanced_by_bank_code: advBankCode,
               advanced_by_bank_name: advBankName,
-              payer_label: it.supplier_name ?? '-',
-              payer_bank_code: hasAdvanced ? advBankCode : (it.suppliers?.bank_code ?? null),
-              payer_bank_name: hasAdvanced ? advBankName : (it.suppliers?.bank_name ?? null),
+              payer_label: payerLabel,
+              payer_bank_code: payerBankCode,
+              payer_bank_name: payerBankName,
             }
           }),
         )
