@@ -39,6 +39,8 @@ export interface BankAccount {
   is_active: boolean
   /** 可作為出帳帳戶（出納單 wizard 列入選項）2026-05-15 William 拍板 */
   is_disbursement_eligible?: boolean
+  /** 跨行匯款每筆手續費（譬如 10 元）、2026-05-21 William 拍板加 */
+  cross_bank_fee?: number
 }
 
 export interface ChartOfAccount {

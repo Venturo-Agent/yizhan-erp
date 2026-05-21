@@ -206,6 +206,7 @@ function BankDialog({
   const [accountNumber, setAccountNumber] = useState('')
   const [isDefault, setIsDefault] = useState(false)
   const [isDisbursementEligible, setIsDisbursementEligible] = useState(true)
+  const [crossBankFee, setCrossBankFee] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -218,6 +219,7 @@ function BankDialog({
       setIsDefault(bank?.is_default || false)
       // 新建預設 true、編輯保留既有（undefined 視為 true）
       setIsDisbursementEligible(bank?.is_disbursement_eligible !== false)
+      setCrossBankFee(bank?.cross_bank_fee ?? 0)
     }
   }, [open, bank])
 
@@ -236,6 +238,7 @@ function BankDialog({
         account_number: accountNumber || null,
         is_default: isDefault,
         is_disbursement_eligible: isDisbursementEligible,
+        cross_bank_fee: crossBankFee,
       })
     } finally {
       setIsSubmitting(false)
@@ -319,6 +322,26 @@ function BankDialog({
             </span>
           </Label>
         </div>
+        {isDisbursementEligible && (
+          <div className="space-y-2">
+            <Label htmlFor="crossBankFee">
+              跨行匯款手續費（每筆）
+              <span className="ml-2 text-xs text-morandi-muted">
+                （從此帳戶匯款到其他銀行每筆扣的手續費、譬如 10 元；同行不收）
+              </span>
+            </Label>
+            <Input
+              id="crossBankFee"
+              type="number"
+              min="0"
+              step="1"
+              value={crossBankFee}
+              onChange={e => setCrossBankFee(e.target.value === '' ? 0 : Number(e.target.value))}
+              placeholder="例：10"
+              className="w-32"
+            />
+          </div>
+        )}
       </div>
     </FormDialog>
   )

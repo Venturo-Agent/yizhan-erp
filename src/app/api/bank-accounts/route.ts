@@ -20,7 +20,7 @@ export const GET = apiHandler(async () => {
   const { data, error } = await supabase
     .from('bank_accounts')
     .select(
-      'id, code, name, bank_code, bank_name, account_number, is_default, is_active, is_disbursement_eligible, workspace_id, created_at, updated_at'
+      'id, code, name, bank_code, bank_name, account_number, is_default, is_active, is_disbursement_eligible, cross_bank_fee, workspace_id, created_at, updated_at'
     )
     .eq('is_active', true)
     .order('is_default', { ascending: false })
@@ -61,6 +61,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     is_default,
     account_id,
     is_disbursement_eligible,
+    cross_bank_fee,
   } = validation.data
 
   // 🔒 設預設時必須限定 workspace_id、否則會清掉全平台所有租戶的預設標記
@@ -83,10 +84,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
       is_default: is_default || false,
       workspace_id: workspaceId,
       is_active: true,
-      // 新欄位、Supabase types 還沒 regen、cast 繞過
       ...(is_disbursement_eligible !== undefined
         ? { is_disbursement_eligible }
         : {}),
+      ...(cross_bank_fee !== undefined ? { cross_bank_fee } : {}),
     } as never)
     .select()
     .single()
@@ -127,6 +128,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     is_default,
     account_id,
     is_disbursement_eligible,
+    cross_bank_fee,
   } = validation.data
 
   if (!id) {
@@ -155,6 +157,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
       ...(is_disbursement_eligible !== undefined
         ? { is_disbursement_eligible }
         : {}),
+      ...(cross_bank_fee !== undefined ? { cross_bank_fee } : {}),
       updated_at: new Date().toISOString(),
     } as never)
     .eq('id', id)

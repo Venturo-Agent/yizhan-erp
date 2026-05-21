@@ -314,6 +314,7 @@ export const upsertBankAccountSchema = z.object({
   is_default: z.boolean().optional(),
   account_id: z.string().uuid().optional().nullable(),
   is_disbursement_eligible: z.boolean().optional(),
+  cross_bank_fee: z.number().min(0).optional(), // 跨行匯款每筆手續費（2026-05-21 加）
 })
 
 export const autoCreateVoucherSchema = z.object({

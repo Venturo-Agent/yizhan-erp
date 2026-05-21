@@ -188,14 +188,19 @@ export async function POST(request: NextRequest) {
   type BankFetchChain = {
     select: (c: string) => {
       in: (k: string, v: string[]) => Promise<{
-        data: { id: string; bank_code: string | null; workspace_id: string | null }[] | null
+        data: {
+          id: string
+          bank_code: string | null
+          workspace_id: string | null
+          cross_bank_fee: number | null
+        }[] | null
       }>
     }
   }
   const { data: banks } = await (
     admin.from as unknown as (t: string) => BankFetchChain
   )('bank_accounts')
-    .select('id, bank_code, workspace_id')
+    .select('id, bank_code, workspace_id, cross_bank_fee')
     .in('id', bankAccountIds)
 
   if (!banks || banks.length !== bankAccountIds.length) {
@@ -209,6 +214,8 @@ export async function POST(request: NextRequest) {
     )
   }
   const bankCodeById = new Map(banks.map(b => [b.id, b.bank_code]))
+  // 2026-05-21 William 拍板：unified 手續費 per 帳戶（取代 workspaces.transfer_fee_unified_amount 整 ws 值）
+  const bankFeeById = new Map(banks.map(b => [b.id, Number(b.cross_bank_fee ?? 0)]))
 
   // 取每張 request 的所有 item id（用來判斷 partial vs full billing）
   const allRequestIds = Array.from(new Set(items.map(i => i.request_id)))
@@ -273,18 +280,16 @@ export async function POST(request: NextRequest) {
   }
 
   // 撈公司分攤模式（average / unified）
-  // workspaces.transfer_fee_mode / transfer_fee_unified_amount 尚未納入生成類型，用 unknown 中轉
+  // 2026-05-21 William 拍板：unified 改吃 per bank_account cross_bank_fee（不再用 workspace 統一值）
+  // 保留撈 transfer_fee_mode（決定 average vs unified）、但 unifiedAmount 來自 bankFeeById（per batch）
   const { data: workspaceData } = await (admin as unknown as SupabaseClient)
     .from('workspaces')
-    .select('transfer_fee_mode, transfer_fee_unified_amount')
+    .select('transfer_fee_mode')
     .eq('id', workspaceId)
     .maybeSingle()
-  const ws = workspaceData as
-    | { transfer_fee_mode?: string; transfer_fee_unified_amount?: number }
-    | null
+  const ws = workspaceData as { transfer_fee_mode?: string } | null
   const feeMode: 'average' | 'unified' =
     ws?.transfer_fee_mode === 'unified' ? 'unified' : 'average'
-  const unifiedAmount = Number(ws?.transfer_fee_unified_amount ?? 0)
 
   // ─── Phase 7：單張 DO，所有 batches 合併進一筆 ───
   // 取一次性的 disbursement_date（使用第一個 batch 的日期）
@@ -326,11 +331,13 @@ export async function POST(request: NextRequest) {
     grandTotalAmount += batchTotalAmount
     grandTotalFee += batch.total_fee
 
-    // 分攤手續費（走 SSOT helper，每個 bank group 獨立分攤）
+    // 分攤手續費（走 SSOT helper、每個 bank group 獨立分攤）
+    // 2026-05-21：unified mode 每筆固定金額來自該 batch 的 bank_account.cross_bank_fee
+    const batchUnifiedAmount = bankFeeById.get(batch.from_bank_account_id) ?? 0
     const { per_item_fees: feeShares } = distributeFees({
       mode: feeMode,
       bank_actual_fee: batch.total_fee,
-      unified_amount_per_item: unifiedAmount,
+      unified_amount_per_item: batchUnifiedAmount,
       items: batchItemRows.map(r => ({
         id: r.item.id,
         amount: r.amount,
