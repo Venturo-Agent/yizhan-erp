@@ -165,7 +165,7 @@ export async function provisionFacebookBot(input: ProvisionInput): Promise<Provi
     webhook_verified_at: new Date().toISOString(),
     effective_from: formatDateTaipei(new Date()),
   }
-  const fbTable = (supabase.from as unknown as (table: string) => {
+  const fbTable = (supabase.from.bind(supabase) as unknown as (table: string) => {
     upsert: (
       values: FacebookSettingsUpsert,
       options: { onConflict: string }

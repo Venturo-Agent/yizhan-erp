@@ -200,7 +200,7 @@ async function sendViaFacebook(
   const tableName =
     channel === 'facebook' ? 'workspace_facebook_settings' : 'workspace_instagram_settings'
 
-  const settingsTable = supabase.from as unknown as (
+  const settingsTable = supabase.from.bind(supabase) as unknown as (
     table: string
   ) => {
     select: (cols: string) => {

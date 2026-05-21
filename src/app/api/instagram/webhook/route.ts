@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = getSupabaseAdminClient()
-  const igTable = supabase.from as unknown as (
+  const igTable = supabase.from.bind(supabase) as unknown as (
     table: string
   ) => {
     select: (cols: string) => {
@@ -147,7 +147,7 @@ async function handleEntry(args: {
   const igId = entry.id
 
   const supabase = getSupabaseAdminClient()
-  const igTable = supabase.from as unknown as (
+  const igTable = supabase.from.bind(supabase) as unknown as (
     table: string
   ) => {
     select: (cols: string) => {

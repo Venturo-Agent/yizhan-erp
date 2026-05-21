@@ -102,7 +102,7 @@ type AdminFromShape = (table: string) => {
 }
 
 function adminFrom(supabase: ReturnType<typeof getSupabaseAdminClient>): AdminFromShape {
-  return supabase.from as unknown as AdminFromShape
+  return supabase.from.bind(supabase) as unknown as AdminFromShape
 }
 
 /**

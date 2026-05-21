@@ -81,7 +81,7 @@ export async function PATCH(
         overrides.paused_until = validation.data.bot_paused_until
       }
 
-      const lineOverrideTable = supabase.from as unknown as (
+      const lineOverrideTable = supabase.from.bind(supabase) as unknown as (
         table: string
       ) => {
         upsert: (
@@ -112,7 +112,7 @@ export async function PATCH(
     // agent 進入對話自動清未讀
     if (validation.data.mark_as_read === true) updates.unread_count = 0
 
-    const convTable = supabase.from as unknown as (
+    const convTable = supabase.from.bind(supabase) as unknown as (
       table: string
     ) => {
       update: (values: Record<string, unknown>) => {

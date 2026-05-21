@@ -160,7 +160,7 @@ export async function provisionInstagramBot(input: ProvisionInput): Promise<Prov
     webhook_verified_at: new Date().toISOString(),
     effective_from: formatDateTaipei(new Date()),
   }
-  const igTable = (supabase.from as unknown as (table: string) => {
+  const igTable = (supabase.from.bind(supabase) as unknown as (table: string) => {
     upsert: (
       values: InstagramSettingsUpsert,
       options: { onConflict: string }

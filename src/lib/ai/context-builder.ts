@@ -142,7 +142,7 @@ export async function buildConversationContext(
   // 2. 對話 thread 綁定的客戶資料 + 最近訂單
   try {
     const supabase = getSupabaseAdminClient()
-    const convTable = supabase.from as unknown as (
+    const convTable = supabase.from.bind(supabase) as unknown as (
       table: string
     ) => {
       select: (cols: string) => {
