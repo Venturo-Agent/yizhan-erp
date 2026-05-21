@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
+import { toast } from 'sonner'
 import {
   type PaymentMethod,
   type BankAccount,
@@ -64,34 +65,29 @@ export default function FinanceSettingsPage() {
 
   const loadData = async () => {
     try {
-      // 載入付款方式
-      const methodsRes = await fetch(
-        `/api/finance/payment-methods?workspace_id=${workspaceId}&include_inactive=true`
-      )
-      const methodsData = await methodsRes.json()
+      // 2026-05-21 重構：4 個 fetch 改 Promise.all 並行（原本串行、無謂多 3 個 RTT）
+      // 也拿掉冗餘 ?workspace_id=（4 個 API 都從 session 取、不信 client）
+      const [methodsRes, banksRes, accountsRes, categoriesRes] = await Promise.all([
+        fetch('/api/finance/payment-methods?include_inactive=true'),
+        fetch('/api/bank-accounts'),
+        fetch('/api/finance/accounting-subjects'),
+        fetch('/api/finance/expense-categories'),
+      ])
+      const [methodsData, banksData, accountsData, categoriesData] = await Promise.all([
+        methodsRes.json(),
+        banksRes.json(),
+        accountsRes.json(),
+        categoriesRes.json(),
+      ])
       // bug fix: API 失敗時回 {error: ...}、要 type guard 防止 setState 成 object 後 .filter 崩
       setPaymentMethods(Array.isArray(methodsData) ? methodsData : [])
-
-      // 載入銀行帳戶
-      const banksRes = await fetch(`/api/bank-accounts?workspace_id=${workspaceId}`)
-      const banksData = await banksRes.json()
       setBankAccounts(Array.isArray(banksData) ? banksData : [])
-
-      // 載入會計科目（供選擇用）
-      const accountsRes = await fetch(
-        `/api/finance/accounting-subjects?workspace_id=${workspaceId}`
-      )
-      const accountsData = await accountsRes.json()
       setChartOfAccounts(Array.isArray(accountsData) ? accountsData : [])
-
-      // 載入請款類別
-      const categoriesRes = await fetch(
-        `/api/finance/expense-categories?workspace_id=${workspaceId}`
-      )
-      const categoriesData = await categoriesRes.json()
       setExpenseCategories(Array.isArray(categoriesData) ? categoriesData : [])
     } catch (error) {
       logger.error('載入資料失敗:', error)
+      // 2026-05-21 加：失敗也要告訴 user、不再靜默
+      toast.error('財務設定載入失敗、請重新整理或聯絡管理員')
     }
   }
 
