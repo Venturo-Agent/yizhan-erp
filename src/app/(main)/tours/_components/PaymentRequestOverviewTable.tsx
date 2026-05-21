@@ -97,12 +97,14 @@ export function PaymentRequestOverviewTable({ tour }: PaymentRequestOverviewTabl
         </span>
       </div>
       <table className="w-full text-sm table-fixed min-w-[900px]">
+        {/* colgroup 加總 = 100%、避免 table-fixed normalize 把所有 column 等比放大
+            最右 2 欄（狀態 10% / 金額 9%）必跟 tour-receipts 一致、垂直線對齊 */}
         <colgroup>
           <col style={{ width: '12%' }} />
           <col style={{ width: '6%' }} />
           <col style={{ width: '8%' }} />
           <col style={{ width: '9%' }} />
-          <col style={{ width: '18%' }} />
+          <col style={{ width: '25%' }} />
           <col style={{ width: '8%' }} />
           <col style={{ width: '5%' }} />
           <col style={{ width: '8%' }} />
