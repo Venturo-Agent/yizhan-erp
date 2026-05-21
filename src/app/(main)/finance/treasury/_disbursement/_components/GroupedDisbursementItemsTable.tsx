@@ -244,7 +244,9 @@ function GroupRows({
             onCheckedChange={checked => onToggleGroupAll(checked === true)}
           />
         </td>
-        <td colSpan={6} className="px-3 py-2.5">
+        {/* 空兩欄、把 group label 推到對齊「請款人」column 起點（William 拍板）*/}
+        <td colSpan={2} className="px-3 py-2.5"></td>
+        <td colSpan={4} className="px-3 py-2.5">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-morandi-secondary">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
