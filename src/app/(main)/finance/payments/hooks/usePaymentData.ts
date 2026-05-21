@@ -172,6 +172,80 @@ export function usePaymentData() {
           await recalculateReceiptStats(receipt.order_id, receipt.tour_id || null)
         }
 
+        // 2026-05-21 William 拍板（方案 1）：fees > 0 → 自動產生「手續費請款單」
+        // - status='paid' 直接付款（不走出納流程）
+        // - source_type='receipt_fee' + source_id=receipt.id 給審計反查
+        // - notes 寫對應收款方式（會計對帳用）、supplier 不顯示
+        // - 失敗不擋主流程（會計可手動補）
+        if (calcFees && calcFees > 0 && receipt && user.workspace_id) {
+          try {
+            const [{ generateCompanyPaymentRequestCode }, dataMod, sbMod] = await Promise.all([
+              import('@/lib/codes'),
+              import('@/data'),
+              import('@/lib/supabase/client'),
+            ])
+            const { createPaymentRequest, createPaymentRequestItem } = dataMod
+            const { supabase: sbClient } = sbMod
+
+            // 抓收款方式名稱（給 notes 用）
+            let methodName = '—'
+            if (methodId) {
+              const { data: m } = await sbClient
+                .from('payment_methods')
+                .select('name')
+                .eq('id', methodId)
+                .maybeSingle()
+              methodName = m?.name || '—'
+            }
+
+            const feeCode = await generateCompanyPaymentRequestCode(
+              user.workspace_id,
+              'FEE',
+              receipt.receipt_date || new Date()
+            )
+            const nowIso = new Date().toISOString()
+            const requestDate =
+              receipt.receipt_date || nowIso.slice(0, 10)
+
+            const feeRequest = (await createPaymentRequest({
+              code: feeCode,
+              request_number: feeCode,
+              request_date: requestDate,
+              request_type: '手續費',
+              request_category: 'company',
+              expense_type: 'FEE',
+              tour_id: null,
+              supplier_id: null,
+              supplier_name: null,
+              amount: calcFees,
+              total_amount: calcFees,
+              status: 'paid',
+              payment_method_id: methodId,
+              source_type: 'receipt_fee',
+              source_id: receiptId,
+              paid_by: user.id,
+              paid_at: nowIso,
+              notes: `收款 ${receipt.receipt_number || receiptId} 之手續費（${methodName}）`,
+            } as never)) as unknown as { id: string }
+
+            await createPaymentRequestItem({
+              request_id: feeRequest.id,
+              item_number: 1,
+              sort_order: 0,
+              category: 'FEE',
+              description: '銀行手續費',
+              quantity: 1,
+              unit_price: calcFees,
+              subtotal: calcFees,
+              custom_request_date: null,
+              payment_method_id: methodId,
+            } as never)
+          } catch (feeErr) {
+            logger.error('自動產生手續費請款單失敗:', feeErr)
+            // 不擋主流程：收款仍 confirmed、之後可由會計手動補
+          }
+        }
+
         // 產生傳票（沒啟用會計 / 沒綁科目 → API throw、catch 吞掉、不中斷確認流程）
         try {
           const wsId = user?.workspace_id
