@@ -123,49 +123,53 @@ export function GroupedDisbursementItemsTable({
         </span>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto border border-morandi-border rounded-lg">
-        <table className="w-full text-sm">
-          <thead className="bg-morandi-gold-header sticky top-0 z-10">
-            <tr className="border-b border-morandi-border">
-              <th className="w-10 px-3 py-2.5"></th>
-              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
-                請款單號
-              </th>
-              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
-                品項
-              </th>
-              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-48">
-                付款對象
-              </th>
-              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
-                對方銀行
-              </th>
-              <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary w-32">
-                金額
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {groups.map(g => {
-              const isExpanded = expanded.has(g.key)
-              const state = groupState(g)
-              const selectedCount = groupSelectedCount(g)
-              return (
-                <GroupRows
-                  key={g.key}
-                  group={g}
-                  isExpanded={isExpanded}
-                  groupCheckState={state}
-                  selectedCount={selectedCount}
-                  pickedSet={pickedSet}
-                  onToggleExpanded={() => toggleExpanded(g.key)}
-                  onToggleGroupAll={checked => toggleGroupAll(g, checked)}
-                  onToggleItem={toggleItem}
-                />
-              )
-            })}
-          </tbody>
-        </table>
+      {/* 外框對齊 EnhancedTable 標準（border border-border rounded-xl + bg-card + shadow-sm）*/}
+      <div className="flex-1 min-h-0 border border-border rounded-xl overflow-hidden bg-card shadow-sm flex flex-col">
+        <div className="overflow-auto flex-1">
+          <table className="w-full border-collapse text-sm">
+            <thead className="bg-morandi-gold-header sticky top-0 z-10">
+              <tr className="border-b border-border">
+                <th className="w-10 px-3 py-2.5"></th>
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
+                  請款單號
+                </th>
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                  品項
+                </th>
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-48">
+                  付款對象
+                </th>
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
+                  對方銀行
+                </th>
+                <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary w-32">
+                  金額
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {groups.map((g, idx) => {
+                const isExpanded = expanded.has(g.key)
+                const state = groupState(g)
+                const selectedCount = groupSelectedCount(g)
+                return (
+                  <GroupRows
+                    key={g.key}
+                    group={g}
+                    isFirstGroup={idx === 0}
+                    isExpanded={isExpanded}
+                    groupCheckState={state}
+                    selectedCount={selectedCount}
+                    pickedSet={pickedSet}
+                    onToggleExpanded={() => toggleExpanded(g.key)}
+                    onToggleGroupAll={checked => toggleGroupAll(g, checked)}
+                    onToggleItem={toggleItem}
+                  />
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )
@@ -173,6 +177,7 @@ export function GroupedDisbursementItemsTable({
 
 interface GroupRowsProps {
   group: Group
+  isFirstGroup: boolean
   isExpanded: boolean
   groupCheckState: 'all' | 'partial' | 'none'
   selectedCount: number
@@ -184,6 +189,7 @@ interface GroupRowsProps {
 
 function GroupRows({
   group,
+  isFirstGroup,
   isExpanded,
   groupCheckState,
   selectedCount,
@@ -192,10 +198,14 @@ function GroupRows({
   onToggleGroupAll,
   onToggleItem,
 }: GroupRowsProps) {
+  // group row 用 design token `bg-morandi-container/20`（跟 EnhancedTable striped 同色）
+  // 團之間用 border-t-2 強化視覺分割、第一團不需要（緊接 header）
   return (
     <>
       <tr
-        className="bg-morandi-gold-header hover:bg-morandi-gold/20 cursor-pointer border-y border-morandi-border/60"
+        className={`bg-morandi-container/20 hover:bg-morandi-container/40 cursor-pointer ${
+          isFirstGroup ? '' : 'border-t-2 border-border'
+        }`}
         onClick={onToggleExpanded}
       >
         <td className="px-3 py-2 align-middle" onClick={e => e.stopPropagation()}>
@@ -227,7 +237,7 @@ function GroupRows({
           return (
             <tr
               key={it.id}
-              className="hover:bg-morandi-container/30 cursor-pointer border-b border-morandi-border/30 last:border-0"
+              className="bg-card hover:bg-morandi-container/30 cursor-pointer border-t border-border/40"
               onClick={() => onToggleItem(it.id)}
             >
               <td className="px-3 py-2 pl-8 align-middle" onClick={e => e.stopPropagation()}>
