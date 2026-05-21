@@ -44,25 +44,8 @@ export function PrintFooter({
   const grandTotal = totalAmount + bankFee
   return (
     <>
-      {/* 銀行手續費（有就顯示）2026-05-21 William 拍板加 */}
-      {bankFee > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '8px 8px',
-            fontSize: '12px',
-            color: COLORS.gray,
-            borderTop: `1px dashed ${COLORS.gold}50`,
-          }}
-        >
-          <span>銀行手續費</span>
-          <span style={{ fontFamily: 'monospace' }}>NT$ {bankFee.toLocaleString()}</span>
-        </div>
-      )}
-
-      {/* 總計 - 獨立區塊（含手續費） */}
+      {/* 2026-05-21 William 拍板：手續費含在小計、不另外列行（避免會計兩處數字打架）
+          顯示：總計（含 X 手續費）NT$ 45,083 */}
       <div
         style={{
           display: 'flex',
@@ -81,6 +64,18 @@ export function PrintFooter({
           }}
         >
           {t('printTotal')}
+          {bankFee > 0 && (
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 400,
+                color: COLORS.lightGray,
+                marginLeft: '8px',
+              }}
+            >
+              （含 NT$ {bankFee.toLocaleString()} 手續費）
+            </span>
+          )}
         </span>
         <span
           style={{
