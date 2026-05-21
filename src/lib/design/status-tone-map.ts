@@ -218,16 +218,17 @@ export const STATUS_LABEL_MAP: Record<StatusType, Record<string, string>> = {
   },
   receipt: {
     // 數字字串（legacy）
-    '0': '待處理',
+    '0': '待確認',
     '1': '已確認',
     '2': '異常',
-    // 英文 enum（對齊 DB CHECK）
-    draft: '草稿',
-    pending: '待處理',
-    pending_verify: '待驗證',
+    // 英文 enum（對齊 DB CHECK + src/lib/status/financial.ts receiptStatuses + receipt.types.ts RECEIPT_STATUS_LABELS）
+    // 2026-05-21 William 拍板：3 套 SSOT 統一、pending = pending_verify = '待確認'（會計待勾稽）
+    pending: '待確認',
+    pending_verify: '待確認',
     confirmed: '已確認',
+    rejected: '已退回',
+    cancelled: '已取消',
     refunded: '已退款',
-    rejected: '已拒絕',
   },
   disbursement: {
     // 2026-05-15 William 拍板對齊請款單 3 狀態語意（未付款 / 待付款 / 已付款）

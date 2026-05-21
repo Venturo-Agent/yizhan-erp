@@ -153,7 +153,7 @@ export const TourReceipts = React.memo(function TourReceipts({
                   <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-red font-medium">
                     {/* 待核金額：pending / pending_verify 才顯示、會計核准後就空 */}
                     {r.status === 'pending' || r.status === 'pending_verify' ? (
-                      <>NT$ {formatCurrency(amount)}</>
+                      <>{formatCurrency(amount)}</>
                     ) : (
                       <EmptyValue />
                     )}

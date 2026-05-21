@@ -108,9 +108,11 @@ describe('StatusBadge Component', () => {
       expect(screen.getByText('提案')).toBeInTheDocument()
     })
 
-    it('should resolve receipt 0 (DB string) → pending tone + 待處理 label', () => {
+    it('should resolve receipt 0 (DB string) → pending tone + 待確認 label', () => {
+      // 2026-05-21 William 拍板：receipt status 3 套 SSOT 統一為「待確認 / 已確認」、
+      // 「待處理」這 label 只給 order / todo / invoice / check 等其他 entity 用
       render(<StatusBadge type="receipt" status="0" />)
-      const badge = screen.getByText('待處理')
+      const badge = screen.getByText('待確認')
       expect(badge).toHaveClass('bg-morandi-secondary/15')
     })
 
