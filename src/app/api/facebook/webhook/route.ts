@@ -87,7 +87,10 @@ export async function GET(req: NextRequest) {
 
   // verify_token 比對：跨所有 workspace_facebook_settings、看有沒有 row 對得上
   const supabase = getSupabaseAdminClient()
-  const fbTable = supabase.from as unknown as (
+  // .bind(supabase) 必要：generated types 沒含 workspace_facebook_settings 表、走 type cast
+  // 但 supabase.from 是 method、cast 後直接呼叫會丟 this、Supabase internal 讀 this.rest 噴
+  // TypeError。bind 保 this。
+  const fbTable = supabase.from.bind(supabase) as unknown as (
     table: string
   ) => {
     select: (cols: string) => {
@@ -165,8 +168,8 @@ async function handleEntry(args: {
 
   const supabase = getSupabaseAdminClient()
 
-  // 反查 workspace_facebook_settings
-  const fbTable = supabase.from as unknown as (
+  // 反查 workspace_facebook_settings（.bind 保 this、原因見 GET handler 上方註解）
+  const fbTable = supabase.from.bind(supabase) as unknown as (
     table: string
   ) => {
     select: (cols: string) => {
