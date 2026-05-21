@@ -191,10 +191,13 @@ export function useWizardData({
             const payeeBankName = it.payee_employee?.bank_name ?? null
             const hasPayeeEmployee = Boolean(it.payee_employee_id)
 
-            // payer_label 優先序：
-            // 1. payee_employee_id（公司直接付員工：獎金 / 薪資）→ 「員工名（員工）」
-            // 2. advanced_by（員工代墊）→ 「員工名（代墊）」
-            // 3. supplier_name（一般供應商付款）
+            // 付款對象（payer_label）= 原本要付給誰、代墊不改寫
+            //   1. payee_employee_id（公司直接付員工：獎金 / 薪資）→ 員工名（員工）
+            //   2. 其他（含代墊）→ 供應商名（代墊只是這次員工先墊、原始對象還是供應商）
+            // 對方銀行（payer_bank）= 實際要轉錢去哪
+            //   1. 代墊 → 員工銀行（公司還錢給員工）
+            //   2. payee_employee → 員工銀行
+            //   3. 其他 → 供應商銀行
             let payerLabel: string
             let payerBankCode: string | null
             let payerBankName: string | null
@@ -202,14 +205,15 @@ export function useWizardData({
               payerLabel = `${payeeEmpName}（員工）`
               payerBankCode = payeeBankCode
               payerBankName = payeeBankName
-            } else if (hasAdvanced && advName) {
-              payerLabel = `${advName}（代墊）`
-              payerBankCode = advBankCode
-              payerBankName = advBankName
             } else {
               payerLabel = it.supplier_name ?? '-'
-              payerBankCode = it.suppliers?.bank_code ?? null
-              payerBankName = it.suppliers?.bank_name ?? null
+              if (hasAdvanced) {
+                payerBankCode = advBankCode
+                payerBankName = advBankName
+              } else {
+                payerBankCode = it.suppliers?.bank_code ?? null
+                payerBankName = it.suppliers?.bank_name ?? null
+              }
             }
 
             return {

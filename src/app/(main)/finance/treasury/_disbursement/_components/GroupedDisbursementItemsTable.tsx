@@ -152,6 +152,9 @@ export function GroupedDisbursementItemsTable({
                 const isExpanded = expanded.has(g.key)
                 const state = groupState(g)
                 const selectedCount = groupSelectedCount(g)
+                // 整個 group（含 group row + items）算一個 entity 穿插
+                // 偶數 group：淡灰 / 奇數 group：白 — 跟旅遊團 striped 同色系
+                const stripedBg = idx % 2 === 0 ? 'bg-morandi-container/20' : 'bg-card'
                 return (
                   <GroupRows
                     key={g.key}
@@ -161,6 +164,7 @@ export function GroupedDisbursementItemsTable({
                     groupCheckState={state}
                     selectedCount={selectedCount}
                     pickedSet={pickedSet}
+                    stripedBg={stripedBg}
                     onToggleExpanded={() => toggleExpanded(g.key)}
                     onToggleGroupAll={checked => toggleGroupAll(g, checked)}
                     onToggleItem={toggleItem}
@@ -182,6 +186,7 @@ interface GroupRowsProps {
   groupCheckState: 'all' | 'partial' | 'none'
   selectedCount: number
   pickedSet: Set<string>
+  stripedBg: string
   onToggleExpanded: () => void
   onToggleGroupAll: (checked: boolean) => void
   onToggleItem: (id: string) => void
@@ -194,16 +199,17 @@ function GroupRows({
   groupCheckState,
   selectedCount,
   pickedSet,
+  stripedBg,
   onToggleExpanded,
   onToggleGroupAll,
   onToggleItem,
 }: GroupRowsProps) {
-  // 對齊旅遊團頁面：所有 row 白底、border-b border-border/40 細線
-  // group 用 typography（粗體 + chevron）區分、不靠底色
+  // 整個 group（含 group row + items）用同個 stripedBg、跨 group 穿插
+  // group row 跟 items 視覺一塊、跟下一團對比
   return (
     <>
       <tr
-        className="hover:bg-morandi-container/30 cursor-pointer border-b border-border/40"
+        className={`${stripedBg} hover:bg-morandi-container/40 cursor-pointer border-b border-border/40`}
         onClick={onToggleExpanded}
       >
         <td className="px-3 py-2 align-middle" onClick={e => e.stopPropagation()}>
@@ -235,7 +241,7 @@ function GroupRows({
           return (
             <tr
               key={it.id}
-              className="hover:bg-morandi-container/30 cursor-pointer border-b border-border/40"
+              className={`${stripedBg} hover:bg-morandi-container/40 cursor-pointer border-b border-border/40`}
               onClick={() => onToggleItem(it.id)}
             >
               <td className="px-3 py-2 pl-8 align-middle" onClick={e => e.stopPropagation()}>
