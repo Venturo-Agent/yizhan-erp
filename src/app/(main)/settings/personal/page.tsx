@@ -12,6 +12,7 @@ import { EmployeeForm } from '@/app/(main)/hr/_components/EmployeeForm'
 import { FormDialog } from '@/components/dialog'
 import { ThemeSwitcher } from '@/components/ui/theme-switcher'
 import { FontScaleSwitcher } from '@/components/ui/font-scale-switcher'
+import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { COMMON_MESSAGES } from '@/constants/messages'
@@ -70,9 +71,20 @@ export default function SettingsPage() {
         onPasswordChange={() => setShowPasswordSection(true)}
         headerRightSlot={
           // 5/13 W 反饋：ThemeSwitcher / FontScaleSwitcher 內建已有 label、外層不再包 label 避免重複
+          // 2026-05-21 W 拍板：忘記密碼放字體大小旁邊、跟個人偏好統一一致
           <div className="flex items-center gap-6">
             <ThemeSwitcher />
             <FontScaleSwitcher />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowPasswordSection(true)}
+              className="text-morandi-secondary hover:text-morandi-primary"
+            >
+              <Lock className="w-4 h-4 mr-1.5" />
+              {t('changePassword')}
+            </Button>
           </div>
         }
       />

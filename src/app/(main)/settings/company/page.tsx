@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
-import { Save, Loader2, AlertCircle } from 'lucide-react'
+import { Save, AlertCircle } from 'lucide-react'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { SettingsTabs } from '../components/SettingsTabs'
@@ -224,7 +223,17 @@ export default function CompanySettingsPage() {
   }
 
   return (
-    <ContentPageLayout title={t('companyTitle')} headerActions={<SettingsTabs />} contentClassName="flex-1 overflow-y-auto min-h-0 flex flex-col">
+    <ContentPageLayout
+      title={t('companyTitle')}
+      headerActions={<SettingsTabs />}
+      primaryAction={{
+        label: saving ? t('companySaving') : t('companySave'),
+        icon: Save,
+        onClick: handleSave,
+        disabled: saving,
+      }}
+      contentClassName="flex-1 overflow-y-auto min-h-0 flex flex-col"
+    >
       <div className="relative space-y-6">
         {/* 公司資料卡（基本 + 聯絡 + Logo + 結帳設定 + 印章） */}
         <CompanyInfoCard
@@ -235,22 +244,7 @@ export default function CompanySettingsPage() {
           initialTaxRate={initialTaxRate}
         />
 
-        {/* 儲存按鈕 */}
-        <div className="flex justify-end pb-2">
-          <Button onClick={handleSave} disabled={saving} className="px-8">
-            {saving ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {t('companySaving')}
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4 mr-2" />
-                {t('companySave')}
-              </>
-            )}
-          </Button>
-        </div>
+        {/* 2026-05-21 William 拍板：儲存按鈕移到主標題區 primaryAction、不再放頁內、跟 finance/settings 一致 */}
 
         {/* 財務政策 — 集團出帳 toggle */}
         <Card className="rounded-xl shadow-sm border border-border p-4">
