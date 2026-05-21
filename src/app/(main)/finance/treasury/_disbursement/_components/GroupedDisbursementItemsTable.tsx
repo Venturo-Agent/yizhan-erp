@@ -284,11 +284,7 @@ function GroupRows({
                 {it.request_code || '-'}
               </td>
               <td className="px-3 py-2 truncate">{it.description || '-'}</td>
-              <td
-                className={`px-3 py-2 truncate ${
-                  it.advanced_by ? 'text-morandi-gold' : 'text-morandi-primary'
-                }`}
-              >
+              <td className="px-3 py-2 truncate text-morandi-primary">
                 {it.payer_label}
               </td>
               <td className="px-3 py-2 text-xs text-morandi-secondary truncate">
