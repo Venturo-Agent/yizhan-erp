@@ -133,19 +133,25 @@ export function GroupedDisbursementItemsTable({
             <thead className="bg-morandi-gold-header sticky top-0 z-10">
               <tr className="border-b border-border">
                 <th className="w-10 px-3 py-2.5"></th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-28">
+                  出帳日期
+                </th>
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-36">
                   請款單號
+                </th>
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-24">
+                  請款人
                 </th>
                 <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   品項
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-48">
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
                   付款對象
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-32">
                   對方銀行
                 </th>
-                <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary w-32">
+                <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary w-28">
                   金額
                 </th>
               </tr>
@@ -238,7 +244,7 @@ function GroupRows({
             onCheckedChange={checked => onToggleGroupAll(checked === true)}
           />
         </td>
-        <td colSpan={4} className="px-3 py-2.5">
+        <td colSpan={6} className="px-3 py-2.5">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-morandi-secondary">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -280,8 +286,14 @@ function GroupRows({
               <td className="px-3 py-2 pl-8 align-middle" onClick={e => e.stopPropagation()}>
                 <Checkbox checked={checked} onCheckedChange={() => onToggleItem(it.id)} />
               </td>
+              <td className="px-3 py-2 text-morandi-secondary whitespace-nowrap">
+                {it.request_date || '-'}
+              </td>
               <td className="px-3 py-2 text-morandi-secondary">
                 {it.request_code || '-'}
+              </td>
+              <td className="px-3 py-2 text-morandi-secondary truncate">
+                {it.requester_name || '-'}
               </td>
               <td className="px-3 py-2 truncate">{it.description || '-'}</td>
               <td className="px-3 py-2 truncate text-morandi-primary">

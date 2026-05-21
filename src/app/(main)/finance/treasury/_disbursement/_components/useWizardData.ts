@@ -91,7 +91,7 @@ export function useWizardData({
               .select(`
                 id, request_id, description, subtotal, supplier_id, supplier_name, tour_id,
                 advanced_by, advanced_by_name, payee_employee_id,
-                payment_requests:request_id(code, tour_name, status, disbursement_order_id),
+                payment_requests:request_id(code, tour_name, status, disbursement_order_id, request_date, created_by_name),
                 suppliers:supplier_id(bank_code, bank_name),
                 advanced_by_employee:employees!payment_request_items_advanced_by_fkey(chinese_name, display_name, bank_code, bank_name),
                 payee_employee:employees!payment_request_items_payee_employee_id_fkey(chinese_name, display_name, bank_code, bank_name)
@@ -142,6 +142,8 @@ export function useWizardData({
             tour_name: string | null
             status: string | null
             disbursement_order_id: string | null
+            request_date: string | null
+            created_by_name: string | null
           } | null
           suppliers?: { bank_code: string | null; bank_name: string | null } | null
           advanced_by_employee?: {
@@ -220,6 +222,8 @@ export function useWizardData({
               id: it.id,
               request_id: it.request_id,
               request_code: it.payment_requests?.code ?? null,
+              request_date: it.payment_requests?.request_date ?? null,
+              requester_name: it.payment_requests?.created_by_name ?? null,
               description: it.description,
               subtotal: Number(it.subtotal ?? 0),
               supplier_id: it.supplier_id,

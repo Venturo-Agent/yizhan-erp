@@ -17,6 +17,8 @@ export interface UnbilledItem {
   id: string
   request_id: string
   request_code: string | null
+  request_date: string | null
+  requester_name: string | null
   description: string | null
   subtotal: number
   supplier_id: string | null
