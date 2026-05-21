@@ -13,9 +13,9 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Award, Check, Loader2, Calendar } from 'lucide-react'
-import { ContentPageLayout } from '@/components/layout/content-page-layout'
-import { Card } from '@/components/ui/card'
+import { Award, Check, Calendar, ExternalLink, Loader2 } from 'lucide-react'
+import { ListPageLayout } from '@/components/layout/list-page-layout'
+import type { TableColumn } from '@/components/ui/enhanced-table'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { FormDialog } from '@/components/dialog/form-dialog'
@@ -147,101 +147,114 @@ export default function BonusSettlementListPage() {
         }
       : undefined
 
-  return (
-    <ContentPageLayout
-      title="獎金結算"
-      icon={Award}
-      primaryAction={primaryAction}
-      breadcrumb={[
-        { label: '人資管理', href: '/hr' },
-        { label: '獎金結算', href: '/hr/bonus-settlement' },
-      ]}
+  // 2026-05-22 William 拍板：列表改 ListPageLayout + EnhancedTable、跟標準對齊
+  const columns: TableColumn<PendingTourRow>[] = [
+    {
+      key: 'tour_id',
+      label: '',
+      width: '40px',
+      render: (_v, row) => (
+        <Checkbox
+          checked={selected.has(row.tour_id)}
+          onCheckedChange={() => toggleOne(row.tour_id)}
+          onClick={(e) => e.stopPropagation()}
+          aria-label="勾選結算"
+        />
+      ),
+    },
+    { key: 'tour_code', label: '團號', sortable: true, width: '140px' },
+    { key: 'tour_name', label: '團名', sortable: true },
+    {
+      key: 'closing_date',
+      label: '結案日',
+      sortable: true,
+      width: '110px',
+      render: (v) =>
+        v ? (
+          <span className="text-xs text-morandi-secondary">{String(v).slice(0, 10)}</span>
+        ) : (
+          <span className="text-morandi-muted">—</span>
+        ),
+    },
+    {
+      key: 'employee_count',
+      label: '員工',
+      sortable: true,
+      width: '70px',
+      render: (v) => <span className="text-morandi-secondary">{Number(v) || 0} 位</span>,
+    },
+    {
+      key: 'bonus_count',
+      label: '獎金筆數',
+      sortable: true,
+      width: '90px',
+      render: (v) => <span className="text-morandi-secondary">{Number(v) || 0} 筆</span>,
+    },
+    {
+      key: 'total_amount',
+      label: '總獎金',
+      sortable: true,
+      width: '130px',
+      render: (v) => (
+        <span className="font-semibold text-morandi-gold tabular-nums">{formatNT(Number(v) || 0)}</span>
+      ),
+    },
+  ]
+
+  const renderActions = (row: PendingTourRow) => (
+    <Button
+      variant="ghost"
+      size="sm"
+      title="看員工明細"
+      onClick={(e) => {
+        e.stopPropagation()
+        router.push(`/hr/bonus-settlement/${row.tour_id}`)
+      }}
     >
-      {loading && (
-        <div className="flex items-center justify-center py-12 text-morandi-secondary">
-          <Loader2 className="w-5 h-5 animate-spin mr-2" />
-          載入中...
-        </div>
-      )}
+      <ExternalLink className="w-4 h-4" />
+    </Button>
+  )
 
-      {!loading && list.length === 0 && (
-        <Card className="p-12 text-center text-morandi-secondary">
-          <p className="text-sm mb-2">目前無待結算獎金</p>
-          <p className="text-xs text-morandi-muted">
-            旅遊團結案後、有設定獎金的會出現在這裡待勾選結算。
-          </p>
-        </Card>
-      )}
-
-      {!loading && list.length > 0 && (
-        <Card className="overflow-hidden">
-          <div className="px-4 py-3 border-b border-morandi-muted/20 bg-morandi-container/20 flex items-center gap-3">
-            <Checkbox
-              checked={selected.size === list.length && list.length > 0}
-              onCheckedChange={toggleAll}
-            />
-            <span className="text-xs text-morandi-secondary">
-              {selected.size > 0
-                ? `已選 ${selected.size} / ${list.length} 團`
-                : `共 ${list.length} 團待結算`}
-            </span>
-            {selected.size > 0 && (
-              <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
-                清除選擇
-              </Button>
-            )}
-          </div>
-          <div className="divide-y divide-morandi-muted/10">
-            {list.map((row) => {
-              const isSelected = selected.has(row.tour_id)
-              return (
-                <div
-                  key={row.tour_id}
-                  className={`flex items-center gap-3 px-4 py-3 hover:bg-morandi-container/20 cursor-pointer ${
-                    isSelected ? 'bg-morandi-gold/5' : ''
-                  }`}
-                  onClick={() => toggleOne(row.tour_id)}
-                >
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={() => toggleOne(row.tour_id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-morandi-primary">
-                        {row.tour_code || row.tour_id.slice(0, 8)}
-                      </span>
-                      <span className="text-sm text-morandi-secondary truncate">
-                        {row.tour_name}
-                      </span>
-                    </div>
-                    <div className="text-xs text-morandi-muted mt-0.5">
-                      {row.closing_date && `結案 ${row.closing_date.slice(0, 10)} · `}
-                      {row.employee_count} 員工 · {row.bonus_count} 筆獎金
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-semibold text-morandi-gold tabular-nums">
-                      {formatNT(row.total_amount)}
-                    </div>
-                    <button
-                      type="button"
-                      className="text-[0.647rem] text-morandi-muted underline hover:text-morandi-primary"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        router.push(`/hr/bonus-settlement/${row.tour_id}`)
-                      }}
-                    >
-                      看員工明細
-                    </button>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </Card>
-      )}
+  return (
+    <>
+      <ListPageLayout
+        title="獎金結算"
+        icon={Award}
+        data={list}
+        loading={loading}
+        columns={columns}
+        renderActions={renderActions}
+        searchFields={['tour_code', 'tour_name']}
+        searchPlaceholder="搜尋團號 / 團名"
+        onRowClick={(row) => toggleOne(row.tour_id)}
+        initialPageSize={15}
+        primaryAction={primaryAction}
+        headerActions={
+          list.length > 0 ? (
+            <div className="flex items-center gap-2">
+              <Checkbox
+                checked={selected.size === list.length && list.length > 0}
+                onCheckedChange={toggleAll}
+                aria-label="全選"
+              />
+              <span className="text-xs text-morandi-secondary">
+                {selected.size > 0
+                  ? `已選 ${selected.size} / ${list.length}`
+                  : `共 ${list.length} 團`}
+              </span>
+              {selected.size > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+                  清除
+                </Button>
+              )}
+            </div>
+          ) : null
+        }
+        breadcrumb={[
+          { label: '人資管理', href: '/hr' },
+          { label: '獎金結算', href: '/hr/bonus-settlement' },
+        ]}
+      />
 
       <FormDialog
         open={confirmOpen}
@@ -300,6 +313,6 @@ export default function BonusSettlementListPage() {
           </div>
         </div>
       </FormDialog>
-    </ContentPageLayout>
+    </>
   )
 }
