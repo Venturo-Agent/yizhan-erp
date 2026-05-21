@@ -19,8 +19,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Wallet, Plus, Loader2 } from 'lucide-react'
-import { ContentPageLayout } from '@/components/layout/content-page-layout'
-import { Card } from '@/components/ui/card'
+import { ListPageLayout } from '@/components/layout/list-page-layout'
+import type { TableColumn } from '@/components/ui/enhanced-table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -124,70 +124,76 @@ export default function SalarySettlementListPage() {
     }
   }
 
-  const primaryAction = {
-    label: '新增薪資結算',
-    icon: Plus,
-    onClick: () => setCreateOpen(true),
-  }
+  // 2026-05-22 William 拍板：列表改 ListPageLayout + EnhancedTable、跟請款 / 收款 / 出納單一致
+  const columns: TableColumn<SettlementRow>[] = [
+    { key: 'period', label: '結算月份', sortable: true, width: '120px' },
+    {
+      key: 'employee_count',
+      label: '員工數',
+      sortable: true,
+      width: '90px',
+      render: (v) => <span className="text-morandi-secondary">{Number(v) || 0} 位</span>,
+    },
+    {
+      key: 'total_amount',
+      label: '總金額',
+      sortable: true,
+      width: '140px',
+      render: (v) => (
+        <span className="text-morandi-gold font-semibold">{formatNT(Number(v) || 0)}</span>
+      ),
+    },
+    {
+      key: 'status',
+      label: '狀態',
+      sortable: true,
+      width: '100px',
+      render: (v) => {
+        const badge = STATUS_BADGE[v as SettlementRow['status']]
+        return <Badge className={badge.className}>{badge.label}</Badge>
+      },
+    },
+    {
+      key: 'notes',
+      label: '備註',
+      render: (v) =>
+        typeof v === 'string' && v ? v : <span className="text-morandi-muted">—</span>,
+    },
+    {
+      key: 'created_at',
+      label: '建立時間',
+      sortable: true,
+      width: '140px',
+      render: (v) => (
+        <span className="text-xs text-morandi-muted">
+          {v ? new Date(String(v)).toLocaleDateString('zh-TW') : '—'}
+        </span>
+      ),
+    },
+  ]
 
   return (
     <>
-      <ContentPageLayout
+      <ListPageLayout
         title="薪資結算"
         icon={Wallet}
-        primaryAction={primaryAction}
+        data={list}
+        loading={loading}
+        columns={columns}
+        searchFields={['period', 'notes']}
+        searchPlaceholder="搜尋月份 / 備註"
+        onRowClick={(row) => router.push(`/hr/salary-settlement/${row.id}`)}
+        initialPageSize={15}
+        primaryAction={{
+          label: '新增薪資結算',
+          icon: Plus,
+          onClick: () => setCreateOpen(true),
+        }}
         breadcrumb={[
           { label: '人資管理', href: '/hr' },
           { label: '薪資結算', href: '/hr/salary-settlement' },
         ]}
-      >
-        {loading && (
-          <div className="flex items-center justify-center py-12 text-morandi-secondary">
-            <Loader2 className="w-5 h-5 animate-spin mr-2" />
-            載入中...
-          </div>
-        )}
-
-        {!loading && list.length === 0 && (
-          <Card className="p-12 text-center text-morandi-secondary">
-            <p className="text-sm mb-2">尚無薪資結算紀錄</p>
-            <p className="text-xs text-morandi-muted">點右上「新增薪資結算」開始</p>
-          </Card>
-        )}
-
-        {!loading && list.length > 0 && (
-          <div className="space-y-3">
-            {list.map((row) => {
-              const badge = STATUS_BADGE[row.status]
-              return (
-                <Card
-                  key={row.id}
-                  className="p-5 hover:shadow-md hover:border-morandi-gold/30 transition-all cursor-pointer"
-                  onClick={() => router.push(`/hr/salary-settlement/${row.id}`)}
-                >
-                  <div className="flex items-center gap-6">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className="text-lg font-semibold text-morandi-primary">
-                          {row.period} 薪資
-                        </h3>
-                        <Badge className={badge.className}>{badge.label}</Badge>
-                      </div>
-                      <div className="text-sm text-morandi-secondary flex items-center gap-4">
-                        <span>{row.employee_count} 位員工</span>
-                        <span className="text-morandi-gold font-semibold">
-                          {formatNT(row.total_amount)}
-                        </span>
-                        {row.notes && <span className="text-xs">· {row.notes}</span>}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-        )}
-      </ContentPageLayout>
+      />
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
