@@ -25,6 +25,7 @@ export interface DailyScheduleItem {
   meals: { breakfast: string; lunch: string; dinner: string }
   accommodation: string
   hotelBreakfast?: boolean
+  breakfastAirline?: boolean
   lunchSelf?: boolean
   dinnerSelf?: boolean
   lunchAirline?: boolean
@@ -63,9 +64,11 @@ interface DayRowProps {
   onHotelClick?: (hotel: { id: string; name: string }) => void
 }
 
-const CELL = 'border-b border-r border-border'
-const CELL_LAST = 'border-b border-border'
-const CELL_NO_B = 'border-r border-border'
+// Excel 風：cell 之間用 .table-divider（短直線、不到頂底）
+// row 之間用 border-b、最後一欄不加 divider
+const CELL = 'border-b border-border/40 table-divider'
+const CELL_LAST = 'border-b border-border/40'
+const CELL_NO_B = 'table-divider'
 const CELL_LAST_NO_B = ''
 
 export function DayRow({
@@ -105,6 +108,7 @@ export function DayRow({
       updateDaySchedule(idx, `mealIds.${mealKey}`, r.id)
       if (mealKey === 'breakfast') {
         updateDaySchedule(idx, 'hotelBreakfast', false)
+        updateDaySchedule(idx, 'breakfastAirline', false)
       } else if (mealKey === 'lunch') {
         updateDaySchedule(idx, 'lunchSelf', false)
         updateDaySchedule(idx, 'lunchAirline', false)
@@ -153,9 +157,18 @@ export function DayRow({
   const handleToggleHotelBreakfast = React.useCallback(() => {
     const next = !day.hotelBreakfast
     updateDaySchedule(idx, 'hotelBreakfast', next)
+    updateDaySchedule(idx, 'breakfastAirline', false)
     updateDaySchedule(idx, 'meals.breakfast', '')
     updateDaySchedule(idx, 'mealIds.breakfast', '')
   }, [idx, day.hotelBreakfast, updateDaySchedule])
+
+  const handleToggleBreakfastAirline = React.useCallback(() => {
+    const next = !day.breakfastAirline
+    updateDaySchedule(idx, 'breakfastAirline', next)
+    updateDaySchedule(idx, 'hotelBreakfast', false)
+    updateDaySchedule(idx, 'meals.breakfast', '')
+    updateDaySchedule(idx, 'mealIds.breakfast', '')
+  }, [idx, day.breakfastAirline, updateDaySchedule])
 
   // 插入景點：名字插到游標位置 + 加到 attractions 列表
   const _handleInsertAttraction = React.useCallback(
@@ -214,6 +227,7 @@ export function DayRow({
     day,
     idx,
     isFirst,
+    onToggleBreakfastAirline: handleToggleBreakfastAirline,
     restaurantOptions,
     onPick: handlePickRestaurant,
     onPlainText: handlePlainTextMeal,

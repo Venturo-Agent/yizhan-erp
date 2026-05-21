@@ -1,13 +1,14 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { Hotel, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { DroppableZone } from './DroppableZone'
 import type { DailyScheduleItem } from './DayRow'
 
-const CELL = 'border-b border-r border-border'
-const CELL_LAST = 'border-b border-border'
+// 跟 DayRow 統一：cell 之間用 table-divider 短直線、row 之間用 border-b
+const CELL = 'border-b border-border/40 table-divider'
+const CELL_LAST = 'border-b border-border/40'
 
 // ============================================
 // 住宿行（酒店拖拽 + 續住 checkbox）
@@ -33,19 +34,19 @@ export function DayRowAccommodation({
   return (
     <tr className={idx % 2 === 1 ? 'bg-muted/5' : ''}>
       <td
-        className={`px-2 py-0 ${CELL} align-middle text-center text-[0.588rem] text-morandi-gold font-medium`}
+        className={`px-2 py-0 ${CELL} align-middle text-center text-xs text-morandi-gold font-medium`}
       >
-        <Hotel size={10} className="inline mx-auto" />
+        飯店
       </td>
       <td colSpan={4} className={`px-0 py-0 ${CELL} align-middle`}>
         <DroppableZone id={`hotel-drop-${idx}`} acceptType="hotel">
           {day.sameAsPrevious ? (
-            <div className="h-7 flex items-center px-2 text-sm text-muted-foreground">
+            <div className="h-7 flex items-center justify-center px-2 text-sm text-muted-foreground">
               {t('dayRowContinueStayPrefix')}
               {getPreviousAccommodation(idx) || <EmptyValue />})
             </div>
           ) : day.accommodation ? (
-            <div className="h-7 flex items-center px-2">
+            <div className="h-7 flex items-center justify-center px-2">
               <div
                 className={`inline-flex items-center gap-1 bg-status-info/10 text-status-info border border-status-info/30 rounded-full px-2 py-0.5 text-xs ${onHotelClick && day.accommodationId ? 'cursor-pointer hover:bg-status-info/20 transition-colors' : ''}`}
                 onClick={
@@ -54,7 +55,6 @@ export function DayRowAccommodation({
                     : undefined
                 }
               >
-                <Hotel size={10} />
                 <span>{day.accommodation}</span>
                 <button
                   type="button"
@@ -69,7 +69,7 @@ export function DayRowAccommodation({
               </div>
             </div>
           ) : (
-            <div className="h-7 flex items-center px-2 text-sm text-muted-foreground/70">
+            <div className="h-7 flex items-center justify-center px-2 text-sm text-muted-foreground/70">
               {t('dayRowDragHotelHere')}
             </div>
           )}

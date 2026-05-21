@@ -20,6 +20,8 @@ import {
 } from '@/types/bonus.types'
 /** 收款資料介面（相容多種資料來源） */
 interface ReceiptData {
+  /** 收款單狀態：'pending' (待會計勾稽) / 'confirmed' (已勾稽) / 適配層的 'received' */
+  status?: string
   /** 應收金額（receipts.receipt_amount） */
   receipt_amount?: number | string
   /** 實收金額（receipts.actual_amount） */
@@ -30,9 +32,15 @@ interface ReceiptData {
 
 const DEFAULT_ADMIN_COST_PER_PERSON = 10
 
-/** 計算收款總額（優先實收、其次應收） */
+/** 計算收款總額（優先實收、其次應收）
+ *
+ * 業務規則（William 拍板）：只算「會計已勾稽（confirmed/received）」的金額
+ * pending / pending_verify / rejected / cancelled / refunded 一律不算進總覽
+ * 沒帶 status 視為計入（向後相容老 caller）
+ */
 function calculateReceiptTotal(receipts: ReceiptData[]): number {
   return receipts.reduce((sum, r) => {
+    if (r.status && r.status !== 'confirmed' && r.status !== 'received') return sum
     if (r.payment_items && r.payment_items.length > 0) {
       return sum + r.payment_items.reduce((s, item) => s + (item.amount || 0), 0)
     }
@@ -108,7 +116,8 @@ function getProfitTax(
   }
   if (taxSetting.bonus_type === BonusCalculationType.PERCENT) {
     if (profitBeforeTax <= 0) return { tax: 0, rate: val }
-    return { tax: Math.round((profitBeforeTax * val) / 100), rate: val }
+    // 稅金 % 無條件進位、保守、避免短繳
+    return { tax: Math.ceil((profitBeforeTax * val) / 100), rate: val }
   }
   return { tax: 0, rate: 0 }
 }
@@ -118,16 +127,20 @@ function calculateNetProfit(profitBeforeTax: number, profitTax: number): number 
   return profitBeforeTax - profitTax
 }
 
-/** 計算單項獎金 */
+/** 計算單項獎金
+ * 守門：賠錢（netProfit <= 0）→ 一律 0、不發獎金也不扣
+ * Rounding：% 類無條件捨去到個位、定額不變
+ */
 function calculateBonus(netProfit: number, setting: TourBonusSetting): number {
+  if (netProfit <= 0) return 0
   const bonus = Number(setting.bonus)
   switch (setting.bonus_type) {
     case BonusCalculationType.PERCENT:
-      return Math.round((netProfit * bonus) / 100)
+      return Math.trunc((netProfit * bonus) / 100)
     case BonusCalculationType.FIXED_AMOUNT:
       return bonus
     case BonusCalculationType.MINUS_PERCENT:
-      return Math.round((netProfit * -bonus) / 100)
+      return Math.trunc((netProfit * -bonus) / 100)
     case BonusCalculationType.MINUS_FIXED_AMOUNT:
       return -bonus
     default:

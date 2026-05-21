@@ -325,8 +325,8 @@ export function TourItineraryTab({ tour }: TourItineraryTabProps) {
                   onSave={handleSave}
                 />
 
-                {/* Scrollable content */}
-                <div className="flex-1 overflow-y-auto p-4 pt-2">
+                {/* Scrollable content — 拿掉左右 padding、讓 table 直接撐到 wrapper border */}
+                <div className="flex-1 overflow-y-auto pt-2 pb-4">
                   {/* Flights row (hidden for domestic) */}
                   {!isDomestic && (
                     <ItineraryFlightEditor
@@ -353,8 +353,8 @@ export function TourItineraryTab({ tour }: TourItineraryTabProps) {
                     />
                   )}
 
-                  {/* 行程小標題 */}
-                  <div className="flex items-center gap-1.5 text-xs mb-1.5 mt-1">
+                  {/* 行程小標題 — 加 px-4 給 section title 內縮、但 table 撐滿 */}
+                  <div className="flex items-center gap-1.5 text-xs mb-1 mt-2 px-4">
                     <Map size={12} className="text-morandi-gold" />
                     <span className="text-muted-foreground font-medium">
                       {COMPONENT_LABELS.ITINERARY}
@@ -362,30 +362,37 @@ export function TourItineraryTab({ tour }: TourItineraryTabProps) {
                   </div>
 
                   {/* -- Daily schedule table -- */}
-                  <div className="rounded-xl border border-border overflow-hidden">
-                    <table className="w-full border-separate border-spacing-0 text-sm">
-                      <thead className="sticky top-0 z-20 bg-card">
-                        <tr className="bg-morandi-gold-header text-xs">
-                          <th className="px-2 py-2 text-center w-16 font-medium border-r border-morandi-gold/20">
-                            {t('itineraryTabDateHeader')}
-                          </th>
-                          <th className="px-2 py-2 text-left font-medium border-r border-morandi-gold/20">
-                            {t('itineraryTabContent')}
-                          </th>
-                          <th className="px-1 py-2 text-center w-24 font-medium border-r border-morandi-gold/20">
-                            {t('itineraryTabTools')}
-                          </th>
-                          <th className="px-1 py-2 text-center w-[120px] font-medium border-r border-morandi-gold/20">
-                            {t('itineraryTabBreakfastHeader')}
-                          </th>
-                          <th className="px-1 py-2 text-center w-[120px] font-medium border-r border-morandi-gold/20">
-                            {t('itineraryTabLunchHeader')}
-                          </th>
-                          <th className="px-1 py-2 text-center w-[120px] font-medium">
-                            {t('itineraryTabDinnerHeader')}
-                          </th>
-                        </tr>
-                      </thead>
+                  <table className="w-full border-collapse table-fixed text-sm border-t border-b border-border">
+                    <colgroup>
+                      <col style={{ width: '80px' }} />
+                      <col />
+                      <col style={{ width: '96px' }} />
+                      <col style={{ width: '120px' }} />
+                      <col style={{ width: '120px' }} />
+                      <col style={{ width: '120px' }} />
+                    </colgroup>
+                    <thead className="sticky top-0 z-20 bg-morandi-gold-header text-xs">
+                      <tr>
+                        <th className="px-2 py-1.5 text-center font-medium table-divider">
+                          {t('itineraryTabDateHeader')}
+                        </th>
+                        <th className="px-2 py-1.5 text-center font-medium table-divider">
+                          {t('itineraryTabContent')}
+                        </th>
+                        <th className="px-1 py-1.5 text-center font-medium table-divider">
+                          {t('itineraryTabTools')}
+                        </th>
+                        <th className="px-1 py-1.5 text-center font-medium table-divider">
+                          {t('itineraryTabBreakfastHeader')}
+                        </th>
+                        <th className="px-1 py-1.5 text-center font-medium table-divider">
+                          {t('itineraryTabLunchHeader')}
+                        </th>
+                        <th className="px-1 py-1.5 text-center font-medium">
+                          {t('itineraryTabDinnerHeader')}
+                        </th>
+                      </tr>
+                    </thead>
                       {dailySchedule.map((day, idx) => (
                         <DayRow
                           key={idx}
@@ -421,8 +428,7 @@ export function TourItineraryTab({ tour }: TourItineraryTabProps) {
                           }}
                         />
                       ))}
-                    </table>
-                  </div>
+                  </table>
                 </div>
               </div>
             </div>

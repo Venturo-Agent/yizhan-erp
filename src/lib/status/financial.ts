@@ -16,28 +16,32 @@ import {
 } from 'lucide-react'
 import type { StatusConfig } from './types'
 
-// 付款狀態
+// 付款 / 請款狀態（payment_requests.status）
+// William 2026-05-21 拍板的 3 階段：
+//   pending → 未付款（剛建立、會計尚未處理）
+//   confirmed → 待付款（已勾入出納單、等出帳）
+//   paid → 已付款（出納單完整出帳完）
 export const paymentStatuses: Record<string, StatusConfig> = {
   pending: {
     color: 'text-morandi-secondary',
-    label: '待確認',
+    label: '未付款',
     icon: Clock,
     bgColor: 'bg-morandi-secondary/15',
     borderColor: 'border-morandi-gold',
   },
   confirmed: {
+    color: 'text-morandi-gold',
+    label: '待付款',
+    icon: FileCheck,
+    bgColor: 'bg-morandi-gold/15',
+    borderColor: 'border-morandi-gold',
+  },
+  paid: {
     color: 'text-morandi-green',
-    label: '已確認',
+    label: '已付款',
     icon: CheckCircle,
     bgColor: 'bg-morandi-green/15',
     borderColor: 'border-morandi-green',
-  },
-  completed: {
-    color: 'text-morandi-primary',
-    label: '已完成',
-    icon: FileCheck,
-    bgColor: 'bg-morandi-primary/15',
-    borderColor: 'border-morandi-primary',
   },
   cancelled: {
     color: 'text-morandi-red',

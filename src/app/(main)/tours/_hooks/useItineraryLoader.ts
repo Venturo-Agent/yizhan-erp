@@ -260,6 +260,9 @@ export function useItineraryLoader({
               const hotelBreakfast = hasNewTableRows
                 ? dayRow?.breakfast_preset === 'hotel'
                 : breakfast === '飯店早餐'
+              const breakfastAirline = hasNewTableRows
+                ? dayRow?.breakfast_preset === 'airline'
+                : false
               const lunchSelf = hasNewTableRows
                 ? dayRow?.lunch_preset === 'self'
                 : lunch === '敬請自理'
@@ -275,6 +278,7 @@ export function useItineraryLoader({
                 meals: { breakfast, lunch, dinner },
                 accommodation,
                 hotelBreakfast,
+                breakfastAirline,
                 lunchSelf,
                 dinnerSelf,
                 lunchAirline,

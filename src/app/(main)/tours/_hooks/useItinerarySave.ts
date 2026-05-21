@@ -314,7 +314,7 @@ export function useItinerarySave({
                 day_note: day.note || null,
                 day_blocks: (day.blocks as Json) ?? null,
                 is_same_accommodation: day.sameAsPrevious || false,
-                breakfast_preset: day.hotelBreakfast ? 'hotel' : null,
+                breakfast_preset: day.hotelBreakfast ? 'hotel' : day.breakfastAirline ? 'airline' : null,
                 lunch_preset: day.lunchSelf ? 'self' : day.lunchAirline ? 'airline' : null,
                 dinner_preset: day.dinnerSelf ? 'self' : day.dinnerAirline ? 'airline' : null,
                 created_by: currentUser?.id || undefined,

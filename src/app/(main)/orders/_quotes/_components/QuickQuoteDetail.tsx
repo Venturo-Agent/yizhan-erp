@@ -134,20 +134,32 @@ export const QuickQuoteDetail: React.FC<QuickQuoteDetailProps> = ({
   }
 
   // 操作按鈕（在 header 或底部使用）
+  // Excel 風 toolbar：列印 / 編輯 / 取消 / 載入行程 → ghost（去外框）
+  //                  儲存 → soft-gold（primary action 留強調）
   const ActionButtons = () => (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       {viewModeToggle}
 
       {/* 列印按鈕（任何模式都顯示） */}
-      <Button onClick={() => setShowPrintPreview(true)} variant="soft-gold" className="gap-2">
-        <Printer className="h-4 w-4" />
+      <Button
+        onClick={() => setShowPrintPreview(true)}
+        variant="ghost"
+        size="sm"
+        className="h-8 px-2 gap-1 text-xs"
+      >
+        <Printer className="h-3.5 w-3.5" />
         {t('quoteDetailPrint')}
       </Button>
 
       {/* 非編輯模式 */}
       {!isEditing && (
-        <Button onClick={() => setIsEditing(true)} variant="soft-gold" className="gap-2">
-          <Edit2 size={16} />
+        <Button
+          onClick={() => setIsEditing(true)}
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2 gap-1 text-xs"
+        >
+          <Edit2 size={14} />
           {t('quoteDetailEdit')}
         </Button>
       )}
@@ -158,28 +170,32 @@ export const QuickQuoteDetail: React.FC<QuickQuoteDetailProps> = ({
           {quote.tour_id && (
             <Button
               onClick={handleLoadFromTour}
-              variant="soft-gold"
-              className="gap-2"
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 gap-1 text-xs"
               disabled={isLoadingItems}
             >
-              {isLoadingItems ? (
-                <Spinner size="md" />
-              ) : (
-                <Download className="h-4 w-4" />
-              )}
+              {isLoadingItems ? <Spinner size="sm" /> : <Download className="h-3.5 w-3.5" />}
               {t('quoteDetailLoadItinerary')}
             </Button>
           )}
-          <Button onClick={() => setIsEditing(false)} variant="soft-gold" className="gap-2">
-            <X size={16} />
+          <Button
+            onClick={() => setIsEditing(false)}
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 gap-1 text-xs"
+          >
+            <X size={14} />
             {t('quoteDetailCancel')}
           </Button>
-          <Button variant="soft-gold"
+          <Button
+            variant="soft-gold"
+            size="sm"
             onClick={() => handleSave(true)}
             disabled={isSaving}
- className="gap-2"
+            className="h-8 px-2 gap-1 text-xs"
           >
-            <Save className="h-4 w-4" />
+            <Save className="h-3.5 w-3.5" />
             {isSaving ? t('quoteDetailSavingLabel') : t('quoteDetailSave')}
           </Button>
         </>
@@ -205,12 +221,12 @@ export const QuickQuoteDetail: React.FC<QuickQuoteDetailProps> = ({
       <div
         className={cn(
           'w-full overflow-x-auto',
-          embedded ? 'pb-6' : 'p-3 space-y-4'
+          embedded ? 'pb-4' : 'p-3 space-y-3'
         )}
       >
-        {/* 嵌入模式：3 個 section 合進一張大卡、不畫 section divider */}
+        {/* 嵌入模式：3 個 section 合進一張大卡、共用最外層 border + rounded-xl */}
         {embedded ? (
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="border border-border bg-card rounded-xl shadow-sm overflow-hidden">
             <QuickQuoteHeader
               formData={formData}
               isEditing={isEditing}

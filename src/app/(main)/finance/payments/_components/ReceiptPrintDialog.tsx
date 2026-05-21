@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button'
 import { Printer } from 'lucide-react'
 import { useWorkspaceSettings, getLogoStyle } from '@/hooks/useWorkspaceSettings'
+import { SealImage } from '@/components/seal-image'
 import type { Receipt } from '@/stores'
 
 const COMPONENT_LABELS = {
@@ -310,18 +311,12 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
             minHeight: '80px',
           }}
         >
-          {workspace.invoice_seal_image_url && (
-            <img
-              src={workspace.invoice_seal_image_url}
-              alt="seal"
-              style={{
-                maxWidth: '110px',
-                maxHeight: '110px',
-                opacity: 0.85,
-                transform: 'rotate(-6deg)',
-              }}
-            />
-          )}
+          <SealImage
+            url={workspace.invoice_seal_image_url}
+            size={110}
+            rotate={-6}
+            opacity={0.85}
+          />
           <div
             style={{
               borderBottom: `1px solid ${COLORS.gray}`,

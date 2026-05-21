@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { ImageUploadField, LogoHeaderPreview } from './ImageUploadField'
+import { invalidateWorkspaceSettings } from '@/hooks/useWorkspaceSettings'
 import type { CompanyFormData, BankAccountOption } from '../types'
 
 const PAGE_LABELS = {
@@ -59,12 +60,14 @@ export function CompanyInfoCard({
         body: JSON.stringify({
           logo_scale: Number(form.logo_scale.toFixed(2)),
           logo_offset_x: Math.round(form.logo_offset_x),
+          logo_offset_y: Math.round(form.logo_offset_y),
         }),
       })
       if (!res.ok) {
         const j = await res.json().catch(() => ({ error: '儲存失敗' }))
         throw new Error(j.error || '儲存失敗')
       }
+      invalidateWorkspaceSettings(workspaceId)
     } catch (err) {
       logger.error('儲存 logo 位置失敗', err)
       toast.error('儲存失敗、請重試')
@@ -90,6 +93,7 @@ export function CompanyInfoCard({
         const j = await res.json().catch(() => ({ error: '儲存失敗' }))
         throw new Error(j.error || '儲存失敗')
       }
+      invalidateWorkspaceSettings(workspaceId)
       toast.success('匯款手續費模式已儲存')
     } catch (err) {
       logger.error('儲存匯款手續費模式失敗', err)
@@ -235,23 +239,37 @@ export function CompanyInfoCard({
           />
         </div>
         <div id="field-logo_url" className="md:col-span-3 scroll-mt-24 pt-4 border-t border-border/40">
-          <ImageUploadField
-            label={t('companyLogo')}
-            hint={t('companyLogoHint')}
-            value={form.logo_url}
-            onChange={url => updateField('logo_url', url)}
-            fieldName="logo"
-            workspaceId={workspaceId}
-          />
-          {form.logo_url && (
-            <LogoHeaderPreview
-              logoUrl={form.logo_url}
-              scale={form.logo_scale}
-              offsetX={form.logo_offset_x}
-              onScaleChange={v => updateField('logo_scale', v)}
-              onOffsetXChange={v => updateField('logo_offset_x', v)}
-              onCommit={handleLogoLayoutCommit}
-              saving={savingLogoLayout}
+          {/* 並排 layout:左欄上傳框、右欄編輯器(只有 logo 上傳後才顯示) */}
+          {form.logo_url ? (
+            <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-start">
+              <ImageUploadField
+                label={t('companyLogo')}
+                hint={t('companyLogoHint')}
+                value={form.logo_url}
+                onChange={url => updateField('logo_url', url)}
+                fieldName="logo"
+                workspaceId={workspaceId}
+              />
+              <LogoHeaderPreview
+                logoUrl={form.logo_url}
+                scale={form.logo_scale}
+                offsetX={form.logo_offset_x}
+                offsetY={form.logo_offset_y}
+                onScaleChange={v => updateField('logo_scale', v)}
+                onOffsetXChange={v => updateField('logo_offset_x', v)}
+                onOffsetYChange={v => updateField('logo_offset_y', v)}
+                onCommit={handleLogoLayoutCommit}
+                saving={savingLogoLayout}
+              />
+            </div>
+          ) : (
+            <ImageUploadField
+              label={t('companyLogo')}
+              hint={t('companyLogoHint')}
+              value={form.logo_url}
+              onChange={url => updateField('logo_url', url)}
+              fieldName="logo"
+              workspaceId={workspaceId}
             />
           )}
         </div>
@@ -547,16 +565,6 @@ export function CompanyInfoCard({
                 value={form.invoice_seal_image_url}
                 onChange={url => updateField('invoice_seal_image_url', url)}
                 fieldName="invoice-seal"
-                workspaceId={workspaceId}
-              />
-            </div>
-            <div id="field-contract_seal_image_url" className="scroll-mt-24">
-              <ImageUploadField
-                label="合約專用章"
-                hint=""
-                value={form.contract_seal_image_url}
-                onChange={url => updateField('contract_seal_image_url', url)}
-                fieldName="contract-seal"
                 workspaceId={workspaceId}
               />
             </div>

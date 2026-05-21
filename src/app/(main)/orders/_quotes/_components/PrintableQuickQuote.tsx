@@ -33,23 +33,17 @@ export const PrintableQuickQuote: React.FC<PrintableQuickQuoteProps> = ({
   onPrint: _onPrint,
 }) => {
   const [isMounted, setIsMounted] = useState(false)
-  const [logoUrl, setLogoUrl] = useState<string>('')
   const printContentRef = useRef<HTMLDivElement>(null)
   const ws = useWorkspaceSettings()
   const { legalName: companyFullName } = useCompanyInfo()
   const hasBankInfo = !!(ws.bank_name || ws.bank_branch || ws.bank_account)
+  // Logo URL 直接用 workspace 設定:檔名本身已帶 timestamp(上傳時)、瀏覽器 cache 可放心生效
+  // (2026-05-20 拔掉舊版 ?t=Date.now() 那個 cache busting hack、解「按列印太快 logo 還沒載入」race)
+  const logoUrl = ws.logo_url || ''
 
   useEffect(() => {
     setIsMounted(true)
   }, [])
-
-  // 從 workspace 設定讀取 Logo（統一來源）
-  useEffect(() => {
-    if (isOpen && ws.logo_url) {
-      // 加上時間戳避免瀏覽器快取舊圖片
-      setLogoUrl(`${ws.logo_url}?t=${Date.now()}`)
-    }
-  }, [isOpen, ws.logo_url])
 
   const totalAmount = items.reduce((sum, item) => sum + item.amount, 0)
   const balanceAmount = totalAmount - (quote.received_amount || 0)
@@ -149,6 +143,7 @@ export const PrintableQuickQuote: React.FC<PrintableQuickQuoteProps> = ({
             wsName={ws?.name}
             logoScale={ws?.logo_scale}
             logoOffsetX={ws?.logo_offset_x}
+            logoOffsetY={ws?.logo_offset_y}
           />
 
           {/* 客戶資訊 */}
@@ -160,7 +155,7 @@ export const PrintableQuickQuote: React.FC<PrintableQuickQuoteProps> = ({
             items={items}
             totalAmount={totalAmount}
             balanceAmount={balanceAmount}
-            companySealUrl={ws.company_seal_url}
+            invoiceSealUrl={ws.invoice_seal_image_url}
           />
 
           {/* 付款資訊 + 收據資訊 */}

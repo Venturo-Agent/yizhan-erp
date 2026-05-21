@@ -18,16 +18,18 @@ interface QuickQuoteHeaderProps {
   formData: FormData
   isEditing: boolean
   onFieldChange: <K extends keyof FormData>(field: K, value: FormData[K]) => void
-  actions?: React.ReactNode
   /** embedded：合進大卡時不畫自己的外殼 */
   embedded?: boolean
 }
+
+// Excel 風 input：無框、置中、focus 時不顯眼
+const inputCls =
+  'h-7 text-sm text-center border-0 bg-transparent shadow-none px-0 py-0 focus-visible:ring-0 rounded-none'
 
 export const QuickQuoteHeader: React.FC<QuickQuoteHeaderProps> = ({
   formData,
   isEditing,
   onFieldChange,
-  actions,
   embedded = false,
 }) => {
   const t = useTranslations('orders')
@@ -38,88 +40,100 @@ export const QuickQuoteHeader: React.FC<QuickQuoteHeaderProps> = ({
     }
   }
 
+  const labelCellCls =
+    'px-2 py-1 text-xs text-center text-muted-foreground table-divider whitespace-nowrap w-[88px] bg-morandi-gold-header/40'
+
   return (
-    <div className={embedded ? 'p-6' : 'bg-card border border-border rounded-xl p-6'}>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-morandi-primary">
-          {t('quickQuoteClientInfo')}
-        </h2>
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
-      </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('quickQuoteClientName')}
-          </label>
-          <Input
-            value={formData.customer_name}
-            onChange={e => onFieldChange('customer_name', e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={!isEditing}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('quickQuoteContactPhone')}
-          </label>
-          <Input
-            value={formData.contact_phone}
-            onChange={e => onFieldChange('contact_phone', e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={!isEditing}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('quickQuoteAddress')}
-          </label>
-          <Input
-            value={formData.contact_address}
-            onChange={e => onFieldChange('contact_address', e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={!isEditing}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('quickQuoteGroupCode')}
-          </label>
-          <Input
-            value={formData.tour_code}
-            onChange={e => onFieldChange('tour_code', e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={!isEditing}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('quickQuoteSalesAgent')}
-          </label>
-          <Input
-            value={formData.handler_name}
-            onChange={e => onFieldChange('handler_name', e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={!isEditing}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('quickQuoteIssueDate')}
-          </label>
-          <DatePicker
-            value={formData.issue_date}
-            onChange={date => onFieldChange('issue_date', date || '')}
-            disabled={!isEditing}
-            placeholder={t('quickQuoteDateSelect')}
-            className="mt-1"
-          />
-        </div>
-      </div>
+    <div
+      className={
+        embedded
+          ? 'border-b border-border'
+          : 'border border-border bg-card rounded-xl shadow-sm overflow-hidden'
+      }
+    >
+      <table className="w-full border-collapse table-fixed">
+        <colgroup>
+          <col style={{ width: '88px' }} />
+          <col />
+          <col style={{ width: '88px' }} />
+          <col />
+        </colgroup>
+        {/*
+          欄位順序對齊列印版（PrintableQuickQuoteInfoGrid）：
+          團體名稱 / 團體編號 → 聯絡電話 / 承辦業務 → 通訊地址（跨欄）→ 開單日期（跨欄）
+          列印是 2-column grid、編輯是 4-cell（label+input × 2）/ row、業務對照不會錯位
+        */}
+        <tbody>
+          <tr className="border-b border-border/60">
+            <td className={labelCellCls}>{t('quickQuoteClientName')}</td>
+            <td className="px-2 py-1 table-divider">
+              <Input
+                value={formData.customer_name}
+                onChange={e => onFieldChange('customer_name', e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={!isEditing}
+                className={inputCls}
+              />
+            </td>
+            <td className={labelCellCls}>{t('quickQuoteGroupCode')}</td>
+            <td className="px-2 py-1">
+              <Input
+                value={formData.tour_code}
+                onChange={e => onFieldChange('tour_code', e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={!isEditing}
+                className={inputCls}
+              />
+            </td>
+          </tr>
+          <tr className="border-b border-border/60">
+            <td className={labelCellCls}>{t('quickQuoteContactPhone')}</td>
+            <td className="px-2 py-1 table-divider">
+              <Input
+                value={formData.contact_phone}
+                onChange={e => onFieldChange('contact_phone', e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={!isEditing}
+                className={inputCls}
+              />
+            </td>
+            <td className={labelCellCls}>{t('quickQuoteSalesAgent')}</td>
+            <td className="px-2 py-1">
+              <Input
+                value={formData.handler_name}
+                onChange={e => onFieldChange('handler_name', e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={!isEditing}
+                className={inputCls}
+              />
+            </td>
+          </tr>
+          <tr className="border-b border-border/60">
+            <td className={labelCellCls}>{t('quickQuoteAddress')}</td>
+            <td className="px-2 py-1" colSpan={3}>
+              <Input
+                value={formData.contact_address}
+                onChange={e => onFieldChange('contact_address', e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={!isEditing}
+                className={inputCls}
+              />
+            </td>
+          </tr>
+          <tr>
+            <td className={labelCellCls}>{t('quickQuoteIssueDate')}</td>
+            <td className="px-2 py-1" colSpan={3}>
+              <DatePicker
+                value={formData.issue_date}
+                onChange={date => onFieldChange('issue_date', date || '')}
+                disabled={!isEditing}
+                placeholder={t('quickQuoteDateSelect')}
+                className={inputCls}
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   )
 }

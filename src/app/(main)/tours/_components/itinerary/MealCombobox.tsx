@@ -105,7 +105,7 @@ export function MealCombobox({
         }}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`h-8 text-sm border-0 shadow-none focus-visible:ring-0 rounded-none px-2 bg-transparent placeholder:text-muted-foreground/70 ${extraRightPadding ? 'pr-6' : ''}`}
+        className={`h-8 text-sm text-center border-0 shadow-none focus-visible:ring-0 rounded-none px-2 bg-transparent placeholder:text-muted-foreground/70 ${extraRightPadding ? 'pr-6' : ''}`}
       />
       {open && filtered.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-card border border-border rounded-md shadow-lg overflow-hidden max-h-64 overflow-y-auto">

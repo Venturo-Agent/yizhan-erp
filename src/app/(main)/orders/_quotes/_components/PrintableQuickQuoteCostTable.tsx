@@ -3,13 +3,14 @@
  */
 import React from 'react'
 import { Quote, QuickQuoteItem } from '@/types/quote.types'
+import { SealImage } from '@/components/seal-image'
 
 interface PrintableQuickQuoteCostTableProps {
   quote: Quote
   items: QuickQuoteItem[]
   totalAmount: number
   balanceAmount: number
-  companySealUrl: string | undefined
+  invoiceSealUrl: string | null | undefined
 }
 
 export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTableProps> = ({
@@ -17,7 +18,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
   items,
   totalAmount,
   balanceAmount,
-  companySealUrl,
+  invoiceSealUrl,
 }) => {
   return (
     <>
@@ -39,11 +40,9 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
         className="items-table"
         style={{
           width: '100%',
-          borderCollapse: 'separate',
+          borderCollapse: 'collapse',
           borderSpacing: 0,
           border: '1px solid var(--border)',
-          borderRadius: '8px',
-          overflow: 'hidden',
           marginBottom: '20px',
           fontSize: '13px',
         }}
@@ -203,7 +202,6 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
             padding: '12px 16px',
             backgroundColor: 'var(--background)',
             border: '1px solid var(--border)',
-            borderRadius: '8px',
           }}
         >
           <div
@@ -229,26 +227,23 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
         </div>
       )}
 
-      {/* 金額統計 */}
+      {/* 金額統計 — Excel 風一橫條、不再用 divider 切兩張卡片感 */}
       <div
         className="summary-box"
         style={{
           backgroundColor: 'var(--background)',
           border: '1px solid var(--border)',
-          borderRadius: '8px',
-          padding: '12px 16px',
+          padding: '10px 16px',
           display: 'flex',
           justifyContent: 'flex-end',
           alignItems: 'center',
-          gap: quote.received_amount && quote.received_amount > 0 ? '32px' : '8px',
+          gap: '40px',
           marginBottom: '20px',
         }}
       >
         {quote.received_amount && quote.received_amount > 0 ? (
           <>
-            <div
-              className="summary-item flex items-center gap-2"
-            >
+            <div className="summary-item flex items-center gap-2">
               <span
                 className="summary-label"
                 style={{ fontSize: '11px', fontWeight: 600, color: 'var(--morandi-primary)' }}
@@ -266,17 +261,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
                 NT$ {totalAmount.toLocaleString()}
               </span>
             </div>
-            <div
-              className="divider"
-              style={{
-                width: '1px',
-                height: '24px',
-                backgroundColor: 'var(--morandi-container)',
-              }}
-            />
-            <div
-              className="summary-item flex items-center gap-2"
-            >
+            <div className="summary-item flex items-center gap-2">
               <span
                 className="summary-label"
                 style={{ fontSize: '11px', fontWeight: 600, color: 'var(--morandi-primary)' }}
@@ -294,17 +279,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
                 NT$ {(quote.received_amount || 0).toLocaleString()}
               </span>
             </div>
-            <div
-              className="divider"
-              style={{
-                width: '1px',
-                height: '24px',
-                backgroundColor: 'var(--morandi-container)',
-              }}
-            />
-            <div
-              className="summary-item flex items-center gap-2"
-            >
+            <div className="summary-item flex items-center gap-2">
               <span
                 className="summary-label"
                 style={{ fontSize: '11px', fontWeight: 600, color: 'var(--morandi-primary)' }}
@@ -342,7 +317,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
       </div>
 
       {/* 公司印章 — 金額下方 */}
-      {companySealUrl && (
+      {invoiceSealUrl && (
         <div
           className="seal-section"
           style={{
@@ -353,16 +328,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
             paddingRight: '24px',
           }}
         >
-          <img
-            src={companySealUrl}
-            alt="company seal"
-            style={{
-              width: '110px',
-              height: '110px',
-              objectFit: 'contain',
-              opacity: 0.85,
-            }}
-          />
+          <SealImage url={invoiceSealUrl} size={110} opacity={0.85} alt="invoice seal" />
         </div>
       )}
     </>

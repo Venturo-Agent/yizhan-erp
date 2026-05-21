@@ -35,8 +35,7 @@ interface QuickQuoteItemsTableProps {
 interface SortableRowProps {
   item: QuickQuoteItem
   isEditing: boolean
-  cellClass: string
-  inputClass: string
+  isLast: boolean
   onUpdateItem: <K extends keyof QuickQuoteItem>(
     id: string,
     field: K,
@@ -59,11 +58,16 @@ interface SortableRowProps {
   cleanExpressionInput: (val: string) => string
 }
 
+// Excel 風 cell + input class
+const cellCls = 'px-2 py-1 table-divider'
+const lastCellCls = 'px-2 py-1'
+const inputCls =
+  'w-full h-7 text-sm text-center border-0 bg-transparent shadow-none px-0 py-0 focus-visible:ring-0 rounded-none'
+
 const SortableRow: React.FC<SortableRowProps> = ({
   item,
   isEditing,
-  cellClass,
-  inputClass,
+  isLast,
   onUpdateItem,
   onRemoveItem,
   handleTextChange,
@@ -148,25 +152,31 @@ const SortableRow: React.FC<SortableRowProps> = ({
     }
   }
 
+  // 最後一欄（編輯：刪除按鈕；非編輯：notes）不加 table-divider
+  // notes 在 isEditing 時不是最後欄、加 table-divider
   return (
     <tr
       ref={setNodeRef}
       style={style}
-      className={cn('hover:bg-morandi-container/10', isDragging && 'opacity-50 bg-morandi-gold/10')}
+      className={cn(
+        'hover:bg-muted/10',
+        !isLast && 'border-b border-border/40',
+        isDragging && 'opacity-50 bg-morandi-gold/10'
+      )}
     >
       {/* 拖曳把手 */}
       {isEditing && (
-        <td className={`${cellClass} w-8 text-center`}>
+        <td className={cn(cellCls, 'text-center')}>
           <button
             {...attributes}
             {...listeners}
-            className="cursor-grab active:cursor-grabbing text-morandi-secondary hover:text-morandi-primary p-1"
+            className="cursor-grab active:cursor-grabbing text-morandi-secondary hover:text-morandi-primary p-1 inline-flex items-center justify-center"
           >
             <GripVertical className="h-4 w-4" />
           </button>
         </td>
       )}
-      <td className={cellClass}>
+      <td className={cellCls}>
         <input
           value={item.description}
           onChange={e => handleTextChange(item.id, 'description', e)}
@@ -175,10 +185,10 @@ const SortableRow: React.FC<SortableRowProps> = ({
           onCompositionEnd={e => handleCompositionEnd(item.id, 'description', e)}
           placeholder={t('quickQuoteItemsItemDesc')}
           disabled={!isEditing}
-          className={inputClass}
+          className={cn(inputCls, 'text-left')}
         />
       </td>
-      <td className={cellClass}>
+      <td className={cellCls}>
         <CalcInput
           value={item.quantity || null}
           formula={item.quantity_formula}
@@ -186,22 +196,22 @@ const SortableRow: React.FC<SortableRowProps> = ({
           onFormulaChange={f => onUpdateItem(item.id, 'quantity_formula', f)}
           disabled={!isEditing}
           placeholder={t('quickQuoteItemsFormulaHint')}
-          className={cn(inputClass, 'text-center')}
+          className={inputCls}
         />
       </td>
       {isEditing && (
-        <td className={cellClass}>
+        <td className={cellCls}>
           <CalcInput
             value={item.cost ?? null}
             formula={item.cost_formula}
             onChange={v => onUpdateItem(item.id, 'cost', v ?? 0)}
             onFormulaChange={f => onUpdateItem(item.id, 'cost_formula', f)}
             placeholder={t('quickQuoteItemsFormulaHint')}
-            className={cn(inputClass, 'text-right')}
+            className={inputCls}
           />
         </td>
       )}
-      <td className={cellClass}>
+      <td className={cellCls}>
         <CalcInput
           value={item.unit_price || null}
           formula={item.unit_price_formula}
@@ -209,14 +219,14 @@ const SortableRow: React.FC<SortableRowProps> = ({
           onFormulaChange={f => onUpdateItem(item.id, 'unit_price_formula', f)}
           disabled={!isEditing}
           placeholder={t('quickQuoteItemsFormulaHint')}
-          className={cn(inputClass, 'text-right')}
+          className={inputCls}
         />
       </td>
-      <td className={`${cellClass} text-right font-medium`}>
+      <td className={cn(cellCls, 'text-center font-medium text-sm')}>
         {(item.amount || 0).toLocaleString()}
       </td>
       {isEditing && (
-        <td className={`${cellClass} text-right font-medium`}>
+        <td className={cn(cellCls, 'text-center font-medium text-sm')}>
           <span
             className={
               (item.unit_price - (item.cost || 0)) * item.quantity >= 0
@@ -228,7 +238,7 @@ const SortableRow: React.FC<SortableRowProps> = ({
           </span>
         </td>
       )}
-      <td className={cellClass}>
+      <td className={isEditing ? cellCls : lastCellCls}>
         <input
           value={item.notes}
           onChange={e => handleTextChange(item.id, 'notes', e)}
@@ -237,15 +247,15 @@ const SortableRow: React.FC<SortableRowProps> = ({
           onCompositionEnd={e => handleCompositionEnd(item.id, 'notes', e)}
           placeholder={t('quoteAccommodationRemarks')}
           disabled={!isEditing}
-          className={inputClass}
+          className={inputCls}
         />
       </td>
       {isEditing && (
-        <td className={`${cellClass} text-center`}>
+        <td className={cn(lastCellCls, 'text-center')}>
           <button
             type="button"
             onClick={() => onRemoveItem(item.id)}
-            className="text-morandi-red hover:text-status-danger"
+            className="text-morandi-red hover:text-status-danger inline-flex items-center justify-center"
           >
             <Trash2 className="h-4 w-4" />
           </button>
@@ -300,7 +310,7 @@ export const QuickQuoteItemsTable: React.FC<QuickQuoteItemsTableProps> = ({
     let result = text
 
     // 移除中文字符
-    result = result.replace(/[\u4e00-\u9fa5]/g, '')
+    result = result.replace(/[一-龥]/g, '')
 
     // 轉換全形數字為半形 (０１２３４５６７８９)
     result = result.replace(/[０１２３４５６７８９]/g, char =>
@@ -364,98 +374,123 @@ export const QuickQuoteItemsTable: React.FC<QuickQuoteItemsTableProps> = ({
     isComposingRef.current = true
   }, [])
 
-  // 儲存格樣式（簡潔版，參考請款單）
-  const cellClass = 'px-2 py-1.5'
-  const headerCellClass = 'px-2 py-2 text-left font-medium text-morandi-secondary text-xs'
-  const inputClass = 'input-no-focus w-full h-7 px-1 bg-transparent text-sm'
+  // colspan 計算（空狀態用）
+  const colCount =
+    1 /* desc */ +
+    1 /* quantity */ +
+    1 /* unit_price */ +
+    1 /* amount */ +
+    1 /* notes */ +
+    (isEditing ? 1 /* drag handle */ + 1 /* cost */ + 1 /* profit */ + 1 /* remove */ : 0)
+
+  // thead cell class — 跟行程頁同樣 bg-morandi-gold-header
+  const headerCellCls =
+    'px-2 py-1.5 text-center font-medium text-xs text-morandi-primary table-divider whitespace-nowrap'
+  const headerLastCellCls =
+    'px-2 py-1.5 text-center font-medium text-xs text-morandi-primary whitespace-nowrap'
+
+  // table 容器外殼：embedded 不畫框（讓大卡負責）、非 embedded 自畫一張卡
+  const wrapperCls = embedded
+    ? 'border-b border-border'
+    : 'border border-border bg-card rounded-xl shadow-sm overflow-hidden'
 
   return (
-    <div className={embedded ? 'space-y-3 p-6' : 'space-y-3'}>
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-morandi-primary">
-          {t('quickQuoteItemsTable')}
-        </h2>
-        {isEditing && (
-          <Button onClick={onAddItem} size="sm" variant="soft-gold" className="gap-2">
-            <Plus className="h-4 w-4" />
+    <div className={wrapperCls}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <table className="w-full border-collapse table-fixed text-sm">
+          <colgroup>
+            {isEditing && <col style={{ width: '32px' }} />}
+            <col />
+            <col style={{ width: '72px' }} />
+            {isEditing && <col style={{ width: '96px' }} />}
+            <col style={{ width: '104px' }} />
+            <col style={{ width: '104px' }} />
+            {isEditing && <col style={{ width: '96px' }} />}
+            <col style={{ width: '160px' }} />
+            {isEditing && <col style={{ width: '48px' }} />}
+          </colgroup>
+          <thead className="bg-morandi-gold-header">
+            <tr>
+              {isEditing && <th className={headerCellCls}></th>}
+              <th className={headerCellCls}>{t('quickQuoteItemsItemDesc')}</th>
+              <th className={headerCellCls}>{t('quickQuoteItemsQuantity')}</th>
+              {isEditing && (
+                <th className={headerCellCls}>{t('quickQuoteItemsCost')}</th>
+              )}
+              <th className={headerCellCls}>{t('quickQuoteItemsUnitPrice')}</th>
+              <th className={headerCellCls}>{t('quickQuoteItemsAmount')}</th>
+              {isEditing && (
+                <th className={headerCellCls}>{t('quickQuoteItemsProfit')}</th>
+              )}
+              <th className={isEditing ? headerCellCls : headerLastCellCls}>
+                {t('quickQuoteItemsRemarks')}
+              </th>
+              {isEditing && (
+                <th className={headerLastCellCls}>
+                  {/* 刪除欄、用「＋ 新增」按鈕當 header */}
+                  <button
+                    type="button"
+                    onClick={onAddItem}
+                    className="inline-flex items-center justify-center text-morandi-primary hover:text-morandi-gold"
+                    title={t('quickQuoteItemsAddItem')}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </th>
+              )}
+            </tr>
+          </thead>
+          <tbody>
+            <SortableContext
+              items={items.map(item => item.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {items.map((item, idx) => (
+                <SortableRow
+                  key={item.id}
+                  item={item}
+                  isEditing={isEditing}
+                  isLast={idx === items.length - 1}
+                  onUpdateItem={onUpdateItem}
+                  onRemoveItem={onRemoveItem}
+                  handleTextChange={handleTextChange}
+                  handleKeyDown={handleKeyDown}
+                  handleCompositionStart={handleCompositionStart}
+                  handleCompositionEnd={handleCompositionEnd}
+                  normalizeNumber={normalizeNumber}
+                  cleanExpressionInput={cleanExpressionInput}
+                />
+              ))}
+            </SortableContext>
+            {items.length === 0 && (
+              <tr>
+                <td
+                  colSpan={colCount}
+                  className="px-3 py-8 text-center text-sm text-morandi-secondary"
+                >
+                  {t('quickQuoteItemsEmpty')}
+                  {isEditing && t('quickQuoteItemsClickToAdd')}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </DndContext>
+      {/* 非編輯模式仍提供 add（如果還想保留入口）：移到 thead 內、這裡不再放 button */}
+      {/* 編輯但沒項目時、額外底部一個明顯的「新增」按鈕 */}
+      {isEditing && items.length === 0 && (
+        <div className="flex items-center justify-center py-2 border-t border-border/40">
+          <Button
+            onClick={onAddItem}
+            size="sm"
+            variant="ghost"
+            className="gap-1 text-xs"
+          >
+            <Plus className="h-3.5 w-3.5" />
             {t('quickQuoteItemsAddItem')}
           </Button>
-        )}
-      </div>
-      <div
-        className={
-          embedded ? 'overflow-hidden' : 'bg-card rounded-xl border border-border overflow-hidden'
-        }
-      >
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-morandi-container/60">
-                {isEditing && <th className={`${headerCellClass} w-8`}></th>}
-                <th className={headerCellClass}>{t('quickQuoteItemsItemDesc')}</th>
-                <th className={`${headerCellClass} text-center w-20`}>
-                  {t('quickQuoteItemsQuantity')}
-                </th>
-                {isEditing && (
-                  <th className={`${headerCellClass} text-center w-24`}>
-                    {t('quickQuoteItemsCost')}
-                  </th>
-                )}
-                <th className={`${headerCellClass} text-center w-28`}>
-                  {t('quickQuoteItemsUnitPrice')}
-                </th>
-                <th className={`${headerCellClass} text-center w-28`}>
-                  {t('quickQuoteItemsAmount')}
-                </th>
-                {isEditing && (
-                  <th className={`${headerCellClass} text-center w-24`}>
-                    {t('quickQuoteItemsProfit')}
-                  </th>
-                )}
-                <th className={`${headerCellClass} w-32`}>
-                  {t('quickQuoteItemsRemarks')}
-                </th>
-                {isEditing && <th className={`${headerCellClass} text-center w-12`}></th>}
-              </tr>
-            </thead>
-            <tbody>
-              <SortableContext
-                items={items.map(item => item.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {items.map(item => (
-                  <SortableRow
-                    key={item.id}
-                    item={item}
-                    isEditing={isEditing}
-                    cellClass={cellClass}
-                    inputClass={inputClass}
-                    onUpdateItem={onUpdateItem}
-                    onRemoveItem={onRemoveItem}
-                    handleTextChange={handleTextChange}
-                    handleKeyDown={handleKeyDown}
-                    handleCompositionStart={handleCompositionStart}
-                    handleCompositionEnd={handleCompositionEnd}
-                    normalizeNumber={normalizeNumber}
-                    cleanExpressionInput={cleanExpressionInput}
-                  />
-                ))}
-              </SortableContext>
-              {items.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={isEditing ? 9 : 5}
-                    className="px-3 py-8 text-center text-morandi-secondary border border-morandi-gold/20"
-                  >
-                    {t('quickQuoteItemsEmpty')}
-                    {isEditing && t('quickQuoteItemsClickToAdd')}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </DndContext>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
