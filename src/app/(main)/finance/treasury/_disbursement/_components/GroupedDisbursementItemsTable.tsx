@@ -189,7 +189,7 @@ interface GroupRowsProps {
 
 function GroupRows({
   group,
-  isFirstGroup,
+  isFirstGroup: _isFirstGroup,
   isExpanded,
   groupCheckState,
   selectedCount,
@@ -198,14 +198,12 @@ function GroupRows({
   onToggleGroupAll,
   onToggleItem,
 }: GroupRowsProps) {
-  // group row 用 design token `bg-morandi-container/20`（跟 EnhancedTable striped 同色）
-  // 團之間用 border-t-2 強化視覺分割、第一團不需要（緊接 header）
+  // 對齊旅遊團頁面：所有 row 白底、border-b border-border/40 細線
+  // group 用 typography（粗體 + chevron）區分、不靠底色
   return (
     <>
       <tr
-        className={`bg-morandi-container/20 hover:bg-morandi-container/40 cursor-pointer ${
-          isFirstGroup ? '' : 'border-t-2 border-border'
-        }`}
+        className="hover:bg-morandi-container/30 cursor-pointer border-b border-border/40"
         onClick={onToggleExpanded}
       >
         <td className="px-3 py-2 align-middle" onClick={e => e.stopPropagation()}>
@@ -215,18 +213,18 @@ function GroupRows({
             onCheckedChange={checked => onToggleGroupAll(checked === true)}
           />
         </td>
-        <td colSpan={4} className="px-3 py-2">
+        <td colSpan={4} className="px-3 py-2.5">
           <div className="flex items-center gap-2">
             <span className="text-morandi-secondary">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </span>
-            <span className="font-medium text-morandi-primary">{group.label}</span>
+            <span className="font-semibold text-morandi-primary">{group.label}</span>
             <span className="text-xs text-morandi-secondary">
               {selectedCount}/{group.items.length} 筆
             </span>
           </div>
         </td>
-        <td className="px-3 py-2 text-right font-semibold text-morandi-gold whitespace-nowrap">
+        <td className="px-3 py-2.5 text-right font-semibold text-morandi-gold whitespace-nowrap">
           NT$ {group.totalAmount.toLocaleString()}
         </td>
       </tr>
@@ -237,7 +235,7 @@ function GroupRows({
           return (
             <tr
               key={it.id}
-              className="bg-card hover:bg-morandi-container/30 cursor-pointer border-t border-border/40"
+              className="hover:bg-morandi-container/30 cursor-pointer border-b border-border/40"
               onClick={() => onToggleItem(it.id)}
             >
               <td className="px-3 py-2 pl-8 align-middle" onClick={e => e.stopPropagation()}>
