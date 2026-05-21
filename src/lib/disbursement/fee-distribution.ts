@@ -11,7 +11,7 @@
  * 此 helper **不直接寫 DB**、純算回 Map<itemId, feeAmount>、caller 自己 INSERT。
  */
 
-export type FeeMode = 'average' | 'unified'
+export type FeeMode = 'average' | 'unified' | 'per-payer'
 
 export interface DistributionItem {
   id: string
@@ -19,13 +19,20 @@ export interface DistributionItem {
   amount: number
   /** 是否跨行（影響 average mode）。unified mode 忽略此 flag */
   is_cross_bank: boolean
+  /**
+   * 收款對象 key（per-payer mode 用）
+   * 同 key 視為同一收款人、合併成 1 筆手續費（cross_bank_fee）、組內按金額 equal 平均
+   * 推導：bank_code + account_number 有設 → 用該組合；沒設 → 用 item.id（每筆獨立）
+   * 2026-05-21 William 拍板：沒設銀行 = 系統不知道是不是同一人 = 視為不同人
+   */
+  payer_key?: string
 }
 
 export interface DistributionInput {
   mode: FeeMode
-  /** 銀行實扣手續費（user 在預覽時填、寫進 disbursement_orders.total_fee） */
+  /** 銀行實扣手續費（average mode：user 在預覽時填、寫進 disbursement_orders.total_fee） */
   bank_actual_fee: number
-  /** unified mode 才用：每筆 PR 固定收金額（公司 workspaces.transfer_fee_unified_amount） */
+  /** unified / per-payer mode 才用：每筆 PR 固定收金額（從 bank_accounts.cross_bank_fee 取得） */
   unified_amount_per_item?: number
   /** 此 batch 內所有品項 */
   items: DistributionItem[]
@@ -49,6 +56,43 @@ export function distributeFees(input: DistributionInput): DistributionOutput {
   const { mode, bank_actual_fee, unified_amount_per_item = 0, items } = input
   const strategy = input.average_strategy ?? 'equal'
   const per_item_fees = new Map<string, number>()
+
+  if (mode === 'per-payer') {
+    // 2026-05-21 William 拍板：「同收款對象合併一筆手續費、組內整數平均餘加最後」
+    // 1. 按 payer_key 分組（沒設 = unique = 自己一組）
+    // 2. 每 group 跨行 → 收 1 筆 cross_bank_fee；同行 → 0
+    // 3. group 內按 equal 策略平均（floor、餘加最後 item）
+    const groups = new Map<string, DistributionItem[]>()
+    for (const item of items) {
+      const key = item.payer_key || item.id // 沒設 = 自己一組（unique）
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(item)
+    }
+    let total_collected = 0
+    for (const groupItems of groups.values()) {
+      // 該組是否跨行：任一 item is_cross_bank=true 就算（保守、收手續費）
+      const isCrossBank = groupItems.some(i => i.is_cross_bank)
+      if (!isCrossBank) {
+        for (const item of groupItems) per_item_fees.set(item.id, 0)
+        continue
+      }
+      // 跨行 group：1 筆 cross_bank_fee、組內 equal 平均
+      const groupFee = unified_amount_per_item
+      total_collected += groupFee
+      const n = groupItems.length
+      const perItem = Math.floor(groupFee / n)
+      const remainder = groupFee - perItem * n
+      groupItems.forEach((item, idx) => {
+        const isLast = idx === n - 1
+        per_item_fees.set(item.id, isLast ? perItem + remainder : perItem)
+      })
+    }
+    return {
+      per_item_fees,
+      total_collected,
+      overflow: total_collected - bank_actual_fee,
+    }
+  }
 
   if (mode === 'unified') {
     // unified mode：所有 item 都收 unified_amount（不分同行 / 跨行）

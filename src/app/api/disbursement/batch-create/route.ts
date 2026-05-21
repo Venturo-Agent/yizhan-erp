@@ -44,6 +44,8 @@ interface ItemRow {
   subtotal: number | null
   supplier_id: string | null
   workspace_id: string | null
+  advanced_by: string | null
+  payee_employee_id: string | null
 }
 
 interface SupplierRow {
@@ -118,7 +120,7 @@ export async function POST(request: NextRequest) {
   const { data: items, error: itemsErr } = await (
     admin.from as unknown as (t: string) => ItemFetchChain
   )('payment_request_items')
-    .select('id, request_id, subtotal, supplier_id, workspace_id')
+    .select('id, request_id, subtotal, supplier_id, workspace_id, advanced_by, payee_employee_id')
     .in('id', allItemIds)
 
   if (itemsErr) {
@@ -329,22 +331,36 @@ export async function POST(request: NextRequest) {
 
     const batchTotalAmount = batchItemRows.reduce((s, r) => s + r.amount, 0)
     grandTotalAmount += batchTotalAmount
-    grandTotalFee += batch.total_fee
 
     // 分攤手續費（走 SSOT helper、每個 bank group 獨立分攤）
-    // 2026-05-21：unified mode 每筆固定金額來自該 batch 的 bank_account.cross_bank_fee
+    // 2026-05-21 William 拍板：用 'per-payer' mode、每個 unique 收款對象 × cross_bank_fee
+    // payer_key 推導順序：advanced_by（代墊優先）> payee_employee_id（公司請款發員工）> supplier_id > item.id（unique）
+    // 同 key = 視為同一收款人、合併 1 筆手續費、組內 equal 整數平均餘加最後
+    // 2026-05-21 補：feeMode 若是 'average' / 'unified' 還沿用舊邏輯（向後兼容）
     const batchUnifiedAmount = bankFeeById.get(batch.from_bank_account_id) ?? 0
-    const { per_item_fees: feeShares } = distributeFees({
-      mode: feeMode,
+    const effectiveMode = batchUnifiedAmount > 0 ? 'per-payer' : feeMode
+    const { per_item_fees: feeShares, total_collected: batchSystemFee } = distributeFees({
+      mode: effectiveMode,
       bank_actual_fee: batch.total_fee,
       unified_amount_per_item: batchUnifiedAmount,
       items: batchItemRows.map(r => ({
         id: r.item.id,
         amount: r.amount,
         is_cross_bank: r.is_cross_bank,
+        payer_key:
+          r.item.advanced_by
+            ? `e:${r.item.advanced_by}`
+            : r.item.payee_employee_id
+              ? `e:${r.item.payee_employee_id}`
+              : r.item.supplier_id
+                ? `s:${r.item.supplier_id}`
+                : r.item.id, // 都沒設 → 該 item 自己一組（unique）
       })),
       average_strategy: batch.fee_distribution,
     })
+
+    // per-payer mode：用系統算的 total（不再 user 手填）；其他 mode：沿用 user 填的 batch.total_fee
+    grandTotalFee += effectiveMode === 'per-payer' ? batchSystemFee : batch.total_fee
 
     for (const r of batchItemRows) {
       allItemRowsEnriched.push({
