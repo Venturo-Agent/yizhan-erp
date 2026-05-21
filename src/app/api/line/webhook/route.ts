@@ -571,7 +571,7 @@ async function recordGroupOrRoomMessage(
     sourceId: event.message?.id ?? null,
     rawEvent: event,
     ...(shouldSetDisplayName && { displayName: resolvedDisplayName }),
-    pictureUrl: shouldSetDisplayName ? resolvedPictureUrl : null,
+    ...(shouldSetDisplayName && { pictureUrl: resolvedPictureUrl }),
   })
 
   // 群組秘書：偵測待辦任務關鍵字 → 自動建 todo
