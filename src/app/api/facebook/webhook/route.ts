@@ -298,13 +298,18 @@ async function handleMessagingEvent(args: {
   let messageType = 'text'
   let content: string | null = null
   let sourceId: string | null = null
+  let mediaUrl: string | null = null
 
   if (event.message) {
     sourceId = event.message.mid ?? null
     if (event.message.text) {
       content = event.message.text
     } else if (event.message.attachments && event.message.attachments.length > 0) {
-      messageType = event.message.attachments[0].type || 'attachment'
+      const attachment = event.message.attachments[0]
+      messageType = attachment.type || 'attachment'
+      // 抽 attachment URL（FB Messenger 結構：attachment.payload.url）
+      const payload = attachment.payload as { url?: string } | undefined
+      mediaUrl = payload?.url ?? null
       content = `[${messageType}]`
     } else {
       content = '[unknown message]'
@@ -326,6 +331,7 @@ async function handleMessagingEvent(args: {
     messageType,
     content,
     rawEvent: event as unknown,
+    mediaUrl,
   })
 
   // ─── AI brain auto-reply（M8）───

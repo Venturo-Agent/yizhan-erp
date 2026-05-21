@@ -32,6 +32,8 @@ export interface InboundMessageInput {
   messageType?: string
   content: string | null
   rawEvent: unknown
+  /** 媒體 URL（image / video / audio / file）；附件訊息用、UI render <img>/<video> 用 */
+  mediaUrl?: string | null
 }
 
 export interface OutboundMessageInput {
@@ -77,6 +79,7 @@ interface MessageInsertPayload {
   content: string | null
   raw_event: unknown
   source_id: string | null
+  media_url?: string | null
 }
 
 type AdminFromShape = (table: string) => {
@@ -145,6 +148,7 @@ export async function recordInboundMessage(input: InboundMessageInput): Promise<
     content: input.content,
     raw_event: input.rawEvent,
     source_id: input.sourceId,
+    media_url: input.mediaUrl ?? null,
   })
 
   if (msgError && msgError.code !== '23505') {
