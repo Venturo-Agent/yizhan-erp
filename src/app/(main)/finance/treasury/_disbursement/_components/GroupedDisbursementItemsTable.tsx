@@ -1,22 +1,21 @@
 'use client'
 /**
  * GroupedDisbursementItemsTable
- * 2026-05-21 William 拍板：出納單新增 wizard 改用「按團 Accordion」呈現未付品項。
+ * 2026-05-21 William 拍板：出納單新增 wizard 改「按團 accordion」呈現。
+ * 2026-05-21 第二版：改用 table 結構（fixed column header + group row 跨欄）、
+ *           視覺接近原 flat table、保留 accordion 功能。
  *
- * 設計（方案 2）：
- * - 預設全部團摺疊、上方提供「展開全部 / 收合全部」按鈕
- * - 整團勾選 = 自動勾選底下所有品項
- * - 半勾選用 Checkbox indeterminate 顯示
- * - 找問題單據時點該團展開、取消有問題那筆即可
- *
- * 取代原本 EnhancedTable 的 flat 列表（StepMain 用）
+ * 設計（方案 2 第二版）：
+ * - 固定 column header（請款單號 / 品項 / 付款對象 / 對方銀行 / 金額）
+ * - group row 一整列（colspan）顯示整團 checkbox + chevron + 名稱 + 計數 + 總額
+ * - 展開時 item rows 在同一張表、欄位對齊 group header
+ * - 預設全部團摺疊、上方提供「展開全部 / 收合全部」
  */
 
 import { useMemo, useState } from 'react'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { StatusBadge } from '@/components/ui/status-badge'
 import type { UnbilledItem } from './disbursement-wizard-types'
 
 interface Group {
@@ -124,97 +123,138 @@ export function GroupedDisbursementItemsTable({
         </span>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
-        {groups.map(g => {
-          const isExpanded = expanded.has(g.key)
-          const state = groupState(g)
-          const selectedCount = groupSelectedCount(g)
-          return (
-            <div key={g.key} className="border border-morandi-border rounded bg-card">
-              <div
-                role="button"
-                tabIndex={0}
-                className="flex items-center gap-2 px-2 py-2 hover:bg-morandi-container/30 cursor-pointer select-none"
-                onClick={() => toggleExpanded(g.key)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    toggleExpanded(g.key)
-                  }
-                }}
-              >
-                <span onClick={e => e.stopPropagation()}>
-                  <Checkbox
-                    checked={state === 'all'}
-                    indeterminate={state === 'partial'}
-                    onCheckedChange={checked => toggleGroupAll(g, checked === true)}
-                  />
-                </span>
-                <span className="text-morandi-secondary">
-                  {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                </span>
-                <div className="flex-1 min-w-0 flex items-center gap-3">
-                  <span className="font-medium text-morandi-primary truncate">{g.label}</span>
-                  <span className="text-xs text-morandi-secondary whitespace-nowrap">
-                    {selectedCount}/{g.items.length} 筆
-                  </span>
-                </div>
-                <div className="text-right font-semibold text-morandi-gold whitespace-nowrap">
-                  NT$ {g.totalAmount.toLocaleString()}
-                </div>
-              </div>
-
-              {isExpanded && (
-                <div className="border-t border-morandi-border bg-morandi-container/10">
-                  {g.items.map(it => {
-                    const checked = pickedSet.has(it.id)
-                    return (
-                      <div
-                        key={it.id}
-                        role="button"
-                        tabIndex={0}
-                        className="flex items-center gap-2 pl-10 pr-2 py-1.5 text-sm hover:bg-morandi-container/40 cursor-pointer border-b border-morandi-border/30 last:border-0"
-                        onClick={() => toggleItem(it.id)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault()
-                            toggleItem(it.id)
-                          }
-                        }}
-                      >
-                        <span onClick={e => e.stopPropagation()}>
-                          <Checkbox
-                            checked={checked}
-                            onCheckedChange={() => toggleItem(it.id)}
-                          />
-                        </span>
-                        <span className="text-morandi-secondary w-32 truncate">
-                          {it.request_code || '-'}
-                        </span>
-                        <span className="flex-1 truncate">{it.description || '-'}</span>
-                        <span
-                          className={`w-40 truncate ${
-                            it.advanced_by ? 'text-morandi-gold' : 'text-morandi-primary'
-                          }`}
-                        >
-                          {it.payer_label}
-                        </span>
-                        <span className="text-xs text-morandi-secondary w-32 truncate">
-                          {it.payer_bank_name || '未填'}
-                        </span>
-                        <StatusBadge tone="warning" label="未付款" />
-                        <span className="font-medium w-28 text-right">
-                          {it.subtotal.toLocaleString()}
-                        </span>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
+      <div className="flex-1 min-h-0 overflow-y-auto border border-morandi-border rounded-lg">
+        <table className="w-full text-sm">
+          <thead className="bg-morandi-gold-header sticky top-0 z-10">
+            <tr className="border-b border-morandi-border">
+              <th className="w-10 px-3 py-2.5"></th>
+              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
+                請款單號
+              </th>
+              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
+                品項
+              </th>
+              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-48">
+                付款對象
+              </th>
+              <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
+                對方銀行
+              </th>
+              <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary w-32">
+                金額
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {groups.map(g => {
+              const isExpanded = expanded.has(g.key)
+              const state = groupState(g)
+              const selectedCount = groupSelectedCount(g)
+              return (
+                <GroupRows
+                  key={g.key}
+                  group={g}
+                  isExpanded={isExpanded}
+                  groupCheckState={state}
+                  selectedCount={selectedCount}
+                  pickedSet={pickedSet}
+                  onToggleExpanded={() => toggleExpanded(g.key)}
+                  onToggleGroupAll={checked => toggleGroupAll(g, checked)}
+                  onToggleItem={toggleItem}
+                />
+              )
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
+  )
+}
+
+interface GroupRowsProps {
+  group: Group
+  isExpanded: boolean
+  groupCheckState: 'all' | 'partial' | 'none'
+  selectedCount: number
+  pickedSet: Set<string>
+  onToggleExpanded: () => void
+  onToggleGroupAll: (checked: boolean) => void
+  onToggleItem: (id: string) => void
+}
+
+function GroupRows({
+  group,
+  isExpanded,
+  groupCheckState,
+  selectedCount,
+  pickedSet,
+  onToggleExpanded,
+  onToggleGroupAll,
+  onToggleItem,
+}: GroupRowsProps) {
+  return (
+    <>
+      <tr
+        className="bg-morandi-container/30 hover:bg-morandi-container/50 cursor-pointer border-b border-morandi-border/60"
+        onClick={onToggleExpanded}
+      >
+        <td className="px-3 py-2 align-middle" onClick={e => e.stopPropagation()}>
+          <Checkbox
+            checked={groupCheckState === 'all'}
+            indeterminate={groupCheckState === 'partial'}
+            onCheckedChange={checked => onToggleGroupAll(checked === true)}
+          />
+        </td>
+        <td colSpan={4} className="px-3 py-2">
+          <div className="flex items-center gap-2">
+            <span className="text-morandi-secondary">
+              {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+            </span>
+            <span className="font-medium text-morandi-primary">{group.label}</span>
+            <span className="text-xs text-morandi-secondary">
+              {selectedCount}/{group.items.length} 筆
+            </span>
+          </div>
+        </td>
+        <td className="px-3 py-2 text-right font-semibold text-morandi-gold whitespace-nowrap">
+          NT$ {group.totalAmount.toLocaleString()}
+        </td>
+      </tr>
+
+      {isExpanded &&
+        group.items.map(it => {
+          const checked = pickedSet.has(it.id)
+          return (
+            <tr
+              key={it.id}
+              className="hover:bg-morandi-container/30 cursor-pointer border-b border-morandi-border/30 last:border-0"
+              onClick={() => onToggleItem(it.id)}
+            >
+              <td className="px-3 py-2 pl-8 align-middle" onClick={e => e.stopPropagation()}>
+                <Checkbox checked={checked} onCheckedChange={() => onToggleItem(it.id)} />
+              </td>
+              <td className="px-3 py-2 text-morandi-secondary">
+                {it.request_code || '-'}
+              </td>
+              <td className="px-3 py-2 truncate">{it.description || '-'}</td>
+              <td
+                className={`px-3 py-2 truncate ${
+                  it.advanced_by ? 'text-morandi-gold' : 'text-morandi-primary'
+                }`}
+              >
+                {it.payer_label}
+              </td>
+              <td className="px-3 py-2 text-xs text-morandi-secondary truncate">
+                {it.advanced_by
+                  ? `${it.advanced_by_name ?? '代墊人'}（員工代墊）`
+                  : it.payer_bank_name || '未填'}
+              </td>
+              <td className="px-3 py-2 text-right font-medium whitespace-nowrap">
+                {it.subtotal.toLocaleString()}
+              </td>
+            </tr>
+          )
+        })}
+    </>
   )
 }
