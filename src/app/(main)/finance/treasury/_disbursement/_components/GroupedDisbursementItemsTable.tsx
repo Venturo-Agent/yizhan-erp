@@ -244,10 +244,10 @@ function GroupRows({
   onToggleGroupAll,
   onToggleItem,
 }: GroupRowsProps) {
-  // 累計支出 = 過去已付 + 本次勾選；超支條件：累計 > 已收
+  // 累計支出 = 過去已付 + 本次勾選；只在超支才顯示警告（William 拍板）
+  // 譬喻：預算內不 noise、超預算才提醒
   const totalSpend = alreadyPaid + pickedAmount
   const isOverspend = income !== null && totalSpend > income && totalSpend > 0
-  const showIncomeCompare = income !== null && totalSpend > 0
   // 整個 group（含 group row + items）用同個 stripedBg、跨 group 穿插
   // group row 跟 items 視覺一塊、跟下一團對比
   return (
@@ -280,21 +280,15 @@ function GroupRows({
             {selectedCount}/{group.items.length} 筆
           </span>
         </td>
-        {/* 超支警示在「品項 + 付款對象 + 對方銀行」3 欄合併區 */}
+        {/* 超支警示在「品項 + 付款對象 + 對方銀行」3 欄合併區（只在超支才顯示）*/}
         <td colSpan={3} className="px-3 py-2.5">
-          {showIncomeCompare && (
-            <span
-              className={`text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded ${
-                isOverspend
-                  ? 'bg-status-danger/10 text-status-danger font-medium'
-                  : 'text-morandi-secondary'
-              }`}
-            >
-              {isOverspend && <AlertTriangle size={12} />}
+          {isOverspend && (
+            <span className="text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded bg-status-danger/10 text-status-danger font-medium">
+              <AlertTriangle size={12} />
               已收 NT$ {(income ?? 0).toLocaleString()} / 累計支出 NT$ {totalSpend.toLocaleString()}
-              {alreadyPaid > 0 && ` (已付 ${alreadyPaid.toLocaleString()}＋本次 ${pickedAmount.toLocaleString()})`}
-              {isOverspend &&
-                ` ・超支 NT$ ${(totalSpend - (income ?? 0)).toLocaleString()}`}
+              {alreadyPaid > 0 && pickedAmount > 0 &&
+                ` (已付 ${alreadyPaid.toLocaleString()}＋本次 ${pickedAmount.toLocaleString()})`}
+              ・超支 NT$ {(totalSpend - (income ?? 0)).toLocaleString()}
             </span>
           )}
         </td>
