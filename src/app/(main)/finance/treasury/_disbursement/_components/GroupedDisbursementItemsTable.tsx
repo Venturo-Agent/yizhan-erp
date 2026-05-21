@@ -129,29 +129,40 @@ export function GroupedDisbursementItemsTable({
       {/* 外框對齊 EnhancedTable 標準（border border-border rounded-xl + bg-card + shadow-sm）*/}
       <div className="flex-1 min-h-0 border border-border rounded-xl overflow-hidden bg-card shadow-sm flex flex-col">
         <div className="overflow-auto flex-1">
-          <table className="w-full border-collapse text-sm">
+          {/* table-fixed：強制 column width 由 thead width 決定、content 變化不會 push 開 layout */}
+          <table className="w-full border-collapse text-sm table-fixed">
+            <colgroup>
+              <col className="w-10" />
+              <col className="w-28" />
+              <col className="w-36" />
+              <col className="w-24" />
+              <col />
+              <col className="w-40" />
+              <col className="w-32" />
+              <col className="w-28" />
+            </colgroup>
             <thead className="bg-morandi-gold-header sticky top-0 z-10">
               <tr className="border-b border-border">
-                <th className="w-10 px-3 py-2.5"></th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-28">
+                <th className="px-3 py-2.5"></th>
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   出帳日期
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-36">
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   請款單號
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-24">
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   請款人
                 </th>
                 <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   品項
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-40">
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   付款對象
                 </th>
-                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary w-32">
+                <th className="text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   對方銀行
                 </th>
-                <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary w-28">
+                <th className="text-right px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   金額
                 </th>
               </tr>
@@ -292,7 +303,7 @@ function GroupRows({
               className={`${stripedBg} hover:bg-morandi-container/40 cursor-pointer border-b border-border/40`}
               onClick={() => onToggleItem(it.id)}
             >
-              <td className="px-3 py-2 pl-8 align-middle" onClick={e => e.stopPropagation()}>
+              <td className="px-3 py-2 align-middle" onClick={e => e.stopPropagation()}>
                 <Checkbox checked={checked} onCheckedChange={() => onToggleItem(it.id)} />
               </td>
               <td className="px-3 py-2 text-morandi-secondary whitespace-nowrap">
