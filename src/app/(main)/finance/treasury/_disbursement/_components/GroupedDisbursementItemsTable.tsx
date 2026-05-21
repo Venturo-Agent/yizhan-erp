@@ -30,6 +30,8 @@ interface GroupedDisbursementItemsTableProps {
   pickedItemIds: string[]
   /** 每團已收款 map（tour_id → 累計 receipt actual_amount）超支警示用 */
   incomeByTourId?: Map<string, number>
+  /** 每團累計已付支出 map（過去出納單已付的部分） */
+  alreadyPaidByTourId?: Map<string, number>
   onChangePicked: (ids: string[]) => void
 }
 
@@ -39,6 +41,7 @@ export function GroupedDisbursementItemsTable({
   items,
   pickedItemIds,
   incomeByTourId,
+  alreadyPaidByTourId,
   onChangePicked,
 }: GroupedDisbursementItemsTableProps) {
   const groups = useMemo<Group[]>(() => {
@@ -173,15 +176,16 @@ export function GroupedDisbursementItemsTable({
                 const state = groupState(g)
                 const selectedCount = groupSelectedCount(g)
                 const stripedBg = idx % 2 === 0 ? 'bg-morandi-container/20' : 'bg-card'
-                // 該團已勾選支出 sum
                 const pickedAmount = g.items.reduce(
                   (sum, i) => (pickedSet.has(i.id) ? sum + i.subtotal : sum),
                   0
                 )
-                // 該團已收款（client-side aggregated from receipts）
                 const income = g.key !== NO_TOUR_KEY && incomeByTourId
                   ? (incomeByTourId.get(g.key) ?? 0)
                   : null
+                const alreadyPaid = g.key !== NO_TOUR_KEY && alreadyPaidByTourId
+                  ? (alreadyPaidByTourId.get(g.key) ?? 0)
+                  : 0
                 return (
                   <GroupRows
                     key={g.key}
@@ -192,6 +196,7 @@ export function GroupedDisbursementItemsTable({
                     selectedCount={selectedCount}
                     pickedAmount={pickedAmount}
                     income={income}
+                    alreadyPaid={alreadyPaid}
                     pickedSet={pickedSet}
                     stripedBg={stripedBg}
                     onToggleExpanded={() => toggleExpanded(g.key)}
@@ -216,6 +221,7 @@ interface GroupRowsProps {
   selectedCount: number
   pickedAmount: number
   income: number | null
+  alreadyPaid: number
   pickedSet: Set<string>
   stripedBg: string
   onToggleExpanded: () => void
@@ -231,15 +237,17 @@ function GroupRows({
   selectedCount,
   pickedAmount,
   income,
+  alreadyPaid,
   pickedSet,
   stripedBg,
   onToggleExpanded,
   onToggleGroupAll,
   onToggleItem,
 }: GroupRowsProps) {
-  // 超支警示：勾選支出 > 該團已收款
-  const isOverspend = income !== null && pickedAmount > 0 && pickedAmount > income
-  const showIncomeCompare = income !== null && pickedAmount > 0
+  // 累計支出 = 過去已付 + 本次勾選；超支條件：累計 > 已收
+  const totalSpend = alreadyPaid + pickedAmount
+  const isOverspend = income !== null && totalSpend > income && totalSpend > 0
+  const showIncomeCompare = income !== null && totalSpend > 0
   // 整個 group（含 group row + items）用同個 stripedBg、跨 group 穿插
   // group row 跟 items 視覺一塊、跟下一團對比
   return (
@@ -283,9 +291,10 @@ function GroupRows({
               }`}
             >
               {isOverspend && <AlertTriangle size={12} />}
-              已收 NT$ {(income ?? 0).toLocaleString()} / 已勾 NT$ {pickedAmount.toLocaleString()}
+              已收 NT$ {(income ?? 0).toLocaleString()} / 累計支出 NT$ {totalSpend.toLocaleString()}
+              {alreadyPaid > 0 && ` (已付 ${alreadyPaid.toLocaleString()}＋本次 ${pickedAmount.toLocaleString()})`}
               {isOverspend &&
-                ` ・超支 NT$ ${(pickedAmount - (income ?? 0)).toLocaleString()}`}
+                ` ・超支 NT$ ${(totalSpend - (income ?? 0)).toLocaleString()}`}
             </span>
           )}
         </td>

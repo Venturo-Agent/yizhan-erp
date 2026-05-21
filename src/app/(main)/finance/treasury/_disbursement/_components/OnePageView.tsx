@@ -24,6 +24,8 @@ interface OnePageViewProps {
   pickedItemIds: string[]
   /** 每團已收款 map（tour_id → 累計 receipt actual_amount）— 警示超支用 */
   incomeByTourId?: Map<string, number>
+  /** 每團累計已付支出 map（tour_id → sum payment_requests.amount where status='paid'） */
+  alreadyPaidByTourId?: Map<string, number>
   onChangePicked: (ids: string[]) => void
   onRemoveStaged: (id: string) => void
   /** 編輯模式不傳（編輯時手續費在 header 改、不在 chips 內）*/
@@ -35,6 +37,7 @@ export function OnePageView({
   stagedBatches,
   pickedItemIds,
   incomeByTourId,
+  alreadyPaidByTourId,
   onChangePicked,
   onRemoveStaged,
   onUpdateStagedFee,
@@ -88,6 +91,7 @@ export function OnePageView({
           items={availableItems}
           pickedItemIds={pickedItemIds}
           incomeByTourId={incomeByTourId}
+          alreadyPaidByTourId={alreadyPaidByTourId}
           onChangePicked={onChangePicked}
         />
       </div>
