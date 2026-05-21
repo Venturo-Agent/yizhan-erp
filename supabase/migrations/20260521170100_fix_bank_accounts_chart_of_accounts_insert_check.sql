@@ -3,7 +3,7 @@
 -- 風險：任何登入者可 INSERT 一筆帶任意 workspace_id 的 row（DB 層無防）
 -- 修法：INSERT policy WITH CHECK 加 workspace_id = current
 --
--- 已 apply 到 production：2026-05-21 via mcp__supabase__apply_migration
+-- 已 apply 到 production：2026-05-21 via mcp__supabase-aierp__apply_migration
 
 BEGIN;
 

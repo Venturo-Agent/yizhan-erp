@@ -5,7 +5,7 @@
 --      3) 加 workspace-scoped policy
 -- 對齊：payment_methods 同 pattern (pm_all / pm_select)
 --
--- 已 apply 到 production：2026-05-21 via mcp__supabase__apply_migration（紀錄補 migration 檔對齊 SOP）
+-- 已 apply 到 production：2026-05-21 via mcp__supabase-aierp__apply_migration（紀錄補 migration 檔對齊 SOP）
 
 BEGIN;
 

@@ -11,6 +11,10 @@ import { apiHandler } from '@/lib/api/api-handler'
  * 2026-05-21 修紅線 H：原 API 從 client query string 吃 workspace_id、且字串拼接 SQL（SQL injection 風險）
  * 修法：workspace_id 走 session getCurrentWorkspaceId()、不信 client
  * 同時 backfill workspace_id 欄位（不再用 user_id 當 workspace 儲位）
+ *
+ * 2026-05-21 補修：原 application 層 .or() filter 跟 RLS policy 邏輯重複（紅線 H 字面違反、字串拼接）
+ * RLS expense_categories_workspace_select 已守「workspace_id IS NULL OR = current」
+ * 此處不再 application 層重複、靠 RLS 自己擋
  */
 
 // GET - 取得請款類別列表
@@ -18,7 +22,6 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const guard = await requireCapability(CAPABILITIES.FINANCE_READ_SETTINGS)
   if (!guard.ok) return guard.response
   const supabase = await createSupabaseServerClient()
-  const workspaceId = await getCurrentWorkspaceId()
 
   const { searchParams } = new URL(request.url)
   // 支援多種 type: expense, company_expense, company_income
@@ -33,9 +36,6 @@ export const GET = apiHandler(async (request: NextRequest) => {
       credit_account:chart_of_accounts!credit_account_id(id, code, name)
     `
     )
-    // 系統預設（workspace_id IS NULL）+ 自己 workspace
-    // RLS 會自動再守一層、這裡是 application 層的 explicit filter
-    .or(`workspace_id.is.null,workspace_id.eq.${workspaceId}`)
     .order('sort_order', { ascending: true })
 
   // 如果有指定 type，只取該類型；否則取所有財務相關類型

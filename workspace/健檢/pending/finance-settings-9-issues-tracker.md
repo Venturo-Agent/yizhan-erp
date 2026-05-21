@@ -13,11 +13,22 @@
 | ⚠️ #2 | bank_accounts/chart_of_accounts INSERT check=true | P0 medium | ✅ **已修** | migration `20260521170100` |
 | 🐛 #3 | 公司支出/收入 tab 永遠空白（migration 漏跑）| P0 bug | ✅ **已修** | migration `20260521170200` 補 9 筆 INSERT |
 | 🐛 #4 | 「團體請款類別」按新增無反應 | P1 bug | ⏳ **待 debug** | 需要 user 跑 + 看 Network response |
-| 🧱 #5 | user_id vs workspace_id 兩欄並存 schema 冗餘 | P2 cleanup | ⏳ **待拍板** | 是否 DROP user_id 欄位（影響 schema、要 migration）|
+| 🧱 #5 | user_id vs workspace_id 兩欄並存 schema 冗餘 | P2 cleanup | ⏳ **待拍 DROP** | 2026-05-21 Max grep 驗證：code/RLS 無人 reference、可 DROP、等 William 拍板 |
 | 🧱 #6 | 4 個 API 串行載入 | P2 perf | ✅ **已修** | Promise.all 並行 |
-| 🧱 #7 | 沒走 entity hook（紅線 F）| P2 cleanup | ⏳ **待拍板** | 需建 entity hook for 4 個表、改 page 用 |
+| 🧱 #7 | 沒走 entity hook（紅線 F）| P2 cleanup | ⏳ **計劃留檔、等排程** | 2026-05-21 拍 A：先收 M1-M3、M4 計劃見 finance-settings-m4-entity-hook-migration-plan.md |
 | 🧱 #8 | 載入失敗靜默吃掉 | P2 UX | ✅ **已修** | 加 toast.error |
 | 🧱 #9 | 冗餘 ?workspace_id= query param | P2 cleanup | ✅ **已修** | loadData 拿掉、所有 API 走 session |
+
+---
+
+## 2026-05-21 補修第二輪（Max 體檢對方修法後）
+
+| M# | 問題 | 嚴重度 | 狀態 |
+|---|---|---|---|
+| M1 | API L38 `.or()` 字串拼接、紅線 H 字面違反 | 字面 | ✅ **已修**（砍 filter、RLS 自己擋） |
+| M2 | seed migration `ON CONFLICT DO NOTHING` 對 gen_random_uuid 無效（重跑會重複） | 低 | ✅ **已修**（改 WHERE NOT EXISTS） |
+| M3 | 3 個 migration 標頭寫錯 `mcp__supabase__`、地方法律規定 `mcp__supabase-aierp__` | 字面 | ✅ **已修**（字串取代） |
+| M4 | Entity hook 建好但 page.tsx 沒接過去（紅線 F 半成品） | 漸進債 | ⏳ **計劃留檔**（見 m4-plan.md） |
 
 ---
 
@@ -78,6 +89,15 @@
 - C. rename user_id → workspace_id_legacy（明示）
 
 **等 William 拍板**：A/B/C
+
+**2026-05-21 Max grep 驗證結果**（紅線 #4：刪除動作必先驗證）：
+- ✅ Code 層：3 個 caller（accounting/page.tsx + 2 個 voucher builder）都 `.from('expense_categories')`、但都只用 credit_account / 標籤、**沒人 reference user_id**
+- ✅ RLS policy：現有 2 條 policy（`expense_categories_workspace_select` + `expense_categories_workspace_write`）全用 workspace_id、不 reference user_id
+- ✅ DB 資料完整性：`SELECT COUNT(*) FROM expense_categories WHERE user_id IS DISTINCT FROM workspace_id` = **0**（backfill 完美）
+- ⚠️ 遺留：generated `types.ts` 含 `user_id: string | null`（會跟著 DB schema 自動 regenerate、不算 caller）
+- ⚠️ 遺留：舊 INDEX `idx_expense_categories_user_id`（20260104100000 migration 加的、DROP COLUMN 時順手 DROP INDEX）
+
+**Max 建議**：**走 A、DROP user_id 欄 + 對應 index、regenerate types**、最乾淨、無風險。**等 William 點頭再動**。
 
 ### #7 finance/settings page 沒走 entity hook（紅線 F）
 **現況**：頁面用 `useState + fetch` 自己管 4 份資料
