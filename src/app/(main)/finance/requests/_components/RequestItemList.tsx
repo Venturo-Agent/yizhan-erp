@@ -11,8 +11,8 @@ import {
 import { Combobox } from '@/components/ui/combobox'
 import { DatePicker } from '@/components/ui/date-picker'
 import { UserCheck, X, ArrowRightLeft } from 'lucide-react'
-import { RequestItem, categoryOptions } from '../_types'
-import { EXPENSE_TYPE_CONFIG } from '@/stores/types/finance.types'
+import { RequestItem } from '../_types'
+import { useExpenseCategories } from '@/data/entities'
 import {
   useAccountingSubjects,
   getDefaultSubjectByCategory,
@@ -78,13 +78,21 @@ export function EditableRequestItemList({
   payeeIsEmployee = false,
 }: EditableRequestItemListProps) {
   const t = useTranslations('finance')
-  // 公司請款模式：類別 col 用費用類型選項
+  // 從 DB 讀取 expense_categories（取代舊寫死 categoryOptions / EXPENSE_TYPE_CONFIG）
+  // 2026-05-21：請款分類系統 Phase 2 — 下拉吃 entity hook、寫入時帶 category_id
+  const { items: allCats } = useExpenseCategories({ all: true })
+  const tourCats = (allCats ?? []).filter(
+    c => (c.type === 'expense' || c.type === 'both') && c.is_active
+  )
+  const companyExpenseCats = (allCats ?? []).filter(
+    c => c.type === 'company_expense' && c.is_active
+  )
+  // 公司請款模式：類別 col 用「公司費用」分類；否則用團體 expense/both
   const categoryColumnOptions = expenseTypeMode
-    ? Object.entries(EXPENSE_TYPE_CONFIG).map(([code, config]) => ({
-        value: code,
-        label: config.name,
-      }))
-    : categoryOptions
+    ? companyExpenseCats.map(c => ({ value: c.id, label: c.name }))
+    : tourCats.map(c => ({ value: c.id, label: c.name }))
+  // category_id → name 反查 map（顯示時用）
+  const catNameById = new Map((allCats ?? []).map(c => [c.id, c.name]))
   const _total_amount = items.reduce((sum, item) => sum + item.unit_price * item.quantity, 0)
 
   // 會計科目選項
@@ -148,33 +156,52 @@ export function EditableRequestItemList({
       key: 'category',
       label: t('requestItemsCategory'),
       width: '130px',
-      render: ({ row, onUpdate }) => (
-        <Select
-          value={row.category}
-          onValueChange={value => {
-            const defaultSubject = getDefaultSubjectByCategory(value, subjects)
-            onUpdate({
-              category: value as RequestItem['category'],
-              accounting_subject_id: defaultSubject?.id || null,
-              accounting_subject_name: defaultSubject
-                ? `${defaultSubject.code} ${defaultSubject.name}`
-                : null,
-            })
-          }}
-          disabled={disabled}
-        >
-          <SelectTrigger className="input-no-focus h-10 border-0 shadow-none bg-transparent text-sm px-2">
-            <SelectValue placeholder={COMPONENT_LABELS.PH_CATEGORY} />
-          </SelectTrigger>
-          <SelectContent>
-            {categoryColumnOptions.map(option => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ),
+      render: ({ row, onUpdate }) => {
+        // 優先用 category_id；舊資料 fallback 從 row.category（文字）反查 id
+        const currentId =
+          row.category_id ||
+          categoryColumnOptions.find(o => o.label === row.category)?.value ||
+          ''
+        return (
+          <Select
+            value={currentId}
+            onValueChange={value => {
+              const picked = categoryColumnOptions.find(o => o.value === value)
+              const catName = picked?.label || ''
+              // 會計科目預設仍依文字名稱推導（getDefaultSubjectByCategory 吃 name）
+              const defaultSubject = getDefaultSubjectByCategory(catName, subjects)
+              onUpdate({
+                category_id: value || null,
+                // 雙寫過渡：團體請款帶 cat name；公司請款 category 留空
+                category: expenseTypeMode
+                  ? ('' as RequestItem['category'])
+                  : (catName as RequestItem['category']),
+                accounting_subject_id: defaultSubject?.id || null,
+                accounting_subject_name: defaultSubject
+                  ? `${defaultSubject.code} ${defaultSubject.name}`
+                  : null,
+              })
+            }}
+            disabled={disabled}
+          >
+            <SelectTrigger className="input-no-focus h-10 border-0 shadow-none bg-transparent text-sm px-2">
+              <SelectValue placeholder={COMPONENT_LABELS.PH_CATEGORY}>
+                {/* 顯示優先：category_id → name；fallback row.category 文字 */}
+                {currentId
+                  ? catNameById.get(currentId) || row.category || ''
+                  : row.category || ''}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {categoryColumnOptions.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
+      },
     },
     {
       key: 'supplier',

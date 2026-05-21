@@ -1,21 +1,49 @@
 import { useCallback } from 'react'
 import { usePayments } from '@/app/(main)/finance/payments/_hooks/usePayments'
 import { useWorkspaceId } from '@/lib/workspace-context'
+import { useExpenseCategories } from '@/data/entities'
 import { RequestFormData, BatchRequestFormData, RequestItem } from '../_types'
 import {
   generateRequestNo,
   generateCompanyPaymentRequestCode,
 } from '@/lib/codes'
-import { EXPENSE_TYPE_CONFIG, CompanyExpenseType } from '@/stores/types/finance.types'
+import { CompanyExpenseType } from '@/stores/types/finance.types'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
 import { useTranslations } from 'next-intl'
 import { logger } from '@/lib/utils/logger'
+
+/**
+ * 公司請款 category name → code prefix 對照
+ * 用於 generate_company_payment_request_code RPC（編號格式 {PREFIX}-YYYYMM-NNN）
+ *
+ * 2026-05-21 Phase 2：寫死分類清單已砍、但 RPC 仍需 prefix code 來編號
+ * Phase 3 TODO：給 expense_categories 加 code 欄位、徹底拔掉這張 map
+ */
+const COMPANY_EXPENSE_CODE_PREFIX: Record<string, CompanyExpenseType> = {
+  薪資: 'SAL',
+  獎金: 'BNS',
+  公關費用: 'ENT',
+  交際費: 'ENT',
+  差旅費用: 'TRV',
+  差旅費: 'TRV',
+  辦公費用: 'OFC',
+  辦公費: 'OFC',
+  水電費: 'UTL',
+  租金: 'RNT',
+  設備: 'EQP',
+  行銷費用: 'MKT',
+  廣告費用: 'ADV',
+  培訓費用: 'TRN',
+  雜支: 'OFC', // fallback prefix
+}
 
 export function useRequestOperations() {
   const t = useTranslations('finance')
   const { payment_requests, createPaymentRequest, addPaymentItems, deletePaymentRequest } =
     usePayments()
   const workspaceId = useWorkspaceId()
+  // 2026-05-21 Phase 2：類別資料走 entity hook、不再依賴寫死 EXPENSE_TYPE_CONFIG
+  const { items: allCats } = useExpenseCategories({ all: true })
 
   // 根據團號預估請款單編號 (僅供 UI preview 用、可能不準)
   // 真正建單要用 generateRequestCodeAsync (RPC + advisory lock 防 race)
@@ -80,17 +108,23 @@ export function useRequestOperations() {
       const isCompanyRequest = formData.request_category === 'company'
 
       if (isCompanyRequest) {
-        // 公司請款
-        if (!formData.expense_type) {
+        // 公司請款 — 2026-05-21 起以 expense_category_id 為 SSOT、expense_type 雙寫過渡
+        const expenseCategoryId = formData.expense_category_id || ''
+        if (!expenseCategoryId) {
           throw new Error(t('requestOperationsCompanyExpenseTypeRequired'))
         }
 
-        const expenseType = formData.expense_type as CompanyExpenseType
+        const pickedCat = (allCats ?? []).find(c => c.id === expenseCategoryId)
+        const expenseTypeName = pickedCat?.name || ''
+        // 編號 prefix：name → code（過渡期 map、Phase 3 加 code 欄位後拔掉）
+        const expenseType: CompanyExpenseType =
+          (formData.expense_type as CompanyExpenseType) ||
+          COMPANY_EXPENSE_CODE_PREFIX[expenseTypeName] ||
+          'OFC'
         const requestCode =
           codeOverride || (await generateCompanyRequestCode(expenseType, formData.request_date))
-        const expenseTypeName = EXPENSE_TYPE_CONFIG[expenseType]?.name || expenseType
 
-        // Create company payment request
+        // Create company payment request（雙寫：新 expense_category_id + 舊 expense_type）
         const request = await createPaymentRequest({
           workspace_id: workspaceId,
           code: requestCode,
@@ -102,20 +136,23 @@ export function useRequestOperations() {
           request_type: expenseTypeName,
           request_category: 'company',
           expense_type: expenseType,
+          expense_category_id: expenseCategoryId,
           supplier_id: reqSupplierId,
           supplier_name: reqSupplierName,
           created_by: formData.created_by || undefined,
           created_by_name: createdByName || undefined,
           is_special_billing: formData.is_special_billing,
           payment_method_id: formData.payment_method_id || null,
-        })
+        } as Parameters<typeof createPaymentRequest>[0])
 
         // Batch insert all items — 失敗時刪除剛建的請款單
         try {
           await addPaymentItems(
             request.id,
             items.map((item, i) => ({
-              category: item.category,
+              // 雙寫：category 文字（fallback 顯示用、由 cat name 帶）+ category_id（SSOT）
+              category: expenseTypeName as RequestItem['category'],
+              category_id: item.category_id || expenseCategoryId,
               supplier_id: item.supplier_id,
               supplier_name: item.supplierName,
               description: item.description,
@@ -128,7 +165,7 @@ export function useRequestOperations() {
               payment_method_id: item.payment_method_id || formData.payment_method_id || null,
               advanced_by: item.advanced_by || null,
               advanced_by_name: item.advanced_by_name || null,
-            }))
+            })) as Parameters<typeof addPaymentItems>[1]
           )
         } catch (itemError) {
           logger.error('新增請款項目失敗，回滾請款單:', itemError)
@@ -173,7 +210,9 @@ export function useRequestOperations() {
           await addPaymentItems(
             request.id,
             items.map((item, i) => ({
+              // 雙寫：category 文字 + category_id（SSOT）
               category: item.category,
+              category_id: item.category_id || null,
               supplier_id: item.supplier_id,
               supplier_name: item.supplierName,
               description: item.description,
@@ -186,7 +225,7 @@ export function useRequestOperations() {
               payment_method_id: item.payment_method_id || formData.payment_method_id || null,
               advanced_by: item.advanced_by || null,
               advanced_by_name: item.advanced_by_name || null,
-            }))
+            })) as Parameters<typeof addPaymentItems>[1]
           )
         } catch (itemError) {
           logger.error('新增請款項目失敗，回滾請款單:', itemError)
@@ -208,6 +247,7 @@ export function useRequestOperations() {
       deletePaymentRequest,
       generateRequestCodeAsync,
       generateCompanyRequestCode,
+      allCats,
       workspaceId,
       t,
     ]
@@ -254,7 +294,9 @@ export function useRequestOperations() {
           await addPaymentItems(
             request.id,
             items.map((item, i) => ({
+              // 雙寫：category 文字 + category_id（SSOT）— 2026-05-21 Phase 2
               category: item.category,
+              category_id: item.category_id || null,
               supplier_id: item.supplier_id,
               supplier_name: item.supplierName,
               description: item.description,
@@ -265,7 +307,7 @@ export function useRequestOperations() {
               payment_method_id: item.payment_method_id || formData.payment_method_id || null,
               advanced_by: item.advanced_by || null,
               advanced_by_name: item.advanced_by_name || null,
-            }))
+            })) as Parameters<typeof addPaymentItems>[1]
           )
         } catch (itemError) {
           logger.error('新增請款項目失敗，回滾請款單:', itemError)

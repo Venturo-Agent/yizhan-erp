@@ -9,8 +9,8 @@ import { CurrencyCell, DateCell, StatusCell } from '@/components/table-cells'
 import { FileDown, Receipt, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { usePaymentRequests, useDisbursementOrders } from '@/data'
+import { useExpenseCategories } from '@/data/entities'
 import { PaymentRequest, DisbursementOrder } from '@/stores/types'
-import { EXPENSE_TYPE_CONFIG, CompanyExpenseType } from '@/stores/types/finance.types'
 import type { DateRange } from './DateRangeSelector'
 
 const COMPONENT_LABELS = {
@@ -59,6 +59,12 @@ export function DisbursementTab({ dateRange }: DisbursementTabProps) {
   const t = useTranslations('finance')
   const { items: paymentRequests } = usePaymentRequests({ all: true })
   const { items: disbursementOrders } = useDisbursementOrders({ all: true })
+  // 2026-05-21 Phase 2：類別顯示走 expense_categories.id 反查、舊 EXPENSE_TYPE_CONFIG 退休
+  const { items: allCats } = useExpenseCategories({ all: true })
+  const catNameById = useMemo(
+    () => new Map((allCats ?? []).map(c => [c.id, c.name])),
+    [allCats]
+  )
 
   const filteredPaymentRequests = useMemo(() => {
     const { startDate, endDate } = dateRange
@@ -113,10 +119,12 @@ export function DisbursementTab({ dateRange }: DisbursementTabProps) {
       width: '100',
       render: (value, row) => {
         if (value === 'company') {
-          const expenseType = row.expense_type as CompanyExpenseType | undefined
-          const typeName = expenseType
-            ? EXPENSE_TYPE_CONFIG[expenseType]?.name || expenseType
-            : '公司'
+          // 優先 expense_category_id 反查、fallback expense_type（舊資料）
+          const rowExt = row as PaymentRequest & { expense_category_id?: string | null }
+          const typeName =
+            (rowExt.expense_category_id && catNameById.get(rowExt.expense_category_id)) ||
+            rowExt.expense_type ||
+            '公司'
           return (
             <span className="px-2 py-1 text-xs rounded-full bg-morandi-gold/10 text-morandi-gold">
               {typeName}

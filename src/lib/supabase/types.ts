@@ -5904,6 +5904,7 @@ export type Database = {
           amount: number
           branch_id: string | null
           category: string | null
+          category_id: string | null
           created_at: string | null
           created_by: string | null
           currency: string | null
@@ -5934,6 +5935,7 @@ export type Database = {
           amount?: number
           branch_id?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string | null
           created_by?: string | null
           currency?: string | null
@@ -5964,6 +5966,7 @@ export type Database = {
           amount?: number
           branch_id?: string | null
           category?: string | null
+          category_id?: string | null
           created_at?: string | null
           created_by?: string | null
           currency?: string | null
@@ -6001,6 +6004,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_request_items_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
             referencedColumns: ["id"]
           },
           {
@@ -6065,6 +6075,7 @@ export type Database = {
           deleted_by: string | null
           deleted_reason: string | null
           disbursement_order_id: string | null
+          expense_category_id: string | null
           expense_type: string | null
           id: string
           is_special_billing: boolean | null
@@ -6107,6 +6118,7 @@ export type Database = {
           deleted_by?: string | null
           deleted_reason?: string | null
           disbursement_order_id?: string | null
+          expense_category_id?: string | null
           expense_type?: string | null
           id?: string
           is_special_billing?: boolean | null
@@ -6149,6 +6161,7 @@ export type Database = {
           deleted_by?: string | null
           deleted_reason?: string | null
           disbursement_order_id?: string | null
+          expense_category_id?: string | null
           expense_type?: string | null
           id?: string
           is_special_billing?: boolean | null
@@ -6180,6 +6193,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_requests_expense_category_id_fkey"
+            columns: ["expense_category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
             referencedColumns: ["id"]
           },
           {

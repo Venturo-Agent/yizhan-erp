@@ -16,8 +16,7 @@ import {
 } from '@/components/ui/select'
 import { CurrencyCell } from '@/components/table-cells'
 import { InlineEditTable, type InlineEditColumn } from '@/components/ui/inline-edit-table'
-import { categoryOptions } from '../_types'
-import { PaymentItemCategory } from '@/stores/types'
+import { useExpenseCategories } from '@/data/entities'
 import { TourAllocation, COMPONENT_LABELS } from './AddRequestDialog.types'
 import { useTranslations } from 'next-intl'
 import { useTourOptions } from '@/hooks'
@@ -51,7 +50,8 @@ interface BatchTabContentProps {
   orders: Order[]
   suppliers: Supplier[]
   paymentMethods: PaymentMethod[]
-  batchCategory: PaymentItemCategory
+  /** 批次類別 — 改吃 expense_categories.id（uuid）；2026-05-21 Phase 2 */
+  batchCategoryId: string
   batchSupplierId: string
   batchPaymentMethodId: string | undefined
   totalAllocatedAmount: number
@@ -59,7 +59,7 @@ interface BatchTabContentProps {
   onAddAllocation: () => void
   onRemoveAllocation: (index: number) => void
   onSelectTour: (index: number, tourId: string) => void
-  onCategoryChange: (value: PaymentItemCategory) => void
+  onCategoryChange: (value: string) => void
   onSupplierChange: (value: string) => void
   onPaymentMethodChange: (value: string | undefined) => void
   onCreateSupplier: (name: string) => Promise<string | null>
@@ -71,7 +71,7 @@ export function BatchTabContent({
   orders,
   suppliers,
   paymentMethods,
-  batchCategory,
+  batchCategoryId,
   batchSupplierId,
   batchPaymentMethodId,
   totalAllocatedAmount,
@@ -86,6 +86,11 @@ export function BatchTabContent({
 }: BatchTabContentProps) {
   const t = useTranslations('finance')
   const availableTourOptions = useTourOptions(availableTours)
+  // 類別下拉吃 entity hook（取代寫死 categoryOptions）— 團體請款用 type IN ('expense','both')
+  const { items: allCats } = useExpenseCategories({ all: true })
+  const tourCatOptions = (allCats ?? [])
+    .filter(c => (c.type === 'expense' || c.type === 'both') && c.is_active)
+    .map(c => ({ value: c.id, label: c.name }))
   return (
     <TabsContent
       value="batch"
@@ -156,14 +161,14 @@ export function BatchTabContent({
               render: () => (
                 // batch state、所有 row 共用、任一 row 改即 sync 全 row
                 <Select
-                  value={batchCategory}
-                  onValueChange={value => onCategoryChange(value as PaymentItemCategory)}
+                  value={batchCategoryId}
+                  onValueChange={value => onCategoryChange(value)}
                 >
                   <SelectTrigger className="input-no-focus h-10 border-0 shadow-none bg-transparent text-sm px-2">
                     <SelectValue placeholder={COMPONENT_LABELS.PLACEHOLDER_CATEGORY} />
                   </SelectTrigger>
                   <SelectContent>
-                    {categoryOptions.map(cat => (
+                    {tourCatOptions.map(cat => (
                       <SelectItem key={cat.value} value={cat.value}>
                         {cat.label}
                       </SelectItem>

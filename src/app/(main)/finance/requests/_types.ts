@@ -5,7 +5,16 @@ export interface RequestFormData {
   request_category: PaymentRequestCategory // 請款類別（團體/公司）
   tour_id: string // 團體請款使用
   order_id: string // 團體請款使用
-  expense_type: CompanyExpenseType | '' // 公司請款使用
+  /**
+   * 公司請款使用（舊欄位、過渡期保留 — 改為從 expense_category_id 推導）
+   * 寫入時雙寫；顯示時優先 expense_category_id
+   */
+  expense_type: CompanyExpenseType | ''
+  /**
+   * 公司請款使用（新欄位、2026-05-21）
+   * 對應 expense_categories.id (type='company_expense')
+   */
+  expense_category_id?: string
   request_date: string
   notes: string
   is_special_billing: boolean
@@ -25,7 +34,17 @@ export interface RequestItem {
   id: string
   custom_request_date: string // 請款日期（每項目獨立、對應 DB payment_request_items.custom_request_date）
   payment_method_id?: string // 付款方式（每項目獨立）
+  /**
+   * 類別文字（過渡期保留、給舊資料 fallback 顯示用）
+   * 新資料寫入時：團體請款 = expense_categories.name；公司請款 = ''（用 category_id 即可）
+   */
   category: PaymentRequestItem['category']
+  /**
+   * 類別 ID（新欄位、2026-05-21 起寫入皆帶）
+   * - 團體請款 item：對應 expense_categories.id (type IN ('expense','both'))
+   * - 公司請款 item：對應 expense_categories.id (type='company_expense')
+   */
+  category_id?: string | null
   supplier_id: string
   supplierName: string | null
   description: string
@@ -44,16 +63,6 @@ export interface RequestItem {
 // label / color 走 SSOT：src/lib/design/status-tone-map.ts STATUS_LABEL_MAP.payment_request
 export type PaymentRequestStatus = 'pending' | 'confirmed' | 'paid'
 
-export const categoryOptions = [
-  { value: '住宿', label: '住宿' },
-  { value: '交通', label: '交通' },
-  { value: '餐食', label: '餐食' },
-  { value: '活動', label: '活動' },
-  { value: '導遊', label: '導遊' },
-  { value: '保險', label: '保險' },
-  { value: '出團款', label: '出團款' },
-  { value: '回團款', label: '回團款' },
-  { value: '員工代墊', label: '員工代墊' },
-  { value: '同業', label: '同業' },
-  { value: '其他', label: '其他' },
-] as const
+// 2026-05-21 Phase 2：寫死 categoryOptions 已退休。
+// 類別資料 SSOT = DB 表 expense_categories（read via useExpenseCategories）。
+// 過渡期保留 RequestItem.category 文字欄位給舊資料 fallback、新寫入用 category_id。

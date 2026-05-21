@@ -2,13 +2,14 @@
  * useAddRequestDialogState.ts
  *
  * 新增請款 Dialog 的批量 state 管理 hook：
- * - 批量請款 state (batchDate / batchCategory / batchSupplierId / tourAllocations)
+ * - 批量請款 state (batchDate / batchCategoryId / batchSupplierId / tourAllocations)
  * - 供應商快速新增 dialog state
  * - batch allocation 操作
+ *
+ * 2026-05-21 請款分類 Phase 2：batchCategory (PaymentItemCategory) → batchCategoryId (uuid)
  */
 
 import { useState, useMemo, useCallback } from 'react'
-import { PaymentItemCategory } from '@/stores/types'
 import { TourAllocation, RequestMode } from '../_components/AddRequestDialog.types'
 import { getTodayString } from '@/lib/utils/format-date'
 
@@ -26,7 +27,8 @@ const DEFAULT_ALLOCATIONS: TourAllocation[] = [
 export function useAddRequestDialogState() {
   // === 批量請款狀態 ===
   const [batchDate, setBatchDate] = useState(getTodayString())
-  const [batchCategory, setBatchCategory] = useState<PaymentItemCategory>('' as PaymentItemCategory)
+  // 2026-05-21：類別改吃 expense_categories.id (uuid)；舊 PaymentItemCategory enum 走入歷史
+  const [batchCategoryId, setBatchCategoryId] = useState<string>('')
   const [batchSupplierId, setBatchSupplierId] = useState('')
   const [batchPaymentMethodId, setBatchPaymentMethodId] = useState<string | undefined>(undefined)
   const [tourAllocations, setTourAllocations] = useState<TourAllocation[]>(DEFAULT_ALLOCATIONS)
@@ -124,7 +126,7 @@ export function useAddRequestDialogState() {
   // === 重置批量 state ===
   const resetBatchState = useCallback(() => {
     setBatchDate(getTodayString())
-    setBatchCategory('其他' as PaymentItemCategory)
+    setBatchCategoryId('')
     setBatchSupplierId('')
     setTourAllocations([...DEFAULT_ALLOCATIONS])
     setImportFromRequests(false)
@@ -135,8 +137,8 @@ export function useAddRequestDialogState() {
     // batch state
     batchDate,
     setBatchDate,
-    batchCategory,
-    setBatchCategory,
+    batchCategoryId,
+    setBatchCategoryId,
     batchSupplierId,
     setBatchSupplierId,
     batchPaymentMethodId,

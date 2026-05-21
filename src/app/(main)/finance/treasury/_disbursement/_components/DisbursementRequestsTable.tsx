@@ -4,7 +4,8 @@ import React from 'react'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { CurrencyCell } from '@/components/table-cells'
 import { EmptyState } from '@/components/ui/empty-state'
-import { EXPENSE_TYPE_CONFIG, CompanyExpenseType, PaymentRequest } from '@/stores/types'
+import { PaymentRequest } from '@/stores/types'
+import { useExpenseCategories } from '@/data/entities'
 import { useTranslations } from 'next-intl'
 
 const COMPONENT_LABELS = {
@@ -30,6 +31,9 @@ export function DisbursementRequestsTable({
   companyRequests,
 }: DisbursementRequestsTableProps) {
   const t = useTranslations('finance')
+  // 2026-05-21 Phase 2：類別顯示走 expense_categories.id 反查、舊 EXPENSE_TYPE_CONFIG 退休
+  const { items: allCats } = useExpenseCategories({ all: true })
+  const catNameById = new Map((allCats ?? []).map(c => [c.id, c.name]))
   if (tourRequests.length === 0 && companyRequests.length === 0) {
     return <EmptyState message={t('disbursementNoData')} />
   }
@@ -139,10 +143,17 @@ export function DisbursementRequestsTable({
                   <tr key={request.id} className="border-b border-morandi-container/10">
                     <td className="py-2 px-3 font-medium text-morandi-primary">{request.code}</td>
                     <td className="py-2 px-3 text-morandi-secondary">
-                      {request.expense_type
-                        ? EXPENSE_TYPE_CONFIG[request.expense_type as CompanyExpenseType]?.name ||
-                          request.expense_type
-                        : '-'}
+                      {/* 優先 expense_category_id 反查、fallback expense_type（舊資料）*/}
+                      {(() => {
+                        const r = request as PaymentRequest & {
+                          expense_category_id?: string | null
+                        }
+                        return (
+                          (r.expense_category_id && catNameById.get(r.expense_category_id)) ||
+                          r.expense_type ||
+                          '-'
+                        )
+                      })()}
                     </td>
                     <td className="py-2 px-3 text-morandi-secondary">
                       {request.supplier_name || <EmptyValue />}

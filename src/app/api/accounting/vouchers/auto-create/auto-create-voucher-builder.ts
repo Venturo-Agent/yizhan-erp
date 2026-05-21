@@ -198,6 +198,7 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
   const db = getSupabase()
 
   // 1. 查詢請款單（限定 workspace）
+  // 2026-05-21 Phase 2：items 多撈 category_id；categoryMap 同時建 id 與 name 兩個 key、過渡期相容
   const { data: request, error: reqError } = await db
     .from('payment_requests')
     .select('*, items:payment_request_items(*)')
@@ -216,6 +217,7 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
   }
 
   // 2. 查詢所有請款類別（用於對應 category）
+  // 撈 workspace 自己 + 系統預設（workspace_id IS NULL）
   const { data: categories } = await db
     .from('expense_categories')
     .select(
@@ -225,16 +227,12 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
       credit_account:chart_of_accounts!credit_account_id(id, code, name)
     `
     )
-    .eq('workspace_id', workspaceId)
+    .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
     .eq('is_active', true)
 
-  const categoryMap = new Map<
-    string,
-    {
-      debit_account: { id: string; code: string; name: string } | null
-      credit_account: { id: string; code: string; name: string } | null
-    }
-  >()
+  type AcctRef = { id: string; code: string; name: string } | null
+  const categoryById = new Map<string, { debit_account: AcctRef; credit_account: AcctRef }>()
+  const categoryByName = new Map<string, { debit_account: AcctRef; credit_account: AcctRef }>()
 
   if (categories) {
     for (const cat of categories) {
@@ -244,10 +242,12 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
       const debit = Array.isArray(debitRaw) ? debitRaw[0] : debitRaw
       const credit = Array.isArray(creditRaw) ? creditRaw[0] : creditRaw
 
-      categoryMap.set(cat.name, {
-        debit_account: debit as { id: string; code: string; name: string } | null,
-        credit_account: credit as { id: string; code: string; name: string } | null,
-      })
+      const mapping = {
+        debit_account: debit as AcctRef,
+        credit_account: credit as AcctRef,
+      }
+      categoryById.set(cat.id, mapping)
+      categoryByName.set(cat.name, mapping)
     }
   }
 
@@ -291,27 +291,34 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
   const creditAccountIds: Map<string, number> = new Map() // 用於合併相同貸方科目
 
   // 借方分錄（每個項目一筆）
+  // 2026-05-21 Phase 2：優先用 category_id 反查、fallback category 文字（舊資料）
   for (const item of request.items || []) {
-    const category = item.category || '其他'
-    const catMapping = categoryMap.get(category)
+    const itemExt = item as { category?: string | null; category_id?: string | null; subtotal?: number | null; description?: string | null }
+    const catMapping =
+      (itemExt.category_id && categoryById.get(itemExt.category_id)) ||
+      categoryByName.get(itemExt.category || '其他')
+    const catDisplayName =
+      (itemExt.category_id && categories?.find(c => c.id === itemExt.category_id)?.name) ||
+      itemExt.category ||
+      '其他'
 
     if (!catMapping?.debit_account) {
-      throw new Error(`請款類別「${category}」未設定借方科目，無法自動產生傳票`)
+      throw new Error(`請款類別「${catDisplayName}」未設定借方科目，無法自動產生傳票`)
     }
 
     lines.push({
       voucher_id: voucher.id,
       line_no: lineNo++,
       account_id: catMapping.debit_account.id,
-      description: `${request.supplier_name || ''} / ${item.description || category}`,
-      debit_amount: item.subtotal || 0,
+      description: `${request.supplier_name || ''} / ${itemExt.description || catDisplayName}`,
+      debit_amount: itemExt.subtotal || 0,
       credit_amount: 0,
     })
 
     // 累計貸方金額（可能多個項目用同一個貸方科目）
     if (catMapping.credit_account) {
       const creditId = catMapping.credit_account.id
-      creditAccountIds.set(creditId, (creditAccountIds.get(creditId) || 0) + (item.subtotal || 0))
+      creditAccountIds.set(creditId, (creditAccountIds.get(creditId) || 0) + (itemExt.subtotal || 0))
     }
   }
 

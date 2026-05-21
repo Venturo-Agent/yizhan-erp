@@ -23,6 +23,7 @@ import { useAddRequestDialogState } from '../_hooks/useAddRequestDialogState'
 import { usePayments } from '@/app/(main)/finance/payments/_hooks/usePayments'
 import { RequestItem } from '../_types'
 import { usePaymentMethodsCached } from '@/data/hooks'
+import { useExpenseCategories } from '@/data/entities'
 import { logger } from '@/lib/utils/logger'
 import { getTodayString } from '@/lib/utils/format-date'
 import { useWorkspaceId } from '@/lib/workspace-context'
@@ -31,7 +32,6 @@ import { useTranslations } from 'next-intl'
 import { useTourOptions } from '@/hooks'
 import { AddRequestDialogHeader } from './AddRequestDialogHeader'
 import { AddRequestDialogFooter } from './AddRequestDialogFooter'
-import { PaymentItemCategory } from '@/stores/types'
 
 export function AddRequestDialog({
   open,
@@ -67,6 +67,8 @@ export function AddRequestDialog({
   const { can } = useCapabilities()
   const canCreateCompanyPayment = can(CAPABILITIES.FINANCE_MANAGE_REQUESTS)
   const { methods: paymentMethods } = usePaymentMethodsCached('payment')
+  // 2026-05-21 Phase 2：類別 id → name 反查（給 submit 時帶 category 文字欄位、過渡期雙寫）
+  const { items: allExpenseCats } = useExpenseCategories({ all: true })
 
   // === 共用狀態 ===
   const [activeTab, setActiveTab] = useState<RequestMode>('tour')
@@ -79,7 +81,7 @@ export function AddRequestDialog({
   // === 批量/供應商 state 集中管理 ===
   const {
     batchDate, setBatchDate,
-    batchCategory, setBatchCategory,
+    batchCategoryId, setBatchCategoryId,
     batchSupplierId, setBatchSupplierId,
     batchPaymentMethodId, setBatchPaymentMethodId,
     tourAllocations,
@@ -245,9 +247,10 @@ export function AddRequestDialog({
     if (isSubmitting) return
     await submitNewRequest({
       activeTab, workspaceId, formData, requestItems, tourAllocations,
-      totalAllocatedAmount, batchCategory, batchSupplierId, batchSupplierName,
+      totalAllocatedAmount, batchCategoryId, batchSupplierId, batchSupplierName,
       batchPaymentMethodId, batchDate, importFromRequests, selectedRequestCount,
       selectedRequestItems, tourRequestItems, tours, orders,
+      expenseCategories: allExpenseCats ?? [],
       currentUserName: currentUser?.display_name || currentUser?.chinese_name || '',
       createPaymentRequest: createPaymentRequest as unknown as (data: Record<string, unknown>) => Promise<{ id: string }>,
       addPaymentItem: addPaymentItem as unknown as (requestId: string, data: Record<string, unknown>) => Promise<void>,
@@ -330,7 +333,7 @@ export function AddRequestDialog({
               orders={orders}
               suppliers={suppliers}
               paymentMethods={paymentMethods}
-              batchCategory={batchCategory}
+              batchCategoryId={batchCategoryId}
               batchSupplierId={batchSupplierId}
               batchPaymentMethodId={batchPaymentMethodId}
               totalAllocatedAmount={totalAllocatedAmount}
@@ -338,7 +341,7 @@ export function AddRequestDialog({
               onAddAllocation={addTourAllocation}
               onRemoveAllocation={removeTourAllocation}
               onSelectTour={selectTour}
-              onCategoryChange={setBatchCategory}
+              onCategoryChange={setBatchCategoryId}
               onSupplierChange={setBatchSupplierId}
               onPaymentMethodChange={setBatchPaymentMethodId}
               onCreateSupplier={handleCreateSupplier}
@@ -377,7 +380,7 @@ export function AddRequestDialog({
             selectedRequestTotal={selectedRequestTotal}
             total_amount={total_amount}
             tourAllocations={tourAllocations}
-            batchCategory={batchCategory}
+            batchCategory={batchCategoryId}
             requestItems={requestItems}
             formData={formData}
             selectedRequestCount={selectedRequestCount}

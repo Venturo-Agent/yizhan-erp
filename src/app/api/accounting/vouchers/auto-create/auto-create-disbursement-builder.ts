@@ -74,9 +74,10 @@ export async function createVoucherFromDisbursement(workspaceId: string, disburs
   }
 
   // 3. 查關聯的請款單 + items + items 對應 expense_categories
+  // 2026-05-21 Phase 2：items 多撈 category_id；下面 lookup 優先 id、fallback name
   const { data: linkedRequests, error: prErr } = await db
     .from('payment_requests')
-    .select('id, code, supplier_name, items:payment_request_items(category, subtotal)')
+    .select('id, code, supplier_name, items:payment_request_items(category, category_id, subtotal)')
     .eq('workspace_id', workspaceId)
     .eq('disbursement_order_id', disbursementId)
 
@@ -86,21 +87,27 @@ export async function createVoucherFromDisbursement(workspaceId: string, disburs
   }
 
   // 4. 查所有 expense_categories 的 credit_account（要沖的應付科目）
+  // 撈 workspace 自己 + 系統預設（workspace_id IS NULL）
   const { data: categories } = await db
     .from('expense_categories')
     .select(
-      `name,
+      `id, name,
        credit_account:chart_of_accounts!credit_account_id(id, code, name)`
     )
+    .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
     .eq('is_active', true)
 
-  const categoryMap = new Map<string, { id: string; code: string; name: string }>()
+  type AcctRef = { id: string; code: string; name: string }
+  const categoryById = new Map<string, AcctRef>()
+  const categoryByName = new Map<string, AcctRef>()
   if (categories) {
     for (const cat of categories) {
       const creditRaw = cat.credit_account as unknown
       const credit = Array.isArray(creditRaw) ? creditRaw[0] : creditRaw
       if (credit) {
-        categoryMap.set(cat.name, credit as { id: string; code: string; name: string })
+        const acct = credit as AcctRef
+        categoryById.set(cat.id, acct)
+        categoryByName.set(cat.name, acct)
       }
     }
   }
@@ -112,11 +119,17 @@ export async function createVoucherFromDisbursement(workspaceId: string, disburs
   for (const pr of linkedRequests) {
     if (pr.supplier_name) supplierNames.push(pr.supplier_name)
     for (const item of (pr.items || [])) {
-      const cat = (item as { category?: string; subtotal?: number }).category || '其他'
-      const subtotal = Number((item as { subtotal?: number }).subtotal) || 0
-      const creditAcct = categoryMap.get(cat)
+      const itemExt = item as { category?: string; category_id?: string | null; subtotal?: number }
+      const subtotal = Number(itemExt.subtotal) || 0
+      // 優先 category_id 反查；fallback category 文字（舊資料）
+      const creditAcct =
+        (itemExt.category_id && categoryById.get(itemExt.category_id)) ||
+        categoryByName.get(itemExt.category || '其他')
       if (!creditAcct) {
-        throw new Error(`請款類別「${cat}」未設定貸方科目（沖銷對象）、無法產生出納傳票`)
+        const displayName = itemExt.category_id
+          ? categories?.find(c => c.id === itemExt.category_id)?.name || itemExt.category_id
+          : itemExt.category || '其他'
+        throw new Error(`請款類別「${displayName}」未設定貸方科目（沖銷對象）、無法產生出納傳票`)
       }
       const existing = debitAccountAmounts.get(creditAcct.id)
       debitAccountAmounts.set(creditAcct.id, {

@@ -10,7 +10,6 @@ import { logger } from '@/lib/utils/logger'
 import { getTodayString } from '@/lib/utils/format-date'
 import { generateRequestNo } from '@/lib/codes'
 import { RequestItem } from '../_types'
-import { PaymentItemCategory, CompanyExpenseType } from '@/stores/types'
 import { TourAllocation, RequestMode, COMPONENT_LABELS } from './AddRequestDialog.types'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -45,7 +44,8 @@ export interface SubmitParams {
   requestItems: RequestItem[]
   tourAllocations: TourAllocation[]
   totalAllocatedAmount: number
-  batchCategory: PaymentItemCategory
+  /** 批次類別 — 2026-05-21 起為 expense_categories.id (uuid)；舊 PaymentItemCategory 退休 */
+  batchCategoryId: string
   batchSupplierId: string
   batchSupplierName: string
   batchPaymentMethodId: string | undefined
@@ -65,6 +65,8 @@ export interface SubmitParams {
   tours: Tour[]
   orders: Order[]
   currentUserName: string
+  /** 2026-05-21 Phase 2：expense_categories 全清單（用於 id → name 反查、雙寫過渡期）*/
+  expenseCategories: Array<{ id: string; name: string; type: string }>
   createPaymentRequest: (data: Record<string, unknown>) => Promise<{ id: string }>
   addPaymentItem: (requestId: string, data: Record<string, unknown>) => Promise<void>
   createRequest: (
@@ -142,7 +144,7 @@ export async function submitNewRequest(params: SubmitParams): Promise<void> {
     requestItems,
     tourAllocations,
     totalAllocatedAmount,
-    batchCategory,
+    batchCategoryId,
     batchSupplierId,
     batchSupplierName,
     batchPaymentMethodId,
@@ -154,6 +156,7 @@ export async function submitNewRequest(params: SubmitParams): Promise<void> {
     tours,
     orders,
     currentUserName,
+    expenseCategories,
     createPaymentRequest,
     addPaymentItem,
     createRequest,
@@ -194,12 +197,13 @@ export async function submitNewRequest(params: SubmitParams): Promise<void> {
       await submitBatch({
         tourAllocations,
         totalAllocatedAmount,
-        batchCategory,
+        batchCategoryId,
         batchSupplierId,
         batchSupplierName,
         batchPaymentMethodId,
         batchDate,
         workspaceId,
+        expenseCategories,
         createPaymentRequest,
         addPaymentItem,
         onCancel,
@@ -211,6 +215,7 @@ export async function submitNewRequest(params: SubmitParams): Promise<void> {
         requestItems,
         createRequest,
         currentUserName,
+        expenseCategories,
         onCancel,
         onSuccess,
       })
@@ -251,12 +256,13 @@ export async function submitNewRequest(params: SubmitParams): Promise<void> {
 async function submitBatch({
   tourAllocations,
   totalAllocatedAmount,
-  batchCategory,
+  batchCategoryId,
   batchSupplierId,
   batchSupplierName,
   batchPaymentMethodId,
   batchDate,
   workspaceId,
+  expenseCategories,
   createPaymentRequest,
   addPaymentItem,
   onCancel,
@@ -264,12 +270,13 @@ async function submitBatch({
 }: {
   tourAllocations: TourAllocation[]
   totalAllocatedAmount: number
-  batchCategory: PaymentItemCategory
+  batchCategoryId: string
   batchSupplierId: string
   batchSupplierName: string
   batchPaymentMethodId: string | undefined
   batchDate: string
   workspaceId: string
+  expenseCategories: Array<{ id: string; name: string; type: string }>
   createPaymentRequest: (data: Record<string, unknown>) => Promise<{ id: string }>
   addPaymentItem: (requestId: string, data: Record<string, unknown>) => Promise<void>
   onCancel: () => void
@@ -281,7 +288,7 @@ async function submitBatch({
     void alert('請至少選擇一個旅遊團並輸入金額', 'warning')
     return
   }
-  if (!batchCategory) {
+  if (!batchCategoryId) {
     void alert(COMPONENT_LABELS.ALERT_NEED_CATEGORY, 'warning')
     return
   }
@@ -289,6 +296,9 @@ async function submitBatch({
     void alert('請款金額不能為 0', 'warning')
     return
   }
+
+  // id → name 反查（雙寫過渡：category 文字欄位仍要寫）
+  const catName = expenseCategories.find(c => c.id === batchCategoryId)?.name || ''
 
   const batchId = crypto.randomUUID()
   let successCount = 0
@@ -319,10 +329,12 @@ async function submitBatch({
       })
 
       await addPaymentItem(request.id, {
-        category: batchCategory,
+        // 雙寫過渡：category 文字（backfill 來源）+ category_id（新欄位、SSOT）
+        category: catName,
+        category_id: batchCategoryId,
         supplier_id: batchSupplierId || '',
         supplier_name: batchSupplierName || null,
-        description: batchCategory,
+        description: catName,
         unit_price: allocation.allocated_amount,
         quantity: 1,
         notes: '',
@@ -354,6 +366,7 @@ async function submitCompany({
   requestItems,
   createRequest,
   currentUserName,
+  expenseCategories,
   onCancel,
   onSuccess,
 }: {
@@ -369,10 +382,14 @@ async function submitCompany({
     code?: string
   ) => Promise<void>
   currentUserName: string
+  expenseCategories: Array<{ id: string; name: string; type: string }>
   onCancel: () => void
   onSuccess?: () => void
 }) {
-  const validItems = requestItems.filter(item => item.category && item.unit_price > 0)
+  // 2026-05-21 Phase 2：公司請款 item 走 category_id；保留 item.category 文字當 fallback
+  const validItems = requestItems.filter(
+    item => (item.category_id || item.category) && item.unit_price > 0
+  )
   if (validItems.length === 0) {
     void alert(COMPONENT_LABELS.ALERT_NEED_COMPANY_ITEM, 'warning')
     return
@@ -383,10 +400,15 @@ async function submitCompany({
     if (!groups.has(d)) groups.set(d, [])
     groups.get(d)!.push(it)
   }
-  const inferredExpenseType = validItems[0].category as unknown as CompanyExpenseType
+  // 從第一個 item 推導 expense_category_id；fallback：以 category 文字反查 expenseCategories
+  const firstItem = validItems[0]
+  const inferredCategoryId =
+    firstItem.category_id ||
+    expenseCategories.find(c => c.name === firstItem.category)?.id ||
+    ''
   for (const [groupDate, groupItems] of groups) {
     await createRequest(
-      { ...formData, expense_type: inferredExpenseType, request_date: groupDate },
+      { ...formData, expense_category_id: inferredCategoryId, request_date: groupDate },
       groupItems,
       '',
       '',
@@ -465,7 +487,7 @@ async function submitTour({
         id: Math.random().toString(36).substr(2, 9),
         custom_request_date: getTodayString(),
         payment_method_id: undefined,
-        category: item.category as PaymentItemCategory,
+        category: item.category as RequestItem['category'],
         supplier_id: item.supplierId,
         supplierName: item.supplierName,
         description: item.title,

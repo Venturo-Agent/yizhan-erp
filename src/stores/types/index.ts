@@ -63,8 +63,7 @@ export type {
   VendorCost,
 } from './finance.types'
 
-// 財務常數
-export { EXPENSE_TYPE_CONFIG } from './finance.types'
+// 2026-05-21 Phase 2：EXPENSE_TYPE_CONFIG 實值已退休、類別 SSOT = DB 表 expense_categories
 
 // 功能權限清單（給設定頁顯示用）
 
