@@ -12,7 +12,7 @@
 import { logger } from '@/lib/utils/logger'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { UnauthorizedPage } from '@/components/unauthorized-page'
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
@@ -103,7 +103,13 @@ export default function PaymentsPage() {
     return tabs
   }, [canTour, canCompany])
 
-  // Tab filter + 預設排序：待確認優先 + 日期最早優先（讓 user 看到最遠還沒處理的）
+  // Stable row order：核准後 row 不換位置、避免「重新整理」視覺
+  // - 進頁 / 切 tab 第一次 load → 按「待確認優先 + 日期 asc」排
+  // - 後續 status 變動 / SWR refetch → 既有 row 保持原位置、新 row 插尾巴
+  // - 換 tab / 換頁面 unmount → ref reset、下次重新排
+  // William 2026-05-21 拍板（方案 A）：UX 自然優先、犧牲「自動推待處理到最前」的 dynamic sort
+  const stableOrderRef = useRef<{ tab: string; ids: string[] } | null>(null)
+
   const filteredByTab = useMemo(() => {
     let list: typeof receipts
     if (activeTab === 'all') {
@@ -116,16 +122,43 @@ export default function PaymentsPage() {
     else if (activeTab === 'company') list = receipts.filter(isCompanyReceipt)
     else list = receipts
 
-    return [...list].sort((a, b) => {
-      // 1. 「待會計處理」status 排最前(pending_verify = 客戶自助付款待對帳、pending = 會計手動建未核准)
+    // 切 tab → reset stable order（新 tab 要按原則重新排）
+    if (stableOrderRef.current?.tab !== activeTab) {
+      stableOrderRef.current = null
+    }
+
+    // 首次或 tab 變動 → 按業務邏輯排、記下 order
+    if (!stableOrderRef.current) {
+      const sorted = [...list].sort((a, b) => {
+        const isPendingA = a.status === 'pending' || a.status === 'pending_verify' ? 0 : 1
+        const isPendingB = b.status === 'pending' || b.status === 'pending_verify' ? 0 : 1
+        if (isPendingA !== isPendingB) return isPendingA - isPendingB
+        const aDate = a.receipt_date ? new Date(a.receipt_date).getTime() : 0
+        const bDate = b.receipt_date ? new Date(b.receipt_date).getTime() : 0
+        return aDate - bDate
+      })
+      stableOrderRef.current = { tab: activeTab, ids: sorted.map(r => r.id) }
+      return sorted
+    }
+
+    // 既有 stable order → 保持原順序、刪除已不存在的 / 新增的 row 插尾巴
+    const byId = new Map(list.map(r => [r.id, r]))
+    const ordered = stableOrderRef.current.ids
+      .map(id => byId.get(id))
+      .filter((r): r is (typeof list)[number] => Boolean(r))
+    const orderedIds = new Set(stableOrderRef.current.ids)
+    const newOnes = list.filter(r => !orderedIds.has(r.id))
+    // 新 row 維持待確認優先 + 日期 asc 排（業務上新加的也該優先處理）
+    const sortedNew = newOnes.sort((a, b) => {
       const isPendingA = a.status === 'pending' || a.status === 'pending_verify' ? 0 : 1
       const isPendingB = b.status === 'pending' || b.status === 'pending_verify' ? 0 : 1
       if (isPendingA !== isPendingB) return isPendingA - isPendingB
-      // 2. 同 status 內、receipt_date 早的在前
       const aDate = a.receipt_date ? new Date(a.receipt_date).getTime() : 0
       const bDate = b.receipt_date ? new Date(b.receipt_date).getTime() : 0
       return aDate - bDate
     })
+    stableOrderRef.current.ids = [...ordered.map(r => r.id), ...sortedNew.map(r => r.id)]
+    return [...ordered, ...sortedNew]
   }, [receipts, activeTab, canTour, canCompany])
 
   // 如果有 URL 參數，自動開啟新增對話框
