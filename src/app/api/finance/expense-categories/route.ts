@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getCurrentWorkspaceId } from '@/lib/supabase/api-client'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
@@ -6,18 +7,20 @@ import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
+/**
+ * 2026-05-21 修紅線 H：原 API 從 client query string 吃 workspace_id、且字串拼接 SQL（SQL injection 風險）
+ * 修法：workspace_id 走 session getCurrentWorkspaceId()、不信 client
+ * 同時 backfill workspace_id 欄位（不再用 user_id 當 workspace 儲位）
+ */
+
 // GET - 取得請款類別列表
 export const GET = apiHandler(async (request: NextRequest) => {
   const guard = await requireCapability(CAPABILITIES.FINANCE_READ_SETTINGS)
   if (!guard.ok) return guard.response
   const supabase = await createSupabaseServerClient()
+  const workspaceId = await getCurrentWorkspaceId()
+
   const { searchParams } = new URL(request.url)
-  const workspaceId = searchParams.get('workspace_id')
-
-  if (!workspaceId) {
-    return NextResponse.json({ error: '缺少 workspace_id' }, { status: 400 })
-  }
-
   // 支援多種 type: expense, company_expense, company_income
   const typeFilter = searchParams.get('type')
 
@@ -30,7 +33,9 @@ export const GET = apiHandler(async (request: NextRequest) => {
       credit_account:chart_of_accounts!credit_account_id(id, code, name)
     `
     )
-    .or(`user_id.is.null,user_id.eq.${workspaceId}`) // 系統預設或該工作區的
+    // 系統預設（workspace_id IS NULL）+ 自己 workspace
+    // RLS 會自動再守一層、這裡是 application 層的 explicit filter
+    .or(`workspace_id.is.null,workspace_id.eq.${workspaceId}`)
     .order('sort_order', { ascending: true })
 
   // 如果有指定 type，只取該類型；否則取所有財務相關類型
@@ -55,11 +60,13 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (!guard.ok) return guard.response
   const supabase = await createSupabaseServerClient()
   await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '新增請款類別' })
-  const body = await request.json()
-  const { name, icon, color, workspace_id, sort_order, debit_account_id, credit_account_id, type } =
-    body
 
-  if (!name || !workspace_id) {
+  const workspaceId = await getCurrentWorkspaceId()
+  const body = await request.json()
+  // 2026-05-21：不再從 body 吃 workspace_id、走 session
+  const { name, icon, color, sort_order, debit_account_id, credit_account_id, type } = body
+
+  if (!name) {
     return NextResponse.json({ error: '缺少必要欄位' }, { status: 400 })
   }
 
@@ -77,7 +84,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
       icon: icon || '💰',
       color: color || '#c9aa7c',
       type: categoryType,
-      user_id: workspace_id,
+      workspace_id: workspaceId,  // 2026-05-21：寫真 workspace_id、不再塞 user_id
       is_active: true,
       is_system: false,
       sort_order: sort_order || 100,
@@ -114,6 +121,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: '缺少 id' }, { status: 400 })
   }
 
+  // RLS 會擋跨 workspace 更新、不需要在 application 層再 explicit filter
   const { data, error } = await supabase
     .from('expense_categories')
     .update({
@@ -168,6 +176,7 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: '系統預設類別無法刪除' }, { status: 400 })
   }
 
+  // RLS 會擋跨 workspace 刪除
   const { error } = await supabase.from('expense_categories').delete().eq('id', id)
 
   if (error) {
