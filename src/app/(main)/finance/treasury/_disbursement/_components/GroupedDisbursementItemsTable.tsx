@@ -244,32 +244,39 @@ function GroupRows({
             onCheckedChange={checked => onToggleGroupAll(checked === true)}
           />
         </td>
-        {/* 空兩欄、把 group label 推到對齊「請款人」column 起點（William 拍板）*/}
-        <td colSpan={2} className="px-3 py-2.5"></td>
-        <td colSpan={4} className="px-3 py-2.5">
-          <div className="flex items-center gap-2 flex-wrap">
+        {/* 團名對齊「出帳日期」column 起點（含 chevron）*/}
+        <td colSpan={2} className="px-3 py-2.5">
+          <div className="flex items-center gap-2">
             <span className="text-morandi-secondary">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </span>
-            <span className="font-semibold text-morandi-primary">{group.label}</span>
-            <span className="text-xs text-morandi-secondary">
-              {selectedCount}/{group.items.length} 筆
+            <span className="font-semibold text-morandi-primary truncate">
+              {group.label}
             </span>
-            {showIncomeCompare && (
-              <span
-                className={`text-xs inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded ${
-                  isOverspend
-                    ? 'bg-status-danger/10 text-status-danger font-medium'
-                    : 'text-morandi-secondary'
-                }`}
-              >
-                {isOverspend && <AlertTriangle size={12} />}
-                已收 NT$ {(income ?? 0).toLocaleString()} / 已勾 NT$ {pickedAmount.toLocaleString()}
-                {isOverspend &&
-                  ` ・超支 NT$ ${(pickedAmount - (income ?? 0)).toLocaleString()}`}
-              </span>
-            )}
           </div>
+        </td>
+        {/* N/N 筆對齊「請款人」column */}
+        <td className="px-3 py-2.5">
+          <span className="text-xs text-morandi-secondary whitespace-nowrap">
+            {selectedCount}/{group.items.length} 筆
+          </span>
+        </td>
+        {/* 超支警示在「品項 + 付款對象 + 對方銀行」3 欄合併區 */}
+        <td colSpan={3} className="px-3 py-2.5">
+          {showIncomeCompare && (
+            <span
+              className={`text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded ${
+                isOverspend
+                  ? 'bg-status-danger/10 text-status-danger font-medium'
+                  : 'text-morandi-secondary'
+              }`}
+            >
+              {isOverspend && <AlertTriangle size={12} />}
+              已收 NT$ {(income ?? 0).toLocaleString()} / 已勾 NT$ {pickedAmount.toLocaleString()}
+              {isOverspend &&
+                ` ・超支 NT$ ${(pickedAmount - (income ?? 0)).toLocaleString()}`}
+            </span>
+          )}
         </td>
         <td className="px-3 py-2.5 text-right font-semibold text-morandi-gold whitespace-nowrap">
           NT$ {group.totalAmount.toLocaleString()}
