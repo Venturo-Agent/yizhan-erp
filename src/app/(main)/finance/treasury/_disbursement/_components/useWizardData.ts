@@ -81,7 +81,7 @@ export function useWizardData({
           await Promise.all([
             supabase
               .from('bank_accounts')
-              .select('id, name, bank_code, bank_name, is_disbursement_eligible')
+              .select('id, name, bank_code, bank_name, is_disbursement_eligible, cross_bank_fee')
               .eq('workspace_id', workspaceId)
               .eq('is_active', true)
               .eq('is_disbursement_eligible', true)
@@ -236,6 +236,7 @@ export function useWizardData({
               advanced_by_name: advName,
               advanced_by_bank_code: advBankCode,
               advanced_by_bank_name: advBankName,
+              payee_employee_id: it.payee_employee_id, // 2026-05-21 加：給 wizard unique payer 計算用
               payer_label: payerLabel,
               payer_bank_code: payerBankCode,
               payer_bank_name: payerBankName,
