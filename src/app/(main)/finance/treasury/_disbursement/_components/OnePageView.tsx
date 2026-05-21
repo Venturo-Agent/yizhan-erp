@@ -12,8 +12,6 @@
  * 將來可合併成單一元件（用 onUpdateStagedFee?: 可選 prop 區分）— 2026-05-21 William 拍板待重構。
  */
 
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Trash2 } from 'lucide-react'
 import { GroupedDisbursementItemsTable } from './GroupedDisbursementItemsTable'
 import type { UnbilledItem, StagedBatch } from './disbursement-wizard-types'
@@ -58,20 +56,16 @@ export function OnePageView({
                 <span className="text-morandi-secondary">
                   {b.items.length} 筆 / {totalAmount.toLocaleString()}
                 </span>
-                {onUpdateStagedFee ? (
-                  <>
-                    <Label className="text-xs whitespace-nowrap">手續費</Label>
-                    <Input
-                      type="number"
-                      value={b.total_fee}
-                      onChange={e => onUpdateStagedFee(b.batch_id, Number(e.target.value) || 0)}
-                      min={0}
-                      className="h-6 w-20 text-xs"
-                    />
-                  </>
-                ) : b.total_fee > 0 ? (
-                  <span className="text-morandi-secondary">手續費 {b.total_fee.toLocaleString()}</span>
-                ) : null}
+                {/* 2026-05-21 William 拍板 A：砍 input、強制 settings SSOT、user 不能改
+                    系統按 bank_accounts.cross_bank_fee × unique payer 自動算
+                    = 0 時顯示警告引導 user 去設定 */}
+                {b.total_fee > 0 ? (
+                  <span className="text-morandi-secondary">手續費 NT$ {b.total_fee.toLocaleString()}</span>
+                ) : (
+                  <span className="text-status-danger text-xs" title="該帳戶未設跨行手續費、請到「公司設定 → 銀行帳戶」填寫">
+                    ⚠ 未設手續費
+                  </span>
+                )}
                 <button
                   type="button"
                   className="p-0.5 text-morandi-secondary hover:text-status-danger"
