@@ -2,28 +2,24 @@
  * AI Brain — 多通路 AI 客服 + 行程推薦的對話 brain
  *
  * 用途：FB / IG webhook 收到訊息後 call、回一段文字、讓 webhook 用 channel-native
- *      API 送出去。LINE 之後也接同一個 brain。
+ *      API 送出去。LINE 走另一條 line-llm-compose（同樣吃 dispatcher、有 RAG / 速記卡）。
  *
- * 設計：
- *   - 預設用 Anthropic Claude Sonnet 4.6（VENTURO_AI_BRAIN_KEY env）
- *   - 沒設 env → 回 null、webhook 跳過自動回覆、走 agent 接手
- *   - 對話 context：撈 inbox_messages 最近 N 筆（時間倒序、role-tag 對齊 Anthropic message format）
+ * 設計（2026-05-21 William 拍板改吃 dispatcher）：
+ *   - 走 dispatchLLM、由 workspace_ai_settings 決定 provider（MiniMax / Anthropic / etc）
+ *   - 無 workspace_ai_settings → dispatcher 自己 fallback 到平台層 MINIMAX_API_KEY
+ *   - LLM 用量自動進 llm_usage_logs（caller='ai-brain'）
+ *   - 對話 context：撈 inbox_messages 最近 N 筆（時間倒序、role-tag 對齊）
  *
  * 不負責的：
  *   - 訊息送回客戶（channel-specific、各 webhook 自己 call Graph API / LINE Reply API）
- *   - 客戶 profile / 訂單 context 注入（M9 RAG 接、現在純通用 prompt）
- *
- * M9 之後會擴展：
- *   - 從 customers / orders / tours 撈 context、塞進 system prompt
- *   - pgvector RAG（旅遊行程資料庫）
+ *   - 客戶 profile / 訂單 context 注入（caller 傳 extraSystemContext）
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import { dispatchLLM } from './llm-dispatcher'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
 import type { ChannelType } from '@/lib/inbox/inbox-service'
 
-const DEFAULT_MODEL = process.env.VENTURO_AI_BRAIN_MODEL || 'claude-sonnet-4-6'
 const MAX_HISTORY_MESSAGES = 10  // 拉最近 10 則對話當 context
 
 // 預設 system prompt（M9 會擴展為「客戶資料 + 行程資料庫 + 業務規則」注入版）
@@ -64,7 +60,7 @@ export interface GenerateReplyResult {
   reply?: string
   error?: string
   /** 如果是「跳過 AI、走 agent」、reason 標出來 */
-  skippedReason?: 'no_api_key' | 'bot_paused' | 'no_content'
+  skippedReason?: 'bot_paused' | 'no_content' | 'llm_failed'
 }
 
 /**
@@ -79,20 +75,14 @@ export interface GenerateReplyResult {
  * 失敗 / 跳過時 ok=false + skippedReason 標清楚、webhook 看 skippedReason 決定是否通知 agent。
  */
 export async function generateBotReply(input: GenerateReplyInput): Promise<GenerateReplyResult> {
-  const apiKey = process.env.VENTURO_AI_BRAIN_KEY || process.env.ANTHROPIC_API_KEY
-  if (!apiKey) {
-    logger.debug('AI brain skipped: no VENTURO_AI_BRAIN_KEY / ANTHROPIC_API_KEY env')
-    return { ok: false, skippedReason: 'no_api_key' }
-  }
-
   if (!input.latestUserMessage || input.latestUserMessage.trim().length === 0) {
     return { ok: false, skippedReason: 'no_content' }
   }
 
   const supabase = getSupabaseAdminClient()
 
-  // 檢查 bot_paused
-  const convTable = supabase.from as unknown as (
+  // 檢查 bot_paused（.bind 保 this、避免 cast 後丟 supabase context 炸 TypeError）
+  const convTable = supabase.from.bind(supabase) as unknown as (
     table: string
   ) => {
     select: (cols: string) => {
@@ -114,8 +104,8 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
     if (stillPaused) return { ok: false, skippedReason: 'bot_paused' }
   }
 
-  // 撈歷史對話
-  const msgTable = supabase.from as unknown as (
+  // 撈歷史對話（.bind 保 this）
+  const msgTable = supabase.from.bind(supabase) as unknown as (
     table: string
   ) => {
     select: (cols: string) => {
@@ -158,33 +148,31 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
     ? `${DEFAULT_SYSTEM_PROMPT}\n\n---\n額外情境：\n${input.extraSystemContext}`
     : DEFAULT_SYSTEM_PROMPT
 
-  const client = new Anthropic({ apiKey })
+  // dispatcher 吃含 system 的 messages 陣列（不像 Anthropic 把 system 拆獨立 param）
+  const dispatcherMessages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
+    { role: 'system', content: systemPrompt },
+    ...messages,
+  ]
 
-  try {
-    const response = await client.messages.create({
-      model: DEFAULT_MODEL,
-      max_tokens: 512,
-      system: systemPrompt,
-      messages,
+  const llmRes = await dispatchLLM({
+    messages: dispatcherMessages,
+    workspaceId: input.workspaceId,
+    temperature: 0.3,
+    caller: 'ai-brain',
+  })
+
+  if (!llmRes.ok || !llmRes.content) {
+    logger.warn('AI brain dispatcher failed', {
+      workspaceId: input.workspaceId,
+      conversationId: input.conversationId,
+      error: llmRes.error,
     })
-
-    const text = response.content
-      .filter(block => block.type === 'text')
-      .map(block => (block.type === 'text' ? block.text : ''))
-      .join('\n')
-      .trim()
-
-    if (!text) {
-      logger.warn('AI brain returned empty text', { conversationId: input.conversationId })
-      return { ok: false, error: 'empty response' }
-    }
-
-    return { ok: true, reply: text }
-  } catch (error) {
-    logger.error('AI brain call failed', { error, conversationId: input.conversationId })
     return {
       ok: false,
-      error: error instanceof Error ? error.message : 'unknown AI error',
+      skippedReason: 'llm_failed',
+      error: llmRes.error || 'LLM dispatcher failed',
     }
   }
+
+  return { ok: true, reply: llmRes.content.trim() }
 }
