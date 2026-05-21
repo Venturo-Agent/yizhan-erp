@@ -1,18 +1,31 @@
 // 請款類別 / 公司支出 / 公司收入 section
-// 三個 section 共用 list 渲染（差別只在 type filter + 是否顯示 sort_order 欄位）
-// 含 CategoryDialog + 所有 mutation handler
+// 三個 section 共用 list 渲染（差別只在 type filter）
+// 2026-05-21 William 拍板：UI 統一跟收款 / 付款方式一致 — 拖曳 + Switch、砍 sort_order input
 
 'use client'
 
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { FormDialog } from '@/components/dialog'
 import { Label } from '@/components/ui/label'
-import { Pencil, Trash2 } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
+import { logger } from '@/lib/utils/logger'
+import { COMMON_MESSAGES } from '@/constants/messages'
 import { useTranslations } from 'next-intl'
 import {
   Table,
@@ -23,6 +36,7 @@ import {
   TableCell,
 } from './shared-table'
 import { PAGE_LABELS, type ExpenseCategory, type ChartOfAccount } from './types'
+import { SortableCategoryRow } from './SortableCategoryRow'
 import { apiMutate } from '@/lib/swr/api-mutate'
 
 type CategoryType = 'expense' | 'company_expense' | 'company_income'
@@ -34,6 +48,7 @@ interface CategoriesSectionProps {
   chartOfAccounts: ChartOfAccount[]
   workspaceId: string | undefined
   reload: () => Promise<void>
+  setExpenseCategories: React.Dispatch<React.SetStateAction<ExpenseCategory[]>>
   isDialogOpen: boolean
   setIsDialogOpen: (open: boolean) => void
   editingCategory: ExpenseCategory | null
@@ -46,6 +61,7 @@ export function CategoriesSection({
   chartOfAccounts,
   workspaceId,
   reload,
+  setExpenseCategories,
   isDialogOpen,
   setIsDialogOpen,
   editingCategory,
@@ -71,9 +87,76 @@ export function CategoriesSection({
         ? 'company_income'
         : 'expense'
 
-  // 儲存
+  // ===== 拖曳排序 =====
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  )
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = list.findIndex(c => c.id === active.id)
+    const newIndex = list.findIndex(c => c.id === over.id)
+    if (oldIndex === -1 || newIndex === -1) return
+
+    const reordered = arrayMove(list, oldIndex, newIndex)
+
+    // Optimistic update：local state 先換順序
+    const reorderedIds = new Set(reordered.map(c => c.id))
+    setExpenseCategories(prev => {
+      const others = prev.filter(c => !reorderedIds.has(c.id))
+      return [...others, ...reordered.map((c, idx) => ({ ...c, sort_order: idx + 1 }))]
+    })
+
+    try {
+      await Promise.all(
+        reordered.map((c, idx) =>
+          apiMutate('/api/finance/expense-categories', {
+            method: 'PUT',
+            body: { id: c.id, sort_order: idx + 1 },
+          })
+        )
+      )
+    } catch (error) {
+      logger.error('排序更新失敗:', error)
+      await alert(COMMON_MESSAGES.UPDATE_FAILED, 'error')
+      await reload()
+    }
+  }
+
+  // 切換啟用 / 停用
+  const handleToggleActive = async (category: ExpenseCategory) => {
+    if (rowLoading[category.id]) return
+    const newStatus = !category.is_active
+    const action = newStatus ? '啟用' : '停用'
+    const confirmed = await confirm(`確定要${action}「${category.name}」嗎？`, {
+      title: `${action}類別`,
+      type: 'warning',
+    })
+    if (!confirmed) return
+
+    setLoading(category.id, true)
+    try {
+      const res = await apiMutate('/api/finance/expense-categories', {
+        method: 'PUT',
+        body: { id: category.id, is_active: newStatus },
+        invalidate: ['/api/finance/expense-categories'],
+      })
+      if (!res.ok) {
+        await alert(`${action}失敗`, 'error')
+        return
+      }
+      await reload()
+      await alert(`${action}成功`, 'success')
+    } finally {
+      setLoading(category.id, false)
+    }
+  }
+
+  // 儲存（新增 / 編輯）
   const handleSaveCategory = async (category: Partial<ExpenseCategory>) => {
-    // 決定 category type（編輯時不改）
     const categoryType: CategoryType = dialogCategoryType
 
     const res = await apiMutate('/api/finance/expense-categories', {
@@ -82,7 +165,7 @@ export function CategoriesSection({
         ...category,
         id: editingCategory?.id,
         workspace_id: workspaceId,
-        type: editingCategory?.id ? undefined : categoryType, // 新增時設定 type、編輯時不改
+        type: editingCategory?.id ? undefined : categoryType,
       },
       invalidate: ['/api/finance/expense-categories'],
     })
@@ -127,7 +210,6 @@ export function CategoriesSection({
     }
   }
 
-  // 顯示文字
   const emptyText =
     variant === 'category'
       ? t('emptyCategories')
@@ -135,97 +217,56 @@ export function CategoriesSection({
         ? t('emptyCompanyExpense')
         : t('emptyCompanyIncome')
 
-  // 「請款類別」不顯示 sort_order 欄、其他兩個顯示
-  const showSortColumn = variant !== 'category'
-  const colSpan = showSortColumn ? 6 : 5
-
   return (
     <>
       <div className="space-y-4">
         <Card className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {showSortColumn && (
-                  <TableHead className="w-[60px]">{PAGE_LABELS.COL_SORT}</TableHead>
-                )}
-                <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
-                <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
-                <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>
-                <TableHead className="w-[80px]">{PAGE_LABELS.COL_STATUS}</TableHead>
-                <TableHead className="w-[100px] text-right">
-                  {PAGE_LABELS.COL_ACTION}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {list.length === 0 ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={colSpan} className="text-center py-8 text-morandi-muted">
-                    {emptyText}
-                  </TableCell>
+                  <TableHead className="w-[40px]"></TableHead>
+                  <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
+                  <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
+                  <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>
+                  <TableHead className="w-[80px]">{PAGE_LABELS.COL_STATUS}</TableHead>
+                  <TableHead className="w-[100px] text-right">{PAGE_LABELS.COL_ACTION}</TableHead>
                 </TableRow>
-              ) : (
-                list.map(category => (
-                  <TableRow key={category.id}>
-                    {showSortColumn && (
-                      <TableCell className="text-morandi-muted">{category.sort_order}</TableCell>
-                    )}
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell>
-                      {category.debit_account ? (
-                        <span className="text-sm">
-                          {category.debit_account.code} {category.debit_account.name}
-                        </span>
-                      ) : (
-                        <span className="text-morandi-muted text-sm">{PAGE_LABELS.NOT_SET}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {category.credit_account ? (
-                        <span className="text-sm">
-                          {category.credit_account.code} {category.credit_account.name}
-                        </span>
-                      ) : (
-                        <span className="text-morandi-muted text-sm">{PAGE_LABELS.NOT_SET}</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={category.is_active ? 'default' : 'secondary'}>
-                        {category.is_active ? t('statusActive') : t('statusInactive')}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setEditingCategory(category)
-                            setIsDialogOpen(true)
-                          }}
-                          disabled={!!rowLoading[category.id]}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        {!category.is_system && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteCategory(category)}
-                            className="text-status-danger hover:text-status-danger/80"
-                            disabled={!!rowLoading[category.id]}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
+              </TableHeader>
+              <TableBody>
+                {list.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-morandi-muted">
+                      {emptyText}
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  <SortableContext
+                    items={list.map(c => c.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {list.map(category => (
+                      <SortableCategoryRow
+                        key={category.id}
+                        category={category}
+                        loading={!!rowLoading[category.id]}
+                        onEdit={() => {
+                          setEditingCategory(category)
+                          setIsDialogOpen(true)
+                        }}
+                        onToggle={() => handleToggleActive(category)}
+                        onDelete={() => handleDeleteCategory(category)}
+                      />
+                    ))}
+                  </SortableContext>
+                )}
+              </TableBody>
+            </Table>
+          </DndContext>
         </Card>
       </div>
 
@@ -244,7 +285,7 @@ export function CategoriesSection({
   )
 }
 
-// 請款類別編輯對話框
+// 請款類別編輯對話框（砍 sort_order input、排序走列表拖曳）
 function CategoryDialog({
   open,
   onOpenChange,
@@ -264,7 +305,6 @@ function CategoryDialog({
   const [name, setName] = useState('')
   const [debitAccountId, setDebitAccountId] = useState<string>('')
   const [creditAccountId, setCreditAccountId] = useState<string>('')
-  const [sortOrder, setSortOrder] = useState(100)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // 根據類型決定科目篩選
@@ -272,23 +312,18 @@ function CategoryDialog({
   // 公司收入: 借方=資產(1), 貸方=收入(4)
   const debitAccounts =
     categoryType === 'company_income'
-      ? chartOfAccounts.filter(a => a.code.startsWith('1')) // 資產類
-      : chartOfAccounts.filter(a => a.code.startsWith('5')) // 費用類
+      ? chartOfAccounts.filter(a => a.code.startsWith('1'))
+      : chartOfAccounts.filter(a => a.code.startsWith('5'))
   const creditAccounts =
     categoryType === 'company_income'
-      ? chartOfAccounts.filter(a => a.code.startsWith('4')) // 收入類
-      : chartOfAccounts.filter(a => a.code.startsWith('2')) // 負債類
-
-  // 舊變數保留向後相容
-  const expenseAccounts = debitAccounts
-  const liabilityAccounts = creditAccounts
+      ? chartOfAccounts.filter(a => a.code.startsWith('4'))
+      : chartOfAccounts.filter(a => a.code.startsWith('2'))
 
   useEffect(() => {
     if (open) {
       setName(category?.name || '')
       setDebitAccountId(category?.debit_account_id || '')
       setCreditAccountId(category?.credit_account_id || '')
-      setSortOrder(category?.sort_order || 100)
     }
   }, [open, category])
 
@@ -303,7 +338,6 @@ function CategoryDialog({
         name,
         debit_account_id: debitAccountId || null,
         credit_account_id: creditAccountId || null,
-        sort_order: sortOrder,
       })
     } finally {
       setIsSubmitting(false)
@@ -343,7 +377,7 @@ function CategoryDialog({
               className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
             >
               <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
-              {expenseAccounts.map(account => (
+              {debitAccounts.map(account => (
                 <option key={account.id} value={account.id}>
                   {account.code} {account.name}
                 </option>
@@ -358,7 +392,7 @@ function CategoryDialog({
               className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
             >
               <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
-              {liabilityAccounts.map(account => (
+              {creditAccounts.map(account => (
                 <option key={account.id} value={account.id}>
                   {account.code} {account.name}
                 </option>
@@ -369,20 +403,6 @@ function CategoryDialog({
         <p className="text-xs text-morandi-muted">
           {t('categoryHint')}
         </p>
-        <div className="space-y-2">
-          <Label>{PAGE_LABELS.SORT}</Label>
-          <Input
-            type="number"
-            value={sortOrder}
-            onChange={e => {
-              // bug fix: 清空 input 時 Number('') = 0、保留至少 0
-              const v = e.target.value
-              setSortOrder(v === '' ? 0 : Number(v))
-            }}
-            placeholder="100"
-            className="w-24"
-          />
-        </div>
       </div>
     </FormDialog>
   )

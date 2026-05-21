@@ -25,6 +25,7 @@ import {
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
 import { toast } from 'sonner'
+import { alert } from '@/lib/ui/alert-dialog'
 import {
   type PaymentMethod,
   type BankAccount,
@@ -146,6 +147,12 @@ export default function FinanceSettingsPage() {
           setIsBankDialogOpen(true)
         },
       },
+      bonus: {
+        label: '新增獎金規則',
+        onClick: () => {
+          alert('獎金設定功能即將推出', 'info')
+        },
+      },
     }
     const config = buttonConfig[activeSection]
     if (!config) return undefined
@@ -189,6 +196,7 @@ export default function FinanceSettingsPage() {
             chartOfAccounts={chartOfAccounts}
             workspaceId={workspaceId}
             reload={loadData}
+            setExpenseCategories={setExpenseCategories}
             isDialogOpen={isCategoryDialogOpen}
             setIsDialogOpen={setIsCategoryDialogOpen}
             editingCategory={editingCategory}
