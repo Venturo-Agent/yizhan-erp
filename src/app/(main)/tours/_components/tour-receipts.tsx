@@ -104,11 +104,12 @@ export const TourReceipts = React.memo(function TourReceipts({
       </div>
       <table className="w-full text-sm table-fixed" style={{ minWidth: 900 }}>
         <colgroup>
-          <col style={{ width: '14%' }} />
+          <col style={{ width: '12%' }} />
+          <col style={{ width: '8%' }} />
           <col style={{ width: '10%' }} />
-          <col style={{ width: '10%' }} />
           <col style={{ width: '14%' }} />
-          <col style={{ width: '30%' }} />
+          <col style={{ width: '22%' }} />
+          <col style={{ width: '12%' }} />
           <col style={{ width: '10%' }} />
           <col style={{ width: '12%' }} />
         </colgroup>
