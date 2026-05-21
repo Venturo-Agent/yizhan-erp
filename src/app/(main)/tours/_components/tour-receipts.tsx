@@ -29,6 +29,7 @@ const COMPONENT_LABELS = {
   TH_METHOD: '收款方式',
   TH_PAYER: '付款人',
   TH_REMARK: '備註',
+  TH_PENDING_AMOUNT: '待核金額',
   TH_STATUS: '狀態',
   TH_AMOUNT: '金額',
   EMPTY_RECEIPTS: '尚無收款紀錄',
@@ -118,6 +119,7 @@ export const TourReceipts = React.memo(function TourReceipts({
             <th className="px-4 py-2 text-left font-medium">{COMPONENT_LABELS.TH_METHOD}</th>
             <th className="px-4 py-2 text-left font-medium">{COMPONENT_LABELS.TH_PAYER}</th>
             <th className="px-4 py-2 text-left font-medium">{COMPONENT_LABELS.TH_REMARK}</th>
+            <th className="px-4 py-2 text-right font-medium">{COMPONENT_LABELS.TH_PENDING_AMOUNT}</th>
             <th className="px-4 py-2 text-center font-medium">{COMPONENT_LABELS.TH_STATUS}</th>
             <th className="px-4 py-2 text-right font-medium">{COMPONENT_LABELS.TH_AMOUNT}</th>
           </tr>
@@ -148,18 +150,31 @@ export const TourReceipts = React.memo(function TourReceipts({
                   <td className="px-4 py-2 text-morandi-secondary">{resolveMethodLabel(r)}</td>
                   <td className="px-4 py-2 text-morandi-secondary">{r.receipt_account || <EmptyValue />}</td>
                   <td className="px-4 py-2 text-morandi-secondary">{r.notes || <EmptyValue />}</td>
+                  <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-red font-medium">
+                    {/* 待核金額：pending / pending_verify 才顯示、會計核准後就空 */}
+                    {r.status === 'pending' || r.status === 'pending_verify' ? (
+                      <>NT$ {formatCurrency(amount)}</>
+                    ) : (
+                      <EmptyValue />
+                    )}
+                  </td>
                   <td className="px-4 py-2 text-center">
                     <StatusBadge type="receipt" status={r.status || ''} />
                   </td>
                   <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-green font-medium">
-                    +{formatCurrency(amount)}
+                    {/* 金額：confirmed（已勾稽）才顯示、pending 期間留空 */}
+                    {r.status === 'confirmed' ? (
+                      <>+{formatCurrency(amount)}</>
+                    ) : (
+                      <EmptyValue />
+                    )}
                   </td>
                 </tr>
               )
             })
           ) : (
             <tr>
-              <td colSpan={7} className="py-12 text-center text-morandi-secondary">
+              <td colSpan={8} className="py-12 text-center text-morandi-secondary">
                 <TrendingUp size={24} className="mx-auto mb-4 opacity-50" />
                 <p>{COMPONENT_LABELS.EMPTY_RECEIPTS}</p>
               </td>
