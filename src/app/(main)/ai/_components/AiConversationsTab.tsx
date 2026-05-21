@@ -31,7 +31,6 @@ import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
 import { formatDateTaipei } from '@/lib/utils/format-date'
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
@@ -240,9 +239,9 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
 
   return (
     <div className="flex gap-3 h-full">
-      {/* 合卡：左對話列表 + 中訊息 thread 用同一張 Card、中間 border 區隔（William 5/19 拍板）
-          v3.3 hideList 時 sidebar 已 render 列表、這裡只 render thread */}
-      <Card className="flex-1 flex overflow-hidden border border-border min-w-0">
+      {/* v3.3 拿掉內層 Card：layout.tsx 外層已經是 rounded-xl card、再包一層會雙圓角 / 雙邊框
+          兩個區（list + thread）改用 flex 容器同列、靠中間 border-r 隔開 */}
+      <div className="flex-1 flex overflow-hidden min-w-0">
       {/* 左側：對話列表（Hub 模式、不分 channel） */}
       {!hideList && (
       <div className="w-[280px] flex flex-col flex-shrink-0 h-full border-r border-border">
@@ -377,7 +376,7 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
           </>
         )}
       </div>
-      </Card>
+      </div>
 
       {/* 右側業務面板 */}
       {selectedConv && panelOpen && (
