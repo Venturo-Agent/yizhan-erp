@@ -35,7 +35,6 @@ import type { DisbursementOrder } from '@/stores/types'
 import type { WizardStep, BankAccountOption } from './disbursement-wizard-types'
 import { useWizardData, getInitialDisbursementDate, type PreFilledData } from './useWizardData'
 import { OnePageView } from './OnePageView'
-import { StepMain } from './StepMain'
 
 interface CreateDisbursementWizardDialogProps {
   open: boolean
@@ -362,23 +361,14 @@ export function CreateDisbursementWizardDialog({
             </div>
           )}
 
-          {!loading && step === 'main' && !editingOrder && (
+          {!loading && step === 'main' && (
             <OnePageView
               availableItems={availableItems}
               stagedBatches={stagedBatches}
               pickedItemIds={pickedItemIds}
               onChangePicked={setPickedItemIds}
               onRemoveStaged={handleRemoveStaged}
-              onUpdateStagedFee={handleUpdateStagedFee}
-            />
-          )}
-          {!loading && step === 'main' && editingOrder && (
-            <StepMain
-              availableItems={availableItems}
-              stagedBatches={stagedBatches}
-              pickedItemIds={pickedItemIds}
-              onChangePicked={setPickedItemIds}
-              onRemoveStaged={handleRemoveStaged}
+              onUpdateStagedFee={editingOrder ? undefined : handleUpdateStagedFee}
             />
           )}
         </div>
