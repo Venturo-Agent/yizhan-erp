@@ -7,21 +7,11 @@
 // 請款類別
 export type PaymentRequestCategory = 'tour' | 'company'
 
-// 公司費用類型代碼（過渡期保留為 type、給 generate_company_payment_request_code RPC prefix 用）
-// 2026-05-21 Phase 2：實值表 EXPENSE_TYPE_CONFIG 已廢除、類別 SSOT = DB 表 expense_categories
-// Phase 3 規劃：給 expense_categories 加 code 欄位、徹底拔掉此 type
-export type CompanyExpenseType =
-  | 'SAL' // 薪資
-  | 'BNS' // 獎金（從結案衍生、跟薪資分開）
-  | 'ENT' // 公關費用
-  | 'TRV' // 差旅費用
-  | 'OFC' // 辦公費用
-  | 'UTL' // 水電費
-  | 'RNT' // 租金
-  | 'EQP' // 設備
-  | 'MKT' // 行銷費用
-  | 'ADV' // 廣告費用
-  | 'TRN' // 培訓費用
+// 公司費用類型代碼（給 generate_company_payment_request_code RPC prefix 用）
+// 2026-05-21 Phase 3：union 改 string、code 真值由 DB expense_categories.code 控制
+// 例：SAL（薪資）/ BNS（獎金）/ ENT（交際費）/ TRV（差旅費）/ OFC（辦公費）/ UTL（水電費）/ ETC（雜支）
+// 之後若要砍此 type、要先確認 PaymentRequest.expense_type 跟相關欄位也清乾淨
+export type CompanyExpenseType = string
 
 // === 請款單（當前簡化版 - 符合資料庫實際結構）===
 export interface PaymentRequest {

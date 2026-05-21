@@ -12,30 +12,8 @@ import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services
 import { useTranslations } from 'next-intl'
 import { logger } from '@/lib/utils/logger'
 
-/**
- * 公司請款 category name → code prefix 對照
- * 用於 generate_company_payment_request_code RPC（編號格式 {PREFIX}-YYYYMM-NNN）
- *
- * 2026-05-21 Phase 2：寫死分類清單已砍、但 RPC 仍需 prefix code 來編號
- * Phase 3 TODO：給 expense_categories 加 code 欄位、徹底拔掉這張 map
- */
-const COMPANY_EXPENSE_CODE_PREFIX: Record<string, CompanyExpenseType> = {
-  薪資: 'SAL',
-  獎金: 'BNS',
-  公關費用: 'ENT',
-  交際費: 'ENT',
-  差旅費用: 'TRV',
-  差旅費: 'TRV',
-  辦公費用: 'OFC',
-  辦公費: 'OFC',
-  水電費: 'UTL',
-  租金: 'RNT',
-  設備: 'EQP',
-  行銷費用: 'MKT',
-  廣告費用: 'ADV',
-  培訓費用: 'TRN',
-  雜支: 'OFC', // fallback prefix
-}
+// 2026-05-21 Phase 3：寫死 name → code map 已砍、code prefix 由 expense_categories.code 欄位提供（SSOT）
+// RPC generate_company_payment_request_code 用此 prefix 編號（格式 {PREFIX}-YYYYMM-NNN）
 
 export function useRequestOperations() {
   const t = useTranslations('finance')
@@ -116,11 +94,12 @@ export function useRequestOperations() {
 
         const pickedCat = (allCats ?? []).find(c => c.id === expenseCategoryId)
         const expenseTypeName = pickedCat?.name || ''
-        // 編號 prefix：name → code（過渡期 map、Phase 3 加 code 欄位後拔掉）
+        // 編號 prefix：直接讀 expense_categories.code（Phase 3 SSOT）
+        // fallback 'ETC' 給萬一 cat 沒設 code 的情況（系統預設都有設、user 自加可能漏）
         const expenseType: CompanyExpenseType =
-          (formData.expense_type as CompanyExpenseType) ||
-          COMPANY_EXPENSE_CODE_PREFIX[expenseTypeName] ||
-          'OFC'
+          formData.expense_type ||
+          ((pickedCat as unknown as { code?: string })?.code) ||
+          'ETC'
         const requestCode =
           codeOverride || (await generateCompanyRequestCode(expenseType, formData.request_date))
 

@@ -94,6 +94,9 @@ export async function createVoucherFromDisbursement(workspaceId: string, disburs
       `id, name,
        credit_account:chart_of_accounts!credit_account_id(id, code, name)`
     )
+    // 2026-05-21 William 拍板 OK：此 .or() 跟 M1 砍的「字串拼接」字面相同、但目的不同
+    // M1 砍的是「跟 RLS 邏輯重複的防禦」、這次是「同時需要系統預設(workspace_id IS NULL)+自家 workspace」
+    // workspaceId 來自 require-capability session、非 user input、無 injection 風險
     .or(`workspace_id.eq.${workspaceId},workspace_id.is.null`)
     .eq('is_active', true)
 
