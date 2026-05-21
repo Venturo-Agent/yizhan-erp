@@ -35,6 +35,8 @@ interface PrintDisbursementPreviewProps {
   order: DisbursementOrder
   paymentRequests: PaymentRequest[]
   paymentRequestItems: PaymentRequestItem[]
+  /** 2026-05-21 加：per item 手續費（給 PrintItemsTable「(含 X 元手續費)」註記） */
+  feeByItemId?: Map<string, number>
   paymentMethod?: { name: string } | null
   bankAccount?: {
     name: string
@@ -45,7 +47,7 @@ interface PrintDisbursementPreviewProps {
 
 export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisbursementPreviewProps>(
   function PrintDisbursementPreview(
-    { order, paymentRequests, paymentRequestItems, paymentMethod, bankAccount },
+    { order, paymentRequests, paymentRequestItems, feeByItemId, paymentMethod, bankAccount },
     ref
   ) {
     const t = useTranslations('finance')
@@ -56,8 +58,8 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
     const subtitle = ws.subtitle
 
     const processedItems = useMemo(
-      () => processItems(paymentRequests, paymentRequestItems),
-      [paymentRequests, paymentRequestItems]
+      () => processItems(paymentRequests, paymentRequestItems, feeByItemId),
+      [paymentRequests, paymentRequestItems, feeByItemId]
     )
 
     // 偵測成本轉移請款單（按 transferred_pair_id、新對沖模式）

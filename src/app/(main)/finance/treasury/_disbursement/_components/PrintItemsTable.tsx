@@ -228,7 +228,13 @@ export function PrintItemsTable({
                         isFirstInGroup && groupIdx > 0 ? `1px solid ${COLORS.gold}` : 'none',
                     }}
                   >
-                    {item.amount.toLocaleString()}
+                    {/* 2026-05-21 William 拍板：金額 = item.amount + 手續費、註記「(含 X 元手續費)」 */}
+                    {(item.amount + item.feeAmount).toLocaleString()}
+                    {item.feeAmount > 0 && (
+                      <div style={{ fontSize: '8px', color: COLORS.gray, marginTop: '1px' }}>
+                        （含 NT$ {Math.round(item.feeAmount).toLocaleString()} 手續費）
+                      </div>
+                    )}
                   </td>
                   {showSubtotalCell && (
                     <td

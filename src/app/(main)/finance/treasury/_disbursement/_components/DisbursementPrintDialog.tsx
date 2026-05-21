@@ -35,6 +35,8 @@ export function DisbursementPrintDialog({
   const [loading, setLoading] = useState(false)
   const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([])
   const [paymentRequestItems, setPaymentRequestItems] = useState<PaymentRequestItem[]>([])
+  // 2026-05-21 加：per item 手續費 map（從 disbursement_order_items 撈、給 PrintItemsTable 顯示）
+  const [feeByItemId, setFeeByItemId] = useState<Map<string, number>>(new Map())
   // 付款方式 + 出款帳戶（列印頁底部顯示）
   const [paymentMethod, setPaymentMethod] = useState<{
     name: string
@@ -50,6 +52,7 @@ export function DisbursementPrintDialog({
     if (!open || !order?.id) {
       setPaymentRequests([])
       setPaymentRequestItems([])
+      setFeeByItemId(new Map())
       setPaymentMethod(null)
       setBankAccount(null)
       return
@@ -85,6 +88,19 @@ export function DisbursementPrintDialog({
 
         setPaymentRequests((requests || []) as unknown as PaymentRequest[])
         setPaymentRequestItems((items || []) as unknown as PaymentRequestItem[])
+
+        // 2026-05-21 加：撈 disbursement_order_items 的 fee_amount per item、給 PrintItemsTable 顯示「(含 X 元手續費)」
+        const { data: doiData } = await supabase
+          .from('disbursement_order_items')
+          .select('payment_request_item_id, fee_amount')
+          .eq('disbursement_order_id', order.id)
+        const feeMap = new Map<string, number>()
+        for (const doi of doiData || []) {
+          const itemId = (doi as { payment_request_item_id?: string | null }).payment_request_item_id
+          const fee = Number((doi as { fee_amount?: number | null }).fee_amount || 0)
+          if (itemId && fee > 0) feeMap.set(itemId, fee)
+        }
+        setFeeByItemId(feeMap)
 
         // 撈付款方式 + 出款帳戶（列印頁底部顯示）
         const orderRaw = order as unknown as {
@@ -248,6 +264,7 @@ export function DisbursementPrintDialog({
                 order={order}
                 paymentRequests={paymentRequests}
                 paymentRequestItems={paymentRequestItems}
+                feeByItemId={feeByItemId}
                 paymentMethod={paymentMethod}
                 bankAccount={bankAccount}
               />

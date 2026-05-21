@@ -10,12 +10,15 @@ import type { PaymentRequest, PaymentRequestItem } from '@/stores/types'
 
 export interface ProcessedItem {
   requestId: string // 用來過濾成本轉移 pair requests
+  itemId: string // 2026-05-21 加：給 PrintItemsTable 反查 fee_amount 用
   requestCode: string
   createdBy: string
   tourName: string
   description: string
   payFor: string
   amount: number
+  /** 2026-05-21 加：該 item 的銀行手續費（從 disbursement_order_items.fee_amount） */
+  feeAmount: number
   isCompany: boolean // 是否為公司請款
 }
 
@@ -40,7 +43,8 @@ export interface TransferPairRow {
 
 export function processItems(
   paymentRequests: PaymentRequest[],
-  paymentRequestItems: PaymentRequestItem[]
+  paymentRequestItems: PaymentRequestItem[],
+  feeByItemId?: Map<string, number>
 ): ProcessedItem[] {
   const requestMap = new Map(paymentRequests.map(r => [r.id, r]))
 
@@ -80,12 +84,14 @@ export function processItems(
 
     return {
       requestId: item.request_id,
+      itemId: item.id,
       requestCode: request?.code || '-',
       createdBy: request?.created_by_name || '-',
       tourName,
       description: item.description || item.category || '-',
       payFor,
       amount: item.subtotal || 0,
+      feeAmount: feeByItemId?.get(item.id) || 0,
       isCompany,
     }
   })
@@ -101,10 +107,11 @@ export function groupByPayFor(items: ProcessedItem[]): PayForGroup[] {
     grouped.get(item.payFor)!.push(item)
   }
 
+  // 2026-05-21 William 拍板：小計 = sum(amount + feeAmount)、跟各 item 顯示的「含手續費金額」對得上
   const groups: PayForGroup[] = Array.from(grouped.entries()).map(([payFor, groupItems]) => ({
     payFor,
     items: groupItems,
-    total: groupItems.reduce((sum, item) => sum + item.amount, 0),
+    total: groupItems.reduce((sum, item) => sum + item.amount + item.feeAmount, 0),
     showTotal: true,
   }))
 
