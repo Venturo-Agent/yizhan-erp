@@ -30,6 +30,7 @@ import { sendTextMessage } from '@/lib/facebook/reply-client'
 import { upsertConversation, recordInboundMessage, recordOutboundMessage } from '@/lib/inbox/inbox-service'
 import { generateBotReply } from '@/lib/ai/ai-brain'
 import { buildConversationContext } from '@/lib/ai/context-builder'
+import { ensureContactProfile } from '@/lib/facebook/user-profile'
 import { logger } from '@/lib/utils/logger'
 
 const HANDLER_NAME = 'fb-webhook'
@@ -281,6 +282,17 @@ async function handleMessagingEvent(args: {
     logger.warn(`${HANDLER_NAME}: upsertConversation returned null`, { workspaceId, psid })
     return
   }
+
+  // fire-and-forget 拉 FB user profile（拿到真名 / 頭像、拿不到 fallback「FB 用戶 (PSID 後 4 碼)」）
+  // 內部會檢查 conversation 是否已有真名、避免每次訊息重打 Graph API
+  ensureContactProfile({
+    conversationId,
+    externalUserId: psid,
+    pageAccessToken,
+    channelLabel: 'FB',
+  }).catch(err => {
+    logger.debug(`${HANDLER_NAME}: ensureContactProfile failed (ignored)`, { err, psid })
+  })
 
   // 解內容
   let messageType = 'text'
