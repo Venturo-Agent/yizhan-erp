@@ -146,10 +146,14 @@ export function GroupedDisbursementItemsTable({
             </tr>
           </thead>
           <tbody>
-            {groups.map(g => {
+            {groups.map((g, idx) => {
               const isExpanded = expanded.has(g.key)
               const state = groupState(g)
               const selectedCount = groupSelectedCount(g)
+              // 穿插配色：偶數 group 用 container/30、奇數 group 用 gold/10
+              // 展開的 items 跟所屬 group 同色、視覺上整團是同一色塊
+              const groupBgClass = idx % 2 === 0 ? 'bg-morandi-container/30' : 'bg-morandi-gold/10'
+              const groupHoverBgClass = idx % 2 === 0 ? 'hover:bg-morandi-container/50' : 'hover:bg-morandi-gold/20'
               return (
                 <GroupRows
                   key={g.key}
@@ -158,6 +162,8 @@ export function GroupedDisbursementItemsTable({
                   groupCheckState={state}
                   selectedCount={selectedCount}
                   pickedSet={pickedSet}
+                  bgClass={groupBgClass}
+                  hoverBgClass={groupHoverBgClass}
                   onToggleExpanded={() => toggleExpanded(g.key)}
                   onToggleGroupAll={checked => toggleGroupAll(g, checked)}
                   onToggleItem={toggleItem}
@@ -177,6 +183,8 @@ interface GroupRowsProps {
   groupCheckState: 'all' | 'partial' | 'none'
   selectedCount: number
   pickedSet: Set<string>
+  bgClass: string
+  hoverBgClass: string
   onToggleExpanded: () => void
   onToggleGroupAll: (checked: boolean) => void
   onToggleItem: (id: string) => void
@@ -188,6 +196,8 @@ function GroupRows({
   groupCheckState,
   selectedCount,
   pickedSet,
+  bgClass,
+  hoverBgClass,
   onToggleExpanded,
   onToggleGroupAll,
   onToggleItem,
@@ -195,7 +205,7 @@ function GroupRows({
   return (
     <>
       <tr
-        className="bg-morandi-container/30 hover:bg-morandi-container/50 cursor-pointer border-b border-morandi-border/60"
+        className={`${bgClass} ${hoverBgClass} cursor-pointer border-b border-morandi-border/60`}
         onClick={onToggleExpanded}
       >
         <td className="px-3 py-2 align-middle" onClick={e => e.stopPropagation()}>
@@ -227,7 +237,7 @@ function GroupRows({
           return (
             <tr
               key={it.id}
-              className="hover:bg-morandi-container/30 cursor-pointer border-b border-morandi-border/30 last:border-0"
+              className={`${bgClass} ${hoverBgClass} cursor-pointer border-b border-morandi-border/30 last:border-0`}
               onClick={() => onToggleItem(it.id)}
             >
               <td className="px-3 py-2 pl-8 align-middle" onClick={e => e.stopPropagation()}>
