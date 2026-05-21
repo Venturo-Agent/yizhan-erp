@@ -52,12 +52,31 @@ export function processItems(
       ? request?.request_type || '公司'
       : request?.tour_name || '-'
 
-    // 有代墊人時，付款對象是「代墊人（廠商）」
-    const advancedBy = (item as unknown as Record<string, unknown>).advanced_by_name as
-      | string
-      | undefined
+    // 付款對象優先順序（2026-05-21 William 拍板）：
+    // 1. 公司請款 + payee_employee（譬如獎金發給員工）→ 顯示員工名
+    // 2. 代墊（advanced_by）→ 「員工（廠商）」
+    // 3. 一般供應商 → 廠商名
+    const itemExt = item as unknown as {
+      advanced_by_name?: string | null
+      payee_employee_id?: string | null
+      payee_employee?: { chinese_name?: string | null; display_name?: string | null } | { chinese_name?: string | null; display_name?: string | null }[] | null
+    }
+    const advancedBy = itemExt.advanced_by_name || undefined
+    // payee_employee 從 PostgREST join 可能是 object 或 array、取第一個
+    const peRaw = itemExt.payee_employee
+    const peObj = Array.isArray(peRaw) ? peRaw[0] : peRaw
+    const payeeEmployeeName = peObj?.display_name || peObj?.chinese_name || undefined
+
     const supplierName = item.supplier_name || '未指定供應商'
-    const payFor = advancedBy ? `${advancedBy}（${supplierName}）` : supplierName
+    let payFor: string
+    if (isCompany && payeeEmployeeName) {
+      // 公司請款 + 員工受款人 → 直接顯示員工名
+      payFor = payeeEmployeeName
+    } else if (advancedBy) {
+      payFor = `${advancedBy}（${item.supplier_name || '無供應商'}）`
+    } else {
+      payFor = supplierName
+    }
 
     return {
       requestId: item.request_id,

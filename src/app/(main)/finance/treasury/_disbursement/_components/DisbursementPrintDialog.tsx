@@ -74,11 +74,11 @@ export function DisbursementPrintDialog({
           return
         }
 
-        // 取得請款項目
+        // 取得請款項目（2026-05-21 加 payee_employee join、公司請款顯示員工名）
         const { data: items } = await supabase
           .from('payment_request_items')
           .select(
-            'id, request_id, description, quantity, unit_price, subtotal, category, tour_id, supplier_name, sort_order, item_number, notes, workspace_id, advanced_by, advanced_by_name'
+            'id, request_id, description, quantity, unit_price, subtotal, category, tour_id, supplier_name, sort_order, item_number, notes, workspace_id, advanced_by, advanced_by_name, payee_employee_id, payee_employee:employees!payment_request_items_payee_employee_id_fkey(chinese_name, display_name)'
           )
           .in('request_id', requestIds)
           .limit(500)
