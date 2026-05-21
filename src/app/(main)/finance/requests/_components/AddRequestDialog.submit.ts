@@ -5,7 +5,7 @@
  * 抽出來讓主 component 只負責 state 管理 + 渲染。
  */
 
-import { alert } from '@/lib/ui/alert-dialog'
+import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 import { getTodayString } from '@/lib/utils/format-date'
 import { generateRequestNo } from '@/lib/codes'
@@ -82,6 +82,55 @@ export interface SubmitParams {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 軟提醒：付款方式必選（5/21 William 拍板 — 沒選不擋、給用戶警告 + 繼續/取消）
+// 過去 49 筆明細 payment_method_id NULL 都是用戶建單時忘了選、不是 form 沒實作
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface MissingItem {
+  description: string
+  subtotal: number
+}
+
+/** 找出沒指定付款方式的明細（頭單已設則整批 fallback、視為不缺）*/
+export function getItemsMissingPaymentMethod(
+  items: Array<{
+    description?: string | null
+    unit_price?: number
+    quantity?: number
+    payment_method_id?: string | null
+  }>,
+  headerPaymentMethodId: string | null | undefined
+): MissingItem[] {
+  if (headerPaymentMethodId) return []
+  return items
+    .filter(i => !i.payment_method_id)
+    .map(i => ({
+      description: i.description || '(無描述)',
+      subtotal: (i.unit_price ?? 0) * (i.quantity ?? 0),
+    }))
+}
+
+/** 跳警告 confirm、用戶選「繼續」回 true、選「取消」回 false。無缺漏直接 true */
+export async function confirmMissingPaymentMethod(missing: MissingItem[]): Promise<boolean> {
+  if (missing.length === 0) return true
+  const preview = missing
+    .slice(0, 5)
+    .map(m => `• ${m.description}（NT$ ${m.subtotal.toLocaleString()}）`)
+    .join('\n')
+  const more = missing.length > 5 ? `\n…另 ${missing.length - 5} 筆` : ''
+  const result = await confirm(
+    `以下項目尚未選擇付款方式：\n\n${preview}${more}\n\n要繼續儲存嗎？（之後可在編輯模式補上）`,
+    {
+      type: 'warning',
+      title: '付款方式未選',
+      confirmText: '繼續儲存',
+      cancelText: '回去補選',
+    }
+  )
+  return result === true
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Submit
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -118,6 +167,27 @@ export async function submitNewRequest(params: SubmitParams): Promise<void> {
     if (!workspaceId) {
       void alert('無法取得工作空間，請重新登入', 'warning')
       return
+    }
+
+    // 付款方式軟提醒（B 方案）
+    if (activeTab === 'batch') {
+      const valid = tourAllocations.filter(a => a.tour_id && a.allocated_amount > 0)
+      if (valid.length > 0 && !batchPaymentMethodId) {
+        const result = await confirm(
+          `將建立 ${valid.length} 張請款單、但尚未選擇付款方式。\n\n要繼續儲存嗎？（之後可在編輯模式補上）`,
+          {
+            type: 'warning',
+            title: '付款方式未選',
+            confirmText: '繼續儲存',
+            cancelText: '回去補選',
+          }
+        )
+        if (result !== true) return
+      }
+    } else {
+      const missing = getItemsMissingPaymentMethod(requestItems, formData.payment_method_id)
+      const ok = await confirmMissingPaymentMethod(missing)
+      if (!ok) return
     }
 
     if (activeTab === 'batch') {

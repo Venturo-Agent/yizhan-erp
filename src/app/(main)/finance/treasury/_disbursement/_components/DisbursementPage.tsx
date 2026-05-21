@@ -128,13 +128,25 @@ export function DisbursementPage() {
 
   // 2026-05-14 品項級重構：建立 / 編輯 dialog 各自 fetch、不再從 page level 傳 pendingRequests
 
+  // 固定排序（2026-05-21 William 拍板）：未付款 → 已付款；未付款內舊→新（最久沒付先處理）、已付款內新→舊（最近歷史在前）
+  const sortedOrders = useMemo(() => {
+    return [...disbursement_orders].sort((a, b) => {
+      const aPending = a.status === 'pending' ? 0 : 1
+      const bPending = b.status === 'pending' ? 0 : 1
+      if (aPending !== bPending) return aPending - bPending
+      const aDate = new Date(a.disbursement_date || a.created_at || 0).getTime()
+      const bDate = new Date(b.disbursement_date || b.created_at || 0).getTime()
+      // pending：asc（舊→新）/ paid：desc（新→舊）
+      return a.status === 'pending' ? aDate - bDate : bDate - aDate
+    })
+  }, [disbursement_orders])
+
   // 表格欄位（兩區共用）
   const columns: TableColumn<DisbursementOrder>[] = useMemo(
     () => [
       {
         key: 'order_number',
         label: '出納單號',
-        sortable: true,
         width: '140px',
         render: (value: unknown) => (
           <div className="font-medium text-morandi-primary">
@@ -148,7 +160,6 @@ export function DisbursementPage() {
       {
         key: 'disbursement_date',
         label: '出帳日期',
-        sortable: true,
         width: '110px',
         render: (value: unknown) => (
           <DateCell date={value as string | null} showIcon={false} className="text-morandi-secondary" />
@@ -178,18 +189,15 @@ export function DisbursementPage() {
       {
         key: 'amount',
         label: '總金額',
-        sortable: true,
         width: '120px',
+        align: 'right',
         render: (value: unknown) => (
-          <div className="text-right">
-            <CurrencyCell amount={Number(value) || 0} className="font-semibold text-morandi-gold" />
-          </div>
+          <CurrencyCell amount={Number(value) || 0} className="font-semibold text-morandi-gold" />
         ),
       },
       {
         key: 'status',
         label: '狀態',
-        sortable: true,
         width: '80px',
         render: (value: unknown) => (
           <StatusBadge type="disbursement" status={String(value ?? '')} />
@@ -362,7 +370,7 @@ export function DisbursementPage() {
       <ListPageLayout<DisbursementOrder>
         title={t('disbursementManagement')}
         icon={Wallet}
-        data={disbursement_orders}
+        data={sortedOrders}
         columns={columns}
         searchable
         searchPlaceholder="搜尋出納單號..."

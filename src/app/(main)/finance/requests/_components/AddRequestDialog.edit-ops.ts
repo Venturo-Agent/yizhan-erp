@@ -17,6 +17,10 @@ import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services
 import { paymentRequestService } from '@/app/(main)/finance/payments/_services/payment-request.service'
 import { nextPaymentRequestItemNumbers } from '@/lib/codes'
 import { COMPONENT_LABELS } from './AddRequestDialog.types'
+import {
+  getItemsMissingPaymentMethod,
+  confirmMissingPaymentMethod,
+} from './AddRequestDialog.submit'
 import { RequestItem } from '../_types'
 import { PaymentRequest } from '@/stores/types'
 
@@ -74,6 +78,17 @@ export async function saveEditedRequest({
   setNewItemIds,
   setIsSubmitting,
 }: SaveEditParams): Promise<void> {
+  // 付款方式軟提醒（B 方案）— 用 localItems 跟 localPaymentMethodId 對齊
+  const itemsForCheck = localItems.map(i => ({
+    description: i.description,
+    unit_price: i.unit_price,
+    quantity: i.quantity,
+    payment_method_id: i.payment_method_id,
+  }))
+  const missing = getItemsMissingPaymentMethod(itemsForCheck, localPaymentMethodId)
+  const allowSave = await confirmMissingPaymentMethod(missing)
+  if (!allowSave) return
+
   setIsSubmitting(true)
   try {
     // 1. Delete removed items
