@@ -8,7 +8,11 @@
  * - 切換方案會自動配置 features state（前端 only）、儲存時才寫入 DB
  * - Advance 方案需選 2 個進階模組（合約 / 完整人資 / 會計）
  * - Custom = 手動管理、方案選擇不動 features
+ * - parent module 在方案內 → 該 module 所有 basic 子 tab 自動展開（getFeaturesForPlan）
+ *   premium-tagged 子 tab（如 tours.contract / tours.display-itinerary）只在方案明確列入時才加
  */
+
+import { MODULES } from './module-tabs'
 
 export type PlanId = 'lite' | 'standard' | 'advance' | 'premium' | 'custom'
 
@@ -151,6 +155,14 @@ export function getFeaturesForPlan(planId: PlanId, advancePicks?: AdvancePickId[
       if (pick) {
         pick.features.forEach(f => features.add(f))
       }
+    }
+  }
+
+  for (const m of MODULES) {
+    if (!features.has(m.code)) continue
+    for (const tab of m.tabs) {
+      if (tab.category === 'premium') continue
+      features.add(`${m.code}.${tab.code}`)
     }
   }
 
