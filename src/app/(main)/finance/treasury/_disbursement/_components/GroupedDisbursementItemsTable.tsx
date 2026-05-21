@@ -134,11 +134,11 @@ export function GroupedDisbursementItemsTable({
             <colgroup>
               <col className="w-10" />
               <col className="w-28" />
-              <col className="w-36" />
-              <col className="w-24" />
-              <col />
-              <col className="w-40" />
               <col className="w-32" />
+              <col className="w-20" />
+              <col />
+              <col className="w-48" />
+              <col className="w-44" />
               <col className="w-28" />
             </colgroup>
             <thead className="bg-morandi-gold-header sticky top-0 z-10">
