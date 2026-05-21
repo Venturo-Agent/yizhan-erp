@@ -31,14 +31,6 @@ const STATUS_OPTIONS = [
   { value: 'cancelled', dot: 'bg-morandi-red' },
 ] as const
 
-const PRIORITY_OPTIONS = [
-  { value: 5 as const, label: '緊急', dot: 'bg-morandi-red', text: 'text-morandi-red' },
-  { value: 4 as const, label: '高', dot: 'bg-orange-400', text: 'text-orange-600' },
-  { value: 3 as const, label: '中', dot: 'bg-morandi-gold', text: 'text-morandi-gold' },
-  { value: 2 as const, label: '低', dot: 'bg-sky-400', text: 'text-sky-600' },
-  { value: 1 as const, label: '最低', dot: 'bg-morandi-muted', text: 'text-morandi-muted' },
-]
-
 interface Employee {
   id: string
   display_name?: string | null
@@ -113,7 +105,7 @@ export function TodoSidebar({
   const getStatusLabel = (status: string) => STATUS_LABELS[status] || status
 
   return (
-    <aside className="w-[240px] pl-2 pr-4 py-4 space-y-3 shrink-0 overflow-y-auto">
+    <aside className="w-[16rem] pl-3 pr-4 py-4 space-y-3 shrink-0 overflow-y-auto border-l border-border/40">
       <div>
         <label className="text-xs font-medium text-morandi-muted mb-1.5 block">{COMPONENT_LABELS.STATUS}</label>
         <Select
@@ -145,24 +137,42 @@ export function TodoSidebar({
 
       <div>
         <label className="text-xs font-medium text-morandi-muted mb-1.5 block">{COMPONENT_LABELS.PRIORITY}</label>
-        <div className="flex flex-col gap-1">
-          {PRIORITY_OPTIONS.map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => canEdit && onUpdate({ priority: opt.value })}
-              disabled={!canEdit}
-              className={cn(
-                'flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors disabled:cursor-not-allowed',
-                todo.priority === opt.value
-                  ? cn('bg-morandi-gold/10', opt.text)
-                  : 'text-morandi-secondary hover:bg-morandi-container/20'
-              )}
-            >
-              <div className={cn('w-2 h-2 rounded-full', opt.dot)} />
-              <span>{opt.label}</span>
-            </button>
-          ))}
-        </div>
+        <Select
+          value={String(todo.priority || 3)}
+          onValueChange={v => canEdit && onUpdate({ priority: Number(v) as 1 | 2 | 3 | 4 | 5 })}
+          disabled={!canEdit}
+        >
+          <SelectTrigger className="w-full h-8 text-sm">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="5">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500" />緊急
+              </span>
+            </SelectItem>
+            <SelectItem value="4">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-orange-500" />高
+              </span>
+            </SelectItem>
+            <SelectItem value="3">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />中
+              </span>
+            </SelectItem>
+            <SelectItem value="2">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-slate-400" />低
+              </span>
+            </SelectItem>
+            <SelectItem value="1">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-slate-300" />很低
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div>

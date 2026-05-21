@@ -84,60 +84,60 @@ export default function AppLoginPage() {
 
   return (
     <div className="app-login-container">
-      <div className="glass-card">
-        <div className="app-logo">
-          <h1 className="app-title">VENTURO</h1>
-          <p className="app-subtitle">旅遊業管理系統</p>
+      <div className="login-card">
+        <div className="login-logo">
+          <h1 className="login-title">VENTURO</h1>
+          <p className="login-subtitle">旅遊業管理系統</p>
         </div>
 
         {error && (
-          <div className="app-error">
-            <AlertCircle size={18} className="app-error-icon" />
-            <span className="app-error-text">{error}</span>
+          <div className="login-error">
+            <AlertCircle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
+            <span className="login-error-text">{error}</span>
           </div>
         )}
 
-        <form className="app-form" onSubmit={handleLogin}>
-          <div className="input-group">
-            <label className="input-label">組織代碼</label>
+        <form className="login-form" onSubmit={handleLogin}>
+          <div className="login-field">
+            <label className="login-label">組織代碼</label>
             <input
               type="text"
               value={code}
               onChange={e => setCode(e.target.value.toUpperCase())}
               placeholder="請輸入組織代碼"
-              className="app-input uppercase"
+              className="login-input"
               autoComplete="organization"
               autoFocus
             />
           </div>
 
-          <div className="input-group">
-            <label className="input-label">Email</label>
+          <div className="login-field">
+            <label className="login-label">Email</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="請輸入 Email"
-              className="app-input"
+              className="login-input"
               autoComplete="email"
               inputMode="email"
             />
           </div>
 
-          <div className="input-group">
-            <label className="input-label">密碼</label>
-            <div className="app-input-wrapper">
+          <div className="login-field">
+            <label className="login-label">密碼</label>
+            <div className="login-input-wrap">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="請輸入密碼"
-                className="app-input"
+                className="login-input"
                 autoComplete="current-password"
               />
               <button
                 type="button"
-                className="app-input-toggle"
+                className="login-toggle"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -145,25 +145,24 @@ export default function AppLoginPage() {
             </div>
           </div>
 
-          <div className="remember-row">
+          <div className="login-reminder">
             <input
               type="checkbox"
               id="rememberCode"
               checked={rememberCode}
               onChange={e => setRememberCode(e.target.checked)}
-              className="remember-checkbox"
+              className="login-checkbox"
             />
-            <label htmlFor="rememberCode" className="remember-label">
+            <label htmlFor="rememberCode" className="login-reminder-label">
               記住組織代碼
             </label>
           </div>
 
-          <button type="submit" disabled={isLoading} className="app-button">
+          <button type="submit" disabled={isLoading} className="login-btn">
             {isLoading ? (
-              <span className="app-loading">
-                <span className="app-loading-dot" />
-                <span className="app-loading-dot" />
-                <span className="app-loading-dot" />
+              <span className="login-loading">
+                <span className="login-loading-dot" />
+                <span className="login-loading-dot" />
               </span>
             ) : (
               '登入'
@@ -171,8 +170,8 @@ export default function AppLoginPage() {
           </button>
         </form>
 
-        <div className="app-footer">
-          <button className="app-footer-link">忘記密碼？</button>
+        <div className="login-footer">
+          <button className="login-footer-link">忘記密碼？</button>
         </div>
       </div>
     </div>

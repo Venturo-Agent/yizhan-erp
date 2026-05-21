@@ -96,7 +96,7 @@ export function KanbanColumn({
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className="flex flex-col w-[300px] flex-shrink-0 max-h-full bg-morandi-container/40 rounded-xl border border-border/40 shadow-sm"
+          className="flex flex-col w-[20rem] flex-shrink-0 max-h-full bg-morandi-container/40 rounded-xl border border-border/40 shadow-sm"
         >
           {/* 欄位標題 */}
           <div

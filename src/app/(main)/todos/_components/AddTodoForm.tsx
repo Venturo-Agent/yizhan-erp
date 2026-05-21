@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { StarRating } from '@/components/ui/star-rating'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Plus, X } from 'lucide-react'
 import { useEmployeesSlim } from '@/data'
@@ -71,10 +70,41 @@ export function AddTodoForm({ onSubmit, onCancel, isSubmitting }: AddTodoFormPro
         <label className="block text-sm font-medium text-morandi-primary mb-1">
           {t('urgency')}
         </label>
-        <StarRating
-          value={formData.priority}
-          onChange={value => setFormData({ ...formData, priority: value as 1 | 2 | 3 | 4 | 5 })}
-        />
+        <Select
+          value={String(formData.priority)}
+          onValueChange={v => setFormData({ ...formData, priority: Number(v) as 1 | 2 | 3 | 4 | 5 })}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="5">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500" />緊急
+              </span>
+            </SelectItem>
+            <SelectItem value="4">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-orange-500" />高
+              </span>
+            </SelectItem>
+            <SelectItem value="3">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-amber-500" />中
+              </span>
+            </SelectItem>
+            <SelectItem value="2">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-slate-400" />低
+              </span>
+            </SelectItem>
+            <SelectItem value="1">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-slate-300" />很低
+              </span>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div>

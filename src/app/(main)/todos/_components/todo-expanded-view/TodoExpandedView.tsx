@@ -211,7 +211,7 @@ export function TodoExpandedView({ todo, onUpdate, onClose, onDelete }: TodoExpa
     <Dialog open={!!todo} onOpenChange={open => !open && onClose()}>
       <DialogContent
         level={1}
-        className="max-w-7xl w-[90vw] max-h-[90vh] p-0 overflow-hidden flex flex-col gap-0"
+        className="max-w-6xl w-[94vw] max-h-[90vh] p-0 overflow-hidden flex flex-col gap-0"
       >
         {/* Header（永遠固定） */}
         <DialogHeader className="px-6 pt-4 pb-0 flex-shrink-0 space-y-0">
