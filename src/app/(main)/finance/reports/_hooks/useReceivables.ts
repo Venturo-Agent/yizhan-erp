@@ -9,6 +9,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { createReportHook, agingBucket, daysBetween } from '@/lib/swr/createReportHook'
+import { isDraftTourStatus } from '@/lib/constants/tour-status'
 
 export interface ReceivableRow {
   order_id: string
@@ -56,17 +57,25 @@ export const useReceivables = createReportHook<ReceivableRow, ReceivablesStats>(
         ? supabase.from('customers').select('id, name').in('id', customerIds)
         : Promise.resolve({ data: [], error: null }),
       tourIds.length > 0
-        ? supabase.from('tours').select('id, code').in('id', tourIds)
+        ? supabase.from('tours').select('id, code, status').in('id', tourIds)
         : Promise.resolve({ data: [], error: null }),
     ])
 
     const customerName = new Map<string, string>()
     for (const c of customersRes.data || []) customerName.set(c.id, c.name || '')
     const tourCode = new Map<string, string>()
-    for (const t of toursRes.data || []) tourCode.set(t.id, t.code || '')
+    const tourStatus = new Map<string, string>()
+    for (const t of toursRes.data || []) {
+      tourCode.set(t.id, t.code || '')
+      tourStatus.set(t.id, (t as { status?: string }).status || '')
+    }
 
     const today = new Date()
-    const rows: ReceivableRow[] = (orders || []).map(o => {
+    // 過濾掉 template/proposal 團的訂單（工作台暫存、不應入應收帳款）
+    const filteredOrders = (orders || []).filter(
+      o => !o.tour_id || !isDraftTourStatus(tourStatus.get(o.tour_id))
+    )
+    const rows: ReceivableRow[] = filteredOrders.map(o => {
       const days = daysBetween(o.created_at, today)
       return {
         order_id: o.id,

@@ -8,6 +8,7 @@ import { invalidatePaymentRequests } from '@/data'
 import { softDelete } from '@/lib/data/soft-delete'
 import { useAuthStore } from '@/stores/auth-store'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
+import { isDraftTourStatus } from '@/lib/constants/tour-status'
 import {
   addItem as itemsAddItem,
   addItems as itemsAddItems,
@@ -115,6 +116,29 @@ class PaymentRequestService extends BaseService<PaymentRequest> {
         throw new ValidationError('created_at', '請款日期必須為週四')
       }
     }
+  }
+
+  // 守門：提案 / 模板狀態的旅遊團不可開立請款單（業務規則）
+  // 譬喻：飯店不對「報價單客人」或「房型範本」開帳單、必須是已成立的訂單
+  // DB trigger 是最後一道保險、這邊先在 client 端快速擋住、給 user 明確訊息
+  private async assertTourIsActive(tourId: string | null | undefined): Promise<void> {
+    if (!tourId) return
+    const { data: tourRow } = await supabase
+      .from('tours')
+      .select('status')
+      .eq('id', tourId)
+      .maybeSingle()
+    if (isDraftTourStatus(tourRow?.status)) {
+      throw new ValidationError(
+        'tour_id',
+        '提案 / 模板狀態的旅遊團不可開立請款單、請先將提案轉為正式團'
+      )
+    }
+  }
+
+  async create(data: Omit<PaymentRequest, 'id' | 'created_at' | 'updated_at'>): Promise<PaymentRequest> {
+    await this.assertTourIsActive((data as Partial<PaymentRequest>).tour_id)
+    return super.create(data)
   }
 
   // ============ 內部工具：更新請款單總金額 ============

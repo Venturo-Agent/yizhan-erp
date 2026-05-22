@@ -20,6 +20,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { formatMoney } from '@/lib/utils/format-currency'
 import { Badge } from '@/components/ui/badge'
 import { Loader2 } from 'lucide-react'
+import { ACTIVE_TOUR_STATUSES } from '@/lib/constants/tour-status'
 
 interface PnlRow {
   tour_id: string
@@ -63,7 +64,7 @@ export function TourPnlTab() {
       setLoading(true)
       setError(null)
       try {
-        // 1. 撈 active tours（不含 archived）
+        // 1. 撈正式團（排除 template/proposal — 那是工作台暫存、不入損益）
         const { data: tours, error: toursErr } = await supabase
           .from('tours')
           .select(
@@ -71,6 +72,7 @@ export function TourPnlTab() {
           )
           .eq('workspace_id', workspaceId)
           .neq('archived', true)
+          .in('status', ACTIVE_TOUR_STATUSES)
           .order('departure_date', { ascending: false })
           .limit(500)
 

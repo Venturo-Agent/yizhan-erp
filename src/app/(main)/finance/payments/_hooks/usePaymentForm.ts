@@ -29,12 +29,13 @@ export function usePaymentForm() {
       const workspaceId = useAuthStore.getState().user?.workspace_id
       if (!workspaceId) return
 
+      const { ACTIVE_TOUR_STATUSES } = await import('@/lib/constants/tour-status')
       const { data } = await supabase
         .from('tours')
         .select('id, code, name')
         .eq('workspace_id', workspaceId)
-        // 正式團 = status 非 proposal / template
-        .in('status', ['upcoming', 'ongoing', 'returned', 'closed'])
+        // 正式團 = status 非 proposal / template（SSOT: ACTIVE_TOUR_STATUSES）
+        .in('status', ACTIVE_TOUR_STATUSES)
         .or('archived.is.null,archived.eq.false')
         .eq('is_active', true)
         .order('departure_date', { ascending: false })

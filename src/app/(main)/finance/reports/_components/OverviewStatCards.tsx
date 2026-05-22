@@ -40,14 +40,14 @@ function StatCard({
 }) {
   return (
     <Card className="border-0 bg-morandi-container/30 hover:bg-morandi-container/50 transition-colors">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
+      <CardContent className="p-3">
+        <div className="flex items-center justify-between mb-1">
           <span className="text-xs font-medium text-morandi-secondary">
             {label}
           </span>
-          <Icon className={`h-4 w-4 ${iconColor}`} />
+          <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
         </div>
-        <div className={`text-xl font-bold tabular-nums ${amountColor}`}>
+        <div className={`text-lg font-bold tabular-nums ${amountColor}`}>
           {loading ? '...' : formatCurrency(amount)}
         </div>
       </CardContent>
@@ -75,11 +75,11 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
     <>
       {/* 收入列 */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <ArrowDownCircle className="h-4 w-4 text-morandi-green" />
-          <h3 className="text-sm font-semibold text-morandi-primary">{LABELS.SECTION_INCOME}</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <ArrowDownCircle className="h-3.5 w-3.5 text-morandi-green" />
+          <h3 className="text-xs font-semibold text-morandi-primary">{LABELS.SECTION_INCOME}</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <StatCard
             label={LABELS.CARD_TOUR_INCOME}
             amount={stats.tourIncome}
@@ -109,11 +109,11 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
 
       {/* 支出列 */}
       <div>
-        <div className="flex items-center gap-2 mb-3">
-          <ArrowUpCircle className="h-4 w-4 text-morandi-red" />
-          <h3 className="text-sm font-semibold text-morandi-primary">{LABELS.SECTION_EXPENSE}</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <ArrowUpCircle className="h-3.5 w-3.5 text-morandi-red" />
+          <h3 className="text-xs font-semibold text-morandi-primary">{LABELS.SECTION_EXPENSE}</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <StatCard
             label={LABELS.CARD_TOUR_EXPENSE}
             amount={stats.tourExpense}
@@ -144,14 +144,14 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
       {/* 淨額 */}
       <div className="flex justify-end">
         <Card className="border-2 border-morandi-gold/30 w-full md:w-1/3">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-morandi-secondary">
                 {LABELS.CARD_NET}
               </span>
             </div>
             <div
-              className={`text-2xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
+              className={`text-xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
             >
               {isLoading ? '...' : formatCurrency(stats.balance)}
             </div>

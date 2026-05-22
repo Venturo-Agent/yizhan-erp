@@ -9,6 +9,8 @@ import { FileText } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils/format-currency'
 import { useReceipts } from '@/data/entities/receipts'
 import { usePaymentRequests } from '@/data/entities/payment-requests'
+import { useTours } from '@/data/entities/tours'
+import { isDraftTourStatus } from '@/lib/constants/tour-status'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import type { DateRange } from './DateRangeSelector'
@@ -52,8 +54,18 @@ interface OverviewTabProps {
 export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
   const { items: receipts, loading: receiptsLoading } = useReceipts({ all: true })
   const { items: paymentRequests, loading: prLoading } = usePaymentRequests({ all: true })
+  const { items: tours, loading: toursLoading } = useTours({ all: true })
 
-  const isLoading = receiptsLoading || prLoading
+  const isLoading = receiptsLoading || prLoading || toursLoading
+
+  // 拉一張 tour_id → status 的查表、用來擋 template/proposal 漏網資料
+  const draftTourIds = useMemo(() => {
+    const set = new Set<string>()
+    for (const t of tours) {
+      if (isDraftTourStatus((t as { status?: string }).status)) set.add(t.id)
+    }
+    return set
+  }, [tours])
 
   const stats = useMemo(() => {
     const { startDate, endDate } = dateRange
@@ -61,10 +73,12 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
     // 只算已確認的收款單（status='confirmed'）才算收入
     const rangeReceipts = receipts.filter(r => {
       if (r.status !== 'confirmed') return false
+      if (r.tour_id && draftTourIds.has(r.tour_id)) return false
       const d = (r.receipt_date || r.created_at)?.split('T')[0] || ''
       return d >= startDate && d <= endDate
     })
     const rangePayments = paymentRequests.filter(pr => {
+      if (pr.tour_id && draftTourIds.has(pr.tour_id)) return false
       const d = (pr.request_date || pr.created_at || '')?.split('T')[0] || ''
       return d >= startDate && d <= endDate
     })
@@ -97,7 +111,7 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
       totalExpense,
       balance: totalIncome - totalExpense,
     }
-  }, [receipts, paymentRequests, dateRange])
+  }, [receipts, paymentRequests, dateRange, draftTourIds])
 
   // 按筆明細
   const transactions = useMemo(() => {
@@ -106,6 +120,7 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
 
     receipts.forEach(r => {
       if (r.status !== 'confirmed') return // 只顯示已確認的收款
+      if (r.tour_id && draftTourIds.has(r.tour_id)) return // 擋掉 template/proposal 團
       const d = (r.receipt_date || r.created_at)?.split('T')[0] || ''
       if (d < startDate || d > endDate) return
       rows.push({
@@ -123,6 +138,7 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
 
     paymentRequests.forEach(pr => {
       if (pr.status !== 'paid') return // 只顯示已付款（2026-05-15 SSOT：billed 已併入 paid）
+      if (pr.tour_id && draftTourIds.has(pr.tour_id)) return // 擋掉 template/proposal 團
       const d = (pr.request_date || pr.created_at || '')?.split('T')[0] || ''
       if (d < startDate || d > endDate) return
 
@@ -179,7 +195,7 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
       return 0
     })
     return rows
-  }, [receipts, paymentRequests, dateRange])
+  }, [receipts, paymentRequests, dateRange, draftTourIds])
 
   // 分組彙總
   const groupedRows = useMemo((): GroupedRow[] => {

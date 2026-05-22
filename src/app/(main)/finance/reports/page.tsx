@@ -121,7 +121,7 @@ export default function ReportsPage() {
     >
       <div>
         {/* Sub-toolbar 永遠 render、固定 height、tab 切換不會 shift */}
-        <div className="flex items-center gap-3 py-3 border-b border-border min-h-[52px]">
+        <div className="flex items-center gap-3 py-2 border-b border-border min-h-[44px]">
           {showDateSelector && <DateRangeSelector onChange={setDateRange} />}
           {showGranularity && (
             <>
@@ -131,13 +131,13 @@ export default function ReportsPage() {
                   <button
                     key={opt.value}
                     onClick={() => setDetailGranularity(opt.value)}
-                    className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
                       detailGranularity === opt.value
                         ? 'bg-card text-morandi-primary shadow-sm'
                         : 'text-morandi-secondary hover:text-morandi-primary'
                     }`}
                   >
-                    <opt.icon className="h-4 w-4" />
+                    <opt.icon className="h-3.5 w-3.5" />
                     {opt.label}
                   </button>
                 ))}
@@ -145,7 +145,7 @@ export default function ReportsPage() {
             </>
           )}
           {!showDateSelector && !showGranularity && (
-            <span className="text-sm text-morandi-tertiary">本報表呈現即時資料、不需日期 / 顆粒度設定</span>
+            <span className="text-xs text-morandi-tertiary">本報表呈現即時資料、不需日期 / 顆粒度設定</span>
           )}
         </div>
 

@@ -35,17 +35,17 @@ function StatCard({
   isCurrency?: boolean
 }) {
   return (
-    <Card className="p-4 border border-border">
+    <Card className="p-3 border-0 bg-morandi-container/30">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-morandi-secondary mb-1">{title}</p>
+          <p className="text-xs text-morandi-secondary mb-1">{title}</p>
           {isCurrency ? (
-            <CurrencyCell amount={value} className="text-2xl font-bold" />
+            <CurrencyCell amount={value} className="text-lg font-bold tabular-nums" />
           ) : (
-            <p className="text-2xl font-bold text-morandi-primary">{value}</p>
+            <p className="text-lg font-bold text-morandi-primary tabular-nums">{value}</p>
           )}
         </div>
-        <Icon size={24} className={iconColor} />
+        <Icon size={18} className={iconColor} />
       </div>
     </Card>
   )
