@@ -135,17 +135,18 @@ export default function BonusSettlementListPage() {
     }
   }
 
-  const primaryAction =
-    selected.size > 0
-      ? {
-          label: settling
-            ? '結算中...'
-            : `結算選中 (${selected.size} 團 · ${formatNT(selectedAmount)})`,
-          icon: Check,
-          onClick: openSettleDialog,
-          disabled: settling,
-        }
-      : undefined
+  // 2026-05-22 William 拍板：「新增獎金結算」按鈕永遠顯示（跟薪資結算對齊）
+  // 沒勾選團時點按鈕、openSettleDialog 內部會 alert 提示「請先勾選團」
+  const primaryAction = {
+    label: settling
+      ? '結算中...'
+      : selected.size > 0
+        ? `新增獎金結算 (${selected.size} 團 · ${formatNT(selectedAmount)})`
+        : '新增獎金結算',
+    icon: Check,
+    onClick: openSettleDialog,
+    disabled: settling,
+  }
 
   // 2026-05-22 William 拍板：列表改 ListPageLayout + EnhancedTable、跟標準對齊
   const columns: TableColumn<PendingTourRow>[] = [
