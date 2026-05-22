@@ -16,6 +16,11 @@ import { translateDbError } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { apiHandler } from '@/lib/api/api-handler'
 import type { SupabaseClient } from '@supabase/supabase-js'
+import {
+  calcInsuranceForEmployee,
+  checkGradeCoverage,
+  type GradeRow,
+} from '@/lib/hr/salary-insurance-calc'
 
 interface SalaryInfo {
   base_salary?: number
@@ -89,6 +94,50 @@ export const POST = apiHandler(async (request: NextRequest) => {
 
   // 2026-05-22 William 拍板：支援排除員工（譬如離職、那期不出薪）
   const excludedIds = Array.isArray(excluded_employee_ids) ? excluded_employee_ids : []
+
+  // 2026-05-22 Phase 4 William 拍板：勞健保 / 勞退級距覆蓋檢查
+  // 強制：period 對應的三 kind 級距都必須存在、否則 reject
+  const supabaseForGrades = getSupabaseAdminClient() as unknown as SupabaseClient
+  const { data: gradesData, error: gradesErr } = await supabaseForGrades
+    .from('ref_insurance_salary_grades')
+    .select('kind, monthly_amount, effective_from, effective_until')
+  if (gradesErr) {
+    return NextResponse.json({ error: '載入級距表失敗、無法結算' }, { status: 500 })
+  }
+  const allGrades: GradeRow[] = (gradesData || []) as GradeRow[]
+  const coverage = checkGradeCoverage(allGrades, period)
+  if (!coverage.ok) {
+    const kindMap = { labor: '勞保', health: '健保', pension: '勞退' } as const
+    const missing = coverage.missing.map((k) => kindMap[k]).join(' / ')
+    return NextResponse.json(
+      {
+        error: `${period} 沒對應的「${missing}」級距、無法結算。請先到「共用資料管理 → 勞健保級距」更新今年的級距表`,
+      },
+      { status: 400 }
+    )
+  }
+  // 按 period 篩出有效級距、再按 kind 分組
+  const periodFirstDay = `${period}-01`
+  const gradesByKind = {
+    labor: allGrades.filter(
+      (g) =>
+        g.kind === 'labor' &&
+        g.effective_from <= periodFirstDay &&
+        (g.effective_until === null || g.effective_until >= periodFirstDay)
+    ),
+    health: allGrades.filter(
+      (g) =>
+        g.kind === 'health' &&
+        g.effective_from <= periodFirstDay &&
+        (g.effective_until === null || g.effective_until >= periodFirstDay)
+    ),
+    pension: allGrades.filter(
+      (g) =>
+        g.kind === 'pension' &&
+        g.effective_from <= periodFirstDay &&
+        (g.effective_until === null || g.effective_until >= periodFirstDay)
+    ),
+  }
 
   // salary_settlements 尚未納入生成類型，用 unknown 中轉
   const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
@@ -172,24 +221,26 @@ export const POST = apiHandler(async (request: NextRequest) => {
       0
     )
 
-    // 投保薪資（勞退月提繳工資）— 用 salary_info.insured_salary、若無則 fallback base_salary
-    const insuredSalary = Number(info.insured_salary ?? base)
-    // 勞保是否在本公司（含勞退）— 預設 true
-    const laborHere = info.labor_insured_here !== false
-    // 自願提撥率（0-0.06）
-    const voluntaryRate = Number(info.pension_voluntary_rate ?? 0)
-
-    // 勞退（雇主強制 6%、員工自願 0-6%）— 勞保不在本公司則 skip
-    const pensionEmployer = laborHere ? Math.round(insuredSalary * 0.06) : 0
-    const pensionVoluntary = laborHere ? Math.round(insuredSalary * voluntaryRate) : 0
-
-    // 員工負擔合計（暫只算自願提撥、勞健保員工負擔 phase 4 之後做）
-    const employeeDeductions = pensionVoluntary
+    // 2026-05-22 Phase 4：用 salary-insurance-calc SSOT 算勞健保 / 勞退
+    // 級距自動配對（base_salary lookup ref_insurance_salary_grades）
+    // 員工自付 = 勞保(20%) + 健保(30% × 1+眷屬) + 勞退自願
+    // 雇主負擔 = 勞保(70%) + 健保(60%) + 勞退(6%)
+    const calc = calcInsuranceForEmployee(
+      {
+        base_salary: base,
+        insured_salary_override: info.insured_salary,
+        dependents_count: info.dependents_count,
+        pension_voluntary_rate: info.pension_voluntary_rate,
+        labor_insured_here: info.labor_insured_here,
+        health_insured_here: info.health_insured_here,
+      },
+      gradesByKind
+    )
 
     // 員工應發（gross） = 本薪 + 津貼 + 勤獎 + 其他
     const grossPay = base + attendance + other + allowancesSum
-    // 員工實領 = gross - 員工負擔
-    const netPay = grossPay - employeeDeductions
+    // 員工實領 = gross - 員工自付合計
+    const netPay = grossPay - calc.employee_deductions_total
 
     return {
       settlement_id: settlement.id,
@@ -201,23 +252,30 @@ export const POST = apiHandler(async (request: NextRequest) => {
       allowances: allowancesSum,
       attendance_bonus: attendance,
       other_allowances: other,
-      deductions: employeeDeductions,
-      // total_amount 沿用既有：表示「員工實領」（之後可改 gross / net 兩個欄位）
+      deductions: calc.employee_deductions_total,
       total_amount: netPay,
       breakdown: {
-        source: 'employees.salary_info',
+        source: 'employees.salary_info + ref_insurance_salary_grades',
         snapshot: info,
-        // 2026-05-15 加：勞退 / 自願提撥計算明細
         calc: {
-          insured_salary: insuredSalary,
-          labor_insured_here: laborHere,
-          pension_employer: pensionEmployer,       // 雇主強制 6%
-          pension_voluntary: pensionVoluntary,     // 員工自願
-          pension_voluntary_rate: voluntaryRate,
-          gross_pay: grossPay,                     // 應發
-          net_pay: netPay,                         // 實領
-          // 公司支出 = 應發 + 雇主負擔（之後加勞健保雇主負擔）
-          company_total_cost: grossPay + pensionEmployer,
+          // 投保薪資（級距自動配對）
+          insured_salary_labor: calc.insured_salary_labor,
+          insured_salary_health: calc.insured_salary_health,
+          insured_salary_pension: calc.insured_salary_pension,
+          // 員工自付
+          labor_employee: calc.labor_employee,
+          health_employee: calc.health_employee,
+          pension_voluntary: calc.pension_voluntary,
+          employee_deductions_total: calc.employee_deductions_total,
+          // 雇主負擔
+          labor_employer: calc.labor_employer,
+          health_employer: calc.health_employer,
+          pension_employer: calc.pension_employer,
+          employer_burden_total: calc.employer_burden_total,
+          // 應發 / 實領 / 公司支出
+          gross_pay: grossPay,
+          net_pay: netPay,
+          company_total_cost: grossPay + calc.employer_burden_total,
         },
       },
     }
