@@ -18,6 +18,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { useEmployeesSlim } from '@/data/entities'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Wallet, Plus, Loader2, Calendar, X } from 'lucide-react'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import type { TableColumn } from '@/components/ui/enhanced-table'
@@ -72,6 +74,13 @@ export default function SalarySettlementListPage() {
   // Phase 2（William 2026-05-22 拍板）：月份多選、可同時建多月份 settlement
   const [periods, setPeriods] = useState<string[]>([currentMonth()])
   const [periodInput, setPeriodInput] = useState('')
+  // Phase 3：員工排除（譬如離職那期不出薪）
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set())
+  // 撈 active 員工給 wizard 顯示
+  const { items: allEmployees } = useEmployeesSlim({ all: true })
+  const activeEmployees = (allEmployees ?? []).filter(
+    (e) => (e as unknown as { status?: string }).status === 'active'
+  )
 
   const loadList = useCallback(async () => {
     setLoading(true)
@@ -114,7 +123,16 @@ export default function SalarySettlementListPage() {
     setPeriods((prev) => prev.filter((x) => x !== p))
   }
 
-  // Phase 2：多月份 loop 建立、同時補發
+  const toggleExclude = (employeeId: string) => {
+    setExcludedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(employeeId)) next.delete(employeeId)
+      else next.add(employeeId)
+      return next
+    })
+  }
+
+  // Phase 2/3：多月份 loop 建立、帶 excluded_employee_ids
   const handleCreate = async () => {
     if (periods.length === 0) {
       toast.error('請至少加一個月份')
@@ -125,6 +143,7 @@ export default function SalarySettlementListPage() {
     let firstId: string | null = null
     let totalEmployees = 0
     const failedPeriods: string[] = []
+    const excludedArr = Array.from(excludedIds)
     try {
       for (const period of periods) {
         try {
@@ -132,7 +151,7 @@ export default function SalarySettlementListPage() {
             '/api/hr/salary-settlements',
             {
               method: 'POST',
-              body: { period },
+              body: { period, excluded_employee_ids: excludedArr },
               invalidate: ['/api/hr/salary-settlements'],
             }
           )
@@ -158,13 +177,14 @@ export default function SalarySettlementListPage() {
       }
 
       setCreateOpen(false)
-      // 單月：跳該 settlement 詳情；多月：留在列表
-      if (okCount === 1 && firstId && periods.length === 1) {
+      // 單月 + 沒排除員工：跳 detail；多月或有排除：留在列表
+      if (okCount === 1 && firstId && periods.length === 1 && excludedIds.size === 0) {
         router.push(`/hr/salary-settlement/${firstId}`)
       } else {
         // 重設 state、refresh list
         setPeriods([currentMonth()])
         setPeriodInput('')
+        setExcludedIds(new Set())
         loadList()
       }
     } finally {
@@ -312,10 +332,67 @@ export default function SalarySettlementListPage() {
               </p>
             </div>
 
+            {/* Phase 3：員工排除（William 2026-05-22 拍板） */}
+            <div className="space-y-2">
+              <Label>
+                員工列表
+                <span className="text-xs text-morandi-muted ml-2">
+                  （共 {activeEmployees.length} 位、勾「排除」表示該員工這幾期不出薪）
+                </span>
+              </Label>
+              <div className="rounded-lg border border-morandi-border max-h-[200px] overflow-y-auto">
+                {activeEmployees.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-morandi-muted">無 active 員工</div>
+                ) : (
+                  <div className="divide-y divide-morandi-muted/10">
+                    {activeEmployees.map((emp) => {
+                      const isExcluded = excludedIds.has(emp.id)
+                      return (
+                        <div
+                          key={emp.id}
+                          className={`flex items-center gap-3 px-3 py-2 hover:bg-morandi-container/20 cursor-pointer ${
+                            isExcluded ? 'bg-status-danger/5' : ''
+                          }`}
+                          onClick={() => toggleExclude(emp.id)}
+                        >
+                          <Checkbox
+                            checked={isExcluded}
+                            onCheckedChange={() => toggleExclude(emp.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label="排除此員工"
+                          />
+                          <div className="flex-1 text-sm">
+                            <span
+                              className={isExcluded ? 'line-through text-morandi-muted' : 'text-morandi-primary'}
+                            >
+                              {(emp as unknown as { display_name?: string }).display_name ??
+                                (emp as unknown as { chinese_name?: string }).chinese_name ??
+                                '(未填名稱)'}
+                            </span>
+                            <span className="ml-2 text-xs text-morandi-muted">
+                              {(emp as unknown as { employee_number?: string }).employee_number || ''}
+                            </span>
+                          </div>
+                          {isExcluded && (
+                            <span className="text-xs text-status-danger">排除</span>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+              {excludedIds.size > 0 && (
+                <p className="text-xs text-status-danger">
+                  已排除 {excludedIds.size} 位員工、這幾期不會出薪
+                </p>
+              )}
+            </div>
+
             <div className="rounded-lg bg-morandi-container/30 border border-morandi-border p-3 text-xs text-morandi-secondary leading-relaxed">
               <p className="font-medium text-morandi-primary mb-1">提醒</p>
               <p>· 每個月份各自建立一張 settlement、各自含該月所有 active 員工的薪資</p>
-              <p>· 進入詳情頁可調整個別員工金額、或排除某員工（譬如離職）</p>
+              <p>· 排除的員工該期不出薪、其他期仍會出（每期勾選獨立）</p>
               <p>· 確認結算後產生請款單、不可再改</p>
             </div>
           </div>

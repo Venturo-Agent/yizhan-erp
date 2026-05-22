@@ -73,7 +73,11 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (!guard.ok) return guard.response
 
   const body = await request.json().catch(() => ({}))
-  const { period, notes } = body as { period?: string; notes?: string }
+  const { period, notes, excluded_employee_ids } = body as {
+    period?: string
+    notes?: string
+    excluded_employee_ids?: string[]
+  }
 
   // 驗證 period 格式：YYYY-MM
   if (!period || !/^\d{4}-\d{2}$/.test(period)) {
@@ -82,6 +86,9 @@ export const POST = apiHandler(async (request: NextRequest) => {
       { status: 400 }
     )
   }
+
+  // 2026-05-22 William 拍板：支援排除員工（譬如離職、那期不出薪）
+  const excludedIds = Array.isArray(excluded_employee_ids) ? excluded_employee_ids : []
 
   // salary_settlements 尚未納入生成類型，用 unknown 中轉
   const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
@@ -117,12 +124,19 @@ export const POST = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: t.message }, { status: t.httpStatus })
   }
 
-  // 2. Auto-pull active employees
-  const { data: employees, error: empError } = await supabase
+  // 2. Auto-pull active employees（過濾掉 user 排除的員工）
+  let employeeQuery = supabase
     .from('employees')
     .select('id, display_name, employee_number, monthly_salary, salary_info')
     .eq('workspace_id', guard.workspaceId)
     .eq('status', 'active')
+
+  if (excludedIds.length > 0) {
+    // PostgREST .not('id','in', ...) 需要 (id1,id2,id3) 字串格式
+    employeeQuery = employeeQuery.not('id', 'in', `(${excludedIds.map((id) => `"${id}"`).join(',')})`)
+  }
+
+  const { data: employees, error: empError } = await employeeQuery
 
   if (empError) {
     logger.error('Salary settlement: failed to pull employees', empError)
