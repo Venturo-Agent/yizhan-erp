@@ -112,13 +112,12 @@ export function StepCredentials({
   error,
 }: {
   credentials: {
-    page_access_token: string
-    ig_business_account_id: string
+    instagram_user_access_token: string
     app_secret: string
     bot_greeting: string
   }
   onChange: (
-    k: 'page_access_token' | 'ig_business_account_id' | 'app_secret' | 'bot_greeting',
+    k: 'instagram_user_access_token' | 'app_secret' | 'bot_greeting',
     v: string
   ) => void
   onBack: () => void
@@ -126,102 +125,46 @@ export function StepCredentials({
   validating: boolean
   error: string | null
 }) {
-  const canValidate =
-    credentials.page_access_token.trim().length > 0 &&
-    credentials.ig_business_account_id.trim().length > 0
-
-  const [autoDetecting, setAutoDetecting] = useState(false)
-  const [autoDetectInfo, setAutoDetectInfo] = useState<{ name: string | null; username: string | null } | null>(null)
-
-  const handleAutoDetect = async () => {
-    setAutoDetecting(true)
-    try {
-      const res = await fetch('/api/instagram/setup/lookup-from-fb', { method: 'GET' })
-      const json = await res.json()
-      if (!res.ok || !json.success) {
-        toast.error('自動偵測失敗', { description: json.error || '請手動填 IG Business Account ID' })
-        return
-      }
-      const data = json.data as {
-        igBusinessAccountId: string
-        igUsername: string | null
-        igName: string | null
-      }
-      onChange('ig_business_account_id', data.igBusinessAccountId)
-      setAutoDetectInfo({ name: data.igName, username: data.igUsername })
-      toast.success(`偵測到 IG 帳號：${data.igName || data.igUsername || data.igBusinessAccountId}`)
-    } catch (e) {
-      logger.error('IG auto detect failed', e)
-      toast.error('自動偵測失敗', { description: e instanceof Error ? e.message : '請手動填' })
-    } finally {
-      setAutoDetecting(false)
-    }
-  }
+  const canValidate = credentials.instagram_user_access_token.trim().length > 0
 
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-bold mb-1">填 IG Business Account 資料</h2>
+        <h2 className="text-lg font-bold mb-1">填 Instagram User Access Token</h2>
         <p className="text-xs text-morandi-secondary">
-          token 用 FB Page Access Token（IG 透過綁定的 FB Page 操作）、ID 是 IG Business Account ID。
+          Meta 2024+ 新版 IG API：單一 Instagram User Access Token 即可、IG_ID 從 token 反查、不再要 IG Business Account ID。
         </p>
       </div>
 
-      {/* 一鍵從已開通 FB Page 自動偵測 IG */}
-      <div className="rounded-md border border-morandi-gold/30 bg-morandi-gold/5 p-3 space-y-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-1.5 text-sm font-semibold text-morandi-primary">
-              <Sparkles className="w-4 h-4 text-morandi-gold" />
-              從已開通的 FB Page 自動偵測 IG
-            </div>
-            <p className="text-[0.7rem] text-morandi-secondary mt-1">
-              不用跑 Graph API Explorer 找 IG Business Account ID、用已存的 FB Page Token 自動反查。前提：FB Messenger 已開通 + IG 帳號已連結該 FB Page。
-            </p>
-            {autoDetectInfo && (
-              <p className="text-xs text-morandi-green mt-2 flex items-center gap-1">
-                <Check className="w-3 h-3" />
-                偵測到：{autoDetectInfo.name || autoDetectInfo.username || '(已填入 ID)'}
-              </p>
-            )}
-          </div>
-          <Button
-            variant="soft-gold"
-            size="sm"
-            onClick={handleAutoDetect}
-            disabled={autoDetecting}
-            className="shrink-0"
-          >
-            {autoDetecting ? <Loader2 className="w-3 h-3 animate-spin" /> : '自動偵測'}
-          </Button>
+      {/* 教學提示框 */}
+      <div className="rounded-md border border-morandi-gold/30 bg-morandi-gold/5 p-3 text-xs space-y-2">
+        <div className="flex items-center gap-1.5 text-sm font-semibold text-morandi-primary">
+          <Sparkles className="w-4 h-4 text-morandi-gold" />
+          怎麼產 Instagram User Access Token？
         </div>
-      </div>
-
-      <div className="space-y-1.5">
-        <Label className="text-xs font-semibold uppercase">Page Access Token *</Label>
-        <Input
-          type="text"
-          value={credentials.page_access_token}
-          onChange={e => onChange('page_access_token', e.target.value)}
-          placeholder="EAAxxxxx... 跟 FB Messenger 同一個 token"
-          className="font-mono text-xs"
-        />
-        <p className="text-[0.647rem] text-morandi-muted">
-          已開通 FB Messenger 的話、用同一個 token 即可
+        <ol className="list-decimal list-inside text-morandi-secondary space-y-1">
+          <li>進 Meta App Dashboard → 你的 App → 左側「使用案例」</li>
+          <li>選「管理 Instagram 的訊息和內容」use case → 進「自訂使用案例」</li>
+          <li>Step 2「產生存取權杖」→「新增帳號」→ 跳出 IG 授權 → 選你的 IG 帳號</li>
+          <li>授權完成後、Meta 會產出 Instagram User Access Token（IGAA... 開頭）</li>
+          <li>複製整串、貼下方欄位</li>
+        </ol>
+        <p className="text-[0.7rem] text-morandi-muted pt-1">
+          Token 60 天效期、過期前要 refresh（之後 follow-up 自動處理）。
         </p>
       </div>
 
       <div className="space-y-1.5">
-        <Label className="text-xs font-semibold uppercase">IG Business Account ID *</Label>
+        <Label className="text-xs font-semibold uppercase">Instagram User Access Token *</Label>
         <Input
           type="text"
-          value={credentials.ig_business_account_id}
-          onChange={e => onChange('ig_business_account_id', e.target.value)}
-          placeholder="17841xxxxxxxxx（純數字、IG Business 內部 ID）"
+          value={credentials.instagram_user_access_token}
+          onChange={e => onChange('instagram_user_access_token', e.target.value)}
+          placeholder="IGAAxxxxx... 從 Meta App Dashboard Instagram 使用案例產出"
           className="font-mono text-xs"
         />
         <p className="text-[0.647rem] text-morandi-muted">
-          Graph API Explorer 跑 GET /me?fields=instagram_business_account 拿
+          注意：跟 FB Page Token 是兩條完全不同的 token、不要用錯。
         </p>
       </div>
 

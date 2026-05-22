@@ -44,9 +44,9 @@ const IG_SETUP_STEPS: ReadonlyArray<SetupStep<Step>> = [
 
 export function InstagramSetup() {
   const [step, setStep] = useState<Step>('welcome')
+  // Meta 2024+ 新版 IG API、只需一個 Instagram User Access Token、不再要 page_access_token + ig_business_account_id
   const [credentials, setCredentials] = useState({
-    page_access_token: '',
-    ig_business_account_id: '',
+    instagram_user_access_token: '',
     app_secret: '',
     bot_greeting: '',
   })
@@ -68,8 +68,7 @@ export function InstagramSetup() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          page_access_token: credentials.page_access_token,
-          ig_business_account_id: credentials.ig_business_account_id,
+          instagram_user_access_token: credentials.instagram_user_access_token,
         }),
       })
       const json = await res.json()
@@ -96,8 +95,7 @@ export function InstagramSetup() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          page_access_token: credentials.page_access_token,
-          ig_business_account_id: credentials.ig_business_account_id,
+          instagram_user_access_token: credentials.instagram_user_access_token,
           app_secret: credentials.app_secret || null,
           bot_greeting: credentials.bot_greeting || null,
         }),
