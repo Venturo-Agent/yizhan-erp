@@ -82,6 +82,19 @@ async function getModuleSpecs() {
   }
 }
 
+// User-facing how-to docs（2026-05-22 加、給 HAPPY 答 ERP 客戶問題用）
+async function getUserGuideDocs() {
+  const dir = join(REPO_ROOT, 'workspace/docs/user-guide')
+  try {
+    const entries = await readdir(dir)
+    return entries
+      .filter(f => f.endsWith('.md'))
+      .map(f => `workspace/docs/user-guide/${f}`)
+  } catch {
+    return []
+  }
+}
+
 // ── Chunking ──
 function chunkMarkdown(text, maxChars = 2000) {
   // 按 ## section 切
@@ -134,6 +147,9 @@ function getDocMetadata(sourceFile) {
   if (sourceFile.includes('modules/')) {
     const moduleName = fname.replace('-spec', '')
     return { title: `模組規格: ${moduleName}`, region, positioning: 'module' }
+  }
+  if (sourceFile.includes('user-guide/')) {
+    return { title: `操作指引: ${fname}`, region, positioning: 'how-to' }
   }
   return { title: fname, region, positioning: 'general' }
 }
@@ -234,7 +250,8 @@ async function main() {
   console.log('')
 
   const moduleSpecs = await getModuleSpecs()
-  const allSources = [...SOURCE_PATTERNS, ...moduleSpecs]
+  const userGuides = await getUserGuideDocs()
+  const allSources = [...SOURCE_PATTERNS, ...moduleSpecs, ...userGuides]
 
   console.log(`📚 共 ${allSources.length} 個 source files 要 index`)
   console.log('')
