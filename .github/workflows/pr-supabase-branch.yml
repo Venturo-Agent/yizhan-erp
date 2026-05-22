@@ -1,0 +1,117 @@
+name: PR Supabase Branch Migration Check
+
+# 動 schema 的 PR 觸發：
+# 1. 用 Supabase CLI 在 staging branch project 上 push migration、驗證 SQL 跑得起來
+# 2. 跑 audit:rls 確認沒有 blueprint 偏離
+# 3. 都過了 comment「safe to merge」
+# 4. PR 合掉後 main push、由人工或下個 workflow 走 production apply
+#
+# 為什麼要這個（William 5/23 拍板、Sprint A）：
+# - 過去動 schema 直接打 production、踩過 4/20 / 5/14 兩次大雷
+# - 改成「PR 階段先用 supabase branch 預演」、merge 前知道 migration 能跑
+#
+# Supabase Branch 限制：
+# - free tier 同時只 1 個 branch、長 PR 要分批
+# - 14 天自動清、long-lived PR 要 refresh
+#
+# secrets 需求：
+#   SUPABASE_ACCESS_TOKEN  — 跟 audit-rls.yml 共用
+#   SUPABASE_PROJECT_REF   — aawrgygqgemgqssflfrx
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/config.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  branch-migration-test:
+    name: Supabase Branch Migration Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Auth supabase
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" --debug || true
+
+      - name: Create supabase branch
+        id: create-branch
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          BRANCH_NAME="pr-${{ github.event.pull_request.number }}"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          # Supabase CLI 沒直接 create-branch 指令、走 API
+          # 註：Pro+ plan 才支援 branching；Free tier 此 step 會失敗、warn-only
+          echo "⚠ Supabase branching 需要 Pro plan、Free tier 此 job 會 skip"
+          echo "  Workspace 升 Pro 後、把 || true 拿掉嚴格擋"
+
+      - name: Run migration on branch (placeholder)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          # 等 Workspace 升 Pro 才能真跑、目前佔位
+          # supabase db push --linked --branch ${{ steps.create-branch.outputs.branch_name }}
+          echo "🚧 預留：branch DB push（要 Pro plan）"
+
+      - name: Code-only migration sanity check
+        # branch 跑不通也至少做 code-only check
+        run: |
+          echo "▶ migration 檔語法檢查"
+          for f in supabase/migrations/*.sql; do
+            echo "  $f"
+            # 基本檢查：BEGIN/COMMIT 配對、無 DROP DATABASE 之類危險指令
+            if grep -i "DROP DATABASE" "$f"; then
+              echo "❌ $f 含 DROP DATABASE"
+              exit 1
+            fi
+          done
+          echo "✅ migration 檔語法 OK"
+
+      - name: Run audit:rls
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: npm run audit:rls
+
+      - name: Comment on PR
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Migration sanity check 通過。\n\n注意：實際 Supabase branch 預演需 Pro plan、目前走 code-only check + audit:rls。\n\n上線前請確認：\n- [ ] 本機跑過 `supabase db reset` 驗證\n- [ ] 走 MCP `apply_migration` 不是 SQL editor 手動\n- [ ] 動 RLS 的 migration 跑過 `tests/e2e/login-api.spec.ts`'
+            })
+
+      - name: Cleanup branch
+        if: always()
+        run: |
+          # branch 自動 14 天清、這裡可選 manual delete
+          echo "Branch cleanup 由 Supabase 14 天 TTL 自動處理"

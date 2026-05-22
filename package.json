@@ -42,6 +42,7 @@
     "audit:orphans": "tsx scripts/audit-auth-orphans.ts",
     "audit:realtime": "tsx scripts/audit-realtime.ts",
     "audit:memories": "tsx scripts/audit-customer-memories.ts",
+    "seed:local": "tsx scripts/seed-local.ts",
     "codegen:permissions": "tsx scripts/codegen-permissions.ts",
     "codegen:seed": "tsx scripts/codegen-seed.ts",
     "audit:code-quality": "npm run audit:file-size && npm run audit:any-usage && npm run type-check && npm run lint",
