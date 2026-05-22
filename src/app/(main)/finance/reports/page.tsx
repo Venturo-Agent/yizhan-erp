@@ -115,36 +115,40 @@ export default function ReportsPage() {
       tabs={tabs}
       activeTab={activeTab}
       onTabChange={handleTabChange}
-      headerActions={
-        showDateSelector ? (
-          <div className="flex items-center gap-3">
-            <DateRangeSelector onChange={setDateRange} />
-            {showGranularity && (
-              <>
-                <div className="h-5 w-px bg-border" />
-                <div className="flex items-center bg-morandi-container rounded-lg p-0.5">
-                  {GRANULARITY_OPTIONS.map(opt => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setDetailGranularity(opt.value)}
-                      className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                        detailGranularity === opt.value
-                          ? 'bg-card text-morandi-primary shadow-sm'
-                          : 'text-morandi-secondary hover:text-morandi-primary'
-                      }`}
-                    >
-                      <opt.icon className="h-4 w-4" />
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-        ) : undefined
-      }
+      // 2026-05-22 William 拍板：toolbar 從 header 移到 tab 下方 sub-bar
+      // 原本 conditional headerActions 會導致 tab 切換時整個 header 寬度變、tabs 列被推
+      // 改成 sub-bar 永遠固定高度（52px）、tab 永遠在同位置、不再 layout shift
     >
       <div>
+        {/* Sub-toolbar 永遠 render、固定 height、tab 切換不會 shift */}
+        <div className="flex items-center gap-3 py-3 border-b border-border min-h-[52px]">
+          {showDateSelector && <DateRangeSelector onChange={setDateRange} />}
+          {showGranularity && (
+            <>
+              <div className="h-5 w-px bg-border" />
+              <div className="flex items-center bg-morandi-container rounded-lg p-0.5">
+                {GRANULARITY_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setDetailGranularity(opt.value)}
+                    className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      detailGranularity === opt.value
+                        ? 'bg-card text-morandi-primary shadow-sm'
+                        : 'text-morandi-secondary hover:text-morandi-primary'
+                    }`}
+                  >
+                    <opt.icon className="h-4 w-4" />
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+          {!showDateSelector && !showGranularity && (
+            <span className="text-sm text-morandi-tertiary">本報表呈現即時資料、不需日期 / 顆粒度設定</span>
+          )}
+        </div>
+
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsContent value="overview" className="mt-0">
             <OverviewTab dateRange={dateRange} granularity={detailGranularity} />

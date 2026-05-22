@@ -39,15 +39,15 @@ function StatCard({
   loading: boolean
 }) {
   return (
-    <Card className="border border-border">
+    <Card className="border-0 bg-morandi-container/30 hover:bg-morandi-container/50 transition-colors">
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-morandi-secondary uppercase tracking-wide">
+          <span className="text-xs font-medium text-morandi-secondary">
             {label}
           </span>
           <Icon className={`h-4 w-4 ${iconColor}`} />
         </div>
-        <div className={`text-xl font-bold ${amountColor}`}>
+        <div className={`text-xl font-bold tabular-nums ${amountColor}`}>
           {loading ? '...' : formatCurrency(amount)}
         </div>
       </CardContent>
@@ -146,12 +146,12 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
         <Card className="border-2 border-morandi-gold/30 w-full md:w-1/3">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-morandi-secondary uppercase tracking-wide">
+              <span className="text-xs font-medium text-morandi-secondary">
                 {LABELS.CARD_NET}
               </span>
             </div>
             <div
-              className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
+              className={`text-2xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
             >
               {isLoading ? '...' : formatCurrency(stats.balance)}
             </div>
