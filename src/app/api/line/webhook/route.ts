@@ -516,6 +516,9 @@ async function recordGroupOrRoomMessage(
   const isDefaultName = !existingName || /^群組 #[0-9a-f]{4}$/i.test(existingName) || existingName === 'LINE 群組'
   const shouldSetDisplayName = isDefaultName
 
+  // picture_url 缺也要去抓（5/22 William 抓出：display_name 被設過 → 永遠不 fetch → picture_url 永遠 NULL）
+  const missingPictureUrl = existingGroupConv ? !existingGroupConv.picture_url : true
+
   // 群組名 Phase 2（2026-05-18 William 拍板）：
   // 一般 OA 即可呼叫 getGroupSummary（實測角落旅遊 OA 可用、不需 Verified）。
   // 只在「該設新名字」時 fetch、避免每則訊息都打 LINE API。
@@ -526,7 +529,8 @@ async function recordGroupOrRoomMessage(
 
   let resolvedDisplayName = defaultDisplayName
   let resolvedPictureUrl: string | null = null
-  if (shouldSetDisplayName && isGroup) {
+  const shouldFetchSummary = isGroup && (shouldSetDisplayName || missingPictureUrl)
+  if (shouldFetchSummary) {
     const summary = await fetchLineGroupSummary({
       groupId: containerId,
       channelAccessToken,
@@ -571,7 +575,8 @@ async function recordGroupOrRoomMessage(
     sourceId: event.message?.id ?? null,
     rawEvent: event,
     ...(shouldSetDisplayName && { displayName: resolvedDisplayName }),
-    ...(shouldSetDisplayName && { pictureUrl: resolvedPictureUrl }),
+    // picture_url：只在「之前缺 + 這次抓到了」才寫、避免 race 蓋掉手動換的頭像
+    ...(missingPictureUrl && resolvedPictureUrl && { pictureUrl: resolvedPictureUrl }),
   })
 
   // 群組秘書：偵測待辦任務關鍵字 → 自動建 todo

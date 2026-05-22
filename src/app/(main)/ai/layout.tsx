@@ -48,9 +48,13 @@ export default function AiHubLayout({ children }: { children: React.ReactNode })
         'p-3'
       )}
     >
-      <div className="h-full flex bg-card rounded-xl border border-border overflow-hidden">
-        <AiSidebar />
-        <div className="flex-1 min-h-0 flex flex-col bg-card">{children}</div>
+      <div className="h-full flex gap-3">
+        <div className="flex-1 min-w-0 flex bg-card rounded-xl border border-border overflow-hidden">
+          <AiSidebar />
+          <div className="flex-1 min-h-0 flex flex-col bg-card">{children}</div>
+        </div>
+        {/* 業務面板 portal mount — AiConversationsTab 用 createPortal 送進來、跟外卡保持 gap-3 */}
+        <div id="ai-hub-business-panel-mount" className="flex-shrink-0 h-full empty:hidden" />
       </div>
     </main>
   )

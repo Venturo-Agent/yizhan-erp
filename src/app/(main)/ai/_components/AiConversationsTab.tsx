@@ -34,7 +34,7 @@ import { formatDateTaipei } from '@/lib/utils/format-date'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag, Sparkles } from 'lucide-react'
+import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag, Sparkles, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 
@@ -237,10 +237,19 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
     })
   }, [selectedConv, listUrl])
 
+  // 業務面板 portal mount（layout.tsx 提供的 #ai-hub-business-panel-mount）
+  // 用 state 等 mount 才 createPortal、避免 SSR / hydration 撞
+  const [panelMount, setPanelMount] = useState<HTMLElement | null>(null)
+  useEffect(() => {
+    setPanelMount(document.getElementById('ai-hub-business-panel-mount'))
+  }, [])
+
   return (
-    <div className="flex gap-3 h-full">
+    <div className="flex h-full w-full">
       {/* v3.3 拿掉內層 Card：layout.tsx 外層已經是 rounded-xl card、再包一層會雙圓角 / 雙邊框
-          兩個區（list + thread）改用 flex 容器同列、靠中間 border-r 隔開 */}
+          兩個區（list + thread）改用 flex 容器同列、靠中間 border-r 隔開
+          v3.4（5/22 William）：BusinessPanel 透過 portal 送到 layout 層 #ai-hub-business-panel-mount、
+          變成獨立卡片、不再被外卡包住 */}
       <div className="flex-1 flex overflow-hidden min-w-0">
       {/* 左側：對話列表（Hub 模式、不分 channel） */}
       {!hideList && (
@@ -378,13 +387,14 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
       </div>
       </div>
 
-      {/* 右側業務面板 */}
-      {selectedConv && panelOpen && (
+      {/* 右側業務面板（透過 portal 送到 layout 層、變成獨立卡片）*/}
+      {selectedConv && panelOpen && panelMount && createPortal(
         <BusinessPanel
           conv={selectedConv}
           listUrl={listUrl}
           onClose={() => setPanelOpen(false)}
-        />
+        />,
+        panelMount
       )}
     </div>
   )
@@ -498,7 +508,28 @@ function ConversationHeader({
   const [editingName, setEditingName] = useState(false)
   const [nameInput, setNameInput] = useState(conv.display_name || '')
   const [avatarUploading, setAvatarUploading] = useState(false)
+  const [refreshingProfile, setRefreshingProfile] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
+
+  const handleRefreshGroupProfile = async () => {
+    setRefreshingProfile(true)
+    try {
+      const res = await fetch('/api/line/admin/refresh-group-profiles', { method: 'POST' })
+      const json = await res.json() as { data?: { updated: number; totalGroups: number }; error?: string }
+      if (!res.ok) {
+        toast.error(json.error || '重抓失敗')
+        return
+      }
+      const updated = json.data?.updated ?? 0
+      const total = json.data?.totalGroups ?? 0
+      toast.success(`已從 LINE 重抓 ${updated} / ${total} 個群組頭像`)
+      await globalMutate(listUrl)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '重抓失敗')
+    } finally {
+      setRefreshingProfile(false)
+    }
+  }
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -544,7 +575,7 @@ function ConversationHeader({
   }
 
   return (
-    <div className="px-4 py-3 border-b border-morandi-muted/20 flex items-center gap-3">
+    <div className="px-4 h-[calc(3.75rem_-_1px)] border-b border-morandi-muted/20 flex items-center gap-3">
       {/* 頭像（群組用 Users icon、可點擊換頭像） */}
       {isGroup ? (
         <>
@@ -605,13 +636,27 @@ function ConversationHeader({
           <>
             <h3 className="font-semibold text-sm truncate">{conv.display_name || '（未取得名稱）'}</h3>
             {isGroup && (
-              <button
-                onClick={() => { setNameInput(conv.display_name || ''); setEditingName(true) }}
-                className="text-morandi-muted hover:text-morandi-primary shrink-0"
-                title="改名"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
+              <>
+                <button
+                  onClick={() => { setNameInput(conv.display_name || ''); setEditingName(true) }}
+                  className="text-morandi-muted hover:text-morandi-primary shrink-0"
+                  title="改名"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={handleRefreshGroupProfile}
+                  disabled={refreshingProfile}
+                  className="text-morandi-muted hover:text-morandi-primary shrink-0 disabled:opacity-50"
+                  title="從 LINE 重抓群組頭像 + 名稱"
+                >
+                  {refreshingProfile ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </>
             )}
           </>
         )}
@@ -1055,7 +1100,7 @@ function BusinessPanel({
   }
 
   return (
-    <div className="w-72 flex-shrink-0 h-full border border-border rounded-xl bg-white flex flex-col overflow-hidden">
+    <div className="w-72 flex-shrink-0 h-full border border-border rounded-xl bg-card flex flex-col overflow-hidden">
       {/* 面板 header */}
       <div className="px-3 py-2.5 border-b border-morandi-muted/20 flex items-center justify-between">
         <span className="text-xs font-semibold text-morandi-primary">業務面板</span>
@@ -1685,7 +1730,7 @@ function MessageBubble({
           </p>
         )}
         <div
-          className={`overflow-hidden ${
+          className={`overflow-hidden w-fit ${isInbound ? '' : 'ml-auto'} ${
             isImage
               ? 'rounded-2xl'
               : `px-3 py-2 rounded-2xl ${

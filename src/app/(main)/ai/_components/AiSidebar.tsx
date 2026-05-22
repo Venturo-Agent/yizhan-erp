@@ -235,10 +235,6 @@ export function AiSidebar() {
 
         {/* 對話列表 */}
         <div className="flex-1 overflow-y-auto">
-          <div className="px-4 py-2 text-[0.647rem] text-morandi-muted uppercase tracking-wide sticky top-0 bg-card z-10">
-            對話
-          </div>
-
           {isLoading && (
             <div className="px-4 py-4 text-xs text-morandi-muted">載入中…</div>
           )}
