@@ -19,7 +19,7 @@ import { useTranslations } from 'next-intl'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Button } from '@/components/ui/button'
 import { TableColumn } from '@/components/ui/enhanced-table'
-import { Plus, Edit2, CheckSquare, Undo2, Printer, Layers, XCircle } from 'lucide-react'
+import { Plus, Edit2, CheckSquare, Undo2, Printer, XCircle } from 'lucide-react'
 import { confirm, prompt } from '@/lib/ui/alert-dialog'
 import { toast } from 'sonner'
 import { DateCell, StatusCell, CurrencyCell } from '@/components/table-cells'
@@ -35,10 +35,6 @@ interface ReceiptTabConfig {
 // Dynamic imports for dialogs (reduce initial bundle)
 const AddReceiptDialog = dynamic(
   () => import('./_components/AddReceiptDialog').then(m => m.AddReceiptDialog),
-  { loading: () => null }
-)
-const BatchReceiptDialog = dynamic(
-  () => import('./_components/BatchReceiptDialog').then(m => m.BatchReceiptDialog),
   { loading: () => null }
 )
 const RefundReceiptDialog = dynamic(
@@ -83,7 +79,6 @@ export default function PaymentsPage() {
 
   // UI 狀態
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isBatchDialogOpen, setIsBatchDialogOpen] = useState(false)
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null)
   const [refundingReceipt, setRefundingReceipt] = useState<Receipt | null>(null)
   const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false)
@@ -434,17 +429,6 @@ export default function PaymentsPage() {
           icon: Plus,
           onClick: () => setIsDialogOpen(true),
         }}
-        headerActions={
-          <Button
-            variant="header-outline"
-            size="sm"
-            onClick={() => setIsBatchDialogOpen(true)}
-            className="mr-2"
-          >
-            <Layers size="0.95em" className="mr-1" />
-            批量收款
-          </Button>
-        }
         statusTabs={visibleTabs.length > 1 ? visibleTabs : undefined}
         activeStatusTab={activeTab}
         onStatusTabChange={tab => setActiveTab(tab as ReceiptTabValue)}
@@ -461,9 +445,6 @@ export default function PaymentsPage() {
         onUpdate={handleUpdateReceipt}
         onDelete={handleDeleteReceipt}
       />
-
-      {/* 批量收款對話框 */}
-      <BatchReceiptDialog open={isBatchDialogOpen} onOpenChange={setIsBatchDialogOpen} />
 
       {/* 退款對話框 */}
       <RefundReceiptDialog

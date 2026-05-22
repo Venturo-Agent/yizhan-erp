@@ -103,7 +103,7 @@ export function ReceiptDialogHeader({
           </TabsTrigger>
         </TabsList>
 
-        {/* 批量收款：日期 / 收款方式 / 總金額（跟 tab 同排、無 Label） */}
+        {/* 批量收款：日期 / 收款方式 / 總金額（跟 tab 同排、無 Label、之間加垂直分隔線） */}
         {activeTab === 'batch' && (
           <>
             <div className="relative z-[10018] w-[11.5rem]">
@@ -112,6 +112,7 @@ export function ReceiptDialogHeader({
                 onChange={date => onBatchReceiptDateChange(date)}
               />
             </div>
+            <div className="w-px h-8 bg-border/60 self-center" />
             <div className="relative z-[10017] w-[11.5rem]">
               <Select value={batchPaymentMethod} onValueChange={onBatchPaymentMethodChange}>
                 <SelectTrigger>
@@ -126,6 +127,7 @@ export function ReceiptDialogHeader({
                 </SelectContent>
               </Select>
             </div>
+            <div className="w-px h-8 bg-border/60 self-center" />
             <div className="w-[10rem]">
               <Input
                 type="number"

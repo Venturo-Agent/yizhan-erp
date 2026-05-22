@@ -2046,7 +2046,7 @@
     "paymentItemRefNo": "調閱編號",
     "paymentItemExpiry": "到期日",
     "paymentItemReceiver": "收款人",
-    "paymentItemRemarks": "備註（選填）",
+    "paymentItemRemarks": "備註",
     "paymentItemExample": "例如：峇里島五日遊 - 尾款",
     "paymentItemCopyLabel": "複製",
     "paymentFormSelectOrder": "請選擇訂單",

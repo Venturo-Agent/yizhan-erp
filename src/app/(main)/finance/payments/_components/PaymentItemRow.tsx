@@ -187,7 +187,7 @@ export function PaymentItemRow({
               onChange={e => {
                 onUpdate(item.id, { receipt_account: e.target.value })
               }}
-              placeholder="付款資訊"
+              placeholder="收款資訊"
               disabled={readonly}
               className="input-no-focus w-full bg-transparent text-sm"
             />
