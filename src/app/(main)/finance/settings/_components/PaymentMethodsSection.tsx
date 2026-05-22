@@ -250,6 +250,7 @@ export function PaymentMethodsSection({
                 <TableRow>
                   <TableHead className="w-[40px]"></TableHead>
                   <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
+                  <TableHead className="w-[140px]">金流商</TableHead>
                   <TableHead>{PAGE_LABELS.COL_DESCRIPTION}</TableHead>
                   <TableHead>{PAGE_LABELS.COL_PAYMENT_HINT}</TableHead>
                   <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
@@ -261,7 +262,7 @@ export function PaymentMethodsSection({
               <TableBody>
                 {list.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-morandi-muted">
+                    <TableCell colSpan={9} className="text-center py-8 text-morandi-muted">
                       {emptyText}
                     </TableCell>
                   </TableRow>

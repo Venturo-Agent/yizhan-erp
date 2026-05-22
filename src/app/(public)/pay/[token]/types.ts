@@ -68,6 +68,8 @@ export interface PaymentMethodOption {
   kind: string | null
   description: string | null
   placeholder: string | null
+  /** B 方案 provider（2026-05-22）：manual / sinopac_card / sinopac_collect / ... */
+  provider?: string
 }
 
 export interface ReceiptRowData {

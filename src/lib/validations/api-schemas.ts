@@ -282,6 +282,8 @@ export const createPaymentMethodSchema = z.object({
   fee_fixed: z.number().min(0).optional().nullable(),
   // 種類 enum（分類用、各 kind 邏輯未來再接）
   kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
+  // provider（B 方案）：誰處理金流。manual / sinopac_* / 未來其他銀行
+  provider: z.string().min(1).max(50).optional(),
 })
 
 export const updatePaymentMethodSchema = z.object({
@@ -302,6 +304,8 @@ export const updatePaymentMethodSchema = z.object({
   fee_fixed: z.number().min(0).optional().nullable(),
   // 種類 enum（分類用、各 kind 邏輯未來再接）
   kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
+  // provider（B 方案）
+  provider: z.string().min(1).max(50).optional(),
 })
 
 export const upsertBankAccountSchema = z.object({

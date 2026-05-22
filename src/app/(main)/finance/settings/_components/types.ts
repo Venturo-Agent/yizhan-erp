@@ -26,6 +26,19 @@ export interface PaymentMethod {
   fee_account: { id: string; code: string; name: string } | null
   /** 種類 — 取代舊 is_wire_transfer flag、未來各 kind 走獨立邏輯 */
   kind: PaymentMethodKind | null
+  /** B 方案 provider 欄位：誰來處理金流（2026-05-22）
+   * - manual = 不接 API、自己處理
+   * - sinopac_card / sinopac_collect / sinopac_apple_pay / sinopac_google_pay / sinopac_samsung_pay
+   */
+  provider: string
+}
+
+export interface PlatformPaymentProvider {
+  code: string
+  provider_name: string
+  provider_kind: string // card / wire_transfer / wallet / manual
+  enabled: boolean
+  description: string | null
 }
 
 export interface BankAccount {

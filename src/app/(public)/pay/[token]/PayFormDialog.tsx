@@ -50,6 +50,9 @@ export function PayFormDialog({
         ? 5
         : 20
 
+  // B 方案：如果選的方式是「永豐 provider」，走線上刷卡流程（不收識別碼、改跳轉刷卡頁）
+  const isGatewayProvider = selectedMethod?.provider?.startsWith('sinopac_') ?? false
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -58,6 +61,37 @@ export function PayFormDialog({
       setError(LABELS.ERR_NO_METHOD)
       return
     }
+
+    // 永豐金流：產生 payment link、跳轉客戶到刷卡頁
+    if (isGatewayProvider) {
+      setSubmitting(true)
+      try {
+        const res = await fetch(`/api/public/invoices/${token}/generate-payment-link`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            selected_invoice_ids: selectedIds,
+            payment_method_id: paymentMethodId,
+          }),
+        })
+        const json = await res.json()
+        if (!res.ok || !json.success) {
+          setError(json.error || '產生付款連結失敗')
+          return
+        }
+        // 跳轉到 mock 刷卡頁
+        if (typeof window !== 'undefined' && json.data?.redirect_to) {
+          window.location.href = json.data.redirect_to
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : '連線失敗')
+      } finally {
+        setSubmitting(false)
+      }
+      return
+    }
+
+    // 既有「填匯款資訊」流程
     if (!amount || amount <= 0 || amount > totalAmount) {
       setError(`金額請填 1 ~ ${totalAmount.toLocaleString()}`)
       return
@@ -167,57 +201,66 @@ export function PayFormDialog({
               )}
             </div>
 
-            {/* 識別碼 */}
-            <div>
-              <label className="block text-xs font-medium text-morandi-primary mb-1">
-                {LABELS.FORM_IDENTIFIER}
-                <span className="ml-2 text-morandi-secondary text-[0.647rem]">
-                  ({identifierPlaceholder})
-                </span>
-              </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern={`\\d{4,${identifierMaxLength}}`}
-                maxLength={identifierMaxLength}
-                value={identifier}
-                onChange={e => setIdentifier(e.target.value.replace(/\D/g, ''))}
-                placeholder={identifierPlaceholder}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-morandi-gold/40"
-                disabled={submitting}
-                required
-              />
-            </div>
+            {/* 永豐金流：不需要識別碼 / 日期 / 備註、刷卡頁裡填完即可 */}
+            {isGatewayProvider ? (
+              <div className="px-3 py-2 bg-morandi-gold/10 border border-morandi-gold/30 rounded-lg text-xs text-morandi-secondary">
+                點下方按鈕後將跳轉到 <strong>永豐銀行刷卡頁面</strong>、請在該頁完成付款。
+              </div>
+            ) : (
+              <>
+                {/* 識別碼 */}
+                <div>
+                  <label className="block text-xs font-medium text-morandi-primary mb-1">
+                    {LABELS.FORM_IDENTIFIER}
+                    <span className="ml-2 text-morandi-secondary text-[0.647rem]">
+                      ({identifierPlaceholder})
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern={`\\d{4,${identifierMaxLength}}`}
+                    maxLength={identifierMaxLength}
+                    value={identifier}
+                    onChange={e => setIdentifier(e.target.value.replace(/\D/g, ''))}
+                    placeholder={identifierPlaceholder}
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-morandi-gold/40"
+                    disabled={submitting}
+                    required
+                  />
+                </div>
 
-            <div>
-              <label className="block text-xs font-medium text-morandi-primary mb-1">
-                {LABELS.FORM_DATE}
-              </label>
-              <input
-                type="date"
-                max={todayStr}
-                value={paymentDate}
-                onChange={e => setPaymentDate(e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-morandi-gold/40"
-                disabled={submitting}
-                required
-              />
-            </div>
+                <div>
+                  <label className="block text-xs font-medium text-morandi-primary mb-1">
+                    {LABELS.FORM_DATE}
+                  </label>
+                  <input
+                    type="date"
+                    max={todayStr}
+                    value={paymentDate}
+                    onChange={e => setPaymentDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-morandi-gold/40"
+                    disabled={submitting}
+                    required
+                  />
+                </div>
 
-            <div>
-              <label className="block text-xs font-medium text-morandi-primary mb-1">
-                {LABELS.FORM_NOTES}
-              </label>
-              <textarea
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder={LABELS.FORM_NOTES_PLACEHOLDER}
-                rows={2}
-                maxLength={500}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-morandi-gold/40 resize-none"
-                disabled={submitting}
-              />
-            </div>
+                <div>
+                  <label className="block text-xs font-medium text-morandi-primary mb-1">
+                    {LABELS.FORM_NOTES}
+                  </label>
+                  <textarea
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    placeholder={LABELS.FORM_NOTES_PLACEHOLDER}
+                    rows={2}
+                    maxLength={500}
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-morandi-gold/40 resize-none"
+                    disabled={submitting}
+                  />
+                </div>
+              </>
+            )}
 
             {error && (
               <div className="flex items-start gap-2 px-3 py-2 bg-morandi-red/10 border border-morandi-red/30 rounded-lg text-sm text-morandi-red">
@@ -241,7 +284,11 @@ export function PayFormDialog({
                 className="flex-1 py-2 bg-morandi-gold text-white rounded-lg text-sm font-medium hover:bg-morandi-gold/90 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
               >
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                {submitting ? LABELS.FORM_SUBMITTING : LABELS.FORM_SUBMIT}
+                {submitting
+                  ? LABELS.FORM_SUBMITTING
+                  : isGatewayProvider
+                    ? '前往刷卡'
+                    : LABELS.FORM_SUBMIT}
               </button>
             </div>
           </form>

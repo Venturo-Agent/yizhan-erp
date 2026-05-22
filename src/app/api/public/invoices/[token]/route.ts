@@ -98,7 +98,7 @@ export async function GET(
         .order('created_at', { ascending: false }),
       s
         .from('payment_methods')
-        .select('id, name, code, kind, description, placeholder, sort_order')
+        .select('id, name, code, kind, description, placeholder, sort_order, provider')
         .eq('workspace_id', batch.workspace_id)
         .eq('type', 'receipt')
         .eq('is_active', true)
@@ -264,6 +264,7 @@ export async function GET(
         kind: string | null
         description: string | null
         placeholder: string | null
+        provider?: string
       }) => ({
         id: pm.id,
         name: pm.name,
@@ -271,6 +272,7 @@ export async function GET(
         kind: pm.kind,
         description: pm.description,
         placeholder: pm.placeholder,
+        provider: pm.provider ?? 'manual',
       })
     ),
     receipts: receiptsRaw.map(r => ({

@@ -490,6 +490,7 @@ export type Database = {
           bank_name: string | null
           code: string
           created_at: string | null
+          cross_bank_fee: number
           id: string
           is_active: boolean | null
           is_default: boolean | null
@@ -505,6 +506,7 @@ export type Database = {
           bank_name?: string | null
           code: string
           created_at?: string | null
+          cross_bank_fee?: number
           id?: string
           is_active?: boolean | null
           is_default?: boolean | null
@@ -520,6 +522,7 @@ export type Database = {
           bank_name?: string | null
           code?: string
           created_at?: string | null
+          cross_bank_fee?: number
           id?: string
           is_active?: boolean | null
           is_default?: boolean | null
@@ -3077,6 +3080,7 @@ export type Database = {
       }
       expense_categories: {
         Row: {
+          code: string | null
           color: string
           created_at: string | null
           credit_account_id: string | null
@@ -3092,6 +3096,7 @@ export type Database = {
           workspace_id: string | null
         }
         Insert: {
+          code?: string | null
           color: string
           created_at?: string | null
           credit_account_id?: string | null
@@ -3107,6 +3112,7 @@ export type Database = {
           workspace_id?: string | null
         }
         Update: {
+          code?: string | null
           color?: string
           created_at?: string | null
           credit_account_id?: string | null
@@ -5821,6 +5827,7 @@ export type Database = {
           kind: string | null
           name: string
           placeholder: string | null
+          provider: string
           sort_order: number | null
           type: string
           updated_at: string | null
@@ -5841,6 +5848,7 @@ export type Database = {
           kind?: string | null
           name: string
           placeholder?: string | null
+          provider?: string
           sort_order?: number | null
           type: string
           updated_at?: string | null
@@ -5861,6 +5869,7 @@ export type Database = {
           kind?: string | null
           name?: string
           placeholder?: string | null
+          provider?: string
           sort_order?: number | null
           type?: string
           updated_at?: string | null
@@ -5913,6 +5922,7 @@ export type Database = {
           id: string
           item_number: string | null
           notes: string | null
+          payee_employee_id: string | null
           payment_method_id: string | null
           quantity: number | null
           request_id: string | null
@@ -5944,6 +5954,7 @@ export type Database = {
           id?: string
           item_number?: string | null
           notes?: string | null
+          payee_employee_id?: string | null
           payment_method_id?: string | null
           quantity?: number | null
           request_id?: string | null
@@ -5975,6 +5986,7 @@ export type Database = {
           id?: string
           item_number?: string | null
           notes?: string | null
+          payee_employee_id?: string | null
           payment_method_id?: string | null
           quantity?: number | null
           request_id?: string | null
@@ -6011,6 +6023,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_request_items_payee_employee_id_fkey"
+            columns: ["payee_employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -6089,6 +6108,8 @@ export type Database = {
           request_date: string | null
           request_number: string | null
           request_type: string
+          source_id: string | null
+          source_type: string | null
           status: string | null
           supplier_id: string | null
           supplier_name: string | null
@@ -6132,6 +6153,8 @@ export type Database = {
           request_date?: string | null
           request_number?: string | null
           request_type: string
+          source_id?: string | null
+          source_type?: string | null
           status?: string | null
           supplier_id?: string | null
           supplier_name?: string | null
@@ -6175,6 +6198,8 @@ export type Database = {
           request_date?: string | null
           request_number?: string | null
           request_type?: string
+          source_id?: string | null
+          source_type?: string | null
           status?: string | null
           supplier_id?: string | null
           supplier_name?: string | null
@@ -6204,6 +6229,104 @@ export type Database = {
           },
           {
             foreignKeyName: "payment_requests_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          external_approve_code: string | null
+          external_order_no: string | null
+          external_trans_no: string | null
+          id: string
+          invoice_ids: string[] | null
+          payment_link: string | null
+          payment_link_expires_at: string | null
+          payment_link_token: string | null
+          provider: string
+          raw_webhook_payload: Json | null
+          receipt_id: string | null
+          status: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          external_approve_code?: string | null
+          external_order_no?: string | null
+          external_trans_no?: string | null
+          id?: string
+          invoice_ids?: string[] | null
+          payment_link?: string | null
+          payment_link_expires_at?: string | null
+          payment_link_token?: string | null
+          provider: string
+          raw_webhook_payload?: Json | null
+          receipt_id?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          external_approve_code?: string | null
+          external_order_no?: string | null
+          external_trans_no?: string | null
+          id?: string
+          invoice_ids?: string[] | null
+          payment_link?: string | null
+          payment_link_expires_at?: string | null
+          payment_link_token?: string | null
+          provider?: string
+          raw_webhook_payload?: Json | null
+          receipt_id?: string | null
+          status?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_provider_fkey"
+            columns: ["provider"]
+            isOneToOne: false
+            referencedRelation: "platform_payment_providers"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "payment_transactions_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -6289,6 +6412,36 @@ export type Database = {
           type?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      platform_payment_providers: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          enabled: boolean
+          provider_kind: string
+          provider_name: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          provider_kind: string
+          provider_name: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          provider_kind?: string
+          provider_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -8970,6 +9123,7 @@ export type Database = {
           enable_checkin: boolean | null
           envelope_records: string | null
           features: Json | null
+          fee_cost: number
           hero_image_url: string | null
           id: string
           is_active: boolean
@@ -9044,6 +9198,7 @@ export type Database = {
           enable_checkin?: boolean | null
           envelope_records?: string | null
           features?: Json | null
+          fee_cost?: number
           hero_image_url?: string | null
           id: string
           is_active?: boolean
@@ -9118,6 +9273,7 @@ export type Database = {
           enable_checkin?: boolean | null
           envelope_records?: string | null
           features?: Json | null
+          fee_cost?: number
           hero_image_url?: string | null
           id?: string
           is_active?: boolean
@@ -11282,7 +11438,7 @@ export type Database = {
         Returns: string
       }
       next_payment_request_item_numbers: {
-        Args: { p_request_id: string; p_count: number }
+        Args: { p_count: number; p_request_id: string }
         Returns: string[]
       }
       recalculate_order_totals: {
@@ -11556,4 +11712,3 @@ export const Constants = {
     },
   },
 } as const
-

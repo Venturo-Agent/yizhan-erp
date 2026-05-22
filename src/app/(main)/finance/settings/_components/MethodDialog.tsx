@@ -2,7 +2,8 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import useSWR from 'swr'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
 import { EntityFormDialog } from '@/components/shared/EntityFormDialog'
 import { Input } from '@/components/ui/input'
@@ -16,7 +17,20 @@ import {
   type PaymentMethod,
   type PaymentMethodKind,
   type ChartOfAccount,
+  type PlatformPaymentProvider,
 } from './types'
+
+const providerFetcher = async (url: string): Promise<PlatformPaymentProvider[]> => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('讀取金流商失敗')
+  return res.json()
+}
+
+// kind ↔ provider_kind 對應、決定哪些 provider 可選
+const KIND_TO_PROVIDER_KIND: Partial<Record<PaymentMethodKind, string>> = {
+  card: 'card', // 刷卡 → sinopac_card / sinopac_apple_pay / google_pay / samsung_pay
+  wire_transfer: 'wire_transfer', // 匯款 → sinopac_collect
+}
 
 const FEE_KIND_HINT: Partial<Record<PaymentMethodKind, string>> = {
   card: '刷卡手續費（如 2%）。收款核准時自動扣減實收、並產生傳票分錄。',
@@ -60,6 +74,29 @@ export function MethodDialog({
   const [sortOrder, setSortOrder] = useState(0)
   // 種類 enum（William 拍板 2026-05-11、保留為分類用、各 kind 邏輯未來再接）
   const [kind, setKind] = useState<PaymentMethodKind | ''>('')
+  // provider（B 方案 2026-05-22）：誰處理金流
+  const [provider, setProvider] = useState<string>('manual')
+
+  const { data: allProviders = [] } = useSWR<PlatformPaymentProvider[]>(
+    '/api/finance/payment-providers',
+    providerFetcher,
+    { revalidateOnFocus: false }
+  )
+
+  // 根據 kind 過濾 provider 選項：manual 永遠可選、其他看 kind ↔ provider_kind 對應
+  const availableProviders = useMemo(() => {
+    if (!kind) return allProviders.filter(p => p.code === 'manual')
+    const targetKind = KIND_TO_PROVIDER_KIND[kind as PaymentMethodKind]
+    if (!targetKind) return allProviders.filter(p => p.code === 'manual')
+    return allProviders.filter(p => p.code === 'manual' || p.provider_kind === targetKind)
+  }, [allProviders, kind])
+
+  // 切 kind 時、如果當前 provider 不在新選項裡、reset 成 manual
+  useEffect(() => {
+    if (!availableProviders.find(p => p.code === provider)) {
+      setProvider('manual')
+    }
+  }, [availableProviders, provider])
 
   useEffect(() => {
     if (open) {
@@ -77,6 +114,7 @@ export function MethodDialog({
       setFeeFixed(method?.fee_fixed ? String(method.fee_fixed) : '')
       setFeeAccountId(method?.fee_account_id || '')
       setKind((method?.kind as PaymentMethodKind | null) ?? '')
+      setProvider(method?.provider ?? 'manual')
       // 新增時自動取下一個排序數字
       if (method) {
         setSortOrder(method.sort_order || 0)
@@ -119,6 +157,7 @@ export function MethodDialog({
       fee_account_id: (feePercentNum > 0 || feeFixedNum > 0) ? feeAccountId || null : null,
       kind: kind || null,
       sort_order: sortOrder,
+      provider,
     })
   }
 
@@ -158,6 +197,27 @@ export function MethodDialog({
             )}
           </select>
         </div>
+
+        {/* Provider：選定 kind = card / wire_transfer 才有外部金流商可選、其他只能 manual */}
+        {(kind === 'card' || kind === 'wire_transfer') && availableProviders.length > 1 && (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">金流商</Label>
+            <select
+              value={provider}
+              onChange={e => setProvider(e.target.value)}
+              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+            >
+              {availableProviders.map(p => (
+                <option key={p.code} value={p.code}>
+                  {p.provider_name}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-morandi-muted">
+              💡 選擇「永豐」相關金流商、平台會自動串接 API 產生付款連結。選「手動處理」則不接 API、由人工輸入交易資訊。
+            </p>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label>{t('fieldNameRequired')}</Label>
