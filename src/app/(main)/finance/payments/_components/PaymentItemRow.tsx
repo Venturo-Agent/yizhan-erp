@@ -6,7 +6,8 @@
 import { formatMoney } from '@/lib/utils/format-currency'
 import { useState, useEffect } from 'react'
 import { usePaymentMethodsCached } from '@/data/hooks'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Link2, Copy, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
 import {
@@ -44,6 +45,7 @@ interface PaymentItemRowProps {
     name: string
     description?: string | null
     placeholder?: string | null
+    provider?: string
   }>
   /** 是否有核帳權限（可填寫實收金額） */
   canConfirmReceipt?: boolean
@@ -110,6 +112,71 @@ export function PaymentItemRow({
   // 根據 receipt_type（DB name）找到對應的 code
   const currentMethod = paymentMethods.find(m => m.name === String(item.receipt_type))
   const _currentCode = item.payment_method_code || currentMethod?.code || ''
+
+  // B 方案 provider（2026-05-22 William）：選了永豐 provider 才展開「產生付款連結」區
+  const isSinopacProvider = currentMethod?.provider?.startsWith('sinopac_') ?? false
+  const totalColumns = canConfirmReceipt ? 6 : 5
+
+  // 「產生付款連結」狀態
+  const [linkEmail, setLinkEmail] = useState('')
+  const [linkDays, setLinkDays] = useState(7)
+  const [linkGenerating, setLinkGenerating] = useState(false)
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null)
+  const [generatedExpiresAt, setGeneratedExpiresAt] = useState<string | null>(null)
+
+  const handleGenerateLink = async () => {
+    if (!item.amount || item.amount <= 0) {
+      toast.error('請先填收款金額')
+      return
+    }
+    if (!linkEmail) {
+      toast.error('請填客戶 Email')
+      return
+    }
+    if (!currentMethod?.provider) {
+      toast.error('收款方式未綁定金流商')
+      return
+    }
+    setLinkGenerating(true)
+    try {
+      const res = await fetch('/api/finance/payment-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: currentMethod.provider,
+          amount: item.amount,
+          customer_email: linkEmail,
+          expires_minutes: linkDays * 24 * 60,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.success) {
+        toast.error(json.error || '產生失敗')
+        return
+      }
+      const absoluteLink =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}${json.data.payment_link}`
+          : json.data.payment_link
+      setGeneratedLink(absoluteLink)
+      setGeneratedExpiresAt(json.data.payment_link_expires_at ?? null)
+      toast.success('付款連結已產生')
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '連線失敗')
+    } finally {
+      setLinkGenerating(false)
+    }
+  }
+
+  const handleCopyLink = async () => {
+    if (!generatedLink) return
+    try {
+      await navigator.clipboard.writeText(generatedLink)
+      toast.success('已複製連結')
+    } catch {
+      toast.error('複製失敗、請手動選取')
+    }
+  }
 
   // 當收款方式變更時（method 為 SSOT、receipt_type 從 method.code 反推給 trigger 兼容）
   // 手續費 / 實收金額不在新增當下算、等會計按「確認」時 ReceiptDialogFooter 才算
@@ -301,6 +368,117 @@ export function PaymentItemRow({
         )}
       </tr>
 
+      {/* 永豐 provider 子列：產生付款連結（2026-05-22 William 拍板）*/}
+      {isSinopacProvider && !readonly && (
+        <tr className="bg-morandi-gold/5 border-b border-border/50">
+          <td colSpan={totalColumns} className="py-3 px-4">
+            {!generatedLink ? (
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="flex-1 min-w-[220px]">
+                  <label className="block text-[0.65rem] text-morandi-secondary mb-1">
+                    客戶 Email <span className="text-status-danger">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={linkEmail}
+                    onChange={e => setLinkEmail(e.target.value)}
+                    placeholder="customer@example.com"
+                    className="w-full h-8 px-2 rounded-md border border-input bg-background text-sm"
+                    disabled={linkGenerating}
+                  />
+                </div>
+                <div className="w-28">
+                  <label className="block text-[0.65rem] text-morandi-secondary mb-1">
+                    連結有效
+                  </label>
+                  <select
+                    value={linkDays}
+                    onChange={e => setLinkDays(Number(e.target.value))}
+                    disabled={linkGenerating}
+                    className="w-full h-8 px-2 rounded-md border border-input bg-background text-sm"
+                  >
+                    <option value={1}>1 天</option>
+                    <option value={3}>3 天</option>
+                    <option value={7}>7 天</option>
+                    <option value={14}>14 天</option>
+                    <option value={30}>30 天</option>
+                  </select>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleGenerateLink}
+                  disabled={linkGenerating || !item.amount}
+                  className="h-8 gap-1.5"
+                >
+                  {linkGenerating ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Link2 className="w-3.5 h-3.5" />
+                  )}
+                  產生付款連結
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-green-700">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span className="font-medium">連結已產生</span>
+                  {generatedExpiresAt && (
+                    <span className="text-xs text-morandi-muted">
+                      有效至 {new Date(generatedExpiresAt).toLocaleString('zh-TW')}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={generatedLink}
+                    readOnly
+                    className="flex-1 h-8 px-2 rounded-md border border-input bg-card text-xs font-mono"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopyLink}
+                    className="h-8 px-2"
+                    title="複製連結"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.open(generatedLink, '_blank')}
+                    className="h-8 px-2"
+                    title="開新分頁預覽"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setGeneratedLink(null)
+                      setGeneratedExpiresAt(null)
+                    }}
+                    className="h-8 px-2 text-xs text-morandi-muted"
+                  >
+                    再產一筆
+                  </Button>
+                </div>
+                <p className="text-[0.65rem] text-morandi-muted">
+                  Phase 1 不會自動寄信、請複製連結手動傳給客戶（{linkEmail}）
+                </p>
+              </div>
+            )}
+          </td>
+        </tr>
+      )}
     </>
   )
 }

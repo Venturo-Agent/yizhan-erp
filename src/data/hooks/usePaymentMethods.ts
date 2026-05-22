@@ -16,6 +16,8 @@ interface PaymentMethod {
   kind?: 'wire_transfer' | 'card' | 'cash' | 'check' | 'other' | null
   fee_fixed?: number
   fee_account_id?: string | null
+  // B 方案 provider（2026-05-22）：manual / sinopac_*
+  provider?: string
 }
 
 type PaymentMethodType = 'receipt' | 'payment'

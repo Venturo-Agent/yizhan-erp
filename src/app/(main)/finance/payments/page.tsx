@@ -19,7 +19,7 @@ import { useTranslations } from 'next-intl'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Button } from '@/components/ui/button'
 import { TableColumn } from '@/components/ui/enhanced-table'
-import { Plus, Edit2, CheckSquare, Undo2, Printer, XCircle, Link2 } from 'lucide-react'
+import { Plus, Edit2, CheckSquare, Undo2, Printer, XCircle } from 'lucide-react'
 import { confirm, prompt } from '@/lib/ui/alert-dialog'
 import { toast } from 'sonner'
 import { DateCell, StatusCell, CurrencyCell } from '@/components/table-cells'
@@ -43,10 +43,6 @@ const RefundReceiptDialog = dynamic(
 )
 const ReceiptPrintDialog = dynamic(
   () => import('./_components/ReceiptPrintDialog').then(m => m.ReceiptPrintDialog),
-  { loading: () => null }
-)
-const SendPaymentLinkDialog = dynamic(
-  () => import('./_components/SendPaymentLinkDialog').then(m => m.SendPaymentLinkDialog),
   { loading: () => null }
 )
 
@@ -88,7 +84,6 @@ export default function PaymentsPage() {
   const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false)
   const [printingReceipt, setPrintingReceipt] = useState<Receipt | null>(null)
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false)
-  const [isSendLinkDialogOpen, setIsSendLinkDialogOpen] = useState(false)
   const [activeTab, setActiveTab] = useState<ReceiptTabValue>('all')
 
   // 根據 capability 顯示 tab
@@ -434,17 +429,6 @@ export default function PaymentsPage() {
           icon: Plus,
           onClick: () => setIsDialogOpen(true),
         }}
-        headerActions={
-          <Button
-            variant="header-outline"
-            size="sm"
-            onClick={() => setIsSendLinkDialogOpen(true)}
-            className="gap-1.5"
-          >
-            <Link2 className="w-4 h-4" />
-            發送付款連結
-          </Button>
-        }
         statusTabs={visibleTabs.length > 1 ? visibleTabs : undefined}
         activeStatusTab={activeTab}
         onStatusTabChange={tab => setActiveTab(tab as ReceiptTabValue)}
@@ -478,12 +462,6 @@ export default function PaymentsPage() {
         open={isPrintDialogOpen}
         onOpenChange={setIsPrintDialogOpen}
         receipt={printingReceipt}
-      />
-
-      {/* 發送付款連結（Phase 1 mock、永豐相關 provider）*/}
-      <SendPaymentLinkDialog
-        open={isSendLinkDialogOpen}
-        onOpenChange={setIsSendLinkDialogOpen}
       />
     </>
   )
