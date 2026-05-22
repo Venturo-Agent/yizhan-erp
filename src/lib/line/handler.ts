@@ -27,6 +27,7 @@
  */
 
 import { replyToLine } from '@/lib/line/reply-client'
+import { isHappyQuery, handleHappyQuery } from '@/lib/line/happy-rag-handler'
 import {
   botCreateOrder,
   botEnsureCustomer,
@@ -81,6 +82,20 @@ export async function processIncomingTextMessage(
   if (!userText?.trim()) {
     return { replyText: '', llmUsed: false, debugReason: 'empty user text' }
   }
+
+  // 2026-05-22 Phase 0 Day 2：HAPPY ERP RAG (`/happy` prefix)
+  // 員工打 `/happy 怎麼請款` → 查 ERP 知識庫回答
+  // 不影響客戶旅遊客服 flow
+  if (isHappyQuery(userText)) {
+    const result = await handleHappyQuery(userText)
+    await sendReply(ctx, replyToken, result.replyText)
+    return {
+      replyText: result.replyText,
+      llmUsed: result.llmUsed,
+      debugReason: `happy:${result.chunksUsed}chunks${result.debugReason ? ':' + result.debugReason : ''}`,
+    }
+  }
+
   if (!ctx.botEmployeeId) {
     // bot 還沒被自助開通完成（沒系統員工）= 不能跑業務邏輯
     const msg = '系統設定尚未完成、請聯繫管理員啟用 LINE Bot 自助開通流程。'
