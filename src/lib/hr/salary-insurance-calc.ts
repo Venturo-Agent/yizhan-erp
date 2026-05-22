@@ -78,12 +78,19 @@ export function checkGradeCoverage(
 }
 
 export interface CalcInput {
-  base_salary: number // 月薪本薪
+  base_salary: number // 月薪本薪（gross mode）或實給薪資（net mode）
   insured_salary_override?: number | null // 若 user 自己填、優先用（少數高薪員工往上加保的場景）
-  dependents_count?: number // 健保眷屬數（每位 1.0 倍率、本人不算）
+  dependents_count?: number // 健保眷屬總數（給 HR 看、不算錢）
+  chargeable_dependents_count?: number // 計費眷屬數（健保自付按此算、免費眷屬不算）2026-05-22
   pension_voluntary_rate?: number // 0-0.06 員工自願提撥率
   labor_insured_here?: boolean // 預設 true、不在本公司則 skip
   health_insured_here?: boolean // 預設 true
+  /**
+   * 薪資模式（2026-05-22 William 拍板）：
+   * - 'gross'（預設）：base_salary = 總薪資（含勞健保自付）、員工實領 = base - 自付
+   * - 'net'：base_salary = 實給薪資（員工拿到手）、應發 = base + 自付（公司多承擔員工那份）
+   */
+  salary_mode?: 'gross' | 'net'
 }
 
 export interface CalcResult {
@@ -100,6 +107,10 @@ export interface CalcResult {
   health_employer: number
   pension_employer: number
   employer_burden_total: number
+  // 2026-05-22 加：gross / net 模式下的實際應發 / 實領
+  gross_pay_calc: number // 應發（給薪資請款用）
+  net_pay_calc: number // 實領（員工拿到手）
+  salary_mode_used: 'gross' | 'net'
 }
 
 /**
@@ -113,10 +124,13 @@ export function calcInsuranceForEmployee(
   grades: { labor: GradeRow[]; health: GradeRow[]; pension: GradeRow[] }
 ): CalcResult {
   const base = Number(input.base_salary || 0)
-  const dependents = Math.max(0, Number(input.dependents_count || 0))
+  // 2026-05-22：計費眷屬優先用 chargeable_dependents_count、fallback dependents_count
+  const dependentsTotal = Math.max(0, Number(input.dependents_count || 0))
+  const chargeable = Math.max(0, Number(input.chargeable_dependents_count ?? dependentsTotal))
   const voluntaryRate = Math.min(0.06, Math.max(0, Number(input.pension_voluntary_rate || 0)))
   const laborHere = input.labor_insured_here !== false
   const healthHere = input.health_insured_here !== false
+  const mode = input.salary_mode ?? 'gross'
 
   // 投保薪資（級距配對、user 可 override）
   const overrideAmt = input.insured_salary_override
@@ -129,9 +143,9 @@ export function calcInsuranceForEmployee(
   const laborEmployee = Math.round(laborTotal * RATES.labor.employee)
   const laborEmployer = Math.round(laborTotal * RATES.labor.employer)
 
-  // 健保（healthHere=true 才算、員工負擔含眷屬倍數）
+  // 健保（healthHere=true 才算、員工負擔含計費眷屬倍數）
   const healthTotal = healthHere ? insuredHealth * RATES.health.total : 0
-  const healthEmployee = Math.round(healthTotal * RATES.health.employee * (1 + dependents))
+  const healthEmployee = Math.round(healthTotal * RATES.health.employee * (1 + chargeable))
   const healthEmployer = Math.round(healthTotal * RATES.health.employer)
 
   // 勞退（laborHere=true 才算）
@@ -140,6 +154,19 @@ export function calcInsuranceForEmployee(
 
   const employeeDeductionsTotal = laborEmployee + healthEmployee + pensionVoluntary
   const employerBurdenTotal = laborEmployer + healthEmployer + pensionEmployer
+
+  // 2026-05-22 William 拍板：gross / net 模式
+  // gross: 應發 = base、實領 = base - 自付（員工自付從本薪扣）
+  // net:   應發 = base + 自付、實領 = base（員工拿到 base、公司多承擔員工那份）
+  let grossPayCalc: number
+  let netPayCalc: number
+  if (mode === 'net') {
+    grossPayCalc = base + employeeDeductionsTotal
+    netPayCalc = base
+  } else {
+    grossPayCalc = base
+    netPayCalc = base - employeeDeductionsTotal
+  }
 
   return {
     insured_salary_labor: laborHere ? insuredLabor : 0,
@@ -153,5 +180,8 @@ export function calcInsuranceForEmployee(
     health_employer: healthEmployer,
     pension_employer: pensionEmployer,
     employer_burden_total: employerBurdenTotal,
+    gross_pay_calc: grossPayCalc,
+    net_pay_calc: netPayCalc,
+    salary_mode_used: mode,
   }
 }

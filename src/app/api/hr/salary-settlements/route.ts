@@ -30,7 +30,9 @@ interface SalaryInfo {
   allowances?: Array<{ amount?: number }>
   // 2026-05-15 William 拍板：薪資結算用
   pension_voluntary_rate?: number  // 員工自願提撥率 0-0.06
-  dependents_count?: number  // 健保眷屬數（之後算健保用、此 phase 不算）
+  dependents_count?: number  // 健保眷屬總數
+  chargeable_dependents_count?: number  // 計費眷屬（免費眷屬不算、2026-05-22 加）
+  salary_mode?: 'gross' | 'net'  // gross 含勞健保（預設）/ net 實給（公司多承擔）
   labor_insured_here?: boolean  // 勞保是否在本公司（含勞退）
   health_insured_here?: boolean  // 健保是否在本公司
 }
@@ -230,16 +232,17 @@ export const POST = apiHandler(async (request: NextRequest) => {
         base_salary: base,
         insured_salary_override: info.insured_salary,
         dependents_count: info.dependents_count,
+        chargeable_dependents_count: info.chargeable_dependents_count,
         pension_voluntary_rate: info.pension_voluntary_rate,
         labor_insured_here: info.labor_insured_here,
         health_insured_here: info.health_insured_here,
+        salary_mode: info.salary_mode,
       },
       gradesByKind
     )
 
-    // 員工應發（gross） = 本薪 + 津貼 + 勤獎 + 其他
-    const grossPay = base + attendance + other + allowancesSum
-    // 員工實領 = gross - 員工自付合計
+    // 2026-05-22 William 拍板：依 salary_mode 算應發 / 實領（gross=從 base 扣 / net=base+自付）
+    const grossPay = calc.gross_pay_calc + attendance + other + allowancesSum
     const netPay = grossPay - calc.employee_deductions_total
 
     return {
