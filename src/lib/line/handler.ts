@@ -27,7 +27,7 @@
  */
 
 import { replyToLine } from '@/lib/line/reply-client'
-import { isHappyQuery, handleHappyQuery } from '@/lib/line/happy-rag-handler'
+import { isHappyWorkspace, handleHappyQuery } from '@/lib/line/happy-rag-handler'
 import {
   botCreateOrder,
   botEnsureCustomer,
@@ -83,10 +83,10 @@ export async function processIncomingTextMessage(
     return { replyText: '', llmUsed: false, debugReason: 'empty user text' }
   }
 
-  // 2026-05-22 Phase 0 Day 2：HAPPY ERP RAG (`/happy` prefix)
-  // 員工打 `/happy 怎麼請款` → 查 ERP 知識庫回答
-  // 不影響客戶旅遊客服 flow
-  if (isHappyQuery(userText)) {
+  // 2026-05-22 Phase 0：漫途 LINE@ = 員工專用 HAPPY ERP RAG
+  // by workspace 分流（William 拍板：員工直接問、不用 /happy 前綴）
+  // 漫途 workspace → HAPPY、其他 workspace（譬如角落 LINE@）→ 原本客戶旅遊 flow
+  if (isHappyWorkspace(ctx.workspaceId)) {
     const result = await handleHappyQuery(userText)
     await sendReply(ctx, replyToken, result.replyText)
     return {

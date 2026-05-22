@@ -1,15 +1,18 @@
 /**
- * HAPPY RAG handler — LINE bot `/happy` prefix 觸發的 ERP 知識庫問答
+ * HAPPY RAG handler — 漫途 LINE@ 員工專用 ERP 知識庫問答
  *
- * 2026-05-22 Phase 0 Day 2（William 拍板）
+ * 2026-05-22 Phase 0（William 拍板）
+ *
+ * 路由：line-handler.ts 偵測 ctx.workspaceId === PLATFORM_WORKSPACE_ID 直接 call 本 handler
+ * 漫途 LINE@ = 員工專用、全部訊息當 ERP 問題處理（不用 /happy 前綴）
+ * 角落 / 其他 LINE@ = 客戶旅遊客服 flow（不動）
  *
  * 流程：
- *   1. 偵測訊息開頭 `/happy `（在 line-handler.ts 處理）
- *   2. 抽 query（去掉 prefix）
- *   3. 從 query 抽 keywords、查 knowledge_chunks ILIKE
- *   4. 把 top-N chunks 組 system context
- *   5. call LLM、限定「依 chunks 回答、不知道就說不知道、不要編」
- *   6. reply LINE
+ *   1. 收到員工原始問題（已過 prefix detection、不再去 prefix）
+ *   2. 從問題抽 keywords、查 knowledge_chunks ILIKE
+ *   3. 把 top-N chunks 組 system context
+ *   4. call LLM、限定「依 chunks 回答、不知道就說不知道、不要編」
+ *   5. reply LINE
  *
  * RAG 簡易策略（不用 embeddings）：
  *   - 抽 query 中的有意義 token（過濾停用詞）
@@ -18,7 +21,7 @@
  *
  * 未來升級：
  *   - 加 embeddings（已預留 embedding column）
- *   - 加 sender 員工偵測、自動進 RAG mode（不靠 /happy prefix）
+ *   - 補 user-facing how-to docs（非開發者向、業務白話）
  */
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
@@ -26,8 +29,7 @@ import { callLLM, isOpenRouterConfigured } from '@/lib/llm/openrouter-client'
 import { logger } from '@/lib/utils/logger'
 
 const HANDLER = 'happy-rag'
-const HAPPY_PREFIX = '/happy '
-const PLATFORM_WORKSPACE_ID = 'b2222222-2222-2222-2222-222222222222' // 漫途整合行銷
+export const PLATFORM_WORKSPACE_ID = 'b2222222-2222-2222-2222-222222222222' // 漫途整合行銷
 
 interface HappyResult {
   replyText: string
@@ -37,17 +39,11 @@ interface HappyResult {
 }
 
 /**
- * 判斷訊息是否為 HAPPY query
+ * 判斷該 workspace 是否走 HAPPY ERP 員工模式
+ * （漫途 LINE@ 走、其他客戶用 LINE@ 走原本旅遊客服 flow）
  */
-export function isHappyQuery(text: string): boolean {
-  return text.trim().toLowerCase().startsWith(HAPPY_PREFIX)
-}
-
-/**
- * 抽 query body（去掉 /happy prefix）
- */
-function extractQuery(text: string): string {
-  return text.trim().slice(HAPPY_PREFIX.length).trim()
+export function isHappyWorkspace(workspaceId: string): boolean {
+  return workspaceId === PLATFORM_WORKSPACE_ID
 }
 
 /**
@@ -114,14 +110,14 @@ ${c.content}
 }
 
 /**
- * 主入口
+ * 主入口 — 對員工原始問題做 RAG 回答
  */
 export async function handleHappyQuery(userText: string): Promise<HappyResult> {
-  const query = extractQuery(userText)
+  const query = userText.trim()
 
   if (!query) {
     return {
-      replyText: '嗨！我是 HAPPY、一棧 ERP 系統助手。請在 /happy 後面加上你的問題，譬如：\n\n/happy 怎麼請款\n/happy 怎麼新增客戶\n/happy 月結了怎麼辦',
+      replyText: '嗨！我是 HAPPY、一棧 ERP 系統助手 🙋\n\n你可以直接問我，譬如：\n• 怎麼新增客戶\n• 怎麼開新團\n• 收款流程怎麼走\n• 月底要做什麼',
       chunksUsed: 0,
       llmUsed: false,
       debugReason: 'empty query',
