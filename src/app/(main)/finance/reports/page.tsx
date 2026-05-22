@@ -11,9 +11,7 @@ import {
   BarChart3,
   TrendingUp,
   FileDown,
-  AlertCircle,
   PieChart,
-  Trophy,
   Receipt,
   Building,
   Banknote,
@@ -29,9 +27,7 @@ import {
 import { OverviewTab } from './_components/OverviewTab'
 import { DisbursementTab } from './_components/DisbursementTab'
 import { IncomeTab } from './_components/IncomeTab'
-import { UnclosedToursTab } from './_components/UnclosedToursTab'
 import { TourPnlTab } from './_components/TourPnlTab'
-import { SalesPerformanceTab } from './_components/SalesPerformanceTab'
 import { ReceivablesTab } from './_components/ReceivablesTab'
 import { PayablesTab } from './_components/PayablesTab'
 import { BankBalancesTab } from './_components/BankBalancesTab'
@@ -42,14 +38,12 @@ type TabValue =
   | 'overview'
   | 'disbursement'
   | 'income'
-  | 'unclosed'
   | 'pnl'
-  | 'sales'
   | 'receivables'
   | 'payables'
   | 'banks'
 
-const NO_DATE_TABS: TabValue[] = ['unclosed', 'pnl', 'receivables', 'payables', 'banks']
+const NO_DATE_TABS: TabValue[] = ['pnl', 'receivables', 'payables', 'banks']
 const GRANULARITY_TABS: TabValue[] = ['overview']
 
 const GRANULARITY_OPTIONS: {
@@ -103,9 +97,7 @@ export default function ReportsPage() {
       { value: 'overview', label: '收支總覽', icon: BarChart3 },
       { value: 'disbursement', label: '請款報表', icon: FileDown },
       { value: 'income', label: '收款報表', icon: TrendingUp },
-      { value: 'unclosed', label: '未結案', icon: AlertCircle },
       { value: 'pnl', label: '損益表', icon: PieChart },
-      { value: 'sales', label: '業務員業績', icon: Trophy },
       { value: 'receivables', label: '應收帳款', icon: Receipt },
       { value: 'payables', label: '應付帳款', icon: Building },
       { value: 'banks', label: '銀行餘額', icon: Banknote },
@@ -163,14 +155,8 @@ export default function ReportsPage() {
           <TabsContent value="income" className="mt-0">
             <IncomeTab dateRange={dateRange} />
           </TabsContent>
-          <TabsContent value="unclosed" className="mt-0">
-            <UnclosedToursTab />
-          </TabsContent>
           <TabsContent value="pnl" className="mt-0">
             <TourPnlTab />
-          </TabsContent>
-          <TabsContent value="sales" className="mt-0">
-            <SalesPerformanceTab dateRange={dateRange} />
           </TabsContent>
           <TabsContent value="receivables" className="mt-0">
             <ReceivablesTab />
