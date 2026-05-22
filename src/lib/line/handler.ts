@@ -89,6 +89,13 @@ export async function processIncomingTextMessage(
   if (isHappyWorkspace(ctx.workspaceId)) {
     const result = await handleHappyQuery(userText)
     await sendReply(ctx, replyToken, result.replyText)
+    // 2026-05-22 補：寫 outbound 紀錄、AI Hub 對話收件夾才看得到 HAPPY 的回覆
+    await botRecordMessage(ctx, {
+      direction: 'outbound',
+      senderType: 'bot',
+      content: result.replyText,
+      messageType: 'text',
+    })
     return {
       replyText: result.replyText,
       llmUsed: result.llmUsed,
