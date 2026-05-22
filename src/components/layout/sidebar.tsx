@@ -246,6 +246,10 @@ export function Sidebar() {
     }
 
     // 沒有子項目的菜單項：flex layout、icon 固定不晃
+    // 2026-05-22 William 拍板：子項目 icon + 字體都用 em / rem、跟著 FontScaleSwitcher 等比例縮放
+    //   - icon: 1em（vs 父 1.375em ≈ 72%）
+    //   - 字體: text-xs（vs 父 text-sm ≈ 86%、視覺一致縮）
+    //   - 整體右移：icon container 多 pl-4、字體再 pl-1 強化「子目錄」感
     return (
       <li
         key={`${item.href}-${item.label}`}
@@ -256,7 +260,8 @@ export function Sidebar() {
           prefetch={false}
           onClick={closeSidebar}
           className={cn(
-            'relative w-full flex items-center h-11 text-sm text-morandi-secondary',
+            'relative w-full flex items-center h-11 text-morandi-secondary',
+            isChild ? 'text-xs' : 'text-sm',
             'hover:bg-morandi-gold/5 hover:text-morandi-gold',
             active && 'bg-morandi-gold/10 text-morandi-gold'
           )}
@@ -268,7 +273,12 @@ export function Sidebar() {
             <item.icon size={isChild ? '1em' : '1.375em'} strokeWidth={1.5} />
           </div>
           {showExpanded && (
-            <span className="flex-1 text-left whitespace-nowrap overflow-hidden">
+            <span
+              className={cn(
+                'flex-1 text-left whitespace-nowrap overflow-hidden',
+                isChild && 'pl-1'
+              )}
+            >
               {item.label}
             </span>
           )}
