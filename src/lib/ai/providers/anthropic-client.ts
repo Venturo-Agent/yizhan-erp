@@ -12,7 +12,10 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { logger } from '@/lib/utils/logger'
-import type { LLMRequest, LLMResponse } from '@/types/line.types'
+import type { LLMRequest, LLMResponse, LLMTool, LLMToolCall } from '@/types/line.types'
+
+// Anthropic SDK 型別（單獨拉出來、避免 cast 散落）
+type AnthropicTool = Anthropic.Messages.Tool
 
 const DEFAULT_MODEL = 'claude-sonnet-4-5'
 const REQUEST_TIMEOUT_MS = 30_000
@@ -46,25 +49,45 @@ export async function callAnthropic(
     timeout: REQUEST_TIMEOUT_MS,
   })
 
+  // tools 轉換：LLMTool（OpenAI-style）→ Anthropic Tool（input_schema）
+  // 2026-05-23 William：加 tool use 支援、給 send_payment_link 等 AI tool 用
+  const anthropicTools = (req.tools ?? []).map(toAnthropicTool)
+
   try {
     const resp = await client.messages.create({
       model,
       max_tokens: 2048,
       temperature: req.temperature ?? 0.3,
       system: systemPrompt || undefined,
+      ...(anthropicTools.length > 0 && { tools: anthropicTools }),
       messages: otherMessages.map(m => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),
     })
 
-    const textBlock = resp.content.find(b => b.type === 'text')
-    const content = textBlock && textBlock.type === 'text' ? textBlock.text : ''
+    // 解析 response content blocks（可能含 text + tool_use）
+    let content = ''
+    const toolCalls: LLMToolCall[] = []
+    for (const block of resp.content) {
+      if (block.type === 'text') {
+        content += block.text
+      } else if (block.type === 'tool_use') {
+        toolCalls.push({
+          id: block.id,
+          type: 'function',
+          function: {
+            name: block.name,
+            arguments: JSON.stringify(block.input ?? {}),
+          },
+        })
+      }
+    }
 
     return {
       ok: true,
       content,
-      toolCalls: [],
+      toolCalls,
       model: resp.model,
       error: null,
       usage: {
@@ -86,6 +109,19 @@ export async function callAnthropic(
       model,
       error: msg.slice(0, 200),
     }
+  }
+}
+
+/**
+ * LLMTool（OpenAI-style）→ Anthropic Tool 規格轉換
+ * - LLMTool: { type: 'function', function: { name, description, parameters } }
+ * - Anthropic: { name, description, input_schema }
+ */
+function toAnthropicTool(tool: LLMTool): AnthropicTool {
+  return {
+    name: tool.function.name,
+    description: tool.function.description,
+    input_schema: tool.function.parameters as AnthropicTool['input_schema'],
   }
 }
 

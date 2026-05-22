@@ -21,6 +21,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { translateDbError } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
+import { notifyPaymentCapturedToConversation } from '@/lib/ai/notify-payment-captured'
 
 export async function POST(
   _request: NextRequest,
@@ -37,7 +38,9 @@ export async function POST(
   // 1. 找 transaction
   const { data: tx, error: txError } = await supabase
     .from('payment_transactions')
-    .select('id, status, receipt_id, payment_link_expires_at, amount, workspace_id, provider')
+    .select(
+      'id, status, receipt_id, payment_link_expires_at, amount, workspace_id, provider, raw_webhook_payload'
+    )
     .eq('payment_link_token', token)
     .maybeSingle()
 
@@ -108,6 +111,16 @@ export async function POST(
       logger.error('[mock-webhook] receipt update failed', { receiptError })
     }
   }
+
+  // 4. 若這筆 transaction 是 AI tool 從對話產出的、推一則「付款成功」訊息進對話
+  //    讓 AI 下次接到客戶訊息時、有 context 知道「客戶剛剛付過了」
+  //    Phase 2 真實 webhook 也走同樣邏輯（共用 helper）
+  await notifyPaymentCapturedToConversation({
+    workspaceId: tx.workspace_id,
+    amount: Number(tx.amount),
+    rawWebhookPayload: tx.raw_webhook_payload as Record<string, unknown> | null,
+    externalTransNo: mockTransNo,
+  })
 
   return NextResponse.json({
     success: true,

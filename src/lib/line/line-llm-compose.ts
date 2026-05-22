@@ -12,6 +12,11 @@ import { logger } from '@/lib/utils/logger'
 import { searchKnowledgeByKeywords, buildRagBlock } from '@/lib/rag/keyword-search'
 import { getCompanyName } from '@/lib/ai/get-company-name'
 import { getTaipeiToday, normalizeDatesInText } from '@/lib/line/date-normalizer'
+import {
+  sendPaymentLinkTool,
+  executeSendPaymentLink,
+  type SendPaymentLinkArgs,
+} from '@/lib/ai/tools/send-payment-link'
 import type { BotContext, LLMChatMessage, LineMessageRow, TourSummary } from '@/types/line.types'
 import type { MemoryJson } from '@/lib/ai/memory-summarizer'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -173,6 +178,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     workspaceId: ctx.workspaceId,
     temperature: 0.3,
     caller: 'line-llm-compose',
+    tools: [sendPaymentLinkTool],
   })
 
   // 全部 provider 都不通（連 fallback 也沒）→ 純規則 fallback
@@ -180,7 +186,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     return composeReplyFallback(userText, tours)
   }
 
-  if (!llmRes.ok || !llmRes.content) {
+  if (!llmRes.ok) {
     logger.warn(`${HANDLER}: LLM call failed, fallback`, {
       workspaceId: ctx.workspaceId,
       error: llmRes.error,
@@ -188,7 +194,45 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     return composeReplyFallback(userText, tours)
   }
 
-  return stripMarkdownForLine(llmRes.content.trim())
+  // tool_use 處理（AI 判斷該收錢、call send_payment_link）
+  // 跟 ai-brain 同樣邏輯、LINE 也支援
+  let toolAppendix = ''
+  if (llmRes.toolCalls && llmRes.toolCalls.length > 0) {
+    for (const call of llmRes.toolCalls) {
+      if (call.function.name === 'send_payment_link') {
+        let toolArgs: SendPaymentLinkArgs
+        try {
+          toolArgs = JSON.parse(call.function.arguments) as SendPaymentLinkArgs
+        } catch {
+          toolArgs = { amount: 0 }
+        }
+        const result = await executeSendPaymentLink(toolArgs, {
+          workspaceId: ctx.workspaceId,
+          conversationId: conversationId ?? undefined,
+        })
+        if (result.ok) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://erp.venturo.tw'
+          const absoluteLink = `${baseUrl}${result.payment_link}`
+          const days = Math.ceil(
+            (new Date(result.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          )
+          toolAppendix +=
+            (toolAppendix ? '\n\n' : '\n\n') +
+            `💳 付款連結（NT$ ${result.amount.toLocaleString()}、有效 ${days} 天）：\n${absoluteLink}`
+        } else {
+          toolAppendix +=
+            (toolAppendix ? '\n\n' : '\n\n') +
+            `⚠️ 付款連結產生失敗：${result.error ?? '請稍後再試'}`
+        }
+      }
+    }
+  }
+
+  const finalText = `${llmRes.content.trim()}${toolAppendix}`.trim()
+  if (!finalText) {
+    return composeReplyFallback(userText, tours)
+  }
+  return stripMarkdownForLine(finalText)
 }
 
 /**

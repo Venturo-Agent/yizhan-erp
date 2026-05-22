@@ -20,6 +20,11 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getCompanyName } from '@/lib/ai/get-company-name'
 import { logger } from '@/lib/utils/logger'
 import type { ChannelType } from '@/lib/inbox/inbox-service'
+import {
+  sendPaymentLinkTool,
+  executeSendPaymentLink,
+  type SendPaymentLinkArgs,
+} from './tools/send-payment-link'
 
 const MAX_HISTORY_MESSAGES = 30  // 拉最近 30 則對話當 context（介於 LINE 50 / 原 FB 10、context window 充足）
 
@@ -189,9 +194,10 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
     workspaceId: input.workspaceId,
     temperature: 0.3,
     caller: 'ai-brain',
+    tools: [sendPaymentLinkTool],
   })
 
-  if (!llmRes.ok || !llmRes.content) {
+  if (!llmRes.ok) {
     logger.warn('AI brain dispatcher failed', {
       workspaceId: input.workspaceId,
       conversationId: input.conversationId,
@@ -204,5 +210,56 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
     }
   }
 
-  return { ok: true, reply: llmRes.content.trim() }
+  // tool_use 處理（AI 判斷該收錢、call send_payment_link）
+  // 5/23 William 拍板：所有 channel bot 統一在 ai-brain 處理 tool、不放各自 webhook
+  let toolAppendix = ''
+  if (llmRes.toolCalls && llmRes.toolCalls.length > 0) {
+    for (const call of llmRes.toolCalls) {
+      if (call.function.name === 'send_payment_link') {
+        const args = parseToolArgs<SendPaymentLinkArgs>(call.function.arguments)
+        const result = await executeSendPaymentLink(args, {
+          workspaceId: input.workspaceId,
+          conversationId: input.conversationId,
+        })
+        if (result.ok) {
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://erp.venturo.tw'
+          const absoluteLink = `${baseUrl}${result.payment_link}`
+          toolAppendix +=
+            (toolAppendix ? '\n\n' : '\n\n') +
+            `💳 付款連結（NT$ ${result.amount.toLocaleString()}、有效 ${
+              Math.ceil(
+                (new Date(result.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+              )
+            } 天）：\n${absoluteLink}`
+        } else {
+          toolAppendix +=
+            (toolAppendix ? '\n\n' : '\n\n') +
+            `⚠️ 付款連結產生失敗：${result.error ?? '請稍後再試'}`
+          logger.warn('AI brain tool send_payment_link failed', {
+            workspaceId: input.workspaceId,
+            conversationId: input.conversationId,
+            error: result.error,
+          })
+        }
+      }
+    }
+  }
+
+  const finalReply = `${llmRes.content.trim()}${toolAppendix}`.trim()
+  if (!finalReply) {
+    return {
+      ok: false,
+      skippedReason: 'llm_failed',
+      error: 'LLM returned empty content',
+    }
+  }
+  return { ok: true, reply: finalReply }
+}
+
+function parseToolArgs<T>(argsJson: string): T {
+  try {
+    return JSON.parse(argsJson) as T
+  } catch {
+    return {} as T
+  }
 }
