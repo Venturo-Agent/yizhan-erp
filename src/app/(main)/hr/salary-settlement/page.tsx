@@ -18,7 +18,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Wallet, Plus, Loader2 } from 'lucide-react'
+import { Wallet, Plus, Loader2, Calendar } from 'lucide-react'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { Badge } from '@/components/ui/badge'
@@ -195,33 +195,47 @@ export default function SalarySettlementListPage() {
         ]}
       />
 
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
+      {/* 新增薪資結算 wizard dialog（William 2026-05-22 拍板：跟出納單 / 獎金 wizard 對齊） */}
+      <Dialog open={createOpen} onOpenChange={(o) => !creating && setCreateOpen(o)}>
+        <DialogContent className="!max-w-2xl">
           <DialogHeader>
-            <DialogTitle>新增薪資結算</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-morandi-gold" />
+              新增薪資結算
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="period">結算月份 (YYYY-MM)</Label>
+              <Label htmlFor="period">
+                結算月份 (YYYY-MM) <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="period"
                 placeholder="2026-05"
                 value={newPeriod}
                 onChange={(e) => setNewPeriod(e.target.value)}
                 disabled={creating}
+                className="w-40"
               />
               <p className="text-xs text-morandi-muted">
-                建立後會自動帶入該 workspace 所有 active 員工的薪資。
+                該月份所有 active 員工的薪資會被結算
               </p>
+            </div>
+
+            <div className="rounded-lg bg-morandi-container/30 border border-morandi-border p-3 text-xs text-morandi-secondary leading-relaxed">
+              <p className="font-medium text-morandi-primary mb-1">提醒</p>
+              <p>· 建立後會自動帶入該 workspace 所有 active 員工的薪資</p>
+              <p>· 進入詳情頁可調整個別員工金額、或排除某員工（譬如離職）</p>
+              <p>· 確認結算後產生請款單、不可再改</p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setCreateOpen(false)} disabled={creating}>
+            <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>
               取消
             </Button>
             <Button onClick={handleCreate} disabled={creating}>
               {creating && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              建立
+              建立並進入結算頁
             </Button>
           </DialogFooter>
         </DialogContent>
