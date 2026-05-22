@@ -24,13 +24,14 @@ import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 import { randomBytes } from 'node:crypto'
+import { PROVIDER_CODES } from '@/constants/payment-provider'
 
 const SUPPORTED_PROVIDERS = [
-  'sinopac_card',
-  'sinopac_collect',
-  'sinopac_apple_pay',
-  'sinopac_google_pay',
-  'sinopac_samsung_pay',
+  PROVIDER_CODES.SINOPAC_CARD,
+  PROVIDER_CODES.SINOPAC_COLLECT,
+  PROVIDER_CODES.SINOPAC_APPLE_PAY,
+  PROVIDER_CODES.SINOPAC_GOOGLE_PAY,
+  PROVIDER_CODES.SINOPAC_SAMSUNG_PAY,
 ] as const
 
 const generateLinkSchema = z.object({

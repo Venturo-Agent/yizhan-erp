@@ -9,6 +9,7 @@ import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { LABELS, PaymentMethodOption } from './types'
 import { apiMutate } from '@/lib/swr/api-mutate'
+import { isGatewayProvider } from '@/constants/payment-provider'
 
 interface PayFormDialogProps {
   token: string
@@ -51,7 +52,7 @@ export function PayFormDialog({
         : 20
 
   // B 方案：如果選的方式是「永豐 provider」，走線上刷卡流程（不收識別碼、改跳轉刷卡頁）
-  const isGatewayProvider = selectedMethod?.provider?.startsWith('sinopac_') ?? false
+  const isGatewayMethod = isGatewayProvider(selectedMethod?.provider)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,7 +64,7 @@ export function PayFormDialog({
     }
 
     // 永豐金流：產生 payment link、跳轉客戶到刷卡頁
-    if (isGatewayProvider) {
+    if (isGatewayMethod) {
       setSubmitting(true)
       try {
         const res = await fetch(`/api/public/invoices/${token}/generate-payment-link`, {
@@ -202,7 +203,7 @@ export function PayFormDialog({
             </div>
 
             {/* 永豐金流：不需要識別碼 / 日期 / 備註、刷卡頁裡填完即可 */}
-            {isGatewayProvider ? (
+            {isGatewayMethod ? (
               <div className="px-3 py-2 bg-morandi-gold/10 border border-morandi-gold/30 rounded-lg text-xs text-morandi-secondary">
                 點下方按鈕後將跳轉到 <strong>永豐銀行刷卡頁面</strong>、請在該頁完成付款。
               </div>
@@ -286,7 +287,7 @@ export function PayFormDialog({
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                 {submitting
                   ? LABELS.FORM_SUBMITTING
-                  : isGatewayProvider
+                  : isGatewayMethod
                     ? '前往刷卡'
                     : LABELS.FORM_SUBMIT}
               </button>

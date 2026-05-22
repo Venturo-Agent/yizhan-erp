@@ -17,6 +17,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/utils/logger'
 import { randomBytes } from 'node:crypto'
+import { isGatewayProvider } from '@/constants/payment-provider'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -89,7 +90,7 @@ export async function POST(
   if (!method.is_active || method.type !== 'receipt') {
     return NextResponse.json({ error: '付款方式不可用' }, { status: 400 })
   }
-  if (!method.provider || !method.provider.startsWith('sinopac_')) {
+  if (!isGatewayProvider(method.provider)) {
     return NextResponse.json(
       { error: '此付款方式非永豐金流、請改用既有匯款流程' },
       { status: 400 }

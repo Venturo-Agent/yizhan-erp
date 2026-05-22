@@ -7,16 +7,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useTranslations } from 'next-intl'
 import { type PaymentMethod } from './types'
-
-// provider code → 中文短名（顯示在列表）
-const PROVIDER_SHORT_LABEL: Record<string, string> = {
-  manual: '手動',
-  sinopac_card: '永豐刷卡',
-  sinopac_collect: '永豐豐收款',
-  sinopac_apple_pay: '永豐 Apple Pay',
-  sinopac_google_pay: '永豐 Google Pay',
-  sinopac_samsung_pay: '永豐 Samsung Pay',
-}
+import { PROVIDER_LABELS, isGatewayProvider } from '@/constants/payment-provider'
 
 // 不用刻的 TableRow（要傳 ref/style 給 useSortable）、直接 <tr>
 export function SortableMethodRow({
@@ -64,12 +55,12 @@ export function SortableMethodRow({
       <td className="px-4 py-3 text-sm font-medium">{method.name}</td>
       {/* 金流商（B 方案 provider）*/}
       <td className="px-4 py-3 text-sm">
-        {method.provider && method.provider !== 'manual' ? (
+        {isGatewayProvider(method.provider) ? (
           <span className="inline-flex items-center px-2 py-0.5 rounded text-[0.7rem] font-medium bg-morandi-gold/15 text-morandi-gold">
-            {PROVIDER_SHORT_LABEL[method.provider] ?? method.provider}
+            {PROVIDER_LABELS[method.provider] ?? method.provider}
           </span>
         ) : (
-          <span className="text-morandi-muted text-xs">手動</span>
+          <span className="text-morandi-muted text-xs">{PROVIDER_LABELS.manual}</span>
         )}
       </td>
       {/* 說明 */}

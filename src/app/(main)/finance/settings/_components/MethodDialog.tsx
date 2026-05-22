@@ -19,17 +19,12 @@ import {
   type ChartOfAccount,
   type PlatformPaymentProvider,
 } from './types'
+import { KIND_TO_PROVIDER_KIND } from '@/constants/payment-provider'
 
 const providerFetcher = async (url: string): Promise<PlatformPaymentProvider[]> => {
   const res = await fetch(url)
   if (!res.ok) throw new Error('讀取金流商失敗')
   return res.json()
-}
-
-// kind ↔ provider_kind 對應、決定哪些 provider 可選
-const KIND_TO_PROVIDER_KIND: Partial<Record<PaymentMethodKind, string>> = {
-  card: 'card', // 刷卡 → sinopac_card / sinopac_apple_pay / google_pay / samsung_pay
-  wire_transfer: 'wire_transfer', // 匯款 → sinopac_collect
 }
 
 const FEE_KIND_HINT: Partial<Record<PaymentMethodKind, string>> = {
@@ -86,7 +81,7 @@ export function MethodDialog({
   // 根據 kind 過濾 provider 選項：manual 永遠可選、其他看 kind ↔ provider_kind 對應
   const availableProviders = useMemo(() => {
     if (!kind) return allProviders.filter(p => p.code === 'manual')
-    const targetKind = KIND_TO_PROVIDER_KIND[kind as PaymentMethodKind]
+    const targetKind = KIND_TO_PROVIDER_KIND[kind]
     if (!targetKind) return allProviders.filter(p => p.code === 'manual')
     return allProviders.filter(p => p.code === 'manual' || p.provider_kind === targetKind)
   }, [allProviders, kind])

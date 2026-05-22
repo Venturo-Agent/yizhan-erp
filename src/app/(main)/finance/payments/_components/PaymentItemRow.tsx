@@ -9,6 +9,11 @@ import { usePaymentMethodsCached } from '@/data/hooks'
 import { Trash2, Link2, Copy, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
+import {
+  isGatewayProvider,
+  PAYMENT_LINK_EXPIRY_DAYS,
+  PAYMENT_LINK_DEFAULT_EXPIRY_DAYS,
+} from '@/constants/payment-provider'
 import { DatePicker } from '@/components/ui/date-picker'
 import {
   Select,
@@ -114,12 +119,12 @@ export function PaymentItemRow({
   const _currentCode = item.payment_method_code || currentMethod?.code || ''
 
   // B 方案 provider（2026-05-22 William）：選了永豐 provider 才展開「產生付款連結」區
-  const isSinopacProvider = currentMethod?.provider?.startsWith('sinopac_') ?? false
+  const isSinopacProvider = isGatewayProvider(currentMethod?.provider)
   const totalColumns = canConfirmReceipt ? 6 : 5
 
   // 「產生付款連結」狀態
   const [linkEmail, setLinkEmail] = useState('')
-  const [linkDays, setLinkDays] = useState(7)
+  const [linkDays, setLinkDays] = useState<number>(PAYMENT_LINK_DEFAULT_EXPIRY_DAYS)
   const [linkGenerating, setLinkGenerating] = useState(false)
   const [generatedLink, setGeneratedLink] = useState<string | null>(null)
   const [generatedExpiresAt, setGeneratedExpiresAt] = useState<string | null>(null)
@@ -397,11 +402,11 @@ export function PaymentItemRow({
                     disabled={linkGenerating}
                     className="w-full h-8 px-2 rounded-md border border-input bg-background text-sm"
                   >
-                    <option value={1}>1 天</option>
-                    <option value={3}>3 天</option>
-                    <option value={7}>7 天</option>
-                    <option value={14}>14 天</option>
-                    <option value={30}>30 天</option>
+                    {PAYMENT_LINK_EXPIRY_DAYS.map(d => (
+                      <option key={d} value={d}>
+                        {d} 天
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <Button
