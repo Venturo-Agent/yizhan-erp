@@ -32,8 +32,8 @@ interface InstagramSettingsUpsert {
 
 export interface ProvisionInput {
   workspaceId: string
-  pageAccessToken: string
-  igBusinessAccountId: string
+  /** Meta 2024+ 新版：Instagram User Access Token、從 Meta App Dashboard 產出 */
+  instagramUserAccessToken: string
   appSecret?: string | null
   botGreeting?: string | null
 }
@@ -63,11 +63,8 @@ function generateVerifyToken(): string {
 export async function provisionInstagramBot(input: ProvisionInput): Promise<ProvisionResult> {
   const supabase = getSupabaseAdminClient()
 
-  // 1. 驗證
-  const validation = await validateInstagramBusinessAccount(
-    input.pageAccessToken,
-    input.igBusinessAccountId
-  )
+  // 1. 驗證（新版只需 token、IG_ID 從 graph.instagram.com/me 反查）
+  const validation = await validateInstagramBusinessAccount(input.instagramUserAccessToken)
   if (!validation.ok || !validation.info) {
     return { ok: false, error: validation.error || 'IG Business 驗證失敗' }
   }
@@ -129,7 +126,8 @@ export async function provisionInstagramBot(input: ProvisionInput): Promise<Prov
   let pageAccessTokenEncrypted: string
   let appSecretEncrypted: string | null = null
   try {
-    pageAccessTokenEncrypted = encryptIntegrationSecret(input.pageAccessToken.trim())
+    // page_access_token_encrypted 欄位歷史遺留、現在存 Instagram User Access Token
+    pageAccessTokenEncrypted = encryptIntegrationSecret(input.instagramUserAccessToken.trim())
     if (input.appSecret && input.appSecret.trim().length > 0) {
       appSecretEncrypted = encryptIntegrationSecret(input.appSecret.trim())
     }

@@ -16,8 +16,7 @@ import { validateInstagramBusinessAccount } from '@/lib/instagram/instagram-api-
 import { logger } from '@/lib/utils/logger'
 
 const schema = z.object({
-  page_access_token: z.string().min(1),
-  ig_business_account_id: z.string().min(1),
+  instagram_user_access_token: z.string().min(1, '請填 instagram_user_access_token'),
 })
 
 export async function POST(request: NextRequest) {
@@ -44,8 +43,7 @@ export async function POST(request: NextRequest) {
     if (!validation.success) return validation.error
 
     const result = await validateInstagramBusinessAccount(
-      validation.data.page_access_token,
-      validation.data.ig_business_account_id
+      validation.data.instagram_user_access_token
     )
     if (!result.ok || !result.info) {
       return NextResponse.json(

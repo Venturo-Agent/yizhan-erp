@@ -1,21 +1,27 @@
 /**
- * Instagram Graph API client — IG Business Account 驗證
+ * Instagram Graph API client — Meta 2024+ 新版 Instagram Business API（獨立、非 via FB Page）
  *
- * IG DM 走 Meta Graph API、但需 IG Business Account 綁定 FB Page。
- * 用 Page Access Token 操作（不是 IG 自己的 token）。
+ * Meta 把 IG Messaging 拆出獨立 Business API：
+ *   - 不再透過 FB Page Token 操作 IG
+ *   - 用 Instagram User Access Token（OAuth via instagram.com/oauth）
+ *   - Endpoint base: graph.instagram.com（不是 graph.facebook.com）
+ *   - 權限：instagram_business_basic / instagram_business_manage_messages
  *
- * Setup Wizard 用：填完 page_access_token + ig_business_account_id 後驗證。
+ * Setup Wizard 流程：
+ *   - 客戶在 Meta App Dashboard 走 Instagram API setup 拿到 Instagram User Access Token
+ *   - 貼回 wizard 一個 token、IG_ID 從 graph.instagram.com/me 反查
  */
 
 import { logger } from '@/lib/utils/logger'
 
-const META_GRAPH_VERSION = 'v21.0'
-const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`
+const IG_GRAPH_VERSION = 'v22.0'
+const IG_GRAPH_BASE = `https://graph.instagram.com/${IG_GRAPH_VERSION}`
 
 export interface InstagramBusinessInfo {
   igBusinessAccountId: string
   igUsername: string
   igName?: string
+  /** Meta 新版 IG API 不再透過 FB Page、保留欄位給舊資料相容 */
   linkedFbPageId?: string
   pictureUrl?: string
 }
@@ -28,33 +34,29 @@ export interface ValidateInstagramResult {
 }
 
 /**
- * 用 Page Access Token + IG Business Account ID 驗證權限。
+ * 用 Instagram User Access Token 驗證。
  *
  * 流程：
- *   1. GET /{ig_business_account_id}?fields=id,username,name,profile_picture_url
- *   2. 順帶查綁定的 FB Page（GET /me?fields=instagram_business_account 反查）
+ *   - GET graph.instagram.com/v22/me?fields=user_id,username,name,profile_picture_url
+ *   - 回的 user_id / id 就是 IG_ID
  *
  * 失敗：
- *   - 100 Invalid parameter（IG Business ID 不對 / token 不對 page）
- *   - 190 Invalid OAuth token
- *   - 200 缺 instagram_basic / instagram_manage_messages 權限
+ *   - 190 token 無效或過期（IG token 60 天、要 refresh）
+ *   - 200 缺 instagram_business_basic / manage_messages 權限
  */
 export async function validateInstagramBusinessAccount(
-  pageAccessToken: string,
-  igBusinessAccountId: string
+  instagramUserAccessToken: string
 ): Promise<ValidateInstagramResult> {
-  const token = (pageAccessToken || '').trim()
-  const igId = (igBusinessAccountId || '').trim()
-  if (!token) return { ok: false, error: 'page_access_token 不能為空' }
-  if (!igId) return { ok: false, error: 'ig_business_account_id 不能為空' }
+  const token = (instagramUserAccessToken || '').trim()
+  if (!token) return { ok: false, error: 'instagram_user_access_token 不能為空' }
 
   try {
-    const url = `${META_GRAPH_BASE}/${encodeURIComponent(igId)}?fields=id,username,name,profile_picture_url&access_token=${encodeURIComponent(token)}`
+    const url = `${IG_GRAPH_BASE}/me?fields=user_id,username,name,profile_picture_url&access_token=${encodeURIComponent(token)}`
     const res = await fetch(url, { method: 'GET' })
 
     if (!res.ok) {
       const body = await res.text().catch(() => '')
-      logger.warn('IG Business validation failed', { status: res.status, body })
+      logger.warn('IG Business validation failed', { status: res.status, body: body.slice(0, 300) })
       let parsed: { error?: { code?: number; message?: string } } | null = null
       try {
         parsed = JSON.parse(body)
@@ -64,47 +66,32 @@ export async function validateInstagramBusinessAccount(
       const code = parsed?.error?.code
       const msg = parsed?.error?.message
       let friendly: string
-      if (code === 190) friendly = 'Page Access Token 無效或過期'
-      else if (code === 100) friendly = 'IG Business Account ID 錯誤、或 token 對應的 FB Page 沒綁這個 IG 帳號'
-      else if (code === 200) friendly = '缺 instagram_basic / instagram_manage_messages 權限'
+      if (code === 190) friendly = 'Instagram User Access Token 無效或已過期（60 天效期、要 refresh）'
+      else if (code === 200) friendly = '缺 instagram_business_basic / instagram_business_manage_messages 權限'
       else if (msg) friendly = `Meta API 錯誤：${msg}`
       else friendly = `Meta API 錯誤（HTTP ${res.status}）`
       return { ok: false, status: res.status, error: friendly }
     }
 
     const data = (await res.json()) as {
-      id: string
+      id?: string
+      user_id?: string
       username: string
       name?: string
       profile_picture_url?: string
     }
 
-    // 順便查綁定的 FB Page（best effort）
-    let linkedFbPageId: string | undefined
-    try {
-      const pageRes = await fetch(
-        `${META_GRAPH_BASE}/me?fields=id,instagram_business_account&access_token=${encodeURIComponent(token)}`
-      )
-      if (pageRes.ok) {
-        const pageData = (await pageRes.json()) as {
-          id?: string
-          instagram_business_account?: { id?: string }
-        }
-        if (pageData.instagram_business_account?.id === data.id) {
-          linkedFbPageId = pageData.id
-        }
-      }
-    } catch {
-      // ignore、linkedFbPageId 留空
+    const igId = data.user_id || data.id
+    if (!igId) {
+      return { ok: false, error: 'Meta API 回應沒有 user_id / id 欄位、無法取得 IG Business ID' }
     }
 
     return {
       ok: true,
       info: {
-        igBusinessAccountId: data.id,
+        igBusinessAccountId: igId,
         igUsername: data.username,
         igName: data.name,
-        linkedFbPageId,
         pictureUrl: data.profile_picture_url,
       },
       status: 200,

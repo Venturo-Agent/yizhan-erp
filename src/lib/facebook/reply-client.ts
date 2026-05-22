@@ -1,25 +1,31 @@
 /**
  * Meta Messenger / Instagram Reply Client
  *
- * 用 Page Access Token 透過 Graph API 回傳訊息給客戶。
- * FB 跟 IG 共用同一個 endpoint（IG 經由綁定的 FB Page 發送）。
+ * FB Messenger 走 graph.facebook.com + Page Access Token query string。
+ * IG 走 Meta 新版 Business Messaging Platform（2024+）：
+ *   - graph.instagram.com base
+ *   - Instagram User Access Token（Bearer header、不是 query string）
+ *   - 不再依賴 FB Page binding、IG 帳號獨立管理
  *
  * 文件：
  * - https://developers.facebook.com/docs/messenger-platform/reference/send-api
- * - https://developers.facebook.com/docs/messenger-platform/instagram/sending-messages
+ * - https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/messaging-api
  */
 
 import { logger } from '@/lib/utils/logger'
 
-const META_GRAPH_VERSION = 'v21.0'
-const META_GRAPH_BASE = `https://graph.facebook.com/${META_GRAPH_VERSION}`
+const FB_GRAPH_VERSION = 'v21.0'
+const FB_GRAPH_BASE = `https://graph.facebook.com/${FB_GRAPH_VERSION}`
+const IG_GRAPH_VERSION = 'v22.0'
+const IG_GRAPH_BASE = `https://graph.instagram.com/${IG_GRAPH_VERSION}`
 
 export interface SendTextInput {
+  /** FB: Page Access Token / IG: Instagram User Access Token */
   pageAccessToken: string
   /** FB: PSID / IG: IGSID */
   recipientId: string
   text: string
-  /** 'facebook' | 'instagram'、決定 messaging_type 預設值 */
+  /** 'facebook' | 'instagram'、決定走哪條 Graph API base */
   channel: 'facebook' | 'instagram'
 }
 
@@ -31,7 +37,10 @@ export interface SendTextResult {
 }
 
 /**
- * 送一則文字訊息給客戶（FB Messenger 或 IG DM 共用）
+ * 送一則文字訊息給客戶
+ *
+ * FB Messenger：POST graph.facebook.com/v21/me/messages?access_token=...
+ * IG DM 新版：POST graph.instagram.com/v22/me/messages + Bearer header
  *
  * 失敗可能：
  *   - 190 invalid token
@@ -39,14 +48,22 @@ export interface SendTextResult {
  *   - 100 invalid recipient
  */
 export async function sendTextMessage(input: SendTextInput): Promise<SendTextResult> {
-  const url = `${META_GRAPH_BASE}/me/messages?access_token=${encodeURIComponent(input.pageAccessToken)}`
-  // FB 預設 RESPONSE（24h window 內）、IG 用 RESPONSE 亦可
+  const isInstagram = input.channel === 'instagram'
   const messagingType = 'RESPONSE'
+
+  const url = isInstagram
+    ? `${IG_GRAPH_BASE}/me/messages`
+    : `${FB_GRAPH_BASE}/me/messages?access_token=${encodeURIComponent(input.pageAccessToken)}`
+
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (isInstagram) {
+    headers['Authorization'] = `Bearer ${input.pageAccessToken}`
+  }
 
   try {
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers,
       body: JSON.stringify({
         messaging_type: messagingType,
         recipient: { id: input.recipientId },

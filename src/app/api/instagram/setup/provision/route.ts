@@ -18,8 +18,7 @@ import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 
 const schema = z.object({
-  page_access_token: z.string().min(1),
-  ig_business_account_id: z.string().min(1),
+  instagram_user_access_token: z.string().min(1, '請填 instagram_user_access_token'),
   app_secret: z.string().optional().nullable(),
   bot_greeting: z.string().optional().nullable(),
 })
@@ -53,8 +52,7 @@ export async function POST(request: NextRequest) {
 
     const result = await provisionInstagramBot({
       workspaceId: auth.data.workspaceId,
-      pageAccessToken: validation.data.page_access_token,
-      igBusinessAccountId: validation.data.ig_business_account_id,
+      instagramUserAccessToken: validation.data.instagram_user_access_token,
       appSecret: validation.data.app_secret,
       botGreeting: validation.data.bot_greeting,
     })
