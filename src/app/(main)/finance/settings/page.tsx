@@ -41,7 +41,8 @@ import { BonusSection } from './_components/BonusSection'
 export default function FinanceSettingsPage() {
   const t = useTranslations('finance')
   const { can, loading: permLoading } = useCapabilities()
-  const [activeSection, setActiveSection] = useState<ActiveSection>('receipt')
+  // 2026-05-22 預設停留銀行帳戶 tab（順序首位）
+  const [activeSection, setActiveSection] = useState<ActiveSection>('bank')
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
   const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccount[]>([])
@@ -92,13 +93,14 @@ export default function FinanceSettingsPage() {
     }
   }
 
+  // 2026-05-22 William 拍板：tab 順序 — 銀行帳戶 → 收款 → 付款 → 類別 → 收支項目 → 獎金
   const tabs = [
+    { value: 'bank', label: '銀行帳戶', icon: Building2 },
     { value: 'receipt', label: '收款方式', icon: CreditCard },
     { value: 'payment', label: '付款方式', icon: Banknote },
     { value: 'category', label: '團體請款類別', icon: Tag },
     { value: 'company_expense', label: '公司支出項目', icon: Building2 },
     { value: 'company_income', label: '公司收入項目', icon: TrendingUp },
-    { value: 'bank', label: '銀行帳戶', icon: Building2 },
     { value: 'bonus', label: '獎金設定', icon: Award },
   ]
 
