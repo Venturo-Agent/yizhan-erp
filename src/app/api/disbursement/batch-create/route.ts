@@ -46,6 +46,7 @@ interface ItemRow {
   workspace_id: string | null
   advanced_by: string | null
   payee_employee_id: string | null
+  payment_method_id: string | null
 }
 
 interface SupplierRow {
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
   const { data: items, error: itemsErr } = await (
     admin.from as unknown as (t: string) => ItemFetchChain
   )('payment_request_items')
-    .select('id, request_id, subtotal, supplier_id, workspace_id, advanced_by, payee_employee_id')
+    .select('id, request_id, subtotal, supplier_id, workspace_id, advanced_by, payee_employee_id, payment_method_id')
     .in('id', allItemIds)
 
   if (itemsErr) {
@@ -163,6 +164,27 @@ export async function POST(request: NextRequest) {
   }
 
   const itemById = new Map(items.map(i => [i.id, i]))
+
+  // 2026-05-22 William 拍板：撈 payment_methods.kind、cash / check 強制不收跨行手續費
+  const paymentMethodIds = Array.from(
+    new Set(items.map(i => i.payment_method_id).filter(Boolean) as string[])
+  )
+  const pmKindById = new Map<string, string>()
+  if (paymentMethodIds.length > 0) {
+    type PmFetchChain = {
+      select: (c: string) => {
+        in: (k: string, v: string[]) => Promise<{ data: { id: string; kind: string | null }[] | null }>
+      }
+    }
+    const { data: pms } = await (
+      admin.from as unknown as (t: string) => PmFetchChain
+    )('payment_methods')
+      .select('id, kind')
+      .in('id', paymentMethodIds)
+    for (const pm of pms || []) {
+      if (pm.kind) pmKindById.set(pm.id, pm.kind)
+    }
+  }
 
   // 所有相關 supplier bank_code（用於 snapshot has_cross_bank_fee）
   const supplierIds = Array.from(
@@ -318,8 +340,12 @@ export async function POST(request: NextRequest) {
       const item = itemById.get(id)!
       const supplier = item.supplier_id ? supplierMap.get(item.supplier_id) : null
       const supplierBankCode = supplier?.bank_code ?? null
-      const isCrossBank =
-        !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
+      // 2026-05-22 William 拍板：cash / check 不收跨行手續費（不走銀行轉帳機制）
+      const itemKind = item.payment_method_id ? pmKindById.get(item.payment_method_id) : null
+      const isNonTransferKind = itemKind === 'cash' || itemKind === 'check'
+      const isCrossBank = isNonTransferKind
+        ? false
+        : !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
       return {
         item,
         from_bank_account_id: batch.from_bank_account_id,
