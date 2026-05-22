@@ -70,16 +70,17 @@ export const SIDEBAR_ORDER: readonly string[] = [
   'dashboard',
   'calendar',
   'todos',
+  'customers',  // 2026-05-22 William 拍板：客戶頁從 library 移到主 sidebar、業務每天用
   'channels',
   'ai_hub',
   'tours',
   'orders',
   'finance',
   'accounting',
+  'hr',  // 2026-05-22 從 13 位上移
   'documents',
   'database',
   'marketing',
-  'hr',
   'workspaces',
   'shared_data_management',
   'platform_integrations',
@@ -89,6 +90,7 @@ export const SIDEBAR_META: Record<string, SidebarMeta> = {
   dashboard: { icon: Home, label: COMP_LAYOUT_LABELS.首頁 },
   calendar: { icon: CalendarDays, label: COMP_LAYOUT_LABELS.行事曆 },
   todos: { icon: CheckSquare, label: COMP_LAYOUT_LABELS.待辦事項 },
+  customers: { icon: Contact, label: COMP_LAYOUT_LABELS.客戶, href: '/library/customers' },  // 2026-05-22 William 拍板上 sidebar
   channels: { icon: MessagesSquare, label: COMP_LAYOUT_LABELS.頻道 },
   ai_hub: { icon: Sparkles, label: 'AI Hub' },
   tours: { icon: MapPinned, label: COMP_LAYOUT_LABELS.旅遊團 },

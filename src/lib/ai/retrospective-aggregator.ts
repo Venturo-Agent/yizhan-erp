@@ -18,6 +18,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { filterActive } from '@/lib/data/filter-active'
 import { logger } from '@/lib/utils/logger'
 import { dispatchLLM } from './llm-dispatcher'
+import { getCompanyName } from './get-company-name'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 const HANDLER = 'retrospective-aggregator'
@@ -52,7 +53,7 @@ export interface AggregateResult {
   error?: string
 }
 
-const SYSTEM_PROMPT = `你是「角落旅遊」的客服對話復盤分析師。
+const SYSTEM_PROMPT = `你是「\${COMPANY_NAME}」的客服對話復盤分析師。
 
 任務：給你一個 JSON array、每筆是某對話「AI / 業務沒答好的問題」。請：
 1. 合併同類問題（譬如「機票多少錢」和「現在票價」是同類、聚合為「機票即時票價查詢」）
@@ -147,10 +148,14 @@ ${JSON.stringify(allQuestions, null, 2)}
 
 請依規則聚合成主題清單 JSON。`
 
+    // 2026-05-22 動態填 workspace 名稱
+    const companyName = await getCompanyName(workspaceId)
+    const filledSystemPrompt = SYSTEM_PROMPT.replace(/\$\{COMPANY_NAME\}/g, companyName)
+
     const llmRes = await dispatchLLM({
       workspaceId,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: filledSystemPrompt },
         { role: 'user', content: userPrompt },
       ],
       caller: 'retrospective-aggregator',

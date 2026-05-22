@@ -24,6 +24,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { filterActive } from '@/lib/data/filter-active'
 import { logger } from '@/lib/utils/logger'
 import { dispatchLLM } from './llm-dispatcher'
+import { getCompanyName } from './get-company-name'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 const HANDLER = 'memory-summarizer'
@@ -96,7 +97,7 @@ export interface MemoryJson {
   summary_text?: string
 }
 
-const SUMMARY_SYSTEM_PROMPT = `你是「角落旅遊」的 AI 客服速記卡產生器。
+const SUMMARY_SYSTEM_PROMPT = `你是「\${COMPANY_NAME}」的 AI 客服速記卡產生器。
 
 任務：根據客服跟客戶的完整對話歷史、寫一張結構化「客戶速記卡」、給下次 AI 回覆時當長期記憶用。
 
@@ -249,11 +250,15 @@ ${transcript}
 
 請依規則產出速記卡 JSON。`
 
+    // 2026-05-22 William 拍板：動態填 workspace 名稱、不再 hardcoded
+    const companyName = await getCompanyName(workspaceId)
+    const filledSystemPrompt = SUMMARY_SYSTEM_PROMPT.replace(/\$\{COMPANY_NAME\}/g, companyName)
+
     // Call LLM
     const llmResult = await dispatchLLM({
       workspaceId,
       messages: [
-        { role: 'system', content: SUMMARY_SYSTEM_PROMPT },
+        { role: 'system', content: filledSystemPrompt },
         { role: 'user', content: userPrompt },
       ],
       caller: 'memory-summarizer',
