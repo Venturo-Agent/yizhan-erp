@@ -25,7 +25,7 @@
  */
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { callLLM, isOpenRouterConfigured } from '@/lib/llm/openrouter-client'
+import { dispatchLLM } from '@/lib/ai/llm-dispatcher'
 import { logger } from '@/lib/utils/logger'
 
 const HANDLER = 'happy-rag'
@@ -130,22 +130,6 @@ export async function handleHappyQuery(userText: string): Promise<HappyResult> {
   const chunks = await searchKnowledgeChunks(query)
   const ragContext = formatRagContext(chunks)
 
-  // 沒有 OpenRouter API key → fallback 純 RAG 回覆（直接給 chunks）
-  if (!isOpenRouterConfigured()) {
-    const fallback = chunks.length === 0
-      ? '抱歉、我的知識庫沒找到相關資料、請問漫途同事吧。'
-      : `我從知識庫找到這些可能相關的段落：\n\n${chunks
-          .slice(0, 3)
-          .map((c, i) => `${i + 1}. [${c.title}]\n${c.content.slice(0, 300)}...`)
-          .join('\n\n')}\n\n（提示：尚未設 OPENROUTER_API_KEY、無法 LLM 統整）`
-    return {
-      replyText: fallback,
-      chunksUsed: chunks.length,
-      llmUsed: false,
-      debugReason: 'OPENROUTER_API_KEY missing',
-    }
-  }
-
   // 組 LLM messages
   const systemPrompt = `你是 HAPPY、一棧 ERP（旅遊團 SaaS）系統 AI 助手。
 
@@ -161,7 +145,9 @@ export async function handleHappyQuery(userText: string): Promise<HappyResult> {
 
 ${ragContext}`
 
-  const llmResult = await callLLM({
+  // dispatchLLM 會依漫途 workspace_ai_settings.provider 自動 call MiniMax / Anthropic / OpenRouter
+  // 漫途已設 MiniMax-M2、所以這裡會走 MiniMax
+  const llmResult = await dispatchLLM({
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: query },
@@ -172,8 +158,21 @@ ${ragContext}`
   })
 
   if (!llmResult.ok) {
+    // LLM 失敗 → fallback 給 raw chunks（仍比沒回覆好）
+    if (chunks.length > 0) {
+      const rawFallback = `（LLM 暫時無法統整、直接給你知識庫段落）\n\n${chunks
+        .slice(0, 3)
+        .map((c, i) => `${i + 1}. [${c.title}]\n${c.content.slice(0, 300)}...`)
+        .join('\n\n')}`
+      return {
+        replyText: rawFallback,
+        chunksUsed: chunks.length,
+        llmUsed: false,
+        debugReason: llmResult.error ?? undefined,
+      }
+    }
     return {
-      replyText: `LLM 服務暫時無法回覆：${llmResult.error ?? 'unknown'}`,
+      replyText: `抱歉、AI 服務暫時無法回覆。錯誤：${llmResult.error ?? 'unknown'}`,
       chunksUsed: chunks.length,
       llmUsed: false,
       debugReason: llmResult.error ?? undefined,
