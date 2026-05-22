@@ -16,6 +16,10 @@
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
+import {
+  sendChannelNotification,
+  NOTIFICATION_SOURCE_TYPES,
+} from '@/lib/channels/send'
 
 const HANDLER = 'ai-notify-payment-captured'
 
@@ -31,8 +35,26 @@ export async function notifyPaymentCapturedToConversation(args: NotifyArgs): Pro
     (args.rawWebhookPayload?.conversation_id as string | undefined) ?? null
   const createdByAi = Boolean(args.rawWebhookPayload?.created_by_ai)
 
+  // 1. 內部 channel 通知（不管是 AI 還是業務手動產的、都通知系統頻道）
+  //    讓員工在 venturo erp 內部頻道看到「XX 收到 NT$ X」
+  void sendChannelNotification({
+    workspaceId: args.workspaceId,
+    channelType: 'system_notice',
+    text:
+      `💳 收到客戶付款 NT$ ${args.amount.toLocaleString()}` +
+      (args.externalTransNo ? `（交易序號 ${args.externalTransNo}）` : '') +
+      (createdByAi ? `（AI 自動發連結）` : ''),
+    sourceType: NOTIFICATION_SOURCE_TYPES.PAYMENT_CAPTURED,
+    payload: {
+      amount: args.amount,
+      external_trans_no: args.externalTransNo,
+      conversation_id: conversationId,
+      created_by_ai: createdByAi,
+    },
+  })
+
+  // 2. 若是 AI 從對話產的連結、推一則訊息進原對話（給 AI 下次有 context）
   if (!conversationId || !createdByAi) {
-    // 業務手動產的連結、不通知對話（沒對話可通知）
     return
   }
 

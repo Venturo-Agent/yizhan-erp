@@ -138,6 +138,8 @@ export interface ListOptions {
   page?: number
   /** 全撈 opt-in（譯為「不分頁、撈到 100k 上限」、僅 dictionary / dropdown / aggregate 用途） */
   all?: boolean
+  /** 撈最新 N 筆（用 entity orderBy 反向 + .limit(N) + reverse）、適用 channel / inbox 等 */
+  limit?: number
   /** Server-side filter（譯為 .eq(key, value) 連環 chain） */
   filter?: Record<string, string | number | boolean | null>
 }

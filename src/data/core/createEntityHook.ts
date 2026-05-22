@@ -165,19 +165,27 @@ export function createEntityHook<T extends BaseEntity>(
   // useList - 列表 Hook
   // 支援 filter (server-side eq()) 跟 enabled。
   // all 參數 caller 為相容歷史 API 可傳但目前無作用（useList 本來就 internal paginate 撈全）。
+  // limit 參數（2026-05-23 William）：撈最新 N 則、不 paginate 全表
+  //   - 用 orderBy 反向 + .limit(N) → 拿到「最新 N 則 desc 順」、reverse 回原本 asc 順
+  //   - 適用 channel_messages / inbox_messages 等「只看最近」場景
   // ============================================
   function useList(options?: {
     enabled?: boolean
     filter?: Record<string, unknown>
     all?: boolean
+    /** 撈最新 N 筆、不 paginate；走 entity orderBy column 反向撈、再 reverse 回正向 */
+    limit?: number
   }): ListResult<T> {
     const { isReady, hasHydrated } = useAuth()
     useRealtimeSync(tableName, cacheKeyPrefix)
     const enabled = options?.enabled !== false // 預設為 true
     const filter = options?.filter
-    // cache key 必須包 filter、不然不同 filter 的 result 會共用 cache 互相覆蓋
+    const limit = options?.limit
+    // cache key 必須包 filter / limit、不然不同 filter 的 result 會共用 cache 互相覆蓋
     const filterKey = filter ? JSON.stringify(filter) : ''
-    const swrKey = isReady && enabled ? `${cacheKeyList}${filterKey ? ':' + filterKey : ''}` : null
+    const limitKey = limit ? `:limit=${limit}` : ''
+    const swrKey =
+      isReady && enabled ? `${cacheKeyList}${filterKey ? ':' + filterKey : ''}${limitKey}` : null
     const idb_fallback = useIdbFallback<T[]>(swrKey)
 
     // 註冊 swrKey 進 registry、invalidateEntity 才能對具體 key 呼叫 mutate
@@ -193,6 +201,43 @@ export function createEntityHook<T extends BaseEntity>(
       swrKey,
       async () => {
         const selectFields = config.list?.select || '*'
+
+        // limit 模式（撈最新 N 筆）：反向 order + .limit(N)、最後 reverse 回正向
+        if (limit && limit > 0) {
+          let q = supabase
+            .from(tableName as never /* dynamic table name requires runtime assertion */)
+            .select(selectFields)
+          q = applyWorkspaceScope(q)
+          if (config.list?.orderBy) {
+            // 反向撈：原 asc → desc、原 desc → asc、撈最近 N 筆
+            q = q.order(config.list.orderBy.column, {
+              ascending: !config.list.orderBy.ascending,
+            })
+          }
+          if (config.list?.defaultFilter) {
+            Object.entries(config.list.defaultFilter).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) q = q.eq(key, value)
+            })
+          }
+          if (filter) {
+            Object.entries(filter).forEach(([key, value]) => {
+              if (value !== undefined && value !== null) {
+                q = (q as never as { eq: (col: string, val: unknown) => typeof q }).eq(key, value) as typeof q
+              }
+            })
+          }
+          if (config.list?.filterSoftDeleted) {
+            q = (q as never as { is: (col: string, val: null) => typeof q }).is('deleted_at', null) as typeof q
+          }
+          q = q.limit(limit)
+          const { data: rows, error } = await q
+          if (error) {
+            logger.error(`[${tableName}] List(limit=${limit}) fetch error:`, error.message)
+            throw error
+          }
+          // reverse 回原本 orderBy 順序
+          return ((rows || []) as unknown as T[]).slice().reverse()
+        }
 
         // Supabase PostgREST hard caps at 1000 rows per request.
         // Auto-paginate with .range() to fetch all rows.

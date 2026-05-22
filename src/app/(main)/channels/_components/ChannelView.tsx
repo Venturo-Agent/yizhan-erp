@@ -31,9 +31,11 @@ interface Props {
 export function ChannelView({ channelId }: Props) {
   const { user } = useAuthStore()
   const { item: channel } = useChannel(channelId)
+  // 2026-05-23 William 拍板：撈最新 100 則、不撈全頻道歷史（之前重整卡）
+  // 上滑時用 fetchMore 加載更舊（Phase B 補；目前只展最新 100、夠多數情境）
   const { items: messages, loading: messagesLoading } = useChannelMessages({
-    all: true,
     filter: { channel_id: channelId },
+    limit: 100,
   })
   const { items: members } = useChannelMembers({ all: true, filter: { channel_id: channelId } })
   const { get: getEmployee } = useEmployeeDictionary()
