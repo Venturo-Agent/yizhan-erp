@@ -8,7 +8,7 @@
  */
 
 import { useMemo } from 'react'
-import { FileText, Stamp } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import { getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
 import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
 
@@ -20,12 +20,7 @@ interface PrepItem {
 }
 
 const PREP_LIST: ReadonlyArray<PrepItem> = [
-  {
-    feature: 'travel_invoice',
-    icon: Stamp,
-    title: '電子發票',
-    items: ['發票章圖檔（JPG / PNG、透明背景佳）', '電子發票字軌號碼（財政部核配）'],
-  },
+  // travel_invoice 條目移除（2026-05-23）：travel_invoice 模組已凍、客戶傳了沒地方放、會撞 onboarding 流程
   {
     feature: 'tours.contract',
     icon: FileText,

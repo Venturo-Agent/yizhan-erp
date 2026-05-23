@@ -2,14 +2,14 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { ContractSignPage } from './ContractSignPage'
 
-const supabase = getSupabaseAdminClient()
-
 interface PageProps {
   params: Promise<{ code: string }>
 }
 
 export default async function Page({ params }: PageProps) {
   const { code } = await params
+  // admin client 必 per-request 新建（紅線 C）、不可放 module top-level（會跨 request 殘留 context）
+  const supabase = getSupabaseAdminClient()
 
   // 查詢合約
   const { data: contract, error } = await supabase
