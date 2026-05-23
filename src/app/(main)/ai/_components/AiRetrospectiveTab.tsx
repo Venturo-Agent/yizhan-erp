@@ -148,7 +148,7 @@ export function AiRetrospectiveTab() {
         <div className="text-center text-sm text-morandi-muted py-8">載入中...</div>
       )}
       {error && (
-        <div className="text-center text-sm text-red-600 py-8">載入失敗、請刷新</div>
+        <div className="text-center text-sm text-status-danger py-8">載入失敗、請刷新</div>
       )}
       {!isLoading && topics.length === 0 && (
         <div className="text-center text-sm text-morandi-muted py-12 border border-dashed border-morandi-muted/30 rounded-xl">
@@ -225,7 +225,7 @@ function TopicCard({ topic, onChanged }: { topic: RagTopic; onChanged: () => voi
   }
 
   const statusColor =
-    topic.status === 'added_to_rag' ? 'bg-green-50 text-green-700 border-green-200' :
+    topic.status === 'added_to_rag' ? 'bg-status-success-bg text-status-success border-status-success/30' :
     topic.status === 'declined' ? 'bg-morandi-muted/20 text-morandi-muted border-morandi-muted/30' :
     'bg-orange-50 text-orange-700 border-orange-200'
 
@@ -258,7 +258,7 @@ function TopicCard({ topic, onChanged }: { topic: RagTopic; onChanged: () => voi
               variant="outline"
               disabled={busy}
               onClick={() => void handleStatusChange('added_to_rag')}
-              className="h-7 text-xs gap-1 border-green-200 text-green-700 hover:bg-green-50"
+              className="h-7 text-xs gap-1 border-status-success/30 text-status-success hover:bg-status-success-bg"
             >
               <Check className="w-3 h-3" />
               已補進 RAG

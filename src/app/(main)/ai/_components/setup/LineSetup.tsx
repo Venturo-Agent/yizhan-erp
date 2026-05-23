@@ -159,7 +159,7 @@ export function LineSetup() {
     return (
       <SetupWizardLayout title="LINE Bot 整合" icon={Bot}>
         <Card className="p-8 text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-status-success-bg text-status-success">
             <Check className="w-6 h-6" />
           </div>
           <h2 className="text-lg font-semibold">已開通</h2>

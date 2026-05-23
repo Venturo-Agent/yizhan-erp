@@ -51,9 +51,9 @@ interface ConversationItem {
 }
 
 const CHANNEL_COLORS: Record<ChannelType, string> = {
-  line: 'bg-green-100 text-green-700',
-  facebook: 'bg-blue-100 text-blue-700',
-  instagram: 'bg-pink-100 text-pink-700',
+  line: 'bg-status-success-bg text-status-success',
+  facebook: 'bg-status-info-bg text-status-info',
+  instagram: 'bg-morandi-gold-light text-morandi-gold',
 }
 
 function ChannelIcon({ channel }: { channel: ChannelType }) {
@@ -189,7 +189,7 @@ export function AiSidebar() {
                     initial
                   )}
                   {c.unread_count > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[0.55rem] rounded-full min-w-[14px] h-[14px] px-1 font-bold ring-2 ring-card flex items-center justify-center">
+                    <span className="absolute -top-0.5 -right-0.5 bg-status-danger-bg0 text-white text-[0.55rem] rounded-full min-w-[14px] h-[14px] px-1 font-bold ring-2 ring-card flex items-center justify-center">
                       {c.unread_count}
                     </span>
                   )}
@@ -310,7 +310,7 @@ export function AiSidebar() {
                         {c.last_message_preview || '（無訊息）'}
                       </span>
                       {c.unread_count > 0 && (
-                        <span className="bg-red-500 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold shrink-0">
+                        <span className="bg-status-danger-bg0 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold shrink-0">
                           {c.unread_count}
                         </span>
                       )}

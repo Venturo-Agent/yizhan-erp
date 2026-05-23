@@ -161,7 +161,7 @@ function BotCard({
   const isComingSoon = status === 'comingSoon'
 
   const statusStyles: Record<BotStatus, string> = {
-    active: 'bg-green-50 text-green-700 border-green-200',
+    active: 'bg-status-success-bg text-status-success border-status-success/30',
     inactive: 'bg-morandi-container/30 text-morandi-muted border-morandi-muted/20',
     warning: 'bg-amber-50 text-amber-700 border-amber-200',
     comingSoon: 'bg-morandi-container/30 text-morandi-muted border-morandi-muted/20',
@@ -270,7 +270,7 @@ function PostbackTemplatesSection() {
       </div>
 
       {isLoading && <div className="text-sm text-morandi-muted">載入中...</div>}
-      {error && <div className="text-sm text-red-600">載入失敗</div>}
+      {error && <div className="text-sm text-status-danger">載入失敗</div>}
 
       {showForm && !editingId && (
         <TemplateForm
@@ -363,7 +363,7 @@ function TemplateRow({
           title={t.is_active ? '停用' : '啟用'}
           className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
             t.is_active
-              ? 'border-green-200 text-green-700 bg-green-50 hover:bg-green-100'
+              ? 'border-status-success/30 text-status-success bg-status-success-bg hover:bg-status-success-bg'
               : 'border-morandi-muted/20 text-morandi-muted hover:bg-morandi-container/40'
           }`}
         >
@@ -372,7 +372,7 @@ function TemplateRow({
         <button onClick={onEdit} className="p-1 text-morandi-muted hover:text-morandi-primary">
           <Pencil className="w-3.5 h-3.5" />
         </button>
-        <button onClick={onDelete} className="p-1 text-morandi-muted hover:text-red-600">
+        <button onClick={onDelete} className="p-1 text-morandi-muted hover:text-status-danger">
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>

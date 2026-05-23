@@ -85,9 +85,9 @@ const CHANNEL_LABELS: Record<ChannelType, string> = {
 }
 
 const CHANNEL_COLORS: Record<ChannelType, string> = {
-  line: 'bg-green-100 text-green-700',
-  facebook: 'bg-blue-100 text-blue-700',
-  instagram: 'bg-pink-100 text-pink-700',
+  line: 'bg-status-success-bg text-status-success',
+  facebook: 'bg-status-info-bg text-status-info',
+  instagram: 'bg-morandi-gold-light text-morandi-gold',
 }
 
 function ChannelIcon({ channel }: { channel: ChannelType }) {
@@ -260,7 +260,7 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
             <div className="p-6 text-center text-sm text-morandi-muted">載入中...</div>
           )}
           {listError && (
-            <div className="p-6 text-center text-sm text-red-600">載入失敗、請刷新頁面</div>
+            <div className="p-6 text-center text-sm text-status-danger">載入失敗、請刷新頁面</div>
           )}
           {!listLoading && conversations.length === 0 && (
             <div className="p-6 text-center text-sm text-morandi-muted space-y-2">
@@ -337,7 +337,7 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
                       {c.last_message_preview || '（無訊息）'}
                     </span>
                     {c.unread_count > 0 && (
-                      <span className="bg-red-500 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold shrink-0">
+                      <span className="bg-status-danger-bg0 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold shrink-0">
                         {c.unread_count}
                       </span>
                     )}
@@ -629,7 +629,7 @@ function ConversationHeader({
               className="h-7 text-sm py-0 px-2"
               autoFocus
             />
-            <button onClick={handleSaveName} className="text-green-600 hover:text-green-700"><Check className="w-4 h-4" /></button>
+            <button onClick={handleSaveName} className="text-status-success hover:text-status-success"><Check className="w-4 h-4" /></button>
             <button onClick={() => setEditingName(false)} className="text-morandi-muted hover:text-morandi-primary"><X className="w-4 h-4" /></button>
           </>
         ) : (
@@ -778,8 +778,8 @@ const RETRO_STATUS_LABEL: Record<RetroStatus, string> = {
 
 const RETRO_STATUS_COLOR: Record<RetroStatus, string> = {
   pending: 'bg-orange-50 text-orange-700 border-orange-200',
-  reviewed: 'bg-blue-50 text-blue-700 border-blue-200',
-  actioned: 'bg-green-50 text-green-700 border-green-200',
+  reviewed: 'bg-status-info-bg text-status-info border-status-info/30',
+  actioned: 'bg-status-success-bg text-status-success border-status-success/30',
   archived: 'bg-morandi-muted/20 text-morandi-muted border-morandi-muted/30',
 }
 
@@ -861,7 +861,7 @@ function RetrospectiveModal({
             )}
           </Button>
           {generateError && (
-            <p className="text-xs text-red-600 mt-2">⚠️ {generateError}</p>
+            <p className="text-xs text-status-danger mt-2">⚠️ {generateError}</p>
           )}
         </div>
 
@@ -992,7 +992,7 @@ function RetrospectiveEntry({
           onClick={handleDelete}
           disabled={busy}
           title="刪除"
-          className="p-1 text-morandi-muted hover:text-red-600 disabled:opacity-50"
+          className="p-1 text-morandi-muted hover:text-status-danger disabled:opacity-50"
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -1114,7 +1114,7 @@ function BusinessPanel({
         <div className="px-3 py-3">
           <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide mb-2">自動回覆</p>
           <div className="flex items-center justify-between">
-            <span className={`text-xs ${!paused ? 'text-green-700 font-medium' : 'text-morandi-muted'}`}>
+            <span className={`text-xs ${!paused ? 'text-status-success font-medium' : 'text-morandi-muted'}`}>
               {!paused ? '回覆中' : '已暫停'}
             </span>
             <Switch checked={!paused} onCheckedChange={handleToggle} />
@@ -1233,7 +1233,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
         <Sparkles className="w-3 h-3 text-morandi-muted" />
         <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide flex-1">速記卡</p>
         {memory?.failed_attempts ? (
-          <span className="text-[0.6rem] text-red-600">失敗 {memory.failed_attempts}/3</span>
+          <span className="text-[0.6rem] text-status-danger">失敗 {memory.failed_attempts}/3</span>
         ) : null}
       </div>
 
@@ -1274,7 +1274,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
                 <div className="flex flex-wrap gap-1 items-center">
                   <span className="text-[0.6rem] text-morandi-muted shrink-0">避忌：</span>
                   {m.preferences.avoid.map((x, i) => (
-                    <span key={i} className="text-[0.65rem] bg-red-50 text-red-700 px-1.5 py-0.5 rounded">
+                    <span key={i} className="text-[0.65rem] bg-status-danger-bg text-status-danger px-1.5 py-0.5 rounded">
                       {x}
                     </span>
                   ))}
@@ -1337,7 +1337,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
 
           {/* 失敗錯誤訊息 */}
           {memory?.last_error && (
-            <p className="text-[0.6rem] text-red-600 line-clamp-2">
+            <p className="text-[0.6rem] text-status-danger line-clamp-2">
               ⚠️ {memory.last_error}
             </p>
           )}
@@ -1368,7 +1368,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
               <button
                 onClick={handleDelete}
                 title="清空"
-                className="p-1 text-morandi-muted hover:text-red-600"
+                className="p-1 text-morandi-muted hover:text-status-danger"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -1460,7 +1460,7 @@ function SpeedCardEditor({
             className="w-full h-96 text-xs font-mono px-3 py-2 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
             spellCheck={false}
           />
-          {parseErr && <p className="text-xs text-red-600 mt-2">⚠️ {parseErr}</p>}
+          {parseErr && <p className="text-xs text-status-danger mt-2">⚠️ {parseErr}</p>}
         </div>
         <div className="px-5 py-3 border-t border-morandi-muted/20 flex justify-end gap-2">
           <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>取消</Button>

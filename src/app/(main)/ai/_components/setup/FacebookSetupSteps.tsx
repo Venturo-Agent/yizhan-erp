@@ -161,9 +161,9 @@ export function StepCredentials({
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 border border-red-200 p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="rounded-md bg-status-danger-bg border border-status-danger/30 p-3 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-status-danger">{error}</p>
         </div>
       )}
 
@@ -232,13 +232,13 @@ export function StepValidateConfirm({
             Page ID: {pageInfo.pageId}
           </p>
         </div>
-        <Check className="w-6 h-6 text-green-600 flex-shrink-0" />
+        <Check className="w-6 h-6 text-status-success flex-shrink-0" />
       </div>
 
       {error && (
-        <div className="rounded-md bg-red-50 border border-red-200 p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="rounded-md bg-status-danger-bg border border-status-danger/30 p-3 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-status-danger">{error}</p>
         </div>
       )}
 
@@ -278,7 +278,7 @@ export function StepDone({
   return (
     <div className="space-y-5">
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-green-600">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-status-success-bg text-status-success">
           <Check className="w-7 h-7" />
         </div>
         <h2 className="text-xl font-bold">FB Messenger 開通成功</h2>
