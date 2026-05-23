@@ -21,10 +21,7 @@ import type { SinopacConfig } from './config'
 export interface CreateCardOrderInput {
   /** 我方訂單編號（建議 'C' + 時間戳、唯一） */
   orderNo: string
-  /**
-   * 金額（新台幣整數元、無小數）。
-   * ⚠️ 單位待 sandbox 煙霧測試對帳確認（SampleCode 範例 Amount='50000'）。
-   */
+  /** 金額（新台幣「元」、整數；本函式會自動 ×100 轉永豐要的「分」） */
   amount: number
   /** 收款名稱（顯示在刷卡頁 / 對帳） */
   productName: string
@@ -50,7 +47,7 @@ export interface CardOrderResult {
   ShopNo?: string
   /** 永豐端交易序號（對帳 / 退款認這筆） */
   TSNo?: string
-  /** 金額（新台幣元、整數；2026-05-23 sandbox 實測確認單位為元） */
+  /** 永豐回傳金額、單位為「分」（2026-05-23 實測：送 1100 顯示 NT$11、確認永豐用分） */
   Amount?: number
   PayType?: string
   /** 信用卡專屬參數 */
@@ -78,7 +75,8 @@ export async function createCardOrder(
   const payload: Record<string, unknown> = {
     ShopNo: config.shopNo,
     OrderNo: input.orderNo,
-    Amount: String(Math.round(input.amount)),
+    // 永豐 QPay 金額單位為「分」（最小貨幣單位）、元需 ×100
+    Amount: String(Math.round(input.amount * 100)),
     CurrencyID: 'TWD',
     PrdtName: input.productName,
     PayType: 'C',
@@ -149,7 +147,8 @@ export async function maintainCardOrder(
     ShopNo: config.shopNo,
     OrderNo: input.orderNo,
     Command: input.command,
-    Amount: input.amount !== undefined ? String(Math.round(input.amount)) : undefined,
+    // 退款金額同樣是「分」、元 ×100
+    Amount: input.amount !== undefined ? String(Math.round(input.amount * 100)) : undefined,
     Remark: input.remark,
   })
 }
