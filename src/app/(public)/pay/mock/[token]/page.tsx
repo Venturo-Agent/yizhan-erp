@@ -118,8 +118,8 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
     return (
       <div className="min-h-screen flex items-center justify-center bg-morandi-container/30 px-4 py-8">
         <div className="max-w-md w-full bg-card rounded-xl border border-border p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-10 h-10 text-green-600" />
+          <div className="w-16 h-16 rounded-full bg-status-success-bg flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-10 h-10 text-status-success" />
           </div>
           <h1 className="text-xl font-semibold text-morandi-primary mb-2">付款成功</h1>
           <p className="text-sm text-morandi-secondary mb-6">
@@ -159,13 +159,13 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
   return (
     <div className="min-h-screen bg-morandi-container/30 py-8 px-4">
       <div className="max-w-md mx-auto">
-        {/* 永豐風格 header */}
+        {/* 付款 header（走 venturo CIS、不用永豐銀行品牌色）*/}
         <div className="bg-card rounded-t-xl border border-b-0 border-border p-5">
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-6 bg-red-600 rounded-sm" />
-            <span className="text-base font-bold text-morandi-primary">永豐銀行 EPOS</span>
+            <div className="w-2 h-6 bg-morandi-gold rounded-sm" />
+            <span className="text-base font-bold text-morandi-primary">線上付款（永豐金流）</span>
           </div>
-          <p className="text-xs text-morandi-muted">SinoPac Bank Online Payment</p>
+          <p className="text-xs text-morandi-muted">Venturo ERP × SinoPac Bank</p>
         </div>
 
         {/* 訂單資訊 */}
@@ -251,7 +251,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
           </div>
 
           {error && (
-            <div className="mt-4 p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-700">
+            <div className="mt-4 p-3 rounded-md bg-status-danger-bg border border-status-danger/30 text-sm text-status-danger">
               {error}
             </div>
           )}
@@ -259,7 +259,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-5 py-2.5 rounded-md bg-red-600 hover:bg-red-700 text-white font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full mt-5 py-2.5 rounded-md bg-morandi-gold hover:bg-morandi-gold-hover text-white font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {submitting ? (
               <>

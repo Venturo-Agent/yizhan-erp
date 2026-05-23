@@ -427,7 +427,7 @@ export function PaymentItemRow({
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-green-700">
+                <div className="flex items-center gap-2 text-sm text-status-success">
                   <CheckCircle2 className="w-4 h-4" />
                   <span className="font-medium">連結已產生</span>
                   {generatedExpiresAt && (
