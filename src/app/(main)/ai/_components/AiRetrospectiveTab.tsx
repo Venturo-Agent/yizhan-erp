@@ -20,7 +20,6 @@ import { useState } from 'react'
 import useSWR from 'swr'
 import { mutate } from '@/lib/swr/scoped-mutate'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Loader2, Sparkles, Check, X, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -97,7 +96,7 @@ export function AiRetrospectiveTab() {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="p-6 space-y-6">
       {/* Header + Run button */}
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -158,17 +157,39 @@ export function AiRetrospectiveTab() {
         </div>
       )}
 
-      <div className="space-y-3">
-        {topics.map(t => (
-          <TopicCard key={t.id} topic={t} onChanged={() => void mutate(listUrl)} />
-        ))}
-      </div>
+      {!isLoading && topics.length > 0 && (
+        <div className="border border-border rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <colgroup>
+              <col className="w-24" />
+              <col />
+              <col className="w-20" />
+              <col className="w-32" />
+              <col className="w-44" />
+            </colgroup>
+            <thead>
+              <tr className="bg-morandi-container/30 text-morandi-secondary text-xs">
+                <th className="text-left font-medium px-3 py-2">狀態</th>
+                <th className="text-left font-medium px-3 py-2">主題</th>
+                <th className="text-right font-medium px-3 py-2">對話數</th>
+                <th className="text-left font-medium px-3 py-2">產生時間</th>
+                <th className="text-right font-medium px-3 py-2">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topics.map(t => (
+                <TopicRow key={t.id} topic={t} onChanged={() => void mutate(listUrl)} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
 
-function TopicCard({ topic, onChanged }: { topic: RagTopic; onChanged: () => void }) {
-  const [showQuestions, setShowQuestions] = useState(false)
+function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void }) {
+  const [expanded, setExpanded] = useState(false)
   const [editingNotes, setEditingNotes] = useState(false)
   const [notesDraft, setNotesDraft] = useState(topic.notes ?? '')
   const [busy, setBusy] = useState(false)
@@ -227,132 +248,131 @@ function TopicCard({ topic, onChanged }: { topic: RagTopic; onChanged: () => voi
   const statusColor =
     topic.status === 'added_to_rag' ? 'bg-status-success-bg text-status-success border-status-success/30' :
     topic.status === 'declined' ? 'bg-morandi-muted/20 text-morandi-muted border-morandi-muted/30' :
-    'bg-orange-50 text-orange-700 border-orange-200'
+    'bg-status-warning-bg text-status-warning border-status-warning/30'
 
   return (
-    <Card className="p-4 border border-border space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-[0.65rem] px-2 py-0.5 rounded-full border ${statusColor}`}>
-              {STATUS_LABELS[topic.status]}
-            </span>
-            <span className="text-xs text-morandi-muted">
-              出現 {topic.occurrence_count} 個對話
-            </span>
-            {topic.generated_at && (
-              <span className="text-[0.65rem] text-morandi-muted">
-                · {new Date(topic.generated_at).toLocaleString('zh-TW', { dateStyle: 'short', timeStyle: 'short' })}
-              </span>
+    <>
+      <tr className="border-t border-border hover:bg-morandi-container/20 transition-colors">
+        <td className="px-3 py-2 align-top">
+          <span className={`inline-block text-[0.65rem] px-2 py-0.5 rounded-full border ${statusColor}`}>
+            {STATUS_LABELS[topic.status]}
+          </span>
+        </td>
+        <td className="px-3 py-2 align-top">
+          <button
+            onClick={() => setExpanded(v => !v)}
+            className="text-left text-morandi-primary hover:text-morandi-gold flex items-start gap-1.5"
+          >
+            <span className="text-morandi-muted mt-0.5 shrink-0">{expanded ? '▾' : '▸'}</span>
+            <span className="leading-snug">{topic.topic_summary}</span>
+          </button>
+        </td>
+        <td className="px-3 py-2 align-top text-right text-morandi-secondary">{topic.occurrence_count}</td>
+        <td className="px-3 py-2 align-top text-xs text-morandi-muted">
+          {topic.generated_at
+            ? new Date(topic.generated_at).toLocaleString('zh-TW', { dateStyle: 'short', timeStyle: 'short' })
+            : '—'}
+        </td>
+        <td className="px-3 py-2 align-top">
+          <div className="flex gap-1.5 justify-end">
+            {topic.status === 'pending' ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => void handleStatusChange('added_to_rag')}
+                  className="h-7 text-xs gap-1 border-status-success/30 text-status-success hover:bg-status-success-bg"
+                >
+                  <Check className="w-3 h-3" />
+                  已補進 RAG
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  onClick={() => void handleStatusChange('declined')}
+                  className="h-7 text-xs gap-1 text-morandi-muted hover:bg-morandi-muted/10"
+                >
+                  <X className="w-3 h-3" />
+                  不採納
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={busy}
+                onClick={() => void handleStatusChange('pending')}
+                className="h-7 text-xs"
+              >
+                重置
+              </Button>
             )}
           </div>
-          <h3 className="text-sm font-medium text-morandi-primary mt-1.5 leading-snug">
-            {topic.topic_summary}
-          </h3>
-        </div>
+        </td>
+      </tr>
 
-        {topic.status === 'pending' && (
-          <div className="flex gap-1.5 shrink-0">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={busy}
-              onClick={() => void handleStatusChange('added_to_rag')}
-              className="h-7 text-xs gap-1 border-status-success/30 text-status-success hover:bg-status-success-bg"
-            >
-              <Check className="w-3 h-3" />
-              已補進 RAG
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={busy}
-              onClick={() => void handleStatusChange('declined')}
-              className="h-7 text-xs gap-1 text-morandi-muted hover:bg-morandi-muted/10"
-            >
-              <X className="w-3 h-3" />
-              不採納
-            </Button>
-          </div>
-        )}
+      {expanded && (
+        <tr className="border-t border-border bg-morandi-container/10">
+          <td className="hidden md:table-cell" />
+          <td colSpan={4} className="px-3 py-3 space-y-3">
+            {/* 範例原話 */}
+            {topic.example_questions.length > 0 && (
+              <div>
+                <p className="text-xs text-morandi-muted mb-1">範例原話（{topic.example_questions.length}）</p>
+                <ul className="space-y-1 pl-4 border-l-2 border-morandi-muted/20">
+                  {topic.example_questions.map((q, i) => (
+                    <li key={i} className="text-xs text-morandi-primary">「{q}」</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
-        {topic.status !== 'pending' && (
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={busy}
-            onClick={() => void handleStatusChange('pending')}
-            className="h-7 text-xs"
-          >
-            重置
-          </Button>
-        )}
-      </div>
-
-      {/* Example questions */}
-      {topic.example_questions.length > 0 && (
-        <div>
-          <button
-            onClick={() => setShowQuestions(v => !v)}
-            className="text-xs text-morandi-secondary hover:text-morandi-primary"
-          >
-            {showQuestions ? '▾' : '▸'} 範例原話 ({topic.example_questions.length})
-          </button>
-          {showQuestions && (
-            <ul className="mt-2 space-y-1 pl-4 border-l-2 border-morandi-muted/20">
-              {topic.example_questions.map((q, i) => (
-                <li key={i} className="text-xs text-morandi-primary">
-                  「{q}」
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+            {/* 補充說明 */}
+            {!editingNotes ? (
+              <div className="flex items-start gap-2">
+                <p className="text-xs text-morandi-secondary flex-1">
+                  {topic.notes ? (
+                    <>
+                      <span className="text-morandi-muted">補充：</span>
+                      {topic.notes}
+                    </>
+                  ) : (
+                    <span className="text-morandi-muted italic">尚無補充說明</span>
+                  )}
+                </p>
+                <button
+                  onClick={() => { setNotesDraft(topic.notes ?? ''); setEditingNotes(true) }}
+                  className="text-morandi-muted hover:text-morandi-primary shrink-0"
+                  title="編輯補充"
+                >
+                  <Pencil className="w-3 h-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <textarea
+                  value={notesDraft}
+                  onChange={e => setNotesDraft(e.target.value)}
+                  placeholder="補充說明（如『已寫進 KB 飯店推薦條目』）"
+                  className="w-full h-16 text-xs px-3 py-2 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  maxLength={2000}
+                />
+                <div className="flex gap-2 justify-end">
+                  <Button size="sm" variant="outline" onClick={() => setEditingNotes(false)} disabled={busy} className="h-7 text-xs">
+                    取消
+                  </Button>
+                  <Button size="sm" onClick={handleSaveNotes} disabled={busy} className="h-7 text-xs gap-1">
+                    {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                    儲存
+                  </Button>
+                </div>
+              </div>
+            )}
+          </td>
+        </tr>
       )}
-
-      {/* Notes */}
-      <div className="border-t border-morandi-muted/10 pt-2">
-        {!editingNotes ? (
-          <div className="flex items-start gap-2">
-            <p className="text-xs text-morandi-secondary flex-1">
-              {topic.notes ? (
-                <>
-                  <span className="text-morandi-muted">補充：</span>
-                  {topic.notes}
-                </>
-              ) : (
-                <span className="text-morandi-muted italic">尚無補充說明</span>
-              )}
-            </p>
-            <button
-              onClick={() => { setNotesDraft(topic.notes ?? ''); setEditingNotes(true) }}
-              className="text-morandi-muted hover:text-morandi-primary shrink-0"
-              title="編輯補充"
-            >
-              <Pencil className="w-3 h-3" />
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <textarea
-              value={notesDraft}
-              onChange={e => setNotesDraft(e.target.value)}
-              placeholder="補充說明（如『已寫進 KB 飯店推薦條目』）"
-              className="w-full h-16 text-xs px-3 py-2 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-              maxLength={2000}
-            />
-            <div className="flex gap-2 justify-end">
-              <Button size="sm" variant="outline" onClick={() => setEditingNotes(false)} disabled={busy} className="h-7 text-xs">
-                取消
-              </Button>
-              <Button size="sm" onClick={handleSaveNotes} disabled={busy} className="h-7 text-xs gap-1">
-                {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
-                儲存
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-    </Card>
+    </>
   )
 }

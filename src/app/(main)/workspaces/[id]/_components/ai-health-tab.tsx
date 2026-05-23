@@ -21,6 +21,21 @@ import { Activity, MessageSquare, Sparkles, BookOpenCheck, BrainCircuit, AlertCi
 // 簡單 USD → TWD 換算（用近期均匯率 30、不接外部 API、給人粗估用、實際計費另外算）
 const USD_TO_TWD = 30
 
+// 把程式內部的 caller 代號翻成業務看得懂的中文（用量監控「按功能拆分」用）
+const CALLER_LABELS: Record<string, string> = {
+  'ai-brain': 'FB / IG 自動回覆',
+  'happy-handler': 'HAPPY 客服回覆',
+  'happy-rag': 'HAPPY 知識庫問答',
+  'line-llm-compose': 'LINE 回覆草擬',
+  'memory-summarizer': '速記卡重生',
+  'conversation-retrospective': '單筆對話復盤',
+  'retrospective-aggregator': '大型復盤彙總',
+  unknown: '其他',
+}
+function callerLabel(caller: string): string {
+  return CALLER_LABELS[caller] ?? caller
+}
+
 interface AiHealthData {
   conversations: {
     total: number
@@ -92,9 +107,11 @@ export function AiHealthTab({ workspaceId }: { workspaceId: string }) {
 export function AiHealthDashboard({
   apiUrl,
   audience,
+  fluid = false,
 }: {
   apiUrl: string
   audience: Audience
+  fluid?: boolean
 }) {
   const { data: resp, error, isLoading } = useSWR<{ data: AiHealthData }>(
     apiUrl,
@@ -106,7 +123,7 @@ export function AiHealthDashboard({
     return <div className="p-6 text-center text-sm text-morandi-muted">載入中...</div>
   }
   if (error || !resp?.data) {
-    return <div className="p-6 text-center text-sm text-red-600">載入失敗、請刷新</div>
+    return <div className="p-6 text-center text-sm text-status-danger">載入失敗、請刷新</div>
   }
 
   const d = resp.data
@@ -119,7 +136,7 @@ export function AiHealthDashboard({
       : '你的 AI 客服 / AI 助理整體運作狀態。看訊息量、AI 接管程度、客戶聊得怎樣、答不出來的問題。'
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl">
+    <div className={`p-6 space-y-6 ${fluid ? '' : 'max-w-5xl'}`}>
       <div>
         <h2 className="text-lg font-semibold text-morandi-primary">{headerTitle}</h2>
         <p className="text-xs text-morandi-secondary mt-1">{headerSub}</p>
@@ -201,11 +218,11 @@ export function AiHealthDashboard({
               </ul>
             </div>
             <div>
-              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">按來源拆分（哪段 code 燒最多）</p>
+              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">按功能拆分（哪個 AI 功能用最多）</p>
               <ul className="space-y-1">
                 {d.llm_usage.by_caller.slice(0, 6).map(c => (
                   <li key={c.caller} className="flex items-center justify-between text-xs">
-                    <span className="text-morandi-primary truncate">{c.caller}</span>
+                    <span className="text-morandi-primary truncate">{callerLabel(c.caller)}</span>
                     <span className="text-morandi-secondary shrink-0">
                       {c.calls} 次 · ${c.cost_usd.toFixed(4)}
                     </span>
@@ -291,9 +308,9 @@ function StatCard({
   highlight?: 'warn' | 'danger' | null
 }) {
   const borderColor =
-    highlight === 'danger' ? 'border-red-200 bg-red-50' :
-    highlight === 'warn' ? 'border-orange-200 bg-orange-50' :
-    'border-border bg-white'
+    highlight === 'danger' ? 'border-status-danger/30 bg-status-danger-bg' :
+    highlight === 'warn' ? 'border-status-warning/30 bg-status-warning-bg' :
+    'border-border bg-card'
   return (
     <Card className={`p-4 ${borderColor}`}>
       <div className="flex items-center gap-1.5 text-morandi-muted mb-1">
@@ -322,8 +339,8 @@ function Metric({
   highlight?: 'warn' | 'danger' | null
 }) {
   const valueColor =
-    highlight === 'danger' ? 'text-red-700' :
-    highlight === 'warn' ? 'text-orange-700' :
+    highlight === 'danger' ? 'text-status-danger' :
+    highlight === 'warn' ? 'text-status-warning' :
     'text-morandi-primary'
   return (
     <div>

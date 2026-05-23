@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import {
   LayoutDashboard,
-  MessageSquare,
   BookOpenCheck,
   Plug,
   Sliders,
@@ -20,7 +19,6 @@ import { cn } from '@/lib/utils'
 import { AiSetupTab } from './AiSetupTab'
 import { AiSettingsTab } from './AiSettingsTab'
 import { AiDashboardTab } from './AiDashboardTab'
-import { AiConversationsTab } from './AiConversationsTab'
 import { AiRetrospectiveTab } from './AiRetrospectiveTab'
 
 /**
@@ -30,10 +28,13 @@ import { AiRetrospectiveTab } from './AiRetrospectiveTab'
  *
  * 滿版 dialog（max-w-[95vw] / h-[95vh]）、像 /channels 沉浸式的感覺、tabs：
  *   1. 總覽（AiDashboardTab）
- *   2. 對話管理（AiConversationsTab）— sidebar bot 點下去也是這個、但這裡是「跨 bot 總覽」視角
- *   3. 對話復盤（AiRetrospectiveTab）
- *   4. 通道設定（AiSetupTab — OA 接入、token、webhook）
+ *   2. 對話復盤（AiRetrospectiveTab）
+ *   3. 通道設定（AiSetupTab — OA 接入、token、webhook）
+ *   4. AI 機器人（AiSettingsTab）
  *   5. 全域 AI Policy（語氣、人格、禁字 — placeholder）
+ *
+ * 2026-05-23：拿掉「對話管理」tab（跟 sidebar bot 點進去同一個 AiConversationsTab、重複）。
+ *   tabs 移到標題同一排。
  */
 
 interface Props {
@@ -41,11 +42,10 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-type SettingsTab = 'dashboard' | 'conversations' | 'retrospective' | 'setup' | 'bots' | 'policy'
+type SettingsTab = 'dashboard' | 'retrospective' | 'setup' | 'bots' | 'policy'
 
 const TABS: Array<{ value: SettingsTab; label: string; icon: LucideIcon }> = [
   { value: 'dashboard', label: '總覽', icon: LayoutDashboard },
-  { value: 'conversations', label: '對話管理', icon: MessageSquare },
   { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
   { value: 'bots', label: 'AI 機器人', icon: Bot },
@@ -62,38 +62,36 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
         level={1}
         className="max-h-[95vh] h-[95vh] flex flex-col p-0 gap-0"
       >
-        <DialogHeader className="px-6 h-[calc(3.75rem_-_1px)] border-b border-border flex flex-row items-center space-y-0 shrink-0">
-          <DialogTitle className="text-base">AI Hub 設定</DialogTitle>
+        {/* 標題 + 分頁同一排 */}
+        <DialogHeader className="px-6 h-[calc(3.75rem_-_1px)] border-b border-border flex flex-row items-center gap-4 space-y-0 shrink-0">
+          <DialogTitle className="text-base shrink-0">AI Hub 設定</DialogTitle>
+          <div className="flex items-center gap-1 overflow-x-auto">
+            {TABS.map(tab => {
+              const Icon = tab.icon
+              const isActive = activeTab === tab.value
+              return (
+                <button
+                  key={tab.value}
+                  type="button"
+                  onClick={() => setActiveTab(tab.value)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors shrink-0',
+                    isActive
+                      ? 'bg-morandi-gold-light text-morandi-primary font-medium'
+                      : 'text-morandi-secondary hover:bg-morandi-gold-light/50 hover:text-morandi-primary'
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
         </DialogHeader>
-
-        {/* Tab 列 */}
-        <div className="flex items-center gap-1 px-6 py-2 border-b border-border shrink-0 overflow-x-auto">
-          {TABS.map(tab => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.value
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => setActiveTab(tab.value)}
-                className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors shrink-0',
-                  isActive
-                    ? 'bg-morandi-gold-light text-morandi-primary font-medium'
-                    : 'text-morandi-secondary hover:bg-morandi-gold-light/50 hover:text-morandi-primary'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {tab.label}
-              </button>
-            )
-          })}
-        </div>
 
         {/* 內容 */}
         <div className="flex-1 min-h-0 overflow-auto">
           {activeTab === 'dashboard' && <AiDashboardTab />}
-          {activeTab === 'conversations' && <AiConversationsTab />}
           {activeTab === 'retrospective' && <AiRetrospectiveTab />}
           {activeTab === 'setup' && <AiSetupTab />}
           {activeTab === 'bots' && <AiSettingsTab />}

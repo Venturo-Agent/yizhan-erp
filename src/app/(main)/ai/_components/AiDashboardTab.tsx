@@ -12,5 +12,5 @@
 import { AiHealthDashboard } from '@/app/(main)/workspaces/[id]/_components/ai-health-tab'
 
 export function AiDashboardTab() {
-  return <AiHealthDashboard apiUrl="/api/ai/health" audience="customer" />
+  return <AiHealthDashboard apiUrl="/api/ai/health" audience="customer" fluid />
 }
