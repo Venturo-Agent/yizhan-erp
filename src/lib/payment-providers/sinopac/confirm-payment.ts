@@ -46,25 +46,29 @@ const TX_COLS =
 
 /**
  * 從永豐 OrderQuery 回應判斷「是否已付款成功」+ 取交易序號。
- * ⚠️ 欄位語意待測試對齊：永豐信用卡付款成功的旗標 / 交易序號欄位名先用候選 + log。
+ *
+ * 回應結構（手冊 8.4 + 2026-05-23 sandbox 實測）：交易在 OrderList 陣列裡（非頂層）：
+ *   { Status:'S', OrderList:[{ OrderNo, TSNo, PayStatus, AuthCode, Amount, ... }] }
+ *   - 頂層 Status='S' 只代表「查詢成功」、不是付款成功
+ *   - 真正付款狀態看 OrderList[0].PayStatus（手冊 10.2 交易狀態碼表）
+ *
+ * 信用卡付款成功 = PayStatus 1C300（已授權未請款）/ 1C400（請款完成）/ 1C900（已撥款）。
+ *   1C200=待付款（沒刷）、1C250=刷卡逾期、1C350/1C351=授權失效/取消 → 皆未付款。
  */
 function isPaidFromQuery(q: OrderQueryResult): { paid: boolean; transNo: string | null } {
-  const get = (k: string): unknown => (q as Record<string, unknown>)[k]
-  // 交易序號候選
-  const transNo =
-    (get('TSNo') as string | undefined) ||
-    (get('TradeNo') as string | undefined) ||
-    (get('TransNo') as string | undefined) ||
-    null
-  // 付款成功旗標候選（測試對齊後收斂成單一判斷）
-  const payFlag = String(get('PayFlag') ?? '')
-  const orderStatus = String(get('OrderStatus') ?? '')
-  const paid =
-    payFlag === 'Y' ||
-    payFlag === '1' ||
-    orderStatus === 'S' ||
-    orderStatus.includes('已付款') ||
-    orderStatus.includes('成功')
+  const orderList = (q as Record<string, unknown>).OrderList as
+    | Array<Record<string, unknown>>
+    | undefined
+  const order = orderList?.[0]
+  if (!order) return { paid: false, transNo: null }
+
+  const transNo = (order.TSNo as string | undefined) || null
+  const payStatus = String(order.PayStatus ?? '')
+  const authCode = String(order.AuthCode ?? '')
+  // 付款成功碼（手冊 10.2）：已授權 x300 / 請款完成 x400 / 已撥款 x900
+  // 信用卡 1C*；保險涵蓋虛擬帳號 1A400/1A900、行動支付 1M400/1M900
+  const PAID_STATUSES = ['1C300', '1C400', '1C900', '1A400', '1A900', '1M400', '1M900']
+  const paid = PAID_STATUSES.includes(payStatus) || authCode.length > 0
   return { paid, transNo }
 }
 

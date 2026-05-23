@@ -82,7 +82,8 @@ export async function createCardOrder(
     PayType: 'C',
     ReturnURL: input.returnUrl,
     BackendURL: input.backendUrl,
-    CardParam: { AutoBilling: 'Y' },
+    // AutoBilling=Y 授權後自動請款；ExpMinutes 刷卡連結有效時間、永豐上限 30 分鐘（手冊 8.1）
+    CardParam: { AutoBilling: 'Y', ExpMinutes: 30 },
     Memo: input.memo,
     Param1: input.param1,
     Param2: input.param2,
