@@ -184,6 +184,11 @@ export const CAPABILITIES = {
   // ── marketing ──
   MARKETING_WEBSITE_READ: 'marketing.website.read',
   MARKETING_WEBSITE_WRITE: 'marketing.website.write',
+  // ── websites ──
+  WEBSITES_DESIGN_READ: 'websites.design.read',
+  WEBSITES_DESIGN_WRITE: 'websites.design.write',
+  WEBSITES_PRODUCTS_READ: 'websites.products.read',
+  WEBSITES_PRODUCTS_WRITE: 'websites.products.write',
 
   // ════ Non-module（scope / 全域 capability、不屬任何 module）════
   CROSS_BRANCH_READ: 'cross_branch.read',

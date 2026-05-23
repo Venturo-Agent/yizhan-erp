@@ -27,7 +27,7 @@ import {
   Wallet, HandCoins, BarChart3, Settings, FileText, BookOpen,
   Calendar, FileCheck, Contact, Palmtree, Building2, Archive,
   Network, Landmark, Globe, Plane, Shield, MapPin,
-  Box,
+  Box, Layout,
   type LucideIcon,
 } from 'lucide-react'
 import { COMP_LAYOUT_LABELS } from './constants/labels'
@@ -81,6 +81,7 @@ export const SIDEBAR_ORDER: readonly string[] = [
   'documents',
   'database',
   'marketing',
+  'websites',
   'workspaces',
   'shared_data_management',
   'platform_integrations',
@@ -149,6 +150,26 @@ export const SIDEBAR_META: Record<string, SidebarMeta> = {
         label: '官網管理',
         icon: Globe,
         feature: 'marketing.website',
+      },
+    ],
+  },
+  // 2026-05-23 客戶官網系統（addon、沒加購 sidebar 不顯示、走 website_builder feature gate）
+  websites: {
+    icon: Globe,
+    label: '客戶官網',
+    href: '/websites/design',
+    children: [
+      {
+        href: '/websites/design',
+        label: '版面設計',
+        icon: Layout,
+        feature: 'websites.design',
+      },
+      {
+        href: '/websites/products',
+        label: '產品上架',
+        icon: Megaphone,
+        feature: 'websites.products',
       },
     ],
   },

@@ -437,6 +437,23 @@ export const MODULES: ModuleDefinition[] = [
       },
     ],
   },
+  {
+    code: 'websites',
+    name: '客戶官網系統',
+    description: '加購後可進 design 編輯器自由排版、發布到 {subdomain}.venturo.tw',
+    tabs: [
+      {
+        code: 'design',
+        name: '版面設計',
+        description: '進全螢幕編輯器、從 component 變體庫拼版面、改文案 / 配色 / 發布',
+      },
+      {
+        code: 'products',
+        name: '產品上架',
+        description: '挑哪些團要上架到客戶官網、編輯行銷文案 / SEO / 封面圖',
+      },
+    ],
+  },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -45,6 +45,8 @@ import { EsimModule } from './esim'
 import { VisasModule } from './visas'
 // 2026-05-20 行銷管理（Corner 官網行程上架）
 import { MarketingModule } from './marketing'
+// 2026-05-23 客戶官網系統（addon、多客戶通用 / 子網域 / Canvas 編輯器）
+import { WebsitesModule } from './websites'
 
 /**
  * 所有 module 集中匯出（順序：side bar / module-tabs.ts 順序、再接 features-only）
@@ -87,6 +89,8 @@ export const ALL_MODULES = [
   VisasModule,
   // ===== 行銷管理（basic、Corner 官網行程上架）=====
   MarketingModule,
+  // ===== 客戶官網系統（addon、加購 / 多客戶通用 / Canvas 編輯器）=====
+  WebsitesModule,
 ] as const
 
 export type AllModulesType = typeof ALL_MODULES

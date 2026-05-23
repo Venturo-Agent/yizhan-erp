@@ -301,6 +301,18 @@ export const FEATURES: FeatureDefinition[] = [
       '/marketing/website/[code]',
     ],
   },
+  {
+    code: 'websites',
+    name: '客戶官網系統',
+    description: '加購後可進 design 編輯器自由排版、發布到 {subdomain}.venturo.tw',
+    category: 'addon',
+    routes: [
+      '/websites',
+      '/websites/design',
+      '/websites/products',
+      '/websites/products/[code]',
+    ],
+  },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
