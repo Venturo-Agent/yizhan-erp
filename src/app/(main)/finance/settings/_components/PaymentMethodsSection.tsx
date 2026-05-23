@@ -118,13 +118,25 @@ export function PaymentMethodsSection({
 
   // 儲存付款方式
   const handleSaveMethod = async (method: Partial<PaymentMethod>) => {
+    const isNew = !editingMethod?.id
     const res = await apiMutate('/api/finance/payment-methods', {
-      method: editingMethod?.id ? 'PUT' : 'POST',
+      method: isNew ? 'POST' : 'PUT',
       body: {
         ...method,
         id: editingMethod?.id,
         workspace_id: workspaceId,
         type,
+        // code 是純內部識別碼、不讓使用者填（表單沒這欄）。
+        // 新增時自動產生唯一 code（對齊 handleCopyMethod 的做法）、否則後端 schema 擋 400。
+        // 編輯時保留 method 既有 code（PUT 不帶 code = 不動 DB 既有值）。
+        ...(isNew && !method.code
+          ? {
+              code: `M_${Date.now().toString(36).toUpperCase()}_${Math.random()
+                .toString(36)
+                .slice(2, 6)
+                .toUpperCase()}`,
+            }
+          : {}),
       },
       invalidate: ['/api/finance/payment-methods'],
     })
