@@ -69,19 +69,6 @@ export async function GET(request: NextRequest) {
     }
 
     // 2. 列出上架中的團
-    // 暫時 cast：types.ts 還沒 regenerate、is_public_listed / marketing_* 是 5/20
-    // migration 才加的新欄位；等下次 `npm run generate-types` 後可拿掉
-    type PublicTourRow = {
-      code: string
-      marketing_title: string | null
-      marketing_subtitle: string | null
-      hero_image_url: string | null
-      departure_date: string | null
-      days_count: number | null
-      selling_price_per_person: number | null
-      max_participants: number | null
-      current_participants: number | null
-    }
     const toursResp = await filterActive(
       supabase
         .from('tours')
@@ -91,7 +78,7 @@ export async function GET(request: NextRequest) {
         .eq('workspace_id', ws.id)
         .eq('is_public_listed', true)
     ).order('departure_date', { ascending: true })
-    const tours = toursResp.data as unknown as PublicTourRow[] | null
+    const tours = toursResp.data
     const toursErr = toursResp.error
 
     if (toursErr) {

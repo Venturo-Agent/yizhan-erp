@@ -119,17 +119,6 @@ export async function POST(request: NextRequest) {
     const supabase = getSupabaseAdminClient()
 
     // 3. tour 反查 workspace_id（不信任 client 傳的 workspace）
-    // 暫時用 type assertion：is_public_listed 是 5/20 新欄位、types.ts 還沒 regenerate
-    type PublicTourLookup = {
-      id: string
-      code: string
-      name: string
-      workspace_id: string
-      max_participants: number | null
-      current_participants: number | null
-      selling_price_per_person: number | null
-      departure_date: string | null
-    }
     const tourResp = await filterActive(
       supabase
         .from('tours')
@@ -139,7 +128,7 @@ export async function POST(request: NextRequest) {
         .eq('code', tourCode)
         .eq('is_public_listed', true)
     ).maybeSingle()
-    const tour = tourResp.data as unknown as PublicTourLookup | null
+    const tour = tourResp.data
     const tourErr = tourResp.error
 
     if (tourErr) {
