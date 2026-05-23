@@ -62,8 +62,6 @@ export const TourReceipts = React.memo(function TourReceipts({
   orderFilter,
 }: TourReceiptsProps) {
   const t = useTranslations('tour')
-  // 注意：useReceipts({ filter }) 的 filter 參數目前被 createEntityHook.useList silently drop
-  // 暫時 client side filter；長期應修 createEntityHook 真正支援 server-side filter
   const { items: allReceipts } = useReceipts({ all: true, filter: { tour_id: tour.id } })
   const { methods: allPaymentMethods } = usePaymentMethodsCached()
   const [selectedReceipt, setSelectedReceipt] = useState<Receipt | null>(null)
