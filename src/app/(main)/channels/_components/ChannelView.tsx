@@ -50,9 +50,8 @@ export function ChannelView({ channelId }: Props) {
   //     第二次 state update → 第二次 re-render → sortedMessages 再算一次 → 雙段抖動 =「閃爍」
   //     dedupe by id 已經做了功能去重、recentlySent 即使保留也不會雙顯示
   //   - 換 channel 時清空 recentlySent（避免無限累積、A channel 訊息漏到 B channel）
-  const [pendingBody, setPendingBody] = useState<string | null>(null)
   const [recentlySent, setRecentlySent] = useState<ChannelMessage[]>([])
-  const sending = pendingBody !== null
+  const [sending, setSending] = useState(false)
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [membersOpen, setMembersOpen] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -110,15 +109,12 @@ export function ChannelView({ channelId }: Props) {
   }, [messages, recentlySent, channelId])
 
   // 訊息更新自動 scroll 到底
-  // 2026-05-20 修：dep 從 `messages?.length` 改成 `sortedMessages.length` + `pendingBody`
-  // 原因：發訊息後 recentlySent 立刻 push、但 messages?.length 要等 SWR refetch 才變
-  //      會造成「訊息出現但沒 scroll → 等 200ms 才 scroll」的視覺跳動
-  // 改 dep 後送出當下立即 scroll
+  // dep 用 sortedMessages.length：發訊息後 recentlySent 立刻 push、長度變即 scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [sortedMessages.length, pendingBody])
+  }, [sortedMessages.length])
 
   // 換 channel 時清空 recentlySent、不要把 A channel 的訊息漏到 B channel
   // 同時防止 recentlySent 無限累積（一個 channel 內最多累到換 channel 才清）
@@ -172,18 +168,18 @@ export function ChannelView({ channelId }: Props) {
       return
     }
 
-    // 樂觀更新 v6（5/20、解耦 sending 跟 invalidate、不再閃爍）：
-    //   1. 立刻清 draft + 設 pendingBody（pending bubble 靠右瞬間出現）
-    //   2. await apiPost 拿 server 寫入 OK
-    //   3. server return 完整 row 推進 recentlySent（local 兜底、自己秒看到）
-    //   4. **立刻** setPendingBody(null)、UI 切回正常（不等 invalidate）
-    //   5. void invalidateChannelMessages() 在背景跑、讓別人 / cross-tab SWR 也更新
-    //      v5 之前 await invalidate 卡住 setPendingBody(null) → UI「傳送中」狀態多停 500-1500ms、體感閃爍
-    //   6. 失敗 toast + 還原 draft
-    //   pendingBody !== null 期間鎖住送出按鈕、防雙擊誤傳兩次
+    if (sending) return
+
+    // 對齊 AI Hub 的標準發送（不手動重抓整串、靠 realtime 補）：
+    //   1. 立刻清 draft + 設 sending（按鈕轉圈、防雙擊）
+    //   2. await apiPost 拿 server 寫入 OK + 完整 row
+    //   3. server row push 進 recentlySent → 送出者瞬間看到自己訊息（sortedMessages dedupe 合併）
+    //   4. **不手動 invalidate**：靠 channel_messages entity hook 內建 realtime 自動補
+    //      （單一更新來源、避免「手動重抓 + realtime」雙重渲染 = 不再閃爍 / 重畫整串）
+    //   5. sending 用 try/finally 包、保證一定解除、不會卡在「傳送中」
     const optimisticBody = body
     setDraft('')
-    setPendingBody(optimisticBody)
+    setSending(true)
     try {
       const response = await apiPost<{ message: ChannelMessage }>(
         '/api/channels/messages',
@@ -193,9 +189,6 @@ export function ChannelView({ channelId }: Props) {
           message_type: 'text',
         }
       )
-      // Local state 兜底：server return 完整 row 直接 push 進 recentlySent
-      // sortedMessages 會合併 messages + recentlySent dedupe 顯示
-      // 不靠 SWR mutate / fetcher、保證秒看到
       const serverMsg = response.message
       if (serverMsg?.id) {
         setRecentlySent(prev => {
@@ -203,16 +196,12 @@ export function ChannelView({ channelId }: Props) {
           return [...prev, serverMsg]
         })
       }
-      // 立刻切回非 sending 狀態、UI 不卡（recentlySent 已有真實 row、bubble 已接位）
-      setPendingBody(null)
-      // 跟 handleRevoke / SendAnnouncementDialog 對齊、讓 SWR cache 失效
-      // **背景跑、不擋 UI**：別人 / 自己 cross-tab 透過 SWR refetch 收到、不影響本 tab 體驗
-      void invalidateChannelMessages()
     } catch (err) {
       logger.error('發送訊息失敗', err)
       toast.error('發送失敗、請再試一次')
       setDraft(optimisticBody) // 失敗還原 draft、不掉字
-      setPendingBody(null)
+    } finally {
+      setSending(false)
     }
   }
 
@@ -310,7 +299,7 @@ export function ChannelView({ channelId }: Props) {
             <Loader2 className="h-4 w-4 animate-spin text-morandi-muted" />
           </div>
         )}
-        {!messagesLoading && sortedMessages.length === 0 && !pendingBody && (
+        {!messagesLoading && sortedMessages.length === 0 && (
           <div className="text-center py-8 text-sm text-morandi-muted">尚無訊息</div>
         )}
         {sortedMessages.map(msg => {
@@ -388,23 +377,6 @@ export function ChannelView({ channelId }: Props) {
             </div>
           )
         })}
-
-        {/* Optimistic pending bubble — 自己送的、靠右、無頭像、轉圈圈代替時間 */}
-        {pendingBody && (
-          <div className="flex flex-row-reverse gap-3 group opacity-60">
-            <div className="flex flex-col gap-1 max-w-[70%] min-w-0 items-end">
-              <div className="flex flex-row-reverse items-baseline gap-2">
-                <span className="text-xs text-morandi-muted flex items-center gap-1">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  傳送中
-                </span>
-              </div>
-              <p className="text-sm text-morandi-primary whitespace-pre-wrap break-words rounded-2xl rounded-tr-sm px-3 py-2 inline-block bg-morandi-gold/20">
-                {pendingBody}
-              </p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Input area — 依 channel type 變形 */}
