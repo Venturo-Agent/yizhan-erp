@@ -15,12 +15,14 @@ export function SortableCategoryRow({
   onEdit,
   onToggle,
   onDelete,
+  showAccounting,
 }: {
   category: ExpenseCategory
   loading: boolean
   onEdit: () => void
   onToggle: () => void
   onDelete: () => void
+  showAccounting: boolean
 }) {
   const t = useTranslations('finance')
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -50,18 +52,21 @@ export function SortableCategoryRow({
       </td>
       {/* 名稱 */}
       <td className="px-4 py-3 text-sm font-medium">{category.name}</td>
-      {/* 借方科目 */}
-      <td className="px-4 py-3 text-sm text-morandi-muted">
-        {category.debit_account
-          ? `${category.debit_account.code} ${category.debit_account.name}`
-          : PAGE_LABELS.NOT_SET}
-      </td>
-      {/* 貸方科目 */}
-      <td className="px-4 py-3 text-sm text-morandi-muted">
-        {category.credit_account
-          ? `${category.credit_account.code} ${category.credit_account.name}`
-          : PAGE_LABELS.NOT_SET}
-      </td>
+      {/* 借/貸方科目 — 僅開通會計功能顯示 */}
+      {showAccounting && (
+        <td className="px-4 py-3 text-sm text-morandi-muted">
+          {category.debit_account
+            ? `${category.debit_account.code} ${category.debit_account.name}`
+            : PAGE_LABELS.NOT_SET}
+        </td>
+      )}
+      {showAccounting && (
+        <td className="px-4 py-3 text-sm text-morandi-muted">
+          {category.credit_account
+            ? `${category.credit_account.code} ${category.credit_account.name}`
+            : PAGE_LABELS.NOT_SET}
+        </td>
+      )}
       {/* 狀態 — Switch、不撐高 */}
       <td className="px-4 py-3 text-sm w-[60px]">
         <Switch checked={category.is_active} onCheckedChange={onToggle} disabled={loading} />

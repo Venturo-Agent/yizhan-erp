@@ -40,6 +40,7 @@ import {
 import { SortableMethodRow } from './SortableMethodRow'
 import { MethodDialog } from './MethodDialog'
 import { apiMutate } from '@/lib/swr/api-mutate'
+import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 
 interface PaymentMethodsSectionProps {
   type: 'receipt' | 'payment'
@@ -68,6 +69,9 @@ export function PaymentMethodsSection({
   setEditingMethod,
 }: PaymentMethodsSectionProps) {
   const t = useTranslations('finance')
+  // 沒開通會計功能就隱藏借/貸方科目欄（借貸科目是純會計概念、對非會計租戶是雜訊）
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const hasAccounting = isFeatureEnabled('accounting')
   // 先依 type filter
   const list = paymentMethods.filter(m => m.type === type)
 
@@ -265,8 +269,8 @@ export function PaymentMethodsSection({
                   <TableHead className="w-[140px]">金流商</TableHead>
                   <TableHead>{PAGE_LABELS.COL_DESCRIPTION}</TableHead>
                   <TableHead>{PAGE_LABELS.COL_PAYMENT_HINT}</TableHead>
-                  <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
-                  <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>
+                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>}
+                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>}
                   <TableHead className="w-[80px]">{PAGE_LABELS.COL_STATUS}</TableHead>
                   <TableHead className="w-[80px] text-right">{PAGE_LABELS.COL_ACTION}</TableHead>
                 </TableRow>
@@ -274,7 +278,7 @@ export function PaymentMethodsSection({
               <TableBody>
                 {list.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-morandi-muted">
+                    <TableCell colSpan={hasAccounting ? 9 : 7} className="text-center py-8 text-morandi-muted">
                       {emptyText}
                     </TableCell>
                   </TableRow>
@@ -287,6 +291,7 @@ export function PaymentMethodsSection({
                       <SortableMethodRow
                         key={method.id}
                         method={method}
+                        showAccounting={hasAccounting}
                         loading={!!rowLoading[method.id]}
                         onEdit={() => {
                           setEditingMethod(method)

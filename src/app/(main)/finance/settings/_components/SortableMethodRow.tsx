@@ -17,6 +17,7 @@ export function SortableMethodRow({
   onToggle,
   onDelete,
   onCopy,
+  showAccounting,
 }: {
   method: PaymentMethod
   loading: boolean
@@ -24,6 +25,7 @@ export function SortableMethodRow({
   onToggle: () => void
   onDelete: () => void
   onCopy: () => void
+  showAccounting: boolean
 }) {
   const t = useTranslations('finance')
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -67,18 +69,21 @@ export function SortableMethodRow({
       <td className="px-4 py-3 text-sm text-morandi-muted">{method.description || '-'}</td>
       {/* 付款提示 */}
       <td className="px-4 py-3 text-sm text-morandi-muted">{method.placeholder || '-'}</td>
-      {/* 借方科目 */}
-      <td className="px-4 py-3 text-sm text-morandi-muted">
-        {method.debit_account
-          ? `${method.debit_account.code} ${method.debit_account.name}`
-          : '-'}
-      </td>
-      {/* 貸方科目 */}
-      <td className="px-4 py-3 text-sm text-morandi-muted">
-        {method.credit_account
-          ? `${method.credit_account.code} ${method.credit_account.name}`
-          : '-'}
-      </td>
+      {/* 借/貸方科目 — 僅開通會計功能顯示 */}
+      {showAccounting && (
+        <td className="px-4 py-3 text-sm text-morandi-muted">
+          {method.debit_account
+            ? `${method.debit_account.code} ${method.debit_account.name}`
+            : '-'}
+        </td>
+      )}
+      {showAccounting && (
+        <td className="px-4 py-3 text-sm text-morandi-muted">
+          {method.credit_account
+            ? `${method.credit_account.code} ${method.credit_account.name}`
+            : '-'}
+        </td>
+      )}
       {/* 狀態（純 Switch、不再加「啟用/停用」中文撐高） */}
       <td className="px-4 py-3 text-sm w-[60px]">
         <Switch checked={method.is_active} onCheckedChange={onToggle} disabled={loading} />

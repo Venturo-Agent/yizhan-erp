@@ -38,6 +38,7 @@ import {
 import { PAGE_LABELS, type ExpenseCategory, type ChartOfAccount } from './types'
 import { SortableCategoryRow } from './SortableCategoryRow'
 import { apiMutate } from '@/lib/swr/api-mutate'
+import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 
 type CategoryType = 'expense' | 'company_expense' | 'company_income'
 
@@ -68,6 +69,9 @@ export function CategoriesSection({
   setEditingCategory,
 }: CategoriesSectionProps) {
   const t = useTranslations('finance')
+  // 沒開通會計功能就隱藏借/貸方科目欄
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const hasAccounting = isFeatureEnabled('accounting')
   const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({})
   const setLoading = (id: string, v: boolean) =>
     setRowLoading(prev => ({ ...prev, [id]: v }))
@@ -231,8 +235,8 @@ export function CategoriesSection({
                 <TableRow>
                   <TableHead className="w-[40px]"></TableHead>
                   <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
-                  <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
-                  <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>
+                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>}
+                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>}
                   <TableHead className="w-[80px]">{PAGE_LABELS.COL_STATUS}</TableHead>
                   <TableHead className="w-[100px] text-right">{PAGE_LABELS.COL_ACTION}</TableHead>
                 </TableRow>
@@ -240,7 +244,7 @@ export function CategoriesSection({
               <TableBody>
                 {list.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-morandi-muted">
+                    <TableCell colSpan={hasAccounting ? 6 : 4} className="text-center py-8 text-morandi-muted">
                       {emptyText}
                     </TableCell>
                   </TableRow>
@@ -253,6 +257,7 @@ export function CategoriesSection({
                       <SortableCategoryRow
                         key={category.id}
                         category={category}
+                        showAccounting={hasAccounting}
                         loading={!!rowLoading[category.id]}
                         onEdit={() => {
                           setEditingCategory(category)
@@ -302,6 +307,8 @@ function CategoryDialog({
   categoryType?: CategoryType
 }) {
   const t = useTranslations('finance')
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const hasAccounting = isFeatureEnabled('accounting')
   const [name, setName] = useState('')
   const [debitAccountId, setDebitAccountId] = useState<string>('')
   const [creditAccountId, setCreditAccountId] = useState<string>('')
@@ -368,38 +375,40 @@ function CategoryDialog({
             placeholder={PAGE_LABELS.CATEGORY_NAME_PLACEHOLDER}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>{t('debitAccountExpense')}</Label>
-            <select
-              value={debitAccountId}
-              onChange={e => setDebitAccountId(e.target.value)}
-              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-            >
-              <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
-              {debitAccounts.map(account => (
-                <option key={account.id} value={account.id}>
-                  {account.code} {account.name}
-                </option>
-              ))}
-            </select>
+        {hasAccounting && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>{t('debitAccountExpense')}</Label>
+              <select
+                value={debitAccountId}
+                onChange={e => setDebitAccountId(e.target.value)}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
+                {debitAccounts.map(account => (
+                  <option key={account.id} value={account.id}>
+                    {account.code} {account.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label>{t('creditAccountLiability')}</Label>
+              <select
+                value={creditAccountId}
+                onChange={e => setCreditAccountId(e.target.value)}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
+                {creditAccounts.map(account => (
+                  <option key={account.id} value={account.id}>
+                    {account.code} {account.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label>{t('creditAccountLiability')}</Label>
-            <select
-              value={creditAccountId}
-              onChange={e => setCreditAccountId(e.target.value)}
-              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-            >
-              <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
-              {creditAccounts.map(account => (
-                <option key={account.id} value={account.id}>
-                  {account.code} {account.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        )}
         <p className="text-xs text-morandi-muted">
           {t('categoryHint')}
         </p>
