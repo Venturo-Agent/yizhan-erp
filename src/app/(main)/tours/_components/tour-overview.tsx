@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { Tour } from '@/stores/types'
-import { useOrdersSlim, useMembers, useTourPL } from '@/data'
+import { useOrdersSlim, useMembers, useTourPL, useContracts } from '@/data'
 import { useTourDisplay } from '@/app/(main)/tours/_utils/tour-display'
 import { formatCurrency } from '@/lib/utils/format-currency'
 import {
@@ -14,6 +14,7 @@ import {
   DollarSign,
   Users,
   FileText,
+  FileSignature,
   Wallet,
   HandCoins,
 } from 'lucide-react'
@@ -23,6 +24,7 @@ import { StatusBadge, type StatusTone } from '@/components/ui/status-badge'
 const COMPONENT_LABELS = {
   TOTAL_EXPENSE: '總支出',
   TOTAL_ORDERS: '總訂單數',
+  CONTRACT_PROGRESS: '簽約進度',
 } as const
 
 interface TourOverviewProps {
@@ -65,6 +67,26 @@ export const TourOverview = React.memo(function TourOverview({
   const totalExpense = plData?.cost ?? 0
   const confirmedProfit = plData?.gross_profit ?? 0
   const estimatedProfit = plData?.estimated_profit ?? 0
+
+  // 簽約進度：該團合約。整團合約(order_id null)優先顯示；否則每訂單「已簽/總訂單」
+  const { items: contracts } = useContracts({ all: true, filter: { tour_id: tour.id } })
+  const contractProgress = useMemo(() => {
+    const list = contracts ?? []
+    const wholeTour = list.find(c => !c.order_id)
+    if (wholeTour) {
+      const signed = !!wholeTour.signed_at
+      return {
+        label: signed ? '整團已簽' : wholeTour.status === 'sent' ? '整團待簽' : '整團草稿',
+        done: signed,
+      }
+    }
+    const tourOrders = (orders ?? []).filter(o => o.tour_id === tour.id)
+    const total = tourOrders.length
+    const signedCount = tourOrders.filter(o =>
+      list.some(c => c.order_id === o.id && c.signed_at)
+    ).length
+    return { label: `已簽 ${signedCount} / ${total}`, done: total > 0 && signedCount === total }
+  }, [contracts, orders, tour.id])
 
   // 如果有 orderFilter、取得該訂單的資料
   const order = orderFilter ? orders.find(o => o.id === orderFilter) : null
@@ -224,6 +246,22 @@ export const TourOverview = React.memo(function TourOverview({
               </p>
               <p className="text-sm font-semibold text-morandi-primary">
                 {orders.filter(o => o.tour_id === tour.id).length} {t('overviewOrderUnit')}
+              </p>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center gap-2.5 px-3">
+            <FileSignature
+              size={16}
+              className={`shrink-0 ${contractProgress.done ? 'text-morandi-green' : 'text-morandi-gold'}`}
+            />
+            <div className="min-w-0">
+              <p className="text-[0.647rem] text-morandi-secondary leading-tight">
+                {COMPONENT_LABELS.CONTRACT_PROGRESS}
+              </p>
+              <p
+                className={`text-sm font-semibold ${contractProgress.done ? 'text-morandi-green' : 'text-morandi-primary'}`}
+              >
+                {contractProgress.label}
               </p>
             </div>
           </div>
