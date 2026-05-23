@@ -1,21 +1,22 @@
-# 永豐豐收款 Phase 2 — 交接筆記（2026-05-23 Logan 寫給下一輪的我）
+# Logan 交接筆記 — 2026-05-23（永豐豐收款 Phase 2）
 
-> 下一輪啟動讀這份、就知道今天做到哪、接著做。對話太長、清掉重來、進度全在 git。
+> /handoff 接班時讀這份。對話太長清掉重啟、進度全在這 + git。
 
 ## 上層（先讀這 3 行）
 
 - 你是 **Logan**、yizhan-erp 統整總管。
-- 上一場做完：永豐豐收款 **Phase 2 加解密 lib + 憑證加密架構**（push commit `957870e`）；代轉階段 1 schema（`ce17c04`）。
-- 下一個動作：**建隔離測試環境 → 寫永豐「送單→開虛擬帳號→webhook」流程 → 用永豐 sandbox 端對端測通 → 清測試資料 → 讓角落自助填一次驗收**。
+- 上一場做完：永豐豐收款 **Phase 2 加解密 + 憑證加密架構**（commit `957870e`）；代轉階段 1 schema（`ce17c04`）；建好 **/handoff skill**（`75073da`、就是你現在用的這個）。全部 push、repo 跟 production DB 對齊。
+- 下一個動作：**建隔離測試環境 → 寫永豐「送單→開虛擬帳號→webhook」流程 → 永豐 sandbox 端對端測通 → 清測試資料 → 讓角落自助填一次驗收**。
 
 ## 中層（進行中 / 等拍板 / 卡點）
 
-1. **永豐 Phase 1 mock demo 已跑通**（早上修好 403/400、commit `d9399b4`：payment_transactions 漏 GRANT + 連結效期上限）。
-2. **加解密 `src/lib/payment-providers/sinopac/crypto.ts` 重寫完成**、照官方 QPay SampleCode、6 測試過。舊 line-payment-bot 版（演算法對不上）已取代。
-3. **憑證架構（William 拍板「各 workspace 各自串接」）**：走現有 `workspace_integrations` 表 + `src/lib/crypto/integration-encryption.ts`（AES-256-GCM、master key `VENTURO_INTEGRATION_ENCRYPTION_KEY` 已在 env）。`registry.ts` 已加 `sinopac_qpay` 定義（自動長設定 UI）。**不寫死 secrets.env**（暫存骨架已撤）。
-4. **William 拍板 UX**：在「**新增收款方式**」就地填永豐金鑰 → 串接完成（SaaS 自助、第三入口、**待做**）。前兩入口（整合設定頁 IntegrationSettingsDialog / Magic Link setup-tokens）已自動支援永豐、免做。
-5. **角落 sandbox 憑證已拿到**（ShopNo `NA0638_001` + A1-B2 + X-Key、存 William Telegram 訊息 ts 2026-05-23）、**但還沒填進系統**。等角落在設定 UI 填（憑證走 DB 加密、不經 Claude 複述、紅線 #2）。
-6. **等 William / 卡點**：角落憑證填入；正式環境 IP 白名單（`167.179.97.139`、上線前兩週報永豐業務窗口、測試環境免報）。
+1. **永豐 Phase 1 mock demo 已跑通**（早上修好 403/400、`d9399b4`：payment_transactions 漏 GRANT + 連結效期上限對齊 UI）。
+2. **加解密 `src/lib/payment-providers/sinopac/crypto.ts` 重寫完成**、照官方 QPay SampleCode、6 測試過（`tests/lib/payment-providers/sinopac/crypto.test.ts`）。舊 line-payment-bot 版（演算法對不上）已取代。
+3. **憑證架構（William 拍板「各 workspace 各自串接」）**：走現有 `workspace_integrations` 表 + `src/lib/crypto/integration-encryption.ts`（AES-256-GCM、master key `VENTURO_INTEGRATION_ENCRYPTION_KEY` 已在 env）。`src/lib/integrations/registry.ts` 已加 `sinopac_qpay` 定義（自動長設定 UI）。**不寫死 secrets.env**（暫存骨架已撤）。
+4. **William 拍板 UX**：「**新增收款方式就地填永豐金鑰 → 串接完成**」（SaaS 自助、第三入口、**待做**）。前兩入口（整合設定頁 IntegrationSettingsDialog / Magic Link setup-tokens）已自動支援永豐、免做。
+5. **角落 sandbox 憑證已拿到**（ShopNo `NA0638_001` + A1-B2 + X-Key、在 William 2026-05-23 Telegram 訊息）、**但還沒填進系統**。等角落在設定 UI 填（憑證走 DB 加密、不經 Claude 複述、紅線 #2）。
+6. **等 William / 卡點**：(a) 角落憑證填入系統；(b) 正式環境 IP 白名單（`167.179.97.139`、上線前兩週報永豐業務窗口、測試環境免報）。
+7. **測試計畫（William 拍板）**：先在隔離環境測通 → 清測試資料 → 角落自助填一次驗收（資安第一、不拿真實客戶資料冒險）。
 
 ## 下層（想深挖再讀）
 
@@ -45,5 +46,5 @@
 - 待做：codes.ts wrapper、開立/作廢/列印 API、紙本代轉 UI
 - spec：`workspace/_meta/architecture/2026-05-23-代轉管理-實作spec.md`（紙本作廢=單張作廢制+試印校準+留痕）
 
-### 今天待補（技術債提醒）
-- 全庫 54 張表 authenticated 缺 INSERT grant（setup_*_rls procedure 不自動 GRANT 的系統性坑、payment_transactions 已修）—— 值得排一次全面盤點 + audit:rls 加 table-GRANT 檢查
+### 技術債提醒
+- 全庫 54 張表 authenticated 缺 INSERT grant（setup_*_rls procedure 不自動 GRANT 的系統性坑、payment_transactions / travel_invoice 新表已修）—— 值得排一次全面盤點 + audit:rls 加 table-GRANT 檢查
