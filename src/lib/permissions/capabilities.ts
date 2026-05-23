@@ -158,6 +158,29 @@ export const CAPABILITIES = {
   // ── hr_bonus_settlement ──
   HR_BONUS_SETTLEMENT_READ: 'hr_bonus_settlement.read',
   HR_BONUS_SETTLEMENT_WRITE: 'hr_bonus_settlement.write',
+  // ── documents ──
+  DOCUMENTS_FILES_READ: 'documents.files.read',
+  DOCUMENTS_FILES_WRITE: 'documents.files.write',
+  DOCUMENTS_SEALS_READ: 'documents.seals.read',
+  DOCUMENTS_SEALS_WRITE: 'documents.seals.write',
+  // ── esim ──
+  ESIM_ORDERS_READ: 'esim.orders.read',
+  ESIM_ORDERS_WRITE: 'esim.orders.write',
+  ESIM_PRODUCTS_READ: 'esim.products.read',
+  ESIM_PRODUCTS_WRITE: 'esim.products.write',
+  ESIM_SETTINGS_READ: 'esim.settings.read',
+  ESIM_SETTINGS_WRITE: 'esim.settings.write',
+  // ── visas ──
+  VISAS_APPLICATIONS_READ: 'visas.applications.read',
+  VISAS_APPLICATIONS_WRITE: 'visas.applications.write',
+  VISAS_DOCUMENTS_READ: 'visas.documents.read',
+  VISAS_DOCUMENTS_WRITE: 'visas.documents.write',
+  VISAS_DOCUMENT_TYPES_READ: 'visas.document_types.read',
+  VISAS_DOCUMENT_TYPES_WRITE: 'visas.document_types.write',
+  VISAS_SERVICE_TYPES_READ: 'visas.service_types.read',
+  VISAS_SERVICE_TYPES_WRITE: 'visas.service_types.write',
+  VISAS_PRICING_READ: 'visas.pricing.read',
+  VISAS_PRICING_WRITE: 'visas.pricing.write',
   // ── marketing ──
   MARKETING_WEBSITE_READ: 'marketing.website.read',
   MARKETING_WEBSITE_WRITE: 'marketing.website.write',
