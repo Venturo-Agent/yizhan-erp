@@ -24,7 +24,10 @@ import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 import { randomBytes } from 'node:crypto'
-import { PROVIDER_CODES } from '@/constants/payment-provider'
+import { PROVIDER_CODES, PAYMENT_LINK_EXPIRY_DAYS } from '@/constants/payment-provider'
+
+// 後端可接受的效期上限 = 前端選單最大天數（SSOT：UI 改選單、這裡自動跟）
+const MAX_EXPIRY_MINUTES = Math.max(...PAYMENT_LINK_EXPIRY_DAYS) * 24 * 60
 
 const SUPPORTED_PROVIDERS = [
   PROVIDER_CODES.SINOPAC_CARD,
@@ -41,7 +44,7 @@ const generateLinkSchema = z.object({
   customer_name: z.string().max(100).optional().nullable(),
   receipt_id: z.string().uuid().optional().nullable(),
   invoice_ids: z.array(z.string().uuid()).optional().default([]),
-  expires_minutes: z.number().int().min(5).max(60 * 24).optional().default(60),
+  expires_minutes: z.number().int().min(5).max(MAX_EXPIRY_MINUTES).optional().default(60),
 })
 
 function generateToken(): string {
