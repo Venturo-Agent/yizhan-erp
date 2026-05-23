@@ -18,6 +18,8 @@ import { SimpleOrderTable } from '@/app/(main)/orders/_components/simple-order-t
 import { OrderEditDialog } from '@/app/(main)/orders/_components/order-edit-dialog'
 import { OrderContractDialog } from '@/app/(main)/orders/_contracts/OrderContractDialog'
 import { AddReceiptDialog } from '@/app/(main)/finance/payments'
+import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
+import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 
 const AddRequestDialog = dynamic(
   () =>
@@ -62,6 +64,11 @@ export function OrderListView({
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
+  // 合約按鈕守門（6 層 L1+L2）：租戶開通 tours.contract feature + 員工有 tours.contract.read capability
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const { can } = useCapabilities()
+  const canContract = isFeatureEnabled('tours.contract') && can(CAPABILITIES.TOURS_CONTRACT_READ)
+
   const openReceipt = useCallback((order: Order) => {
     setSelectedOrder(order)
     setReceiptOpen(true)
@@ -97,7 +104,7 @@ export function OrderListView({
         onQuickReceipt={openReceipt}
         onQuickPaymentRequest={openRequest}
         onEdit={openEdit}
-        onContract={openContract}
+        onContract={canContract ? openContract : undefined}
       />
 
       <AddReceiptDialog
