@@ -50,10 +50,12 @@ interface ConversationItem {
   memory_failed?: boolean
 }
 
+// Channel badge 保留品牌色（不是硬編碼、是社群識別色、跟 venturo 內部 status token 區分）
+// W 拍板 2026-05-23：LINE 綠 / FB 藍 / IG 粉是用戶熟悉的辨識色、不歸 design token 管
 const CHANNEL_COLORS: Record<ChannelType, string> = {
-  line: 'bg-status-success-bg text-status-success',
-  facebook: 'bg-status-info-bg text-status-info',
-  instagram: 'bg-morandi-gold-light text-morandi-gold',
+  line: 'bg-green-100 text-green-700',
+  facebook: 'bg-blue-100 text-blue-700',
+  instagram: 'bg-pink-100 text-pink-700',
 }
 
 function ChannelIcon({ channel }: { channel: ChannelType }) {

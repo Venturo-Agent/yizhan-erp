@@ -676,13 +676,24 @@ grep -n "workspace_features\|role_capabilities" supabase/migrations*/*新功能*
 
 Token 定義：`src/styles/tokens.css`（不要散刻、改 token 自動影響全站）。
 
-### Channel / Status badge 對應
+### Status badge 對應
 
-舊 code 散落寫法 → 改成：
-- LINE badge `bg-green-100 text-green-700` → `bg-status-success-bg text-status-success`
-- FB badge `bg-blue-100 text-blue-700` → `bg-status-info-bg text-status-info`
-- IG badge `bg-pink-100 text-pink-700` → `bg-morandi-gold-light text-morandi-gold`（或自訂 IG token、IG 沒對應 status）
+舊 code 散落 status 寫法 → 改成 design token：
+- 成功 `bg-green-50/100 text-green-600/700` → `bg-status-success-bg text-status-success`
+- 危險 `bg-red-50 text-red-600/700` → `bg-status-danger-bg text-status-danger`
+- 資訊 `bg-blue-50/100 text-blue-700` → `bg-status-info-bg text-status-info`
+- 警告 `bg-yellow-* text-yellow-*` → `bg-status-warning-bg text-status-warning`
 - 未讀紅點 `bg-red-500` → `bg-status-danger`
+
+### Channel badge **例外**（保留品牌色、不算硬編碼）
+
+W 拍板 2026-05-23：社群通訊軟體的品牌色是用戶熟悉的辨識色、屬於「**識別色**」不是「**狀態色**」、保留：
+- LINE badge：`bg-green-100 text-green-700`（綠）
+- FB badge：`bg-blue-100 text-blue-700`（藍）
+- IG badge：`bg-pink-100 text-pink-700`（粉）
+- 未來新 channel（WhatsApp / Telegram / Discord）也走自己品牌色
+
+⚠️ 例外**僅限**社群 / 通訊產品 channel badge、其他「品牌色借當主色」（譬如永豐紅當付款頁主色）仍違規。
 
 ### audit / 偵測
 

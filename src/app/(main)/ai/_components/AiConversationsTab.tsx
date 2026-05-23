@@ -84,10 +84,11 @@ const CHANNEL_LABELS: Record<ChannelType, string> = {
   instagram: 'IG',
 }
 
+// Channel badge 保留品牌色（不是硬編碼、是社群識別色）— W 拍板 2026-05-23
 const CHANNEL_COLORS: Record<ChannelType, string> = {
-  line: 'bg-status-success-bg text-status-success',
-  facebook: 'bg-status-info-bg text-status-info',
-  instagram: 'bg-morandi-gold-light text-morandi-gold',
+  line: 'bg-green-100 text-green-700',
+  facebook: 'bg-blue-100 text-blue-700',
+  instagram: 'bg-pink-100 text-pink-700',
 }
 
 function ChannelIcon({ channel }: { channel: ChannelType }) {
