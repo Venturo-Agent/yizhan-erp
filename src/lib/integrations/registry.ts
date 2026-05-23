@@ -57,6 +57,23 @@ export const INTEGRATIONS: readonly IntegrationDef[] = [
       { key: 'chinese_recognition', label: '啟用中文姓名辨識', type: 'checkbox', sensitive: false, required: false, hint: '開啟：嘗試辨識護照上的中文姓名（拍清楚時準）；關閉：只辨識 MRZ 純英文部分、不誤判。' },
     ],
   },
+  {
+    code: 'sinopac_qpay',
+    name: '永豐豐收款（QPay）',
+    description:
+      '永豐銀行豐收款金流：開立虛擬帳號收款（客戶取得 854 開頭帳號、ATM 轉帳或臨櫃繳款）。每間公司用自己跟永豐申請的商店代號 + 金鑰、各自串接。測試環境免報 IP、正式環境需提前兩週報主機 IP 給永豐業務窗口。',
+    affects: ['收款管理 → 永豐虛擬帳號收款', '客戶自助付款連結'],
+    fields: [
+      { key: 'shop_no', label: '商店代號 (ShopNo)', type: 'text', sensitive: false, required: true, placeholder: '如 NA0638_001', hint: '永豐核發的商店編號' },
+      { key: 'merchant_ubn', label: '統一編號', type: 'text', sensitive: false, required: true, placeholder: '8 碼統編' },
+      { key: 'hash_a1', label: '雜湊金鑰 A1', type: 'password', sensitive: true, required: true, hint: '永豐核發的商店雜湊值 A1' },
+      { key: 'hash_a2', label: '雜湊金鑰 A2', type: 'password', sensitive: true, required: true },
+      { key: 'hash_b1', label: '雜湊金鑰 B1', type: 'password', sensitive: true, required: true },
+      { key: 'hash_b2', label: '雜湊金鑰 B2', type: 'password', sensitive: true, required: true },
+      { key: 'x_key', label: 'API 授權碼 (X-Key)', type: 'password', sensitive: true, required: true, hint: '永豐核發、有有效期限（過期要換）' },
+      { key: 'sandbox_mode', label: '測試模式（sandbox）', type: 'checkbox', sensitive: false, required: false, hint: '開啟＝連永豐測試環境；正式上線收真錢再關閉' },
+    ],
+  },
   // 註：line_oa 於 2026-05-19 從 registry 移除（孤兒 UI、從未被任何 caller 讀取）
   // 真正的 LINE OA 設定在 AI Hub → Setup wizard、寫入 workspace_line_settings 表
 ]
