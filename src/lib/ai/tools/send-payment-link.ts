@@ -19,10 +19,9 @@
  *   - 4 個 input：amount / customer_email / customer_name / expires_days
  */
 
-import { randomBytes } from 'node:crypto'
-import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
 import { PROVIDER_CODES, PAYMENT_LINK_DEFAULT_EXPIRY_DAYS } from '@/constants/payment-provider'
+import { createSinopacCardTransaction, SINOPAC_ERR } from '@/lib/payment-providers/sinopac/create-transaction'
 import type { LLMTool } from '@/types/line.types'
 
 const HANDLER = 'ai-tool:send-payment-link'
@@ -84,7 +83,7 @@ export interface SendPaymentLinkContext {
 
 export interface SendPaymentLinkResult {
   ok: boolean
-  /** 相對 path、譬如 /pay/mock/abc123 */
+  /** 永豐刷卡頁絕對網址、caller 直接傳給客戶（不需再拼 base URL） */
   payment_link: string
   /** token、給 caller 自己組 absolute URL 用 */
   token: string
@@ -127,47 +126,43 @@ export async function executeSendPaymentLink(
 
   const expiresDays = args.expires_days ?? PAYMENT_LINK_DEFAULT_EXPIRY_DAYS
   const expiresAt = new Date(Date.now() + expiresDays * 24 * 60 * 60_000).toISOString()
-  const token = randomBytes(16).toString('base64url')
-  const paymentLink = `/pay/mock/${token}`
 
-  const supabase = getSupabaseAdminClient()
-  const { error } = await supabase.from('payment_transactions').insert({
-    workspace_id: ctx.workspaceId,
-    receipt_id: null,
-    provider: PROVIDER_CODES.SINOPAC_CARD, // Phase 1 預設刷卡、未來 AI 可選 collect / wallet
-    payment_link: paymentLink,
-    payment_link_token: token,
-    payment_link_expires_at: expiresAt,
-    customer_email: args.customer_email ?? null,
-    customer_name: args.customer_name ?? null,
-    amount: args.amount,
-    currency: 'TWD',
-    invoice_ids: [],
-    status: 'pending',
-    raw_webhook_payload: {
-      created_by_ai: true,
-      conversation_id: ctx.conversationId ?? null,
-      agent_id: ctx.agentId ?? null,
-    },
-  })
+  try {
+    const result = await createSinopacCardTransaction({
+      workspaceId: ctx.workspaceId,
+      provider: PROVIDER_CODES.SINOPAC_CARD,
+      amount: args.amount,
+      invoiceIds: [],
+      customerEmail: args.customer_email ?? null,
+      customerName: args.customer_name ?? null,
+      expiresAt,
+      rawWebhookPayload: {
+        created_by_ai: true,
+        conversation_id: ctx.conversationId ?? null,
+        agent_id: ctx.agentId ?? null,
+      },
+    })
 
-  if (error) {
-    logger.error(`${HANDLER}: insert failed`, error)
+    logger.info(`${HANDLER}: ← ok`, {
+      workspaceId: ctx.workspaceId,
+      token: result.token,
+      amount: args.amount,
+    })
+
+    return {
+      ok: true,
+      payment_link: result.redirectTo, // 永豐刷卡頁絕對網址
+      token: result.token,
+      expires_at: result.expiresAt,
+      amount: args.amount,
+      error: null,
+    }
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : ''
+    logger.error(`${HANDLER}: 產生連結失敗`, { err: msg })
+    if (msg.startsWith(SINOPAC_ERR.NOT_CONFIGURED)) {
+      return { ...FAILURE, error: '此公司尚未設定永豐金流' }
+    }
     return { ...FAILURE, error: '產生付款連結失敗、請稍後再試' }
-  }
-
-  logger.info(`${HANDLER}: ← ok`, {
-    workspaceId: ctx.workspaceId,
-    token,
-    amount: args.amount,
-  })
-
-  return {
-    ok: true,
-    payment_link: paymentLink,
-    token,
-    expires_at: expiresAt,
-    amount: args.amount,
-    error: null,
   }
 }

@@ -159,11 +159,8 @@ export function PaymentItemRow({
         toast.error(json.error || '產生失敗')
         return
       }
-      const absoluteLink =
-        typeof window !== 'undefined'
-          ? `${window.location.origin}${json.data.payment_link}`
-          : json.data.payment_link
-      setGeneratedLink(absoluteLink)
+      // 永豐刷卡頁是絕對網址、直接用、不再拼 origin
+      setGeneratedLink(json.data.payment_link)
       setGeneratedExpiresAt(json.data.payment_link_expires_at ?? null)
       toast.success('付款連結已產生')
     } catch (e) {

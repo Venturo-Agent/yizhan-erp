@@ -21,10 +21,9 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
-import { randomBytes } from 'node:crypto'
 import { PROVIDER_CODES, PAYMENT_LINK_EXPIRY_DAYS } from '@/constants/payment-provider'
+import { createSinopacCardTransaction, SINOPAC_ERR } from '@/lib/payment-providers/sinopac/create-transaction'
 
 // 後端可接受的效期上限 = 前端選單最大天數（SSOT：UI 改選單、這裡自動跟）
 const MAX_EXPIRY_MINUTES = Math.max(...PAYMENT_LINK_EXPIRY_DAYS) * 24 * 60
@@ -47,11 +46,6 @@ const generateLinkSchema = z.object({
   expires_minutes: z.number().int().min(5).max(MAX_EXPIRY_MINUTES).optional().default(60),
 })
 
-function generateToken(): string {
-  // 22 字元 URL-safe base64（128 bits 隨機）
-  return randomBytes(16).toString('base64url')
-}
-
 export const POST = apiHandler(async (request: NextRequest) => {
   const guard = await requireCapability(CAPABILITIES.FINANCE_MANAGE_PAYMENTS)
   if (!guard.ok) return guard.response
@@ -71,43 +65,47 @@ export const POST = apiHandler(async (request: NextRequest) => {
     reason: `產生付款連結 / provider=${payload.provider}`,
   })
 
-  const token = generateToken()
-  const expiresAt = new Date(Date.now() + payload.expires_minutes * 60_000).toISOString()
-
-  // Phase 1 mock 連結：絕對網址由前端拼接、後端只回 path + token
-  const paymentLink = `/pay/mock/${token}`
-
-  const { data, error } = await supabase
-    .from('payment_transactions')
-    .insert({
-      workspace_id: workspaceId,
-      receipt_id: payload.receipt_id ?? null,
-      provider: payload.provider,
-      payment_link: paymentLink,
-      payment_link_token: token,
-      payment_link_expires_at: expiresAt,
-      customer_email: payload.customer_email ?? null,
-      customer_name: payload.customer_name ?? null,
-      amount: payload.amount,
-      currency: 'TWD',
-      invoice_ids: payload.invoice_ids,
-      status: 'pending',
-      created_by: guard.employeeId,
-    })
-    .select('id, payment_link, payment_link_token, payment_link_expires_at, amount, status')
-    .single()
-
-  if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+  // 目前僅信用卡走真永豐、其他 provider（虛擬帳號 / 行動支付）尚未開放
+  if (payload.provider !== PROVIDER_CODES.SINOPAC_CARD) {
+    return NextResponse.json(
+      { error: '目前僅支援信用卡刷卡、其他付款方式尚未開放' },
+      { status: 400 }
+    )
   }
 
-  return NextResponse.json({
-    success: true,
-    data: {
-      ...data,
-      // Phase 2 換成真實永豐連結；現在 caller 自己拼絕對 URL
-      mock: true,
-    },
-  })
+  const expiresAt = new Date(Date.now() + payload.expires_minutes * 60_000).toISOString()
+
+  try {
+    const result = await createSinopacCardTransaction({
+      workspaceId,
+      provider: payload.provider,
+      amount: payload.amount,
+      invoiceIds: payload.invoice_ids,
+      customerEmail: payload.customer_email ?? null,
+      customerName: payload.customer_name ?? null,
+      expiresAt,
+      createdBy: guard.employeeId,
+    })
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: result.txId,
+        payment_link: result.redirectTo, // 永豐刷卡頁絕對網址、caller 直接用
+        payment_link_token: result.token,
+        payment_link_expires_at: result.expiresAt,
+        amount: result.amount,
+        status: 'pending',
+      },
+    })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : ''
+    if (msg.startsWith(SINOPAC_ERR.NOT_CONFIGURED)) {
+      return NextResponse.json({ error: '此公司尚未設定永豐金流' }, { status: 503 })
+    }
+    if (msg.startsWith(SINOPAC_ERR.ORDER_FAILED) || msg.startsWith(SINOPAC_ERR.NO_PAY_URL)) {
+      return NextResponse.json({ error: '金流服務暫時無法使用、請稍後再試' }, { status: 502 })
+    }
+    return NextResponse.json({ error: '產生付款連結失敗' }, { status: 500 })
+  }
 })

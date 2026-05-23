@@ -211,8 +211,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
           conversationId: conversationId ?? undefined,
         })
         if (result.ok) {
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://erp.venturo.tw'
-          const absoluteLink = `${baseUrl}${result.payment_link}`
+          const absoluteLink = result.payment_link // 永豐刷卡頁絕對網址、直接用
           const days = Math.ceil(
             (new Date(result.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           )

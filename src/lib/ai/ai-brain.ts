@@ -222,8 +222,7 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
           conversationId: input.conversationId,
         })
         if (result.ok) {
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://erp.venturo.tw'
-          const absoluteLink = `${baseUrl}${result.payment_link}`
+          const absoluteLink = result.payment_link // 永豐刷卡頁絕對網址、直接用
           toolAppendix +=
             (toolAppendix ? '\n\n' : '\n\n') +
             `💳 付款連結（NT$ ${result.amount.toLocaleString()}、有效 ${

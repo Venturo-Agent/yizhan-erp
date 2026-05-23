@@ -16,8 +16,8 @@ import { z } from 'zod'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/utils/logger'
-import { randomBytes } from 'node:crypto'
 import { isGatewayProvider } from '@/constants/payment-provider'
+import { createSinopacCardTransaction, SINOPAC_ERR } from '@/lib/payment-providers/sinopac/create-transaction'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -27,10 +27,6 @@ const schema = z.object({
   customer_email: z.string().email().optional().nullable(),
   customer_name: z.string().max(100).optional().nullable(),
 })
-
-function generateToken(): string {
-  return randomBytes(16).toString('base64url')
-}
 
 export async function POST(
   request: Request,
@@ -125,42 +121,40 @@ export async function POST(
     return NextResponse.json({ error: '可付金額為 0' }, { status: 400 })
   }
 
-  // 4. 建 payment_transaction
-  const payToken = generateToken()
+  // 4. 跟永豐開刷卡單 + 建 payment_transaction（走三入口共用函式）
   const expiresAt = new Date(Date.now() + 60 * 60_000).toISOString() // 60 分鐘
 
-  const { data: tx, error: txError } = await supabase
-    .from('payment_transactions')
-    .insert({
-      workspace_id: batch.workspace_id,
-      receipt_id: null, // 客戶刷完才建 receipt（Phase 2 由 webhook 補建）；Phase 1 mock 直接也是 null
+  try {
+    const result = await createSinopacCardTransaction({
+      workspaceId: batch.workspace_id,
       provider: method.provider,
-      payment_link: `/pay/mock/${payToken}`,
-      payment_link_token: payToken,
-      payment_link_expires_at: expiresAt,
-      customer_email: payload.customer_email ?? null,
-      customer_name: payload.customer_name ?? null,
       amount: totalAmount,
-      currency: 'TWD',
-      invoice_ids: payload.selected_invoice_ids,
-      status: 'pending',
+      invoiceIds: payload.selected_invoice_ids,
+      customerEmail: payload.customer_email ?? null,
+      customerName: payload.customer_name ?? null,
+      productName: method.name || '旅遊費用',
+      expiresAt,
     })
-    .select('id, payment_link, payment_link_token, amount, payment_link_expires_at')
-    .single()
 
-  if (txError) {
-    logger.error('[generate-payment-link] insert failed', txError)
+    return NextResponse.json({
+      success: true,
+      data: {
+        redirect_to: result.redirectTo, // 永豐刷卡頁網址
+        amount: result.amount,
+        token: result.token,
+        expires_at: result.expiresAt,
+      },
+    })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : ''
+    if (msg.startsWith(SINOPAC_ERR.NOT_CONFIGURED)) {
+      return NextResponse.json({ error: '此公司尚未設定永豐金流、請聯繫客服' }, { status: 503 })
+    }
+    if (msg.startsWith(SINOPAC_ERR.ORDER_FAILED) || msg.startsWith(SINOPAC_ERR.NO_PAY_URL)) {
+      logger.error('[generate-payment-link] 永豐開單失敗', msg)
+      return NextResponse.json({ error: '金流服務暫時無法使用、請稍後再試' }, { status: 502 })
+    }
+    logger.error('[generate-payment-link] 產生付款連結失敗', e)
     return NextResponse.json({ error: '產生付款連結失敗' }, { status: 500 })
   }
-
-  return NextResponse.json({
-    success: true,
-    data: {
-      redirect_to: tx.payment_link,
-      amount: tx.amount,
-      token: tx.payment_link_token,
-      expires_at: tx.payment_link_expires_at,
-      mock: true,
-    },
-  })
 }
