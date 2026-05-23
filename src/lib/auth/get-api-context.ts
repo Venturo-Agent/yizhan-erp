@@ -63,11 +63,11 @@ export async function getApiContext(
   const { capabilityCode, featureCode } = options
 
   const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // 本地 JWKS 驗簽（ES256）、省去打外部 GoTrue 的跨國 RTT
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const claims = claimsData?.claims
 
-  if (!user) {
+  if (!claims) {
     return { ok: false, status: 401, error: '請先登入' }
   }
 
@@ -77,7 +77,7 @@ export async function getApiContext(
   const { data: employees } = await admin
     .from('employees')
     .select('id, role_id, workspace_id, status')
-    .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+    .or(`user_id.eq.${claims.sub},id.eq.${claims.sub}`)
     .limit(1)
 
   const employee = employees?.[0]
@@ -87,7 +87,7 @@ export async function getApiContext(
       ok: false,
       status: 403,
       error: '找不到員工或工作空間',
-      user_id: user.id,
+      user_id: claims.sub,
     }
   }
 
@@ -96,7 +96,7 @@ export async function getApiContext(
       ok: false,
       status: 403,
       error: '帳號已停用',
-      user_id: user.id,
+      user_id: claims.sub,
       employee_id: employee.id,
       workspace_id: employee.workspace_id,
     }
@@ -129,7 +129,7 @@ export async function getApiContext(
       ok: false,
       status: 403,
       error: `功能未啟用：${featureCode}`,
-      user_id: user.id,
+      user_id: claims.sub,
       employee_id: employee.id,
       workspace_id: employee.workspace_id,
       capabilities,
@@ -142,7 +142,7 @@ export async function getApiContext(
       ok: false,
       status: 403,
       error: `無權限：${capabilityCode}`,
-      user_id: user.id,
+      user_id: claims.sub,
       employee_id: employee.id,
       workspace_id: employee.workspace_id,
       capabilities,
@@ -152,7 +152,7 @@ export async function getApiContext(
   return {
     ok: true,
     status: 200,
-    user_id: user.id,
+    user_id: claims.sub,
     employee_id: employee.id,
     workspace_id: employee.workspace_id,
     role_id: employee.role_id ?? null,

@@ -1,5 +1,7 @@
 # SOP — Supabase Dashboard JWT 切換非對稱簽章
 
+> ✏️ **2026-05-23 修正：這份 SOP 的前提錯了。** 實際 WebFetch 查 `/.well-known/jwks.json` 確認 production **早就是 ES256**（Current key `a5e59ea0-98ea-4ff7-87da-fc0edd8a0723`、`kty:EC`、`alg:ES256`）。新 Supabase 專案預設就用非對稱簽章、不需任何 dashboard 操作。原報告寫「現在是 HS256、需 William 切」是**沒實際驗證的假設**。code 端 6 處 `getUser()`→`getClaims()` 已於 5/23 改完（見 `JWT切換-執行草稿.md`）。本 SOP 保留為歷史記錄、操作步驟已無需執行。
+
 > 2026-05-23、給 William 的 30 秒操作 SOP。
 > 這是「刀 1 JWT 本地驗」的 prereq。沒切之前 code 改了等於沒省。
 

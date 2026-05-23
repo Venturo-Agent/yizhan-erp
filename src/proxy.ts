@@ -111,10 +111,9 @@ async function isAuthenticated(request: NextRequest, response: NextResponse): Pr
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  return !!user
+  // 本地 JWKS 驗簽（ES256）、省去每 request 打外部 GoTrue 的 30-80ms 跨國 RTT
+  const { data } = await supabase.auth.getClaims()
+  return !!data?.claims
 }
 
 export async function proxy(request: NextRequest) {

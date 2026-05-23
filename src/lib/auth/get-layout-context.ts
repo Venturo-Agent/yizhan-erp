@@ -18,14 +18,23 @@ import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import type { User } from '@supabase/supabase-js'
 import type { Database } from '@/lib/supabase/types'
 
 type EmployeeRow = Database['public']['Tables']['employees']['Row']
 type WorkspaceRow = Database['public']['Tables']['workspaces']['Row']
 
+/**
+ * getClaims() 的 JWT claims、收窄成下游用到的欄位（id / email / user_metadata）。
+ * client 端經 /api/auth/layout-context 只投影 { id, email }。
+ */
+interface AuthUser {
+  id: string
+  email?: string
+  user_metadata: Record<string, unknown>
+}
+
 export interface LayoutContext {
-  user: User | null
+  user: AuthUser | null
   employee: (Pick<
     EmployeeRow,
     'id' | 'employee_number' | 'display_name' | 'english_name' | 'role_id' | 'workspace_id' | 'status'
@@ -64,11 +73,18 @@ const EMPTY_CONTEXT: LayoutContext = {
  */
 export const getLayoutContext = cache(async (): Promise<LayoutContext> => {
   const supabase = await createSupabaseServerClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // 本地 JWKS 驗簽（ES256）、省去打外部 GoTrue 的跨國 RTT
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const claims = claimsData?.claims
 
-  if (!user) return EMPTY_CONTEXT
+  if (!claims) return EMPTY_CONTEXT
+
+  // 收窄成下游用到的欄位（layout-context route 只投影 id / email）
+  const user: AuthUser = {
+    id: claims.sub,
+    email: claims.email,
+    user_metadata: claims.user_metadata ?? {},
+  }
 
   const admin = getSupabaseAdminClient()
 

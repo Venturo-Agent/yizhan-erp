@@ -52,16 +52,16 @@ export async function createApiClient() {
 export async function getCurrentWorkspaceId(): Promise<string | null> {
   const supabase = await createApiClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return null
+  // 本地 JWKS 驗簽（ES256）、省去打外部 GoTrue 的跨國 RTT
+  const { data } = await supabase.auth.getClaims()
+  const claims = data?.claims
+  if (!claims) return null
 
   // 從 employees 表取得 workspace_id
   const { data: employee } = await supabase
     .from('employees')
     .select('workspace_id')
-    .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+    .or(`user_id.eq.${claims.sub},id.eq.${claims.sub}`)
     .single()
 
   if (employee?.workspace_id) {
@@ -69,5 +69,5 @@ export async function getCurrentWorkspaceId(): Promise<string | null> {
   }
 
   // 備用：從 user metadata 取得
-  return user.user_metadata?.workspace_id || null
+  return (claims.user_metadata?.workspace_id as string | undefined) || null
 }

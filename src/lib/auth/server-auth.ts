@@ -7,10 +7,19 @@
 
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { User } from '@supabase/supabase-js'
+
+/**
+ * getClaims() 回傳的 JWT claims、收窄成下游實際用到的欄位（id / email / user_metadata）。
+ * 改走本地 JWKS 驗簽後不再有完整 User 物件、但全站只用這三個欄位。
+ */
+interface AuthUser {
+  id: string
+  email?: string
+  user_metadata: Record<string, unknown>
+}
 
 interface ServerAuthResult {
-  user: User
+  user: AuthUser
   workspaceId: string
   employeeId: string
 }
@@ -39,13 +48,11 @@ type AuthResult =
 export async function getServerAuth(): Promise<AuthResult> {
   const supabase = await createSupabaseServerClient()
 
-  // 1. 取得 Supabase Auth 用戶
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
+  // 1. 取得 Supabase Auth 用戶（本地 JWKS 驗簽、ES256、省去每 request 打外部 GoTrue 的跨國 RTT）
+  const { data: claimsData, error: authError } = await supabase.auth.getClaims()
+  const claims = claimsData?.claims
 
-  if (authError || !user) {
+  if (authError || !claims) {
     return {
       success: false,
       error: {
@@ -58,14 +65,14 @@ export async function getServerAuth(): Promise<AuthResult> {
   // 記錄 auth user 資訊以便除錯
   const { logger } = await import('@/lib/utils/logger')
   logger.log('🔍 getServerAuth - auth user:', {
-    auth_uid: user.id?.substring(0, 8),
-    auth_email: user.email,
-    metadata: user.user_metadata,
+    auth_uid: claims.sub?.substring(0, 8),
+    auth_email: claims.email,
+    metadata: claims.user_metadata,
   })
 
   // 2. 嘗試從 user_metadata 取得 workspace_id（快速路徑）
-  let workspaceId = user.user_metadata?.workspace_id as string | undefined
-  let employeeId = user.user_metadata?.employee_id as string | undefined
+  let workspaceId = claims.user_metadata?.workspace_id as string | undefined
+  let employeeId = claims.user_metadata?.employee_id as string | undefined
 
   // 3. 如果 user_metadata 沒有，從 employees 表查詢
   // 使用 admin client 繞過 RLS，確保能查到員工資料
@@ -78,7 +85,7 @@ export async function getServerAuth(): Promise<AuthResult> {
     const { data: employees } = await adminClient
       .from('employees')
       .select('id, workspace_id, user_id')
-      .or(`user_id.eq.${user.id},id.eq.${user.id}`)
+      .or(`user_id.eq.${claims.sub},id.eq.${claims.sub}`)
       .limit(1)
 
     const employee = employees?.[0]
@@ -87,9 +94,9 @@ export async function getServerAuth(): Promise<AuthResult> {
       // 記錄詳細資訊以便除錯
       const { logger } = await import('@/lib/utils/logger')
       logger.error('找不到員工資料', {
-        auth_uid: user.id,
-        auth_email: user.email,
-        user_metadata: user.user_metadata,
+        auth_uid: claims.sub,
+        auth_email: claims.email,
+        user_metadata: claims.user_metadata,
       })
       return {
         success: false,
@@ -117,9 +124,13 @@ export async function getServerAuth(): Promise<AuthResult> {
   return {
     success: true,
     data: {
-      user,
+      user: {
+        id: claims.sub,
+        email: claims.email,
+        user_metadata: claims.user_metadata ?? {},
+      },
       workspaceId,
-      employeeId: employeeId || user.id,
+      employeeId: employeeId || claims.sub,
     },
   }
 }
@@ -128,19 +139,23 @@ export async function getServerAuth(): Promise<AuthResult> {
  * 簡化版：只檢查是否已登入，不需要 workspace
  * 用於不需要 workspace 隔離的操作（如發送訊息）
  */
-async function _getServerUser(): Promise<{ user: User } | { error: string }> {
+async function _getServerUser(): Promise<{ user: AuthUser } | { error: string }> {
   const supabase = await createSupabaseServerClient()
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+  const { data, error } = await supabase.auth.getClaims()
+  const claims = data?.claims
 
-  if (error || !user) {
+  if (error || !claims) {
     return { error: '請先登入' }
   }
 
-  return { user }
+  return {
+    user: {
+      id: claims.sub,
+      email: claims.email,
+      user_metadata: claims.user_metadata ?? {},
+    },
+  }
 }
 
 /**
