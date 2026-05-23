@@ -2,13 +2,6 @@
 
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
-import {
-  ArrowDownCircle,
-  ArrowUpCircle,
-  Building2,
-  Plane,
-  TrendingUp,
-} from 'lucide-react'
 import { formatCurrency } from '@/lib/utils/format-currency'
 
 const LABELS = {
@@ -26,29 +19,24 @@ const LABELS = {
 function StatCard({
   label,
   amount,
-  icon: Icon,
-  iconColor,
   amountColor,
   loading,
 }: {
   label: string
   amount: number
-  icon: React.ComponentType<{ className?: string }>
-  iconColor: string
   amountColor: string
   loading: boolean
 }) {
   return (
-    <Card className="border-0 bg-morandi-container/30 hover:bg-morandi-container/50 transition-colors">
-      <CardContent className="p-3">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-medium text-morandi-secondary">
+    <Card className="bg-card border-border/60 hover:border-morandi-gold/40 transition-colors">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-medium text-morandi-secondary whitespace-nowrap">
             {label}
           </span>
-          <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
-        </div>
-        <div className={`text-lg font-bold tabular-nums ${amountColor}`}>
-          {loading ? '...' : formatCurrency(amount)}
+          <span className={`text-xl font-bold tabular-nums ${amountColor}`}>
+            {loading ? '...' : formatCurrency(amount)}
+          </span>
         </div>
       </CardContent>
     </Card>
@@ -72,92 +60,64 @@ interface OverviewStatCardsProps {
 
 export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) {
   return (
-    <>
-      {/* 收入列 */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <ArrowDownCircle className="h-3.5 w-3.5 text-morandi-green" />
-          <h3 className="text-xs font-semibold text-morandi-primary">{LABELS.SECTION_INCOME}</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <StatCard
-            label={LABELS.CARD_TOUR_INCOME}
-            amount={stats.tourIncome}
-            icon={Plane}
-            iconColor="text-morandi-green/60"
-            amountColor="text-morandi-green"
-            loading={isLoading}
-          />
-          <StatCard
-            label={LABELS.CARD_COMPANY_INCOME}
-            amount={stats.companyIncome}
-            icon={Building2}
-            iconColor="text-morandi-green/60"
-            amountColor="text-morandi-green"
-            loading={isLoading}
-          />
-          <StatCard
-            label={LABELS.CARD_TOTAL_INCOME}
-            amount={stats.totalIncome}
-            icon={TrendingUp}
-            iconColor="text-morandi-green"
-            amountColor="text-morandi-green"
-            loading={isLoading}
-          />
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      {/* 第 1 列 - 收入 */}
+      <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <StatCard
+          label={LABELS.CARD_TOUR_INCOME}
+          amount={stats.tourIncome}
+          amountColor="text-morandi-green"
+          loading={isLoading}
+        />
+        <StatCard
+          label={LABELS.CARD_COMPANY_INCOME}
+          amount={stats.companyIncome}
+          amountColor="text-morandi-green"
+          loading={isLoading}
+        />
+        <StatCard
+          label={LABELS.CARD_TOTAL_INCOME}
+          amount={stats.totalIncome}
+          amountColor="text-morandi-green"
+          loading={isLoading}
+        />
       </div>
 
-      {/* 支出列 */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <ArrowUpCircle className="h-3.5 w-3.5 text-morandi-red" />
-          <h3 className="text-xs font-semibold text-morandi-primary">{LABELS.SECTION_EXPENSE}</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <StatCard
-            label={LABELS.CARD_TOUR_EXPENSE}
-            amount={stats.tourExpense}
-            icon={Plane}
-            iconColor="text-morandi-red/60"
-            amountColor="text-morandi-red"
-            loading={isLoading}
-          />
-          <StatCard
-            label={LABELS.CARD_COMPANY_EXPENSE}
-            amount={stats.companyExpense}
-            icon={Building2}
-            iconColor="text-morandi-red/60"
-            amountColor="text-morandi-red"
-            loading={isLoading}
-          />
-          <StatCard
-            label={LABELS.CARD_TOTAL_EXPENSE}
-            amount={stats.totalExpense}
-            icon={ArrowUpCircle}
-            iconColor="text-morandi-red"
-            amountColor="text-morandi-red"
-            loading={isLoading}
-          />
-        </div>
-      </div>
+      {/* 第 4 欄 - 淨額（跨兩列、stacked、置中、邊框跟一般卡一致）*/}
+      <Card className="bg-card border-border/60 hover:border-morandi-gold/40 transition-colors md:row-span-2">
+        <CardContent className="h-full p-4 flex flex-col items-center justify-center gap-2">
+          <span className="text-sm font-medium text-morandi-secondary">
+            {LABELS.CARD_NET}
+          </span>
+          <span
+            className={`text-3xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
+          >
+            {isLoading ? '...' : formatCurrency(stats.balance)}
+          </span>
+        </CardContent>
+      </Card>
 
-      {/* 淨額 */}
-      <div className="flex justify-end">
-        <Card className="border-2 border-morandi-gold/30 w-full md:w-1/3">
-          <CardContent className="p-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-morandi-secondary">
-                {LABELS.CARD_NET}
-              </span>
-            </div>
-            <div
-              className={`text-xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
-            >
-              {isLoading ? '...' : formatCurrency(stats.balance)}
-            </div>
-          </CardContent>
-        </Card>
+      {/* 第 2 列 - 支出 */}
+      <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <StatCard
+          label={LABELS.CARD_TOUR_EXPENSE}
+          amount={stats.tourExpense}
+          amountColor="text-morandi-red"
+          loading={isLoading}
+        />
+        <StatCard
+          label={LABELS.CARD_COMPANY_EXPENSE}
+          amount={stats.companyExpense}
+          amountColor="text-morandi-red"
+          loading={isLoading}
+        />
+        <StatCard
+          label={LABELS.CARD_TOTAL_EXPENSE}
+          amount={stats.totalExpense}
+          amountColor="text-morandi-red"
+          loading={isLoading}
+        />
       </div>
-    </>
+    </div>
   )
 }

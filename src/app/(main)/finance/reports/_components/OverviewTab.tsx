@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { CurrencyCell } from '@/components/table-cells'
@@ -348,40 +347,38 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
     <div className="space-y-6">
       <OverviewStatCards stats={stats} isLoading={isLoading} />
 
-      {/* 明細區 */}
-      <Card>
-        <div className="px-4 pt-4 pb-2">
-          <h3 className="flex items-center gap-2 text-base font-semibold text-morandi-primary">
-            <FileText className="h-4 w-4" />
+      {/* 明細區 — 不包 Card 殼、表格裸放、跟上方收入支出風格統一 */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <FileText className="h-3.5 w-3.5 text-morandi-primary" />
+          <h3 className="text-xs font-semibold text-morandi-primary">
             {COMPONENT_LABELS.SECTION_TX_DETAIL}
           </h3>
         </div>
-        <CardContent className="pt-0">
-          {isLoading ? (
-            <div className="text-center py-8 text-morandi-secondary">{COMPONENT_LABELS.LOADING}</div>
-          ) : granularity === 'item' ? (
-            transactions.length === 0 ? (
-              <div className="text-center py-8 text-morandi-secondary">{COMPONENT_LABELS.EMPTY}</div>
-            ) : (
-              <EnhancedTable
-                columns={itemColumns}
-                data={transactions.slice(0, 100)}
-                emptyMessage={COMPONENT_LABELS.EMPTY}
-              />
-            )
-          ) : groupedRows.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-8 text-morandi-secondary">{COMPONENT_LABELS.LOADING}</div>
+        ) : granularity === 'item' ? (
+          transactions.length === 0 ? (
             <div className="text-center py-8 text-morandi-secondary">{COMPONENT_LABELS.EMPTY}</div>
-          ) : granularity === 'supplier' ? (
-            <OverviewSupplierTable rows={groupedRows} />
           ) : (
             <EnhancedTable
-              columns={groupColumns}
-              data={groupedRows}
+              columns={itemColumns}
+              data={transactions.slice(0, 100)}
               emptyMessage={COMPONENT_LABELS.EMPTY}
             />
-          )}
-        </CardContent>
-      </Card>
+          )
+        ) : groupedRows.length === 0 ? (
+          <div className="text-center py-8 text-morandi-secondary">{COMPONENT_LABELS.EMPTY}</div>
+        ) : granularity === 'supplier' ? (
+          <OverviewSupplierTable rows={groupedRows} />
+        ) : (
+          <EnhancedTable
+            columns={groupColumns}
+            data={groupedRows}
+            emptyMessage={COMPONENT_LABELS.EMPTY}
+          />
+        )}
+      </div>
     </div>
   )
 }

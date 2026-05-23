@@ -108,6 +108,38 @@ export default function ReportsPage() {
   if (permLoading) return null  // ModuleGuard 已在外層顯示 loading
   if (!can(CAPABILITIES.FINANCE_READ_REPORTS)) return <UnauthorizedPage />
 
+  // 2026-05-23 William 拍板：toolbar 搬回主標題區（header 右側）
+  // ResponsiveHeader 內 tabs 與 actions 之間有 flex-1 spacer、actions 寬度變不會推 tabs 位置
+  const headerToolbar = (
+    <div className="flex items-center gap-3">
+      {showDateSelector && <DateRangeSelector onChange={setDateRange} />}
+      {showGranularity && (
+        <>
+          <div className="h-5 w-px bg-border" />
+          <div className="flex items-center bg-morandi-container rounded-lg p-0.5">
+            {GRANULARITY_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => setDetailGranularity(opt.value)}
+                className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  detailGranularity === opt.value
+                    ? 'bg-card text-morandi-primary shadow-sm'
+                    : 'text-morandi-secondary hover:text-morandi-primary'
+                }`}
+              >
+                <opt.icon className="h-3.5 w-3.5" />
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      {!showDateSelector && !showGranularity && (
+        <span className="text-xs text-morandi-tertiary">即時資料</span>
+      )}
+    </div>
+  )
+
   return (
     <ContentPageLayout
       title={t('financeReports')}
@@ -115,40 +147,9 @@ export default function ReportsPage() {
       tabs={tabs}
       activeTab={activeTab}
       onTabChange={handleTabChange}
-      // 2026-05-22 William 拍板：toolbar 從 header 移到 tab 下方 sub-bar
-      // 原本 conditional headerActions 會導致 tab 切換時整個 header 寬度變、tabs 列被推
-      // 改成 sub-bar 永遠固定高度（52px）、tab 永遠在同位置、不再 layout shift
+      headerChildren={headerToolbar}
     >
       <div>
-        {/* Sub-toolbar 永遠 render、固定 height、tab 切換不會 shift */}
-        <div className="flex items-center gap-3 py-2 border-b border-border min-h-[44px]">
-          {showDateSelector && <DateRangeSelector onChange={setDateRange} />}
-          {showGranularity && (
-            <>
-              <div className="h-5 w-px bg-border" />
-              <div className="flex items-center bg-morandi-container rounded-lg p-0.5">
-                {GRANULARITY_OPTIONS.map(opt => (
-                  <button
-                    key={opt.value}
-                    onClick={() => setDetailGranularity(opt.value)}
-                    className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                      detailGranularity === opt.value
-                        ? 'bg-card text-morandi-primary shadow-sm'
-                        : 'text-morandi-secondary hover:text-morandi-primary'
-                    }`}
-                  >
-                    <opt.icon className="h-3.5 w-3.5" />
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-          {!showDateSelector && !showGranularity && (
-            <span className="text-xs text-morandi-tertiary">本報表呈現即時資料、不需日期 / 顆粒度設定</span>
-          )}
-        </div>
-
         <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsContent value="overview" className="mt-0">
             <OverviewTab dateRange={dateRange} granularity={detailGranularity} />

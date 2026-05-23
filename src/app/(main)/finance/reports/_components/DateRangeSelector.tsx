@@ -165,20 +165,18 @@ export function DateRangeSelector({
       {/* 顆粒度切換 */}
       <div className="flex items-center bg-morandi-container rounded-lg p-0.5">
         {visibleGranularities.map(g => (
-          <Button
+          <button
             key={g}
             type="button"
-            variant="ghost"
-            size="sm"
             onClick={() => handleGranularityChange(g)}
-            className={
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
               granularity === g
-                ? 'bg-card text-morandi-primary shadow-sm hover:bg-card'
-                : 'text-morandi-secondary hover:text-morandi-primary hover:bg-transparent'
-            }
+                ? 'bg-card text-morandi-primary shadow-sm'
+                : 'text-morandi-secondary hover:text-morandi-primary'
+            }`}
           >
             {GRANULARITY_LABELS[g]}
-          </Button>
+          </button>
         ))}
       </div>
 
