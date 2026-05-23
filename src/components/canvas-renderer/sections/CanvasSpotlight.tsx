@@ -29,13 +29,13 @@ import Image from 'next/image'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
 import { renderAccentTitle } from '../_utils'
-import type { YongchengSpotlightBlock } from '../types'
+import type { CanvasSpotlightBlock } from '../types'
 
-interface YongchengSpotlightProps {
-  block: YongchengSpotlightBlock
+interface CanvasSpotlightProps {
+  block: CanvasSpotlightBlock
 }
 
-export function YongchengSpotlight({ block }: YongchengSpotlightProps) {
+export function CanvasSpotlight({ block }: CanvasSpotlightProps) {
   const { tag, title, lead, image, image_position } = block.data
   const imageOnLeft = image_position === 'left'
 

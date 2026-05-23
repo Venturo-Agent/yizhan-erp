@@ -9,10 +9,10 @@
 import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengFlightCardBlock } from '../types'
+import type { CanvasFlightCardBlock } from '../types'
 
-interface YongchengFlightCardProps {
-  block: YongchengFlightCardBlock
+interface CanvasFlightCardProps {
+  block: CanvasFlightCardBlock
 }
 
 function CityCol({
@@ -72,7 +72,7 @@ function CityCol({
   )
 }
 
-export function YongchengFlightCard({ block }: YongchengFlightCardProps) {
+export function CanvasFlightCard({ block }: CanvasFlightCardProps) {
   const { from_city, from_airport, from_time, to_city, to_airport, to_time, airline, flight_no } =
     block.data
 

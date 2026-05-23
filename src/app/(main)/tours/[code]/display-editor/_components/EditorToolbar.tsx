@@ -12,7 +12,7 @@
  * 為什麼用 inline style 而不是 Tailwind：
  * - #2D1F18 / #C85A38 是永成款主題色、不在 morandi-* token 內
  * - 業務語意上「這條 toolbar 屬於永成款編輯器」、跟整個 morandi 主題不掛勾
- * - 跟 YongchengRenderer 視覺呼應、業務一眼看出「我正在編永成款」
+ * - 跟 CanvasRenderer 視覺呼應、業務一眼看出「我正在編永成款」
  */
 
 import * as React from 'react'

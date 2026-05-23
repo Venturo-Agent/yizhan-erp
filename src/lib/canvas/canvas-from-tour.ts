@@ -1,7 +1,7 @@
 /**
  * 永成款 Canvas 自動生成器
  *
- * 從現有 tour + itinerary + employee + workspace 資料、自動產出 YongchengCanvas。
+ * 從現有 tour + itinerary + employee + workspace 資料、自動產出 Canvas。
  *
  * 為什麼要這層：
  * - 永成款的 Canvas JSON 結構（types.ts）跟 itineraries.daily_itinerary JSONB 不一致
@@ -16,15 +16,15 @@
  */
 
 import type {
-  YongchengCanvas,
-  YongchengSection,
-  YongchengCoverData,
-  YongchengTimelineDay,
-  YongchengDaySection,
-  YongchengDayBlock,
-  YongchengAttraction,
-  YongchengStayItem,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasSection,
+  CanvasCoverData,
+  CanvasTimelineDay,
+  CanvasDaySection,
+  CanvasDayBlock,
+  CanvasAttraction,
+  CanvasStayItem,
+} from '@/components/canvas-renderer/types'
 
 import type {
   TourData,
@@ -45,7 +45,7 @@ export interface CanvasFromTourInput {
   companyInfo?: CompanyInfo
 }
 
-export function buildYongchengCanvasFromTour(input: CanvasFromTourInput): YongchengCanvas {
+export function buildCanvasFromTour(input: CanvasFromTourInput): Canvas {
   const { tour, heroImage, employee, companyInfo } = input
   const itinerary = tour.itinerary
   const dailyItinerary = itinerary?.daily_itinerary ?? []
@@ -56,7 +56,7 @@ export function buildYongchengCanvasFromTour(input: CanvasFromTourInput): Yongch
     english_name: undefined,
   }
 
-  const sections: YongchengSection[] = []
+  const sections: CanvasSection[] = []
 
   // ============ Cover ============
   sections.push({
@@ -115,7 +115,7 @@ function buildCover(
   tour: TourData,
   heroImage: string | null | undefined,
   brandName: string
-): YongchengCoverData {
+): CanvasCoverData {
   const itinerary = tour.itinerary
   const daysCount = tour.days_count ?? itinerary?.daily_itinerary?.length ?? 0
   const departureDate = tour.departure_date
@@ -140,7 +140,7 @@ function buildCover(
   }
 }
 
-function buildTimelineDay(day: DailyItinerary, index: number): YongchengTimelineDay {
+function buildTimelineDay(day: DailyItinerary, index: number): CanvasTimelineDay {
   return {
     day_index: index + 1,
     title: day.title || day.dayLabel || `Day ${index + 1}`,
@@ -148,9 +148,9 @@ function buildTimelineDay(day: DailyItinerary, index: number): YongchengTimeline
   }
 }
 
-function buildDaySection(day: DailyItinerary, index: number): YongchengDaySection {
+function buildDaySection(day: DailyItinerary, index: number): CanvasDaySection {
   const dayIndex = index + 1
-  const blocks: YongchengDayBlock[] = []
+  const blocks: CanvasDayBlock[] = []
 
   // 1) Day Header
   blocks.push({
@@ -218,7 +218,7 @@ function buildRouteCardBlock(
   activities: Activity[],
   images: string[],
   dayIndex: number
-): YongchengDayBlock {
+): CanvasDayBlock {
   // 規格 § 4.2：景點數 → 版型
   const count = activities.length
   const layout =
@@ -226,7 +226,7 @@ function buildRouteCardBlock(
 
   // 取前 3（3up 超過 3 個會截斷）
   const take = layout === '3up' ? 3 : count
-  const attractions: YongchengAttraction[] = activities.slice(0, take).map((a, i) => ({
+  const attractions: CanvasAttraction[] = activities.slice(0, take).map((a, i) => ({
     id: `d${dayIndex}-attr-${i}`,
     name: a.title,
     // 描述 enrich 後會有值（attractions 表的 description）、原本 daily 的 activity.description 都是空字串
@@ -245,7 +245,7 @@ function buildRouteCardBlock(
   }
 }
 
-function buildStayItem(hotel: HotelInfo, index: number): YongchengStayItem {
+function buildStayItem(hotel: HotelInfo, index: number): CanvasStayItem {
   // nights_label：根據 nights 推 Night 編號
   // 簡單版：用 index + 1 當 Night N、未來業務在 override 改
   const nightsLabel = hotel.nights && hotel.nights > 1

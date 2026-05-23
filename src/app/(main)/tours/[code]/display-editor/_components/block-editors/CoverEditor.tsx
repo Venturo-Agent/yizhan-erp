@@ -7,20 +7,20 @@
 
 import * as React from 'react'
 import type {
-  YongchengCanvas,
-  YongchengCoverData,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasCoverData,
+} from '@/components/canvas-renderer/types'
 import { updateCoverData } from '../canvas-utils'
 import { FormSection, TextAreaField, TextField } from './_form-primitives'
 
 interface CoverEditorProps {
-  data: YongchengCoverData
-  canvas: YongchengCanvas
-  onChange: (next: YongchengCanvas) => void
+  data: CanvasCoverData
+  canvas: Canvas
+  onChange: (next: Canvas) => void
 }
 
 export function CoverEditor({ data, canvas, onChange }: CoverEditorProps) {
-  const patch = (p: Partial<YongchengCoverData>) => {
+  const patch = (p: Partial<CanvasCoverData>) => {
     onChange(updateCoverData(canvas, p))
   }
   return (

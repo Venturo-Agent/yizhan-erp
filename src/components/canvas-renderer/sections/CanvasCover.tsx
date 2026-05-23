@@ -13,21 +13,21 @@ import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
 import { renderAccentTitle } from '../_utils'
-import type { YongchengBrandInfo, YongchengCoverData } from '../types'
+import type { CanvasBrandInfo, CanvasCoverData } from '../types'
 
-interface YongchengCoverProps {
-  data: YongchengCoverData
+interface CanvasCoverProps {
+  data: CanvasCoverData
   /**
    * 為什麼可選：data.brand 不一定有、fallback 用 canvas.brand
    */
-  brand?: YongchengBrandInfo
+  brand?: CanvasBrandInfo
 }
 
 // 註：renderAccentTitle 已抽到 ../_utils.tsx、Cover / Sidenav 共用同一支
 // 5/17 William 抓到「Sidenav 沒解析 accent 標記」bug、原因就是這個 function
 // 之前散在 Cover 裡、其他 caller 不知道有這個邏輯、所以照搬會漏
 
-export function YongchengCover({ data, brand }: YongchengCoverProps) {
+export function CanvasCover({ data, brand }: CanvasCoverProps) {
   const effectiveBrand = data.brand ?? brand
   const brandName = effectiveBrand?.name
   const brandEnglish = effectiveBrand?.english_name

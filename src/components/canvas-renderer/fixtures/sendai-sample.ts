@@ -9,9 +9,9 @@
  * 圖片來源：unsplash.com（next.config remotePatterns 已允許）
  */
 
-import type { YongchengCanvas } from '../types'
+import type { Canvas } from '../types'
 
-export const sendaiSampleCanvas: YongchengCanvas = {
+export const sendaiSampleCanvas: Canvas = {
   theme: 'yongcheng',
   brand: {
     name: '角落旅行社',

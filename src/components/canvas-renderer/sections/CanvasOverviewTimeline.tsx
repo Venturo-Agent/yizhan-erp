@@ -13,10 +13,10 @@
 import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengTimelineDay } from '../types'
+import type { CanvasTimelineDay } from '../types'
 
-interface YongchengOverviewTimelineProps {
-  days: YongchengTimelineDay[]
+interface CanvasOverviewTimelineProps {
+  days: CanvasTimelineDay[]
   eyebrow?: string
   title?: string
   /**
@@ -25,12 +25,12 @@ interface YongchengOverviewTimelineProps {
   keyMsg?: string
 }
 
-export function YongchengOverviewTimeline({
+export function CanvasOverviewTimeline({
   days,
   eyebrow = '01',
   title = '六天行程一覽。',
   keyMsg,
-}: YongchengOverviewTimelineProps) {
+}: CanvasOverviewTimelineProps) {
   const cols = Math.max(days.length, 1)
   return (
     <section

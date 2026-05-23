@@ -12,7 +12,7 @@
 
 // ============ 共用 ============
 
-export interface YongchengImage {
+export interface CanvasImage {
   url: string
   focal_x?: number  // 0-100、object-position
   focal_y?: number
@@ -21,17 +21,17 @@ export interface YongchengImage {
   caption?: string
 }
 
-export type YongchengBlockId = string  // UUID
+export type CanvasBlockId = string  // UUID
 
 // ============ Sidenav / 整頁設定 ============
 
-export interface YongchengBrandInfo {
+export interface CanvasBrandInfo {
   name: string           // 例「角落旅行社」
   english_name?: string  // 例「Corner Travel」
   logo_url?: string      // 客戶公司 logo（footer）
 }
 
-export interface YongchengContactInfo {
+export interface CanvasContactInfo {
   employee_name?: string
   employee_phone?: string
   employee_email?: string
@@ -42,38 +42,38 @@ export interface YongchengContactInfo {
 // ============ Section 類型 ============
 
 // C01 封面
-export interface YongchengCoverData {
+export interface CanvasCoverData {
   eyebrow?: string      // 「2026 私人包團・東京仙台六日」
   title: string         // 主標
   subtitle?: string     // 副標
   destination?: string  // 例「東京 ✕ 仙台」
-  cover_image?: YongchengImage
+  cover_image?: CanvasImage
   departure_date?: string
-  brand?: YongchengBrandInfo
+  brand?: CanvasBrandInfo
 }
 
-export interface YongchengCoverSection {
+export interface CanvasCoverSection {
   type: 'cover'
-  data: YongchengCoverData
+  data: CanvasCoverData
 }
 
 // C02 行程總覽時間軸
-export interface YongchengTimelineDay {
+export interface CanvasTimelineDay {
   day_index: number
   title: string         // 「輕井澤」
   summary: string       // 「抵達後直奔輕井澤」
 }
 
-export interface YongchengOverviewTimelineSection {
+export interface CanvasOverviewTimelineSection {
   type: 'overview_timeline'
   data: {
-    days: YongchengTimelineDay[]
+    days: CanvasTimelineDay[]
   }
 }
 
 // C03 Day Header
-export interface YongchengDayHeaderBlock {
-  id: YongchengBlockId
+export interface CanvasDayHeaderBlock {
+  id: CanvasBlockId
   type: 'day_header'
   data: {
     day_index: number
@@ -84,60 +84,60 @@ export interface YongchengDayHeaderBlock {
 }
 
 // C04 景點卡（自動 1/2/3-up）
-export interface YongchengAttraction {
-  id: YongchengBlockId
+export interface CanvasAttraction {
+  id: CanvasBlockId
   name: string
   subtitle?: string     // 地點 / 子標
   description?: string
-  image?: YongchengImage
+  image?: CanvasImage
   highlights?: string[]
   category?: string     // 標籤
   suggested_duration?: string  // 「建議停留 2 小時」
 }
 
-export interface YongchengRouteCardBlock {
-  id: YongchengBlockId
+export interface CanvasRouteCardBlock {
+  id: CanvasBlockId
   type: 'route_card'
   layout: '1up' | '2up' | '3up' | 'transit'
   data: {
-    attractions: YongchengAttraction[]
+    attractions: CanvasAttraction[]
     transit_note?: string  // transit 模式用、無圖移動日的說明
   }
 }
 
 // C05 時序步驟（非標配、右鍵加）
-export interface YongchengSequenceStep {
-  id: YongchengBlockId
+export interface CanvasSequenceStep {
+  id: CanvasBlockId
   time: string          // 「10:00」
   title: string         // 「前往川越」
   description?: string
 }
 
-export interface YongchengSequenceStepsBlock {
-  id: YongchengBlockId
+export interface CanvasSequenceStepsBlock {
+  id: CanvasBlockId
   type: 'sequence_steps'
   data: {
     title?: string       // 「TIMELINE · DAY 3」
-    steps: YongchengSequenceStep[]
+    steps: CanvasSequenceStep[]
   }
 }
 
 // C06 住宿卡
-export interface YongchengHotelCardBlock {
-  id: YongchengBlockId
+export interface CanvasHotelCardBlock {
+  id: CanvasBlockId
   type: 'hotel_card'
   data: {
     name: string
     rating?: number      // 星級 1-5
     location?: string
     description?: string
-    image?: YongchengImage
+    image?: CanvasImage
   }
 }
 
 // C07 航班卡
-export interface YongchengFlightCardBlock {
-  id: YongchengBlockId
+export interface CanvasFlightCardBlock {
+  id: CanvasBlockId
   type: 'flight_card'
   data: {
     from_city: string
@@ -152,43 +152,43 @@ export interface YongchengFlightCardBlock {
 }
 
 // C08 餐廳卡
-export interface YongchengRestaurantCardBlock {
-  id: YongchengBlockId
+export interface CanvasRestaurantCardBlock {
+  id: CanvasBlockId
   type: 'restaurant_card'
   data: {
     meal: 'breakfast' | 'lunch' | 'dinner'
     name: string
     cuisine?: string
     description?: string
-    image?: YongchengImage
+    image?: CanvasImage
   }
 }
 
 // C09 Feature Hero（特色英雄區、非標配）
-export interface YongchengFeatureHeroBlock {
-  id: YongchengBlockId
+export interface CanvasFeatureHeroBlock {
+  id: CanvasBlockId
   type: 'feature_hero'
   data: {
     eyebrow?: string
     title: string
     subtitle?: string
-    background_image?: YongchengImage
+    background_image?: CanvasImage
   }
 }
 
 // C10 Stall Grid（小卡格、非標配）
-export interface YongchengStallItem {
-  id: YongchengBlockId
+export interface CanvasStallItem {
+  id: CanvasBlockId
   name: string
   description?: string
-  image?: YongchengImage
+  image?: CanvasImage
 }
 
-export interface YongchengStallGridBlock {
-  id: YongchengBlockId
+export interface CanvasStallGridBlock {
+  id: CanvasBlockId
   type: 'stall_grid'
   data: {
-    items: YongchengStallItem[]
+    items: CanvasStallItem[]
   }
 }
 
@@ -196,14 +196,14 @@ export interface YongchengStallGridBlock {
 // 概念：仙台 HTML 的「ritual-spotlight」、左右 1:1、一邊大圖一邊文字段
 // 用途：某一餐 / 某一晚住宿 / 某個體驗、要「特別介紹」時用、不像 Route Card 那種橫列卡
 // 視覺氣質：精品提案常見的「電影分鏡」感、單個重點獨享一頁寬
-export interface YongchengSpotlightBlock {
-  id: YongchengBlockId
+export interface CanvasSpotlightBlock {
+  id: CanvasBlockId
   type: 'spotlight'
   data: {
     tag?: string         // eyebrow（紅銅 italic）例：「— LUNCH · 元祖日光ゆば料理 惠比壽家」
     title: string        // 標題（36px、可帶 [accent]xxx[/accent] 紅銅標記）
     lead?: string        // 段落文字（17px、line-height 1.85）多行用 \n
-    image?: YongchengImage
+    image?: CanvasImage
     image_position?: 'left' | 'right'  // 圖在哪邊；不設預設 right
   }
 }
@@ -212,8 +212,8 @@ export interface YongchengSpotlightBlock {
 // 概念：仙台 HTML 的「jp-note」、霧米底 + 金色左豎線
 // 用途：日文用語 / 文化專有名詞補充說明（湯波、界、會席...）
 // 視覺氣質：低調但有重量、像書本的腳註
-export interface YongchengJpNoteBlock {
-  id: YongchengBlockId
+export interface CanvasJpNoteBlock {
+  id: CanvasBlockId
   type: 'jp_note'
   data: {
     term: string         // 用語本身、紅銅粗體（例：「湯波（ゆば）」）
@@ -222,63 +222,63 @@ export interface YongchengJpNoteBlock {
 }
 
 // Day section 包含的 blocks
-export type YongchengDayBlock =
-  | YongchengDayHeaderBlock
-  | YongchengRouteCardBlock
-  | YongchengSequenceStepsBlock
-  | YongchengHotelCardBlock
-  | YongchengFlightCardBlock
-  | YongchengRestaurantCardBlock
-  | YongchengFeatureHeroBlock
-  | YongchengStallGridBlock
-  | YongchengSpotlightBlock
-  | YongchengJpNoteBlock
+export type CanvasDayBlock =
+  | CanvasDayHeaderBlock
+  | CanvasRouteCardBlock
+  | CanvasSequenceStepsBlock
+  | CanvasHotelCardBlock
+  | CanvasFlightCardBlock
+  | CanvasRestaurantCardBlock
+  | CanvasFeatureHeroBlock
+  | CanvasStallGridBlock
+  | CanvasSpotlightBlock
+  | CanvasJpNoteBlock
 
-export interface YongchengDaySection {
+export interface CanvasDaySection {
   type: 'day'
   day_index: number
   date: string
-  blocks: YongchengDayBlock[]
+  blocks: CanvasDayBlock[]
 }
 
 // C11 住宿總覽（自動彙整）
-export interface YongchengStayItem {
-  id: YongchengBlockId
+export interface CanvasStayItem {
+  id: CanvasBlockId
   nights_label: string  // 「Night 1-2」
   name: string
-  image?: YongchengImage
+  image?: CanvasImage
   description?: string
 }
 
-export interface YongchengStaysSection {
+export interface CanvasStaysSection {
   type: 'stays'
   data: {
-    items: YongchengStayItem[]
+    items: CanvasStayItem[]
   }
 }
 
 // C12 附錄
-export interface YongchengAppendixSection {
+export interface CanvasAppendixSection {
   type: 'appendix'
   data: {
     inclusions?: string[]    // 費用包含
     exclusions?: string[]    // 費用不含
     notices?: string[]       // 注意事項
-    contact?: YongchengContactInfo
+    contact?: CanvasContactInfo
   }
 }
 
 // ============ 整份 Canvas ============
 
-export type YongchengSection =
-  | YongchengCoverSection
-  | YongchengOverviewTimelineSection
-  | YongchengDaySection
-  | YongchengStaysSection
-  | YongchengAppendixSection
+export type CanvasSection =
+  | CanvasCoverSection
+  | CanvasOverviewTimelineSection
+  | CanvasDaySection
+  | CanvasStaysSection
+  | CanvasAppendixSection
 
-export interface YongchengCanvas {
+export interface Canvas {
   theme: 'yongcheng'
-  brand?: YongchengBrandInfo
-  sections: YongchengSection[]
+  brand?: CanvasBrandInfo
+  sections: CanvasSection[]
 }

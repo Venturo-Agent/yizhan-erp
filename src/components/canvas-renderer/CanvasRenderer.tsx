@@ -1,12 +1,12 @@
 /**
- * 永成款整份 Canvas 渲染入口 — YongchengRenderer
+ * 永成款整份 Canvas 渲染入口 — CanvasRenderer
  *
  * 視覺基準：仙台 HTML 整份結構
  *
  * 邏輯：
  * - 遍歷 canvas.sections、根據 type 渲染對應組件
  * - day section 內遍歷 blocks、依 block.type 渲染
- * - 整份包進 YongchengLayout（Sidenav + Main）
+ * - 整份包進 CanvasLayout（Sidenav + Main）
  *
  * 跨期 / 跨 section 自動標號（eyebrow 用、像 02 / 03 / 04 ...）
  */
@@ -15,51 +15,51 @@ import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from './tokens'
 import type {
-  YongchengCanvas,
-  YongchengDayBlock,
-  YongchengDaySection,
-  YongchengSection,
+  Canvas,
+  CanvasDayBlock,
+  CanvasDaySection,
+  CanvasSection,
 } from './types'
-import { YongchengLayout } from './YongchengLayout'
-import { YongchengAppendix } from './sections/YongchengAppendix'
-import { YongchengCover } from './sections/YongchengCover'
-import { YongchengDayHeader } from './sections/YongchengDayHeader'
-import { YongchengFlightCard } from './sections/YongchengFlightCard'
-import { YongchengHotelCard } from './sections/YongchengHotelCard'
-import { YongchengJpNote } from './sections/YongchengJpNote'
-import { YongchengOverviewTimeline } from './sections/YongchengOverviewTimeline'
-import { YongchengRestaurantCard } from './sections/YongchengRestaurantCard'
-import { YongchengRouteCard } from './sections/YongchengRouteCard'
-import { YongchengSequenceSteps } from './sections/YongchengSequenceSteps'
-import { YongchengSpotlight } from './sections/YongchengSpotlight'
-import { YongchengStaysSection } from './sections/YongchengStaysSection'
+import { CanvasLayout } from './CanvasLayout'
+import { CanvasAppendix } from './sections/CanvasAppendix'
+import { CanvasCover } from './sections/CanvasCover'
+import { CanvasDayHeader } from './sections/CanvasDayHeader'
+import { CanvasFlightCard } from './sections/CanvasFlightCard'
+import { CanvasHotelCard } from './sections/CanvasHotelCard'
+import { CanvasJpNote } from './sections/CanvasJpNote'
+import { CanvasOverviewTimeline } from './sections/CanvasOverviewTimeline'
+import { CanvasRestaurantCard } from './sections/CanvasRestaurantCard'
+import { CanvasRouteCard } from './sections/CanvasRouteCard'
+import { CanvasSequenceSteps } from './sections/CanvasSequenceSteps'
+import { CanvasSpotlight } from './sections/CanvasSpotlight'
+import { CanvasStaysSection } from './sections/CanvasStaysSection'
 
-interface YongchengRendererProps {
-  canvas: YongchengCanvas
+interface CanvasRendererProps {
+  canvas: Canvas
 }
 
 // ============ Day section block 分流 ============
 
-function renderDayBlock(block: YongchengDayBlock): React.ReactNode {
+function renderDayBlock(block: CanvasDayBlock): React.ReactNode {
   switch (block.type) {
     case 'day_header':
-      return <YongchengDayHeader key={block.id} data={block.data} />
+      return <CanvasDayHeader key={block.id} data={block.data} />
     case 'route_card':
-      return <YongchengRouteCard key={block.id} block={block} />
+      return <CanvasRouteCard key={block.id} block={block} />
     case 'sequence_steps':
-      return <YongchengSequenceSteps key={block.id} block={block} />
+      return <CanvasSequenceSteps key={block.id} block={block} />
     case 'hotel_card':
-      return <YongchengHotelCard key={block.id} block={block} />
+      return <CanvasHotelCard key={block.id} block={block} />
     case 'flight_card':
-      return <YongchengFlightCard key={block.id} block={block} />
+      return <CanvasFlightCard key={block.id} block={block} />
     case 'restaurant_card':
-      return <YongchengRestaurantCard key={block.id} block={block} />
+      return <CanvasRestaurantCard key={block.id} block={block} />
     case 'spotlight':
       // 兩欄式特色介紹（仙台原版的 ritual-spotlight）— 餐廳 / 飯店 / 景點深度版型
-      return <YongchengSpotlight key={block.id} block={block} />
+      return <CanvasSpotlight key={block.id} block={block} />
     case 'jp_note':
       // 日文用語小注解（湯波、界、懐石 ...）
-      return <YongchengJpNote key={block.id} block={block} />
+      return <CanvasJpNote key={block.id} block={block} />
     case 'feature_hero':
       // 視覺：滿版背景圖 + eyebrow + title + subtitle（仙台 HTML 沒這 block、暫時 minimal 渲染）
       return (
@@ -177,7 +177,7 @@ function renderDayBlock(block: YongchengDayBlock): React.ReactNode {
 
 // ============ Day section 整段 ============
 
-function renderDaySection(section: YongchengDaySection, eyebrowNum: string, isBleed: boolean) {
+function renderDaySection(section: CanvasDaySection, eyebrowNum: string, isBleed: boolean) {
   // day section 內第一個 block 通常是 day_header、跟 section eyebrow 並列
   return (
     <section
@@ -222,17 +222,17 @@ function renderDaySection(section: YongchengDaySection, eyebrowNum: string, isBl
 // ============ 主 Renderer ============
 
 function renderSection(
-  section: YongchengSection,
+  section: CanvasSection,
   eyebrowNum: string,
   isBleed: boolean,
-  brand: YongchengCanvas['brand']
+  brand: Canvas['brand']
 ): React.ReactNode {
   switch (section.type) {
     case 'cover':
-      return <YongchengCover key="cover" data={section.data} brand={brand} />
+      return <CanvasCover key="cover" data={section.data} brand={brand} />
     case 'overview_timeline':
       return (
-        <YongchengOverviewTimeline
+        <CanvasOverviewTimeline
           key="overview"
           days={section.data.days}
           eyebrow={eyebrowNum}
@@ -241,9 +241,9 @@ function renderSection(
     case 'day':
       return renderDaySection(section, eyebrowNum, isBleed)
     case 'stays':
-      return <YongchengStaysSection key="stays" section={section} eyebrow={eyebrowNum} />
+      return <CanvasStaysSection key="stays" section={section} eyebrow={eyebrowNum} />
     case 'appendix':
-      return <YongchengAppendix key="appendix" section={section} brand={brand} />
+      return <CanvasAppendix key="appendix" section={section} brand={brand} />
     default: {
       const _exhaustive: never = section
       return _exhaustive
@@ -251,10 +251,10 @@ function renderSection(
   }
 }
 
-export function YongchengRenderer({ canvas }: YongchengRendererProps) {
+export function CanvasRenderer({ canvas }: CanvasRendererProps) {
   const pad = (n: number) => String(n).padStart(2, '0')
   return (
-    <YongchengLayout canvas={canvas}>
+    <CanvasLayout canvas={canvas}>
       {canvas.sections.map((section, idx) => {
         // eyebrow 編號：cover 不計、從 overview 開始 01、day1 是 02 ...
         // 為什麼這樣編：對齊仙台 HTML（line 820/861/898...）
@@ -264,6 +264,6 @@ export function YongchengRenderer({ canvas }: YongchengRendererProps) {
         const isBleed = section.type === 'day' && section.day_index % 2 === 0
         return renderSection(section, eyebrowNum, isBleed, canvas.brand)
       })}
-    </YongchengLayout>
+    </CanvasLayout>
   )
 }

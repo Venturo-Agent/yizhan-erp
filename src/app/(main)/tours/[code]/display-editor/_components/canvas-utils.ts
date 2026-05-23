@@ -2,7 +2,7 @@
  * Canvas 編輯 helper：定位 / 變更 / 刪除 一個 block 或 section。
  *
  * 為什麼集中在這：
- * - YongchengCanvas 結構巢狀（sections → day.blocks）、散在多處 mutate 會出 bug
+ * - Canvas 結構巢狀（sections → day.blocks）、散在多處 mutate 會出 bug
  * - 統一用「unique key」識別任何可選 / 可編節點（cover / day-X / day-X-block-id ...）
  * - 編輯 panel 跟 page state 之間只交換 key + patch、不互看內部結構
  *
@@ -10,16 +10,16 @@
  */
 
 import type {
-  YongchengCanvas,
-  YongchengCoverData,
-  YongchengDayBlock,
-  YongchengDayHeaderBlock,
-  YongchengDaySection,
-  YongchengJpNoteBlock,
-  YongchengRouteCardBlock,
-  YongchengSection,
-  YongchengSpotlightBlock,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasCoverData,
+  CanvasDayBlock,
+  CanvasDayHeaderBlock,
+  CanvasDaySection,
+  CanvasJpNoteBlock,
+  CanvasRouteCardBlock,
+  CanvasSection,
+  CanvasSpotlightBlock,
+} from '@/components/canvas-renderer/types'
 
 // ============ 選取節點 key ============
 
@@ -38,16 +38,16 @@ export type SelectionKey =
 // ============ 拿資料 ============
 
 export function findSection(
-  canvas: YongchengCanvas,
-  predicate: (s: YongchengSection) => boolean
-): YongchengSection | null {
+  canvas: Canvas,
+  predicate: (s: CanvasSection) => boolean
+): CanvasSection | null {
   return canvas.sections.find(predicate) ?? null
 }
 
 export function findBlock(
-  canvas: YongchengCanvas,
+  canvas: Canvas,
   blockId: string
-): { block: YongchengDayBlock; daySection: YongchengDaySection } | null {
+): { block: CanvasDayBlock; daySection: CanvasDaySection } | null {
   for (const s of canvas.sections) {
     if (s.type !== 'day') continue
     const b = s.blocks.find((x) => x.id === blockId)
@@ -59,9 +59,9 @@ export function findBlock(
 // ============ 改 cover ============
 
 export function updateCoverData(
-  canvas: YongchengCanvas,
-  patch: Partial<YongchengCoverData>
-): YongchengCanvas {
+  canvas: Canvas,
+  patch: Partial<CanvasCoverData>
+): Canvas {
   return {
     ...canvas,
     sections: canvas.sections.map((s) =>
@@ -73,10 +73,10 @@ export function updateCoverData(
 // ============ 改 day_header block ============
 
 export function updateDayHeaderBlock(
-  canvas: YongchengCanvas,
+  canvas: Canvas,
   blockId: string,
-  patch: Partial<YongchengDayHeaderBlock['data']>
-): YongchengCanvas {
+  patch: Partial<CanvasDayHeaderBlock['data']>
+): Canvas {
   return mapBlock(canvas, blockId, (b) => {
     if (b.type !== 'day_header') return b
     return { ...b, data: { ...b.data, ...patch } }
@@ -86,10 +86,10 @@ export function updateDayHeaderBlock(
 // ============ 改 spotlight block ============
 
 export function updateSpotlightBlock(
-  canvas: YongchengCanvas,
+  canvas: Canvas,
   blockId: string,
-  patch: Partial<YongchengSpotlightBlock['data']>
-): YongchengCanvas {
+  patch: Partial<CanvasSpotlightBlock['data']>
+): Canvas {
   return mapBlock(canvas, blockId, (b) => {
     if (b.type !== 'spotlight') return b
     return { ...b, data: { ...b.data, ...patch } }
@@ -99,10 +99,10 @@ export function updateSpotlightBlock(
 // ============ 改 jp_note block ============
 
 export function updateJpNoteBlock(
-  canvas: YongchengCanvas,
+  canvas: Canvas,
   blockId: string,
-  patch: Partial<YongchengJpNoteBlock['data']>
-): YongchengCanvas {
+  patch: Partial<CanvasJpNoteBlock['data']>
+): Canvas {
   return mapBlock(canvas, blockId, (b) => {
     if (b.type !== 'jp_note') return b
     return { ...b, data: { ...b.data, ...patch } }
@@ -112,11 +112,11 @@ export function updateJpNoteBlock(
 // ============ 改 route_card 內某個 attraction ============
 
 export function updateRouteCardAttraction(
-  canvas: YongchengCanvas,
+  canvas: Canvas,
   blockId: string,
   attractionId: string,
-  patch: Partial<YongchengRouteCardBlock['data']['attractions'][number]>
-): YongchengCanvas {
+  patch: Partial<CanvasRouteCardBlock['data']['attractions'][number]>
+): Canvas {
   return mapBlock(canvas, blockId, (b) => {
     if (b.type !== 'route_card') return b
     return {
@@ -133,7 +133,7 @@ export function updateRouteCardAttraction(
 
 // ============ 刪除 block ============
 
-export function deleteBlock(canvas: YongchengCanvas, blockId: string): YongchengCanvas {
+export function deleteBlock(canvas: Canvas, blockId: string): Canvas {
   return {
     ...canvas,
     sections: canvas.sections.map((s) => {
@@ -166,7 +166,7 @@ export interface AiPatch {
 }
 
 /** 掃 canvas，回傳「目前空白 / 可補強」的建議清單 */
-export function analyzeCanvasForAi(canvas: YongchengCanvas): AiSuggestion[] {
+export function analyzeCanvasForAi(canvas: Canvas): AiSuggestion[] {
   const suggestions: AiSuggestion[] = []
 
   for (const section of canvas.sections) {
@@ -230,7 +230,7 @@ export function analyzeCanvasForAi(canvas: YongchengCanvas): AiSuggestion[] {
 }
 
 /** 把 canvas 壓縮成純文字摘要，給 AI 讀（省 token） */
-export function compressCanvasForAi(canvas: YongchengCanvas): string {
+export function compressCanvasForAi(canvas: Canvas): string {
   const lines: string[] = []
 
   for (const section of canvas.sections) {
@@ -258,7 +258,7 @@ export function compressCanvasForAi(canvas: YongchengCanvas): string {
 }
 
 /** 把單一 AI patch 套進 canvas，回傳新 canvas */
-export function applyAiPatch(canvas: YongchengCanvas, patch: AiPatch): YongchengCanvas {
+export function applyAiPatch(canvas: Canvas, patch: AiPatch): Canvas {
   const { target, generated } = patch
 
   if (target.type === 'cover') {
@@ -289,10 +289,10 @@ export function applyAiPatch(canvas: YongchengCanvas, patch: AiPatch): Yongcheng
 // ============ 通用 block map（內部用、避免每個 updater 重複） ============
 
 function mapBlock(
-  canvas: YongchengCanvas,
+  canvas: Canvas,
   blockId: string,
-  fn: (b: YongchengDayBlock) => YongchengDayBlock
-): YongchengCanvas {
+  fn: (b: CanvasDayBlock) => CanvasDayBlock
+): Canvas {
   return {
     ...canvas,
     sections: canvas.sections.map((s) => {

@@ -7,16 +7,16 @@
 
 import * as React from 'react'
 import type {
-  YongchengCanvas,
-  YongchengSpotlightBlock,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasSpotlightBlock,
+} from '@/components/canvas-renderer/types'
 import { updateSpotlightBlock } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
 interface SpotlightEditorProps {
-  block: YongchengSpotlightBlock
-  canvas: YongchengCanvas
-  onChange: (next: YongchengCanvas) => void
+  block: CanvasSpotlightBlock
+  canvas: Canvas
+  onChange: (next: Canvas) => void
   onRequestDelete: () => void
 }
 
@@ -26,7 +26,7 @@ export function SpotlightEditor({
   onChange,
   onRequestDelete,
 }: SpotlightEditorProps) {
-  const patch = (p: Partial<YongchengSpotlightBlock['data']>) => {
+  const patch = (p: Partial<CanvasSpotlightBlock['data']>) => {
     onChange(updateSpotlightBlock(canvas, block.id, p))
   }
   return (

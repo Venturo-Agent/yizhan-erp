@@ -26,13 +26,13 @@
 import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS } from '../tokens'
-import type { YongchengJpNoteBlock } from '../types'
+import type { CanvasJpNoteBlock } from '../types'
 
-interface YongchengJpNoteProps {
-  block: YongchengJpNoteBlock
+interface CanvasJpNoteProps {
+  block: CanvasJpNoteBlock
 }
 
-export function YongchengJpNote({ block }: YongchengJpNoteProps) {
+export function CanvasJpNote({ block }: CanvasJpNoteProps) {
   const { term, description } = block.data
 
   return (

@@ -14,7 +14,7 @@
 
 import * as React from 'react'
 import { Sparkles, X, ChevronRight, Check } from 'lucide-react'
-import type { YongchengCanvas } from '@/components/tour-display-yongcheng/types'
+import type { Canvas } from '@/components/canvas-renderer/types'
 import {
   analyzeCanvasForAi,
   compressCanvasForAi,
@@ -29,7 +29,7 @@ type DialogStep = 'select' | 'generating' | 'review'
 
 interface AiAssistDialogProps {
   code: string
-  canvas: YongchengCanvas
+  canvas: Canvas
   onApply: (patches: AiPatch[]) => void
   onClose: () => void
 }

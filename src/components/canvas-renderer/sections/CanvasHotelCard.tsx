@@ -9,10 +9,10 @@ import * as React from 'react'
 import Image from 'next/image'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengHotelCardBlock } from '../types'
+import type { CanvasHotelCardBlock } from '../types'
 
-interface YongchengHotelCardProps {
-  block: YongchengHotelCardBlock
+interface CanvasHotelCardProps {
+  block: CanvasHotelCardBlock
 }
 
 function renderStars(rating: number) {
@@ -20,7 +20,7 @@ function renderStars(rating: number) {
   return '★'.repeat(full) + '☆'.repeat(5 - full)
 }
 
-export function YongchengHotelCard({ block }: YongchengHotelCardProps) {
+export function CanvasHotelCard({ block }: CanvasHotelCardProps) {
   const { name, rating, location, description, image } = block.data
   return (
     <div

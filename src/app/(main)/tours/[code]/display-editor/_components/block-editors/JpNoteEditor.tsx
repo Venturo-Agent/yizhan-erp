@@ -7,16 +7,16 @@
 
 import * as React from 'react'
 import type {
-  YongchengCanvas,
-  YongchengJpNoteBlock,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasJpNoteBlock,
+} from '@/components/canvas-renderer/types'
 import { updateJpNoteBlock } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
 interface JpNoteEditorProps {
-  block: YongchengJpNoteBlock
-  canvas: YongchengCanvas
-  onChange: (next: YongchengCanvas) => void
+  block: CanvasJpNoteBlock
+  canvas: Canvas
+  onChange: (next: Canvas) => void
   onRequestDelete: () => void
 }
 
@@ -26,7 +26,7 @@ export function JpNoteEditor({
   onChange,
   onRequestDelete,
 }: JpNoteEditorProps) {
-  const patch = (p: Partial<YongchengJpNoteBlock['data']>) => {
+  const patch = (p: Partial<CanvasJpNoteBlock['data']>) => {
     onChange(updateJpNoteBlock(canvas, block.id, p))
   }
   return (

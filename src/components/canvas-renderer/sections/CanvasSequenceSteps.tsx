@@ -13,13 +13,13 @@
 import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengSequenceStepsBlock } from '../types'
+import type { CanvasSequenceStepsBlock } from '../types'
 
-interface YongchengSequenceStepsProps {
-  block: YongchengSequenceStepsBlock
+interface CanvasSequenceStepsProps {
+  block: CanvasSequenceStepsBlock
 }
 
-export function YongchengSequenceSteps({ block }: YongchengSequenceStepsProps) {
+export function CanvasSequenceSteps({ block }: CanvasSequenceStepsProps) {
   const { title, steps } = block.data
   return (
     <div

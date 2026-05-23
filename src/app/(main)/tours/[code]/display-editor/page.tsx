@@ -15,7 +15,7 @@
  *
  * 載入流程：
  *   1. 同時 fetch tour 跟 display-canvas
- *   2. 如果 API 回 canvas 是 null / 空 {} → 用 buildYongchengCanvasFromTour 從 tour 生一份
+ *   2. 如果 API 回 canvas 是 null / 空 {} → 用 buildCanvasFromTour 從 tour 生一份
  *   3. 進入編輯 mode、編輯 → debounced PUT
  *
  * 權限：tours.display-itinerary.write（沒有就顯示「無編輯權限」）
@@ -30,15 +30,15 @@ import { ModuleLoading } from '@/components/module-loading'
 import { UnauthorizedPage } from '@/components/unauthorized-page'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
-import { YongchengRenderer } from '@/components/tour-display-yongcheng'
-import { buildYongchengCanvasFromTour } from '@/lib/yongcheng/canvas-from-tour'
-import { enrichDailyItinerary } from '@/lib/yongcheng/enrich-itinerary'
+import { CanvasRenderer } from '@/components/canvas-renderer'
+import { buildCanvasFromTour } from '@/lib/canvas/canvas-from-tour'
+import { enrichDailyItinerary } from '@/lib/canvas/enrich-itinerary'
 import type {
   TourData,
   CompanyInfo,
   EmployeeInfo,
 } from '@/app/(public)/p/tour/[code]/_components/tour-types'
-import type { YongchengCanvas } from '@/components/tour-display-yongcheng/types'
+import type { Canvas } from '@/components/canvas-renderer/types'
 import { EditorToolbar } from './_components/EditorToolbar'
 import { EditorPanel } from './_components/EditorPanel'
 import { DeleteBlockDialog } from './_components/DeleteBlockDialog'
@@ -57,7 +57,7 @@ interface BootstrapState {
   loading: boolean
   error: string | null
   tour: TourData | null
-  initialCanvas: YongchengCanvas | null
+  initialCanvas: Canvas | null
   initialUpdatedAt: string | null
   initialPublished: boolean
 }
@@ -188,9 +188,9 @@ function useBootstrap(code: string): BootstrapState {
         // - 沒有就 auto-generate（業務第一次進編輯器）
         const employee: EmployeeInfo | null = null
         const draft = overrideRes.canvas
-        const initialCanvas: YongchengCanvas = !isCanvasEmpty(draft)
-          ? (draft as YongchengCanvas)
-          : buildYongchengCanvasFromTour({ tour, heroImage, employee, companyInfo })
+        const initialCanvas: Canvas = !isCanvasEmpty(draft)
+          ? (draft as Canvas)
+          : buildCanvasFromTour({ tour, heroImage, employee, companyInfo })
 
         if (cancelled) return
         setState({
@@ -281,7 +281,7 @@ function EditorBody({ code }: { code: string }) {
 
 interface EditorReadyProps {
   code: string
-  initialCanvas: YongchengCanvas
+  initialCanvas: Canvas
   initialUpdatedAt: string | null
   initialPublished: boolean
 }
@@ -394,7 +394,7 @@ function EditorReady({
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
         {/* 主畫面：渲染 canvas（不啟用 contentEditable） */}
         <main style={{ flex: 1, minWidth: 0, overflow: 'auto' }}>
-          <YongchengRenderer canvas={canvas} />
+          <CanvasRenderer canvas={canvas} />
         </main>
 
         {/* 右側結構化編輯 panel */}

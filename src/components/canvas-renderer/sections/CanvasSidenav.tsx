@@ -16,10 +16,10 @@ import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS } from '../tokens'
 import { renderAccentTitle } from '../_utils'
-import type { YongchengCanvas, YongchengDaySection } from '../types'
+import type { Canvas, CanvasDaySection } from '../types'
 
-interface YongchengSidenavProps {
-  canvas: YongchengCanvas
+interface CanvasSidenavProps {
+  canvas: Canvas
 }
 
 interface NavItem {
@@ -32,7 +32,7 @@ interface NavItem {
  * 為什麼把 nav 分三組：對齊規格書 § 4.2「序 / 行程 / 附錄」三段式
  * 自動從 canvas.sections 推 nav、不要 caller 重覆寫一份
  */
-function buildNav(canvas: YongchengCanvas): {
+function buildNav(canvas: Canvas): {
   prelude: NavItem[]
   itinerary: NavItem[]
   appendix: NavItem[]
@@ -48,7 +48,7 @@ function buildNav(canvas: YongchengCanvas): {
     if (section.type === 'overview_timeline') {
       prelude.push({ num: pad(counter++), label: '六天總覽', href: '#overview' })
     } else if (section.type === 'day') {
-      const day = section as YongchengDaySection
+      const day = section as CanvasDaySection
       // 從 day_header block 撈標題、撈不到就 fallback「Day N」
       const headerBlock = day.blocks.find((b) => b.type === 'day_header')
       const dayTitle =
@@ -74,7 +74,7 @@ const renderList = (items: NavItem[]) => (
       <li key={item.href} style={{ marginBottom: 1 }}>
         {/*
           校對：仙台 HTML .sidenav li a 有 transition: all 0.18s + :hover border-left-color: copper（line 122-126）
-          inline style 沒法寫 :hover、所以用 className 配對 YongchengLayout 注入的 <style> block
+          inline style 沒法寫 :hover、所以用 className 配對 CanvasLayout 注入的 <style> block
           className 命名「yc-」前綴避免跟既有 ERP 樣式撞名
         */}
         <a
@@ -123,7 +123,7 @@ const sectionHeadingStyle: React.CSSProperties = {
   borderBottom: `1px dashed ${YONGCHENG_COLORS.rule}`,
 }
 
-export function YongchengSidenav({ canvas }: YongchengSidenavProps) {
+export function CanvasSidenav({ canvas }: CanvasSidenavProps) {
   const { prelude, itinerary, appendix } = buildNav(canvas)
   const brand = canvas.brand
   // 取封面 section 的 destination / departure_date 當副標、否則 brand english_name

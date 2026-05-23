@@ -17,10 +17,10 @@ import * as React from 'react'
 import Image from 'next/image'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengAttraction, YongchengRouteCardBlock } from '../types'
+import type { CanvasAttraction, CanvasRouteCardBlock } from '../types'
 
-interface YongchengRouteCardProps {
-  block: YongchengRouteCardBlock
+interface CanvasRouteCardProps {
+  block: CanvasRouteCardBlock
 }
 
 // ============ 共用：景點卡內容 ============
@@ -29,7 +29,7 @@ function AttractionCard({
   attraction,
   index,
 }: {
-  attraction: YongchengAttraction
+  attraction: CanvasAttraction
   index: number
 }) {
   const tagText = attraction.category ?? `SPOT ${String(index + 1).padStart(2, '0')}`
@@ -228,7 +228,7 @@ function AttractionCard({
 
 // ============ 1up：左圖右文（ritual-spotlight 風）============
 
-function OneUpCard({ attraction }: { attraction: YongchengAttraction }) {
+function OneUpCard({ attraction }: { attraction: CanvasAttraction }) {
   return (
     <div
       style={{
@@ -419,7 +419,7 @@ function TransitCard({ note }: { note: string }) {
 
 // ============ 主組件：根據 layout 分流 ============
 
-export function YongchengRouteCard({ block }: YongchengRouteCardProps) {
+export function CanvasRouteCard({ block }: CanvasRouteCardProps) {
   const { layout, data } = block
 
   if (layout === 'transit') {

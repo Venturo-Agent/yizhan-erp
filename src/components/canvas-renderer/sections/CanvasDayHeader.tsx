@@ -15,10 +15,10 @@
 import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengDayHeaderBlock } from '../types'
+import type { CanvasDayHeaderBlock } from '../types'
 
-interface YongchengDayHeaderProps {
-  data: YongchengDayHeaderBlock['data']
+interface CanvasDayHeaderProps {
+  data: CanvasDayHeaderBlock['data']
   /**
    * 為什麼可選：仙台 HTML 的「JUN.」是手寫、不是必填。
    * 不傳時嘗試從 data.date 推、推不出來 fallback 空字串。
@@ -47,7 +47,7 @@ function inferMonth(dateStr: string): string {
   return ''
 }
 
-export function YongchengDayHeader({ data, monthLabel, categoryLabel }: YongchengDayHeaderProps) {
+export function CanvasDayHeader({ data, monthLabel, categoryLabel }: CanvasDayHeaderProps) {
   const pad = (n: number) => String(n).padStart(2, '0')
   const month = monthLabel ?? inferMonth(data.date)
 

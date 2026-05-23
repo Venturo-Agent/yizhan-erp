@@ -12,11 +12,11 @@
 import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_CSS_VARS, YONGCHENG_FONTS, YONGCHENG_FONTS_URL } from './tokens'
-import type { YongchengCanvas } from './types'
-import { YongchengSidenav } from './sections/YongchengSidenav'
+import type { Canvas } from './types'
+import { CanvasSidenav } from './sections/CanvasSidenav'
 
-interface YongchengLayoutProps {
-  canvas: YongchengCanvas
+interface CanvasLayoutProps {
+  canvas: Canvas
   children?: React.ReactNode
 }
 
@@ -45,7 +45,7 @@ html {
 }
 `
 
-export function YongchengLayout({ canvas, children }: YongchengLayoutProps) {
+export function CanvasLayout({ canvas, children }: CanvasLayoutProps) {
   return (
     <>
       {/* Google Fonts — 三套：Noto Serif TC / Noto Sans TC / Cormorant Garamond */}
@@ -73,7 +73,7 @@ export function YongchengLayout({ canvas, children }: YongchengLayoutProps) {
             margin: '0 auto',
           }}
         >
-          <YongchengSidenav canvas={canvas} />
+          <CanvasSidenav canvas={canvas} />
           <div style={{ padding: '0 64px', minWidth: 0 }}>{children}</div>
         </div>
       </div>

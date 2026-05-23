@@ -7,16 +7,16 @@
 
 import * as React from 'react'
 import type {
-  YongchengCanvas,
-  YongchengDayHeaderBlock,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasDayHeaderBlock,
+} from '@/components/canvas-renderer/types'
 import { updateDayHeaderBlock } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
 interface DayHeaderEditorProps {
-  block: YongchengDayHeaderBlock
-  canvas: YongchengCanvas
-  onChange: (next: YongchengCanvas) => void
+  block: CanvasDayHeaderBlock
+  canvas: Canvas
+  onChange: (next: Canvas) => void
   onRequestDelete: () => void
 }
 
@@ -26,7 +26,7 @@ export function DayHeaderEditor({
   onChange,
   onRequestDelete,
 }: DayHeaderEditorProps) {
-  const patch = (p: Partial<YongchengDayHeaderBlock['data']>) => {
+  const patch = (p: Partial<CanvasDayHeaderBlock['data']>) => {
     onChange(updateDayHeaderBlock(canvas, block.id, p))
   }
   return (

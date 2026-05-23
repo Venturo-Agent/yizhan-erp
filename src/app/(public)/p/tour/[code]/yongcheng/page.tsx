@@ -11,7 +11,7 @@
  * - 將來預設要切過來的話、改原 page.tsx 內部選擇即可、URL 不變
  *
  * 資料來源：跟原頁面一樣讀 tours + itineraries + airport_images + employees
- * 多走一層 adapter → 永成款 Canvas JSON → YongchengRenderer
+ * 多走一層 adapter → 永成款 Canvas JSON → CanvasRenderer
  */
 
 import { useState, useEffect, use, useMemo } from 'react'
@@ -21,17 +21,17 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { supabase } from '@/lib/supabase/client'
 import { ModuleLoading } from '@/components/module-loading'
-import { YongchengRenderer } from '@/components/tour-display-yongcheng'
-import type { YongchengCanvas } from '@/components/tour-display-yongcheng'
-import { buildYongchengCanvasFromTour } from '@/lib/yongcheng/canvas-from-tour'
-import { enrichDailyItinerary } from '@/lib/yongcheng/enrich-itinerary'
+import { CanvasRenderer } from '@/components/canvas-renderer'
+import type { Canvas } from '@/components/canvas-renderer'
+import { buildCanvasFromTour } from '@/lib/canvas/canvas-from-tour'
+import { enrichDailyItinerary } from '@/lib/canvas/enrich-itinerary'
 import type {
   TourData,
   EmployeeInfo,
   CompanyInfo,
 } from '../_components/tour-types'
 
-export default function PublicTourYongchengPage({
+export default function PublicTourCanvasPage({
   params,
 }: {
   params: Promise<{ code: string }>
@@ -56,11 +56,11 @@ export default function PublicTourYongchengPage({
    * 載入流程：
    * 1. 先打 /api/public/tour/[code]/display-canvas 看有沒有 published_canvas
    * 2. 有 → 用 published canvas 渲染（業務手動編過、客人看的是業務版本）
-   * 3. 沒 → fallback 用 buildYongchengCanvasFromTour 從 tour 資料自動生
+   * 3. 沒 → fallback 用 buildCanvasFromTour 從 tour 資料自動生
    *
    * 5/17 加：原本只有 auto-generate、現在優先讀業務發布版本
    */
-  const [publishedCanvas, setPublishedCanvas] = useState<YongchengCanvas | null>(null)
+  const [publishedCanvas, setPublishedCanvas] = useState<Canvas | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,7 +69,7 @@ export default function PublicTourYongchengPage({
       fetch(`/api/public/tour/${code}/display-canvas`)
         .then(async (res) => {
           if (!res.ok) return null
-          const json = (await res.json()) as { canvas: YongchengCanvas | null }
+          const json = (await res.json()) as { canvas: Canvas | null }
           return json.canvas
         })
         .then((canvas) => {
@@ -176,7 +176,7 @@ export default function PublicTourYongchengPage({
   const canvas = useMemo(() => {
     if (publishedCanvas) return publishedCanvas
     if (!tour) return null
-    return buildYongchengCanvasFromTour({
+    return buildCanvasFromTour({
       tour,
       heroImage,
       employee,
@@ -204,5 +204,5 @@ export default function PublicTourYongchengPage({
     )
   }
 
-  return <YongchengRenderer canvas={canvas} />
+  return <CanvasRenderer canvas={canvas} />
 }

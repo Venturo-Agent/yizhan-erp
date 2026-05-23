@@ -9,7 +9,7 @@
  * - 每欄：紅銅 Cormorant uppercase 小標 + 條列
  * - 底部：業務員資訊 + 客戶 logo
  *
- * 注意：types.ts 沒 client logo（YongchengContactInfo 也沒）、用 contact.company_name 替代。
+ * 注意：types.ts 沒 client logo（CanvasContactInfo 也沒）、用 contact.company_name 替代。
  * logo 欄位由 brand prop 補。
  */
 
@@ -17,15 +17,15 @@ import * as React from 'react'
 import Image from 'next/image'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengAppendixSection as AppendixSectionType, YongchengBrandInfo } from '../types'
+import type { CanvasAppendixSection as AppendixSectionType, CanvasBrandInfo } from '../types'
 
-interface YongchengAppendixProps {
+interface CanvasAppendixProps {
   section: AppendixSectionType
   /**
-   * 為什麼吃 brand：types.ts 的 YongchengAppendixSection.data 沒放 logo / brand name。
+   * 為什麼吃 brand：types.ts 的 CanvasAppendixSection.data 沒放 logo / brand name。
    * 由 canvas.brand 補底部公司名 / logo。
    */
-  brand?: YongchengBrandInfo
+  brand?: CanvasBrandInfo
 }
 
 function ListCol({ heading, items }: { heading: string; items?: string[] }) {
@@ -77,7 +77,7 @@ function ListCol({ heading, items }: { heading: string; items?: string[] }) {
   )
 }
 
-export function YongchengAppendix({ section, brand }: YongchengAppendixProps) {
+export function CanvasAppendix({ section, brand }: CanvasAppendixProps) {
   const { inclusions, exclusions, notices, contact } = section.data
 
   const contactItems: string[] = []

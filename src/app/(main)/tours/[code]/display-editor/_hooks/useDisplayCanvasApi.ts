@@ -15,15 +15,15 @@
  *   POST   /api/tours/[code]/display-canvas/unpublish
  */
 
-import type { YongchengCanvas } from '@/components/tour-display-yongcheng/types'
+import type { Canvas } from '@/components/canvas-renderer/types'
 
 export interface DisplayCanvasResponse {
   // 草稿 canvas（沒編輯過會是 null）
-  canvas: YongchengCanvas | null
+  canvas: Canvas | null
   theme: 'yongcheng'
   published: boolean
   // 客人實際看到的版本（snapshot）
-  published_canvas: YongchengCanvas | null
+  published_canvas: Canvas | null
   published_at: string | null
   updated_at: string | null
 }
@@ -63,7 +63,7 @@ async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
  *
  * 為什麼回傳 canvas 可能是 null：
  *   業務還沒編輯過該團、tour_display_overrides 沒 row、API 直接回 canvas: null。
- *   呼叫端要 fallback 走 buildYongchengCanvasFromTour() 從來源資料自動生成。
+ *   呼叫端要 fallback 走 buildCanvasFromTour() 從來源資料自動生成。
  */
 export function fetchDisplayCanvas(code: string): Promise<DisplayCanvasResponse> {
   return apiFetch<DisplayCanvasResponse>(
@@ -82,7 +82,7 @@ export interface PutDisplayCanvasResponse {
  */
 export function putDisplayCanvas(
   code: string,
-  canvas: YongchengCanvas
+  canvas: Canvas
 ): Promise<PutDisplayCanvasResponse> {
   return apiFetch<PutDisplayCanvasResponse>(
     `/api/tours/${encodeURIComponent(code)}/display-canvas`,

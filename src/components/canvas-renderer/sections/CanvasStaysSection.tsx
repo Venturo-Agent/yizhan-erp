@@ -13,9 +13,9 @@ import * as React from 'react'
 import Image from 'next/image'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengStaysSection as StaysSectionType } from '../types'
+import type { CanvasStaysSection as StaysSectionType } from '../types'
 
-interface YongchengStaysSectionProps {
+interface CanvasStaysSectionProps {
   section: StaysSectionType
   /**
    * 為什麼可選：types.ts 沒放 title / keyMsg、由 caller 傳。
@@ -26,12 +26,12 @@ interface YongchengStaysSectionProps {
   eyebrow?: string
 }
 
-export function YongchengStaysSection({
+export function CanvasStaysSection({
   section,
   title = '五個夜晚、五種不同的日本。',
   keyMsg,
   eyebrow = '08',
-}: YongchengStaysSectionProps) {
+}: CanvasStaysSectionProps) {
   const items = section.data.items
   return (
     <section

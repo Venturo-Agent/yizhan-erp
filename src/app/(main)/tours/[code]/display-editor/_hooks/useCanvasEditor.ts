@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
-import type { YongchengCanvas } from '@/components/tour-display-yongcheng/types'
+import type { Canvas } from '@/components/canvas-renderer/types'
 import { putDisplayCanvas } from './useDisplayCanvasApi'
 
 export type SaveStatus = 'saved' | 'pending' | 'saving' | 'error'
@@ -27,14 +27,14 @@ const DEBOUNCE_MS = 1500
 
 export interface UseCanvasEditorOptions {
   code: string
-  initialCanvas: YongchengCanvas | null
+  initialCanvas: Canvas | null
   // 第一次載入時的 updated_at（沒 row 就是 null）
   initialUpdatedAt: string | null
 }
 
 export interface UseCanvasEditorReturn {
-  canvas: YongchengCanvas | null
-  setCanvas: (next: YongchengCanvas) => void
+  canvas: Canvas | null
+  setCanvas: (next: Canvas) => void
   saveStatus: SaveStatus
   lastSavedAt: string | null
   // 立即儲存（不等 debounce、給「發布」按鈕用、確保草稿是最新）
@@ -46,12 +46,12 @@ export function useCanvasEditor({
   initialCanvas,
   initialUpdatedAt,
 }: UseCanvasEditorOptions): UseCanvasEditorReturn {
-  const [canvas, setCanvasState] = useState<YongchengCanvas | null>(initialCanvas)
+  const [canvas, setCanvasState] = useState<Canvas | null>(initialCanvas)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved')
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(initialUpdatedAt)
 
   // 用 ref 持有最新 canvas、避免 debounce closure 抓到舊值
-  const canvasRef = useRef<YongchengCanvas | null>(initialCanvas)
+  const canvasRef = useRef<Canvas | null>(initialCanvas)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   // 第一次載入不該觸發儲存（state 跟 server 一致）
   const skipNextSaveRef = useRef<boolean>(true)
@@ -76,7 +76,7 @@ export function useCanvasEditor({
   }, [])
 
   const doSave = useCallback(
-    async (target: YongchengCanvas): Promise<void> => {
+    async (target: Canvas): Promise<void> => {
       setSaveStatus('saving')
       try {
         const res = await putDisplayCanvas(code, target)
@@ -107,7 +107,7 @@ export function useCanvasEditor({
   }, [doSave])
 
   const setCanvas = useCallback(
-    (next: YongchengCanvas) => {
+    (next: Canvas) => {
       canvasRef.current = next
       setCanvasState(next)
       if (skipNextSaveRef.current) {

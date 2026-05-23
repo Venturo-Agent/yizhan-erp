@@ -29,10 +29,10 @@ import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import { ModuleLoading } from '@/components/module-loading'
-import { YongchengRenderer } from '@/components/tour-display-yongcheng'
-import type { YongchengCanvas } from '@/components/tour-display-yongcheng'
-import { buildYongchengCanvasFromTour } from '@/lib/yongcheng/canvas-from-tour'
-import { enrichDailyItinerary } from '@/lib/yongcheng/enrich-itinerary'
+import { CanvasRenderer } from '@/components/canvas-renderer'
+import type { Canvas } from '@/components/canvas-renderer'
+import { buildCanvasFromTour } from '@/lib/canvas/canvas-from-tour'
+import { enrichDailyItinerary } from '@/lib/canvas/enrich-itinerary'
 import type {
   TourData,
   EmployeeInfo,
@@ -70,7 +70,7 @@ interface TourDisplayItineraryTabProps {
 interface BootstrapState {
   loading: boolean
   error: string | null
-  canvas: YongchengCanvas | null
+  canvas: Canvas | null
   updatedAt: string | null
   published: boolean
 }
@@ -204,7 +204,7 @@ function useBootstrap(code: string): BootstrapState {
         }
 
         const employee: EmployeeInfo | null = null
-        const generatedCanvas = buildYongchengCanvasFromTour({
+        const generatedCanvas = buildCanvasFromTour({
           tour: tourData,
           heroImage,
           employee,
@@ -302,7 +302,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
   return (
     <div className="flex flex-col gap-2">
       <ReadOnlyToolbar copied={copied} onCopy={handleCopy} onOpen={handleOpen} />
-      <YongchengRenderer canvas={bootstrap.canvas} />
+      <CanvasRenderer canvas={bootstrap.canvas} />
     </div>
   )
 }
@@ -353,7 +353,7 @@ function SaveStatusBadge({ status }: { status: SaveStatus }) {
 
 interface EditorViewProps {
   code: string
-  initialCanvas: YongchengCanvas
+  initialCanvas: Canvas
   initialUpdatedAt: string | null
   initialPublished: boolean
   copied: boolean
@@ -574,7 +574,7 @@ function EditorView({
       <div className="flex min-h-0">
         {/* 左：展示區（預覽） */}
         <div className="flex-1 min-w-0">
-          <YongchengRenderer canvas={canvas} />
+          <CanvasRenderer canvas={canvas} />
         </div>
 
         {/* 右：編輯 panel */}

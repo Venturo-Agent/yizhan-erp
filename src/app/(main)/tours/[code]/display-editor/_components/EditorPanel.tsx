@@ -18,11 +18,11 @@
 
 import * as React from 'react'
 import type {
-  YongchengCanvas,
-  YongchengDayBlock,
-  YongchengDaySection,
-  YongchengSection,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasDayBlock,
+  CanvasDaySection,
+  CanvasSection,
+} from '@/components/canvas-renderer/types'
 import type { SelectionKey } from './canvas-utils'
 import { CoverEditor } from './block-editors/CoverEditor'
 import { DayHeaderEditor } from './block-editors/DayHeaderEditor'
@@ -32,16 +32,16 @@ import { RouteCardEditor } from './block-editors/RouteCardEditor'
 import { SpotlightEditor } from './block-editors/SpotlightEditor'
 
 interface EditorPanelProps {
-  canvas: YongchengCanvas
+  canvas: Canvas
   selection: SelectionKey | null
   onSelect: (key: SelectionKey | null) => void
-  onChange: (next: YongchengCanvas) => void
+  onChange: (next: Canvas) => void
   onRequestDeleteBlock: (blockId: string) => void
 }
 
 // ============ 樹狀清單 ============
 
-function blockLabel(block: YongchengDayBlock): string {
+function blockLabel(block: CanvasDayBlock): string {
   switch (block.type) {
     case 'day_header':
       return `日標 · ${block.data.title || '（無標題）'}`
@@ -70,7 +70,7 @@ function blockLabel(block: YongchengDayBlock): string {
   }
 }
 
-function sectionLabel(section: YongchengSection): string {
+function sectionLabel(section: CanvasSection): string {
   switch (section.type) {
     case 'cover':
       return '封面'
@@ -98,7 +98,7 @@ function isSelected(selection: SelectionKey | null, k: SelectionKey): boolean {
 }
 
 interface TreeProps {
-  canvas: YongchengCanvas
+  canvas: Canvas
   selection: SelectionKey | null
   onSelect: (key: SelectionKey) => void
 }
@@ -160,7 +160,7 @@ function SectionTree({ canvas, selection, onSelect }: TreeProps) {
 }
 
 function renderDayBlocks(
-  section: YongchengDaySection,
+  section: CanvasDaySection,
   selection: SelectionKey | null,
   onSelect: (key: SelectionKey) => void
 ) {
@@ -203,9 +203,9 @@ function EditorForm({
   onChange,
   onRequestDeleteBlock,
 }: {
-  canvas: YongchengCanvas
+  canvas: Canvas
   selection: SelectionKey
-  onChange: (next: YongchengCanvas) => void
+  onChange: (next: Canvas) => void
   onRequestDeleteBlock: (blockId: string) => void
 }) {
   if (selection.kind === 'cover') {

@@ -9,10 +9,10 @@ import * as React from 'react'
 import Image from 'next/image'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from '../tokens'
-import type { YongchengRestaurantCardBlock } from '../types'
+import type { CanvasRestaurantCardBlock } from '../types'
 
-interface YongchengRestaurantCardProps {
-  block: YongchengRestaurantCardBlock
+interface CanvasRestaurantCardProps {
+  block: CanvasRestaurantCardBlock
 }
 
 const MEAL_LABEL: Record<'breakfast' | 'lunch' | 'dinner', string> = {
@@ -21,7 +21,7 @@ const MEAL_LABEL: Record<'breakfast' | 'lunch' | 'dinner', string> = {
   dinner: '晚餐 · DINNER',
 }
 
-export function YongchengRestaurantCard({ block }: YongchengRestaurantCardProps) {
+export function CanvasRestaurantCard({ block }: CanvasRestaurantCardProps) {
   const { meal, name, cuisine, description, image } = block.data
   return (
     <div

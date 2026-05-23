@@ -12,8 +12,8 @@
  * - /p/tour/[code] 會 fork 一條永成款路線、從 tour_display_overrides 讀 canvas JSON
  */
 
-import { YongchengRenderer } from '@/components/tour-display-yongcheng'
-import { sendaiSampleCanvas } from '@/components/tour-display-yongcheng/fixtures/sendai-sample'
+import { CanvasRenderer } from '@/components/canvas-renderer'
+import { sendaiSampleCanvas } from '@/components/canvas-renderer/fixtures/sendai-sample'
 
 export const metadata = {
   title: '角落旅行社｜2026 東京・仙台私人包團・六日（預覽）',
@@ -21,6 +21,6 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function YongchengDemoPage() {
-  return <YongchengRenderer canvas={sendaiSampleCanvas} />
+export default function CanvasDemoPage() {
+  return <CanvasRenderer canvas={sendaiSampleCanvas} />
 }

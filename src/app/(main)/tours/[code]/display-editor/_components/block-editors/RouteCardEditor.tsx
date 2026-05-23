@@ -9,16 +9,16 @@
 
 import * as React from 'react'
 import type {
-  YongchengCanvas,
-  YongchengRouteCardBlock,
-} from '@/components/tour-display-yongcheng/types'
+  Canvas,
+  CanvasRouteCardBlock,
+} from '@/components/canvas-renderer/types'
 import { updateRouteCardAttraction } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
 interface RouteCardEditorProps {
-  block: YongchengRouteCardBlock
-  canvas: YongchengCanvas
-  onChange: (next: YongchengCanvas) => void
+  block: CanvasRouteCardBlock
+  canvas: Canvas
+  onChange: (next: Canvas) => void
   onRequestDelete: () => void
 }
 

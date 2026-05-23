@@ -200,7 +200,7 @@ export function getHotelDataForDay(day: DailyItinerary): EnrichedHotelData | nul
  *
  * 為什麼獨立：
  * - daily_itinerary 內 accommodation_id 是 reference
- * - YongchengHotelCard 需要 name + description + image
+ * - CanvasHotelCard 需要 name + description + image
  * - 這個 helper 給 adapter 用、把 enriched daily 內藏的 hotel reference 抽出來
  */
 export async function fetchHotelsByIds(
