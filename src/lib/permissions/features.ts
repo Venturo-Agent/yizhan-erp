@@ -258,40 +258,6 @@ export const FEATURES: FeatureDefinition[] = [
     ],
   },
   {
-    code: 'documents',
-    name: '文件中心',
-    description: '上傳、編輯、蓋章、合併文件（PDF / Word / Excel / PPT）',
-    category: 'basic',
-    routes: [
-      '/documents',
-      '/documents/[id]',
-    ],
-  },
-  {
-    code: 'esim',
-    name: 'eSIM 管理',
-    description: '旅遊 eSIM 訂單管理（Worldmove）、產品目錄與 API 設定',
-    category: 'basic',
-    routes: [
-      '/esim',
-      '/esim/orders',
-      '/esim/products',
-      '/esim/settings',
-    ],
-  },
-  {
-    code: 'visas',
-    name: '簽證代辦',
-    description: '證件代辦進度管理、客戶證件抽屜、代辦商價目（含版本歷史）',
-    category: 'basic',
-    routes: [
-      '/visas',
-      '/library/document-types',
-      '/library/application-service-types',
-      '/suppliers/[code]/pricing',
-    ],
-  },
-  {
     code: 'marketing',
     name: '行銷管理',
     description: '官網行程上架、行銷文案、SEO 設定（Corner 官網等）',

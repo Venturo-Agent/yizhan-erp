@@ -33,16 +33,10 @@ import { AddonDataRestaurantsModule } from './addon_data_restaurants'
 // 2026-05-15 HR 子功能
 import { HrSalarySettlementModule } from './hr_salary_settlement'
 import { HrBonusSettlementModule } from './hr_bonus_settlement'
-// 2026-05-17 文件中心
-import { DocumentsModule } from './documents'
-// 2026-05-17 電子收據 + eSIM
 // 2026-05-20 deprecated（凍住、保留檔案 / DB / entity、未來 Phase 2 重啟）：travel_invoice
 // 理由：6/1 第一付費客戶 deadline、補完要 37 人天（含財政部 API 串接）、來不及。
 //      DB Phase 1 已蓋好、Phase 2（8 月後）補 UI / API / 財政部串接。
 // import { TravelInvoiceModule } from './travel_invoice'
-import { EsimModule } from './esim'
-// 2026-05-20 簽證代辦（5/7 砍 visas 表後重啟、改成「客戶證件抽屜 + 申辦事件 + 代辦商價目」三層架構）
-import { VisasModule } from './visas'
 // 2026-05-20 行銷管理（Corner 官網行程上架）
 import { MarketingModule } from './marketing'
 // 2026-05-23 客戶官網系統（addon、多客戶通用 / 子網域 / Canvas 編輯器）
@@ -79,14 +73,8 @@ export const ALL_MODULES = [
   // ===== HR 子功能 =====
   HrSalarySettlementModule,
   HrBonusSettlementModule,
-  // ===== 文件中心 =====
-  DocumentsModule,
   // ===== 電子收據（premium）— 2026-05-20 凍住、Phase 2 (8月後) 重啟 =====
   // TravelInvoiceModule,
-  // ===== eSIM 管理（basic）=====
-  EsimModule,
-  // ===== 簽證代辦（basic）=====
-  VisasModule,
   // ===== 行銷管理（basic、Corner 官網行程上架）=====
   MarketingModule,
   // ===== 客戶官網系統（addon、加購 / 多客戶通用 / Canvas 編輯器）=====
