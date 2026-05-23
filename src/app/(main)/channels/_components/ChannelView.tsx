@@ -42,15 +42,12 @@ export function ChannelView({ channelId }: Props) {
   const { items: aiAgents } = useAiAgentsSlim()
 
   const [draft, setDraft] = useState('')
-  // 樂觀更新 v7（5/20、Phase A.8 解閃爍）：
-  //   - SWR mutate / invalidate / refresh 在 dedupingInterval=Infinity + fallbackData 配置下都不可靠
-  //   - 直接用 local state recentlySent 存 server return 的完整 row
-  //   - sortedMessages 合併 messages + recentlySent、dedupe by id（messages 優先）
-  //   - **v7 移除 prune useEffect**：之前 SWR refetch 完成後 prune recentlySent →
-  //     第二次 state update → 第二次 re-render → sortedMessages 再算一次 → 雙段抖動 =「閃爍」
-  //     dedupe by id 已經做了功能去重、recentlySent 即使保留也不會雙顯示
-  //   - 換 channel 時清空 recentlySent（避免無限累積、A channel 訊息漏到 B channel）
-  const [recentlySent, setRecentlySent] = useState<ChannelMessage[]>([])
+  // 訊息單一來源（v8、2026-05-23 William 拍板根治）：
+  //   - 5/18 entity hook 已把 dedupingInterval 從 Infinity 改 2000 → invalidate/mutate 重抓現在可靠
+  //   - 故移除舊的 recentlySent 雙來源 workaround（它是上述舊 bug 的補丁、現在反而造成
+  //     「realtime 回聲 vs 本地」交接的間歇閃爍）
+  //   - 發送 / 撤回後 await invalidateChannelMessages()（單一來源、loading 只看 isLoading 不閃）、
+  //     別人的訊息靠 entity hook 內建 realtime
   const [sending, setSending] = useState(false)
   const [announcementOpen, setAnnouncementOpen] = useState(false)
   const [membersOpen, setMembersOpen] = useState(false)
@@ -91,36 +88,20 @@ export function ChannelView({ channelId }: Props) {
   }, [channelId, user?.id, members])
 
   const sortedMessages = useMemo(() => {
-    // 合併 SWR cache 跟 local recentlySent（剛送出、SWR 還沒撈到的）
-    // dedupe by id：messages 在前、先佔據 seen → SWR refetch 拿到同 id row 時、
-    // 該 row 用 SWR cache 版本（DB 真實 row）、recentlySent 的會被 filter 掉、不會雙顯示
-    // v7 不再 prune recentlySent state（避免雙段 re-render 閃爍）、dedupe 在這層做就夠
-    const combined = [...(messages ?? []), ...recentlySent]
-    const seen = new Set<string>()
-    return combined
-      .filter(m => {
-        if (seen.has(m.id)) return false
-        seen.add(m.id)
-        return true
-      })
+    // 單一來源（entity hook 的 messages）、依 channel filter + 時間排序
+    // 撤回訊息仍 SELECT 出來、UI 顯示佔位「本訊息已撤回」、不從清單移除
+    return (messages ?? [])
       .filter(m => m.channel_id === channelId)
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-    // 撤回訊息仍 SELECT 出來、UI 顯示佔位「本訊息已撤回」、不從清單移除
-  }, [messages, recentlySent, channelId])
+  }, [messages, channelId])
 
   // 訊息更新自動 scroll 到底
-  // dep 用 sortedMessages.length：發訊息後 recentlySent 立刻 push、長度變即 scroll
+  // dep 用 sortedMessages.length：發/收訊息後 messages 更新、長度變即 scroll 到底
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [sortedMessages.length])
-
-  // 換 channel 時清空 recentlySent、不要把 A channel 的訊息漏到 B channel
-  // 同時防止 recentlySent 無限累積（一個 channel 內最多累到換 channel 才清）
-  useEffect(() => {
-    setRecentlySent([])
-  }, [channelId])
 
   const channelMemberCount = useMemo(
     () => (members ?? []).filter(m => m.channel_id === channelId).length,
@@ -170,32 +151,20 @@ export function ChannelView({ channelId }: Props) {
 
     if (sending) return
 
-    // 對齊 AI Hub 的標準發送（不手動重抓整串、靠 realtime 補）：
+    // 單一來源發送：
     //   1. 立刻清 draft + 設 sending（按鈕轉圈、防雙擊）
-    //   2. await apiPost 拿 server 寫入 OK + 完整 row
-    //   3. server row push 進 recentlySent → 送出者瞬間看到自己訊息（sortedMessages dedupe 合併）
-    //   4. **不手動 invalidate**：靠 channel_messages entity hook 內建 realtime 自動補
-    //      （單一更新來源、避免「手動重抓 + realtime」雙重渲染 = 不再閃爍 / 重畫整串）
-    //   5. sending 用 try/finally 包、保證一定解除、不會卡在「傳送中」
+    //   2. await apiPost 寫入 → await invalidateChannelMessages() 重抓（單一來源、不閃）
+    //   3. 別人的訊息靠 entity hook 內建 realtime；sending 用 try/finally 保證解除
     const optimisticBody = body
     setDraft('')
     setSending(true)
     try {
-      const response = await apiPost<{ message: ChannelMessage }>(
-        '/api/channels/messages',
-        {
-          channel_id: channelId,
-          body: optimisticBody,
-          message_type: 'text',
-        }
-      )
-      const serverMsg = response.message
-      if (serverMsg?.id) {
-        setRecentlySent(prev => {
-          if (prev.some(m => m.id === serverMsg.id)) return prev
-          return [...prev, serverMsg]
-        })
-      }
+      await apiPost<{ message: ChannelMessage }>('/api/channels/messages', {
+        channel_id: channelId,
+        body: optimisticBody,
+        message_type: 'text',
+      })
+      await invalidateChannelMessages()
     } catch (err) {
       logger.error('發送訊息失敗', err)
       toast.error('發送失敗、請再試一次')
