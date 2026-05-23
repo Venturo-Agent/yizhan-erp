@@ -165,6 +165,20 @@ export function ChannelView({ channelId }: Props) {
         message_type: 'text',
       })
       await invalidateChannelMessages()
+      // 自己發的訊息不該讓自己看到未讀紅點：背景推進自己的 last_read_at。
+      // （未讀算法是 channel.updated_at > 我的 last_read_at；發訊息會 bump channel.updated_at、
+      //   若不同步推進自己的 last_read_at、離開頻道後會看到自己發的訊息變紅點）
+      // fire-and-forget：失敗不影響發送、只動 members（不碰訊息列表 = 不影響根治後的不閃爍）
+      const myMember = (members ?? []).find(
+        m => m.channel_id === channelId && m.employee_id === user.id,
+      )
+      if (myMember) {
+        void updateChannelMember(myMember.id, {
+          last_read_at: new Date().toISOString(),
+        } as never)
+          .then(() => invalidateChannelMembers())
+          .catch(() => {})
+      }
     } catch (err) {
       logger.error('發送訊息失敗', err)
       toast.error('發送失敗、請再試一次')
