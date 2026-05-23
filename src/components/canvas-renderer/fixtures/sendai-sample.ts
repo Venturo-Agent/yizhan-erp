@@ -1,9 +1,9 @@
 /**
- * 仙台範例資料 — 永成款 demo 用
+ * 仙台範例資料 — Canvas demo 用
  *
  * 內容對齊 /Users/william/Downloads/tokyo-sendai-private-2026.html
  * 用途：
- * - /p/yongcheng-demo 預覽頁吃這份、讓 William 視覺驗收
+ * - /p/canvas-demo 預覽頁吃這份、讓 William 視覺驗收
  * - Phase 2 自動產生器（從 tour 真實資料生 canvas）有參考 shape
  *
  * 圖片來源：unsplash.com（next.config remotePatterns 已允許）
@@ -12,7 +12,7 @@
 import type { Canvas } from '../types'
 
 export const sendaiSampleCanvas: Canvas = {
-  theme: 'yongcheng',
+  theme: 'classic',
   brand: {
     name: '角落旅行社',
     english_name: 'Corner Travel',

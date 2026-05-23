@@ -1,5 +1,5 @@
 /**
- * 永成款整份 Canvas 渲染入口 — CanvasRenderer
+ * Canvas整份 Canvas 渲染入口 — CanvasRenderer
  *
  * 視覺基準：仙台 HTML 整份結構
  *

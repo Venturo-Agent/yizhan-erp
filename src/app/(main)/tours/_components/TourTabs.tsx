@@ -69,7 +69,7 @@ const TourClosingSections = dynamic(
   { loading: () => <TabLoading /> }
 )
 
-// 展示行程（永成款）— 5/17 加：之前漏掉 tab 註冊、所以管理後台看不到入口
+// 展示行程（Canvas）— 5/17 加：之前漏掉 tab 註冊、所以管理後台看不到入口
 // 註冊邏輯：feature `tours.display-itinerary` 啟用 + role 有對應 capability、就會顯示
 // 動態載入避免拖累其他 tab 的首屏速度
 const TourDisplayItineraryTab = dynamic(

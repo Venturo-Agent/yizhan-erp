@@ -1,5 +1,5 @@
 /**
- * 永成款景點卡 — Route Card
+ * Canvas景點卡 — Route Card
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html
  * - 3-up grid（line 918-942、1209-1249）— route-grid cols-3

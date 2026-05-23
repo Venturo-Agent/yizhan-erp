@@ -106,7 +106,7 @@ function useBootstrap(code: string): BootstrapState {
             })
             return {
               canvas: null,
-              theme: 'yongcheng' as const,
+              theme: 'classic' as const,
               published: false,
               published_canvas: null,
               published_at: null,
@@ -243,7 +243,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
   const bootstrap = useBootstrap(tour.code)
   const [copied, setCopied] = useState(false)
 
-  const previewPath = `/p/tour/${tour.code}/yongcheng`
+  const previewPath = `/p/tour/${tour.code}/canvas`
   const fullUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}${previewPath}`

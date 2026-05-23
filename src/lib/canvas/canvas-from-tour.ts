@@ -1,10 +1,10 @@
 /**
- * 永成款 Canvas 自動生成器
+ * Canvas Canvas 自動生成器
  *
  * 從現有 tour + itinerary + employee + workspace 資料、自動產出 Canvas。
  *
  * 為什麼要這層：
- * - 永成款的 Canvas JSON 結構（types.ts）跟 itineraries.daily_itinerary JSONB 不一致
+ * - Canvas的 Canvas JSON 結構（types.ts）跟 itineraries.daily_itinerary JSONB 不一致
  * - 業務還沒做 override（Phase 2 才能編輯）、預設用 source data 跑一份出來
  * - 之後 Phase 2 有 override 時、merge override 蓋掉 auto-generate 的欄位
  *
@@ -103,7 +103,7 @@ export function buildCanvasFromTour(input: CanvasFromTourInput): Canvas {
   })
 
   return {
-    theme: 'yongcheng',
+    theme: 'classic',
     brand,
     sections,
   }

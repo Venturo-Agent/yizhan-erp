@@ -1,17 +1,17 @@
 'use client'
 
 /**
- * 公開行程頁面 — 永成款版本
+ * 公開行程頁面 — Canvas版本
  *
- * 路由：/p/tour/[code]/yongcheng?ref=E001
+ * 路由：/p/tour/[code]/canvas?ref=E001
  *
  * 為什麼開一條平行路由：
  * - 原 /p/tour/[code]（Tokyo Sakura 風）保留、舊連結不壞
- * - 永成款是新主題、用獨立 URL 給業務 / 客戶選
+ * - Canvas是新主題、用獨立 URL 給業務 / 客戶選
  * - 將來預設要切過來的話、改原 page.tsx 內部選擇即可、URL 不變
  *
  * 資料來源：跟原頁面一樣讀 tours + itineraries + airport_images + employees
- * 多走一層 adapter → 永成款 Canvas JSON → CanvasRenderer
+ * 多走一層 adapter → Canvas Canvas JSON → CanvasRenderer
  */
 
 import { useState, useEffect, use, useMemo } from 'react'
@@ -167,7 +167,7 @@ export default function PublicTourCanvasPage({
     fetchData()
   }, [code, ref])
 
-  // 永成款 Canvas（優先 published_canvas、否則 auto-generate）
+  // Canvas Canvas（優先 published_canvas、否則 auto-generate）
   //
   // 設計：
   // - 業務在後台編過並發布 → 用 published_canvas（client 改的、有人味）

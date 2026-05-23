@@ -1,5 +1,5 @@
 /**
- * 永成款住宿總覽 — Stays Section
+ * Canvas住宿總覽 — Stays Section
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html (line 1347-1406)
  *

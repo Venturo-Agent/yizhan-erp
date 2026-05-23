@@ -112,7 +112,7 @@ function useBootstrap(code: string): BootstrapState {
             })
             return {
               canvas: null,
-              theme: 'yongcheng' as const,
+              theme: 'classic' as const,
               published: false,
               published_canvas: null,
               published_at: null,

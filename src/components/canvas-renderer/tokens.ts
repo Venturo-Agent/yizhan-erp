@@ -1,10 +1,10 @@
 /**
- * 永成款（Yongcheng）設計 Tokens
+ * Canvas（Canvas）設計 Tokens
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html
  * 拍板：William 2026-05-17
  *
- * 規範來源：2026-05-17-展示行程引擎-yongcheng-engine-spec.md
+ * 規範來源：2026-05-17-展示行程引擎-canvas-engine-spec.md
  *
  * 為什麼集中放這裡：
  * - 色彩 / 字體 / 字級 / 間距集中、各 section 不准散刻
@@ -76,7 +76,7 @@ export const YONGCHENG_FONTS_URL =
   'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&family=Cormorant+Garamond:wght@400;500;600&display=swap'
 
 /**
- * 排版守則（Yongcheng Typography Principles v1）
+ * 排版守則（Canvas Typography Principles v1）
  *
  * 1. 斷行語意優先：<br> 必須斷在意群之間
  * 2. 行末只能是句號（。）— 逗號、頓號、分號、開引號絕不放行末

@@ -1,5 +1,5 @@
 /**
- * 永成款整頁 Layout — Sidenav + Main 兩欄
+ * Canvas整頁 Layout — Sidenav + Main 兩欄
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html (line 68-149)
  *
@@ -21,7 +21,7 @@ interface CanvasLayoutProps {
 }
 
 /**
- * 永成款共用 CSS 規則（無法用 inline style 表達的 :hover / :focus / 平滑滾動）
+ * Canvas共用 CSS 規則（無法用 inline style 表達的 :hover / :focus / 平滑滾動）
  *
  * 為什麼用 <style dangerouslySetInnerHTML>：
  * - inline style 沒法寫 :hover / :focus、Sidenav nav item / smooth scroll 都需要

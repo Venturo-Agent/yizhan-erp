@@ -26,10 +26,10 @@ import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
-// PUT body schema — canvas 是 JSON object（內容由前端 yongcheng canvas 結構決定、這層不嚴格驗 shape）
+// PUT body schema — canvas 是 JSON object（內容由前端 canvas canvas 結構決定、這層不嚴格驗 shape）
 const putBodySchema = z.object({
   canvas: z.record(z.string(), z.unknown()),
-  theme: z.literal('yongcheng').optional(),
+  theme: z.literal('classic').optional(),
 })
 
 /**
@@ -88,7 +88,7 @@ export async function GET(
     if (!data) {
       return NextResponse.json({
         canvas: null,
-        theme: 'yongcheng',
+        theme: 'classic',
         published: false,
         published_canvas: null,
         published_at: null,
@@ -156,7 +156,7 @@ export async function PUT(
       reason: '展示行程 Canvas 儲存草稿',
     })
 
-    const theme = validated.theme ?? 'yongcheng'
+    const theme = validated.theme ?? 'classic'
 
     const sb = supabase as unknown as SupabaseClient
 

@@ -1,5 +1,5 @@
 /**
- * 永成款 · JP Note — 日文小注解
+ * Canvas · JP Note — 日文小注解
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html
  * - CSS class `.jp-note`（line 590-605）

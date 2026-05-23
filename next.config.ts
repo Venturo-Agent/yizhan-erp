@@ -48,6 +48,13 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  // 2026-05-23 Canvas 通用化、舊 /p/yongcheng-* 路由保留 redirect alias
+  // 既有外連客戶（如有）不會壞、過渡期後可砍
+  redirects: async () => [
+    { source: '/p/yongcheng-demo', destination: '/p/canvas-demo', permanent: true },
+    { source: '/p/tour/:code/yongcheng', destination: '/p/tour/:code/canvas', permanent: true },
+  ],
+
   headers: async () => [
     {
       source: '/(.*)',

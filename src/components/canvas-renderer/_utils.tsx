@@ -1,5 +1,5 @@
 /**
- * 永成款組件共用 utils
+ * Canvas組件共用 utils
  *
  * 為什麼集中：
  * - accent 標記解析 Cover / Sidenav / Feature Hero 都會用到

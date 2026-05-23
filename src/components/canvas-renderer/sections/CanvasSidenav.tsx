@@ -1,5 +1,5 @@
 /**
- * 永成款左側導航 — Sidenav
+ * Canvas左側導航 — Sidenav
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html (line 749-779)
  *

@@ -1,5 +1,5 @@
 /**
- * 永成款展示行程 — 資料模型
+ * Canvas展示行程 — 資料模型
  *
  * Canvas JSON 結構（規格書 § 7.2）
  * 整個展示行程是一棵組件樹、存在 tour_display_overrides.canvas 欄位（Phase 2 才建表）
@@ -278,7 +278,7 @@ export type CanvasSection =
   | CanvasAppendixSection
 
 export interface Canvas {
-  theme: 'yongcheng'
+  theme: 'classic'
   brand?: CanvasBrandInfo
   sections: CanvasSection[]
 }

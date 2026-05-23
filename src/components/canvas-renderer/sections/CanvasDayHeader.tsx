@@ -1,5 +1,5 @@
 /**
- * 永成款天數標題 — Day Header
+ * Canvas天數標題 — Day Header
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html (line 860-895)
  *

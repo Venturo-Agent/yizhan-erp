@@ -1,5 +1,5 @@
 /**
- * 永成款（Yongcheng）展示行程組件 — 公開 API
+ * Canvas（Canvas）展示行程組件 — 公開 API
  *
  * 為什麼集中 export：
  * - 外部 import 只走這支、不要散在多個 path

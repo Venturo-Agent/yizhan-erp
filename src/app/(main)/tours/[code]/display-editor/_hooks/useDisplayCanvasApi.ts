@@ -20,7 +20,7 @@ import type { Canvas } from '@/components/canvas-renderer/types'
 export interface DisplayCanvasResponse {
   // 草稿 canvas（沒編輯過會是 null）
   canvas: Canvas | null
-  theme: 'yongcheng'
+  theme: 'classic'
   published: boolean
   // 客人實際看到的版本（snapshot）
   published_canvas: Canvas | null
@@ -88,7 +88,7 @@ export function putDisplayCanvas(
     `/api/tours/${encodeURIComponent(code)}/display-canvas`,
     {
       method: 'PUT',
-      body: JSON.stringify({ canvas, theme: 'yongcheng' }),
+      body: JSON.stringify({ canvas, theme: 'classic' }),
     }
   )
 }

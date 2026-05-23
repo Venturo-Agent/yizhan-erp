@@ -1,5 +1,5 @@
 /**
- * 永成款時序步驟 — Sequence Steps
+ * Canvas時序步驟 — Sequence Steps
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html (line 1086-1185, 1252-1296)
  *

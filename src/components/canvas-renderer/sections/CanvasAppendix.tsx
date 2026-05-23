@@ -1,5 +1,5 @@
 /**
- * 永成款附錄 — Appendix（footer 區）
+ * Canvas附錄 — Appendix（footer 區）
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html (line 1408-1427)
  * 規格書 § 4.5：包含 / 不含 / 注意 / 聯絡

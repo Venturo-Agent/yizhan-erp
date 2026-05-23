@@ -1,5 +1,5 @@
 /**
- * 永成款住宿卡 — Hotel Card（簡單版）
+ * Canvas住宿卡 — Hotel Card（簡單版）
  *
  * 視覺基準：仙台 HTML 內 ritual-spotlight 風 + tl-card 簡化
  * 結構：橫幅圖 + 星級 + 名稱 + 地點 + 描述

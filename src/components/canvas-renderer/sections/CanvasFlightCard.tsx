@@ -1,5 +1,5 @@
 /**
- * 永成款航班卡 — Flight Card（簡單版）
+ * Canvas航班卡 — Flight Card（簡單版）
  *
  * 視覺：兩端城市 + 中間飛機線 + 起降時間 + 航空公司
  * 仙台 HTML 沒專門的航班卡 block、用 day-meta 內 Flight 表達。

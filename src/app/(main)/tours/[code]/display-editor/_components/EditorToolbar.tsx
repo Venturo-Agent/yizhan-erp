@@ -10,9 +10,9 @@
  * - 右：預覽 / 切換發布狀態 / 發布
  *
  * 為什麼用 inline style 而不是 Tailwind：
- * - #2D1F18 / #C85A38 是永成款主題色、不在 morandi-* token 內
- * - 業務語意上「這條 toolbar 屬於永成款編輯器」、跟整個 morandi 主題不掛勾
- * - 跟 CanvasRenderer 視覺呼應、業務一眼看出「我正在編永成款」
+ * - #2D1F18 / #C85A38 是Canvas主題色、不在 morandi-* token 內
+ * - 業務語意上「這條 toolbar 屬於Canvas編輯器」、跟整個 morandi 主題不掛勾
+ * - 跟 CanvasRenderer 視覺呼應、業務一眼看出「我正在編Canvas」
  */
 
 import * as React from 'react'
@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Eye, Sparkles } from 'lucide-react'
 import type { SaveStatus } from '../_hooks/useCanvasEditor'
 
-// 永成款主題色（不放 morandi token、屬於 yongcheng 主題範圍）
+// Canvas主題色（不放 morandi token、屬於 canvas 主題範圍）
 const TOOLBAR_BG = '#2D1F18'
 const PUBLISH_BG = '#C85A38'
 
@@ -86,7 +86,7 @@ export function EditorToolbar({
   }
 
   const handlePreview = () => {
-    window.open(`/p/tour/${encodeURIComponent(code)}/yongcheng`, '_blank')
+    window.open(`/p/tour/${encodeURIComponent(code)}/canvas`, '_blank')
   }
 
   return (

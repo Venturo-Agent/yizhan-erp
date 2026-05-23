@@ -1,5 +1,5 @@
 /**
- * 永成款 · Ritual Spotlight — 兩欄式特色介紹
+ * Canvas · Ritual Spotlight — 兩欄式特色介紹
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html
  * - CSS class `.ritual-spotlight`（line 539-587）

@@ -1,5 +1,5 @@
 /**
- * 永成款行程總覽時間軸 — Overview Timeline
+ * Canvas行程總覽時間軸 — Overview Timeline
  *
  * 視覺基準：/Users/william/Downloads/tokyo-sendai-private-2026.html (line 819-857)
  *

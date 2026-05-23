@@ -6,7 +6,7 @@
  *   原始 activity object：{ icon, title, description: '', attraction_id }
  *   原始 daily：{ accommodation: '飯店名', accommodation_id: 'uuid' }
  * - 真正的描述 / 圖片 / 亮點都在 attractions / hotels 表
- * - 沒這層補完、永成款渲染出來會「只有標題、沒圖沒描述」（5/17 William 抓 bug）
+ * - 沒這層補完、Canvas渲染出來會「只有標題、沒圖沒描述」（5/17 William 抓 bug）
  *
  * 設計：
  * - 收集所有 attraction_id / accommodation_id 一次查（避免 N+1）

@@ -1,5 +1,5 @@
 /**
- * 永成款餐廳卡 — Restaurant Card
+ * Canvas餐廳卡 — Restaurant Card
  *
  * 視覺：餐標籤（早 / 午 / 晚）+ 名稱 + 料理 + 描述 + 縮圖
  * 仙台 HTML 用 ritual-spotlight 表達餐廳重點、這裡做緊湊版（縮圖 + 文字並排）
