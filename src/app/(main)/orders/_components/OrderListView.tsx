@@ -16,6 +16,7 @@ import dynamic from 'next/dynamic'
 import type { Order, Tour } from '@/stores/types'
 import { SimpleOrderTable } from '@/app/(main)/orders/_components/simple-order-table'
 import { OrderEditDialog } from '@/app/(main)/orders/_components/order-edit-dialog'
+import { OrderContractDialog } from '@/app/(main)/orders/_contracts/OrderContractDialog'
 import { AddReceiptDialog } from '@/app/(main)/finance/payments'
 
 const AddRequestDialog = dynamic(
@@ -57,6 +58,7 @@ export function OrderListView({
   const [receiptOpen, setReceiptOpen] = useState(false)
   const [requestOpen, setRequestOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [contractOpen, setContractOpen] = useState(false)
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
@@ -72,10 +74,17 @@ export function OrderListView({
     setSelectedOrder(order)
     setEditOpen(true)
   }, [])
-
-  const clearIfAllClosed = useCallback((r: boolean, q: boolean, e: boolean) => {
-    if (!r && !q && !e) setSelectedOrder(null)
+  const openContract = useCallback((order: Order) => {
+    setSelectedOrder(order)
+    setContractOpen(true)
   }, [])
+
+  const clearIfAllClosed = useCallback(
+    (r: boolean, q: boolean, e: boolean, c: boolean) => {
+      if (!r && !q && !e && !c) setSelectedOrder(null)
+    },
+    []
+  )
 
   return (
     <>
@@ -88,13 +97,14 @@ export function OrderListView({
         onQuickReceipt={openReceipt}
         onQuickPaymentRequest={openRequest}
         onEdit={openEdit}
+        onContract={openContract}
       />
 
       <AddReceiptDialog
         open={receiptOpen}
         onOpenChange={open => {
           setReceiptOpen(open)
-          clearIfAllClosed(open, requestOpen, editOpen)
+          clearIfAllClosed(open, requestOpen, editOpen, contractOpen)
         }}
         defaultTourId={selectedOrder?.tour_id || undefined}
         defaultOrderId={selectedOrder?.id}
@@ -105,7 +115,7 @@ export function OrderListView({
         open={requestOpen}
         onOpenChange={open => {
           setRequestOpen(open)
-          clearIfAllClosed(receiptOpen, open, editOpen)
+          clearIfAllClosed(receiptOpen, open, editOpen, contractOpen)
         }}
         defaultTourId={selectedOrder?.tour_id || undefined}
         defaultOrderId={selectedOrder?.id}
@@ -117,7 +127,18 @@ export function OrderListView({
           open={editOpen}
           onOpenChange={open => {
             setEditOpen(open)
-            clearIfAllClosed(receiptOpen, requestOpen, open)
+            clearIfAllClosed(receiptOpen, requestOpen, open, contractOpen)
+          }}
+          order={selectedOrder}
+        />
+      )}
+
+      {selectedOrder && (
+        <OrderContractDialog
+          open={contractOpen}
+          onOpenChange={open => {
+            setContractOpen(open)
+            clearIfAllClosed(receiptOpen, requestOpen, editOpen, open)
           }}
           order={selectedOrder}
         />

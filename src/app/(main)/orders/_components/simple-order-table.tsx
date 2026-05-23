@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase/client'
 import { recalculateParticipants } from '@/app/(main)/tours/_services/tour-stats.service'
 import { recalculateReceiptStats } from '@/app/(main)/finance/payments/_services/receipt-core.service'
 import { logger } from '@/lib/utils/logger'
-import { User, Trash2, FileText, SquarePen, Plus, HandCoins, Wallet } from 'lucide-react'
+import { User, Trash2, FileText, FileSignature, SquarePen, Plus, HandCoins, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Order, Tour } from '@/stores/types'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
@@ -20,6 +20,7 @@ import { EnhancedTable } from '@/components/ui/enhanced-table'
 import { useTranslations } from 'next-intl'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import type { OrderStatus } from '@/types/order.types'
+import { CONTRACT_LABELS } from '@/app/(main)/orders/_contracts/constants/labels'
 
 interface SimpleOrderTableProps {
   orders: Order[]
@@ -30,6 +31,7 @@ interface SimpleOrderTableProps {
   onQuickPaymentRequest?: (order: Order) => void
   onQuickInvoice?: (order: Order) => void
   onEdit?: (order: Order) => void
+  onContract?: (order: Order) => void
   onAdd?: () => void
   /** Server-side 分頁（給 /orders 頁用、tour-orders 子頁不用、傳就生效）*/
   serverPagination?: {
@@ -49,6 +51,7 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
   onQuickPaymentRequest,
   onQuickInvoice,
   onEdit,
+  onContract,
   onAdd,
   serverPagination,
 }: SimpleOrderTableProps) {
@@ -270,6 +273,21 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
             >
               <SquarePen size="0.95em" />
               {t('simpleOrderEdit')}
+            </Button>
+          )}
+
+          {/* 合約 */}
+          {onContract && (
+            <Button
+              variant="ghost"
+              onClick={e => {
+                e.stopPropagation()
+                onContract(order)
+              }}
+              className="h-7 px-1.5 gap-0.5 text-xs text-morandi-secondary hover:text-morandi-primary hover:bg-morandi-gold-light"
+            >
+              <FileSignature size="0.95em" />
+              {CONTRACT_LABELS.ACTION_BUTTON}
             </Button>
           )}
 
