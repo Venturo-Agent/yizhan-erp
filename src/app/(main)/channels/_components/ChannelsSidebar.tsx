@@ -16,6 +16,8 @@ import {
   Plus,
   PanelLeftClose,
   PanelLeftOpen,
+  Search,
+  X,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -75,6 +77,10 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
   const [openingDm, setOpeningDm] = useState<string | null>(null)
   // 2026-05-20 William 拍板：頻道 sidebar 可收起、跟全站 sidebar 一樣的感覺
   const [collapsed, setCollapsed] = useState(false)
+  // 2026-05-23 William 拍板：頻道搜尋（放大鏡點開展開、空白時不擠版面）
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const normalizedSearch = searchTerm.trim().toLowerCase()
 
   // 同事清單（合併「同事 + 私訊」成單一「私訊」section）：
   //   當前 workspace active human、排除自己、排除 bot / system_bot / integration
@@ -206,6 +212,30 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
 
     return { officialFlat, dms, projectsAndGroups }
   }, [channels, happyEnabled])
+
+  // 搜尋過濾（searchOpen + searchTerm 觸發）— 過濾頻道名 / DM 對方名 / coworkers
+  const filteredSections = useMemo(() => {
+    if (!normalizedSearch) return sections
+    const matchChannel = (c: Channel, displayName: string) =>
+      (c.name?.toLowerCase().includes(normalizedSearch) ?? false) ||
+      displayName.toLowerCase().includes(normalizedSearch)
+    return {
+      officialFlat: sections.officialFlat.filter(c =>
+        matchChannel(c, c.name ?? '')
+      ),
+      dms: sections.dms.filter(c => matchChannel(c, resolveDmDisplayName(c))),
+      projectsAndGroups: sections.projectsAndGroups.filter(c => matchChannel(c, c.name ?? '')),
+    }
+  }, [sections, normalizedSearch, members, aiAgents, user?.id])
+
+  const filteredCoworkers = useMemo(() => {
+    if (!normalizedSearch) return coworkers
+    return coworkers.filter(e => {
+      const name =
+        (e.display_name || e.chinese_name || e.english_name || '').toLowerCase()
+      return name.includes(normalizedSearch)
+    })
+  }, [coworkers, normalizedSearch])
 
   const renderChannelItem = (
     channel: Channel,
@@ -384,31 +414,66 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
       {/* Sidebar header — 高度對齊全局側欄 h-18 logo 區的 divider：
           h-18 (4.5rem) - layout p-3 (0.75rem) - card border (1px) = calc(3.75rem - 1px)
           純 rem-based → 跟 font-scale-switcher 一起縮放 */}
-      <div className="flex items-center justify-between px-4 h-[calc(3.75rem_-_1px)] border-b border-border">
-        <div className="flex items-center gap-2">
-          <MessagesSquare className="h-4 w-4 text-morandi-gold" />
-          <h2 className="text-sm font-semibold text-morandi-primary">頻道</h2>
-        </div>
-        <div className="flex items-center gap-1">
-          {onCreateChannel && (
+      <div className="flex items-center justify-between px-4 h-[calc(3.75rem_-_1px)] border-b border-border gap-2">
+        {searchOpen ? (
+          <>
+            <Search className="h-4 w-4 text-morandi-gold shrink-0" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="搜尋頻道 / 同事…"
+              autoFocus
+              className="flex-1 min-w-0 bg-transparent text-sm text-morandi-primary placeholder:text-morandi-muted focus:outline-none"
+            />
             <button
               type="button"
-              onClick={onCreateChannel}
-              className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
-              title="新增頻道"
+              onClick={() => {
+                setSearchOpen(false)
+                setSearchTerm('')
+              }}
+              className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors shrink-0"
+              title="關閉搜尋"
             >
-              <Plus className="h-4 w-4" />
+              <X className="h-4 w-4" />
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setCollapsed(true)}
-            className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
-            title="收起頻道側邊欄"
-          >
-            <PanelLeftClose className="h-4 w-4" />
-          </button>
-        </div>
+          </>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <MessagesSquare className="h-4 w-4 text-morandi-gold" />
+              <h2 className="text-sm font-semibold text-morandi-primary">頻道</h2>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
+                title="搜尋頻道"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+              {onCreateChannel && (
+                <button
+                  type="button"
+                  onClick={onCreateChannel}
+                  className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
+                  title="新增頻道"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setCollapsed(true)}
+                className="p-1 rounded hover:bg-morandi-gold-light text-morandi-secondary hover:text-morandi-primary transition-colors"
+                title="收起頻道側邊欄"
+              >
+                <PanelLeftClose className="h-4 w-4" />
+              </button>
+            </div>
+          </>
+        )}
       </div>
       <div className="flex-1 overflow-y-auto py-2">
         {loading && (
@@ -420,14 +485,14 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
         {!loading && (
           <>
             {/* Section 1: 官方頻道（置頂 Pin、扁平列表、每 channel 自帶 type icon） */}
-            {sections.officialFlat.length > 0 && (
+            {filteredSections.officialFlat.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
                   <Pin className="h-3 w-3 text-morandi-gold" />
                   置頂
                 </div>
                 <ul>
-                  {sections.officialFlat.map(c => {
+                  {filteredSections.officialFlat.map(c => {
                     const Icon = OFFICIAL_ICON[c.type as 'announcement' | 'bot' | 'system_notice']
                     const display =
                       c.type === 'bot' && c.agent_id
@@ -440,14 +505,14 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
             )}
 
             {/* Section 2: 私訊（同事 + 既有 DM 合併、點頭像 = 開 DM）*/}
-            {coworkers.length > 0 && (
+            {filteredCoworkers.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
                   <MessagesSquare className="h-3 w-3" />
                   私訊
                 </div>
                 <ul>
-                  {coworkers.map(emp => {
+                  {filteredCoworkers.map(emp => {
                     const display = emp.display_name || emp.chinese_name || emp.english_name || '未命名'
                     const avatarUrl = (emp as { avatar_url?: string | null }).avatar_url ?? null
                     const initial = display[0] ?? '?'
@@ -505,14 +570,14 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
             )}
 
             {/* Section 3: 專案 & 群組 */}
-            {sections.projectsAndGroups.length > 0 && (
+            {filteredSections.projectsAndGroups.length > 0 && (
               <div className="mb-4">
                 <div className="flex items-center gap-1.5 px-4 py-1 text-[0.647rem] text-morandi-muted uppercase tracking-wide">
                   <Hash className="h-3 w-3" />
                   專案 & 群組
                 </div>
                 <ul>
-                  {sections.projectsAndGroups.map(c => {
+                  {filteredSections.projectsAndGroups.map(c => {
                     const hasTour = !!c.tour_id
                     return renderChannelItem(c, c.name ?? '未命名', hasTour ? Briefcase : Hash)
                   })}

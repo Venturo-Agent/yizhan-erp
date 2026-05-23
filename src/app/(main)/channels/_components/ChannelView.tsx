@@ -292,13 +292,13 @@ export function ChannelView({ channelId }: Props) {
         </div>
         {showMemberCount && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             onClick={() => setMembersOpen(true)}
-            className="gap-1.5"
+            className="gap-1.5 h-9 px-3 text-sm border-morandi-gold/40 hover:bg-morandi-gold-light"
           >
-            <Users className="h-4 w-4" />
-            {channelMemberCount} 位成員
+            <Users className="h-4 w-4 text-morandi-gold" />
+            <span className="font-medium">{channelMemberCount} 位成員</span>
           </Button>
         )}
       </header>
