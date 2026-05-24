@@ -44,6 +44,8 @@ export function AddRequestDialog({
   level = 1,
 }: AddRequestDialogProps) {
   const t = useTranslations('finance')
+  // activeTab 提前宣告：傳給 useRequestForm 決定訂單載入策略（單筆只撈選定團、批次才全撈）
+  const [activeTab, setActiveTab] = useState<RequestMode>('tour')
   // === 共用 Hooks ===
   const {
     formData,
@@ -59,7 +61,7 @@ export function AddRequestDialog({
     tours,
     orders,
     currentUser,
-  } = useRequestForm()
+  } = useRequestForm({ mode: activeTab })
 
   const { createRequest } = useRequestOperations()
   const { createPaymentRequest, addPaymentItem } = usePayments()
@@ -71,7 +73,6 @@ export function AddRequestDialog({
   const { items: allExpenseCats } = useExpenseCategories({ all: true })
 
   // === 共用狀態 ===
-  const [activeTab, setActiveTab] = useState<RequestMode>('tour')
   const [costTransferOpen, setCostTransferOpen] = useState(false)
   const isEditMode = !!editingRequest
 

@@ -6,11 +6,12 @@ import { useAuthStore } from '@/stores'
 import { getTodayString } from '@/lib/utils/format-date'
 import { RequestFormData, RequestItem } from '../_types'
 import type { PaymentItemCategory } from '@/stores/types'
+import type { RequestMode } from '../_components/AddRequestDialog.types'
 
-export function useRequestForm() {
+export function useRequestForm(opts?: { mode?: RequestMode }) {
+  const mode = opts?.mode
   // 使用 @/data 的 SWR hooks（和 usePaymentForm 一致）
   const { items: tours } = useToursSlim({ all: true })
-  const { items: orders } = useOrders({ all: true })
   const { items: suppliers } = useSuppliersSlim({ all: true })
   // 代墊人候選池（5/24 純角色 SSOT）：有「可代墊款」能力的人
   const advanceEmployees = useEmployeesWithCapability(CAPABILITIES.FINANCE_ADVANCE_PAYMENT_WRITE)
@@ -29,6 +30,17 @@ export function useRequestForm() {
     created_by: currentUser?.id || undefined,
     payment_method_id: '', // 付款方式
   })
+
+  // 訂單載入（效能：不全撈、規格書效能契約）：
+  //   批次模式需跨團全部訂單；單筆(tour)模式只撈選定團的訂單；未選團 / 公司請款不撈。
+  //   mode 未傳時保守全撈（不破壞既有 caller）。
+  const ordersQuery: { all?: boolean; filter?: { tour_id: string }; enabled?: boolean } =
+    mode === 'batch' || mode === undefined
+      ? { all: true }
+      : mode === 'tour' && formData.tour_id
+        ? { all: true, filter: { tour_id: formData.tour_id } }
+        : { enabled: false }
+  const { items: orders } = useOrders(ordersQuery)
 
   const [requestItems, setRequestItems] = useState<RequestItem[]>(() => [
     {
