@@ -10,7 +10,7 @@ import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { useTranslations } from 'next-intl'
-import { type FormData, type LoginInfo, type DimensionRow, INITIAL_FORM } from './create-tenant-types'
+import { type FormData, type LoginInfo, type DimensionRow, type Industry, type SubIndustry, INITIAL_FORM } from './create-tenant-types'
 import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
 
 export function useCreateTenantForm(existingCodes: string[]) {
@@ -147,6 +147,18 @@ export function useCreateTenantForm(existingCodes: string[]) {
     setForm(prev => ({ ...prev, optionalFeatures: features }))
   }, [])
 
+  const handleIndustryChange = useCallback((industry: Industry | '') => {
+    setForm(prev => ({
+      ...prev,
+      industry,
+      subIndustry: industry === 'tourism' ? prev.subIndustry : null,
+    }))
+  }, [])
+
+  const handleSubIndustryChange = useCallback((subIndustry: SubIndustry) => {
+    setForm(prev => ({ ...prev, subIndustry }))
+  }, [])
+
   const isFormValid = (() => {
     if (!form.name.trim() || !form.code.trim() || !form.taxId.trim()) return false
     if (codeError || taxIdError) return false
@@ -154,6 +166,8 @@ export function useCreateTenantForm(existingCodes: string[]) {
     if (!/^\d{8}$/.test(form.taxId)) return false
     if (!form.adminName.trim() || !form.adminEmail.trim()) return false
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.adminEmail)) return false
+    if (!form.industry) return false
+    if (form.industry === 'tourism' && !form.subIndustry) return false
     if (form.subscriptionPlan === 'advance' && form.advancePicks.length !== 2) return false
     for (const b of form.brands) {
       if (b.name.trim() === '' && b.code.trim() !== '') return false
@@ -281,5 +295,8 @@ export function useCreateTenantForm(existingCodes: string[]) {
     handlePlanChange,
     handleAdvancePicksChange,
     handleOptionalFeaturesChange,
+    // industry
+    handleIndustryChange,
+    handleSubIndustryChange,
   }
 }

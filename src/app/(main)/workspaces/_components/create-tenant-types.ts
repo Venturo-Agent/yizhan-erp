@@ -13,12 +13,20 @@ export interface DimensionRow {
   tax_id?: string
 }
 
+export type Industry = 'tourism' | 'general'
+export type TourismSubIndustry = 'travel_agency' | 'tour_bus' | 'local_agency'
+export type SubIndustry = TourismSubIndustry | null
+
 export interface FormData {
   // 公司基本
   name: string
   code: string
   taxId: string
   maxEmployees: string
+
+  // 產業分類
+  industry: Industry | ''
+  subIndustry: SubIndustry
 
   // 訂閱方案
   subscriptionPlan: PlanId
@@ -53,6 +61,8 @@ export const INITIAL_FORM: FormData = {
   code: '',
   taxId: '',
   maxEmployees: '5',
+  industry: '',
+  subIndustry: null,
   subscriptionPlan: 'lite',
   advancePicks: [],
   optionalFeatures: [],

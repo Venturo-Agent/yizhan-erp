@@ -8,6 +8,7 @@ import { Copy, Check } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCreateTenantForm } from './_components/useCreateTenantForm'
 import { TenantBasicInfoSection } from './_components/TenantBasicInfoSection'
+import { TenantIndustrySection } from './_components/TenantIndustrySection'
 import { TenantBrandSection } from './_components/TenantBrandSection'
 import { TenantOrgSection } from './_components/TenantOrgSection'
 import { TenantAdminSection } from './_components/TenantAdminSection'
@@ -53,6 +54,8 @@ export function CreateTenantDialog({
     handlePlanChange,
     handleAdvancePicksChange,
     handleOptionalFeaturesChange,
+    handleIndustryChange,
+    handleSubIndustryChange,
   } = useCreateTenantForm(existingCodes)
 
   const handleOpenChange = useCallback(
@@ -101,6 +104,13 @@ export function CreateTenantDialog({
               taxIdError={taxIdError}
               onCodeChange={handleCodeChange}
               onTaxIdChange={handleTaxIdChange}
+            />
+
+            <TenantIndustrySection
+              industry={form.industry}
+              subIndustry={form.subIndustry}
+              onIndustryChange={handleIndustryChange}
+              onSubIndustryChange={handleSubIndustryChange}
             />
 
             <TenantBrandSection
