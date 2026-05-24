@@ -25,8 +25,9 @@ const employeeEntity = createEntityHook<Employee>('employees', {
   },
   slim: {
     // employee_type 必選：ChannelsSidebar 等過濾 bot / system_bot / integration 時依賴此欄
+    // role_id 必選：useEmployeesWithCapability 依職務能力過濾指派候選池（5/24 純角色 SSOT）
     select:
-      'id,employee_number,display_name,chinese_name,english_name,email,status,workspace_id,avatar_url,employee_type',
+      'id,employee_number,display_name,chinese_name,english_name,email,status,workspace_id,avatar_url,employee_type,role_id',
   },
   detail: { select: '*' },
   cache: CACHE_PRESETS.low,

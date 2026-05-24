@@ -210,7 +210,70 @@ William：「旗標真的很不 OK」。鎖定模型：
 - 候選來源不統一：RequestItemList 用 `suppliers(type=employee)`、useRequestForm 用 `useEligibleEmployees(FINANCE_ADVANCE_PAYMENT)` → 一起理。
 
 ### 待 William（msg 423）
-- [ ] Q2 模板獨立權限放階段4（這次）還是下一批？← 回了就開 branch 從階段0開工
+- [x] Q2 → **全開工（msg 424）**、模板放階段4。branch `feat/role-capability-redesign` 已建。
+
+## 執行進度（branch: feat/role-capability-redesign）
+
+### ✅ 階段0 完成（代墊 UX、commit 8066613）
+- `combobox.tsx` 加 optional `defaultOpen` prop（掛載即展開+聚焦）
+- `RequestItemList.tsx` 代墊欄 `_pending` 時 `defaultOpen` → 點圖示一步出可選清單
+- 順帶清理：移除 OpenCloud 冗餘且不完整的 backfill migration（只 UPDATE 無 ADD COLUMN、單獨跑會炸）commit 7d11a06
+
+### ✏️✏️ 方向大改（William msg 428、2026-05-24）：取消個人能力 override、回純角色 SSOT
+
+William 拍板：**不要「個人能力」這層、做一個完整的角色 SSOT 就好**（辛苦一點沒關係、但不要有任何錯誤）。
+- 所有能力從「職務權限」(`role_capabilities`) 來、**一個真相來源**
+- 業務/團控/代墊/模板 → 都做成職務權限裡的開關、**預設全關**、哪個職務該有就勾
+- **🔑 hide-if-none 規則**：整間公司沒有任何人具備某能力 → 該按鈕/欄位消失（William 特別交代「記得要做到」）
+- **✅ 完全不動 DB 權限函式**（無 4/20 風險）。代價：粒度=職務層級、小主管要某能力就給對應職務、無個人例外。
+
+→ **下方「階段1 個人能力 override」全部作廢**（employee_capabilities 表 / has_capability 改 / 三處 merge 全取消）。改為下面「階段1（修正版）」。
+
+### 🔑 實作關鍵發現：capabilities.ts / module-tabs.ts / eligibilities.ts 都是 codegen 產物
+- SOURCE = `src/modules/*.ts`、跑 `npm run codegen:permissions` 生成、**不可手改生成檔**
+- 「eligibility 旗標」= module 定義裡標 `isEligibility: true` 的 tab（codegen 路由到 eligibilities.ts、排除在 module-tabs 職務權限外）
+- 現有 eligibility tabs：`tours.ts` 的 as_sales/as_assistant/as_controller + `finance.ts` 的 advance_payment
+
+### 砍旗標 = 改 module 定義 + 重跑 codegen
+- `tours.ts`：**刪** as_sales / as_assistant / as_controller（業務改用 orders.create.write、團控改用 tours.members.write、助理刪除）
+- `finance.ts`：advance_payment **從 isEligibility 改成正規 tab**（→ finance.advance_payment.write 變職務權限開關、正是 msg 428 要的）
+- 重跑 codegen → eligibilities.ts 變空 → 移除 useEligibleEmployees / useEmployeeEligibilities / HR 旗標勾選
+
+### 能力對應（最終）
+| 指派 | 能力 | 狀態 |
+|---|---|---|
+| 業務 | `orders.create.write`（能新增訂單）| ⏳ 待 William 確認（msg 430）|
+| 團控 | `tours.members.write`（寫團員）| ✅ 已是職務權限開關 |
+| 代墊 | `finance.advance_payment.write`（轉成正規開關）| ✅ |
+| 助理 | — 刪除 | ✅ |
+
+### ✅ 已建地基（commit 待做）
+- `src/data/entities/role-capabilities.ts`：useRoleCapabilities（讀 workspace role_capabilities、RLS 可讀）
+- `src/lib/permissions/useEmployeesWithCapability.ts`：依能力過濾員工（取代 useEligibleEmployees、空清單=hide-if-none）
+- `employees.ts` slim select 補 role_id
+
+### 階段1（修正版）：能力開關進職務權限 + 選單看能力 + 砍旗標
+- 確認/補齊能力在 module-tabs（職務權限可勾）：業務=orders.write、團控=tours.members.write（已有）、代墊=finance.advance_payment.write（**要補進 module-tabs**）、模板（階段4 新增）
+- 預設全關（不自動 seed；現有租戶 grant 策略待定：漫途的角色補上以免斷、新租戶 default off）
+- `useEmployeesWithCapability(cap)` hook（純角色查詢：employees JOIN roles JOIN role_capabilities）
+- 選單（業務/團控/代墊）改吃能力
+- **hide-if-none gating**：workspace 無人有該能力 → 隱藏對應按鈕/欄位
+- 砍 eligibilities.ts / useEligibleEmployees / HR 旗標勾選
+
+### ~~階段1 調查（個人 override 版、已作廢、保留 audit trail）~~
+**現況：能力只從角色來、4 個推導/檢查點全純角色：**
+1. DB `has_capability_for_workspace(_ws, _code)` = `employees JOIN role_capabilities ON role_id`（21 條 RLS policy 共用）
+2. `get-layout-context.ts`（app SSOT）：抓 role_id → role_capabilities → capabilities Set
+3. `validate-login/route.ts`：登入時獨立抓 role_capabilities 給 client
+4. `check-capability.ts`（API 守門 require-capability 用）：獨立查 employees + role_capabilities
+   （`useMyCapabilities` 從 useLayoutContext 拿、不需獨立改）
+
+**階段1 實作（只「多給」不「拿走」、低炸登入風險）：**
+- 新表 `employee_capabilities`(id, employee_id FK→employees, capability_code, workspace_id FK, enabled, granted_by FK→employees, created_at; UNIQUE(employee_id, capability_code)) + workspace-scoped RLS
+- `has_capability_for_workspace` 改：role 能力 `OR` employee_capabilities（additive、無人失去存取）
+- 上述 2/3/4 三處 app 推導：role∪個人 合併
+- 動完**必測登入**（service_role 模擬視角 + 實際登入）
+- HR 授予 UI 放階段2
 - [ ] Q2 模板獨立權限這批一起做、還是下一批？（msg 414 待回）
 - [x] ~~Q3 加 controller_id 欄位~~ → **取消、欄位早就存在**
 

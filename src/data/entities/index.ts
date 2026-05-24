@@ -547,6 +547,13 @@ export {
 } from './employee-eligibilities'
 export type { EmployeeEligibility } from './employee-eligibilities'
 
+// Role Capabilities（5/24、純角色 SSOT、指派候選池來源）
+export {
+  useRoleCapabilities,
+  invalidateRoleCapabilities,
+} from './role-capabilities'
+export type { RoleCapability } from './role-capabilities'
+
 // ============================================
 // 行銷管理（2026-05-20、Corner 官網行程上架）
 // ============================================
