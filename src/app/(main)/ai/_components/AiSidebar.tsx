@@ -1,9 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import useSWR from 'swr'
+import {
+  useMessagingConversations,
+  CONVERSATIONS_URL,
+  type ConversationItem,
+  type ChannelType,
+} from '@/data/hooks/useMessagingConversations'
 import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { useRealtimeMutate } from '@/lib/swr/use-realtime-mutate'
 import { supabase } from '@/lib/supabase/client'
@@ -32,23 +37,6 @@ import { AiSettingsDialog } from './AiSettingsDialog'
  * - 主畫面 page.tsx render `<AiConversationsTab hideList />`、避免雙列表
  * - Realtime broadcast 也訂在這裡讓 sidebar 即時更新（不靠主畫面有沒有 mount）
  */
-
-type ChannelType = 'line' | 'facebook' | 'instagram'
-
-interface ConversationItem {
-  id: string
-  channel_type: ChannelType
-  external_user_id: string
-  display_name: string | null
-  picture_url: string | null
-  last_message_at: string | null
-  last_message_preview: string | null
-  last_message_direction: 'inbound' | 'outbound' | null
-  unread_count: number
-  bot_paused: boolean
-  memory_tone?: string | null
-  memory_failed?: boolean
-}
 
 // Channel badge 保留品牌色（不是硬編碼、是社群識別色、跟 venturo 內部 status token 區分）
 // W 拍板 2026-05-23：LINE 綠 / FB 藍 / IG 粉是用戶熟悉的辨識色、不歸 design token 管
@@ -87,14 +75,6 @@ function formatRelative(ts: string | null): string {
   return d.toLocaleDateString('zh-TW')
 }
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  return res.json()
-}
-
-const LIST_URL = '/api/messaging/conversations'
-
 export function AiSidebar() {
   const searchParams = useSearchParams()
   const activeConvId = searchParams.get('conv')
@@ -105,10 +85,7 @@ export function AiSidebar() {
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   // SWR 取對話列表（跟 AiConversationsTab 共用 cache key 自動 dedupe）
-  const { data: listResp, isLoading } = useSWR<{ data: ConversationItem[] }>(LIST_URL, fetcher, {
-    revalidateOnFocus: false,
-  })
-  const conversations = useMemo(() => listResp?.data ?? [], [listResp])
+  const { conversations, isLoading } = useMessagingConversations()
 
   // Realtime broadcast（webhook / inbox-service 推 new-message event 來、列表 mutate 重撈）
   const activeConvIdRef = useRef<string | null>(activeConvId)
@@ -122,7 +99,7 @@ export function AiSidebar() {
     const channel = supabase
       .channel(channelName)
       .on('broadcast', { event: 'new-message' }, msg => {
-        void globalMutate(LIST_URL)
+        void globalMutate(CONVERSATIONS_URL)
         const payload = msg.payload as { conversationId?: string } | undefined
         const convId = payload?.conversationId
         if (convId && convId === activeConvIdRef.current) {
@@ -139,7 +116,7 @@ export function AiSidebar() {
   useRealtimeMutate({
     table: 'inbox_conversations',
     filter: workspaceId ? `workspace_id=eq.${workspaceId}` : undefined,
-    swrKeys: [LIST_URL],
+    swrKeys: [CONVERSATIONS_URL],
     enabled: Boolean(workspaceId),
   })
 
@@ -182,7 +159,6 @@ export function AiSidebar() {
                   )}
                 >
                   {c.picture_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={c.picture_url} alt="" className="w-full h-full rounded-full object-cover" />
                   ) : c.external_user_id.startsWith('group:') ||
                     c.external_user_id.startsWith('room:') ? (
@@ -263,7 +239,6 @@ export function AiSidebar() {
                   {/* 頭像 + channel 角標 */}
                   <div className="relative shrink-0">
                     {c.picture_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={c.picture_url}
                         alt=""

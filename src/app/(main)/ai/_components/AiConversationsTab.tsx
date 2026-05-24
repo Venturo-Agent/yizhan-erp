@@ -292,7 +292,6 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
                 {/* 頭像（含 channel icon overlay） */}
                 <div className="relative shrink-0">
                   {c.picture_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={c.picture_url}
                       alt=""
@@ -594,7 +593,6 @@ function ConversationHeader({
             title="換群組頭像"
           >
             {conv.picture_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img src={conv.picture_url} alt="" className="w-9 h-9 rounded-full object-cover" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold">
@@ -609,7 +607,6 @@ function ConversationHeader({
           </button>
         </>
       ) : conv.picture_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
         <img src={conv.picture_url} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />
       ) : (
         <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-sm font-medium text-morandi-gold shrink-0">
@@ -1717,7 +1714,6 @@ function MessageBubble({
       {showAvatar && (
         <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
           {avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img src={avatarUrl} alt={senderNameForDisplay ?? ''} className="w-full h-full object-cover" />
           ) : (
             <span>{avatarInitial}</span>
@@ -1749,7 +1745,6 @@ function MessageBubble({
               onClick={() => onImageClick(msg.media_url!)}
               className="block"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={msg.media_url!}
                 alt="客戶傳送的圖片"
@@ -1784,7 +1779,6 @@ function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
       className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center"
       onClick={onClose}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={url}
         alt="圖片預覽"

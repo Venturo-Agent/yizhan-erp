@@ -3,8 +3,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import useSWR from 'swr'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
+import { usePaymentProviders } from '@/data/hooks/usePaymentProviders'
 import { EntityFormDialog } from '@/components/shared/EntityFormDialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -17,15 +17,8 @@ import {
   type PaymentMethod,
   type PaymentMethodKind,
   type ChartOfAccount,
-  type PlatformPaymentProvider,
 } from './types'
 import { KIND_TO_PROVIDER_KIND } from '@/constants/payment-provider'
-
-const providerFetcher = async (url: string): Promise<PlatformPaymentProvider[]> => {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error('讀取金流商失敗')
-  return res.json()
-}
 
 const FEE_KIND_HINT: Partial<Record<PaymentMethodKind, string>> = {
   card: '刷卡手續費（如 2%）。收款核准時自動扣減實收、並產生傳票分錄。',
@@ -72,11 +65,7 @@ export function MethodDialog({
   // provider（B 方案 2026-05-22）：誰處理金流
   const [provider, setProvider] = useState<string>('manual')
 
-  const { data: allProviders = [] } = useSWR<PlatformPaymentProvider[]>(
-    '/api/finance/payment-providers',
-    providerFetcher,
-    { revalidateOnFocus: false }
-  )
+  const { providers: allProviders } = usePaymentProviders()
 
   // 根據 kind 過濾 provider 選項：manual 永遠可選、其他看 kind ↔ provider_kind 對應
   const availableProviders = useMemo(() => {

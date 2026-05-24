@@ -302,6 +302,8 @@ export function useBatchReceiptForm({
 
         let receiptNumber: string
         try {
+          // 安全：每筆為不同團（order.tour_id 各異）、且 createReceipt 已 await（commit）後才生下一號；不可能同團撞號。
+          // eslint-disable-next-line venturo/no-in-loop-number-rpc
           receiptNumber = await generateReceiptNo(order.tour_id)
         } catch (e) {
           logger.warn(`訂單 ${order.order_number} 生成收款單號失敗、跳過`, e)

@@ -80,6 +80,8 @@ export function usePaymentData() {
     // 為每個收款項目建立收款單
     for (const item of paymentItems) {
       // 生成收款單號 — 透過中央 codes module（RPC + advisory lock）
+      // 安全：每筆 createReceipt 已 await（commit）後才生下一號、RPC 讀已 commit row 遞增 + 同團 advisory lock。
+      // eslint-disable-next-line venturo/no-in-loop-number-rpc
       const receiptNumber = await generateReceiptNo(selectedOrder?.tour_id || '')
 
       // 建立收款單

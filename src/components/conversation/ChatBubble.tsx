@@ -108,7 +108,6 @@ export function ChatBubble({
       {showAvatar && (
         <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
           {senderAvatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={senderAvatarUrl}
               alt={senderName ?? ''}

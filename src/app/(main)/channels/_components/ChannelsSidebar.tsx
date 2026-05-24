@@ -355,7 +355,6 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
               >
                 <div className="w-full h-full rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
                   {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatarUrl} alt={display} className="w-full h-full object-cover" />
                   ) : (
                     <span>{initial}</span>
@@ -550,7 +549,6 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
                           {/* 頭像 20×20 圓形、無頭像顯首字 */}
                           <div className="shrink-0 w-5 h-5 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-[0.588rem] font-medium text-morandi-gold">
                             {avatarUrl ? (
-                              // eslint-disable-next-line @next/next/no-img-element
                               <img src={avatarUrl} alt={display} className="w-full h-full object-cover" />
                             ) : (
                               <span>{initial}</span>

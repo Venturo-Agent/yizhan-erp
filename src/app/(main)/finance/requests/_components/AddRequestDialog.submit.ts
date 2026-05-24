@@ -306,6 +306,8 @@ async function submitBatch({
 
   for (const allocation of toSubmit) {
     try {
+      // 安全：每筆為不同團（allocation.tour_code 各異）、且 createPaymentRequest 已 await（commit）後才生下一號。
+      // eslint-disable-next-line venturo/no-in-loop-number-rpc
       const requestCode = await generateRequestNo(allocation.tour_code)
       const request = await createPaymentRequest({
         workspace_id: workspaceId,
@@ -505,6 +507,8 @@ async function submitTour({
 
   const tourCode = selectedTour.code || ''
   for (const [groupDate, groupItems] of groups) {
+    // 安全：同團多組（按日期）、每組 createRequest 已 await（commit）後才生下一號 + 同團 advisory lock 序列化。
+    // eslint-disable-next-line venturo/no-in-loop-number-rpc
     const code = await generateRequestNo(tourCode)
     await createRequest(
       { ...formData, request_date: groupDate },

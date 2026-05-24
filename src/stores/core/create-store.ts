@@ -215,6 +215,8 @@ export function createStore<T extends BaseEntity>(
 
         for (let insertAttempt = 0; insertAttempt < maxInsertRetries; insertAttempt++) {
           if (codePrefix && !(data as Record<string, unknown>).code) {
+            // 安全：這是「撞號就重試」迴圈（非批次）— 每次 attempt 重生 code、只有 insert 撞 unique 才重試下一輪。
+            // eslint-disable-next-line venturo/no-in-loop-number-rpc
             insertData.code = await generateNextCode(tableName, codePrefix, insertAttempt)
           }
 

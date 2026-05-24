@@ -315,7 +315,6 @@ export default function MarketingWebsiteEditPage({
             <div className="text-xs text-morandi-muted">封面圖</div>
             {form.hero_image_url ? (
               <div className="relative w-full aspect-video bg-morandi-container/40 rounded-md overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={form.hero_image_url}
                   alt="封面預覽"

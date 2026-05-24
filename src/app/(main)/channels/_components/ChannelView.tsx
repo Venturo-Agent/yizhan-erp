@@ -309,7 +309,6 @@ export function ChannelView({ channelId }: Props) {
               {!isMine && (
                 <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
                   {avatar.url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={avatar.url} alt={senderName(msg)} className="w-full h-full object-cover" />
                   ) : (
                     <span>{avatar.initial}</span>

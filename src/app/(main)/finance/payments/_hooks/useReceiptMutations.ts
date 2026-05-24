@@ -151,6 +151,9 @@ export function useReceiptMutations() {
         const paymentMethodId = getPaymentMethodId(item)
 
         // 每個品項獨立編號 — 透過中央 codes module（RPC + advisory lock）
+        // 安全：每筆 createReceipt 已 await（commit）後才生下一號、RPC 讀已 commit row 遞增 + 同團 advisory lock；
+        // 非規則針對的「先收集 N 號再 insert」撞號 pattern。
+        // eslint-disable-next-line venturo/no-in-loop-number-rpc
         const itemReceiptNumber = await generateReceiptNo(tourId)
 
         logger.info('[createReceiptWithItems] Creating receipt...', {
