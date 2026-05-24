@@ -21,6 +21,7 @@ import { logger } from '@/lib/utils/logger'
 import { useRouter } from 'next/navigation'
 import { HR_ADMIN_TABS } from '../components/hr-admin-tabs'
 import { useRoles, type Role } from '@/data/hooks/useRoles'
+import { invalidateRoleCapabilities } from '@/data'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { RoleListPanel } from './_components/RoleListPanel'
 import { RoleCapabilityTable } from './_components/RoleCapabilityTable'
@@ -255,6 +256,10 @@ export default function RolesPage() {
         toast.error('儲存失敗', { description: res.error || `HTTP ${res.status}` })
         return
       }
+
+      // 5/24：職務能力改了 → 失效 role_capabilities 快取、讓「業務/團控/代墊」指派下拉即時反映
+      // （這些下拉吃 useRoleCapabilities、否則授予能力後要等快取過期才出現）
+      await invalidateRoleCapabilities()
 
       // 存完重新 fetch 驗證（確保 DB 狀態反映到 UI）
       const verifyRes = await fetch(`/api/roles/${selectedRole.id}/tab-permissions`)
