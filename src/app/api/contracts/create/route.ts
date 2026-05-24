@@ -192,6 +192,7 @@ export async function POST(request: NextRequest) {
       .insert({
         workspace_id: workspaceId,
         tour_id: tourId,
+        order_id: orderId,
         code: contractCode,
         template,
         signer_type: signerType,

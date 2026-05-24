@@ -89,6 +89,19 @@ export function OrderContractDialog({ open, onOpenChange, order }: Props) {
     }
     setSubmitting(true)
     try {
+      // 集合資訊對映 contract_data 的 gather* 欄位（PDF / 簽署頁實際讀這些 key、不是 meeting_*）
+      const contractData: Record<string, string> = {}
+      if (meetingLocation.trim()) contractData.gatherLocation = meetingLocation.trim()
+      if (meetingTime) {
+        const d = new Date(meetingTime)
+        if (!Number.isNaN(d.getTime())) {
+          contractData.gatherYear = String(d.getFullYear() - 1911)
+          contractData.gatherMonth = String(d.getMonth() + 1)
+          contractData.gatherDay = String(d.getDate())
+          contractData.gatherHour = String(d.getHours()).padStart(2, '0')
+          contractData.gatherMinute = String(d.getMinutes()).padStart(2, '0')
+        }
+      }
       await apiPost('/api/contracts/create', {
         orderId: order.id,
         signerType,
@@ -99,10 +112,7 @@ export function OrderContractDialog({ open, onOpenChange, order }: Props) {
         companyTaxId: signerType === 'company' ? companyTaxId || undefined : undefined,
         companyRepresentative:
           signerType === 'company' ? companyRepresentative || undefined : undefined,
-        contractData: {
-          meeting_location: meetingLocation || null,
-          meeting_time: meetingTime || null,
-        },
+        contractData,
         createdBy: user?.id || undefined,
         includeItinerary,
         includeMemberList,
