@@ -19,6 +19,8 @@ export interface CreateTenantRequest {
   workspaceName: string
   workspaceCode: string
   workspaceType: string | null
+  industry: string | null
+  subIndustry: string | null
   maxEmployees: number | null
   taxId: string // 8 碼公司統編、必填
 

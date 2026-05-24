@@ -83,6 +83,8 @@ export interface CreateWorkspaceParams {
   trimmedTaxId: string
   isMultiBranch: boolean
   subscriptionPlan?: PlanId
+  industry?: string | null
+  subIndustry?: string | null
 }
 
 export async function createWorkspace(
@@ -96,6 +98,8 @@ export async function createWorkspace(
     trimmedTaxId,
     isMultiBranch,
     subscriptionPlan,
+    industry,
+    subIndustry,
   } = params
 
   // 鐵律：不寫 type 欄位（workspaces.type 已在 Phase 2 patch DROP、code 不可再 reference）
@@ -110,6 +114,8 @@ export async function createWorkspace(
       tax_id: trimmedTaxId,
       is_multi_branch: !!isMultiBranch,
       subscription_plan: subscriptionPlan ?? 'custom',
+      industry: industry ?? null,
+      sub_industry: subIndustry ?? null,
     })
     .select('id')
     .single()

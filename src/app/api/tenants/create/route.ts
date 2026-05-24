@@ -99,6 +99,8 @@ export async function POST(request: NextRequest) {
     const {
       workspaceCode: rawWorkspaceCode,
       taxId,
+      industry,
+      subIndustry,
       brands,
       isMultiBranch,
       branches,
@@ -150,6 +152,8 @@ export async function POST(request: NextRequest) {
       trimmedTaxId,
       isMultiBranch,
       subscriptionPlan: subscriptionPlan ?? 'custom',
+      industry: industry ?? null,
+      subIndustry: subIndustry ?? null,
     })
     if ('status' in wsResult) return wsResult
     state.createdWorkspaceId = wsResult.workspaceId
