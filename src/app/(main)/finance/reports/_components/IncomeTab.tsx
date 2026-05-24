@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { CurrencyCell, DateCell } from '@/components/table-cells'
 import { TrendingUp, Receipt as ReceiptIcon } from 'lucide-react'
-import { useReceipts } from '@/data'
+import { useReceiptsInRange } from '../_hooks/useReceiptsInRange'
 import type { Receipt } from '@/types/receipt.types'
 import { RECEIPT_PAYMENT_METHOD_LABELS } from '@/types/receipt.types'
 import type { DateRange } from './DateRangeSelector'
@@ -53,7 +53,8 @@ interface IncomeTabProps {
 }
 
 export function IncomeTab({ dateRange }: IncomeTabProps) {
-  const { items: receipts, loading } = useReceipts({ all: true })
+  // 只撈選取範圍的收款單（不全撈整張表）；filteredReceipts 仍用 coalesce 日期精確 trim、數字不變
+  const { rows: receipts, loading } = useReceiptsInRange(dateRange)
 
   const filteredReceipts = useMemo(() => {
     const { startDate, endDate } = dateRange
