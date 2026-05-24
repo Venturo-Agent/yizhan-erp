@@ -485,9 +485,15 @@ export function createEntityHook<T extends BaseEntity>(
         }
 
         // 過濾
+        // 5/24：value 是陣列 → .in()（支援 capability 聯集等多值篩選、如 request_category IN (...)）；
+        //       否則維持 .eq()。additive、舊 caller 不受影響。
         if (filter) {
           Object.entries(filter).forEach(([key, value]) => {
-            if (value !== undefined && value !== null && value !== '' && value !== 'all') {
+            if (Array.isArray(value)) {
+              if (value.length > 0) {
+                query = (query as never as { in: (col: string, vals: unknown[]) => typeof query }).in(key, value)
+              }
+            } else if (value !== undefined && value !== null && value !== '' && value !== 'all') {
               query = query.eq(key, value)
             }
           })
