@@ -14,7 +14,7 @@
  *   - 整團合約（order_id null、需改 create API 讓 orderId 可選）
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -25,7 +25,7 @@ import { Printer, Link2, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { apiPost } from '@/lib/api/client'
-import { useContracts, invalidateContracts, useOrderMembers } from '@/data'
+import { useContracts, invalidateContracts, useOrderMembers, useItineraries } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import type { Order } from '@/stores/types'
 import {
@@ -67,6 +67,36 @@ export function OrderContractDialog({ open, onOpenChange, order }: Props) {
   const [includeItinerary, setIncludeItinerary] = useState(true)
   const [includeMemberList, setIncludeMemberList] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+
+  // 航班自動帶集合時間：去程起飛 − 3 小時（William 流程）。建立模式、未填時才帶；解析失敗維持手動
+  const { items: itineraries } = useItineraries({ all: true, filter: { tour_id: order.tour_id } })
+  useEffect(() => {
+    if (existing || meetingTime) return
+    const itin = (itineraries ?? [])[0]
+    if (!itin) return
+    try {
+      const flights = (itin.outbound_flight as unknown as { departureTime?: string }[] | null) || []
+      const depTime = flights.find(f => f?.departureTime)?.departureTime
+      const depDate = itin.departure_date
+      if (depTime && depDate && /^\d{1,2}:\d{2}$/.test(depTime)) {
+        const [h, m] = depTime.split(':').map(Number)
+        const base = new Date(
+          `${depDate}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`
+        )
+        if (!Number.isNaN(base.getTime())) {
+          base.setHours(base.getHours() - 3)
+          const pad = (n: number) => String(n).padStart(2, '0')
+          setMeetingTime(
+            `${base.getFullYear()}-${pad(base.getMonth() + 1)}-${pad(base.getDate())}T${pad(base.getHours())}:${pad(base.getMinutes())}`
+          )
+          setMeetingLocation(loc => loc || '桃園國際機場第一航廈')
+        }
+      }
+    } catch {
+      // 解析失敗維持手動、不影響 dialog
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itineraries, existing])
 
   // 選代表人 → 自動帶姓名 / 身分證（order_members 有 chinese_name / id_number）
   const handleSelectRep = (memberId: string) => {
