@@ -29,13 +29,11 @@ describe('breadcrumb-config', () => {
     it('should have nested finance routes pointing to /finance', () => {
       expect(BREADCRUMB_CONFIG['/finance/requests'].parent).toBe('/finance')
       expect(BREADCRUMB_CONFIG['/finance/payments'].parent).toBe('/finance')
-      expect(BREADCRUMB_CONFIG['/finance/treasury'].parent).toBe('/finance')
     })
 
-    it('should have deeply nested treasury route pointing to /finance/treasury', () => {
-      expect(BREADCRUMB_CONFIG['/finance/treasury/disbursement'].parent).toBe(
-        '/finance/treasury'
-      )
+    // 2026-05-24 金庫總覽頁(/finance/treasury)移除後、出帳單 parent 直接接回 /finance
+    it('should have disbursement route pointing to /finance', () => {
+      expect(BREADCRUMB_CONFIG['/finance/treasury/disbursement'].parent).toBe('/finance')
     })
   })
 

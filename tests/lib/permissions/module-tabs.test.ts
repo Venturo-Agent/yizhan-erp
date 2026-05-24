@@ -33,7 +33,8 @@ describe('getModuleByCode', () => {
     expect(codes).toContain('payments')
     expect(codes).toContain('requests')
     expect(codes).toContain('disbursement')
-    expect(codes).toContain('treasury')
+    // 2026-05-24 金庫總覽(treasury) tab 已移除（該頁無人使用）；撥款(disbursement)保留
+    expect(codes).not.toContain('treasury')
   })
 
   it('hr 模組只有 employees + roles（HR 已砍剩這兩個）', () => {
