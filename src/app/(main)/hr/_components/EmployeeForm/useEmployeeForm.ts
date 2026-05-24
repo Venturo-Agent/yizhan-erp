@@ -11,7 +11,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useUserStore } from '@/stores/user-store'
 import { useWorkspaceId } from '@/lib/workspace-context'
 import { useBranches, useRoles } from '@/data/hooks'
-import { apiGet, apiPatch, apiPost, apiPut, extractHttpErrorMessage, HttpError } from '@/lib/api/client'
+import { apiPatch, apiPost, extractHttpErrorMessage, HttpError } from '@/lib/api/client'
 import { useEmployee } from '@/data/entities/employees'
 import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 import { isHrFullEnabled } from '@/lib/permissions/subscription-plans'
@@ -327,7 +327,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         await updateEmployee(employeeId, {} as Parameters<typeof updateEmployee>[1])
       } else {
         const defaultPassword = '12345678'
-        let newEmployeeId: string | undefined
         let newEmployeeNumber: string | undefined
         try {
           const created = await apiPost<{ success: boolean; employee: { id: string; employee_number: string } }>(
@@ -337,7 +336,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
               password: defaultPassword,
             }
           )
-          newEmployeeId = created?.employee?.id
           newEmployeeNumber = created?.employee?.employee_number
         } catch (err) {
           if (err instanceof HttpError) {
