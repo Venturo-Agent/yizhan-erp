@@ -21,7 +21,7 @@ const orderEntity = createEntityHook<Order>('orders', {
   list: {
     // 2026-05-15 補 notes / identity_options
     select:
-      'id,order_number,tour_id,tour_name,contact_person,contact_phone,contact_email,customer_id,sales_person,assistant,sales_id,assistant_id,status,payment_status,paid_amount,remaining_amount,total_amount,member_count,adult_count,departure_date,is_active,notes,identity_options,workspace_id,created_at,created_by,updated_at,updated_by',
+      'id,order_number,tour_id,tour_name,contact_person,contact_phone,contact_email,customer_id,sales_person,sales_id,status,payment_status,paid_amount,remaining_amount,total_amount,member_count,adult_count,departure_date,is_active,notes,identity_options,workspace_id,created_at,created_by,updated_at,updated_by',
     orderBy: {
       column: 'departure_date',
       ascending: false,
@@ -30,7 +30,7 @@ const orderEntity = createEntityHook<Order>('orders', {
   },
   slim: {
     select:
-      'id,order_number,tour_id,tour_name,contact_person,contact_phone,sales_person,assistant,sales_id,assistant_id,payment_status,paid_amount,remaining_amount,total_amount,member_count,departure_date,created_at,customer_id',
+      'id,order_number,tour_id,tour_name,contact_person,contact_phone,sales_person,sales_id,payment_status,paid_amount,remaining_amount,total_amount,member_count,departure_date,created_at,customer_id',
   },
   detail: {
     select: '*',

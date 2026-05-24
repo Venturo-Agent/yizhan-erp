@@ -25,9 +25,9 @@ export interface Order extends BaseEntity {
   child_count?: number | null // 兒童人數
   infant_count?: number | null // 嬰兒人數
   sales_person: string | null // 業務人員（text 字串、fallback 顯示用、match 不到員工的歷史單）
-  assistant: string | null // 助理（text 字串、fallback 顯示用）
   sales_id?: string | null // 業務員工 FK → employees(id)、5/13 加、新單必寫
-  assistant_id?: string | null // 助理員工 FK → employees(id)、5/13 加、新單必寫
+  // 助理（assistant / assistant_id）：5/24 助理職務整套移除、code 不再讀寫。
+  //   DB 欄位暫留歷史紀錄（40+ 舊單有值）、待 William 確認後 drop。
   member_count: number | null // 團員人數
   payment_status: PaymentStatus | null // 付款狀態
   status?: OrderStatus | null // 訂單狀態
