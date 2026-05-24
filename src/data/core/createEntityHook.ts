@@ -456,7 +456,7 @@ export function createEntityHook<T extends BaseEntity>(
     const { data, error, isLoading, mutate } = useSWR(
       swrKey,
       async () => {
-        const { page, pageSize, filter, search, searchFields, sortBy, sortOrder } = params
+        const { page, pageSize, filter, search, searchFields, sortBy, sortOrder, multiSort } = params
         const from = (page - 1) * pageSize
         const to = from + pageSize - 1
 
@@ -472,12 +472,20 @@ export function createEntityHook<T extends BaseEntity>(
         query = applyWorkspaceScope(query)
 
         // 排序
-        const orderColumn = sortBy || config.list?.orderBy?.column || 'created_at'
-        const orderAsc =
-          sortOrder === 'asc' ||
-          (sortOrder === undefined && config.list?.orderBy?.ascending) ||
-          false
-        query = query.order(orderColumn, { ascending: orderAsc })
+        // 5/24：multiSort（多欄複合排序、如財務頁「未付優先 + 日期」）優先；依序套用多個 .order()。
+        //       否則維持單欄 sortBy/sortOrder（向後相容、舊 caller 不受影響）。
+        if (multiSort && multiSort.length > 0) {
+          for (const s of multiSort) {
+            query = query.order(s.column, { ascending: s.ascending })
+          }
+        } else {
+          const orderColumn = sortBy || config.list?.orderBy?.column || 'created_at'
+          const orderAsc =
+            sortOrder === 'asc' ||
+            (sortOrder === undefined && config.list?.orderBy?.ascending) ||
+            false
+          query = query.order(orderColumn, { ascending: orderAsc })
+        }
 
         // 軟刪除過濾
         if (config.list?.filterSoftDeleted) {

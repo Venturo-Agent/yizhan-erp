@@ -170,6 +170,12 @@ export interface PaginatedParams {
   searchFields?: string[]
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
+  /**
+   * 多欄複合排序（如財務頁「未付優先 + 日期 asc」）。
+   * 提供時優先於 sortBy/sortOrder、依陣列順序套用多個 .order()（PostgREST 依序套用）。
+   * 注意：每個元素是「真實欄位 + 升降序」；衍生優先序（如某狀態排前）需先有對應可排序欄位。
+   */
+  multiSort?: Array<{ column: string; ascending: boolean }>
 }
 
 export interface PaginatedResult<T> {
