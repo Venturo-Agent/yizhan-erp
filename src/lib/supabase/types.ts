@@ -440,7 +440,15 @@ export type Database = {
           updated_by?: string | null
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "attractions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audit_logs: {
         Row: {
@@ -553,7 +561,15 @@ export type Database = {
           updated_at?: string
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "background_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bank_accounts: {
         Row: {
@@ -667,6 +683,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bonus_pending_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -804,6 +827,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "brands_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "brands_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
@@ -882,7 +912,15 @@ export type Database = {
           visibility?: string
           workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       channel_members: {
         Row: {
@@ -1369,7 +1407,15 @@ export type Database = {
           website?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "companies_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       company_contacts: {
         Row: {
@@ -1432,7 +1478,15 @@ export type Database = {
           updated_by?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "company_contacts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contracts: {
         Row: {
@@ -1549,6 +1603,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -2572,6 +2633,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "disbursement_orders_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "disbursement_orders_payment_method_fk"
             columns: ["payment_method_id"]
             isOneToOne: false
@@ -2810,6 +2878,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "driver_tasks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -3410,7 +3485,15 @@ export type Database = {
           updated_by?: string | null
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hotels_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       image_library: {
         Row: {
@@ -4152,6 +4235,13 @@ export type Database = {
             referencedRelation: "branches"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "itineraries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
         ]
       }
       journal_lines: {
@@ -4260,6 +4350,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journal_vouchers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -5441,7 +5538,15 @@ export type Database = {
           user_id?: string
           workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_members: {
         Row: {
@@ -6099,6 +6204,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payment_request_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payment_request_items_payee_employee_id_fkey"
             columns: ["payee_employee_id"]
             isOneToOne: false
@@ -6291,6 +6403,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_requests_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -6779,6 +6898,13 @@ export type Database = {
             referencedRelation: "branches"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "quotes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
         ]
       }
       rag_topic_queue: {
@@ -7068,6 +7194,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -7714,7 +7847,15 @@ export type Database = {
           updated_by?: string | null
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "restaurants_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role_capabilities: {
         Row: {
@@ -7892,6 +8033,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salary_settlements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
           {
@@ -8236,6 +8384,13 @@ export type Database = {
             referencedRelation: "ref_banks"
             referencedColumns: ["bank_code"]
           },
+          {
+            foreignKeyName: "suppliers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
         ]
       }
       timebox_scheduled_boxes: {
@@ -8402,6 +8557,13 @@ export type Database = {
             referencedRelation: "todo_columns"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "todos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tour_bonus_settings: {
@@ -8462,6 +8624,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_bonus_settings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -8536,7 +8705,15 @@ export type Database = {
           updated_at?: string | null
           updated_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tour_departure_data_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tour_destinations: {
         Row: {
@@ -8704,6 +8881,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tour_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
             referencedColumns: ["id"]
           },
         ]
@@ -8987,6 +9171,13 @@ export type Database = {
             referencedRelation: "branches"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tour_itinerary_items_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tour_meal_settings: {
@@ -9168,6 +9359,7 @@ export type Database = {
           archive_reason: string | null
           archived: boolean | null
           branch_id: string | null
+          brand_id: string | null
           checkin_qrcode: string | null
           closed_by: string | null
           closing_date: string | null
@@ -9181,7 +9373,6 @@ export type Database = {
           contract_status: string
           contract_template: string | null
           controller_id: string | null
-          brand_id: string | null
           country_code: string | null
           country_id: string | null
           created_at: string
@@ -9244,6 +9435,7 @@ export type Database = {
           archive_reason?: string | null
           archived?: boolean | null
           branch_id?: string | null
+          brand_id?: string | null
           checkin_qrcode?: string | null
           closed_by?: string | null
           closing_date?: string | null
@@ -9257,7 +9449,6 @@ export type Database = {
           contract_status?: string
           contract_template?: string | null
           controller_id?: string | null
-          brand_id?: string | null
           country_code?: string | null
           country_id?: string | null
           created_at?: string
@@ -9320,6 +9511,7 @@ export type Database = {
           archive_reason?: string | null
           archived?: boolean | null
           branch_id?: string | null
+          brand_id?: string | null
           checkin_qrcode?: string | null
           closed_by?: string | null
           closing_date?: string | null
@@ -9333,7 +9525,6 @@ export type Database = {
           contract_status?: string
           contract_template?: string | null
           controller_id?: string | null
-          brand_id?: string | null
           country_code?: string | null
           country_id?: string | null
           created_at?: string
@@ -9397,6 +9588,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tours_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
             referencedColumns: ["id"]
           },
           {
@@ -9553,6 +9751,117 @@ export type Database = {
           },
         ]
       }
+      travel_invoice_items: {
+        Row: {
+          created_at: string
+          id: string
+          invoice_id: string
+          item_amount: number
+          item_count: number
+          item_name: string
+          item_price: number
+          item_unit: string | null
+          sort_order: number
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invoice_id: string
+          item_amount?: number
+          item_count?: number
+          item_name: string
+          item_price?: number
+          item_unit?: string | null
+          sort_order?: number
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          item_amount?: number
+          item_count?: number
+          item_name?: string
+          item_price?: number
+          item_unit?: string | null
+          sort_order?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "travel_invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "travel_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_invoice_items_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      travel_invoice_paper_tracks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          current_no: number
+          end_no: number
+          id: string
+          is_active: boolean
+          note: string | null
+          start_no: number
+          track_code: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          current_no?: number
+          end_no: number
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          start_no: number
+          track_code: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          current_no?: number
+          end_no?: number
+          id?: string
+          is_active?: boolean
+          note?: string | null
+          start_no?: number
+          track_code?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "travel_invoice_paper_tracks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_invoice_paper_tracks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       travel_invoice_voids: {
         Row: {
           branch_id: string | null
@@ -9635,7 +9944,10 @@ export type Database = {
           invoice_number: string | null
           issued_at: string | null
           issued_by: string | null
+          medium: string
           note: string | null
+          paper_serial: number | null
+          paper_track: string | null
           provider_invoice_id: string | null
           provider_response: Json | null
           seller_ban: string
@@ -9647,6 +9959,10 @@ export type Database = {
           tax_type: string
           taxable_amount: number
           total_amount: number
+          tour_date: string | null
+          tour_id: string | null
+          tour_name: string | null
+          tour_no: string | null
           updated_at: string
           workspace_id: string
         }
@@ -9666,7 +9982,10 @@ export type Database = {
           invoice_number?: string | null
           issued_at?: string | null
           issued_by?: string | null
+          medium?: string
           note?: string | null
+          paper_serial?: number | null
+          paper_track?: string | null
           provider_invoice_id?: string | null
           provider_response?: Json | null
           seller_ban: string
@@ -9678,6 +9997,10 @@ export type Database = {
           tax_type?: string
           taxable_amount?: number
           total_amount?: number
+          tour_date?: string | null
+          tour_id?: string | null
+          tour_name?: string | null
+          tour_no?: string | null
           updated_at?: string
           workspace_id: string
         }
@@ -9697,7 +10020,10 @@ export type Database = {
           invoice_number?: string | null
           issued_at?: string | null
           issued_by?: string | null
+          medium?: string
           note?: string | null
+          paper_serial?: number | null
+          paper_track?: string | null
           provider_invoice_id?: string | null
           provider_response?: Json | null
           seller_ban?: string
@@ -9709,6 +10035,10 @@ export type Database = {
           tax_type?: string
           taxable_amount?: number
           total_amount?: number
+          tour_date?: string | null
+          tour_id?: string | null
+          tour_name?: string | null
+          tour_no?: string | null
           updated_at?: string
           workspace_id?: string
         }
@@ -9725,6 +10055,13 @@ export type Database = {
             columns: ["issued_by"]
             isOneToOne: false
             referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travel_invoices_tour_id_fkey"
+            columns: ["tour_id"]
+            isOneToOne: false
+            referencedRelation: "tours"
             referencedColumns: ["id"]
           },
           {
@@ -10398,6 +10735,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "workspace_integrations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "workspace_integrations_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
@@ -10797,6 +11141,11 @@ export type Database = {
           bank_name: string | null
           bonus_calculation_order: string
           brand_primary_hex: string | null
+          canvas: Json | null
+          canvas_published_at: string | null
+          canvas_published_by: string | null
+          canvas_updated_at: string | null
+          canvas_updated_by: string | null
           code: string
           company_seal_url: string | null
           contract_seal_image_url: string | null
@@ -10814,6 +11163,7 @@ export type Database = {
           home_country_code: string | null
           icon: string | null
           id: string
+          industry: string | null
           invoice_seal_image_url: string | null
           is_active: boolean | null
           is_multi_branch: boolean
@@ -10834,6 +11184,8 @@ export type Database = {
           setup_banner_dismissed_at: string | null
           setup_completed_at: string | null
           setup_state: Json | null
+          sub_industry: string | null
+          subdomain: string | null
           subscription_period_end: string | null
           subscription_plan: string | null
           subtitle: string | null
@@ -10854,6 +11206,11 @@ export type Database = {
           bank_name?: string | null
           bonus_calculation_order?: string
           brand_primary_hex?: string | null
+          canvas?: Json | null
+          canvas_published_at?: string | null
+          canvas_published_by?: string | null
+          canvas_updated_at?: string | null
+          canvas_updated_by?: string | null
           code?: string
           company_seal_url?: string | null
           contract_seal_image_url?: string | null
@@ -10871,6 +11228,7 @@ export type Database = {
           home_country_code?: string | null
           icon?: string | null
           id?: string
+          industry?: string | null
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
           is_multi_branch?: boolean
@@ -10891,6 +11249,8 @@ export type Database = {
           setup_banner_dismissed_at?: string | null
           setup_completed_at?: string | null
           setup_state?: Json | null
+          sub_industry?: string | null
+          subdomain?: string | null
           subscription_period_end?: string | null
           subscription_plan?: string | null
           subtitle?: string | null
@@ -10911,6 +11271,11 @@ export type Database = {
           bank_name?: string | null
           bonus_calculation_order?: string
           brand_primary_hex?: string | null
+          canvas?: Json | null
+          canvas_published_at?: string | null
+          canvas_published_by?: string | null
+          canvas_updated_at?: string | null
+          canvas_updated_by?: string | null
           code?: string
           company_seal_url?: string | null
           contract_seal_image_url?: string | null
@@ -10928,6 +11293,7 @@ export type Database = {
           home_country_code?: string | null
           icon?: string | null
           id?: string
+          industry?: string | null
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
           is_multi_branch?: boolean
@@ -10948,6 +11314,8 @@ export type Database = {
           setup_banner_dismissed_at?: string | null
           setup_completed_at?: string | null
           setup_state?: Json | null
+          sub_industry?: string | null
+          subdomain?: string | null
           subscription_period_end?: string | null
           subscription_plan?: string | null
           subtitle?: string | null
@@ -10966,6 +11334,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "ref_banks"
             referencedColumns: ["bank_code"]
+          },
+          {
+            foreignKeyName: "workspaces_canvas_published_by_fkey"
+            columns: ["canvas_published_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workspaces_canvas_updated_by_fkey"
+            columns: ["canvas_updated_by"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "workspaces_created_by_fkey"
@@ -11438,6 +11820,10 @@ export type Database = {
         Returns: string
       }
       generate_order_number: { Args: { p_tour_id: string }; Returns: string }
+      generate_paper_track_serial: {
+        Args: { p_track_id: string; p_workspace_id: string }
+        Returns: number
+      }
       generate_quote_code: {
         Args: { p_quote_type?: string; p_tour_id: string }
         Returns: string
