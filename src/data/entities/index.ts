@@ -549,6 +549,17 @@ export {
 } from './role-capabilities'
 export type { RoleCapability } from './role-capabilities'
 
+// Checks（5/24、票據、② 散刻寫入配套）
+export {
+  useChecks,
+  useCheck,
+  invalidateChecks,
+  createCheck,
+  updateCheck,
+  deleteCheck,
+} from './checks'
+export type { Check } from './checks'
+
 // ============================================
 // 行銷管理（2026-05-20、Corner 官網行程上架）
 // ============================================

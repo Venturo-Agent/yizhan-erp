@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { supabase } from '@/lib/supabase/client'
+import { createCheck } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -74,7 +74,8 @@ export function CreateCheckDialog({ open, onOpenChange, onSuccess }: CreateCheck
       return
     }
 
-    const { error } = await supabase.from('checks').insert({
+    // 5/24：改走 createCheck entity hook（自動失效快取、新增即現）
+    await createCheck({
       workspace_id: user.workspace_id,
       check_number: formData.check_number,
       check_date: formData.check_date,
@@ -83,9 +84,7 @@ export function CreateCheckDialog({ open, onOpenChange, onSuccess }: CreateCheck
       payee_name: formData.payee_name,
       status: 'pending',
       memo: formData.memo || null,
-    })
-
-    if (error) throw error
+    } as Parameters<typeof createCheck>[0])
 
     toast.success(PAGE_LABELS.CREATE_SUCCESS)
     onOpenChange(false)
