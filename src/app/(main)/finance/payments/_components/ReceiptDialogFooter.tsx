@@ -13,6 +13,7 @@ import { apiPost } from '@/lib/api/client'
 import { formatMoney } from '@/lib/utils/format-currency'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { useAuthStore } from '@/stores'
+import { updateReceipt } from '@/data'
 import { recalculateReceiptStats } from '../_services/receipt-core.service'
 import { useTranslations } from 'next-intl'
 import type { Receipt } from '@/stores'
@@ -107,14 +108,11 @@ export function ReceiptDialogFooter({
     setIsSubmitting(true)
     try {
       await onSubmit()
+      // 5/24：fallback 改走 updateReceipt entity hook（自動失效快取、不散刻直接寫）
       const updateFunc =
         onUpdate ||
         (async (id: string, data: Partial<Receipt>) => {
-          const { supabase } = await import('@/lib/supabase/client')
-          await supabase
-            .from('receipts')
-            .update(data as Record<string, unknown>)
-            .eq('id', id)
+          await updateReceipt(id, data as Parameters<typeof updateReceipt>[1])
         })
 
       // 撈手續費設定、套規則算 actual + fees（跟列表「核准」一致）

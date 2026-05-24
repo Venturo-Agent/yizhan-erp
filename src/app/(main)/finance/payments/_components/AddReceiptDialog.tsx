@@ -23,6 +23,7 @@ import { useAuthStore } from '@/stores'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { useTranslations } from 'next-intl'
 import { usePaymentMethodsCached } from '@/data/hooks'
+import { updateReceipt } from '@/data'
 import { ReceiptDialogHeader } from './ReceiptDialogHeader'
 import { ReceiptDialogFooter } from './ReceiptDialogFooter'
 import { ReceiptItemsTable } from './ReceiptItemsTable'
@@ -204,13 +205,9 @@ export function AddReceiptDialog({
       if (!user?.workspace_id) throw new Error(t('receiptNoWorkspace'))
 
       if (isEditMode && editingReceipt) {
+        // 5/24：改走 updateReceipt entity hook（自動失效快取、不散刻直接寫）
         const defaultUpdate = async (receiptId: string, data: Partial<Receipt>) => {
-          const { supabase } = await import('@/lib/supabase/client')
-          const { error } = await supabase
-            .from('receipts')
-            .update(data as Record<string, unknown>)
-            .eq('id', receiptId)
-          if (error) throw error
+          await updateReceipt(receiptId, data as Parameters<typeof updateReceipt>[1])
         }
 
         // 已確認的單在這次儲存時、若實收 / 手續費被覆蓋、append 覆蓋紀錄到 notes
