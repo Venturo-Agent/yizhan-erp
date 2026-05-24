@@ -17,7 +17,6 @@ interface TourSlim {
 
 export function usePaymentForm() {
   const t = useTranslations('finance')
-  const { items: orders } = useOrdersSlim({ all: true })
 
   // 只載入正式團（從 API 層過濾，省流量）
   const [tours, setTours] = useState<TourSlim[]>([])
@@ -52,6 +51,11 @@ export function usePaymentForm() {
     order_id: '',
     receipt_date: getTodayString(),
   })
+
+  // 訂單載入（效能：不全撈）：收款是單團單筆、只撈選定團的訂單；未選團不撈。
+  const ordersQuery: { all?: boolean; filter?: { tour_id: string }; enabled?: boolean } =
+    formData.tour_id ? { all: true, filter: { tour_id: formData.tour_id } } : { enabled: false }
+  const { items: orders } = useOrdersSlim(ordersQuery)
 
   // 收款項目列表（不設預設收款方式，使用者自己選）
   const [paymentItems, setPaymentItems] = useState<PaymentItem[]>([
