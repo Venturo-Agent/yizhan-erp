@@ -57,6 +57,25 @@ interface ListPageLayoutProps<T extends object> {
   /** 搜尋欄位（用於過濾） */
   searchFields?: (keyof T)[]
 
+  // ========== 伺服器分頁模式（2026-05-24、additive、不影響現有頁面）==========
+  /**
+   * 提供時 = 「伺服器主導」模式：
+   * - data 已是「當前頁」資料 → 不再前端篩選 / 切片（直接顯示）
+   * - 分頁控制走 onPageChange、總筆數走 totalCount
+   * - 搭配 onSearchChange 把搜尋關鍵字送伺服器
+   * 不提供時 = 維持原本「前端分頁」模式（向後相容、現有頁面完全不受影響）。
+   */
+  serverPagination?: {
+    currentPage: number
+    pageSize: number
+    totalCount: number
+    onPageChange: (page: number) => void
+  }
+  /** 受控搜尋值（伺服器模式用、配合 onSearchChange）。 */
+  searchValue?: string
+  /** 搜尋變更回調：提供時取代內部前端搜尋、把關鍵字送伺服器查。 */
+  onSearchChange?: (value: string) => void
+
   /** 狀態 Tab 配置 */
   statusTabs?: TabItem[]
   /** 狀態欄位名稱 */
@@ -150,6 +169,9 @@ export function ListPageLayout<T extends object>({
   searchable = true,
   searchPlaceholder = COMP_LAYOUT_LABELS.搜尋_2,
   searchFields = [],
+  serverPagination,
+  searchValue,
+  onSearchChange,
   statusTabs,
   statusField,
   defaultStatusTab = 'all',
@@ -189,6 +211,14 @@ export function ListPageLayout<T extends object>({
     }
   ) as unknown as T[]
 
+  // ========== 伺服器分頁模式（2026-05-24）==========
+  // 伺服器模式：data 已是「當前頁」+ 已篩選 → 直接顯示、跳過前端 useDataFiltering 結果；
+  //            搜尋走受控 onSearchChange（送伺服器）。向後相容：兩者皆未提供 = 原前端行為。
+  const isServerMode = !!serverPagination
+  const displayData = isServerMode ? data : filteredData
+  const searchTermValue = onSearchChange ? (searchValue ?? '') : searchQuery
+  const handleSearchChange = onSearchChange ?? setSearchQuery
+
   // ========== 處理 Tab 切換 ==========
   const handleTabChange = (tab: string) => {
     if (onStatusTabChange) {
@@ -206,8 +236,8 @@ export function ListPageLayout<T extends object>({
         icon={icon}
         breadcrumb={breadcrumb?.filter(item => item.label !== '首頁')}
         showSearch={searchable}
-        searchTerm={searchQuery}
-        onSearchChange={setSearchQuery}
+        searchTerm={searchTermValue}
+        onSearchChange={handleSearchChange}
         searchPlaceholder={searchPlaceholder}
         tabs={statusTabs}
         activeTab={activeStatusTab}
@@ -227,7 +257,8 @@ export function ListPageLayout<T extends object>({
         <div className="h-full">
           <EnhancedTable
             columns={columns as TableColumn[]}
-            data={filteredData}
+            data={displayData}
+            serverPagination={serverPagination}
             loading={loading}
             onRowClick={onRowClick as ((row: RowData, rowIndex?: number) => void) | undefined}
             actions={renderActions as ((row: RowData) => React.ReactNode) | undefined}
