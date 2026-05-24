@@ -69,7 +69,6 @@ export function useToursForm({ state, openDialog }: UseToursFormParams): UseTour
     setNewOrder({
       contact_person: '',
       sales_person: '',
-      assistant: '',
       member_count: 1,
       total_amount: 0,
     })

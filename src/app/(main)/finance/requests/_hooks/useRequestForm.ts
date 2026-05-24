@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from 'react'
 import { useToursSlim, useOrders, useSuppliersSlim } from '@/data'
-import { useEligibleEmployees, ELIGIBILITY } from '@/app/(main)/orders/_hooks/useEligibleEmployees'
+import { useEmployeesWithCapability } from '@/lib/permissions/useEmployeesWithCapability'
+import { CAPABILITIES } from '@/lib/permissions'
 import { useAuthStore } from '@/stores'
 import { getTodayString } from '@/lib/utils/format-date'
 import { RequestFormData, RequestItem } from '../_types'
@@ -11,8 +12,8 @@ export function useRequestForm() {
   const { items: tours } = useToursSlim({ all: true })
   const { items: orders } = useOrders({ all: true })
   const { items: suppliers } = useSuppliersSlim({ all: true })
-  // 代墊人候選：5/13 新概念、讀 employee_eligibilities（HR 員工頁勾選）
-  const advanceEmployees = useEligibleEmployees(ELIGIBILITY.FINANCE_ADVANCE_PAYMENT)
+  // 代墊人候選池（5/24 純角色 SSOT）：有「可代墊款」能力的人
+  const advanceEmployees = useEmployeesWithCapability(CAPABILITIES.FINANCE_ADVANCE_PAYMENT_WRITE)
 
   // 獲取當前登入用戶
   const currentUser = useAuthStore(state => state.user)

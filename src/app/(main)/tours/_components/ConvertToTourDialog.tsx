@@ -20,7 +20,8 @@ import { TOUR_CONVERT } from '../_constants'
 import { toast } from 'sonner'
 import { TourOrderSection } from './tour-form'
 import type { OrderFormData } from '@/app/(main)/orders/_components/add-order-form'
-import { useEligibleEmployees, ELIGIBILITY } from '@/app/(main)/orders/_hooks/useEligibleEmployees'
+import { useEmployeesWithCapability } from '@/lib/permissions/useEmployeesWithCapability'
+import { CAPABILITIES } from '@/lib/permissions'
 
 const COMPONENT_LABELS = {
   TOUR_INFO: '旅遊團資訊',
@@ -73,8 +74,8 @@ export function ConvertToTourDialog({
     total_amount: 0,
   })
 
-  // 團控下拉：5/13 新概念、讀 employee_eligibilities
-  const controllers = useEligibleEmployees(ELIGIBILITY.TOURS_AS_CONTROLLER)
+  // 團控候選池（5/24 純角色 SSOT）：能寫團員名單的人
+  const controllers = useEmployeesWithCapability(CAPABILITIES.TOURS_MEMBERS_WRITE)
 
   const needsCityInput = useMemo(() => !tour?.airport_code, [tour?.airport_code])
 
@@ -270,9 +271,9 @@ export function ConvertToTourDialog({
         {/* 分隔線 */}
         <div className="border-l border-border" />
 
-        {/* 右邊：訂單（助理欄此處隱藏） */}
+        {/* 右邊：訂單 */}
         <div className="flex-1">
-          <TourOrderSection newOrder={newOrder} setNewOrder={setNewOrder} hideAssistant />
+          <TourOrderSection newOrder={newOrder} setNewOrder={setNewOrder} />
         </div>
       </div>
     </FormDialog>

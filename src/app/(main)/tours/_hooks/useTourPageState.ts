@@ -61,7 +61,6 @@ export function useTourPageState() {
   const [newOrder, setNewOrder] = useState<Partial<OrderFormData>>({
     contact_person: '',
     sales_person: '',
-    assistant: '',
     member_count: 1,
     total_amount: 0,
   })

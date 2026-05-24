@@ -78,8 +78,6 @@ export default function OrdersPage() {
     contact_person: string
     sales_id: string
     sales_person: string
-    assistant_id: string
-    assistant: string
   }) => {
     const selectedTour = tours.find(t => t.id === orderData.tour_id)
     if (!selectedTour) {
@@ -109,11 +107,8 @@ export default function OrdersPage() {
         tour_name: selectedTour.name,
         contact_person: orderData.contact_person,
         contact_phone: null,
-        // 5/13 雙寫：sales_id/assistant_id FK + sales_person/assistant text fallback
         sales_id: orderData.sales_id || null,
         sales_person: orderData.sales_person,
-        assistant_id: orderData.assistant_id || null,
-        assistant: orderData.assistant,
         member_count: 0,
         total_amount: initialTotalAmount,
         paid_amount: 0,

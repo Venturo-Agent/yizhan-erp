@@ -18,7 +18,8 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
 import { useTranslations } from 'next-intl'
-import { useEligibleEmployees, ELIGIBILITY } from '@/app/(main)/orders/_hooks/useEligibleEmployees'
+import { useEmployeesWithCapability } from '@/lib/permissions/useEmployeesWithCapability'
+import { CAPABILITIES } from '@/lib/permissions'
 
 interface OrderEditDialogProps {
   open: boolean
@@ -36,8 +37,6 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
         contact_person: formData.contact_person,
         sales_id: formData.sales_id || null,
         sales_person: formData.sales_person || null,
-        assistant_id: formData.assistant_id || null,
-        assistant: formData.assistant || null,
       })
       onOpenChange(false)
     },
@@ -52,13 +51,13 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
     contact_person: '',
     sales_id: '',
     sales_person: '',
-    assistant_id: '',
-    assistant: '',
   })
 
-  // 下拉資格：5/13 新概念、讀 employee_eligibilities（HR 員工頁勾選）
-  const salesPersons = useEligibleEmployees(ELIGIBILITY.TOURS_AS_SALES)
-  const assistants = useEligibleEmployees(ELIGIBILITY.TOURS_AS_ASSISTANT)
+  // 業務候選池（5/24 純角色 SSOT）：能新增或編輯訂單的人
+  const salesPersons = useEmployeesWithCapability([
+    CAPABILITIES.ORDERS_CREATE_WRITE,
+    CAPABILITIES.ORDERS_EDIT_WRITE,
+  ])
 
   // 當 order 變更時重設表單
   useEffect(() => {
@@ -67,8 +66,6 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
         contact_person: order.contact_person || '',
         sales_id: order.sales_id || '',
         sales_person: order.sales_person || '',
-        assistant_id: order.assistant_id || '',
-        assistant: order.assistant || '',
       })
     }
   }, [order])
@@ -107,63 +104,35 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
             />
           </div>
 
-          {/* 業務和助理 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-morandi-primary">
-                {t('salesPerson')}
-                {formData.contact_person?.trim() && (
-                  <span className="text-morandi-red ml-1">*</span>
-                )}
-              </label>
-              <Combobox
-                options={salesPersons.map(emp => ({
-                  value: emp.id,
-                  label: `${emp.display_name || emp.english_name || ''} (${emp.employee_number ?? ''})`,
-                }))}
-                value={formData.sales_id}
-                onChange={value => {
-                  const emp = salesPersons.find(e => e.id === value)
-                  setFormData(prev => ({
-                    ...prev,
-                    sales_id: value,
-                    sales_person: emp?.display_name || emp?.english_name || '',
-                  }))
-                }}
-                placeholder={t('selectSalesPerson')}
-                emptyMessage={t('noSalesPersonFound')}
-                showSearchIcon={true}
-                showClearButton={true}
-                className="mt-1"
-                disablePortal={true}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-morandi-primary">
-                {t('assistantLabel')}
-              </label>
-              <Combobox
-                options={assistants.map(emp => ({
-                  value: emp.id,
-                  label: `${emp.display_name || emp.english_name || ''} (${emp.employee_number ?? ''})`,
-                }))}
-                value={formData.assistant_id}
-                onChange={value => {
-                  const emp = assistants.find(e => e.id === value)
-                  setFormData(prev => ({
-                    ...prev,
-                    assistant_id: value,
-                    assistant: emp?.display_name || emp?.english_name || '',
-                  }))
-                }}
-                placeholder={t('selectAssistant')}
-                emptyMessage={t('noAssistantFound')}
-                showSearchIcon={true}
-                showClearButton={true}
-                className="mt-1"
-                disablePortal={true}
-              />
-            </div>
+          {/* 業務（承辦） */}
+          <div>
+            <label className="text-sm font-medium text-morandi-primary">
+              {t('salesPerson')}
+              {formData.contact_person?.trim() && (
+                <span className="text-morandi-red ml-1">*</span>
+              )}
+            </label>
+            <Combobox
+              options={salesPersons.map(emp => ({
+                value: emp.id,
+                label: `${emp.display_name || emp.english_name || ''} (${emp.employee_number ?? ''})`,
+              }))}
+              value={formData.sales_id}
+              onChange={value => {
+                const emp = salesPersons.find(e => e.id === value)
+                setFormData(prev => ({
+                  ...prev,
+                  sales_id: value,
+                  sales_person: emp?.display_name || emp?.english_name || '',
+                }))
+              }}
+              placeholder={t('selectSalesPerson')}
+              emptyMessage={t('noSalesPersonFound')}
+              showSearchIcon={true}
+              showClearButton={true}
+              className="mt-1"
+              disablePortal={true}
+            />
           </div>
 
           {/* 按鈕 */}

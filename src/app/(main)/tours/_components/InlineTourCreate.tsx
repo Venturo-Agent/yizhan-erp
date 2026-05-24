@@ -37,7 +37,6 @@ const EMPTY_TOUR: NewTourData = {
 const EMPTY_ORDER: Partial<OrderFormData> = {
   contact_person: '',
   sales_person: '',
-  assistant: '',
   member_count: 1,
   total_amount: 0,
 }

@@ -245,8 +245,6 @@ export function useTourCreateOperation(params: UseTourCreateOperationParams) {
                 contact_person: newOrder.contact_person,
                 sales_id: newOrder.sales_id || null,
                 sales_person: newOrder.sales_person || '',
-                assistant_id: newOrder.assistant_id || null,
-                assistant: newOrder.assistant || '',
                 member_count: memberCount,
                 payment_status: 'unpaid',
                 total_amount: totalAmount,

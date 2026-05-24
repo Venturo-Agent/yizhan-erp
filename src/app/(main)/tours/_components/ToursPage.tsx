@@ -204,7 +204,6 @@ export const ToursPage: React.FC = () => {
           tour_name: tour.name,
           contact_person: orderData.contact_person,
           sales_person: orderData.sales_person,
-          assistant: orderData.assistant,
           member_count: orderData.member_count || 0,
           total_amount: orderData.total_amount || initialTotalAmount,
           paid_amount: 0,

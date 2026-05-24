@@ -5,18 +5,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Combobox } from '@/components/ui/combobox'
 import { useToursSlim } from '@/data'
-import { useEligibleEmployees, ELIGIBILITY } from '@/app/(main)/orders/_hooks/useEligibleEmployees'
+import { useEmployeesWithCapability } from '@/lib/permissions/useEmployeesWithCapability'
+import { CAPABILITIES } from '@/lib/permissions'
 import { useTranslations } from 'next-intl'
 import { useTourOptions } from '@/hooks'
 
 export interface OrderFormData {
   tour_id: string
   contact_person: string
-  // 5/13 新增 sales_id / assistant_id（FK → employees.id）、sales_person / assistant 保留同步寫 display_name 做 fallback
+  // sales_id（FK → employees.id）、sales_person 同步寫 display_name 做 fallback。
+  // 5/24 助理欄移除（助理不再是指派角色）。
   sales_id: string
   sales_person: string
-  assistant_id: string
-  assistant: string
   member_count?: number
   total_amount?: number
 }
@@ -31,19 +31,18 @@ interface AddOrderFormProps {
   // 嵌入模式（用於嵌入其他表單）
   value?: Partial<OrderFormData>
   onChange?: (orderData: Partial<OrderFormData>) => void
-
-  // 「提案轉開團」場景隱藏助理欄位（助理在開團階段已不在此處決定）
-  hideAssistant?: boolean
 }
 
-export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange, hideAssistant }: AddOrderFormProps) {
+export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange }: AddOrderFormProps) {
   const t = useTranslations('orders')
   const { items: tours } = useToursSlim()
   const tourOptions = useTourOptions(tours)
 
-  // 下拉資格：5/13 新概念、讀 employee_eligibilities（HR 員工頁勾選）
-  const salesPersons = useEligibleEmployees(ELIGIBILITY.TOURS_AS_SALES)
-  const assistants = useEligibleEmployees(ELIGIBILITY.TOURS_AS_ASSISTANT)
+  // 業務候選池（5/24 純角色 SSOT）：能新增或編輯訂單的人
+  const salesPersons = useEmployeesWithCapability([
+    CAPABILITIES.ORDERS_CREATE_WRITE,
+    CAPABILITIES.ORDERS_EDIT_WRITE,
+  ])
 
   // 判斷是否為嵌入模式
   const isEmbedded = !!onChange
@@ -54,8 +53,6 @@ export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange, hide
     contact_person: '',
     sales_id: '',
     sales_person: '',
-    assistant_id: '',
-    assistant: '',
   })
 
   // 使用外部 state 或內部 state
@@ -107,64 +104,34 @@ export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange, hide
         />
       </div>
 
-      {/* 業務和助理（提案轉開團情境下、助理欄隱藏） */}
-      <div className={hideAssistant ? '' : 'grid grid-cols-2 gap-4'}>
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('salesPerson')}
-            {/* 如果有填聯絡人，業務為必填 */}
-            {formData.contact_person?.trim() && <span className="text-morandi-red ml-1">*</span>}
-          </label>
-          <Combobox
-            options={salesPersons.map(emp => ({
-              value: emp.id,
-              label: `${emp.display_name || emp.english_name || ''} (${emp.employee_number ?? ''})`,
-            }))}
-            value={formData.sales_id || ''}
-            onChange={value => {
-              const emp = salesPersons.find(e => e.id === value)
-              updateFormData?.({
-                ...formData,
-                sales_id: value,
-                sales_person: emp?.display_name || emp?.english_name || '',
-              })
-            }}
-            placeholder={t('selectSalesPerson')}
-            emptyMessage={t('noSalesPersonFound')}
-            showSearchIcon={true}
-            showClearButton={true}
-            className="mt-1"
-            disablePortal={true}
-          />
-        </div>
-        {!hideAssistant && (
-          <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('assistantLabel')}
-            </label>
-            <Combobox
-              options={assistants.map(emp => ({
-                value: emp.id,
-                label: `${emp.display_name || emp.english_name || ''} (${emp.employee_number ?? ''})`,
-              }))}
-              value={formData.assistant_id || ''}
-              onChange={value => {
-                const emp = assistants.find(e => e.id === value)
-                updateFormData?.({
-                  ...formData,
-                  assistant_id: value,
-                  assistant: emp?.display_name || emp?.english_name || '',
-                })
-              }}
-              placeholder={t('selectAssistant')}
-              emptyMessage={t('noAssistantFound')}
-              showSearchIcon={true}
-              showClearButton={true}
-              className="mt-1"
-              disablePortal={true}
-            />
-          </div>
-        )}
+      {/* 業務（承辦） */}
+      <div>
+        <label className="text-sm font-medium text-morandi-primary">
+          {t('salesPerson')}
+          {/* 如果有填聯絡人，業務為必填 */}
+          {formData.contact_person?.trim() && <span className="text-morandi-red ml-1">*</span>}
+        </label>
+        <Combobox
+          options={salesPersons.map(emp => ({
+            value: emp.id,
+            label: `${emp.display_name || emp.english_name || ''} (${emp.employee_number ?? ''})`,
+          }))}
+          value={formData.sales_id || ''}
+          onChange={value => {
+            const emp = salesPersons.find(e => e.id === value)
+            updateFormData?.({
+              ...formData,
+              sales_id: value,
+              sales_person: emp?.display_name || emp?.english_name || '',
+            })
+          }}
+          placeholder={t('selectSalesPerson')}
+          emptyMessage={t('noSalesPersonFound')}
+          showSearchIcon={true}
+          showClearButton={true}
+          className="mt-1"
+          disablePortal={true}
+        />
       </div>
 
       {/* 按鈕（只在獨立模式顯示） */}

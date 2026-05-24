@@ -13,7 +13,8 @@ import {
 import { SimpleDateInput } from '@/components/ui/simple-date-input'
 import { CountryAirportSelector } from '@/components/selectors/CountryAirportSelector'
 import { useEmployeesSlim } from '@/data'
-import { useEligibleEmployees, ELIGIBILITY } from '@/app/(main)/orders/_hooks/useEligibleEmployees'
+import { useEmployeesWithCapability } from '@/lib/permissions/useEmployeesWithCapability'
+import { CAPABILITIES } from '@/lib/permissions'
 import { useAuthStore } from '@/stores/auth-store'
 import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
@@ -43,8 +44,8 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
   const activeEmployees = (_employees || []).filter(
     e => (e as unknown as { status?: string }).status === 'active'
   )
-  // 團控下拉：5/13 新概念、讀 employee_eligibilities（HR 員工頁勾選）
-  const controllers = useEligibleEmployees(ELIGIBILITY.TOURS_AS_CONTROLLER)
+  // 團控候選池（5/24 純角色 SSOT）：能寫團員名單的人（分房分車的人 = 團控）
+  const controllers = useEmployeesWithCapability(CAPABILITIES.TOURS_MEMBERS_WRITE)
 
   // 所有團類型定義
   const ALL_TOUR_CATEGORIES = [
