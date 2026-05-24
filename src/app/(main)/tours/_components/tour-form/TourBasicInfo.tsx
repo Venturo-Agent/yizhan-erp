@@ -207,62 +207,68 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
         </div>
       )}
 
-      {/* 品牌（5/24）— show-if-multi：只有 >1 品牌才讓選、單一品牌自動帶預設不問 */}
-      {!isProposalOrTemplate && brands.length > 1 && (
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            品牌 <span className="text-morandi-red">*</span>
-          </label>
-          <Select
-            value={newTour.brand_id || ''}
-            onValueChange={(value: string) =>
-              setNewTour(prev => ({ ...prev, brand_id: value }))
-            }
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="選擇品牌..." />
-            </SelectTrigger>
-            <SelectContent>
-              {brands.map(b => (
-                <SelectItem key={b.id} value={b.id}>
-                  {b.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-[0.588rem] text-morandi-muted mt-1">
-            這個案子屬於哪個品牌。
-          </p>
-        </div>
-      )}
+      {/* 品牌 + 團控（5/24 William 拍板）：多品牌時並排「切一半」、單一品牌只剩團控全寬。
+          提案 / 模板不問（提案轉開團時 dialog 強制補）。品牌 show-if-multi、皆必選。*/}
+      {!isProposalOrTemplate && (needsController || brands.length > 1) && (
+        <div className={brands.length > 1 && needsController ? 'grid grid-cols-2 gap-4' : ''}>
+          {/* 左：品牌（show-if-multi、必選）*/}
+          {brands.length > 1 && (
+            <div>
+              <label className="text-sm font-medium text-morandi-primary">
+                品牌 <span className="text-morandi-red">*</span>
+              </label>
+              <Select
+                value={newTour.brand_id || ''}
+                onValueChange={(value: string) =>
+                  setNewTour(prev => ({ ...prev, brand_id: value }))
+                }
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="選擇品牌..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {brands.map(b => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[0.588rem] text-morandi-muted mt-1">
+                這個案子屬於哪個品牌、必選。
+              </p>
+            </div>
+          )}
 
-      {/* 團控 — 旅遊團才需要、其他類型隱藏；提案 / 模板也不問（提案轉開團時 dialog 強制補）*/}
-      {!isProposalOrTemplate && needsController && (
-        <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            團控 <span className="text-morandi-red">*</span>
-          </label>
-          <Select
-            value={newTour.controller_id || ''}
-            onValueChange={(value: string) =>
-              setNewTour(prev => ({ ...prev, controller_id: value }))
-            }
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue placeholder="選擇團控..." />
-            </SelectTrigger>
-            <SelectContent>
-              {controllers.map(emp => (
-                <SelectItem key={emp.id} value={emp.id}>
-                  {emp.display_name || emp.english_name || emp.chinese_name}{' '}
-                  ({emp.employee_number})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-[0.588rem] text-morandi-muted mt-1">
-            團控控整團、必填。權限系統依此判斷誰能看到全團團員 / 訂單。
-          </p>
+          {/* 右：團控（必選）*/}
+          {needsController && (
+            <div>
+              <label className="text-sm font-medium text-morandi-primary">
+                團控 <span className="text-morandi-red">*</span>
+              </label>
+              <Select
+                value={newTour.controller_id || ''}
+                onValueChange={(value: string) =>
+                  setNewTour(prev => ({ ...prev, controller_id: value }))
+                }
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="選擇團控..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {controllers.map(emp => (
+                    <SelectItem key={emp.id} value={emp.id}>
+                      {emp.display_name || emp.english_name || emp.chinese_name}{' '}
+                      ({emp.employee_number})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[0.588rem] text-morandi-muted mt-1">
+                團控控整團、必填。權限系統依此判斷誰能看到全團團員 / 訂單。
+              </p>
+            </div>
+          )}
         </div>
       )}
 
