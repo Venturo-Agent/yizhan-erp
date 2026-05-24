@@ -38,9 +38,24 @@ export const GET = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: '缺少 integration_code' }, { status: 400 })
   }
 
+  const isCrossWorkspaceRead = workspaceId !== ctx.workspace_id
+
+  // 跨 workspace 查 → 必須有「租戶管理」權限（workspaces.write）才放行。
+  // 為什麼（2026-05-24 補）：原本只擋 workspaces.read、任何持該能力的租戶使用者傳別人的
+  // workspace_id 就能讀到該租戶的 integration 用量紀錄（admin client 繞過 RLS）＝跨租戶洩漏。
+  // 比照 /api/permissions/features 的 requireTenantAdmin（同樣「可選 workspace_id 跨租戶查」場景）。
+  if (isCrossWorkspaceRead) {
+    const tenantAdmin = await getApiContext({ capabilityCode: 'workspaces.write' })
+    if (!tenantAdmin.ok) {
+      return NextResponse.json(
+        { error: tenantAdmin.status === 401 ? '請先登入' : '無權限跨租戶查詢用量' },
+        { status: tenantAdmin.status },
+      )
+    }
+  }
+
   // 跨 workspace 查（如漫途客服查客戶資料）→ 寫 audit log 留紀錄
   // 2026-05-14 William 拍板：客戶有權知道漫途何時查了他們的 usage log
-  const isCrossWorkspaceRead = workspaceId !== ctx.workspace_id
   if (isCrossWorkspaceRead && ctx.employee_id) {
     const adminForAudit = getSupabaseAdminClient()
     const { ok, error: auditError } = await recordAudit(
