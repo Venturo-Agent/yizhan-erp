@@ -6,10 +6,9 @@ import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { CurrencyCell } from '@/components/table-cells'
 import { FileText } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils/format-currency'
-import { useReceipts } from '@/data/entities/receipts'
-import { usePaymentRequests } from '@/data/entities/payment-requests'
-import { useTours } from '@/data/entities/tours'
-import { isDraftTourStatus } from '@/lib/constants/tour-status'
+import { useReceiptsInRange } from '../_hooks/useReceiptsInRange'
+import { usePaymentRequestsInRange } from '../_hooks/usePaymentRequestsInRange'
+import { useDraftTourIds } from '../_hooks/useDraftTourIds'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import type { DateRange } from './DateRangeSelector'
@@ -51,20 +50,16 @@ interface OverviewTabProps {
 }
 
 export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
-  const { items: receipts, loading: receiptsLoading } = useReceipts({ all: true })
-  const { items: paymentRequests, loading: prLoading } = usePaymentRequests({ all: true })
-  const { items: tours, loading: toursLoading } = useTours({ all: true })
+  // 只撈選取範圍的收款/請款（不全撈整張表）；下方統計仍用原本 coalesce 日期 + 狀態精確過濾、數字不變
+  const { rows: receipts, loading: receiptsLoading } = useReceiptsInRange(dateRange)
+  const { rows: paymentRequests, loading: prLoading } = usePaymentRequestsInRange(dateRange)
+  // 只撈草稿團 id（template/proposal）、不全撈所有團
+  const { rows: draftTourIdList, loading: draftLoading } = useDraftTourIds()
 
-  const isLoading = receiptsLoading || prLoading || toursLoading
+  const isLoading = receiptsLoading || prLoading || draftLoading
 
-  // 拉一張 tour_id → status 的查表、用來擋 template/proposal 漏網資料
-  const draftTourIds = useMemo(() => {
-    const set = new Set<string>()
-    for (const t of tours) {
-      if (isDraftTourStatus((t as { status?: string }).status)) set.add(t.id)
-    }
-    return set
-  }, [tours])
+  // 草稿團（template/proposal）id 集合、用來擋工作台暫存資料入帳
+  const draftTourIds = useMemo(() => new Set(draftTourIdList), [draftTourIdList])
 
   const stats = useMemo(() => {
     const { startDate, endDate } = dateRange

@@ -8,8 +8,10 @@ import { EmptyValue } from '@/components/ui/empty-value'
 import { CurrencyCell, DateCell, StatusCell } from '@/components/table-cells'
 import { FileDown, Receipt, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { usePaymentRequests, useDisbursementOrders } from '@/data'
 import { useExpenseCategories } from '@/data/entities'
+import { usePaymentRequestsInRange } from '../_hooks/usePaymentRequestsInRange'
+import { useDisbursementOrdersInRange } from '../_hooks/useDisbursementOrdersInRange'
+import { useLinkedPaymentRequests } from '@/app/(main)/finance/treasury/_disbursement/_hooks/useLinkedPaymentRequests'
 import { PaymentRequest, DisbursementOrder } from '@/stores/types'
 import type { DateRange } from './DateRangeSelector'
 
@@ -57,8 +59,11 @@ interface DisbursementTabProps {
 
 export function DisbursementTab({ dateRange }: DisbursementTabProps) {
   const t = useTranslations('finance')
-  const { items: paymentRequests } = usePaymentRequests({ all: true })
-  const { items: disbursementOrders } = useDisbursementOrders({ all: true })
+  // 只撈選取範圍的請款/撥款單（不全撈）；下方仍用 request_date/disbursement_date 精確過濾、數字不變
+  const { rows: paymentRequests } = usePaymentRequestsInRange(dateRange)
+  const { rows: disbursementOrders } = useDisbursementOrdersInRange(dateRange)
+  // 出納單「請款單數」欄需數所有連動請款（不限日期）→ 用 links hook、不能用範圍限制的 paymentRequests（會少算）
+  const { items: linkedRequests } = useLinkedPaymentRequests()
   // 2026-05-21 Phase 2：類別顯示走 expense_categories.id 反查、舊 EXPENSE_TYPE_CONFIG 退休
   const { items: allCats } = useExpenseCategories({ all: true })
   const catNameById = useMemo(
@@ -173,7 +178,7 @@ export function DisbursementTab({ dateRange }: DisbursementTabProps) {
       width: '100',
       render: (_value, row) => (
         <span className="text-sm">
-          {paymentRequests.filter(pr => pr.disbursement_order_id === row.id).length} {COMPONENT_LABELS.COUNT_UNIT}
+          {linkedRequests.filter(pr => pr.disbursement_order_id === row.id).length} {COMPONENT_LABELS.COUNT_UNIT}
         </span>
       ),
     },
