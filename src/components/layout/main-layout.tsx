@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
 import { Sidebar } from './sidebar'
-import { SetupBanner } from './setup-banner'
 import { cn } from '@/lib/utils'
 import { usePathname } from 'next/navigation'
 import {
@@ -117,7 +116,6 @@ export function MainLayout({ children }: MainLayoutProps) {
         }}
       >
         <div className="h-full flex flex-col">
-          <SetupBanner />
           <div className="flex-1 flex flex-col p-4 lg:p-6 min-h-0">{children}</div>
         </div>
       </main>
