@@ -46,8 +46,10 @@ export interface ModuleTabConfig {
   name: string
   description?: string
   /**
-   * 是否為「下拉資格」tab（勾 = 出現在某下拉、admin 可個別取消）
-   * 例：tours.as_sales（出現在訂單「承辦業務」下拉）
+   * @deprecated 2026-05-24 已廢、勿再使用。
+   * eligibility 旗標系統整套移除（純角色 SSOT、能力決定一切）。原本 tours.as_sales/assistant/controller、
+   * finance.advance_payment 都改成正規能力或刪除。此欄位 + 下方 deriveEligibilities 機制留著只為相容、無 tab 使用。
+   * 指派候選改用 useEmployeesWithCapability（看 role_capabilities）。
    */
   isEligibility?: boolean
   /**
