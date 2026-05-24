@@ -61,7 +61,7 @@ const ReceiptPrintDialog = dynamic(
 // Hooks
 import { useReceiptsListView } from './_hooks/useReceiptsListView'
 import { useReceiptListActions } from './_hooks/useReceiptListActions'
-import { invalidateReceipts } from '@/data'
+import { invalidateReceipts, invalidatePaymentRequests } from '@/data'
 import { apiMutate } from '@/lib/swr/api-mutate'
 
 // Types
@@ -131,7 +131,9 @@ export default function PaymentsPage() {
   // - entity（invalidateReceipts）：tours 財務分頁 / finance dashboard / treasury / reports 共用、不刷會顯示舊資料
   // - 本頁 list-view 分頁 key（refreshListView）：invalidateReceipts 刷不到這個 key
   const refreshAll = useCallback(async () => {
-    await invalidateReceipts()
+    // 收款核准若有手續費會自動產生「手續費請款單」(payment_request)→ 必失效 PR 快取、
+    // 否則請款頁/其他 PR 讀取看不到那張單（C2 stale-read）
+    await Promise.all([invalidateReceipts(), invalidatePaymentRequests()])
     await refreshListView()
   }, [refreshListView])
 

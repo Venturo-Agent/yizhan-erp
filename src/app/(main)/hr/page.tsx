@@ -22,6 +22,8 @@ import { useConfirmDialog } from '@/hooks/useConfirmDialog'
 import { useAuthStore } from '@/stores/auth-store'
 import { toast } from 'sonner'
 import { apiMutate } from '@/lib/swr/api-mutate'
+// HR 用 useUserStore 寫入、須同步失效 employees entity 快取、否則其他頁下拉顯示舊名單（C3）
+import { invalidateEmployees } from '@/data'
 
 export default function HRPage() {
   const t = useTranslations('hrPage')
@@ -96,6 +98,7 @@ export default function HRPage() {
         terminated_at: new Date().toISOString(),
         terminated_by: currentUserId ?? null,
       })
+      await invalidateEmployees() // 其他頁的員工下拉同步移除已離職
       if (expandedEmployee === employee.id) {
         setExpandedEmployee(null)
       }
@@ -147,8 +150,8 @@ export default function HRPage() {
       if (expandedEmployee === employee.id) {
         setExpandedEmployee(null)
       }
-      // 更新前端 store（移掉這個員工 row）
-      await fetchAll()
+      // 更新前端 store（移掉這個員工 row）+ 失效 entity 快取（其他頁下拉同步移除）
+      await Promise.all([fetchAll(), invalidateEmployees()])
       toast.success(`已永久刪除員工「${employeeName}」`)
     } catch (err) {
       logger.error('[HR] delete employee network error', err)
@@ -322,6 +325,7 @@ export default function HRPage() {
               onSubmit={() => {
                 setExpandedEmployee(null)
                 fetchAll()
+                void invalidateEmployees() // 編輯後其他頁下拉同步更新
               }}
               onCancel={() => setExpandedEmployee(null)}
             />
@@ -339,6 +343,7 @@ export default function HRPage() {
             onSubmit={() => {
               setIsAddDialogOpen(false)
               fetchAll()
+              void invalidateEmployees() // 新增後其他頁下拉同步更新
             }}
             onCancel={() => {
               setIsAddDialogOpen(false)

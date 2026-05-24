@@ -155,6 +155,7 @@ export {
   useEmployee,
   useEmployeesPaginated,
   useEmployeeDictionary,
+  invalidateEmployees,
 } from './employees'
 
 // ============================================

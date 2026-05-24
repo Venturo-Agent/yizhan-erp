@@ -45,4 +45,6 @@ export const useEmployeeDictionary = employeeEntity.useDictionary
 const _createEmployee = employeeEntity.create
 const _updateEmployee = employeeEntity.update
 const _deleteEmployee = employeeEntity.delete
-const _invalidateEmployees = employeeEntity.invalidate
+// 2026-05-25 export：HR 頁用 useUserStore 寫入（store/entity 雙源）、寫後須失效 entity 快取、
+// 否則其他頁的 useEmployeesSlim 下拉（建團選業務/日曆/todos/channels）顯示舊名單（C3 stale-read）。
+export const invalidateEmployees = employeeEntity.invalidate
