@@ -4,9 +4,13 @@ import { defineModule } from './_define'
  * 財務系統 — 收款 / 請款 / 出納 / 報表
  *
  * 對應：
- * - 路由：/finance（及 6 個 sub-route）
- * - capability：finance.{payments,requests,treasury,...}.{read,write} + finance.advance_payment.write
- * - tabs：10 個功能 tab + 1 個下拉資格 tab
+ * - 路由：/finance（及 5 個 sub-route）
+ * - capability：finance.{payments,requests,disbursement,...}.{read,write} + finance.advance_payment.write
+ * - tabs：9 個功能 tab + 1 個下拉資格 tab
+ *
+ * 2026-05-24：移除「金庫總覽」(treasury overview) — William 確認該頁無人使用、
+ * 側邊選單直接連到撥款頁(/finance/treasury/disbursement)、總覽僅 finance hub 卡片連得到。
+ * 撥款(disbursement)是獨立 tab/capability、不受影響。
  */
 export const FinanceModule = defineModule({
   code: 'finance',
@@ -17,7 +21,6 @@ export const FinanceModule = defineModule({
     '/finance',
     '/finance/payments',
     '/finance/requests',
-    '/finance/treasury',
     '/finance/treasury/disbursement',
     '/finance/reports',
     '/finance/settings',
@@ -35,7 +38,6 @@ export const FinanceModule = defineModule({
       name: '薪資請款',
       description: '員工薪資請款（與公司請款權限隔離）',
     },
-    { code: 'treasury', name: '金庫總覽', description: '資金狀況總覽' },
     { code: 'disbursement', name: '出納管理', description: '撥款作業' },
     { code: 'reports', name: '報表管理', description: '財務報表' },
     { code: 'settings', name: '財務設定', description: '付款方式、科目設定' },

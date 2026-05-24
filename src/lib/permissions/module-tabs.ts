@@ -175,11 +175,6 @@ export const MODULES: ModuleDefinition[] = [
         description: '員工薪資請款（與公司請款權限隔離）',
       },
       {
-        code: 'treasury',
-        name: '金庫總覽',
-        description: '資金狀況總覽',
-      },
-      {
         code: 'disbursement',
         name: '出納管理',
         description: '撥款作業',

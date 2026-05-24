@@ -16,7 +16,6 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  Wallet,
   BarChart3,
   AlertTriangle,
 } from 'lucide-react'
@@ -115,15 +114,6 @@ export default function FinancePage() {
       stats: t('moduleFinanceStats', { count: transactionsCount }),
       color: 'text-morandi-green',
       bgColor: 'bg-morandi-green/10',
-    },
-    {
-      title: t('moduleTreasuryTitle'),
-      description: t('moduleTreasuryDesc'),
-      icon: Wallet,
-      href: '/finance/treasury',
-      stats: t('moduleTreasuryStats'),
-      color: 'text-morandi-gold',
-      bgColor: 'bg-morandi-gold/10',
     },
     {
       title: t('moduleReportsTitle'),

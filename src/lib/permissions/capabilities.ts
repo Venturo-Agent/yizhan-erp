@@ -80,8 +80,6 @@ export const CAPABILITIES = {
   FINANCE_REQUESTS_COMPANY_WRITE: 'finance.requests-company.write',
   FINANCE_READ_REQUESTS_SALARY: 'finance.requests-salary.read',
   FINANCE_REQUESTS_SALARY_WRITE: 'finance.requests-salary.write',
-  FINANCE_READ_TREASURY: 'finance.treasury.read',
-  FINANCE_TREASURY_WRITE: 'finance.treasury.write',
   FINANCE_READ_DISBURSEMENT: 'finance.disbursement.read',
   FINANCE_MANAGE_DISBURSEMENT: 'finance.disbursement.write',
   FINANCE_READ_REPORTS: 'finance.reports.read',

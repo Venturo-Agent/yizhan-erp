@@ -38,8 +38,8 @@ export const BREADCRUMB_CONFIG: Record<string, BreadcrumbConfig> = {
   '/finance/requests': { label: '請款單', parent: '/finance' },
   '/finance/payments': { label: '收款管理', parent: '/finance' },
   '/finance/reports': { label: '財務報表', parent: '/finance' },
-  '/finance/treasury': { label: '出納管理', parent: '/finance' },
-  '/finance/treasury/disbursement': { label: '出帳單', parent: '/finance/treasury' },
+  // 2026-05-24 移除金庫總覽頁(/finance/treasury)、出帳單 parent 直接接回 /finance
+  '/finance/treasury/disbursement': { label: '出納管理', parent: '/finance' },
 
   // ========== 會計系統 ==========
   '/accounting': { label: '會計', parent: '/' },
