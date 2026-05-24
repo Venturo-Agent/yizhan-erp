@@ -94,7 +94,7 @@
   },
   "src/app/(main)/orders/_components/OrderStatusChangeDialog.tsx": {
     "venturo/no-direct-supabase-writes": {
-      "count": 2
+      "count": 1
     }
   },
   "src/app/(main)/orders/_components/member-edit/PassportSection.tsx": {
