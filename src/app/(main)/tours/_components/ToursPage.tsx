@@ -4,11 +4,11 @@
  * 支援三種開團方式：正式開團 / 提案 / 模板
  */
 
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
-import { useQuotesSlim, useOrdersSlim } from '@/data'
+import { useQuotesSlim } from '@/data'
 import { useItineraries } from '@/data'
 import { useTourOperations } from '../_hooks/useTourOperations'
 import { useTourActionButtons } from './TourActionButtons'
@@ -58,22 +58,9 @@ export const ToursPage: React.FC = () => {
 
   // 🔧 優化：只保留 quotes（TourActionButtons 需要），其他由 useTourOperations 內部處理
   const { items: quotes } = useQuotesSlim()
-  const { items: allOrders } = useOrdersSlim()
   const { items: itineraries } = useItineraries({ all: true })
-
-  // Build a map of tour_id → first order's sales_person/assistant for display in tour table
-  const ordersByTourId = useMemo(() => {
-    const map = new Map<string, { sales_person: string | null; assistant: string | null }>()
-    for (const order of allOrders) {
-      if (order.tour_id && !map.has(order.tour_id)) {
-        map.set(order.tour_id, {
-          sales_person: order.sales_person ?? null,
-          assistant: order.assistant ?? null,
-        })
-      }
-    }
-    return map
-  }, [allOrders])
+  // 5/24：移除「全撈訂單建 sales_person/assistant map」—— 該 map 從沒 render（dead code）、
+  // 且 assistant 旗標已廢。順帶省掉旅遊團列表頁一個白撈的全部訂單。
 
   // 🔧 對話框狀態
   const [dialogState, setDialogState] = useState<{
@@ -218,7 +205,7 @@ export const ToursPage: React.FC = () => {
         toast.error('建立訂單失敗，請稍後再試')
       }
     },
-    [user?.workspace_id, addOrderDialogTour, allOrders, router]
+    [user?.workspace_id, addOrderDialogTour, router]
   )
 
   // 開團轉換（提案 → 正式團）
@@ -380,7 +367,6 @@ export const ToursPage: React.FC = () => {
             onRowClick={handleRowClick}
             renderActions={renderActions}
             getStatusColor={getStatusColor}
-            ordersByTourId={ordersByTourId}
             activeTab={activeStatusTab}
             onConvertTour={handleConvertTour}
             serverPagination={{

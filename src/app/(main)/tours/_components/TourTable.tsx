@@ -16,7 +16,6 @@ interface TourTableProps {
   onRowClick: (row: unknown) => void
   renderActions: (row: unknown) => React.ReactNode
   getStatusColor?: (status: string) => string
-  ordersByTourId?: Map<string, { sales_person: string | null; assistant: string | null }>
   activeTab?: string
   onConvertTour?: (tour: Tour) => void
   serverPagination?: {
@@ -34,12 +33,11 @@ export const TourTable: React.FC<TourTableProps> = ({
   onRowClick,
   renderActions,
   getStatusColor,
-  ordersByTourId,
   activeTab,
   onConvertTour,
   serverPagination,
 }) => {
-  const officialColumns = useTourTableColumns({ ordersByTourId })
+  const officialColumns = useTourTableColumns()
   const templateColumns = useTemplateTableColumns({ onConvert: onConvertTour })
 
   const isTemplateTab = activeTab === 'proposal' || activeTab === 'template'

@@ -44,8 +44,6 @@ export const TOUR_TABLE = {
   col_name: '旅遊團名稱',
   col_departure: '出發日期',
   col_return: '回程日期',
-  col_salesperson: '業務員',
-  col_assistant: '團控',
   col_status: '狀態',
   col_location: '目的地',
   col_days: '天數',

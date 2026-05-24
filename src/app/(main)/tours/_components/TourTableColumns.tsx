@@ -13,11 +13,7 @@ import { StatusBadge } from '@/components/ui/status-badge'
 import { TOUR_TABLE } from '../_constants'
 import { useTourDisplayResolver } from '../_utils/tour-display'
 
-interface UseTourTableColumnsParams {
-  ordersByTourId?: Map<string, { sales_person: string | null; assistant: string | null }>
-}
-
-export function useTourTableColumns({ ordersByTourId }: UseTourTableColumnsParams) {
+export function useTourTableColumns() {
   return useMemo<TableColumn[]>(
     () => [
       {
@@ -81,7 +77,7 @@ export function useTourTableColumns({ ordersByTourId }: UseTourTableColumnsParam
         },
       },
     ],
-    [ordersByTourId]
+    []
   )
 }
 
