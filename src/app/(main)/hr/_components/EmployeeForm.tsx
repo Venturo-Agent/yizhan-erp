@@ -78,7 +78,6 @@ export function EmployeeForm({
     roles,
     branches,
     hrFullEnabled,
-    toggleEligibility,
     handleCreateBranch,
     handleAvatarChange,
     handleSubmit,
@@ -166,7 +165,6 @@ export function EmployeeForm({
               branches={branches}
               onChange={patch => setFormData(prev => ({ ...prev, ...patch }))}
               onCreateBranch={handleCreateBranch}
-              onToggleEligibility={toggleEligibility}
             />
 
             {/* 薪資設定（HR 模式 + 完整人資 feature 才顯示、新增 / 編輯都要看到）

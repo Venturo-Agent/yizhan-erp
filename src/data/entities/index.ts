@@ -540,12 +540,7 @@ export {
 } from './supplier-pricing'
 export type { SupplierPricing } from './supplier-pricing'
 
-// Employee Eligibilities（5/13、員工資格、從 role_capabilities 移過來）
-export {
-  useEmployeeEligibilities,
-  invalidateEmployeeEligibilities,
-} from './employee-eligibilities'
-export type { EmployeeEligibility } from './employee-eligibilities'
+// 5/24 純角色 SSOT：移除 employee-eligibilities 系統（旗標已廢、改純角色能力）。
 
 // Role Capabilities（5/24、純角色 SSOT、指派候選池來源）
 export {

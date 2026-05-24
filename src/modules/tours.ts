@@ -32,24 +32,7 @@ export const ToursModule = defineModule({
     { code: 'quote', name: '報價', description: '報價計算、成本' },
     { code: 'contract', name: '合約', description: '旅遊合約、電子簽約', category: 'premium' },
     { code: 'closing', name: '結案', description: '結案報表、損益確認' },
-    // ===== 下拉資格（勾寫入 = 出現在該下拉）=====
-    {
-      code: 'as_sales',
-      name: '可當承辦業務',
-      description: '勾寫入 → 出現在訂單「承辦業務」下拉',
-      isEligibility: true,
-    },
-    {
-      code: 'as_assistant',
-      name: '可當助理',
-      description: '勾寫入 → 出現在訂單「助理」下拉',
-      isEligibility: true,
-    },
-    {
-      code: 'as_controller',
-      name: '可當團控',
-      description: '勾寫入 → 出現在旅遊團「團控」下拉',
-      isEligibility: true,
-    },
+    // 5/24 純角色 SSOT：移除 as_sales/as_assistant/as_controller 三個資格旗標。
+    // 業務候選 = 有 orders.create/edit.write 的人、團控候選 = 有 tours.members.write 的人、助理已廢。
   ],
 })

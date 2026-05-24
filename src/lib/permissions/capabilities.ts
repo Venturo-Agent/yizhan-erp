@@ -87,6 +87,7 @@ export const CAPABILITIES = {
   FINANCE_REPORTS_WRITE: 'finance.reports.write',
   FINANCE_READ_SETTINGS: 'finance.settings.read',
   FINANCE_MANAGE_SETTINGS: 'finance.settings.write',
+  FINANCE_ADVANCE_PAYMENT_WRITE: 'finance.advance_payment.write',
   // ── accounting ──
   ACCOUNTING_VOUCHERS_READ: 'accounting.vouchers.read',
   ACCOUNTING_VOUCHERS_WRITE: 'accounting.vouchers.write',
@@ -196,7 +197,6 @@ export const CAPABILITIES = {
 
   // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════
   CHANNELS_MANAGE: 'channels.manage',
-  FINANCE_ADVANCE_PAYMENT_WRITE: 'finance.advance_payment.write',
   LINE_BOT_CONFIG: 'line_bot.config',
   LINE_BOT_READ: 'line_bot.read',
   LINE_BOT_WRITE: 'line_bot.write',

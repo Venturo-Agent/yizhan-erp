@@ -193,6 +193,11 @@ export const MODULES: ModuleDefinition[] = [
         name: '財務設定',
         description: '付款方式、科目設定',
       },
+      {
+        code: 'advance_payment',
+        name: '可代墊款',
+        description: '有此能力的人出現在請款頁「代墊款人」下拉',
+      },
     ],
   },
   {

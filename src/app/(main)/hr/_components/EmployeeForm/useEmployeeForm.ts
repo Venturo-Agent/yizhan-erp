@@ -13,7 +13,6 @@ import { useWorkspaceId } from '@/lib/workspace-context'
 import { useBranches, useRoles } from '@/data/hooks'
 import { apiGet, apiPatch, apiPost, apiPut, extractHttpErrorMessage, HttpError } from '@/lib/api/client'
 import { useEmployee } from '@/data/entities/employees'
-import { invalidateEmployeeEligibilities } from '@/data/entities/employee-eligibilities'
 import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 import { isHrFullEnabled } from '@/lib/permissions/subscription-plans'
 import { EmployeeFull } from '@/stores/types'
@@ -115,7 +114,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     dependents_count: (employee?.salary_info?.dependents_count as number | undefined) ?? 0,
     labor_insured_here: (employee?.salary_info?.labor_insured_here as boolean | undefined) ?? true,
     health_insured_here: (employee?.salary_info?.health_insured_here as boolean | undefined) ?? true,
-    eligibility_codes: [] as string[],
     avatar_url: employee?.avatar_url ?? '',
     bank_code: employee?.bank_code ?? '',
     bank_name: employee?.bank_name ?? '',
@@ -142,21 +140,7 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     }
   }, [branches, formData.branch_id])
 
-  // 編輯模式：載入既有員工 eligibility
-  useEffect(() => {
-    if (!employeeId) return
-    apiGet<{ data: string[] }>(`/api/employees/${employeeId}/eligibilities`)
-      .then(res => setFormData(prev => ({ ...prev, eligibility_codes: res.data || [] })))
-      .catch(err => logger.error('載入員工資格失敗', err))
-  }, [employeeId])
-
-  // 新增模式：選 role 後自動帶該 role 預設 eligibility（HR 可手動取消）
-  useEffect(() => {
-    if (isEditMode || !formData.role_id) return
-    apiGet<{ data: string[] }>(`/api/roles/${formData.role_id}/eligibility-defaults`)
-      .then(res => setFormData(prev => ({ ...prev, eligibility_codes: res.data || [] })))
-      .catch(err => logger.error('載入職務預設資格失敗', err))
-  }, [formData.role_id, isEditMode])
+  // 5/24 純角色 SSOT：移除 eligibility 載入/預設邏輯。指派候選改由職務權限(role_capabilities)決定。
 
   // 當 employee 資料更新時，同步更新 formData
   useEffect(() => {
@@ -202,15 +186,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
       setAvatarPreview(employee.avatar_url || null)
     }
   }, [employee])
-
-  const toggleEligibility = (code: string, checked: boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      eligibility_codes: checked
-        ? Array.from(new Set([...prev.eligibility_codes, code]))
-        : prev.eligibility_codes.filter(c => c !== code),
-    }))
-  }
 
   const handleCreateBranch = async () => {
     const name = await prompt('輸入新分公司名稱', { title: '新增分公司', placeholder: '例如：台北分公司' })
@@ -349,8 +324,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
           }
           throw err
         }
-        await apiPut(`/api/employees/${employeeId}/eligibilities`, { codes: formData.eligibility_codes })
-        await invalidateEmployeeEligibilities()
         await updateEmployee(employeeId, {} as Parameters<typeof updateEmployee>[1])
       } else {
         const defaultPassword = '12345678'
@@ -374,14 +347,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
           throw err
         }
 
-        if (newEmployeeId && formData.eligibility_codes.length > 0) {
-          try {
-            await apiPut(`/api/employees/${newEmployeeId}/eligibilities`, { codes: formData.eligibility_codes })
-            await invalidateEmployeeEligibilities()
-          } catch (err) {
-            logger.error('新員工資格寫入失敗（員工已建、可手動補）', err)
-          }
-        }
 
         const { alert } = await import('@/lib/ui/alert-dialog')
         await alert(
@@ -420,7 +385,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     roles,
     branches,
     hrFullEnabled,
-    toggleEligibility,
     handleCreateBranch,
     handleAvatarChange,
     handleSubmit,

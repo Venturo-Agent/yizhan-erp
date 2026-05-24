@@ -12,7 +12,6 @@ import {
   MapPin,
   Heart,
 } from 'lucide-react'
-import { ELIGIBILITY_CODES, ELIGIBILITY_LABELS } from '@/lib/eligibilities'
 
 const LABELS = {
   CHINESE_NAME: '中文姓名',
@@ -26,8 +25,6 @@ const LABELS = {
   ROLE_NOTE: '（由主管指派，如需調整請聯絡 HR）',
   SELECT_ROLE: '請選擇職務',
   BRANCH: '分公司',
-  ELIGIBILITY: '個人資格',
-  ELIGIBILITY_HINT: '勾選 = 此員工可被指派為對應角色（業務 / 助理 / 團控 / 代墊款人）。新員工會按職務預設帶入、可手動取消。',
   EMAIL: 'Email',
   PHONE: '手機',
   BIRTHDAY: '生日',
@@ -61,7 +58,6 @@ interface BasicInfoSectionProps {
     job_title: string
     role_id: string
     branch_id: string
-    eligibility_codes: string[]
     email: string
     phone: string
     birth_date: string
@@ -76,7 +72,6 @@ interface BasicInfoSectionProps {
   branches: ScopeOption[]
   onChange: (patch: Partial<BasicInfoSectionProps['formData']>) => void
   onCreateBranch: () => void
-  onToggleEligibility: (code: string, checked: boolean) => void
 }
 
 export function BasicInfoSection({
@@ -86,7 +81,6 @@ export function BasicInfoSection({
   roles,
   branches,
   onChange,
-  onToggleEligibility,
 }: BasicInfoSectionProps) {
   return (
     <div className="space-y-5">
@@ -185,33 +179,7 @@ export function BasicInfoSection({
         </div>
       )}
 
-      {/* 個人資格（HR 模式才顯示）*/}
-      {mode === 'hr' && (
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-morandi-primary uppercase">
-            {LABELS.ELIGIBILITY}
-          </Label>
-          <div className="grid grid-cols-2 gap-2 p-3 border border-morandi-gold/30 rounded-lg bg-card">
-            {ELIGIBILITY_CODES.map(code => {
-              const checked = formData.eligibility_codes.includes(code)
-              return (
-                <label key={code} className="flex items-center gap-2 cursor-pointer text-sm text-morandi-primary">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={e => onToggleEligibility(code, e.target.checked)}
-                    className="accent-morandi-gold"
-                  />
-                  <span>{ELIGIBILITY_LABELS[code]}</span>
-                </label>
-              )
-            })}
-          </div>
-          <p className="text-[0.588rem] text-morandi-muted">
-            {LABELS.ELIGIBILITY_HINT}
-          </p>
-        </div>
-      )}
+      {/* 5/24 純角色 SSOT：移除「個人資格」勾選。業務/團控/代墊 等指派候選改由「職務權限」決定（/hr/roles 勾能力給職務）、不再在員工頁逐人勾。 */}
 
       {/* 聯絡資訊 */}
       <div className="grid grid-cols-2 gap-4">

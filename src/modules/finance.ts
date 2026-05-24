@@ -39,12 +39,13 @@ export const FinanceModule = defineModule({
     { code: 'disbursement', name: '出納管理', description: '撥款作業' },
     { code: 'reports', name: '報表管理', description: '財務報表' },
     { code: 'settings', name: '財務設定', description: '付款方式、科目設定' },
-    // ===== 下拉資格（admin 可個別取消）=====
+    // 可代墊款：職務權限開關（5/24 純角色 SSOT、原 eligibility 旗標改為正規能力）。
+    // 勾此能力的職務 → 其員工出現在請款頁「代墊款人」下拉。只需 write（純授權開關）。
     {
       code: 'advance_payment',
       name: '可代墊款',
-      description: '勾寫入 → 出現在請款頁「代墊款人」下拉',
-      isEligibility: true,
+      description: '有此能力的人出現在請款頁「代墊款人」下拉',
+      capabilities: ['write'],
     },
   ],
 })
