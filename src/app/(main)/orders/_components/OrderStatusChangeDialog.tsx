@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { CheckCircle2, AlertCircle, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
+import { updateOrder } from '@/data'
 import { useAuthStore } from '@/stores'
 import { logger } from '@/lib/utils/logger'
 import { ORDER_STATUS_MAP } from '@/lib/constants/status-maps'
@@ -67,13 +68,10 @@ export function OrderStatusChangeDialog({
     setSaving(true)
 
     try {
-      const { error } = await supabase
-        .from('orders')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', order.id)
+      // 5/24：訂單狀態改走 updateOrder entity hook（自動失效訂單快取、狀態改後列表即時反映）
+      await updateOrder(order.id, { status: newStatus })
 
-      if (error) throw error
-
+      // order_status_logs 是 fire-and-forget 審計 log（無 UI 列表需失效）→ 維持直接 insert（合法豁免）
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase as any).from('order_status_logs').insert({
         order_id: order.id,
