@@ -1,9 +1,4 @@
 {
-  "src/app/(main)/accounting/checks/components/CreateCheckDialog.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
   "src/app/(main)/accounting/checks/page.tsx": {
     "venturo/no-direct-supabase-writes": {
       "count": 2
