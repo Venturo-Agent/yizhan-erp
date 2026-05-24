@@ -12,7 +12,12 @@ import { confirm } from '@/lib/ui/alert-dialog'
 import { supabase } from '@/lib/supabase/client'
 import { formatDate } from '@/lib/utils'
 import { logger } from '@/lib/utils/logger'
-import { deleteTour as deleteTourEntity, updateTour } from '@/data'
+import {
+  deleteTour as deleteTourEntity,
+  updateTour,
+  invalidateCalendarEvents,
+  invalidateTourItineraryItems,
+} from '@/data'
 import {
   checkTourDependencies,
   deleteTourEmptyOrders,
@@ -102,6 +107,9 @@ export default function ArchiveManagementPage() {
       await unlinkTourItineraries(tour.id)
       await deleteTourEmptyOrders(tour.id)
       await deleteTourEntity(tour.id)
+      // 直接 delete 的 calendar_events / tour_itinerary_items 沒走 entity hook、
+      // 補 invalidate、否則 calendar/行程編輯頁仍顯示已刪資料（P0-2、stale-read）
+      await Promise.all([invalidateCalendarEvents(), invalidateTourItineraryItems()])
       toast.success(t('archiveToastTourDeleted', { code: tour.code }))
       loadArchivedData()
     } catch (error) {
