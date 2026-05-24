@@ -22,10 +22,6 @@ export interface ModuleTab {
   name: string
   description?: string
   /**
-   * 是否為「下拉資格」tab（admin 可個別取消的開關）
-   */
-  isEligibility?: boolean
-  /**
    * tab 層級功能分類（workspace 層級開關用）
    */
   category?: 'basic' | 'premium'

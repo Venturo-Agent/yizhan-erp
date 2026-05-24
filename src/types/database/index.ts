@@ -158,7 +158,8 @@ export type EmployeeRow = Tables['employees']['Row']
 export type EmployeeInsert = Tables['employees']['Insert']
 export type EmployeeUpdate = Tables['employees']['Update']
 
-export type EmployeeEligibilityRow = Tables['employee_eligibilities']['Row']
+// EmployeeEligibilityRow：5/24 eligibility 旗標系統整套移除（純角色 SSOT、能力決定一切）。
+//   employee_eligibilities 表暫留作 deploy 後角色授權參考、code 不再讀寫、待 William 用完後 drop。
 
 // 請假
 // export type LeaveRequestRow = Tables['leave_requests']['Row']  // 表已移除

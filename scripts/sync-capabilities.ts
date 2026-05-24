@@ -34,7 +34,6 @@ const supabase = createClient(supabaseUrl, serviceRoleKey)
 /**
  * 從 MODULES 計算所有 capability codes。
  * 每個 module 至少有 .read / .write、tab 同樣分 read / write。
- * Eligibility tab（isEligibility=true）只有 .write（勾寫入）。
  */
 function computeAllCapabilityCodes(): Set<string> {
   const codes = new Set<string>()
@@ -45,13 +44,8 @@ function computeAllCapabilityCodes(): Set<string> {
     codes.add(`${m.code}.write`)
 
     for (const tab of m.tabs) {
-      if (tab.isEligibility) {
-        // 下拉資格 tab：只有 .write（勾寫入 = 出現在下拉）
-        codes.add(`${m.code}.${tab.code}.write`)
-      } else {
-        codes.add(`${m.code}.${tab.code}.read`)
-        codes.add(`${m.code}.${tab.code}.write`)
-      }
+      codes.add(`${m.code}.${tab.code}.read`)
+      codes.add(`${m.code}.${tab.code}.write`)
     }
   }
 
@@ -135,9 +129,7 @@ async function syncWorkspaceFeatures() {
   for (const m of MODULES) {
     featureCodes.add(m.code)
     for (const tab of m.tabs) {
-      if (!tab.isEligibility) {
-        featureCodes.add(`${m.code}.${tab.code}`)
-      }
+      featureCodes.add(`${m.code}.${tab.code}`)
     }
   }
 

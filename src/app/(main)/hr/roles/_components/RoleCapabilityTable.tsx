@@ -109,35 +109,27 @@ export function RoleCapabilityTable({
           isExpanded &&
           module.tabs.map(tab => {
             const perm = getPermission(module.code, tab.code)
-            // 下拉資格 tab：admin 也可個別取消（例：老闆不想出現在代墊款下拉）
-            const adminCanEdit = tab.isEligibility === true
-            const effectiveDisabled = isAdminRole && !adminCanEdit
             return (
               <div key={tab.code} className="flex items-center border-t border-border bg-card">
                 <div className="flex-1 p-4 pl-12 flex items-center gap-2">
                   <div className="w-1 h-4 bg-border rounded-full" />
                   <span className="text-sm text-morandi-primary">{tab.name}</span>
-                  {tab.isEligibility && (
-                    <span className="text-[0.588rem] px-1.5 py-0.5 rounded bg-morandi-gold/10 text-morandi-gold border border-morandi-gold/30">
-                      下拉資格
-                    </span>
-                  )}
                 </div>
                 <div className="w-32 p-4 flex justify-center">
                   <Switch
-                    checked={(isAdminRole && !adminCanEdit) || (perm?.can_read ?? false)}
+                    checked={isAdminRole || (perm?.can_read ?? false)}
                     onCheckedChange={() => onToggleTabPermission(module.code, tab.code, 'can_read')}
-                    disabled={effectiveDisabled}
+                    disabled={isAdminRole}
                     className="data-[state=checked]:bg-morandi-green"
                   />
                 </div>
                 <div className="w-32 p-4 flex justify-center">
                   <Switch
-                    checked={(isAdminRole && !adminCanEdit) || (perm?.can_write ?? false)}
+                    checked={isAdminRole || (perm?.can_write ?? false)}
                     onCheckedChange={() =>
                       onToggleTabPermission(module.code, tab.code, 'can_write')
                     }
-                    disabled={effectiveDisabled}
+                    disabled={isAdminRole}
                     className="data-[state=checked]:bg-morandi-gold"
                   />
                 </div>

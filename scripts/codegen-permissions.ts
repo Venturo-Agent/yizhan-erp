@@ -156,7 +156,7 @@ export function getAddonFeatures(): FeatureDefinition[] {
 // module-tabs.ts
 
 function genModuleTabsTs(): string {
-  // 用 deriveModuleTabsEntry helper（過濾 hiddenInHr + isEligibility tab、5/13 紀律）
+  // 用 deriveModuleTabsEntry helper（過濾 hiddenInHr tab）
   const exposed = getHrExposedModules()
   const modules = exposed.map((m) => deriveModuleTabsEntry(m))
 
@@ -172,10 +172,6 @@ export interface ModuleTab {
   code: string
   name: string
   description?: string
-  /**
-   * 是否為「下拉資格」tab（admin 可個別取消的開關）
-   */
-  isEligibility?: boolean
   /**
    * tab 層級功能分類（workspace 層級開關用）
    */

@@ -248,7 +248,6 @@ export async function seedWorkspaceFeatures(
   const tabFeatures: { feature_code: string; enabled: boolean }[] = []
   for (const m of MODULES) {
     for (const t of m.tabs) {
-      if (t.isEligibility) continue
       const key = `${m.code}.${t.code}`
       let enabled: boolean
       if (advancePickTabCodes.has(key)) {

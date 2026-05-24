@@ -34,7 +34,7 @@ export const ToursModule = defineModule({
     { code: 'overview', name: '總覽' },
     { code: 'itinerary', name: '行程' },
     { code: 'contract', name: '合約', category: 'premium' },
-    { code: 'as_sales', name: '可當業務', isEligibility: true },  // 只衍生 .write
+    { code: 'template', name: '模板', capabilities: ['write'] },  // 只衍生 .write
   ],
 })
 ```
@@ -43,7 +43,7 @@ export const ToursModule = defineModule({
 - `tours.read` + `tours.write`（module-level）
 - `tours.overview.read` + `tours.overview.write`（tab、預設）
 - `tours.contract.read` + `tours.contract.write`（tab + premium 是 workspace_features 用、不影響 capability）
-- `tours.as_sales.write`（eligibility tab、只 write）
+- `tours.template.write`（用 `capabilities: ['write']` 限定、只衍生 write）
 
 ---
 

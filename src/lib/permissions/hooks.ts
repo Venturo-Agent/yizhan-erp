@@ -106,7 +106,6 @@ export function useWorkspaceFeatures() {
  * - tab 在 module-tabs.ts 中沒定義 → 視為一律可見（例如自訂 tab）
  * - 定義為 `category: 'premium'` → 需要付費大開關 + 功能小開關
  * - 其他（basic）→ 預設開，只有 workspace 明確關才隱藏
- * - `isEligibility: true` 的 tab（下拉資格類）→ 不受功能門檻管制、一律可見
  */
 export function useVisibleModuleTabs<T extends { value: string }>(
   moduleCode: string,
@@ -121,7 +120,6 @@ export function useVisibleModuleTabs<T extends { value: string }>(
     return tabs.filter(tab => {
       const moduleTab = moduleDef.tabs.find(t => t.code === tab.value)
       if (!moduleTab) return true
-      if (moduleTab.isEligibility) return true
       return isTabEnabled(moduleCode, tab.value, moduleTab.category)
     })
   }, [moduleCode, tabs, isTabEnabled])

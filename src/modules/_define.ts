@@ -38,20 +38,11 @@
  *
  * tab 自動衍生 capability codes：
  *   `{module}.{tab}.read` + `{module}.{tab}.write`
- *
- * 例外：isEligibility = true 的 tab、只衍生 write（資格性 tab、沒 read/write 之分）
  */
 export interface ModuleTabConfig {
   code: string
   name: string
   description?: string
-  /**
-   * @deprecated 2026-05-24 已廢、勿再使用。
-   * eligibility 旗標系統整套移除（純角色 SSOT、能力決定一切）。原本 tours.as_sales/assistant/controller、
-   * finance.advance_payment 都改成正規能力或刪除。此欄位 + 下方 deriveEligibilities 機制留著只為相容、無 tab 使用。
-   * 指派候選改用 useEmployeesWithCapability（看 role_capabilities）。
-   */
-  isEligibility?: boolean
   /**
    * tab 層級功能分類（workspace 層級開關用）
    * - 'basic' / undefined：預設開
@@ -148,9 +139,7 @@ export function defineModule<const T extends ModuleConfig>(config: T): T {
  * 從 module 衍生所有 capability codes
  *
  * 規則：
- * 1. tab 非空 → 每個 tab 衍生 `{module}.{tab}.{action}`
- *    - 一般 tab：`.read` + `.write`
- *    - isEligibility tab：只 `.write`
+ * 1. tab 非空 → 每個 tab 衍生 `{module}.{tab}.{action}`（一般 tab：`.read` + `.write`）
  * 2. tab 為空 → module-level 衍生 `{module}.read` + `{module}.write`
  * 3. moduleLevelCapabilities 明確指定 → 用指定的
  */
@@ -165,10 +154,7 @@ export function deriveCapabilityCodes(m: ModuleConfig): string[] {
   }
 
   // Tab-level capabilities
-  // 5/13 William 拍板：isEligibility tab 不衍生 capability、改放 employee_eligibilities 表
-  // 資格不是「職務權限」、是「員工個人屬性」、在員工編輯頁勾、不在 HR /hr/roles 配
   for (const tab of m.tabs) {
-    if (tab.isEligibility) continue // 跳過、走 employee_eligibilities
     const actions = tab.capabilities ?? (['read', 'write'] as const)
     for (const action of actions) {
       codes.push(`${m.code}.${tab.code}.${action}`)
@@ -176,31 +162,6 @@ export function deriveCapabilityCodes(m: ModuleConfig): string[] {
   }
 
   return codes
-}
-
-/**
- * 從 module 衍生「資格清單」（給員工編輯頁 UI 用、不是 capability）
- * 5/13 William 拍板：資格 = 員工個人屬性、不是 role 權限
- *
- * 回傳：`{module}.{tab}` 格式的 code（不含 .read/.write 後綴）
- * 例：tours.as_sales / tours.as_assistant / tours.as_controller / finance.advance_payment
- */
-export function deriveEligibilityList(m: ModuleConfig): {
-  code: string
-  moduleCode: string
-  moduleName: string
-  name: string
-  description?: string
-}[] {
-  return m.tabs
-    .filter((t) => t.isEligibility)
-    .map((t) => ({
-      code: `${m.code}.${t.code}`,
-      moduleCode: m.code,
-      moduleName: m.name,
-      name: t.name,
-      description: t.description,
-    }))
 }
 
 /**
@@ -220,7 +181,6 @@ export function deriveFeature(m: ModuleConfig) {
  * 從 module 衍生 module-tabs definition（給 module-tabs.ts 用、HR /hr/roles UI）
  * 只 export exposedToHr !== false 的 module
  * 過濾 hiddenInHr=true 的 tab（個人空間 / 標配、不該讓 HR admin 配置）
- * 過濾 isEligibility=true 的 tab（5/13：資格改員工編輯頁勾、不在 HR）
  */
 export function deriveModuleTabsEntry(m: ModuleConfig) {
   return {
@@ -228,7 +188,7 @@ export function deriveModuleTabsEntry(m: ModuleConfig) {
     name: m.name,
     description: m.description,
     tabs: m.tabs
-      .filter((t) => t.hiddenInHr !== true && t.isEligibility !== true)
+      .filter((t) => t.hiddenInHr !== true)
       .map((t) => ({
         code: t.code,
         name: t.name,

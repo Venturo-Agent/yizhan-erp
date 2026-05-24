@@ -41,13 +41,11 @@ export default function RolesPage() {
   const { isFeatureEnabled, isTabEnabled, loading: _featuresLoading } = useWorkspaceFeatures()
 
   // 只顯示這個 workspace 已啟用的模組、且過濾掉 workspace 沒開通的 tab
-  // isEligibility tabs（可當業務/助理/團控/代墊款）不是 workspace feature、
-  // 是員工層級的可選資格、一律顯示（admin 對每個員工勾）
   const visibleModules = useMemo(
     () =>
       MODULES.filter(m => isFeatureEnabled(m.code)).map(m => ({
         ...m,
-        tabs: m.tabs.filter(tab => tab.isEligibility || isTabEnabled(m.code, tab.code, tab.category)),
+        tabs: m.tabs.filter(tab => isTabEnabled(m.code, tab.code, tab.category)),
       })),
     [isFeatureEnabled, isTabEnabled]
   )
