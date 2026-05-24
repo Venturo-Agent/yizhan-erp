@@ -57,6 +57,8 @@ interface ComboboxProps<T = unknown> {
   onCreate?: (name: string) => Promise<string | null>
   /** 快速新增按鈕文字，預設「+ 新增 "xxx"」 */
   createLabel?: string
+  /** 掛載時自動展開下拉並聚焦（用於「點按鈕才出現」的欄位、省去再點一次） */
+  defaultOpen?: boolean
 }
 
 /**
@@ -103,8 +105,9 @@ export function Combobox<T = unknown>({
   disablePortal = false,
   onCreate,
   createLabel,
+  defaultOpen = false,
 }: ComboboxProps<T>) {
-  const [isOpen, setIsOpen] = React.useState(false)
+  const [isOpen, setIsOpen] = React.useState(defaultOpen)
   const [searchValue, setSearchValue] = React.useState('')
   const [highlightedIndex, setHighlightedIndex] = React.useState(-1)
   const [isCreating, setIsCreating] = React.useState(false)
@@ -118,6 +121,15 @@ export function Combobox<T = unknown>({
   const containerRef = React.useRef<HTMLDivElement>(null)
   const dropdownRef = React.useRef<HTMLDivElement>(null)
   const optionRefs = React.useRef<(HTMLButtonElement | null)[]>([])
+
+  // defaultOpen：掛載時聚焦輸入框（isOpen 已初始化為 true、位置計算 effect 會在 isOpen 變化時跑）
+  React.useEffect(() => {
+    if (defaultOpen && !disabled) {
+      inputRef.current?.focus()
+    }
+    // 只在掛載時跑一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // 當 value 或 options 改變時，更新搜尋值為對應的 label
   // 如果找不到匹配的 option，顯示空字串避免顯示原始 ID 或亂碼

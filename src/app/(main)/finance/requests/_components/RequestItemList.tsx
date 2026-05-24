@@ -287,6 +287,7 @@ export function EditableRequestItemList({
                   .filter(s => s.type === 'employee')
                   .map(s => ({ value: s.id, label: s.name || '未命名' }))}
                 value={row.advanced_by === '_pending' ? '' : row.advanced_by}
+                defaultOpen={row.advanced_by === '_pending'}
                 onChange={value => {
                   const emp = suppliers.find(s => s.id === value)
                   onUpdate({
