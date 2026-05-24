@@ -102,11 +102,6 @@
       "count": 1
     }
   },
-  "src/app/(main)/orders/_components/OrderMembersExpandable.toolbar.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
   "src/app/(main)/orders/_components/OrderMembersExpandable.tsx": {
     "venturo/no-direct-supabase-writes": {
       "count": 1
@@ -323,24 +318,9 @@
       "count": 1
     }
   },
-  "src/components/editor/tour-form/sections/daily-itinerary/ActivitiesSection.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
-  "src/components/resource-panel/ResourceList.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
   "src/components/resource-panel/ResourceOverrideDialog.tsx": {
     "venturo/no-direct-supabase-writes": {
       "count": 1
-    }
-  },
-  "src/components/resource-panel/useResourceActions.ts": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 5
     }
   },
   "src/components/selectors/CountryAirportSelector.tsx": {
