@@ -1,6 +1,9 @@
 // Amadeus TOTP — QR 解析工具（otpauth-migration protobuf + otpauth URI）
-
-import jsQR from 'jsqr'
+//
+// 注意：jsqr(~40KB) 改在 parseQrFile() 內動態 import、不頂層靜態載入。
+// 原因：此工具的載入鏈掛在「儀表板」（登入後第一頁）、但 jsQR 只在罕見的
+// 「掃 QR 設定 Amadeus 兩步驟驗證」動作才用到。頂層 import 會讓每個人每次開
+// 儀表板都白載 40KB。動態 import → 只有真的上傳 QR 時才載。（效能 #6、CLAUDE.md §6）
 
 const QR_LABELS = {
   ERR_PARSE_IMAGE: '無法解析圖片',
@@ -27,6 +30,8 @@ export async function parseQrFile(file: File): Promise<ParsedQr> {
   ctx.drawImage(img, 0, 0)
 
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+  // 動態載入 jsqr（只在真的解析 QR 時才載、不灌進儀表板首屏）
+  const jsQR = (await import('jsqr')).default
   const qr = jsQR(imageData.data, imageData.width, imageData.height)
   if (!qr) throw new Error(QR_LABELS.ERR_NO_QR)
 
