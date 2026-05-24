@@ -34,16 +34,6 @@
       "count": 3
     }
   },
-  "src/app/(main)/finance/payments/_components/AddReceiptDialog.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
-  "src/app/(main)/finance/payments/_components/ReceiptDialogFooter.tsx": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
-    }
-  },
   "src/app/(main)/finance/payments/_components/ReceiptTransferDialog.tsx": {
     "venturo/no-direct-supabase-writes": {
       "count": 5
@@ -86,7 +76,7 @@
   },
   "src/app/(main)/library/archive-management/page.tsx": {
     "venturo/no-direct-supabase-writes": {
-      "count": 3
+      "count": 2
     }
   },
   "src/app/(main)/library/attractions/_components/tabs/RegionsTab.tsx": {
