@@ -12,7 +12,7 @@ import { confirm } from '@/lib/ui/alert-dialog'
 import { supabase } from '@/lib/supabase/client'
 import { formatDate } from '@/lib/utils'
 import { logger } from '@/lib/utils/logger'
-import { deleteTour as deleteTourEntity } from '@/data'
+import { deleteTour as deleteTourEntity, updateTour } from '@/data'
 import {
   checkTourDependencies,
   deleteTourEmptyOrders,
@@ -68,9 +68,8 @@ export default function ArchiveManagementPage() {
     if (!confirmed) return
 
     try {
-      const { error } = await supabase.from('tours').update({ archived: false }).eq('id', tour.id)
-
-      if (error) throw error
+      // 5/24：改走 updateTour entity hook（自動失效主 tours 列表、還原後即時反映、不只刷本頁）
+      await updateTour(tour.id, { archived: false })
 
       toast.success(t('archiveToastTourRestored', { code: tour.code }))
       loadArchivedData()
