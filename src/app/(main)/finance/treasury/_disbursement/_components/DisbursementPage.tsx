@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { TableColumn } from '@/components/ui/enhanced-table'
 import {
-  usePaymentRequests,
   useDisbursementOrders,
   deleteDisbursementOrder as deleteDisbursementOrderApi,
   updateDisbursementOrder as updateDisbursementOrderApi,
@@ -26,6 +25,7 @@ import {
   invalidatePaymentRequests,
   invalidateDisbursementOrders,
 } from '@/data'
+import { useLinkedPaymentRequests } from '../_hooks/useLinkedPaymentRequests'
 import { DateCell, CurrencyCell } from '@/components/table-cells'
 import { DisbursementOrder } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
@@ -111,12 +111,19 @@ function useDisbursementBankGroupSummaries(workspaceId: string | undefined) {
 export function DisbursementPage() {
   const t = useTranslations('finance')
   const { items: disbursement_orders } = useDisbursementOrders({ all: true })
-  const { items: payment_requests } = usePaymentRequests({ all: true })
+  // 只撈「已連動到出納單」的請款單（最少欄位）、不再全撈整張表（效能 #2、見 useLinkedPaymentRequests）
+  const { items: linkedRequests, refresh: refreshLinkedRequests } = useLinkedPaymentRequests()
 
   const user = useAuthStore(state => state.user)
   const bankGroupSummaries = useDisbursementBankGroupSummaries(user?.workspace_id)
   const { can, loading: permLoading } = useCapabilities()
   const canManage = can(CAPABILITIES.FINANCE_MANAGE_DISBURSEMENT)
+
+  // 寫入後同刷兩個 cache（紅線 F）：entity（其他財務頁共用）+ 本頁 linkedRequests 分頁 key
+  const refreshAll = useCallback(async () => {
+    await Promise.all([invalidateDisbursementOrders(), invalidatePaymentRequests()])
+    await refreshLinkedRequests()
+  }, [refreshLinkedRequests])
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editingOrder, setEditingOrder] = useState<DisbursementOrder | null>(null)
@@ -168,7 +175,7 @@ export function DisbursementPage() {
         width: '80px',
         render: (_value: unknown, row: DisbursementOrder) => (
           <div className="text-center">
-            {payment_requests.filter(r => r.disbursement_order_id === row.id).length} {t('disbursementUnit')}
+            {linkedRequests.filter(r => r.disbursement_order_id === row.id).length} {t('disbursementUnit')}
           </div>
         ),
       },
@@ -201,7 +208,7 @@ export function DisbursementPage() {
         ),
       },
     ],
-    [payment_requests, bankGroupSummaries]
+    [linkedRequests, bankGroupSummaries]
   )
 
   // 2026-05-22 William 拍板：砍 detail dialog（內容跟列印單重複）
@@ -249,9 +256,11 @@ export function DisbursementPage() {
           logger.error('產生出納傳票失敗:', err)
         }
 
-        const linkedRequests = payment_requests.filter(r => r.disbursement_order_id === order.id)
+        const orderLinkedRequests = linkedRequests.filter(
+          r => r.disbursement_order_id === order.id
+        )
         const tour_ids_to_recalculate = new Set<string>()
-        for (const req of linkedRequests) {
+        for (const req of orderLinkedRequests) {
           await updatePaymentRequestApi(req.id, { status: 'paid' })
           if (req.tour_id) tour_ids_to_recalculate.add(req.tour_id)
         }
@@ -260,7 +269,7 @@ export function DisbursementPage() {
           await recalculateExpenseStats(tour_id)
         }
 
-        await Promise.all([invalidateDisbursementOrders(), invalidatePaymentRequests()])
+        await refreshAll()
 
         await alert(t('disbursementMarkedAsPaid'), 'success')
       } catch (error) {
@@ -268,7 +277,7 @@ export function DisbursementPage() {
         await alert('確認出帳失敗', 'error')
       }
     },
-    [user, payment_requests]
+    [user, linkedRequests, refreshAll]
   )
 
   const handleDelete = useCallback(async (order: DisbursementOrder) => {
@@ -280,18 +289,20 @@ export function DisbursementPage() {
 
     try {
       await deleteDisbursementOrderApi(order.id)
+      // 刪單會把連動請款單的 disbursement_order_id 釋放 → null、計數欄需更新
+      await refreshAll()
       await alert(t('disbursementDeleted'), 'success')
     } catch (error) {
       logger.error(t('disbursementDeleteFailedColon'), error)
       await alert(t('disbursementDeleteFailed'), 'error')
     }
-  }, [])
+  }, [refreshAll])
 
   const handleCreateSuccess = useCallback(async () => {
     setIsCreateDialogOpen(false)
     setEditingOrder(null)
-    await Promise.all([invalidateDisbursementOrders(), invalidatePaymentRequests()])
-  }, [])
+    await refreshAll()
+  }, [refreshAll])
 
   const handleAdd = useCallback(() => {
     setEditingOrder(null)
