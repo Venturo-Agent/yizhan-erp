@@ -31,7 +31,9 @@ const supplierEntity = createEntityHook<Supplier>('suppliers', {
 export const useSuppliers = supplierEntity.useList
 export const useSuppliersSlim = supplierEntity.useListSlim
 const _useSupplier = supplierEntity.useDetail
-const _useSuppliersPaginated = supplierEntity.usePaginated
+// 供應商列表頁伺服器分頁（規模化省 egress）：搜尋只是多欄 ilike、單欄排序、無 OR/IS NULL
+// → entity usePaginated（search + searchFields + sortBy）即足夠、不需專屬 list-view hook
+export const useSuppliersPaginated = supplierEntity.usePaginated
 const _useSupplierDictionary = supplierEntity.useDictionary
 
 export const createSupplier = supplierEntity.create

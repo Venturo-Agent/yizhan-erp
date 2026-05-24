@@ -13,7 +13,7 @@ import { SuppliersList } from './SuppliersList'
 import { SuppliersDialog } from './SuppliersDialog'
 import { ImportSuppliersDialog } from './ImportSuppliersDialog'
 import {
-  useSuppliers,
+  useSuppliersPaginated,
   createSupplier,
   updateSupplier,
   deleteSupplier as deleteSupplierApi,
@@ -24,9 +24,18 @@ import { confirm, alert } from '@/lib/ui/alert-dialog'
 import { useWorkspaceId } from '@/lib/workspace-context'
 import { generateSupplierCode } from '@/lib/codes'
 
+// 列表分頁固定 15 筆（紅線：效能 #2、不給每頁筆數選擇器）
+const PAGE_SIZE = 15
+// server-side 搜尋欄位（對齊原前端 filter：名稱 / 編號 / 銀行代碼 / 銀行帳號）
+const SEARCH_FIELDS = ['name', 'code', 'bank_code', 'bank_account']
+
 export const SuppliersPage: React.FC = () => {
   const t = useTranslations('library')
   const [searchQuery, setSearchQuery] = useState('')
+  const [page, setPage] = useState(1)
+  // 預設按使用次數降序（對齊 entity 預設 orderBy、常用排前）
+  const [sortBy, setSortBy] = useState('usage_count')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
@@ -35,7 +44,33 @@ export const SuppliersPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const workspaceId = useWorkspaceId()
-  const { items: suppliers } = useSuppliers({ all: true })
+
+  // 伺服器分頁 + 搜尋 + 排序（規模化省 Supabase egress、不全撈）
+  const {
+    items: suppliers,
+    totalCount,
+    loading,
+  } = useSuppliersPaginated({
+    page,
+    pageSize: PAGE_SIZE,
+    search: searchQuery.trim() || undefined,
+    searchFields: SEARCH_FIELDS,
+    sortBy,
+    sortOrder,
+  })
+
+  // 搜尋變更：送伺服器查、歸第一頁避免分頁錯位
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value)
+    setPage(1)
+  }, [])
+
+  // 排序變更：server-side 重查、歸第一頁
+  const handleSort = useCallback((column: string, direction: 'asc' | 'desc') => {
+    setSortBy(column)
+    setSortOrder(direction)
+    setPage(1)
+  }, [])
 
   // 完整的表單狀態
   const [formData, setFormData] = useState({
@@ -56,16 +91,6 @@ export const SuppliersPage: React.FC = () => {
     address: '',
     notes: '',
   })
-
-  // 過濾供應商
-  const filteredSuppliers = suppliers.filter(supplier =>
-    searchQuery
-      ? supplier.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        supplier.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        supplier.bank_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        supplier.bank_account?.toLowerCase().includes(searchQuery.toLowerCase())
-      : true
-  )
 
   const handleOpenAddDialog = useCallback(() => {
     setIsEditMode(false)
@@ -219,7 +244,7 @@ export const SuppliersPage: React.FC = () => {
       ]}
       showSearch
       searchTerm={searchQuery}
-      onSearchChange={setSearchQuery}
+      onSearchChange={handleSearchChange}
       searchPlaceholder={t('supplierSearchPlaceholder')}
       headerActions={
         // 主操作（新增供應商）走 primaryAction、輔助（匯入）走 escape hatch、樣式套 header-outline 維持視覺一致
@@ -240,7 +265,20 @@ export const SuppliersPage: React.FC = () => {
     >
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="flex-1 min-h-0">
-          <SuppliersList suppliers={filteredSuppliers} onEdit={handleEdit} onDelete={handleDelete} />
+          <SuppliersList
+            suppliers={suppliers}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            // 防白閃：首次載入（還沒任何資料）才顯示 loading、翻頁時 keepPreviousData 撐住
+            loading={loading && suppliers.length === 0}
+            serverPagination={{
+              currentPage: page,
+              pageSize: PAGE_SIZE,
+              totalCount,
+              onPageChange: setPage,
+            }}
+            onSort={handleSort}
+          />
         </div>
       </div>
 

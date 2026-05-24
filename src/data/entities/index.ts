@@ -168,9 +168,9 @@ export {
   
   useSuppliers,
   useSuppliersSlim,
-  
-  
-  
+  useSuppliersPaginated,
+
+
   createSupplier,
   updateSupplier,
   deleteSupplier,

@@ -15,6 +15,15 @@ interface SuppliersListProps {
   loading?: boolean
   onEdit?: (supplier: Supplier) => void
   onDelete?: (supplier: Supplier) => void
+  /** 伺服器分頁模式：suppliers 已是「當前頁」、不在 client 端再 slice */
+  serverPagination?: {
+    currentPage: number
+    pageSize: number
+    totalCount: number
+    onPageChange: (page: number) => void
+  }
+  /** 排序變更回調（伺服器排序、列表頁負責歸第一頁 + 重查）*/
+  onSort?: (column: string, direction: 'asc' | 'desc') => void
 }
 
 // 供應商類型中文對應（module-level — SKIP i18n, uses complex data structure）
@@ -35,6 +44,8 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
   loading = false,
   onEdit,
   onDelete,
+  serverPagination,
+  onSort,
 }) => {
   const t = useTranslations('library')
 
@@ -80,6 +91,8 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
       columns={columns}
       data={suppliers}
       loading={loading}
+      serverPagination={serverPagination}
+      onSort={onSort}
       actions={row => {
         const supplier = row as Supplier
         return (
