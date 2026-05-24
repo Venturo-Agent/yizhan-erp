@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase/client'
+import { updateTour } from '@/data'
 import { useTranslations } from 'next-intl'
 import type { ColumnVisibility } from './OrderMembersExpandable.types'
 import { columnLabels } from './OrderMembersExpandable.types'
@@ -118,12 +118,10 @@ export function OrderMembersToolbar({
                 const updated = [...customCostFields, newField]
                 setCustomCostFields(updated)
                 // 存到 DB（custom_cost_fields 仍寫到 tour 表、跨 order 共用）
+                // 5/24：改走 updateTour entity hook（自動失效快取、不散刻直接寫）
                 if (tourId) {
                   const fieldDefs = updated.map(f => ({ id: f.id, name: f.name }))
-                  await supabase
-                    .from('tours')
-                    .update({ custom_cost_fields: fieldDefs } as Record<string, unknown>)
-                    .eq('id', tourId)
+                  await updateTour(tourId, { custom_cost_fields: fieldDefs } as Parameters<typeof updateTour>[1])
                 }
               }
             }}
