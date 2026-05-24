@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Calendar, FileCheck, MapPin, Plus, FileText, Copy, PackageCheck } from 'lucide-react'
 import { TOUR_FILTERS, TOUR_TAB } from '../_constants'
+import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 
 interface TourFiltersProps {
   searchQuery: string
@@ -33,6 +34,9 @@ export const TourFilters: React.FC<TourFiltersProps> = ({
   onAddTemplate,
 }) => {
   const t = useTranslations('tour')
+  const { can } = useCapabilities()
+  // 5/24：模板獨立成權限。沒有「可建立模板」能力的人、不顯示「開模板」選項。
+  const canCreateTemplate = can(CAPABILITIES.TOURS_TEMPLATE_WRITE)
   const tabs = [
     { value: TOUR_TAB.IN_PROGRESS, label: TOUR_FILTERS.tab_in_progress, icon: Calendar },
     { value: TOUR_TAB.RETURNED, label: TOUR_FILTERS.tab_returned, icon: PackageCheck },
@@ -74,10 +78,12 @@ export const TourFilters: React.FC<TourFiltersProps> = ({
               {t('filterProposal')}
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={onAddTemplate}>
-              <Copy className="mr-2 h-4 w-4" />
-              {t('filterOpenTemplate')}
-            </DropdownMenuItem>
+            {canCreateTemplate && (
+              <DropdownMenuItem onClick={onAddTemplate}>
+                <Copy className="mr-2 h-4 w-4" />
+                {t('filterOpenTemplate')}
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       }

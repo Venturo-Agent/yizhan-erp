@@ -53,6 +53,7 @@ export const CAPABILITIES = {
   TOURS_CONTRACT_WRITE: 'tours.contract.write',
   TOURS_CLOSING_READ: 'tours.closing.read',
   TOURS_CLOSING_WRITE: 'tours.closing.write',
+  TOURS_TEMPLATE_WRITE: 'tours.template.write',
   // ── orders ──
   ORDERS_READ: 'orders.read',
   ORDERS_WRITE: 'orders.write',

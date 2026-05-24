@@ -104,6 +104,11 @@ export const MODULES: ModuleDefinition[] = [
         name: '結案',
         description: '結案報表、損益確認',
       },
+      {
+        code: 'template',
+        name: '可建立模板',
+        description: '能把行程存成標準模板供重複使用（建正式團/提案不需此能力）',
+      },
     ],
   },
   {
