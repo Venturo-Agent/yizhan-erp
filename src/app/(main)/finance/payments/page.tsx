@@ -1,31 +1,43 @@
 'use client'
 /**
- * 收款管理頁面（重構版）
+ * 收款管理頁面（B 階段：伺服器主導分頁）
  *
  * 功能：
  * 1. 收款單列表（含 [全部 / 團體收款 / 公司收款] 三 tab）
- * 2. 支援 4 種收款方式（現金/匯款/刷卡/支票）
+ * 2. 「只看未付」篩選（丙案：分頁情境下「未付」當篩選、不當排序）
+ * 3. 支援 4 種收款方式（現金/匯款/刷卡/支票）
  * 4. 會計確認實收金額流程
- * 5. Realtime 即時同步
+ *
+ * 資料層（紅線 F）：
+ * - 讀取走 useReceiptsListView（伺服器分頁 + tab + 未付篩選 + server 搜尋/排序）。
+ * - 列動作（核准/編輯/刪除）+ 樂觀更新走 useReceiptListActions。
+ * - 寫入後 refreshAll() 同刷兩個 cache：entity（給 tours/treasury/reports 共用）+ 本頁 list-view 分頁 key。
  */
 
 import { logger } from '@/lib/utils/logger'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { UnauthorizedPage } from '@/components/unauthorized-page'
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { TableColumn } from '@/components/ui/enhanced-table'
 import { Plus, Edit2, CheckSquare, Undo2, Printer, XCircle } from 'lucide-react'
 import { confirm, prompt } from '@/lib/ui/alert-dialog'
 import { toast } from 'sonner'
 import { DateCell, StatusCell, CurrencyCell } from '@/components/table-cells'
-import { isTourReceipt, isCompanyReceipt } from '@/lib/finance/type-guards'
 
 type ReceiptTabValue = 'all' | 'tour' | 'company'
+type ReceiptStatusFilter = 'all' | 'unpaid'
 
 interface ReceiptTabConfig {
   value: ReceiptTabValue
@@ -47,44 +59,43 @@ const ReceiptPrintDialog = dynamic(
 )
 
 // Hooks
-import { usePaymentData } from './hooks/usePaymentData'
+import { useReceiptsListView } from './_hooks/useReceiptsListView'
+import { useReceiptListActions } from './_hooks/useReceiptListActions'
+import { invalidateReceipts } from '@/data'
 import { apiMutate } from '@/lib/swr/api-mutate'
-
-// Utils
 
 // Types
 import type { Receipt } from '@/stores'
 import { useBranches } from '@/data/hooks/useBranches'
+
+const PAGE_SIZE = 15
 
 export default function PaymentsPage() {
   const t = useTranslations('finance')
   const { branches } = useBranches()
   const searchParams = useSearchParams()
   const router = useRouter()
-
-  // 資料與業務邏輯
-  const {
-    receipts,
-    loading,
-    invalidateReceipts,
-    handleConfirmReceipt,
-    handleUpdateReceipt,
-    handleDeleteReceipt,
-  } = usePaymentData()
   const { can, loading: permLoading } = useCapabilities()
 
   // 讀取 URL 參數（從快速收款按鈕傳入）
   const urlOrderId = searchParams.get('order_id')
   const urlTourId = searchParams.get('tour_id')
 
-  // UI 狀態
+  // 列表狀態（伺服器分頁）
+  const [page, setPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeTab, setActiveTab] = useState<ReceiptTabValue>('all')
+  const [statusFilter, setStatusFilter] = useState<ReceiptStatusFilter>('all')
+  const [sortBy, setSortBy] = useState('receipt_date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+
+  // UI 狀態（對話框）
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingReceipt, setEditingReceipt] = useState<Receipt | null>(null)
   const [refundingReceipt, setRefundingReceipt] = useState<Receipt | null>(null)
   const [isRefundDialogOpen, setIsRefundDialogOpen] = useState(false)
   const [printingReceipt, setPrintingReceipt] = useState<Receipt | null>(null)
   const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<ReceiptTabValue>('all')
 
   // 根據 capability 顯示 tab
   const canTour = can(CAPABILITIES.FINANCE_READ_PAYMENTS)
@@ -98,63 +109,35 @@ export default function PaymentsPage() {
     return tabs
   }, [canTour, canCompany])
 
-  // Stable row order：核准後 row 不換位置、避免「重新整理」視覺
-  // - 進頁 / 切 tab 第一次 load → 按「待確認優先 + 日期 asc」排
-  // - 後續 status 變動 / SWR refetch → 既有 row 保持原位置、新 row 插尾巴
-  // - 換 tab / 換頁面 unmount → ref reset、下次重新排
-  // William 2026-05-21 拍板（方案 A）：UX 自然優先、犧牲「自動推待處理到最前」的 dynamic sort
-  const stableOrderRef = useRef<{ tab: string; ids: string[] } | null>(null)
+  // 伺服器分頁讀取（tab 範圍 + 未付篩選 + server 搜尋/排序、見 useReceiptsListView）
+  const {
+    items: rawReceipts,
+    totalCount,
+    loading,
+    refresh: refreshListView,
+  } = useReceiptsListView({
+    page,
+    pageSize: PAGE_SIZE,
+    tab: activeTab,
+    canTour,
+    canCompany,
+    statusFilter,
+    search: searchQuery.trim() || undefined,
+    sortBy,
+    sortOrder,
+  })
 
-  const filteredByTab = useMemo(() => {
-    let list: typeof receipts
-    if (activeTab === 'all') {
-      list = receipts.filter(r => {
-        if (canTour && isTourReceipt(r)) return true
-        if (canCompany && isCompanyReceipt(r)) return true
-        return false
-      })
-    } else if (activeTab === 'tour') list = receipts.filter(isTourReceipt)
-    else if (activeTab === 'company') list = receipts.filter(isCompanyReceipt)
-    else list = receipts
+  // 寫入後同刷兩個 cache（難點、紅線 F）：
+  // - entity（invalidateReceipts）：tours 財務分頁 / finance dashboard / treasury / reports 共用、不刷會顯示舊資料
+  // - 本頁 list-view 分頁 key（refreshListView）：invalidateReceipts 刷不到這個 key
+  const refreshAll = useCallback(async () => {
+    await invalidateReceipts()
+    await refreshListView()
+  }, [refreshListView])
 
-    // 切 tab → reset stable order（新 tab 要按原則重新排）
-    if (stableOrderRef.current?.tab !== activeTab) {
-      stableOrderRef.current = null
-    }
-
-    // 首次或 tab 變動 → 按業務邏輯排、記下 order
-    if (!stableOrderRef.current) {
-      const sorted = [...list].sort((a, b) => {
-        const isPendingA = a.status === 'pending' || a.status === 'pending_verify' ? 0 : 1
-        const isPendingB = b.status === 'pending' || b.status === 'pending_verify' ? 0 : 1
-        if (isPendingA !== isPendingB) return isPendingA - isPendingB
-        const aDate = a.receipt_date ? new Date(a.receipt_date).getTime() : 0
-        const bDate = b.receipt_date ? new Date(b.receipt_date).getTime() : 0
-        return aDate - bDate
-      })
-      stableOrderRef.current = { tab: activeTab, ids: sorted.map(r => r.id) }
-      return sorted
-    }
-
-    // 既有 stable order → 保持原順序、刪除已不存在的 / 新增的 row 插尾巴
-    const byId = new Map(list.map(r => [r.id, r]))
-    const ordered = stableOrderRef.current.ids
-      .map(id => byId.get(id))
-      .filter((r): r is (typeof list)[number] => Boolean(r))
-    const orderedIds = new Set(stableOrderRef.current.ids)
-    const newOnes = list.filter(r => !orderedIds.has(r.id))
-    // 新 row 維持待確認優先 + 日期 asc 排（業務上新加的也該優先處理）
-    const sortedNew = newOnes.sort((a, b) => {
-      const isPendingA = a.status === 'pending' || a.status === 'pending_verify' ? 0 : 1
-      const isPendingB = b.status === 'pending' || b.status === 'pending_verify' ? 0 : 1
-      if (isPendingA !== isPendingB) return isPendingA - isPendingB
-      const aDate = a.receipt_date ? new Date(a.receipt_date).getTime() : 0
-      const bDate = b.receipt_date ? new Date(b.receipt_date).getTime() : 0
-      return aDate - bDate
-    })
-    stableOrderRef.current.ids = [...ordered.map(r => r.id), ...sortedNew.map(r => r.id)]
-    return [...ordered, ...sortedNew]
-  }, [receipts, activeTab, canTour, canCompany])
+  // 列動作（核准/編輯/刪除）+ 樂觀更新；receipts = rawReceipts 套 optimistic 覆寫後
+  const { receipts, handleConfirmReceipt, handleUpdateReceipt, handleDeleteReceipt } =
+    useReceiptListActions(rawReceipts, refreshAll)
 
   // 如果有 URL 參數，自動開啟新增對話框
   useEffect(() => {
@@ -195,13 +178,13 @@ export default function PaymentsPage() {
           return
         }
         toast.success(t('verifySuccess'))
-        await invalidateReceipts()
+        await refreshAll()
       } catch (err) {
         logger.error('verify payment failed:', err)
         toast.error(t('paymentsNetworkError'))
       }
     },
-    [invalidateReceipts]
+    [refreshAll, t]
   )
 
   // 客戶自助付款對帳:退回(pending_verify → rejected、必填原因)
@@ -222,13 +205,13 @@ export default function PaymentsPage() {
           return
         }
         toast.success(t('rejectSuccess'))
-        await invalidateReceipts()
+        await refreshAll()
       } catch (err) {
         logger.error('reject payment failed:', err)
         toast.error(t('paymentsNetworkError'))
       }
     },
-    [invalidateReceipts]
+    [refreshAll, t]
   )
 
   // 處理列點擊 - 開啟編輯對話框
@@ -330,8 +313,8 @@ export default function PaymentsPage() {
               if (row.status === 'pending_verify') {
                 await handleVerifyPayment(row.id)
               } else {
-                // handleConfirmReceipt 內部已 fire-and-forget + 樂觀更新 + invalidate
-                // 不要 await（會等不到、本來就 sync return）也不要再 invalidate（重複）
+                // handleConfirmReceipt 內部已 fire-and-forget + 樂觀更新 + refresh
+                // 不要 await（會等不到、本來就 sync return）也不要再 refresh（重複）
                 handleConfirmReceipt(row.id)
               }
             }}
@@ -415,15 +398,30 @@ export default function PaymentsPage() {
     <>
       <ListPageLayout
         title={t('paymentManagement')}
-        data={filteredByTab}
-        loading={loading}
+        data={receipts}
+        // 只在「真的沒資料」時顯示骨架屏；換頁/排序/切 tab 靠 keepPreviousData 保留前頁資料、不閃白
+        loading={loading && receipts.length === 0}
         columns={columns}
         renderActions={renderReceiptActions}
-        searchFields={['receipt_number', 'tour_name']}
         searchPlaceholder={t('searchReceiptPlaceholder')}
+        searchValue={searchQuery}
+        onSearchChange={value => {
+          setSearchQuery(value)
+          setPage(1) // 搜尋變更必歸第一頁、避免分頁錯位
+        }}
         onRowClick={handleRowClick}
-        // 不設 defaultSort、用 filteredByTab 已經 sort 過的順序（status pending → 日期 asc）
-        initialPageSize={15}
+        defaultSort={{ key: sortBy, direction: sortOrder }}
+        onSort={(field, order) => {
+          setSortBy(field)
+          setSortOrder(order)
+          setPage(1)
+        }}
+        serverPagination={{
+          currentPage: page,
+          pageSize: PAGE_SIZE,
+          totalCount,
+          onPageChange: setPage,
+        }}
         primaryAction={{
           label: t('addPayment'),
           icon: Plus,
@@ -431,14 +429,35 @@ export default function PaymentsPage() {
         }}
         statusTabs={visibleTabs.length > 1 ? visibleTabs : undefined}
         activeStatusTab={activeTab}
-        onStatusTabChange={tab => setActiveTab(tab as ReceiptTabValue)}
+        onStatusTabChange={tab => {
+          setActiveTab(tab as ReceiptTabValue)
+          setPage(1) // 切 tab 必歸第一頁
+        }}
+        headerActions={
+          // 丙案：分頁情境下「未付」當篩選、不當排序（比排序更直覺）
+          <Select
+            value={statusFilter}
+            onValueChange={value => {
+              setStatusFilter(value as ReceiptStatusFilter)
+              setPage(1)
+            }}
+          >
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部狀態</SelectItem>
+              <SelectItem value="unpaid">只看未付</SelectItem>
+            </SelectContent>
+          </Select>
+        }
       />
 
       {/* 新增/編輯收款對話框 */}
       <AddReceiptDialog
         open={isDialogOpen}
         onOpenChange={handleAddDialogClose}
-        onSuccess={invalidateReceipts}
+        onSuccess={refreshAll}
         defaultOrderId={urlOrderId || undefined}
         defaultTourId={urlTourId || undefined}
         editingReceipt={editingReceipt}
@@ -452,7 +471,7 @@ export default function PaymentsPage() {
         onOpenChange={setIsRefundDialogOpen}
         receipt={refundingReceipt}
         onSuccess={() => {
-          invalidateReceipts()
+          void refreshAll()
           setRefundingReceipt(null)
         }}
       />
