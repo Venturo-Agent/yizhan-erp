@@ -34,6 +34,8 @@ export interface NewTourData {
   role_assignments?: Record<string, string>
   /** 團控 employee.id — Phase A4 強制必填（DB NOT NULL）*/
   controller_id?: string
+  /** 5/24 品牌：案子所屬品牌（單一品牌自動帶預設、多品牌用戶選、show-if-multi）*/
+  brand_id?: string
 }
 
 export interface TourExtraFields {

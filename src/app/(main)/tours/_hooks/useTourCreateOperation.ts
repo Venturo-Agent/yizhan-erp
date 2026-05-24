@@ -185,6 +185,8 @@ export function useTourCreateOperation(params: UseTourCreateOperationParams) {
           enable_checkin: isProposalOrTemplate ? false : newTour.enable_checkin || false,
           workspace_id: workspaceId,
           tour_service_type: newTour.tour_service_type || 'tour_group',
+          // 5/24 品牌：持久化表單選的品牌（單一品牌時表單自動帶預設、多品牌時用戶選）
+          brand_id: newTour.brand_id ?? null,
         }
 
         // 建團：如果團號重複（23505），自動跳下一個字母重試

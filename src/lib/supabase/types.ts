@@ -9181,6 +9181,7 @@ export type Database = {
           contract_status: string
           contract_template: string | null
           controller_id: string | null
+          brand_id: string | null
           country_code: string | null
           country_id: string | null
           created_at: string
@@ -9256,6 +9257,7 @@ export type Database = {
           contract_status?: string
           contract_template?: string | null
           controller_id?: string | null
+          brand_id?: string | null
           country_code?: string | null
           country_id?: string | null
           created_at?: string
@@ -9331,6 +9333,7 @@ export type Database = {
           contract_status?: string
           contract_template?: string | null
           controller_id?: string | null
+          brand_id?: string | null
           country_code?: string | null
           country_id?: string | null
           created_at?: string
