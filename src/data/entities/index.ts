@@ -560,6 +560,17 @@ export {
 } from './checks'
 export type { Check } from './checks'
 
+// Brands（5/24、品牌功能地基）
+export {
+  useBrands,
+  useBrand,
+  invalidateBrands,
+  createBrand,
+  updateBrand,
+  deleteBrand,
+} from './brands'
+export type { Brand } from './brands'
+
 // ============================================
 // 行銷管理（2026-05-20、Corner 官網行程上架）
 // ============================================
