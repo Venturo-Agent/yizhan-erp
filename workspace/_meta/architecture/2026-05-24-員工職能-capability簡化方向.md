@@ -212,6 +212,26 @@ William：「旗標真的很不 OK」。鎖定模型：
 ### 待 William（msg 423）
 - [x] Q2 → **全開工（msg 424）**、模板放階段4。branch `feat/role-capability-redesign` 已建。
 
+## ✅✅ 執行完成（branch feat/role-capability-redesign、未 push、全程 type-check + 守門綠）
+- **階段0** 代墊 UX 一步到位（combobox defaultOpen）— commit 8066613
+- **migration 清理** 移除 OpenCloud 不完整的 industry backfill — 7d11a06
+- **地基** useRoleCapabilities + useEmployeesWithCapability(hide-if-none) — f5c0aa7
+- **階段2** 4 選單改吃能力（業務←orders.create/edit.write、團控←tours.members.write、代墊←finance.advance_payment.write）+ 助理整組移除 — e22df30
+- **階段1** 砍 eligibility 系統（module 定義移除 3 旗標 tab、代墊轉正規能力、codegen 重生、移除 eligibilities.ts/useEligibleEmployees/employee-eligibilities/2 API/HR 資格勾選區）— 07b8ca9
+- **階段4** 模板獨立權限 tours.template.write（TourFilters gate）— e5ab582
+- **清理** useEmployeeForm 未用 import/變數 — (cleanup commit)
+- ⚠️ DB employee_eligibilities 表保留（非破壞、未來可 drop）。**完全沒動 DB 權限函式/RLS**（無 4/20 風險）。
+
+### deploy 前/後注意（William 已知）
+- 代墊（🅐 msg 439）：預設關、deploy 後在職務權限把「可代墊款」勾給角色（如會計）、原 9 個代墊人回來
+- 模板：同樣預設關、deploy 後勾「可建立模板」給該角色
+- 業務/團控：活躍租戶角色已有對應能力、選單照常
+
+### 尚未做
+- [ ] 團控列表欄（msg 440 問 William 加/不用）：查證發現原本是 dead code（沒 render）、待 William 決定要不要加真欄位
+- [ ] 登入驗證（auth path 未動、風險近零、可選跑 e2e）
+- [ ] 品牌 brand 檢查（Task #5、William msg 434、排在最後）
+
 ## 執行進度（branch: feat/role-capability-redesign）
 
 ### ✅ 階段0 完成（代墊 UX、commit 8066613）
