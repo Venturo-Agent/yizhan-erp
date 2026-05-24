@@ -167,7 +167,7 @@ export function useCreateTenantForm(existingCodes: string[]) {
     if (!form.adminName.trim() || !form.adminEmail.trim()) return false
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.adminEmail)) return false
     if (!form.industry) return false
-    if (form.industry === 'tourism' && !form.subIndustry) return false
+    if ((form.industry === 'tourism' || form.industry === 'beauty') && !form.subIndustry) return false
     if (form.subscriptionPlan === 'advance' && form.advancePicks.length !== 2) return false
     for (const b of form.brands) {
       if (b.name.trim() === '' && b.code.trim() !== '') return false

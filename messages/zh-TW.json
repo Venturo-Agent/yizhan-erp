@@ -1229,7 +1229,11 @@
     "subIndustryTravelAgency": "旅遊業",
     "subIndustryTourBus": "遊覽車行",
     "subIndustryLocalAgency": "地接社",
-    "fieldRequired": " *"
+    "fieldRequired": " *",
+    "industryBeauty": "美業",
+    "subIndustryMassage": "按摩",
+    "subIndustryHairSalon": "美髮",
+    "subIndustryNails": "美甲"
   },
   "login": {
     "title": "Venturo",

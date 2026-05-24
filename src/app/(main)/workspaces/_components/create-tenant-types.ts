@@ -13,9 +13,10 @@ export interface DimensionRow {
   tax_id?: string
 }
 
-export type Industry = 'tourism' | 'general'
+export type Industry = 'tourism' | 'beauty' | 'general'
 export type TourismSubIndustry = 'travel_agency' | 'tour_bus' | 'local_agency'
-export type SubIndustry = TourismSubIndustry | null
+export type BeautySubIndustry = 'massage' | 'hair_salon' | 'nails'
+export type SubIndustry = TourismSubIndustry | BeautySubIndustry | null
 
 export interface FormData {
   // 公司基本
