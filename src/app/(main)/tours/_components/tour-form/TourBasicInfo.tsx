@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select'
 import { SimpleDateInput } from '@/components/ui/simple-date-input'
 import { CountryAirportSelector } from '@/components/selectors/CountryAirportSelector'
-import { useEmployeesSlim } from '@/data'
+import { useEmployeesSlim, useBrands } from '@/data'
 import { useEmployeesWithCapability } from '@/lib/permissions/useEmployeesWithCapability'
 import { CAPABILITIES } from '@/lib/permissions'
 import { useAuthStore } from '@/stores/auth-store'
@@ -46,6 +46,16 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
   )
   // 團控候選池（5/24 純角色 SSOT）：能寫團員名單的人（分房分車的人 = 團控）
   const controllers = useEmployeesWithCapability(CAPABILITIES.TOURS_MEMBERS_WRITE)
+
+  // 品牌（5/24）：show-if-multi。單一品牌自動帶預設、>1 才讓用戶選。
+  const { items: brands } = useBrands()
+  useEffect(() => {
+    if (!newTour.brand_id && brands.length > 0) {
+      const def = brands.find(b => b.is_default) || brands[0]
+      if (def) setNewTour(prev => ({ ...prev, brand_id: def.id }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [brands, newTour.brand_id])
 
   // 所有團類型定義
   const ALL_TOUR_CATEGORIES = [
@@ -194,6 +204,35 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
             onChange={e => setNewTour(prev => ({ ...prev, name: e.target.value }))}
             className="mt-1"
           />
+        </div>
+      )}
+
+      {/* 品牌（5/24）— show-if-multi：只有 >1 品牌才讓選、單一品牌自動帶預設不問 */}
+      {!isProposalOrTemplate && brands.length > 1 && (
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">
+            品牌 <span className="text-morandi-red">*</span>
+          </label>
+          <Select
+            value={newTour.brand_id || ''}
+            onValueChange={(value: string) =>
+              setNewTour(prev => ({ ...prev, brand_id: value }))
+            }
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder="選擇品牌..." />
+            </SelectTrigger>
+            <SelectContent>
+              {brands.map(b => (
+                <SelectItem key={b.id} value={b.id}>
+                  {b.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-[0.588rem] text-morandi-muted mt-1">
+            這個案子屬於哪個品牌。
+          </p>
         </div>
       )}
 
