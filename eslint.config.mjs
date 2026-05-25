@@ -81,6 +81,8 @@ export default tseslint.config(
       // 紅線 F：頁面不准直接 supabase 寫入（走 apiMutate + API route）
       // 2026-05-19 升 'error' + 既有違反走 .eslint-suppressions.json baseline
       'venturo/no-direct-supabase-writes': 'error',
+      // 2026-05-26 夜間：UI SSOT D1 守門——禁止散刻原生 <input>（warn、不擋 CI、漸進清）
+      'venturo/no-raw-input': 'warn',
 
       // 5/21 William 拍板：禁止在迴圈內 await 單筆編號 RPC、會撞 unique
       // 必用批次 wrapper（譬如 nextPaymentRequestItemNumbers）

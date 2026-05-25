@@ -781,5 +781,80 @@ module.exports = {
         }
       },
     },
+    'no-mutate-clear': {
+      meta: {
+        type: 'problem',
+        docs: {
+          description:
+            '禁止 mutate / globalMutate 用 undefined 當第 2 (data) 參數 — 會把 SWR cache 清成 undefined、暴露 stale fallback 造成閃爍（2026-05-26 全盤盤點：此 footgun 曾散在 8 處）',
+          category: 'Venturo SWR Architecture',
+          recommended: true,
+        },
+        messages: {
+          noClear:
+            '禁止 {{name}}(key, undefined, ...) — 第 2 參數 undefined 會把 cache 清成 undefined、畫面閃舊資料（idb fallback）。純刷新用單參數 {{name}}(key)；要寫 cache 請傳真實 data 或 updater function。',
+        },
+        schema: [],
+      },
+      create(context) {
+        // 只攔截 undefined 當 data 參數的危險形式；單參數刷新、function/object updater 都安全、不攔
+        const TARGETS = new Set(['mutate', 'globalMutate'])
+        function isUndefinedArg(arg) {
+          if (!arg) return false
+          if (arg.type === 'Identifier' && arg.name === 'undefined') return true
+          if (arg.type === 'UnaryExpression' && arg.operator === 'void') return true // void 0
+          return false
+        }
+        return {
+          CallExpression(node) {
+            if (node.callee.type !== 'Identifier') return
+            if (!TARGETS.has(node.callee.name)) return
+            if (node.arguments.length < 2) return
+            if (!isUndefinedArg(node.arguments[1])) return
+            context.report({ node, messageId: 'noClear', data: { name: node.callee.name } })
+          },
+        }
+      },
+    },
+    'no-raw-input': {
+      meta: {
+        type: 'suggestion',
+        docs: {
+          description:
+            '禁止散刻原生 <input>（UI SSOT）；text 類欄位走 <Input> / <DatePicker>（2026-05-26 UI 盤點 D1）',
+          category: 'Venturo Design System',
+          recommended: true,
+        },
+        messages: {
+          noRawInput:
+            '禁止散刻原生 <input>（UI SSOT）。text/email/password/number/date 欄位走 <Input> 或 <DatePicker>。（type=file/checkbox/radio/hidden/range/color 才用 raw <input>）',
+        },
+        schema: [],
+      },
+      create(context) {
+        const filename = context.getFilename()
+        // SSOT 元件本身（input.tsx 等）合理 render raw <input>、豁免
+        if (filename.includes('/src/components/ui/')) return {}
+        const EXEMPT_TYPES = new Set(['file', 'checkbox', 'radio', 'hidden', 'range', 'color'])
+        return {
+          JSXOpeningElement(node) {
+            if (node.name.type !== 'JSXIdentifier' || node.name.name !== 'input') return
+            const typeAttr = node.attributes.find(
+              a => a.type === 'JSXAttribute' && a.name && a.name.name === 'type'
+            )
+            // type 是 file/checkbox/radio… 字面值 → 豁免（非 text 類）
+            if (
+              typeAttr &&
+              typeAttr.value &&
+              typeAttr.value.type === 'Literal' &&
+              EXEMPT_TYPES.has(String(typeAttr.value.value))
+            ) {
+              return
+            }
+            context.report({ node, messageId: 'noRawInput' })
+          },
+        }
+      },
+    },
   },
 }
