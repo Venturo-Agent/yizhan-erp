@@ -174,6 +174,12 @@ export function PackageItineraryDialog({
                       onRemoveReturn={() =>
                         hook.setFormData(prev => ({ ...prev, returnFlight: null }))
                       }
+                      onManualOutbound={flight =>
+                        hook.setFormData(prev => ({ ...prev, outboundFlight: flight }))
+                      }
+                      onManualReturn={flight =>
+                        hook.setFormData(prev => ({ ...prev, returnFlight: flight }))
+                      }
                       searchEnabled={flightSearchEnabled}
                     />
                   )}
