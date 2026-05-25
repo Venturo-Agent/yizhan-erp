@@ -112,8 +112,14 @@ export function useReceiptsListView(
       const from = (page - 1) * pageSize
       const to = from + pageSize - 1
 
+      // 排序（還原改 server 分頁前的兩層規則、修「亂掉」）：
+      // 1. 待確認優先：confirmed_at 為 null（pending/pending_verify = 待確認）排前面、已確認在後
+      // 2. 使用者選的欄位（預設收款日期 receipt_date）
+      // 3. id 做穩定 tiebreak —— 同一天多筆不再隨機亂跳
       let query = filterActive(supabase.from('receipts').select(LIST_SELECT, { count: 'exact' }))
+        .order('confirmed_at', { ascending: true, nullsFirst: true })
         .order(sortBy, { ascending: sortOrder === 'asc' })
+        .order('id', { ascending: true })
         .range(from, to)
 
       // tab 範圍：團體 = 有綁團或綁單；公司 = 都沒綁

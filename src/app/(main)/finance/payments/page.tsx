@@ -87,7 +87,8 @@ export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState<ReceiptTabValue>('all')
   const [statusFilter, setStatusFilter] = useState<ReceiptStatusFilter>('all')
   const [sortBy, setSortBy] = useState('receipt_date')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  // 預設收款日期「舊的在前」（還原 server 分頁前規則）。待確認優先分群在 useReceiptsListView。
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
   // UI 狀態（對話框）
   const [isDialogOpen, setIsDialogOpen] = useState(false)
