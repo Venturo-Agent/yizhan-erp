@@ -11,7 +11,7 @@
 import { useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { fetchAllCustomers } from '@/app/(main)/orders/_services/order_member.service'
-import { createCustomer, invalidateCustomers } from '@/data'
+import { createCustomer } from '@/data'
 import { logger } from '@/lib/utils/logger'
 import { syncPassportImageToMembers } from '@/lib/utils/sync-passport-image'
 
@@ -186,7 +186,9 @@ export function usePassportValidation(): UsePassportValidationReturn {
         const canSyncCustomer = isValidIdNumber || isValidPassport
 
         if (newMember && canSyncCustomer) {
-          await invalidateCustomers()
+          // 註：不在這裡 invalidateCustomers——fetchAllCustomers 是直接 DB 查詢（不走快取），
+          // 此處 invalidate 對下一行沒作用、卻會害批次「每存一張就刷新全部客戶 + 重繪」。
+          // 改由批次結束後（handleBatchUpload）統一刷一次。2026-05-25 修批次第二張卡頓。
           const freshCustomers = await fetchAllCustomers()
 
           const existingCustomer = freshCustomers.find(c => {

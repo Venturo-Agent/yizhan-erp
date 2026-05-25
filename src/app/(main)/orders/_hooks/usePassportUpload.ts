@@ -24,6 +24,7 @@ import type { ProcessedFile } from '../_types/order-member.types'
 import { usePassportFiles } from './passport/usePassportFiles'
 import { usePassportOcr } from './passport/usePassportOcr'
 import { usePassportValidation } from './passport/usePassportValidation'
+import { invalidateCustomers } from '@/data'
 import { useTranslations } from 'next-intl'
 import {
   syncPassportToCustomer,
@@ -317,6 +318,8 @@ export function usePassportUpload({
 
       // 清空檔案並重新載入
       fileModule.clearFiles()
+      // 整批存完才刷新一次客戶快取（取代原本「每存一張就 invalidateCustomers」的逐筆重繪）
+      await invalidateCustomers()
       await onSuccess()
 
       // 重算團人數（批次上傳後）
