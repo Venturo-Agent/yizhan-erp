@@ -3,6 +3,85 @@
 import { useState, useCallback, useEffect } from 'react'
 
 /**
+ * 安全算式求值（shunting-yard）— 不用 eval / new Function。
+ * 2026-05-25：SEC-007 Strict CSP 移除 unsafe-eval、原本的 new Function 被 CSP 擋、
+ * 害請款單/單價/報價單算式全失效。改純解析、資安(CSP) 與算式功能兩全。
+ * 只處理 + - * /、括號、一元負號（如 5*-3）；輸入已由 caller 限定字元集。
+ */
+function evaluateArithmetic(expr: string): number | null {
+  const tokens = expr.match(/\d+\.?\d*|\.\d+|[+\-*/()]/g)
+  if (!tokens) return null
+
+  const prec: Record<string, number> = { '+': 1, '-': 1, '*': 2, '/': 2, 'u-': 3 }
+  const output: (number | string)[] = [] // RPN
+  const ops: string[] = []
+  let prev: 'num' | 'op' | 'lparen' | null = null
+
+  for (const tk of tokens) {
+    if (/^[\d.]/.test(tk)) {
+      const n = Number(tk)
+      if (!isFinite(n)) return null
+      output.push(n)
+      prev = 'num'
+    } else if (tk === '(') {
+      ops.push(tk)
+      prev = 'lparen'
+    } else if (tk === ')') {
+      while (ops.length && ops[ops.length - 1] !== '(') output.push(ops.pop() as string)
+      if (!ops.length) return null
+      ops.pop() // 去掉 '('
+      prev = 'num'
+    } else {
+      // 開頭 / 運算符後 / 左括號後的 + - 視為一元
+      if (tk === '+' && (prev === null || prev === 'op' || prev === 'lparen')) {
+        prev = 'op'
+        continue // 一元正號無作用
+      }
+      const op = tk === '-' && (prev === null || prev === 'op' || prev === 'lparen') ? 'u-' : tk
+      while (
+        ops.length &&
+        ops[ops.length - 1] !== '(' &&
+        (prec[ops[ops.length - 1]] > prec[op] ||
+          (prec[ops[ops.length - 1]] === prec[op] && op !== 'u-'))
+      ) {
+        output.push(ops.pop() as string)
+      }
+      ops.push(op)
+      prev = 'op'
+    }
+  }
+  while (ops.length) {
+    const op = ops.pop() as string
+    if (op === '(') return null
+    output.push(op)
+  }
+
+  const stack: number[] = []
+  for (const t of output) {
+    if (typeof t === 'number') {
+      stack.push(t)
+    } else if (t === 'u-') {
+      const a = stack.pop()
+      if (a === undefined) return null
+      stack.push(-a)
+    } else {
+      const b = stack.pop()
+      const a = stack.pop()
+      if (a === undefined || b === undefined) return null
+      if (t === '+') stack.push(a + b)
+      else if (t === '-') stack.push(a - b)
+      else if (t === '*') stack.push(a * b)
+      else if (t === '/') {
+        if (b === 0) return null
+        stack.push(a / b)
+      } else return null
+    }
+  }
+  if (stack.length !== 1) return null
+  return isFinite(stack[0]) ? stack[0] : null
+}
+
+/**
  * 安全地計算數學表達式
  * 支援 +, -, *, /, 括號
  */
@@ -32,19 +111,12 @@ export function calculateExpression(expression: string): number | null {
     return null
   }
 
-  try {
-    // 使用 Function 而非 eval，更安全
-
-    const result = new Function(`return (${cleaned})`)()
-
-    if (typeof result !== 'number' || !isFinite(result)) {
-      return null
-    }
-
-    return result
-  } catch {
+  // 2026-05-25：改用 evaluateArithmetic（純解析、不用 new Function）、避開 Strict CSP 封鎖 eval
+  const result = evaluateArithmetic(cleaned)
+  if (result === null || typeof result !== 'number' || !isFinite(result)) {
     return null
   }
+  return result
 }
 
 interface UseCalculableInputOptions {
