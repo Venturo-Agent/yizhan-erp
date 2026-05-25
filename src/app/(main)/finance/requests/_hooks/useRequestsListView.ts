@@ -122,10 +122,16 @@ export function useRequestsListView(
       const from = (page - 1) * pageSize
       const to = from + pageSize - 1
 
+      // 排序（還原 5/24 改 server 分頁前的兩層規則、修「亂掉」）：
+      // 1. 未付款優先：paid_at 為 null（pending/confirmed = 未付）排前面、已付款（paid_at 有值）在後
+      // 2. 使用者選的欄位（預設請款日期 request_date）
+      // 3. id 做穩定 tiebreak —— 同一天多筆不再隨機亂跳
       let query = filterActive(
         supabase.from('payment_requests').select(LIST_SELECT, { count: 'exact' })
       )
+        .order('paid_at', { ascending: true, nullsFirst: true })
         .order(sortBy, { ascending: sortOrder === 'asc' })
+        .order('id', { ascending: true })
         .range(from, to)
 
       // tab 範圍：用 request_category 過濾。全 3 類都能看（且 tab=all）→ 不加範圍篩選、看全部。
