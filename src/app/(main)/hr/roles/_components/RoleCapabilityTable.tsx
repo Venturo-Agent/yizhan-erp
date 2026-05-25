@@ -79,12 +79,11 @@ export function RoleCapabilityTable({
           <div className="w-32 p-4 flex justify-center">
             <div className="relative">
               <Switch
-                checked={isAdminRole || readFully}
+                checked={readFully}
                 onCheckedChange={() => onToggleModuleAll(module, 'can_read')}
-                disabled={isAdminRole}
                 className="data-[state=checked]:bg-morandi-green"
               />
-              {readPartial && !isAdminRole && (
+              {readPartial && (
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-morandi-gold rounded-full" />
               )}
             </div>
@@ -92,12 +91,11 @@ export function RoleCapabilityTable({
           <div className="w-32 p-4 flex justify-center">
             <div className="relative">
               <Switch
-                checked={isAdminRole || writeFully}
+                checked={writeFully}
                 onCheckedChange={() => onToggleModuleAll(module, 'can_write')}
-                disabled={isAdminRole}
                 className="data-[state=checked]:bg-morandi-gold"
               />
-              {writePartial && !isAdminRole && (
+              {writePartial && (
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-morandi-gold rounded-full" />
               )}
             </div>
@@ -109,6 +107,9 @@ export function RoleCapabilityTable({
           isExpanded &&
           module.tabs.map(tab => {
             const perm = getPermission(module.code, tab.code)
+            // 自鎖保護：系統主管的「職務管理·可寫入」(hr.roles.write) 永遠鎖定、
+            // 留一把「回得來的鑰匙」、避免系統主管把權限管理能力關掉後再也進不來改回。
+            const rolesWriteLocked = isAdminRole && module.code === 'hr' && tab.code === 'roles'
             return (
               <div key={tab.code} className="flex items-center border-t border-border bg-card">
                 <div className="flex-1 p-4 pl-12 flex items-center gap-2">
@@ -117,19 +118,19 @@ export function RoleCapabilityTable({
                 </div>
                 <div className="w-32 p-4 flex justify-center">
                   <Switch
-                    checked={isAdminRole || (perm?.can_read ?? false)}
+                    checked={perm?.can_read ?? false}
                     onCheckedChange={() => onToggleTabPermission(module.code, tab.code, 'can_read')}
-                    disabled={isAdminRole}
                     className="data-[state=checked]:bg-morandi-green"
                   />
                 </div>
                 <div className="w-32 p-4 flex justify-center">
                   <Switch
-                    checked={isAdminRole || (perm?.can_write ?? false)}
+                    checked={rolesWriteLocked || (perm?.can_write ?? false)}
                     onCheckedChange={() =>
                       onToggleTabPermission(module.code, tab.code, 'can_write')
                     }
-                    disabled={isAdminRole}
+                    disabled={rolesWriteLocked}
+                    title={rolesWriteLocked ? '系統主管必須保留「職務管理」權限、避免鎖死自己' : undefined}
                     className="data-[state=checked]:bg-morandi-gold"
                   />
                 </div>
@@ -161,7 +162,7 @@ export function RoleCapabilityTable({
             </div>
           )}
         </div>
-        {selectedRole && !selectedRole.is_admin && (
+        {selectedRole && (
           <Button
             variant="soft-gold"
             onClick={onSavePermissions}
@@ -209,7 +210,7 @@ export function RoleCapabilityTable({
       {selectedRole?.is_admin && (
         <div className="p-4 border-t border-border bg-morandi-bg/30">
           <p className="text-sm text-morandi-secondary text-center">
-            系統主管角色擁有所有權限，無法修改
+            系統主管可自行調整能力（「職務管理·可寫入」保留鎖定、避免鎖死自己）
           </p>
         </div>
       )}

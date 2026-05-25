@@ -153,6 +153,16 @@ export default function RolesPage() {
       } else {
         // 有分頁的模組：更新所有分頁
         module.tabs.forEach(tab => {
+          // 自鎖保護：系統主管的「職務管理·可寫入」(hr.roles.write) 不可透過「全關」關掉
+          if (
+            selectedRole?.is_admin &&
+            module.code === 'hr' &&
+            tab.code === 'roles' &&
+            field === 'can_write' &&
+            newValue === false
+          ) {
+            return
+          }
           const existing = updated.find(
             p => p.module_code === module.code && p.tab_code === tab.code
           )
