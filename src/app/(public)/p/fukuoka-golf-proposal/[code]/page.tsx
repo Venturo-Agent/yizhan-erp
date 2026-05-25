@@ -18,7 +18,7 @@ export default async function FukuokaGolfProposalPage({ params }: PageProps) {
   const isPreview = code === 'preview'
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: '#FAF8F5' }}>
       <FukuokaGolfProposalHero />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-20">
