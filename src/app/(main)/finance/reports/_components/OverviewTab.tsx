@@ -278,7 +278,7 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
       key: 'description',
       label: COMPONENT_LABELS.COL_DESCRIPTION,
       render: value => (
-        <span className="text-sm truncate max-w-[280px] block">{String(value)}</span>
+        <span className="text-sm">{String(value)}</span>
       ),
     },
     {

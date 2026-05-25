@@ -1,12 +1,12 @@
 'use client'
 
-import { ContentContainer } from '@/components/layout/content-container'
-import { Card } from '@/components/ui/card'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { CurrencyCell } from '@/components/table-cells'
-import { Banknote, Wallet, AlertCircle, Star } from 'lucide-react'
+import { Banknote, Star } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { useBankBalances, type BankBalanceRow } from '../_hooks/useBankBalances'
+import { ReportStatCard } from './ReportStatCard'
+import { ReportSectionTitle } from './ReportSectionTitle'
 
 const COMPONENT_LABELS = {
   TITLE: '銀行餘額',
@@ -26,36 +26,6 @@ const COMPONENT_LABELS = {
   UNLINKED_BADGE: '未綁定',
   FOREIGN_NOTE: '⚠️ 外幣支援：目前所有帳戶一律按 TWD 計算、外幣帳戶需等 schema 加上 currency 欄位後實作。',
 } as const
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  iconColor,
-  isCurrency = false,
-}: {
-  title: string
-  value: number
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  iconColor: string
-  isCurrency?: boolean
-}) {
-  return (
-    <Card className="p-3 border-0 bg-morandi-container/30">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-morandi-secondary mb-1">{title}</p>
-          {isCurrency ? (
-            <CurrencyCell amount={value} className="text-lg font-bold tabular-nums" />
-          ) : (
-            <p className="text-lg font-bold text-morandi-primary tabular-nums">{value}</p>
-          )}
-        </div>
-        <Icon size={18} className={iconColor} />
-      </div>
-    </Card>
-  )
-}
 
 export function BankBalancesTab() {
   const { rows, stats, loading, error } = useBankBalances()
@@ -131,55 +101,34 @@ export function BankBalancesTab() {
 
   if (error) {
     return (
-      <ContentContainer>
-        <div className="flex items-center justify-center min-h-[300px]">
-          <div className="text-morandi-red">{error}</div>
-        </div>
-      </ContentContainer>
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="text-morandi-red">{error}</div>
+      </div>
     )
   }
 
   return (
-    <ContentContainer>
-      <div className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-lg font-semibold text-morandi-primary">{COMPONENT_LABELS.TITLE}</h2>
-          <p className="text-sm text-morandi-secondary mt-1">{COMPONENT_LABELS.HEADER_NOTICE}</p>
-          <p className="text-xs text-morandi-secondary mt-1">{COMPONENT_LABELS.FOREIGN_NOTE}</p>
-        </div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <ReportStatCard title={COMPONENT_LABELS.STAT_COUNT} value={stats.count} />
+        <ReportStatCard title={COMPONENT_LABELS.STAT_BALANCE} value={stats.total_balance} isCurrency />
+        <ReportStatCard title={COMPONENT_LABELS.STAT_UNLINKED} value={stats.unlinked_count} />
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <StatCard
-            title={COMPONENT_LABELS.STAT_COUNT}
-            value={stats.count}
-            icon={Wallet}
-            iconColor="text-morandi-secondary"
-          />
-          <StatCard
-            title={COMPONENT_LABELS.STAT_BALANCE}
-            value={stats.total_balance}
-            icon={Banknote}
-            iconColor="text-morandi-income"
-            isCurrency
-          />
-          <StatCard
-            title={COMPONENT_LABELS.STAT_UNLINKED}
-            value={stats.unlinked_count}
-            icon={AlertCircle}
-            iconColor={stats.unlinked_count > 0 ? 'text-morandi-red' : 'text-morandi-secondary'}
-          />
-        </div>
-
+      <div>
+        <ReportSectionTitle icon={Banknote} title={COMPONENT_LABELS.TITLE} />
+        <p className="text-sm text-morandi-secondary mb-1">{COMPONENT_LABELS.HEADER_NOTICE}</p>
+        <p className="text-xs text-morandi-secondary mb-2">{COMPONENT_LABELS.FOREIGN_NOTE}</p>
         {loading ? (
           <div className="flex items-center justify-center min-h-[300px]">
             <Spinner size="lg" className="text-morandi-secondary" />
           </div>
         ) : rows.length === 0 ? (
-          <Card className="p-8 text-center text-morandi-secondary">{COMPONENT_LABELS.EMPTY}</Card>
+          <div className="text-center py-8 text-morandi-secondary">{COMPONENT_LABELS.EMPTY}</div>
         ) : (
           <EnhancedTable columns={columns} data={rows} />
         )}
       </div>
-    </ContentContainer>
+    </div>
   )
 }

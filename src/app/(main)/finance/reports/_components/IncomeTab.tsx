@@ -2,11 +2,11 @@
 
 import { useMemo } from 'react'
 import { EmptyValue } from '@/components/ui/empty-value'
-import { ContentContainer } from '@/components/layout/content-container'
-import { Card } from '@/components/ui/card'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { CurrencyCell, DateCell } from '@/components/table-cells'
 import { TrendingUp, Receipt as ReceiptIcon } from 'lucide-react'
+import { ReportStatCard } from './ReportStatCard'
+import { ReportSectionTitle } from './ReportSectionTitle'
 import { useReceiptsInRange } from '../_hooks/useReceiptsInRange'
 import type { Receipt } from '@/types/receipt.types'
 import { RECEIPT_PAYMENT_METHOD_LABELS } from '@/types/receipt.types'
@@ -17,36 +17,6 @@ const COMPONENT_LABELS = {
   RECEIPT_DETAILS: '收款單明細',
   COUNT_UNIT: '筆',
 } as const
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  iconColor,
-  isCurrency = false,
-}: {
-  title: string
-  value: number
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  iconColor: string
-  isCurrency?: boolean
-}) {
-  return (
-    <Card className="p-3 border-0 bg-morandi-container/30">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-morandi-secondary mb-1">{title}</p>
-          {isCurrency ? (
-            <CurrencyCell amount={value} variant="income" className="text-lg font-bold tabular-nums" />
-          ) : (
-            <p className="text-lg font-bold text-morandi-primary tabular-nums">{value}</p>
-          )}
-        </div>
-        <Icon size={18} className={iconColor} />
-      </div>
-    </Card>
-  )
-}
 
 interface IncomeTabProps {
   dateRange: DateRange
@@ -145,36 +115,31 @@ export function IncomeTab({ dateRange }: IncomeTabProps) {
 
   return (
     <div className="space-y-6">
-      <ContentContainer>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <StatCard
-            title={`團體收款（${stats.tourCount} 筆）`}
-            value={stats.tourAmount}
-            icon={ReceiptIcon}
-            iconColor="text-morandi-green"
-            isCurrency
-          />
-          <StatCard
-            title={`公司收款（${stats.companyCount} 筆）`}
-            value={stats.companyAmount}
-            icon={ReceiptIcon}
-            iconColor="text-morandi-green"
-            isCurrency
-          />
-          <StatCard
-            title={`收款合計（${stats.receiptCount} 筆）`}
-            value={stats.totalAmount}
-            icon={TrendingUp}
-            iconColor="text-morandi-green"
-            isCurrency
-          />
-        </div>
-      </ContentContainer>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <ReportStatCard
+          title={`團體收款（${stats.tourCount} 筆）`}
+          value={stats.tourAmount}
+          variant="income"
+          isCurrency
+        />
+        <ReportStatCard
+          title={`公司收款（${stats.companyCount} 筆）`}
+          value={stats.companyAmount}
+          variant="income"
+          isCurrency
+        />
+        <ReportStatCard
+          title={`收款合計（${stats.receiptCount} 筆）`}
+          value={stats.totalAmount}
+          variant="income"
+          isCurrency
+        />
+      </div>
 
       {Object.keys(stats.byPaymentMethod).length > 0 && (
-        <ContentContainer>
-          <h3 className="text-lg font-semibold text-morandi-primary mb-4">{COMPONENT_LABELS.STATS_BY_METHOD}</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div>
+          <ReportSectionTitle icon={TrendingUp} title={COMPONENT_LABELS.STATS_BY_METHOD} />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {Object.entries(stats.byPaymentMethod).map(([method, data]) => (
               <div key={method} className="p-4 bg-morandi-container/30 rounded-lg">
                 <p className="text-sm text-morandi-secondary">
@@ -185,18 +150,18 @@ export function IncomeTab({ dateRange }: IncomeTabProps) {
               </div>
             ))}
           </div>
-        </ContentContainer>
+        </div>
       )}
 
-      <ContentContainer>
-        <h3 className="text-lg font-semibold text-morandi-primary mb-4">{COMPONENT_LABELS.RECEIPT_DETAILS}</h3>
+      <div>
+        <ReportSectionTitle icon={ReceiptIcon} title={COMPONENT_LABELS.RECEIPT_DETAILS} />
         <EnhancedTable
           columns={columns}
           data={filteredReceipts}
           loading={loading}
           emptyMessage="此區間沒有收款單"
         />
-      </ContentContainer>
+      </div>
     </div>
   )
 }

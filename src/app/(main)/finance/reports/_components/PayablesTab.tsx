@@ -1,13 +1,13 @@
 'use client'
 
-import { ContentContainer } from '@/components/layout/content-container'
-import { Card } from '@/components/ui/card'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { CurrencyCell, DateCell } from '@/components/table-cells'
-import { Receipt, AlertTriangle, Hourglass, Building } from 'lucide-react'
+import { Building } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { usePayables, type PayableRow } from '../_hooks/usePayables'
 import { getStatusLabelFor } from '@/lib/design/status-tone-map'
+import { ReportStatCard } from './ReportStatCard'
+import { ReportSectionTitle } from './ReportSectionTitle'
 
 const COMPONENT_LABELS = {
   TITLE: '應付帳款明細',
@@ -46,38 +46,6 @@ const BUCKET_COLORS: Record<PayableRow['aging_bucket'], string> = {
   d60: 'text-morandi-primary',
   d90: 'text-morandi-expense',
   d90_plus: 'text-morandi-red font-semibold',
-}
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  iconColor,
-  isCurrency = false,
-  variant,
-}: {
-  title: string
-  value: number
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  iconColor: string
-  isCurrency?: boolean
-  variant?: 'income' | 'expense'
-}) {
-  return (
-    <Card className="p-3 border-0 bg-morandi-container/30">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-morandi-secondary mb-1">{title}</p>
-          {isCurrency ? (
-            <CurrencyCell amount={value} variant={variant} className="text-lg font-bold tabular-nums" />
-          ) : (
-            <p className="text-lg font-bold text-morandi-primary tabular-nums">{value}</p>
-          )}
-        </div>
-        <Icon size={18} className={iconColor} />
-      </div>
-    </Card>
-  )
 }
 
 export function PayablesTab() {
@@ -140,63 +108,44 @@ export function PayablesTab() {
 
   if (error) {
     return (
-      <ContentContainer>
-        <div className="flex items-center justify-center min-h-[300px]">
-          <div className="text-morandi-red">{error}</div>
-        </div>
-      </ContentContainer>
+      <div className="flex items-center justify-center min-h-[300px]">
+        <div className="text-morandi-red">{error}</div>
+      </div>
     )
   }
 
   return (
-    <ContentContainer>
-      <div className="flex flex-col gap-4">
-        <div>
-          <h2 className="text-lg font-semibold text-morandi-primary">{COMPONENT_LABELS.TITLE}</h2>
-          <p className="text-sm text-morandi-secondary mt-1">{COMPONENT_LABELS.HEADER_NOTICE}</p>
-        </div>
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <ReportStatCard title={COMPONENT_LABELS.STAT_COUNT} value={stats.count} />
+        <ReportStatCard
+          title={COMPONENT_LABELS.STAT_TOTAL}
+          value={stats.total_payable}
+          isCurrency
+          variant="expense"
+        />
+        <ReportStatCard title={COMPONENT_LABELS.STAT_OVERDUE_COUNT} value={stats.overdue_count} />
+        <ReportStatCard
+          title={COMPONENT_LABELS.STAT_OVERDUE_AMOUNT}
+          value={stats.overdue_amount}
+          isCurrency
+          variant="expense"
+        />
+      </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard
-            title={COMPONENT_LABELS.STAT_COUNT}
-            value={stats.count}
-            icon={Building}
-            iconColor="text-morandi-secondary"
-          />
-          <StatCard
-            title={COMPONENT_LABELS.STAT_TOTAL}
-            value={stats.total_payable}
-            icon={Receipt}
-            iconColor="text-morandi-expense"
-            isCurrency
-            variant="expense"
-          />
-          <StatCard
-            title={COMPONENT_LABELS.STAT_OVERDUE_COUNT}
-            value={stats.overdue_count}
-            icon={Hourglass}
-            iconColor="text-morandi-red"
-          />
-          <StatCard
-            title={COMPONENT_LABELS.STAT_OVERDUE_AMOUNT}
-            value={stats.overdue_amount}
-            icon={AlertTriangle}
-            iconColor="text-morandi-red"
-            isCurrency
-            variant="expense"
-          />
-        </div>
-
+      <div>
+        <ReportSectionTitle icon={Building} title={COMPONENT_LABELS.TITLE} />
+        <p className="text-sm text-morandi-secondary mb-2">{COMPONENT_LABELS.HEADER_NOTICE}</p>
         {loading ? (
           <div className="flex items-center justify-center min-h-[300px]">
             <Spinner size="lg" className="text-morandi-secondary" />
           </div>
         ) : rows.length === 0 ? (
-          <Card className="p-8 text-center text-morandi-secondary">{COMPONENT_LABELS.EMPTY}</Card>
+          <div className="text-center py-8 text-morandi-secondary">{COMPONENT_LABELS.EMPTY}</div>
         ) : (
           <EnhancedTable columns={columns} data={rows} />
         )}
       </div>
-    </ContentContainer>
+    </div>
   )
 }

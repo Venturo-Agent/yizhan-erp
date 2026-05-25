@@ -1,13 +1,13 @@
 'use client'
 
 import { useMemo } from 'react'
-import { ContentContainer } from '@/components/layout/content-container'
-import { Card } from '@/components/ui/card'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { CurrencyCell, DateCell, StatusCell } from '@/components/table-cells'
-import { FileDown, Receipt, Wallet } from 'lucide-react'
+import { FileDown, Wallet } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { ReportStatCard } from './ReportStatCard'
+import { ReportSectionTitle } from './ReportSectionTitle'
 import { useExpenseCategories } from '@/data/entities'
 import { usePaymentRequestsInRange } from '../_hooks/usePaymentRequestsInRange'
 import { useDisbursementOrdersInRange } from '../_hooks/useDisbursementOrdersInRange'
@@ -22,36 +22,6 @@ const COMPONENT_LABELS = {
   EMPTY_DISBURSEMENTS: '此區間沒有出納單',
   COUNT_UNIT: '筆',
 } as const
-
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  iconColor,
-  isCurrency = false,
-}: {
-  title: string
-  value: number
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  iconColor: string
-  isCurrency?: boolean
-}) {
-  return (
-    <Card className="p-3 border-0 bg-morandi-container/30">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-morandi-secondary mb-1">{title}</p>
-          {isCurrency ? (
-            <CurrencyCell amount={value} className="text-lg font-bold tabular-nums" />
-          ) : (
-            <p className="text-lg font-bold text-morandi-primary tabular-nums">{value}</p>
-          )}
-        </div>
-        <Icon size={18} className={iconColor} />
-      </div>
-    </Card>
-  )
-}
 
 interface DisbursementTabProps {
   dateRange: DateRange
@@ -198,64 +168,51 @@ export function DisbursementTab({ dateRange }: DisbursementTabProps) {
 
   return (
     <div className="space-y-6">
-      <ContentContainer>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-          <StatCard
+      <div className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <ReportStatCard
             title={`團體請款（${stats.tourCount} 筆）`}
             value={stats.tourAmount}
-            icon={Receipt}
-            iconColor="text-morandi-gold"
             isCurrency
           />
-          <StatCard
+          <ReportStatCard
             title={`公司支出（${stats.companyCount} 筆）`}
             value={stats.companyAmount}
-            icon={Receipt}
-            iconColor="text-morandi-gold"
             isCurrency
           />
-          <StatCard
+          <ReportStatCard
             title={`請款合計（${stats.paymentRequestCount} 筆）`}
             value={stats.totalPaymentAmount}
-            icon={FileDown}
-            iconColor="text-morandi-gold"
             isCurrency
           />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <StatCard
-            title={t('disbursementCount')}
-            value={stats.disbursementOrderCount}
-            icon={Wallet}
-            iconColor="text-morandi-green"
-          />
-          <StatCard
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <ReportStatCard title={t('disbursementCount')} value={stats.disbursementOrderCount} />
+          <ReportStatCard
             title={t('totalDisbursementAmount')}
             value={stats.totalDisbursementAmount}
-            icon={FileDown}
-            iconColor="text-morandi-green"
             isCurrency
           />
         </div>
-      </ContentContainer>
+      </div>
 
-      <ContentContainer>
-        <h3 className="text-lg font-semibold text-morandi-primary mb-4">{COMPONENT_LABELS.REQUEST_DETAILS}</h3>
+      <div>
+        <ReportSectionTitle icon={FileDown} title={COMPONENT_LABELS.REQUEST_DETAILS} />
         <EnhancedTable
           columns={paymentColumns}
           data={filteredPaymentRequests}
           emptyMessage={COMPONENT_LABELS.EMPTY_REQUESTS}
         />
-      </ContentContainer>
+      </div>
 
-      <ContentContainer>
-        <h3 className="text-lg font-semibold text-morandi-primary mb-4">{COMPONENT_LABELS.DISBURSEMENT_DETAILS}</h3>
+      <div>
+        <ReportSectionTitle icon={Wallet} title={COMPONENT_LABELS.DISBURSEMENT_DETAILS} />
         <EnhancedTable
           columns={disbursementColumns}
           data={filteredDisbursementOrders}
           emptyMessage={COMPONENT_LABELS.EMPTY_DISBURSEMENTS}
         />
-      </ContentContainer>
+      </div>
     </div>
   )
 }

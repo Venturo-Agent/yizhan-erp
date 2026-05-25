@@ -12,7 +12,6 @@ import {
   TrendingUp,
   FileDown,
   PieChart,
-  Receipt,
   Building,
   Banknote,
   List,
@@ -28,7 +27,9 @@ import { OverviewTab } from './_components/OverviewTab'
 import { DisbursementTab } from './_components/DisbursementTab'
 import { IncomeTab } from './_components/IncomeTab'
 import { TourPnlTab } from './_components/TourPnlTab'
-import { ReceivablesTab } from './_components/ReceivablesTab'
+// 應收帳款暫時隱藏（2026-05-23 William 拍板）：來源欄位 orders.total_amount 實際未填、
+// 算出的「未收」永遠是 0、報表無意義。待開團/報價金額串接補上 total_amount 後再開回。
+// import { ReceivablesTab } from './_components/ReceivablesTab'
 import { PayablesTab } from './_components/PayablesTab'
 import { BankBalancesTab } from './_components/BankBalancesTab'
 
@@ -98,7 +99,6 @@ export default function ReportsPage() {
       { value: 'disbursement', label: '請款報表', icon: FileDown },
       { value: 'income', label: '收款報表', icon: TrendingUp },
       { value: 'pnl', label: '損益表', icon: PieChart },
-      { value: 'receivables', label: '應收帳款', icon: Receipt },
       { value: 'payables', label: '應付帳款', icon: Building },
       { value: 'banks', label: '銀行餘額', icon: Banknote },
     ],
@@ -162,9 +162,6 @@ export default function ReportsPage() {
           </TabsContent>
           <TabsContent value="pnl" className="mt-0">
             <TourPnlTab />
-          </TabsContent>
-          <TabsContent value="receivables" className="mt-0">
-            <ReceivablesTab />
           </TabsContent>
           <TabsContent value="payables" className="mt-0">
             <PayablesTab />
