@@ -298,6 +298,7 @@ export function EditableRequestItemList({
                 placeholder={COMPONENT_LABELS.PH_ADVANCED_BY}
                 className="[&_input]:h-7 [&_input]:text-xs [&_input]:px-1 [&_input]:bg-morandi-gold/10 w-[120px]"
                 showSearchIcon={false}
+                showClearButton={false}
                 disabled={disabled}
               />
               <Button
