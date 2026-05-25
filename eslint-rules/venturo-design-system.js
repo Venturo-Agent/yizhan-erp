@@ -58,6 +58,14 @@ const FORBIDDEN_CLASS_PATTERNS = [
     suggestion: 'bg-gold',
   },
   {
+    // 2026-05-26 UI 盤點 D3：禁止 Tailwind 預設語意色（status 色應走 design token）
+    // 社群 channel badge 例外走 CHANNEL_COLORS const map（dynamic className、不被此掃描掃到、天然豁免）
+    pattern: /\b((?:bg|text|border)-(?:red|green|blue|yellow|purple)-\d{2,3})\b/g,
+    message:
+      '禁止 Tailwind 預設語意色 $1。請用 status design token（text-status-success / bg-status-danger-bg / text-status-warning / bg-status-info-bg 等）。見 CLAUDE.md UI 紅線',
+    suggestion: 'text-status-success',
+  },
+  {
     pattern: /\bshadow-\[(?:rgba?\([^)]+\)|#[0-9a-fA-F]+|var\([^)]+\))[^\]]*\]/g,
     message: '禁止硬編碼 shadow。請用 shadow-sm / shadow-md / shadow-lg / shadow-xl / shadow-2xl',
     suggestion: 'shadow-md',
