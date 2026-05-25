@@ -1,5 +1,9 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# IDE / OS 本地檔（不進 repo）
+.trae/
+.DS_Store
+
 # dependencies
 /node_modules
 /.pnp
