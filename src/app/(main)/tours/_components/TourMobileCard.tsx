@@ -73,11 +73,11 @@ export function TourMobileCard({ tour: tourProp, onClick, getStatusColor }: Tour
           <div className="flex items-center text-sm">
             <Calendar size={16} className="text-morandi-secondary mr-2 flex-shrink-0" />
             <span className="text-morandi-primary">
-              {format(new Date(tour.departure_date), 'yyyy/MM/dd', { locale: zhTW })}
+              {format(new Date(tour.departure_date), 'yyyy-MM-dd', { locale: zhTW })}
               {tour.return_date && (
                 <span className="text-morandi-secondary">
                   {' '}
-                  - {format(new Date(tour.return_date), 'MM/dd', { locale: zhTW })}
+                  - {format(new Date(tour.return_date), 'MM-dd', { locale: zhTW })}
                 </span>
               )}
             </span>

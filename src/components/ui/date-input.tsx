@@ -23,7 +23,7 @@ interface DateInputProps {
 export function DateInput({
   value,
   onChange,
-  _placeholder = 'YYYY/MM/DD',
+  _placeholder = 'YYYY-MM-DD',
   disabled = false,
   className,
   min,
