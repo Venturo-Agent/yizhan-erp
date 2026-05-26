@@ -58,8 +58,8 @@ export default function FinancePage() {
         sortable: true,
         render: (_value, transaction) => {
           const typeIcons: Record<string, React.ReactNode> = {
-            income: <TrendingUp size={16} className="text-morandi-green" />,
-            expense: <TrendingDown size={16} className="text-morandi-red" />,
+            income: <TrendingUp size={16} className="text-status-success" />,
+            expense: <TrendingDown size={16} className="text-status-danger" />,
             transfer: <DollarSign size={16} className="text-morandi-gold" />,
           }
           const typeLabels: Record<string, string> = {
@@ -112,8 +112,8 @@ export default function FinancePage() {
       icon: CreditCard,
       href: '/finance/payments',
       stats: t('moduleFinanceStats', { count: transactionsCount }),
-      color: 'text-morandi-green',
-      bgColor: 'bg-morandi-green/10',
+      color: 'text-status-success',
+      bgColor: 'bg-status-success/10',
     },
     {
       title: t('moduleReportsTitle'),
@@ -137,7 +137,7 @@ export default function FinancePage() {
       <div className="space-y-6">
         {/* 財務總覽 - Enhanced UI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <Card className="p-4 bg-morandi-green/10 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-4 bg-status-success/10 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-morandi-secondary mb-1">{t('totalIncome')}</p>
@@ -145,11 +145,11 @@ export default function FinancePage() {
                   <CurrencyCell amount={totalReceivable} variant="income" />
                 </div>
               </div>
-              <TrendingUp size={24} className="text-morandi-green" />
+              <TrendingUp size={24} className="text-status-success" />
             </div>
           </Card>
 
-          <Card className="p-4 bg-morandi-red/10 shadow-sm hover:shadow-md transition-shadow">
+          <Card className="p-4 bg-status-danger/10 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-morandi-secondary mb-1">{t('totalExpense')}</p>
@@ -157,7 +157,7 @@ export default function FinancePage() {
                   <CurrencyCell amount={totalPayable} variant="expense" />
                 </div>
               </div>
-              <TrendingDown size={24} className="text-morandi-red" />
+              <TrendingDown size={24} className="text-status-danger" />
             </div>
           </Card>
 

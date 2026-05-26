@@ -91,7 +91,7 @@ export function FeatureItem({
         </div>
         <button
           onClick={() => onRemoveFeature(index)}
-          className="text-morandi-red hover:text-morandi-red/80 text-sm transition-colors"
+          className="text-status-danger hover:text-status-danger/80 text-sm transition-colors"
         >
           {COMP_EDITOR_LABELS.DELETE}
         </button>

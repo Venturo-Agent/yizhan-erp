@@ -226,8 +226,8 @@ const SortableRow: React.FC<SortableRowProps> = ({
           <span
             className={
               (item.unit_price - (item.cost || 0)) * item.quantity >= 0
-                ? 'text-morandi-green'
-                : 'text-morandi-red'
+                ? 'text-status-success'
+                : 'text-status-danger'
             }
           >
             {((item.unit_price - (item.cost || 0)) * item.quantity).toLocaleString()}
@@ -251,7 +251,7 @@ const SortableRow: React.FC<SortableRowProps> = ({
           <button
             type="button"
             onClick={() => onRemoveItem(item.id)}
-            className="text-morandi-red hover:text-status-danger inline-flex items-center justify-center"
+            className="text-status-danger hover:text-status-danger inline-flex items-center justify-center"
           >
             <Trash2 className="h-4 w-4" />
           </button>

@@ -45,7 +45,7 @@ const BUCKET_COLORS: Record<PayableRow['aging_bucket'], string> = {
   d30: 'text-morandi-primary',
   d60: 'text-morandi-primary',
   d90: 'text-morandi-expense',
-  d90_plus: 'text-morandi-red font-semibold',
+  d90_plus: 'text-status-danger font-semibold',
 }
 
 export function PayablesTab() {
@@ -115,7 +115,7 @@ export function PayablesTab() {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[300px]">
-        <div className="text-morandi-red">{error}</div>
+        <div className="text-status-danger">{error}</div>
       </div>
     )
   }

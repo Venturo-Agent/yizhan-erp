@@ -303,7 +303,7 @@ export function EditableRequestItemList({
                 size="iconSm"
                 onClick={() => onUpdate({ advanced_by: undefined, advanced_by_name: undefined })}
                 disabled={disabled}
-                className="shrink-0 h-6 w-6 text-morandi-muted hover:text-morandi-red disabled:text-morandi-primary"
+                className="shrink-0 h-6 w-6 text-morandi-muted hover:text-status-danger disabled:text-morandi-primary"
                 title={disabled ? '此請款單已加入出納單，無法修改' : '取消代墊'}
               >
                 <X className="h-3 w-3" />

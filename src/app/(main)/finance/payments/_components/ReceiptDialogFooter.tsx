@@ -183,7 +183,7 @@ export function ReceiptDialogFooter({
             variant="soft-gold"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="gap-2 text-morandi-red border-morandi-red hover:bg-morandi-red hover:text-white"
+            className="gap-2 text-status-danger border-status-danger hover:bg-status-danger hover:text-white"
           >
             <Trash2 size={16} />
             {isDeleting ? t('receiptDeleting') : t('receiptDelete')}
@@ -222,7 +222,7 @@ export function ReceiptDialogFooter({
           <Button
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className="gap-2 bg-morandi-green hover:bg-morandi-green/90 text-white"
+            className="gap-2 bg-status-success hover:bg-status-success/90 text-white"
           >
             <Check size={16} />
             {t('receiptConfirmAction')}

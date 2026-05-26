@@ -135,7 +135,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
     return (
       <div className="min-h-screen flex items-center justify-center bg-morandi-background px-4">
         <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-sm p-8 text-center">
-          <XCircle size={48} className="mx-auto text-morandi-red mb-4" />
+          <XCircle size={48} className="mx-auto text-status-danger mb-4" />
           <h1 className="text-xl font-semibold text-morandi-primary mb-2">無法使用此連結</h1>
           <p className="text-morandi-secondary mb-6">
             {REASON_LABEL[verify?.reason || 'not_found']}
@@ -153,7 +153,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
     return (
       <div className="min-h-screen flex items-center justify-center bg-morandi-background px-4">
         <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-sm p-8 text-center">
-          <CheckSquare size={48} className="mx-auto text-morandi-green mb-4" />
+          <CheckSquare size={48} className="mx-auto text-status-success mb-4" />
           <h1 className="text-xl font-semibold text-morandi-primary mb-2">設定完成 ✓</h1>
           <p className="text-morandi-secondary mb-6">
             {verify.integration_name} 已成功設定到 {verify.workspace_name}。
@@ -228,7 +228,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
                       />
                       <span className="text-sm font-medium text-morandi-primary">
                         {field.label}
-                        {field.required && <span className="text-morandi-red ml-1">*</span>}
+                        {field.required && <span className="text-status-danger ml-1">*</span>}
                       </span>
                     </label>
                     {field.hint && <p className="text-xs text-morandi-muted ml-7">{field.hint}</p>}
@@ -241,7 +241,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
                 <div key={field.key}>
                   <label className="block text-sm font-medium text-morandi-primary mb-1">
                     {field.label}
-                    {field.required && <span className="text-morandi-red ml-1">*</span>}
+                    {field.required && <span className="text-status-danger ml-1">*</span>}
                   </label>
                   <input
                     type={field.type === 'password' ? 'password' : 'text'}
@@ -259,7 +259,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
 
         {/* 提交 */}
         {submitError && (
-          <div className="bg-morandi-red/10 border border-morandi-red/30 rounded-lg p-3 mb-4 text-sm text-morandi-red">
+          <div className="bg-status-danger/10 border border-status-danger/30 rounded-lg p-3 mb-4 text-sm text-status-danger">
             {submitError}
           </div>
         )}

@@ -355,7 +355,7 @@ export function Sidebar() {
                   type="button"
                   onClick={handleLogout}
                   title={COMP_LAYOUT_LABELS?.LOGOUT || '登出'}
-                  className="px-3 py-2 text-sidebar-fg hover:text-morandi-red transition-colors"
+                  className="px-3 py-2 text-sidebar-fg hover:text-status-danger transition-colors"
                 >
                   <LogOut size="1em" />
                 </button>

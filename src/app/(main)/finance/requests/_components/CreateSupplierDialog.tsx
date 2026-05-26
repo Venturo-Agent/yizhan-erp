@@ -193,7 +193,7 @@ export function CreateSupplierDialog({
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <Label>
-              {COMPONENT_LABELS.SUPPLIER_NAME} <span className="text-morandi-red">*</span>
+              {COMPONENT_LABELS.SUPPLIER_NAME} <span className="text-status-danger">*</span>
             </Label>
             <Input
               value={formData.name}
@@ -204,7 +204,7 @@ export function CreateSupplierDialog({
           </div>
           <div>
             <Label>
-              {COMPONENT_LABELS.TYPE} <span className="text-morandi-red">*</span>
+              {COMPONENT_LABELS.TYPE} <span className="text-status-danger">*</span>
             </Label>
             <Select
               value={formData.type}

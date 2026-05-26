@@ -313,7 +313,7 @@ export function MemberEditDialog({
               size="lg"
               className={
                 editMode === 'verify'
-                  ? 'bg-status-success hover:bg-morandi-green text-white px-8 font-medium'
+                  ? 'bg-status-success hover:bg-status-success text-white px-8 font-medium'
                   : 'px-8 font-medium'
               }
             >

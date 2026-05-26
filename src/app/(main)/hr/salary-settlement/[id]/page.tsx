@@ -62,7 +62,7 @@ function formatNT(n: number): string {
 
 const STATUS_BADGE = {
   draft: { label: '草稿（未確認）', className: 'bg-morandi-muted/20 text-morandi-secondary' },
-  submitted: { label: '已確認', className: 'bg-morandi-green/20 text-morandi-green' },
+  submitted: { label: '已確認', className: 'bg-status-success/20 text-status-success' },
   cancelled: { label: '已取消', className: 'bg-status-danger-bg text-status-danger' },
 } as const
 

@@ -110,13 +110,13 @@ export const TourOverview = React.memo(function TourOverview({
           title: t('overviewPaidAmount'),
           amount: order.paid_amount ?? 0,
           icon: Wallet,
-          color: 'text-morandi-green',
+          color: 'text-status-success',
         },
         {
           title: t('overviewUnpaidAmount'),
           amount: order.remaining_amount ?? 0,
           icon: Wallet,
-          color: 'text-morandi-red',
+          color: 'text-status-danger',
         },
         {
           title: t('overviewOrderCount'),
@@ -136,19 +136,19 @@ export const TourOverview = React.memo(function TourOverview({
           title: '總收入（預估／實收）',
           value: `${formatCurrency(estimatedIncome)} / ${formatCurrency(confirmedIncome)}`,
           icon: Wallet,
-          color: 'text-morandi-green',
+          color: 'text-status-success',
         },
         {
           title: t('overviewTotalExpense'),
           amount: totalExpense,
           icon: HandCoins,
-          color: 'text-morandi-red',
+          color: 'text-status-danger',
         },
         {
           title: '總利潤（預估／實收）',
           value: `${formatCurrency(estimatedProfit)} / ${formatCurrency(confirmedProfit)}`,
           icon: DollarSign,
-          color: confirmedProfit >= 0 ? 'text-morandi-green' : 'text-morandi-red',
+          color: confirmedProfit >= 0 ? 'text-status-success' : 'text-status-danger',
         },
         {
           title: t('overviewTotalOrders'),
@@ -203,7 +203,7 @@ export const TourOverview = React.memo(function TourOverview({
       <div className="px-5 py-3">
         <div className="flex items-stretch">
           <div className="flex-1 flex items-center gap-2.5 px-3">
-            <Wallet size={16} className="text-morandi-green shrink-0" />
+            <Wallet size={16} className="text-status-success shrink-0" />
             <div className="min-w-0">
               <p className="text-[0.647rem] text-morandi-secondary leading-tight">
                 {t('overviewTotalIncome')}
@@ -214,7 +214,7 @@ export const TourOverview = React.memo(function TourOverview({
             </div>
           </div>
           <div className="flex-1 flex items-center gap-2.5 px-3">
-            <HandCoins size={16} className="text-morandi-red shrink-0" />
+            <HandCoins size={16} className="text-status-danger shrink-0" />
             <div className="min-w-0">
               <p className="text-[0.647rem] text-morandi-secondary leading-tight">
                 {COMPONENT_LABELS.TOTAL_EXPENSE}
@@ -227,7 +227,7 @@ export const TourOverview = React.memo(function TourOverview({
           <div className="flex-1 flex items-center gap-2.5 px-3">
             <DollarSign
               size={16}
-              className={`shrink-0 ${confirmedProfit >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
+              className={`shrink-0 ${confirmedProfit >= 0 ? 'text-status-success' : 'text-status-danger'}`}
             />
             <div className="min-w-0">
               <p className="text-[0.647rem] text-morandi-secondary leading-tight">
@@ -252,14 +252,14 @@ export const TourOverview = React.memo(function TourOverview({
           <div className="flex-1 flex items-center gap-2.5 px-3">
             <FileSignature
               size={16}
-              className={`shrink-0 ${contractProgress.done ? 'text-morandi-green' : 'text-morandi-gold'}`}
+              className={`shrink-0 ${contractProgress.done ? 'text-status-success' : 'text-morandi-gold'}`}
             />
             <div className="min-w-0">
               <p className="text-[0.647rem] text-morandi-secondary leading-tight">
                 {COMPONENT_LABELS.CONTRACT_PROGRESS}
               </p>
               <p
-                className={`text-sm font-semibold ${contractProgress.done ? 'text-morandi-green' : 'text-morandi-primary'}`}
+                className={`text-sm font-semibold ${contractProgress.done ? 'text-status-success' : 'text-morandi-primary'}`}
               >
                 {contractProgress.label}
               </p>

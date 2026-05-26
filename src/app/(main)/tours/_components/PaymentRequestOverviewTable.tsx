@@ -90,9 +90,9 @@ export function PaymentRequestOverviewTable({ tour }: PaymentRequestOverviewTabl
 
   return (
     <div className="border border-border rounded-lg overflow-x-auto bg-card">
-      <div className="px-4 py-2 bg-morandi-red/10 flex items-center gap-2">
-        <HandCoins className="w-4 h-4 text-morandi-red" />
-        <span className="text-sm font-medium text-morandi-red">
+      <div className="px-4 py-2 bg-status-danger/10 flex items-center gap-2">
+        <HandCoins className="w-4 h-4 text-status-danger" />
+        <span className="text-sm font-medium text-status-danger">
           {t('costsOverviewTitle', { count: prList.length })}
         </span>
       </div>
@@ -192,7 +192,7 @@ export function PaymentRequestOverviewTable({ tour }: PaymentRequestOverviewTabl
                     <td className="px-4 py-2 text-center">
                       <StatusBadge type="payment_request" status={pr.status || ''} />
                     </td>
-                    <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-red font-medium">
+                    <td className="px-4 py-2 text-right font-mono tabular-nums text-status-danger font-medium">
                       -{formatCurrency(Number(pr.amount) || 0)}
                     </td>
                   </tr>
@@ -253,7 +253,7 @@ export function PaymentRequestOverviewTable({ tour }: PaymentRequestOverviewTabl
                         <StatusBadge type="payment_request" status={pr.status || ''} />
                       </td>
                       <td
-                        className="px-4 py-2 text-right font-mono tabular-nums text-morandi-red font-medium"
+                        className="px-4 py-2 text-right font-mono tabular-nums text-status-danger font-medium"
                         rowSpan={items.length}
                       >
                         -{formatCurrency(Number(pr.amount) || 0)}

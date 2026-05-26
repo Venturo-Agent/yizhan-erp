@@ -48,7 +48,7 @@ export function ImportSuppliersPreviewStep({
           if (row.status === 'error') {
             return (
               <span
-                className="inline-flex items-center gap-1 text-xs text-morandi-red"
+                className="inline-flex items-center gap-1 text-xs text-status-danger"
                 title={Object.values(row.errors).join('\n')}
               >
                 <AlertTriangle size={12} />
@@ -68,7 +68,7 @@ export function ImportSuppliersPreviewStep({
             )
           }
           return (
-            <span className="inline-flex items-center gap-1 text-xs text-morandi-green">
+            <span className="inline-flex items-center gap-1 text-xs text-status-success">
               <CheckSquare size={12} />
               {row.status_text}
             </span>
@@ -80,7 +80,7 @@ export function ImportSuppliersPreviewStep({
         label: t('supplierImportColName'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-sm ${row.errors['name'] ? 'text-morandi-red font-medium' : 'text-morandi-primary'}`}
+            className={`text-sm ${row.errors['name'] ? 'text-status-danger font-medium' : 'text-morandi-primary'}`}
           >
             {row.name || <EmptyValue />}
           </span>
@@ -109,7 +109,7 @@ export function ImportSuppliersPreviewStep({
         label: t('supplierImportColPhone'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-xs ${row.errors['phone'] ? 'text-morandi-red' : 'text-morandi-primary'}`}
+            className={`text-xs ${row.errors['phone'] ? 'text-status-danger' : 'text-morandi-primary'}`}
           >
             {row.phone || <EmptyValue />}
           </span>
@@ -120,7 +120,7 @@ export function ImportSuppliersPreviewStep({
         label: t('supplierImportColEmail'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-xs ${row.errors['email'] ? 'text-morandi-red' : 'text-morandi-primary'}`}
+            className={`text-xs ${row.errors['email'] ? 'text-status-danger' : 'text-morandi-primary'}`}
           >
             {row.email || <EmptyValue />}
           </span>
@@ -149,9 +149,9 @@ export function ImportSuppliersPreviewStep({
     <>
       {/* 全域錯誤 */}
       {global_errors.length > 0 && (
-        <div className="bg-morandi-red/10 border border-morandi-red/30 rounded-lg p-3">
+        <div className="bg-status-danger/10 border border-status-danger/30 rounded-lg p-3">
           {global_errors.map((err, i) => (
-            <p key={i} className="text-sm text-morandi-red flex items-center gap-1">
+            <p key={i} className="text-sm text-status-danger flex items-center gap-1">
               <AlertTriangle size={14} />
               {err}
             </p>
@@ -177,7 +177,7 @@ export function ImportSuppliersPreviewStep({
           initialPageSize={20}
           rowClassName={(row: PreviewTableRow) =>
             row.status === 'error'
-              ? 'bg-morandi-red/10'
+              ? 'bg-status-danger/10'
               : row.status === 'warning'
                 ? 'bg-status-warning-bg'
                 : ''

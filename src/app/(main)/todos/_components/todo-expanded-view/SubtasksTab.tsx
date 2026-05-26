@@ -101,7 +101,7 @@ export function SubtasksTab({
       {subTasksTotal > 0 && (
         <div className="h-1.5 bg-morandi-container/40 rounded-full overflow-hidden">
           <div
-            className="h-full bg-morandi-green rounded-full transition-all"
+            className="h-full bg-status-success rounded-full transition-all"
             style={{ width: `${(subTasksDone / subTasksTotal) * 100}%` }}
           />
         </div>
@@ -118,7 +118,7 @@ export function SubtasksTab({
               <button
                 key={title}
                 onClick={() => onPresetSubtask(title)}
-                className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-morandi-green/30 text-xs text-morandi-green hover:bg-morandi-green/10 transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-status-success/30 text-xs text-status-success hover:bg-status-success/10 transition-colors"
               >
                 <Plus className="w-3 h-3" />
                 {title}
@@ -142,7 +142,7 @@ export function SubtasksTab({
                     className={cn(
                       'w-5 h-5 rounded border flex items-center justify-center transition-colors disabled:cursor-not-allowed flex-shrink-0',
                       sub.done
-                        ? 'bg-morandi-green border-morandi-green text-white'
+                        ? 'bg-status-success border-status-success text-white'
                         : 'border-border hover:border-morandi-gold'
                     )}
                   >
@@ -172,7 +172,7 @@ export function SubtasksTab({
                   {canEdit && (
                     <button
                       onClick={() => onDeleteSubtask(sub.id)}
-                      className="text-morandi-muted hover:text-morandi-red p-1 rounded transition-colors"
+                      className="text-morandi-muted hover:text-status-danger p-1 rounded transition-colors"
                       title={t('deleteSubtask')}
                     >
                       <Trash2 className="w-3.5 h-3.5" />

@@ -66,19 +66,19 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
         <StatCard
           label={LABELS.CARD_TOUR_INCOME}
           amount={stats.tourIncome}
-          amountColor="text-morandi-green"
+          amountColor="text-status-success"
           loading={isLoading}
         />
         <StatCard
           label={LABELS.CARD_COMPANY_INCOME}
           amount={stats.companyIncome}
-          amountColor="text-morandi-green"
+          amountColor="text-status-success"
           loading={isLoading}
         />
         <StatCard
           label={LABELS.CARD_TOTAL_INCOME}
           amount={stats.totalIncome}
-          amountColor="text-morandi-green"
+          amountColor="text-status-success"
           loading={isLoading}
         />
       </div>
@@ -88,7 +88,7 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
         <CardContent className="h-full p-4 flex flex-col items-center justify-center gap-2">
           <span className="text-sm font-medium text-morandi-secondary">{LABELS.CARD_NET}</span>
           <span
-            className={`text-3xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
+            className={`text-3xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-status-success' : 'text-status-danger'}`}
           >
             {isLoading ? '...' : formatCurrency(stats.balance)}
           </span>
@@ -100,19 +100,19 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
         <StatCard
           label={LABELS.CARD_TOUR_EXPENSE}
           amount={stats.tourExpense}
-          amountColor="text-morandi-red"
+          amountColor="text-status-danger"
           loading={isLoading}
         />
         <StatCard
           label={LABELS.CARD_COMPANY_EXPENSE}
           amount={stats.companyExpense}
-          amountColor="text-morandi-red"
+          amountColor="text-status-danger"
           loading={isLoading}
         />
         <StatCard
           label={LABELS.CARD_TOTAL_EXPENSE}
           amount={stats.totalExpense}
-          amountColor="text-morandi-red"
+          amountColor="text-status-danger"
           loading={isLoading}
         />
       </div>

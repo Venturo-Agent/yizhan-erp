@@ -219,7 +219,7 @@ export function OverviewTab({
                       if (!f.code) {
                         return (
                           <div key={f.name} className="flex items-center gap-2">
-                            <Check className="h-3 w-3 text-morandi-green flex-shrink-0" />
+                            <Check className="h-3 w-3 text-status-success flex-shrink-0" />
                             <span className="text-xs text-morandi-primary leading-tight">
                               {f.name}
                               {f.note && (
@@ -272,7 +272,7 @@ export function OverviewTab({
                   <span className="text-xs text-morandi-secondary ml-2">旗艦版包含全部 3 個</span>
                 </div>
                 {advancePicks.length !== 2 && (
-                  <span className="text-xs text-morandi-red font-medium">請選擇 2 個</span>
+                  <span className="text-xs text-status-danger font-medium">請選擇 2 個</span>
                 )}
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -373,7 +373,7 @@ export function OverviewTab({
             <Badge
               className={
                 workspace.is_active
-                  ? 'bg-morandi-green/20 text-morandi-green'
+                  ? 'bg-status-success/20 text-status-success'
                   : 'bg-morandi-secondary/20 text-morandi-secondary'
               }
             >

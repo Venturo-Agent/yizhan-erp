@@ -133,7 +133,7 @@ export function ResourceDetailDialog({
   if (!resource) return null
 
   const iconMap: Record<ResourceType, React.ReactNode> = {
-    attraction: <MapPin size="1.25em" className="text-morandi-green" />,
+    attraction: <MapPin size="1.25em" className="text-status-success" />,
     hotel: <Building2 size="1.25em" className="text-status-info" />,
     restaurant: <UtensilsCrossed size="1.25em" className="text-status-warning" />,
   }

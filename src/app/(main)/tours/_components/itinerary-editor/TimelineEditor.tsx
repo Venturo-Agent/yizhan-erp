@@ -309,7 +309,7 @@ export function TimelineEditor({
                   <button
                     type="button"
                     onClick={() => onRemoveActivity(idx, actIdx)}
-                    className="hidden group-hover:block p-1 mr-1 text-morandi-muted hover:text-morandi-red transition-colors"
+                    className="hidden group-hover:block p-1 mr-1 text-morandi-muted hover:text-status-danger transition-colors"
                   >
                     <X size={14} />
                   </button>

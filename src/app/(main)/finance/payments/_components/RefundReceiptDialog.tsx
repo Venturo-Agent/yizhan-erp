@@ -126,7 +126,7 @@ export function RefundReceiptDialog({
         type="button"
         onClick={handleSubmit}
         disabled={isSubmitting}
-        className="bg-morandi-red hover:bg-morandi-red/90 text-white gap-2"
+        className="bg-status-danger hover:bg-status-danger/90 text-white gap-2"
       >
         <Undo2 size={16} />
         {isSubmitting ? COMPONENT_LABELS.PROCESSING : COMPONENT_LABELS.CONFIRM_REFUND}
@@ -140,7 +140,7 @@ export function RefundReceiptDialog({
       onOpenChange={onOpenChange}
       title={
         <span className="flex items-center gap-2">
-          <Undo2 size={18} className="text-morandi-red" />
+          <Undo2 size={18} className="text-status-danger" />
           {COMPONENT_LABELS.TITLE_PREFIX}
           {receipt.receipt_number}
         </span>

@@ -331,7 +331,7 @@ export function MemberRow({
       {mode === 'tour' && cv.ticketing_deadline && (
         <td className="border border-morandi-gold/20 px-2 py-1 bg-status-warning/10/50">
           {member.ticket_number ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-morandi-green/20 text-morandi-green text-xs rounded-full font-medium">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-status-success/20 text-status-success text-xs rounded-full font-medium">
               <Check size={10} />
               {t('memberRowLabelTicketed')}
             </span>
@@ -373,7 +373,7 @@ export function MemberRow({
         customCostFields.map(field => (
           <td
             key={field.id}
-            className="border border-morandi-gold/20 px-2 py-1 bg-morandi-green/10/50"
+            className="border border-morandi-gold/20 px-2 py-1 bg-status-success/10/50"
           >
             <input
               type="text"

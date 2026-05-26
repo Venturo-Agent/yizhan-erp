@@ -77,19 +77,19 @@ export function TourSidebar({
           <div className="mt-8 pt-8 border-t border-border space-y-4">
             {tour.departure_date && (
               <div className="flex items-center gap-3 text-sm text-morandi-primary">
-                <Calendar className="w-4 h-4 text-morandi-green" />
+                <Calendar className="w-4 h-4 text-status-success" />
                 <span>出發日期：{formatDate(tour.departure_date)}</span>
               </div>
             )}
             {tour.max_participants && (
               <div className="flex items-center gap-3 text-sm text-morandi-primary">
-                <Users className="w-4 h-4 text-morandi-green" />
+                <Users className="w-4 h-4 text-status-success" />
                 <span>剩餘名額：{remainingSlots > 0 ? `${remainingSlots} 位` : '已額滿'}</span>
               </div>
             )}
             {daysCount > 0 && (
               <div className="flex items-center gap-3 text-sm text-morandi-primary">
-                <Clock className="w-4 h-4 text-morandi-green" />
+                <Clock className="w-4 h-4 text-status-success" />
                 <span>
                   行程天數：{daysCount} 天 {nightsCount} 夜
                 </span>
@@ -118,7 +118,7 @@ export function TourSidebar({
         {/* Features */}
         <div className="bg-public-primary p-6 rounded-2xl text-white">
           <div className="flex items-center gap-3 mb-4">
-            <CheckSquare className="w-5 h-5 text-morandi-green" />
+            <CheckSquare className="w-5 h-5 text-status-success" />
             <span className="font-bold">{t('exclusiveService')}</span>
           </div>
           <ul className="text-sm text-white/70 space-y-2">

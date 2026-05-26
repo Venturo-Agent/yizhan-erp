@@ -58,7 +58,7 @@ export function CustomCostFieldsSection({
           {fields.map(field => (
             <div
               key={field.id}
-              className="flex items-center gap-2 px-3 py-2 bg-morandi-green/10 rounded border border-morandi-green/30"
+              className="flex items-center gap-2 px-3 py-2 bg-status-success/10 rounded border border-status-success/30"
             >
               <span className="flex-1 text-sm text-morandi-primary">{field.name}</span>
               <Button

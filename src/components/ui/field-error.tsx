@@ -20,7 +20,7 @@ export function FieldError({ error, className }: FieldErrorProps) {
   return (
     <div className={cn('mt-1.5 space-y-1', className)}>
       {errors.map((err, index) => (
-        <p key={index} className="text-xs text-morandi-red" role="alert">
+        <p key={index} className="text-xs text-status-danger" role="alert">
           {err}
         </p>
       ))}

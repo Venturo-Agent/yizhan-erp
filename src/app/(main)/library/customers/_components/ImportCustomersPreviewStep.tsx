@@ -46,7 +46,7 @@ export function ImportCustomersPreviewStep({
           if (row.status === 'error') {
             return (
               <span
-                className="inline-flex items-center gap-1 text-xs text-morandi-red"
+                className="inline-flex items-center gap-1 text-xs text-status-danger"
                 title={Object.values(row.errors).join('\n')}
               >
                 <AlertTriangle size={12} />
@@ -66,7 +66,7 @@ export function ImportCustomersPreviewStep({
             )
           }
           return (
-            <span className="inline-flex items-center gap-1 text-xs text-morandi-green">
+            <span className="inline-flex items-center gap-1 text-xs text-status-success">
               <CheckSquare size={12} />
               {row.status_text}
             </span>
@@ -78,7 +78,7 @@ export function ImportCustomersPreviewStep({
         label: t('customerImportColName'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-sm ${row.errors['name'] ? 'text-morandi-red font-medium' : 'text-morandi-primary'}`}
+            className={`text-sm ${row.errors['name'] ? 'text-status-danger font-medium' : 'text-morandi-primary'}`}
           >
             {row.name || '-'}
           </span>
@@ -96,7 +96,7 @@ export function ImportCustomersPreviewStep({
         label: t('customerImportColPhone'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-xs ${row.errors['phone'] ? 'text-morandi-red' : 'text-morandi-primary'}`}
+            className={`text-xs ${row.errors['phone'] ? 'text-status-danger' : 'text-morandi-primary'}`}
           >
             {row.phone || '-'}
           </span>
@@ -107,7 +107,7 @@ export function ImportCustomersPreviewStep({
         label: t('customerImportColEmail'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-xs ${row.errors['email'] ? 'text-morandi-red' : 'text-morandi-primary'}`}
+            className={`text-xs ${row.errors['email'] ? 'text-status-danger' : 'text-morandi-primary'}`}
           >
             {row.email || '-'}
           </span>
@@ -127,7 +127,7 @@ export function ImportCustomersPreviewStep({
         label: t('customerImportColPassportExpiry'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-xs ${row.errors['passport_expiry'] ? 'text-morandi-red' : 'text-morandi-secondary'}`}
+            className={`text-xs ${row.errors['passport_expiry'] ? 'text-status-danger' : 'text-morandi-secondary'}`}
           >
             {row.passport_expiry || '-'}
           </span>
@@ -138,7 +138,7 @@ export function ImportCustomersPreviewStep({
         label: t('customerImportColBirthDate'),
         render: (_value: unknown, row: PreviewTableRow) => (
           <span
-            className={`text-xs ${row.errors['birth_date'] ? 'text-morandi-red' : 'text-morandi-secondary'}`}
+            className={`text-xs ${row.errors['birth_date'] ? 'text-status-danger' : 'text-morandi-secondary'}`}
           >
             {row.birth_date || '-'}
           </span>
@@ -167,9 +167,9 @@ export function ImportCustomersPreviewStep({
     <>
       {/* 全域錯誤 */}
       {global_errors.length > 0 && (
-        <div className="bg-morandi-red/10 border border-morandi-red/30 rounded-lg p-3">
+        <div className="bg-status-danger/10 border border-status-danger/30 rounded-lg p-3">
           {global_errors.map((err, i) => (
-            <p key={i} className="text-sm text-morandi-red flex items-center gap-1">
+            <p key={i} className="text-sm text-status-danger flex items-center gap-1">
               <AlertTriangle size={14} />
               {err}
             </p>
@@ -195,7 +195,7 @@ export function ImportCustomersPreviewStep({
           initialPageSize={20}
           rowClassName={(row: PreviewTableRow) =>
             row.status === 'error'
-              ? 'bg-morandi-red/5'
+              ? 'bg-status-danger/5'
               : row.status === 'warning'
                 ? 'bg-status-warning/5'
                 : ''

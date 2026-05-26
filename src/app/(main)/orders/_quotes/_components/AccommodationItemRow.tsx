@@ -140,7 +140,7 @@ export const AccommodationItemRow: React.FC<AccommodationItemRowProps> = ({
                 {roomIndex !== 0 && (
                   <button
                     onClick={() => handleRemoveItem(categoryId, item.id)}
-                    className="w-4 h-4 flex items-center justify-center text-xs text-morandi-secondary hover:text-morandi-red hover:bg-morandi-red/10 rounded transition-all"
+                    className="w-4 h-4 flex items-center justify-center text-xs text-morandi-secondary hover:text-status-danger hover:bg-status-danger/10 rounded transition-all"
                     title={t('quoteAccommodationDelete')}
                   >
                     ×

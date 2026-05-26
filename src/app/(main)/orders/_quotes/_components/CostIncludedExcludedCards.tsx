@@ -57,9 +57,9 @@ export function CostIncludedExcludedCards({
   return (
     <>
       {/* 費用包含 */}
-      <div className="bg-card border border-morandi-green/30 rounded-xl overflow-hidden shadow-sm">
-        <div className="bg-morandi-green/10 px-4 py-2 border-b border-morandi-green/20">
-          <span className="text-sm font-semibold text-morandi-green">{LABELS.COST_INCLUDED}</span>
+      <div className="bg-card border border-status-success/30 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-status-success/10 px-4 py-2 border-b border-status-success/20">
+          <span className="text-sm font-semibold text-status-success">{LABELS.COST_INCLUDED}</span>
         </div>
         <div className="px-4 py-3 space-y-1.5 text-sm text-morandi-secondary">
           <div>{LABELS.ITINERARY_INCLUDED}</div>
@@ -88,13 +88,16 @@ export function CostIncludedExcludedCards({
             <span className="text-xs">{LABELS.ACCIDENT_MEDICAL}</span>
           </div>
           {includedToggleItems.map(item => (
-            <label key={item} className="flex items-center gap-2 cursor-pointer text-morandi-green">
+            <label
+              key={item}
+              className="flex items-center gap-2 cursor-pointer text-status-success"
+            >
               <span>•</span>
               <span>{item}</span>
               {!isReadOnly && (
                 <button
                   onClick={() => onToggleItem(item)}
-                  className="ml-auto text-xs text-morandi-secondary hover:text-morandi-red"
+                  className="ml-auto text-xs text-morandi-secondary hover:text-status-danger"
                   title={t('quoteMoveToExcluded')}
                 >
                   {LABELS.REMOVE}
@@ -106,9 +109,9 @@ export function CostIncludedExcludedCards({
       </div>
 
       {/* 費用不含 */}
-      <div className="bg-card border border-morandi-red/30 rounded-xl overflow-hidden shadow-sm">
-        <div className="bg-morandi-red/10 px-4 py-2 border-b border-morandi-red/20">
-          <span className="text-sm font-semibold text-morandi-red">{LABELS.COST_EXCLUDED}</span>
+      <div className="bg-card border border-status-danger/30 rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-status-danger/10 px-4 py-2 border-b border-status-danger/20">
+          <span className="text-sm font-semibold text-status-danger">{LABELS.COST_EXCLUDED}</span>
         </div>
         <div className="px-4 py-3 space-y-1.5 text-sm text-morandi-secondary">
           {excludedToggleItems.map(item => (
@@ -118,7 +121,7 @@ export function CostIncludedExcludedCards({
               {!isReadOnly && (
                 <button
                   onClick={() => onToggleItem(item)}
-                  className="ml-auto text-xs text-morandi-secondary hover:text-morandi-green"
+                  className="ml-auto text-xs text-morandi-secondary hover:text-status-success"
                   title={t('quoteMoveToIncluded')}
                 >
                   {LABELS.INCLUDE}

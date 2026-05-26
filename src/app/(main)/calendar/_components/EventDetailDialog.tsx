@@ -191,7 +191,7 @@ export function EventDetailDialog({
                         onDelete(event.id)
                       }
                     }}
-                    className="gap-1 text-morandi-red hover:bg-morandi-red hover:text-white"
+                    className="gap-1 text-status-danger hover:bg-status-danger hover:text-white"
                   >
                     <Trash2 size={16} />
                     {t('delete')}

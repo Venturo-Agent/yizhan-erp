@@ -45,9 +45,9 @@ export function CurrencyCell({
 
   const colorClass = cn(
     'text-sm font-medium',
-    variant === 'income' && 'text-morandi-green',
-    variant === 'expense' && 'text-morandi-red',
-    variant === 'default' && isNegative && 'text-morandi-red',
+    variant === 'income' && 'text-status-success',
+    variant === 'expense' && 'text-status-danger',
+    variant === 'default' && isNegative && 'text-status-danger',
     variant === 'default' && !isNegative && 'text-morandi-primary',
     className
   )

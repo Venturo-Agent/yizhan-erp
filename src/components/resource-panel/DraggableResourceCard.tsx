@@ -33,7 +33,7 @@ export function DraggableResourceCard({ resource, onEdit }: DraggableResourceCar
   const style = transform ? { transform: CSS.Translate.toString(transform) } : undefined
 
   const iconMap: Record<ResourceType, React.ReactNode> = {
-    attraction: <MapPin size="0.875em" className="text-morandi-green" />,
+    attraction: <MapPin size="0.875em" className="text-status-success" />,
     hotel: <Building2 size="0.875em" className="text-status-info" />,
     restaurant: <UtensilsCrossed size="0.875em" className="text-status-warning" />,
   }

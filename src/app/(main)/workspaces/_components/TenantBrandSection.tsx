@@ -40,7 +40,7 @@ export function TenantBrandSection({ brands, onUpdate, onAdd, onRemove }: Props)
                 variant="ghost"
                 size="icon"
                 onClick={() => onRemove(idx)}
-                className="text-morandi-red"
+                className="text-status-danger"
                 type="button"
               >
                 <Trash2 className="h-4 w-4" />

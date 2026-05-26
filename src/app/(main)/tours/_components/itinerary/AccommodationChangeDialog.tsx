@@ -96,14 +96,14 @@ export function AccommodationChangeDialog({
         )}
 
         {requestChanges.length > 0 && (
-          <div className="bg-morandi-red/10 border border-morandi-red/30 rounded-md p-2">
-            <p className="font-medium text-morandi-red">
+          <div className="bg-status-danger/10 border border-status-danger/30 rounded-md p-2">
+            <p className="font-medium text-status-danger">
               {t('accommodationChangeRequirementImpact')}
             </p>
-            <p className="text-morandi-red text-xs mt-1">
+            <p className="text-status-danger text-xs mt-1">
               {t('accommodationChangeRequirementNote')}
             </p>
-            <ul className="text-xs text-morandi-red mt-1 space-y-0.5">
+            <ul className="text-xs text-status-danger mt-1 space-y-0.5">
               {requestChanges.map(c => (
                 <li key={c.dayNumber}>
                   {t('accommodationChangeDay')} {c.dayNumber} {t('accommodationChangeDayDash')}{' '}

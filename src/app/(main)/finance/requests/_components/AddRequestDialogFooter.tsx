@@ -100,7 +100,7 @@ export function AddRequestDialogFooter({
                 size="sm"
                 onClick={onDelete}
                 disabled={isSubmitting}
-                className="text-morandi-red border-morandi-red hover:bg-morandi-red/10 gap-2"
+                className="text-status-danger border-status-danger hover:bg-status-danger/10 gap-2"
               >
                 <Trash2 size={16} />
                 {COMPONENT_LABELS.DELETE}

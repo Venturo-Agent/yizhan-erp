@@ -262,7 +262,7 @@ export const TourCosts = React.memo(function TourCosts({
               <span className="text-morandi-secondary">{t('costsConfirmed')}</span>
               <CurrencyCell
                 amount={confirmedCosts}
-                className="ml-2 font-semibold text-morandi-green"
+                className="ml-2 font-semibold text-status-success"
               />
             </div>
             <div className="flex items-center">
@@ -276,7 +276,7 @@ export const TourCosts = React.memo(function TourCosts({
               <span className="text-morandi-secondary">{t('costsEstimatedProfit')}</span>
               <CurrencyCell
                 amount={Math.max(0, tour.total_revenue - totalCosts)}
-                className="ml-2 font-semibold text-morandi-red"
+                className="ml-2 font-semibold text-status-danger"
               />
             </div>
           </div>

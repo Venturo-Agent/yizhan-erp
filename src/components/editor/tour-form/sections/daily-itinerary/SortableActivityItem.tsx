@@ -123,7 +123,7 @@ export function SortableActivityItem({
           )}
           <button
             onClick={() => removeActivity(dayIndex, actIndex)}
-            className="px-1 py-0.5 text-morandi-red hover:text-morandi-red/80 text-xs transition-colors flex-shrink-0"
+            className="px-1 py-0.5 text-status-danger hover:text-status-danger/80 text-xs transition-colors flex-shrink-0"
           >
             ✕
           </button>
@@ -325,7 +325,7 @@ export function SortableActivityItem({
                             updateActivity(dayIndex, actIndex, 'startTime', '')
                             updateActivity(dayIndex, actIndex, 'endTime', '')
                           }}
-                          className="text-xs text-morandi-secondary hover:text-morandi-red transition-colors"
+                          className="text-xs text-morandi-secondary hover:text-status-danger transition-colors"
                         >
                           {COMP_EDITOR_LABELS.CLEAR}
                         </button>
@@ -363,7 +363,7 @@ export function SortableActivityItem({
               <button
                 type="button"
                 onClick={() => setShowPexelsDialog(true)}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10 rounded transition-colors"
+                className="flex items-center gap-1 px-2 py-1 text-xs text-status-success hover:text-status-success hover:bg-status-success/10 rounded transition-colors"
               >
                 <Search size="0.75em" />
                 Pexels
@@ -398,7 +398,7 @@ export function SortableActivityItem({
               )}
               <button
                 onClick={() => removeActivity(dayIndex, actIndex)}
-                className="px-2 py-1 text-morandi-red hover:text-morandi-red/80 text-xs transition-colors"
+                className="px-2 py-1 text-status-danger hover:text-status-danger/80 text-xs transition-colors"
               >
                 ✕ 刪除
               </button>

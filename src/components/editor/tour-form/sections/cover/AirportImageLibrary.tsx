@@ -266,7 +266,7 @@ export function AirportImageLibrary({
                   e.stopPropagation()
                   handleDeleteImage(image.id)
                 }}
-                className="absolute top-1 left-1 bg-morandi-red/100/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 left-1 bg-status-danger/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 size="0.75em" />
               </button>

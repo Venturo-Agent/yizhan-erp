@@ -91,7 +91,7 @@ export default function RegisterPage({ params }: { params: Promise<{ code: strin
               <span>返回行程</span>
             </Link>
             <div className="text-sm text-morandi-secondary">
-              {ref && <span className="text-morandi-green">業務員引導</span>}
+              {ref && <span className="text-status-success">業務員引導</span>}
             </div>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function RegisterPage({ params }: { params: Promise<{ code: strin
         {/* Benefits */}
         <div className="bg-morandi-container/30 rounded-xl p-6 mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <CheckSquare className="w-5 h-5 text-morandi-green" />
+            <CheckSquare className="w-5 h-5 text-status-success" />
             <span className="font-bold text-morandi-primary">報名保障</span>
           </div>
           <ul className="text-sm text-morandi-secondary space-y-2">

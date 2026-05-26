@@ -45,7 +45,7 @@ const BUCKET_COLORS: Record<ReceivableRow['aging_bucket'], string> = {
   d30: 'text-morandi-primary',
   d60: 'text-morandi-primary',
   d90: 'text-morandi-expense',
-  d90_plus: 'text-morandi-red font-semibold',
+  d90_plus: 'text-status-danger font-semibold',
 }
 
 function StatCard({
@@ -158,7 +158,7 @@ export function ReceivablesTab() {
     return (
       <ContentContainer>
         <div className="flex items-center justify-center min-h-[300px]">
-          <div className="text-morandi-red">{error}</div>
+          <div className="text-status-danger">{error}</div>
         </div>
       </ContentContainer>
     )
@@ -191,13 +191,13 @@ export function ReceivablesTab() {
             title={COMPONENT_LABELS.STAT_OVERDUE_COUNT}
             value={stats.overdue_count}
             icon={Hourglass}
-            iconColor="text-morandi-red"
+            iconColor="text-status-danger"
           />
           <StatCard
             title={COMPONENT_LABELS.STAT_OVERDUE_AMOUNT}
             value={stats.overdue_amount}
             icon={AlertTriangle}
-            iconColor="text-morandi-red"
+            iconColor="text-status-danger"
             isCurrency
             variant="expense"
           />

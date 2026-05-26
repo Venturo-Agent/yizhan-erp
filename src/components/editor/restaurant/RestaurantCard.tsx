@@ -42,7 +42,7 @@ function getMichelinDisplay(restaurant: CombinedRestaurant) {
       </span>
     )
   }
-  return <span className="text-xs text-morandi-red">{RESTAURANT_LABELS.LABEL_4852}</span>
+  return <span className="text-xs text-status-danger">{RESTAURANT_LABELS.LABEL_4852}</span>
 }
 
 function getRestaurantImage(restaurant: CombinedRestaurant) {
@@ -62,7 +62,7 @@ export function RestaurantCard({ restaurant, isSelected, onToggle }: RestaurantC
           isSelected
             ? 'border-cat-pink bg-status-danger-bg shadow-sm'
             : isMichelin
-              ? 'border-morandi-red/30 bg-status-danger-bg hover:bg-status-danger-bg'
+              ? 'border-status-danger/30 bg-status-danger-bg hover:bg-status-danger-bg'
               : 'border-transparent bg-morandi-container/20 hover:bg-morandi-container/30'
         }
       `}
@@ -105,7 +105,7 @@ export function RestaurantCard({ restaurant, isSelected, onToggle }: RestaurantC
             {restaurant.city_name}
           </span>
           {restaurant.cuisine_type && restaurant.cuisine_type.length > 0 && (
-            <span className="text-morandi-red">{restaurant.cuisine_type[0]}</span>
+            <span className="text-status-danger">{restaurant.cuisine_type[0]}</span>
           )}
         </div>
         <div className="text-xs mt-1 flex items-center gap-2">

@@ -22,8 +22,8 @@ import { useTourOptions } from '@/hooks'
 const STATUS_DOTS: Record<string, string> = {
   pending: 'bg-morandi-muted',
   in_progress: 'bg-morandi-gold',
-  completed: 'bg-morandi-green',
-  cancelled: 'bg-morandi-red',
+  completed: 'bg-status-success',
+  cancelled: 'bg-status-danger',
 }
 
 function getStatusDot(status: string): string {

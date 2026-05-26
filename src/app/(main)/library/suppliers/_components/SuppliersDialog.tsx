@@ -122,7 +122,7 @@ export const SuppliersDialog: React.FC<SuppliersDialogProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label>
-              {COMPONENT_LABELS.SUPPLIER_NAME} <span className="text-morandi-red">*</span>
+              {COMPONENT_LABELS.SUPPLIER_NAME} <span className="text-status-danger">*</span>
             </Label>
             <Input
               value={formData.name}

@@ -282,7 +282,7 @@ export default function BalanceSheetPage() {
 
                 {/* 負債 */}
                 <div>
-                  <div className="font-semibold mb-2 text-morandi-red">
+                  <div className="font-semibold mb-2 text-status-danger">
                     {PAGE_LABELS.LIABILITIES}
                   </div>
                   {data.liabilities.map(item => (
@@ -306,7 +306,7 @@ export default function BalanceSheetPage() {
 
                 {/* 權益 */}
                 <div>
-                  <div className="font-semibold mb-2 text-morandi-green">{PAGE_LABELS.EQUITY}</div>
+                  <div className="font-semibold mb-2 text-status-success">{PAGE_LABELS.EQUITY}</div>
                   {data.equity.map(item => (
                     <div key={item.code} className="flex justify-between py-1 pl-4">
                       <span className="text-sm">
@@ -320,7 +320,7 @@ export default function BalanceSheetPage() {
                     <div className="flex justify-between py-1 pl-4">
                       <span className="text-sm">{PAGE_LABELS.CURRENT_PROFIT}</span>
                       <span
-                        className={`text-sm font-mono ${data.netIncome >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
+                        className={`text-sm font-mono ${data.netIncome >= 0 ? 'text-status-success' : 'text-status-danger'}`}
                       >
                         ${data.netIncome.toLocaleString()}
                       </span>
@@ -351,15 +351,15 @@ export default function BalanceSheetPage() {
           <Card
             className={`p-4 ${
               Math.abs(data.totalAssets - (data.totalLiabilities + data.totalEquity)) < 0.01
-                ? 'bg-morandi-green/10 border-morandi-green/30'
-                : 'bg-morandi-red/10 border-morandi-red/30'
+                ? 'bg-status-success/10 border-status-success/30'
+                : 'bg-status-danger/10 border-status-danger/30'
             }`}
           >
             <div
               className={`text-sm ${
                 Math.abs(data.totalAssets - (data.totalLiabilities + data.totalEquity)) < 0.01
-                  ? 'text-morandi-green'
-                  : 'text-morandi-red'
+                  ? 'text-status-success'
+                  : 'text-status-danger'
               }`}
             >
               <div className="font-semibold mb-2">

@@ -189,7 +189,7 @@ export function PricingDetailsSection({
           {/* 旅遊責任險選擇 */}
           <div className="p-4 border border-morandi-container rounded-lg">
             <div className="flex items-center gap-2 mb-3">
-              <Shield className="h-4 w-4 text-morandi-green" />
+              <Shield className="h-4 w-4 text-status-success" />
               <Label className="font-medium">{COMP_EDITOR_LABELS.旅遊責任險}</Label>
             </div>
             <div className="flex items-center gap-3">
@@ -230,7 +230,7 @@ export function PricingDetailsSection({
           <div className="p-4 border border-morandi-container rounded-lg">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Check className="h-4 w-4 text-morandi-green" />
+                <Check className="h-4 w-4 text-status-success" />
                 <Label className="font-medium">{COMP_EDITOR_LABELS.LABEL_5450}</Label>
               </div>
               <Button
@@ -253,7 +253,7 @@ export function PricingDetailsSection({
                     className={cn(
                       'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors',
                       item.included
-                        ? 'bg-morandi-green/10 text-morandi-green'
+                        ? 'bg-status-success/10 text-status-success'
                         : 'bg-muted text-morandi-muted'
                     )}
                   >
@@ -306,8 +306,8 @@ export function PricingDetailsSection({
                     className={cn(
                       'flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors',
                       item.included
-                        ? 'bg-morandi-green/10 text-morandi-green'
-                        : 'bg-status-danger-bg text-morandi-red'
+                        ? 'bg-status-success/10 text-status-success'
+                        : 'bg-status-danger-bg text-status-danger'
                     )}
                   >
                     {item.included ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}

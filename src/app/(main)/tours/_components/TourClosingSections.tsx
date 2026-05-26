@@ -126,7 +126,7 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
 
   const isClosed = tour.status === TOUR_STATUS.CLOSED
   const statusInfo = isClosed
-    ? { label: '已結案', color: 'bg-morandi-green/20 text-morandi-green' }
+    ? { label: '已結案', color: 'bg-status-success/20 text-status-success' }
     : { label: '未結案', color: 'bg-morandi-gold/20 text-morandi-gold' }
 
   const handleToggleClosingStatus = useCallback(async () => {

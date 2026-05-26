@@ -104,9 +104,9 @@ export function BadgeCell({ text, variant = 'default', className }: BadgeCellPro
   const variantClass = cn(
     'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
     variant === 'default' && 'bg-morandi-container text-morandi-primary',
-    variant === 'success' && 'bg-morandi-green/10 text-morandi-green',
+    variant === 'success' && 'bg-status-success/10 text-status-success',
     variant === 'warning' && 'bg-morandi-gold/10 text-morandi-gold',
-    variant === 'danger' && 'bg-morandi-red/10 text-morandi-red',
+    variant === 'danger' && 'bg-status-danger/10 text-status-danger',
     variant === 'info' && 'bg-status-info-bg text-status-info',
     className
   )

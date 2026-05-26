@@ -35,7 +35,7 @@ export const FormLabel = React.forwardRef<HTMLLabelElement, FormLabelProps>(
         {...rest}
       >
         {children}
-        {required && <span className="ml-0.5 text-morandi-red">*</span>}
+        {required && <span className="ml-0.5 text-status-danger">*</span>}
       </label>
     )
   }

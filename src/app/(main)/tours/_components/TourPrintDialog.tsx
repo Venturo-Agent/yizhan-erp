@@ -332,7 +332,7 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
                 </span>
               )}
               {!loadingPnr && pnrData.length > 0 && (
-                <span className="ml-2 text-morandi-green">
+                <span className="ml-2 text-status-success">
                   {t('printPNRLoaded', { count: pnrData.length })}
                 </span>
               )}
@@ -353,7 +353,7 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
                 </div>
               )}
               renderBadge={member =>
-                member.ticket_number ? <Check size={14} className="text-morandi-green" /> : null
+                member.ticket_number ? <Check size={14} className="text-status-success" /> : null
               }
             />
             <div className="flex justify-end gap-2 pt-4 border-t border-border">
@@ -389,7 +389,7 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
                 </div>
               )}
               renderBadge={member =>
-                member.hotel_1_name ? <Check size={14} className="text-morandi-green" /> : null
+                member.hotel_1_name ? <Check size={14} className="text-status-success" /> : null
               }
             />
             <div className="flex justify-end gap-2 pt-4 border-t border-border">

@@ -33,7 +33,7 @@ export function UnallocatedAmountWarning({
     <div
       className={cn(
         'flex items-center justify-between px-3 py-2 rounded-lg text-sm',
-        isUnder ? 'bg-morandi-gold/10 text-morandi-gold' : 'bg-morandi-red/10 text-morandi-red'
+        isUnder ? 'bg-morandi-gold/10 text-morandi-gold' : 'bg-status-danger/10 text-status-danger'
       )}
     >
       <div className="flex items-center gap-2">

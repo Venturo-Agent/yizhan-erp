@@ -94,9 +94,9 @@ export const TourReceipts = React.memo(function TourReceipts({
 
   return (
     <div className="border border-border rounded-lg overflow-x-auto bg-card">
-      <div className="px-4 py-2 bg-morandi-green/10 flex items-center gap-2">
-        <TrendingUp className="w-4 h-4 text-morandi-green" />
-        <span className="text-sm font-medium text-morandi-green">
+      <div className="px-4 py-2 bg-status-success/10 flex items-center gap-2">
+        <TrendingUp className="w-4 h-4 text-status-success" />
+        <span className="text-sm font-medium text-status-success">
           {t('receiptsOverviewTitle', { count: receipts.length })}
         </span>
       </div>
@@ -158,7 +158,7 @@ export const TourReceipts = React.memo(function TourReceipts({
                     {r.receipt_account || <EmptyValue />}
                   </td>
                   <td className="px-4 py-2 text-morandi-secondary">{r.notes || <EmptyValue />}</td>
-                  <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-red font-medium">
+                  <td className="px-4 py-2 text-right font-mono tabular-nums text-status-danger font-medium">
                     {/* 待核金額：pending / pending_verify 才顯示、會計核准後就空 */}
                     {r.status === 'pending' || r.status === 'pending_verify' ? (
                       <>{formatCurrency(amount)}</>
@@ -169,7 +169,7 @@ export const TourReceipts = React.memo(function TourReceipts({
                   <td className="px-4 py-2 text-center">
                     <StatusBadge type="receipt" status={r.status || ''} />
                   </td>
-                  <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-green font-medium">
+                  <td className="px-4 py-2 text-right font-mono tabular-nums text-status-success font-medium">
                     {/* 金額：confirmed（已勾稽）才顯示、pending 期間留空 */}
                     {r.status === 'confirmed' ? <>+{formatCurrency(amount)}</> : <EmptyValue />}
                   </td>

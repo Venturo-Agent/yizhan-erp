@@ -157,7 +157,7 @@ export function KanbanColumn({
                       e.stopPropagation()
                       onDeleteColumn(column)
                     }}
-                    className="p-1 rounded hover:bg-morandi-red/10 text-morandi-secondary hover:text-morandi-red transition-colors"
+                    className="p-1 rounded hover:bg-status-danger/10 text-morandi-secondary hover:text-status-danger transition-colors"
                     title={t('deleteColumn')}
                   >
                     <Trash2 size={13} />

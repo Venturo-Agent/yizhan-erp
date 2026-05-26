@@ -37,8 +37,8 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-morandi-gray-200 text-morandi-gray-700',
   submitted: 'bg-morandi-blue-100 text-morandi-blue-600',
-  collected: 'bg-morandi-green-100 text-morandi-green-600',
-  rejected: 'bg-morandi-red-100 text-morandi-red-600',
+  collected: 'bg-status-success-bg text-status-success',
+  rejected: 'bg-status-danger-bg text-status-danger',
   returned_to_customer: 'bg-morandi-purple-100 text-morandi-purple-600',
 }
 
@@ -259,7 +259,7 @@ export default function VisasPage() {
         {/* Customer document selector */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-morandi-gray-700">
-            客戶證件 <span className="text-morandi-red-500">*</span>
+            客戶證件 <span className="text-status-danger">*</span>
           </label>
           <select
             className="w-full rounded-md border border-morandi-gray-300 px-3 py-2 text-sm"
@@ -274,7 +274,7 @@ export default function VisasPage() {
         {/* Service type selector */}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-morandi-gray-700">
-            服務類型 <span className="text-morandi-red-500">*</span>
+            服務類型 <span className="text-status-danger">*</span>
           </label>
           <select
             className="w-full rounded-md border border-morandi-gray-300 px-3 py-2 text-sm"

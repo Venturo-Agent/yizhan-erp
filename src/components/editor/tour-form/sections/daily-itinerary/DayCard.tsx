@@ -152,7 +152,7 @@ export function DayCard({
           {dayIndex === data.dailyItinerary.length - 1 && (
             <button
               onClick={() => removeDailyItinerary(dayIndex)}
-              className="text-morandi-red hover:text-morandi-red/80 text-sm font-medium transition-colors"
+              className="text-status-danger hover:text-status-danger/80 text-sm font-medium transition-colors"
             >
               {COMP_EDITOR_LABELS.DELETE_3496}
             </button>

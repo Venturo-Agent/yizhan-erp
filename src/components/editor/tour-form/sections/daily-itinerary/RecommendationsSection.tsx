@@ -41,7 +41,7 @@ export function RecommendationsSection({
           />
           <button
             onClick={() => removeRecommendation(dayIndex, recIndex)}
-            className="px-2 text-morandi-red hover:text-morandi-red/80 transition-colors"
+            className="px-2 text-status-danger hover:text-status-danger/80 transition-colors"
           >
             ✕
           </button>

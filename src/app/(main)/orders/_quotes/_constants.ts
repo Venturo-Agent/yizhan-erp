@@ -22,9 +22,9 @@ export const STATUS_COLORS: Record<string, string> = {
   proposed: 'text-morandi-gold',
   revised: 'text-status-info',
   待出發: 'text-status-info',
-  approved: 'text-morandi-green',
+  approved: 'text-status-success',
   converted: 'text-morandi-primary',
-  rejected: 'text-morandi-red',
+  rejected: 'text-status-danger',
 }
 
 /**

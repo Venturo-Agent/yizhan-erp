@@ -399,7 +399,7 @@ export function TourQuoteTab({ tour }: TourQuoteTabProps) {
                           e.stopPropagation()
                           handleDeleteQuickQuote(quote)
                         }}
-                        className="p-1 text-morandi-secondary hover:text-morandi-red transition-colors"
+                        className="p-1 text-morandi-secondary hover:text-status-danger transition-colors"
                         title={COMPONENT_LABELS.DELETE}
                       >
                         <Trash2 size={11} />

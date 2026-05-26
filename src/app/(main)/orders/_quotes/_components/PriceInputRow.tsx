@@ -46,7 +46,7 @@ export const PriceInputRow: React.FC<PriceInputRowProps> = ({
       <td
         className={cn(
           'py-2 px-2 text-center text-xs font-medium',
-          profit >= 0 ? 'text-morandi-green' : 'text-morandi-red'
+          profit >= 0 ? 'text-status-success' : 'text-status-danger'
         )}
       >
         {profit.toLocaleString()}

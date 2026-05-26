@@ -13,7 +13,7 @@
  * 行為：
  *   - 內部用 `tabular-nums` 不跳動
  *   - null/undefined → fallback 到 <EmptyValue />
- *   - variant 顏色用 morandi-green / morandi-red token
+ *   - variant 顏色用 status-success / status-danger token
  *
  * 注意：不能塞進 JSX 屬性（如 title=）；屬性場景請直接用 `formatMoneyWithCurrency(n, currency)`。
  */
@@ -30,8 +30,8 @@ interface MoneyProps {
   currency?: string
   /**
    * default → 沿用 text 顏色
-   * income  → 綠色（morandi-green）
-   * expense → 紅色（morandi-red）
+   * income  → 綠色（status-success）
+   * expense → 紅色（status-danger）
    * neutral → 灰色（morandi-muted）
    */
   variant?: MoneyVariant
@@ -44,8 +44,8 @@ interface MoneyProps {
 
 const VARIANT_CLASSES: Record<MoneyVariant, string> = {
   default: '',
-  income: 'text-morandi-green',
-  expense: 'text-morandi-red',
+  income: 'text-status-success',
+  expense: 'text-status-danger',
   neutral: 'text-morandi-muted',
 }
 

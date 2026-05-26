@@ -212,7 +212,9 @@ export default function IncomeStatementPage() {
 
               {/* 收入 */}
               <div>
-                <div className="font-semibold mb-2 text-morandi-green">{t('operatingRevenue')}</div>
+                <div className="font-semibold mb-2 text-status-success">
+                  {t('operatingRevenue')}
+                </div>
                 {data.revenue.map(item => (
                   <div key={item.code} className="flex justify-between py-1 pl-4">
                     <span className="text-sm">
@@ -248,7 +250,7 @@ export default function IncomeStatementPage() {
                 )}
                 <div className="flex justify-between py-2 border-t border-border mt-2 font-semibold">
                   <span>{PAGE_LABELS.COST_TOTAL}</span>
-                  <span className="font-mono text-morandi-red">
+                  <span className="font-mono text-status-danger">
                     (${data.totalCost.toLocaleString()})
                   </span>
                 </div>
@@ -257,7 +259,7 @@ export default function IncomeStatementPage() {
               {/* 毛利 */}
               <div
                 className={`flex justify-between py-3 border-y-2 font-bold text-lg ${
-                  data.grossProfit >= 0 ? 'text-morandi-green' : 'text-morandi-red'
+                  data.grossProfit >= 0 ? 'text-status-success' : 'text-status-danger'
                 }`}
               >
                 <span>{PAGE_LABELS.GROSS_PROFIT}</span>
@@ -282,7 +284,7 @@ export default function IncomeStatementPage() {
                 )}
                 <div className="flex justify-between py-2 border-t border-border mt-2 font-semibold">
                   <span>{PAGE_LABELS.EXPENSE_TOTAL}</span>
-                  <span className="font-mono text-morandi-red">
+                  <span className="font-mono text-status-danger">
                     (${data.totalExpense.toLocaleString()})
                   </span>
                 </div>
@@ -291,7 +293,7 @@ export default function IncomeStatementPage() {
               {/* 淨利 */}
               <div
                 className={`flex justify-between py-4 border-y-2 font-bold text-xl ${
-                  data.netIncome >= 0 ? 'text-morandi-green' : 'text-morandi-red'
+                  data.netIncome >= 0 ? 'text-status-success' : 'text-status-danger'
                 }`}
               >
                 <span>本期損益（淨利）</span>

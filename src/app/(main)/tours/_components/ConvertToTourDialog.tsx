@@ -223,7 +223,7 @@ export function ConvertToTourDialog({
           {/* 團控（轉開團必填）*/}
           <div>
             <label className="text-sm font-medium text-morandi-primary">
-              {COMPONENT_LABELS.CONTROLLER} <span className="text-morandi-red">*</span>
+              {COMPONENT_LABELS.CONTROLLER} <span className="text-status-danger">*</span>
             </label>
             <Select value={controllerId} onValueChange={setControllerId}>
               <SelectTrigger className="mt-1">
@@ -247,7 +247,7 @@ export function ConvertToTourDialog({
           {needsCityInput && (
             <div>
               <label className="text-sm font-medium text-morandi-primary">
-                {COMPONENT_LABELS.CITY} <span className="text-morandi-red">*</span>
+                {COMPONENT_LABELS.CITY} <span className="text-status-danger">*</span>
               </label>
               <CountryAirportSelector
                 countryName={countryName}

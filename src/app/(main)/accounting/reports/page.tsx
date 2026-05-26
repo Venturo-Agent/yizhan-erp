@@ -20,8 +20,8 @@ const reports = [
     icon: BarChart3,
     title: '試算表',
     description: '查看所有科目餘額',
-    color: 'text-morandi-green',
-    bg: 'bg-morandi-green/10',
+    color: 'text-status-success',
+    bg: 'bg-status-success/10',
   },
   {
     href: '/accounting/reports/income-statement',

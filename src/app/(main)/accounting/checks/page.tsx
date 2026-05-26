@@ -37,9 +37,9 @@ interface Check {
 
 const statusConfig = {
   pending: { label: '未兌現', variant: 'secondary' as const, color: 'text-morandi-gold' },
-  cleared: { label: '已兌現', variant: 'default' as const, color: 'text-morandi-green' },
+  cleared: { label: '已兌現', variant: 'default' as const, color: 'text-status-success' },
   voided: { label: '作廢', variant: 'outline' as const, color: 'text-morandi-secondary' },
-  bounced: { label: '退票', variant: 'destructive' as const, color: 'text-morandi-red' },
+  bounced: { label: '退票', variant: 'destructive' as const, color: 'text-status-danger' },
 }
 
 export default function ChecksPage() {
@@ -94,7 +94,9 @@ export default function ChecksPage() {
       render: (_: unknown, row: Check) => {
         const isOverdue = new Date(row.due_date) < new Date() && row.status === 'pending'
         return (
-          <span className={isOverdue ? 'text-morandi-red font-semibold' : ''}>{row.due_date}</span>
+          <span className={isOverdue ? 'text-status-danger font-semibold' : ''}>
+            {row.due_date}
+          </span>
         )
       },
     },
@@ -221,8 +223,8 @@ export default function ChecksPage() {
               ${stats.pendingAmount.toLocaleString()}
             </div>
           </div>
-          <div className="bg-morandi-red/10 p-4 rounded-lg">
-            <div className="text-sm text-morandi-red mb-1">{PAGE_LABELS.OVERDUE_CHECKS}</div>
+          <div className="bg-status-danger/10 p-4 rounded-lg">
+            <div className="text-sm text-status-danger mb-1">{PAGE_LABELS.OVERDUE_CHECKS}</div>
             <div className="text-2xl font-bold text-morandi-primary">{stats.overdue} 張</div>
           </div>
         </div>

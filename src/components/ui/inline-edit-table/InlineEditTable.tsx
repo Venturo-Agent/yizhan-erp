@@ -184,7 +184,7 @@ export function InlineEditTable<T>({
                               type="button"
                               onClick={() => onRemove?.(index)}
                               disabled={readonly}
-                              className="text-morandi-secondary/60 hover:text-morandi-red transition-colors p-1 rounded hover:bg-morandi-red/10 disabled:cursor-default disabled:opacity-40"
+                              className="text-morandi-secondary/60 hover:text-status-danger transition-colors p-1 rounded hover:bg-status-danger/10 disabled:cursor-default disabled:opacity-40"
                               title={COMPONENT_LABELS.DELETE}
                             >
                               <Trash2 size="0.875em" />

@@ -88,7 +88,7 @@ export function EditTenantDialog({
       <div className="space-y-4 pt-2">
         <div>
           <label className="text-sm font-medium text-morandi-primary">
-            {t('fieldName')} <span className="text-morandi-red">{t('fieldNameRequired')}</span>
+            {t('fieldName')} <span className="text-status-danger">{t('fieldNameRequired')}</span>
           </label>
           <Input
             value={name}

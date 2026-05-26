@@ -118,7 +118,7 @@ export const CostItemRow: React.FC<CostItemRowProps> = ({
                   ? item.unit_price < item.estimated_cost
                     ? 'text-status-info font-semibold' // 降價 → 藍色
                     : item.unit_price > item.estimated_cost
-                      ? 'text-morandi-red font-semibold' // 漲價 → 紅色
+                      ? 'text-status-danger font-semibold' // 漲價 → 紅色
                       : ''
                   : ''
               }`}
@@ -168,7 +168,7 @@ export const CostItemRow: React.FC<CostItemRowProps> = ({
             ) : (
               <button
                 onClick={() => handleRemoveItem(categoryId, item.id)}
-                className="opacity-0 group-hover:opacity-100 w-4 h-4 flex items-center justify-center text-xs text-morandi-secondary hover:text-morandi-red hover:bg-morandi-red/10 rounded transition-all"
+                className="opacity-0 group-hover:opacity-100 w-4 h-4 flex items-center justify-center text-xs text-morandi-secondary hover:text-status-danger hover:bg-status-danger/10 rounded transition-all"
                 title={t('quoteAccommodationDelete')}
               >
                 ×

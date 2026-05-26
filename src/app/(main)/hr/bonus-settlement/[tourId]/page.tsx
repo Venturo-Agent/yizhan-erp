@@ -40,7 +40,7 @@ function formatNT(n: number): string {
 
 const STATUS_BADGE = {
   pending: { label: '待結算', className: 'bg-morandi-muted/20 text-morandi-secondary' },
-  settled: { label: '已結算', className: 'bg-morandi-green/20 text-morandi-green' },
+  settled: { label: '已結算', className: 'bg-status-success/20 text-status-success' },
   cancelled: { label: '已取消', className: 'bg-status-danger-bg text-status-danger' },
 } as const
 

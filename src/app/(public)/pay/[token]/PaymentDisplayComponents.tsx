@@ -82,7 +82,7 @@ export function MemberRow({
           {invoice.member_name}
         </span>
         {isPaid && (
-          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[0.588rem] bg-morandi-green/10 text-morandi-green border border-morandi-green/30">
+          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[0.588rem] bg-status-success/10 text-status-success border border-status-success/30">
             <CheckSquare className="h-2.5 w-2.5" />
             已付清
           </span>
@@ -119,7 +119,7 @@ export function ReceiptHistoryRow({ receipt }: { receipt: ReceiptRowData }) {
       case 'confirmed':
         return {
           label: LABELS.STATUS_CONFIRMED,
-          className: 'bg-morandi-green/10 text-morandi-green border-morandi-green/30',
+          className: 'bg-status-success/10 text-status-success border-status-success/30',
           icon: <CheckSquare className="h-3 w-3" />,
         }
       case 'pending_verify':
@@ -131,7 +131,7 @@ export function ReceiptHistoryRow({ receipt }: { receipt: ReceiptRowData }) {
       case 'rejected':
         return {
           label: LABELS.STATUS_REJECTED,
-          className: 'bg-morandi-red/10 text-morandi-red border-morandi-red/30',
+          className: 'bg-status-danger/10 text-status-danger border-status-danger/30',
           icon: <XCircle className="h-3 w-3" />,
         }
       default:

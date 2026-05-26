@@ -84,7 +84,7 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
     return (
       <div className="min-h-screen flex items-center justify-center bg-morandi-gold-light/30 p-4">
         <div className="max-w-md w-full bg-card border border-border rounded-xl p-6 text-center shadow-sm">
-          <XCircle className="h-12 w-12 mx-auto text-morandi-red mb-3" />
+          <XCircle className="h-12 w-12 mx-auto text-status-danger mb-3" />
           <h1 className="text-lg font-semibold text-morandi-primary mb-2">
             {LABELS.ERR_LOAD_FAILED_TITLE}
           </h1>
@@ -162,7 +162,7 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
           </div>
 
           {isAllPaid && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-morandi-green/10 border border-morandi-green/30 rounded-lg text-morandi-green text-sm">
+            <div className="flex items-center gap-2 px-3 py-2 bg-status-success/10 border border-status-success/30 rounded-lg text-status-success text-sm">
               <CheckSquare className="h-4 w-4" />
               {LABELS.ALL_PAID}
             </div>
@@ -189,7 +189,7 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
             </div>
           ) : (
             <div className="flex items-center gap-2 text-sm text-morandi-secondary">
-              <AlertTriangle className="h-4 w-4 text-morandi-red" />
+              <AlertTriangle className="h-4 w-4 text-status-danger" />
               {LABELS.NO_BANK_INFO}
             </div>
           )}

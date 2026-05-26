@@ -97,9 +97,9 @@ export default function ChangePasswordPage() {
         <p className="text-center text-xs text-morandi-muted mt-1">{LABELS.SUBTITLE}</p>
 
         {error && (
-          <div className="mt-4 p-3 bg-morandi-red/10 border border-morandi-red/30 rounded-2xl flex items-start gap-2">
-            <AlertTriangle size={16} className="text-morandi-red mt-0.5 shrink-0" />
-            <span className="text-xs text-morandi-red">{error}</span>
+          <div className="mt-4 p-3 bg-status-danger/10 border border-status-danger/30 rounded-2xl flex items-start gap-2">
+            <AlertTriangle size={16} className="text-status-danger mt-0.5 shrink-0" />
+            <span className="text-xs text-status-danger">{error}</span>
           </div>
         )}
 

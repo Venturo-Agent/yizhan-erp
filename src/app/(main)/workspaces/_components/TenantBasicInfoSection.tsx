@@ -34,7 +34,7 @@ export function TenantBasicInfoSection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldName')} <span className="text-morandi-red">{t('fieldNameRequired')}</span>
+            {t('fieldName')} <span className="text-status-danger">{t('fieldNameRequired')}</span>
           </label>
           <Input
             value={form.name}
@@ -45,30 +45,30 @@ export function TenantBasicInfoSection({
 
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldCode')} <span className="text-morandi-red">{t('fieldCodeRequired')}</span>
+            {t('fieldCode')} <span className="text-status-danger">{t('fieldCodeRequired')}</span>
           </label>
           <Input
             value={form.code}
             onChange={e => onCodeChange(e.target.value)}
             placeholder={t('fieldCodePlaceholder')}
-            className={`font-mono ${codeError ? 'border-morandi-red' : ''}`}
+            className={`font-mono ${codeError ? 'border-status-danger' : ''}`}
           />
-          {codeError && <p className="text-xs text-morandi-red mt-1">{codeError}</p>}
+          {codeError && <p className="text-xs text-status-danger mt-1">{codeError}</p>}
         </div>
 
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldTaxId')} <span className="text-morandi-red">{t('fieldTaxIdRequired')}</span>
+            {t('fieldTaxId')} <span className="text-status-danger">{t('fieldTaxIdRequired')}</span>
           </label>
           <Input
             value={form.taxId}
             onChange={e => onTaxIdChange(e.target.value)}
             placeholder={t('fieldTaxIdPlaceholder')}
-            className={`font-mono ${taxIdError ? 'border-morandi-red' : ''}`}
+            className={`font-mono ${taxIdError ? 'border-status-danger' : ''}`}
             maxLength={8}
           />
           {taxIdError ? (
-            <p className="text-xs text-morandi-red mt-1">{taxIdError}</p>
+            <p className="text-xs text-status-danger mt-1">{taxIdError}</p>
           ) : (
             <p className="text-xs text-morandi-muted mt-1">{t('fieldTaxIdHint')}</p>
           )}

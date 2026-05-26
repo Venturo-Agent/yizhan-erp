@@ -27,8 +27,8 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_OPTIONS = [
   { value: 'pending', dot: 'bg-morandi-muted' },
   { value: 'in_progress', dot: 'bg-morandi-gold' },
-  { value: 'completed', dot: 'bg-morandi-green' },
-  { value: 'cancelled', dot: 'bg-morandi-red' },
+  { value: 'completed', dot: 'bg-status-success' },
+  { value: 'cancelled', dot: 'bg-status-danger' },
 ] as const
 
 interface Employee {
@@ -205,7 +205,7 @@ export function TodoSidebar({
                 {canEdit && (
                   <button
                     onClick={() => removeTag(tag)}
-                    className="hover:bg-morandi-red/20 rounded"
+                    className="hover:bg-status-danger/20 rounded"
                     title={t('remove')}
                   >
                     <X size={10} />
@@ -261,7 +261,7 @@ export function TodoSidebar({
               'flex items-center gap-2 px-2 py-1.5 rounded-md text-sm transition-colors text-left',
               todo.status === 'completed'
                 ? 'text-morandi-secondary hover:bg-morandi-container/30'
-                : 'text-morandi-green hover:bg-morandi-green/10'
+                : 'text-status-success hover:bg-status-success/10'
             )}
           >
             <FileCheck className="w-3.5 h-3.5" />
@@ -278,7 +278,7 @@ export function TodoSidebar({
               await onDelete()
             }}
             disabled={!onDelete || !canEdit}
-            className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-morandi-red hover:bg-morandi-red/10 disabled:opacity-50 transition-colors text-left"
+            className="flex items-center gap-2 px-2 py-1.5 rounded-md text-sm text-status-danger hover:bg-status-danger/10 disabled:opacity-50 transition-colors text-left"
           >
             <Trash2 className="w-3.5 h-3.5" />
             {COMPONENT_LABELS.DELETE}
@@ -315,7 +315,7 @@ export function TodoSidebar({
                     {sharedWith.map(emp => (
                       <span
                         key={emp.id}
-                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.588rem] bg-morandi-green/10 text-morandi-green border border-morandi-green/20"
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.588rem] bg-status-success/10 text-status-success border border-status-success/20"
                       >
                         {emp.display_name || emp.chinese_name || emp.english_name}
                         <button
@@ -324,7 +324,7 @@ export function TodoSidebar({
                               visibility: currentVisibility.filter(id => id !== emp.id),
                             })
                           }}
-                          className="hover:bg-morandi-red/20 rounded"
+                          className="hover:bg-status-danger/20 rounded"
                           title={t('removeShare')}
                         >
                           <X size={10} />

@@ -85,7 +85,7 @@ export function TourNoticesSection({
                       isMobile ? 'text-xs' : 'text-sm'
                     )}
                   >
-                    <span className="text-morandi-red flex-shrink-0 mt-0.5">
+                    <span className="text-status-danger flex-shrink-0 mt-0.5">
                       <span className="inline-block w-5 h-5 rounded-full bg-status-danger-bg text-center text-xs font-bold leading-5">
                         {index + 1}
                       </span>

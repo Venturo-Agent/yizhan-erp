@@ -127,7 +127,7 @@ export default function TenantsPage() {
             className={`px-2 py-1 rounded text-sm font-medium ${
               row.is_active
                 ? 'text-morandi-primary bg-morandi-container'
-                : 'text-morandi-red bg-morandi-red/10'
+                : 'text-status-danger bg-status-danger/10'
             }`}
           >
             {row.is_active ? t('statusActive') : t('statusInactive')}

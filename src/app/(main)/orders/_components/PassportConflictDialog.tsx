@@ -142,10 +142,10 @@ export function PassportConflictDialog({
                   {Object.entries(conflict.diffs).map(([field, { oldValue, newValue }]) => (
                     <tr key={field} className="border-b last:border-0">
                       <td className="py-1 font-medium">{PASSPORT_FIELD_LABELS[field] || field}</td>
-                      <td className="py-1 text-morandi-red line-through">
+                      <td className="py-1 text-status-danger line-through">
                         {oldValue || <EmptyValue />}
                       </td>
-                      <td className="py-1 text-morandi-green font-medium">
+                      <td className="py-1 text-status-success font-medium">
                         {newValue || <EmptyValue />}
                       </td>
                     </tr>

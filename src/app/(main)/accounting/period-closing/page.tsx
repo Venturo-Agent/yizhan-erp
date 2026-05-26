@@ -277,7 +277,7 @@ export default function PeriodClosingPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">狀態：</span>
                 {isClosed ? (
-                  <Badge variant="outline" className="text-morandi-green">
+                  <Badge variant="outline" className="text-status-success">
                     <CheckSquare size={14} className="mr-1" />
                     已結轉
                   </Badge>
@@ -341,7 +341,7 @@ export default function PeriodClosingPage() {
                   </div>
                   <div className="text-right">
                     <div
-                      className={`font-semibold ${closing.net_income >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
+                      className={`font-semibold ${closing.net_income >= 0 ? 'text-status-success' : 'text-status-danger'}`}
                     >
                       {closing.net_income >= 0 ? '淨利' : '淨損'}
                     </div>

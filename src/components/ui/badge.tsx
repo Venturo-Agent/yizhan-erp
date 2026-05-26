@@ -10,7 +10,7 @@ const badgeVariants = cva(
       variant: {
         default: 'border-transparent bg-morandi-primary text-white',
         secondary: 'border-transparent bg-morandi-container text-morandi-primary',
-        destructive: 'border-transparent bg-morandi-red text-white',
+        destructive: 'border-transparent bg-status-danger text-white',
         outline: 'text-morandi-primary border-morandi-container',
       },
     },

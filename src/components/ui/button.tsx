@@ -31,9 +31,9 @@ const buttonVariants = cva(
         'soft-gold':
           'bg-morandi-gold/[0.08] text-morandi-primary border border-morandi-gold/20 hover:bg-morandi-gold/[0.14] hover:border-morandi-gold/35 transition-colors',
         'morandi-destructive':
-          'text-morandi-red border border-morandi-red/30 hover:bg-morandi-red/10',
+          'text-status-danger border border-status-danger/30 hover:bg-status-danger/10',
         'morandi-destructive-ghost':
-          'text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10',
+          'text-status-danger hover:text-status-danger hover:bg-status-danger/10',
         // Header 按鈕統一樣式：頁面右上角所有按鈕都用這個（漸層 + shadow + rounded-xl）
         // 配方來源：dashboard 「小工具設定」按鈕
         // SSOT 規則：主操作走 ResponsiveHeader 的 primaryAction、輔助按鈕走 headerActions escape hatch、視覺一致

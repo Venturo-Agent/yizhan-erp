@@ -125,7 +125,7 @@ export const SyncToItineraryDialog: React.FC<SyncToItineraryDialogProps> = ({
                           className={
                             diff.newValue === '自理'
                               ? 'text-status-warning font-medium'
-                              : 'text-morandi-green font-medium'
+                              : 'text-status-success font-medium'
                           }
                         >
                           {diff.newValue || <span className="text-morandi-muted">{'（空）'}</span>}

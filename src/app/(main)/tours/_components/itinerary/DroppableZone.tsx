@@ -35,7 +35,7 @@ export function DroppableZone({ id, acceptType, children, className }: Droppable
       ref={setNodeRef}
       className={`${className || ''} transition-all duration-150 ${
         showHighlight ? highlightStyles[acceptType] : ''
-      }${showReject ? ' ring-1 ring-morandi-red/40' : ''}`}
+      }${showReject ? ' ring-1 ring-status-danger/40' : ''}`}
     >
       {children}
     </div>

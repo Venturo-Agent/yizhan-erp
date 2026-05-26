@@ -111,7 +111,7 @@ export function ContractSignStep({
           )}
 
           {error && (
-            <div className="mt-4 p-3 bg-morandi-red/10 text-morandi-red rounded-lg text-sm">
+            <div className="mt-4 p-3 bg-status-danger/10 text-status-danger rounded-lg text-sm">
               {error}
             </div>
           )}

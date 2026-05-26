@@ -330,7 +330,7 @@ export default function RolesPage() {
       >
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="p-8 text-center rounded-lg border border-morandi-border bg-morandi-surface">
-            <Shield className="h-12 w-12 mx-auto text-morandi-red mb-4" />
+            <Shield className="h-12 w-12 mx-auto text-status-danger mb-4" />
             <p className="text-morandi-secondary">權限不足,只有系統主管能進入職務管理</p>
           </div>
         </div>

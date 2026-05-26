@@ -92,11 +92,11 @@ const STATUS_COLOR: Record<string, string> = {
   partial: 'text-morandi-gold',
   pending: 'text-morandi-secondary',
   pending_verify: 'text-morandi-gold',
-  overdue: 'text-morandi-red',
-  cancelled: 'text-morandi-red',
-  rejected: 'text-morandi-red',
+  overdue: 'text-status-danger',
+  cancelled: 'text-status-danger',
+  rejected: 'text-status-danger',
   refunded: 'text-morandi-secondary',
-  unpaid: 'text-morandi-red',
+  unpaid: 'text-status-danger',
 }
 
 function StatusBadge({ status }: { status: string | null }) {

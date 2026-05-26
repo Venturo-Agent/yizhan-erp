@@ -85,7 +85,7 @@ export function RoleCapabilityTable({
               <Switch
                 checked={readFully}
                 onCheckedChange={() => onToggleModuleAll(module, 'can_read')}
-                className="data-[state=checked]:bg-morandi-green"
+                className="data-[state=checked]:bg-status-success"
               />
               {readPartial && (
                 <div className="absolute -top-1 -right-1 w-2 h-2 bg-morandi-gold rounded-full" />
@@ -124,7 +124,7 @@ export function RoleCapabilityTable({
                   <Switch
                     checked={perm?.can_read ?? false}
                     onCheckedChange={() => onToggleTabPermission(module.code, tab.code, 'can_read')}
-                    className="data-[state=checked]:bg-morandi-green"
+                    className="data-[state=checked]:bg-status-success"
                   />
                 </div>
                 <div className="w-32 p-4 flex justify-center">
@@ -159,7 +159,7 @@ export function RoleCapabilityTable({
           {selectedRole && (
             <div className="flex items-center gap-4 text-xs text-morandi-secondary">
               <span className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded bg-morandi-green" /> 可讀取
+                <div className="w-3 h-3 rounded bg-status-success" /> 可讀取
               </span>
               <span className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded bg-morandi-gold" /> 可寫入

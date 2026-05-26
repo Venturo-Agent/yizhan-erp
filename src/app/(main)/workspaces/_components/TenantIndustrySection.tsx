@@ -40,7 +40,7 @@ export function TenantIndustrySection({
       <div>
         <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
           {t('fieldIndustry')}
-          <span className="text-morandi-red">{t('fieldRequired')}</span>
+          <span className="text-status-danger">{t('fieldRequired')}</span>
         </label>
         <Select value={industry} onValueChange={val => onIndustryChange(val as Industry)}>
           <SelectTrigger className="w-full">
@@ -59,7 +59,7 @@ export function TenantIndustrySection({
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
             {t('fieldSubIndustry')}
-            <span className="text-morandi-red">{t('fieldRequired')}</span>
+            <span className="text-status-danger">{t('fieldRequired')}</span>
           </label>
           <Select
             value={subIndustry ?? ''}
@@ -82,7 +82,7 @@ export function TenantIndustrySection({
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
             {t('fieldSubIndustry')}
-            <span className="text-morandi-red">{t('fieldRequired')}</span>
+            <span className="text-status-danger">{t('fieldRequired')}</span>
           </label>
           <Select
             value={subIndustry ?? ''}

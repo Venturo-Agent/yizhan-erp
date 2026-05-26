@@ -150,7 +150,7 @@ export function BatchReceiptDialog({
                   variant="ghost"
                   size="iconSm"
                   onClick={() => removeOrderAllocation(index)}
-                  className="text-morandi-secondary hover:text-morandi-red"
+                  className="text-morandi-secondary hover:text-status-danger"
                   title={t('receiptDelete')}
                 >
                   <Trash2 className="h-4 w-4" />

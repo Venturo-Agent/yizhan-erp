@@ -40,8 +40,8 @@ function ErrorDisplay({ error, errorInfo, onRetry }: ErrorDisplayProps) {
       <div className="max-w-2xl w-full mx-4 p-8 bg-card rounded-xl shadow-lg border border-border">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
-          <div className="p-3 bg-morandi-red/10 rounded-full">
-            <AlertTriangle className="w-8 h-8 text-morandi-red" />
+          <div className="p-3 bg-status-danger/10 rounded-full">
+            <AlertTriangle className="w-8 h-8 text-status-danger" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-morandi-primary">
@@ -53,8 +53,8 @@ function ErrorDisplay({ error, errorInfo, onRetry }: ErrorDisplayProps) {
 
         <div className="space-y-4">
           {/* Error Message */}
-          <div className="p-4 bg-morandi-red/5 border border-morandi-red/20 rounded-lg">
-            <p className="text-sm font-medium text-morandi-red mb-2">
+          <div className="p-4 bg-status-danger/5 border border-status-danger/20 rounded-lg">
+            <p className="text-sm font-medium text-status-danger mb-2">
               {COMPONENT_LABELS.LABEL_1425}
             </p>
             <code className="text-sm text-morandi-primary break-words">

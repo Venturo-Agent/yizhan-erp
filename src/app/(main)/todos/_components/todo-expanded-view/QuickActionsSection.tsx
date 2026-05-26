@@ -105,7 +105,7 @@ export function QuickActionInstanceCard({
         </button>
         <button
           onClick={onRemove}
-          className="p-1 rounded hover:bg-morandi-red/10 text-morandi-secondary hover:text-morandi-red"
+          className="p-1 rounded hover:bg-status-danger/10 text-morandi-secondary hover:text-status-danger"
           title={t('remove')}
         >
           <X size={14} />

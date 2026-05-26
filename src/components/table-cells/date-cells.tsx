@@ -74,13 +74,13 @@ export function DateCell({
   showIcon = true,
 }: DateCellProps) {
   if (!date) {
-    return <span className={cn('text-sm text-morandi-red', className)}>{fallback}</span>
+    return <span className={cn('text-sm text-status-danger', className)}>{fallback}</span>
   }
 
   const dateObj = new Date(date)
   if (isNaN(dateObj.getTime())) {
     return (
-      <span className={cn('text-sm text-morandi-red', className)}>
+      <span className={cn('text-sm text-status-danger', className)}>
         {TABLE_CELLS_LABELS.LABEL_5349}
       </span>
     )
@@ -119,7 +119,7 @@ export function DateRangeCell({
   const endDate = new Date(end)
 
   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    return <span className="text-sm text-morandi-red">{TABLE_CELLS_LABELS.LABEL_5349}</span>
+    return <span className="text-sm text-status-danger">{TABLE_CELLS_LABELS.LABEL_5349}</span>
   }
 
   const duration = calculateDuration(startDate, endDate)

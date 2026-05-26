@@ -372,7 +372,7 @@ export function CostTransferDialog({
       {/* 選擇目標團 */}
       <div className="mb-4">
         <label className="text-sm font-medium text-morandi-primary mb-1 block">
-          {COMPONENT_LABELS.TARGET_TOUR} <span className="text-morandi-red">*</span>
+          {COMPONENT_LABELS.TARGET_TOUR} <span className="text-status-danger">*</span>
         </label>
         <Combobox
           options={tourOptions}

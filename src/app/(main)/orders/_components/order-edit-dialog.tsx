@@ -109,7 +109,9 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
           <div>
             <label className="text-sm font-medium text-morandi-primary">
               {t('salesPerson')}
-              {formData.contact_person?.trim() && <span className="text-morandi-red ml-1">*</span>}
+              {formData.contact_person?.trim() && (
+                <span className="text-status-danger ml-1">*</span>
+              )}
             </label>
             <Combobox
               options={salesPersons.map(emp => ({

@@ -40,8 +40,8 @@ export const COMPONENT_LABELS = {
 export const CATEGORY_CONFIG: Record<string, { icon: string; color: string }> = {
   住宿: { icon: '🏨', color: 'text-status-info' },
   accommodation: { icon: '🏨', color: 'text-status-info' },
-  交通: { icon: '🚌', color: 'text-morandi-green' },
-  transportation: { icon: '🚌', color: 'text-morandi-green' },
+  交通: { icon: '🚌', color: 'text-status-success' },
+  transportation: { icon: '🚌', color: 'text-status-success' },
   活動: { icon: '🎫', color: 'text-morandi-secondary' },
   ticket: { icon: '🎫', color: 'text-morandi-secondary' },
   activity: { icon: '🎫', color: 'text-morandi-secondary' },

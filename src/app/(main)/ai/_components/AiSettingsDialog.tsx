@@ -1,13 +1,22 @@
 'use client'
 
 import { useState } from 'react'
-import { LayoutDashboard, BookOpenCheck, Plug, Settings, Bot, type LucideIcon } from 'lucide-react'
+import {
+  LayoutDashboard,
+  BookOpenCheck,
+  Plug,
+  Settings,
+  Bot,
+  Package,
+  type LucideIcon,
+} from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { AiSetupTab } from './AiSetupTab'
 import { AiSettingsTab } from './AiSettingsTab'
 import { AiDashboardTab } from './AiDashboardTab'
 import { AiRetrospectiveTab } from './AiRetrospectiveTab'
+import { AiProductsTab } from './AiProductsTab'
 
 /**
  * AI Hub 設定 dialog — 從 sidebar header 齒輪打開
@@ -30,13 +39,14 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-type SettingsTab = 'dashboard' | 'retrospective' | 'setup' | 'bots' | 'policy'
+type SettingsTab = 'dashboard' | 'retrospective' | 'setup' | 'bots' | 'products' | 'policy'
 
 const TABS: Array<{ value: SettingsTab; label: string; icon: LucideIcon }> = [
   { value: 'dashboard', label: '總覽', icon: LayoutDashboard },
   { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
   { value: 'bots', label: 'AI 機器人', icon: Bot },
+  { value: 'products', label: '商品', icon: Package },
   { value: 'policy', label: '全域 AI Policy', icon: Settings },
 ]
 
@@ -83,6 +93,7 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
           {activeTab === 'retrospective' && <AiRetrospectiveTab />}
           {activeTab === 'setup' && <AiSetupTab />}
           {activeTab === 'bots' && <AiSettingsTab />}
+          {activeTab === 'products' && <AiProductsTab />}
           {activeTab === 'policy' && (
             <div className="p-8 text-sm text-morandi-secondary">
               <p className="mb-2 font-medium text-morandi-primary">全域 AI Policy（規劃中）</p>

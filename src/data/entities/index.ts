@@ -450,6 +450,10 @@ export {
 } from './brands'
 export type { Brand } from './brands'
 
+// AI 商品主檔（2026-05-26、AI Hub 客戶自助上架 → AI 客服 RAG）
+export { useAiProducts, useAiProduct, invalidateAiProducts } from './ai-products'
+export type { AiProduct } from './ai-products'
+
 // ============================================
 // 行銷管理（2026-05-20、Corner 官網行程上架）
 // ============================================

@@ -139,7 +139,7 @@ export function ItinerarySyncDialog({ open, syncInfo, onSync, onClose }: Itinera
             <span className="text-muted-foreground">{t('itinerarySyncChange')}</span>
             <span
               className={`font-medium flex items-center gap-1 ${
-                syncInfo.action === 'increase' ? 'text-morandi-green' : 'text-status-warning'
+                syncInfo.action === 'increase' ? 'text-status-success' : 'text-status-warning'
               }`}
             >
               {syncInfo.action === 'increase' ? (

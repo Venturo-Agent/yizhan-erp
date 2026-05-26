@@ -210,7 +210,7 @@ export function PexelsPicker({ onSelectImage }: PexelsPickerProps) {
       )}
 
       {/* 錯誤訊息 */}
-      {error && <div className="p-3 bg-morandi-red/10 text-morandi-red text-sm">{error}</div>}
+      {error && <div className="p-3 bg-status-danger/10 text-status-danger text-sm">{error}</div>}
 
       {/* 圖片列表 */}
       <div className="flex-1 overflow-auto">

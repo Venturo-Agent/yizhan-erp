@@ -153,7 +153,7 @@ export function NoticesPolicySection({ data, onChange }: NoticesPolicySectionPro
         {/* 顯示開關 */}
         <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
           <div className="flex items-center gap-3">
-            <FileX className="h-5 w-5 text-morandi-red" />
+            <FileX className="h-5 w-5 text-status-danger" />
             <div>
               <h3 className="font-medium text-morandi-primary">{COMP_EDITOR_LABELS.LABEL_9277}</h3>
               <p className="text-sm text-morandi-secondary">{COMP_EDITOR_LABELS.LABEL_4169}</p>

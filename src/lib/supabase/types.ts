@@ -166,6 +166,95 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_products: {
+        Row: {
+          contents: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_published: boolean
+          knowledge_chunk_id: string | null
+          name: string
+          price: number | null
+          updated_at: string
+          updated_by: string | null
+          valid_from: string | null
+          valid_to: string | null
+          validity_note: string | null
+          workspace_id: string
+        }
+        Insert: {
+          contents?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_published?: boolean
+          knowledge_chunk_id?: string | null
+          name: string
+          price?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          validity_note?: string | null
+          workspace_id: string
+        }
+        Update: {
+          contents?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_published?: boolean
+          knowledge_chunk_id?: string | null
+          name?: string
+          price?: number | null
+          updated_at?: string
+          updated_by?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+          validity_note?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'ai_products_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ai_products_knowledge_chunk_id_fkey'
+            columns: ['knowledge_chunk_id']
+            isOneToOne: false
+            referencedRelation: 'knowledge_chunks'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ai_products_updated_by_fkey'
+            columns: ['updated_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ai_products_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       application_service_types: {
         Row: {
           code: string

@@ -109,7 +109,7 @@ export function ContractPreviewStep({
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
               {savedSignature ? (
-                <Check className="w-5 h-5 text-morandi-green" />
+                <Check className="w-5 h-5 text-status-success" />
               ) : (
                 <FileSignature className="w-5 h-5 text-status-warning" />
               )}
@@ -117,7 +117,7 @@ export function ContractPreviewStep({
                 <div className="font-medium text-morandi-primary flex items-center gap-2">
                   {templateLabel}
                   {savedSignature && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-morandi-green/15 text-morandi-green">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-status-success/15 text-status-success">
                       {PAGE_LABELS.SIGNED_BADGE}
                     </span>
                   )}
@@ -149,7 +149,7 @@ export function ContractPreviewStep({
             </div>
           ) : error ? (
             <div className="bg-card rounded-lg shadow-lg h-full flex items-center justify-center">
-              <div className="text-center text-morandi-red">
+              <div className="text-center text-status-danger">
                 <p>{error}</p>
               </div>
             </div>
@@ -418,7 +418,7 @@ export function ContractPreviewStep({
           {savedSignature ? (
             /* 簽署完成：顯示狀態 + 列印按鈕 */
             <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
-              <div className="flex items-center gap-2 text-morandi-green font-medium">
+              <div className="flex items-center gap-2 text-status-success font-medium">
                 <Check className="w-5 h-5" />
                 {isSigned
                   ? `${PAGE_LABELS.SIGNED_PREFIX}${formatDate(signedAt!)}${PAGE_LABELS.SIGNED_SUFFIX}`

@@ -268,8 +268,8 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
           variant="outline"
           className={
             value === 'income'
-              ? 'bg-morandi-green/10 text-morandi-green border-morandi-green/20 text-xs'
-              : 'bg-morandi-red/10 text-morandi-red border-morandi-red/20 text-xs'
+              ? 'bg-status-success/10 text-status-success border-status-success/20 text-xs'
+              : 'bg-status-danger/10 text-status-danger border-status-danger/20 text-xs'
           }
         >
           {value === 'income' ? COMPONENT_LABELS.TYPE_INCOME : COMPONENT_LABELS.TYPE_EXPENSE}
@@ -297,7 +297,7 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
       width: '120',
       render: (value, row) => (
         <span
-          className={`font-medium text-sm ${row.type === 'income' ? 'text-morandi-green' : 'text-morandi-red'}`}
+          className={`font-medium text-sm ${row.type === 'income' ? 'text-status-success' : 'text-status-danger'}`}
         >
           {row.type === 'income' ? '+' : '-'}
           {formatCurrency(Number(value))}

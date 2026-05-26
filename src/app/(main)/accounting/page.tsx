@@ -49,8 +49,8 @@ export default function AccountingPage() {
       icon: BookOpen,
       title: t('accountManagement'),
       description: '管理會計科目表',
-      color: 'text-morandi-green',
-      bg: 'bg-morandi-green/10',
+      color: 'text-status-success',
+      bg: 'bg-status-success/10',
     },
     {
       href: '/accounting/reports',
@@ -73,8 +73,8 @@ export default function AccountingPage() {
       icon: Calendar,
       title: t('periodClosingTitle'),
       description: '月結、季結、年結（含保留盈餘）',
-      color: 'text-morandi-red',
-      bg: 'bg-morandi-red/10',
+      color: 'text-status-danger',
+      bg: 'bg-status-danger/10',
     },
     {
       href: '/accounting/opening-balances',

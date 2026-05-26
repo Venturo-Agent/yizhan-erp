@@ -229,7 +229,7 @@ export function CustomerDialog({
                 <div
                   className={`absolute top-3 left-3 px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${
                     isVerified
-                      ? 'bg-morandi-green/90 text-white'
+                      ? 'bg-status-success/90 text-white'
                       : 'bg-status-warning/90 text-white'
                   }`}
                 >
@@ -354,12 +354,12 @@ export function CustomerDialog({
                   if (v.kind === 'empty') return null
                   const tone =
                     v.kind === 'twId' && v.checksumOk
-                      ? 'text-morandi-green'
+                      ? 'text-status-success'
                       : v.kind === 'arcNew' && v.checksumOk
                         ? 'text-morandi-gold'
                         : v.kind === 'arcOld'
                           ? 'text-morandi-secondary'
-                          : 'text-morandi-red'
+                          : 'text-status-danger'
                   return (
                     <p className={`text-xs mt-1 ${tone}`}>
                       {v.message}

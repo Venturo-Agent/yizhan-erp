@@ -95,7 +95,7 @@ export function OverviewSupplierTable({ rows }: OverviewSupplierTableProps) {
                       {row.label}
                     </td>
                     <td
-                      className={`py-2.5 px-4 border-b border-border/30 text-right font-semibold ${isIncome ? 'text-morandi-green' : 'text-morandi-red'}`}
+                      className={`py-2.5 px-4 border-b border-border/30 text-right font-semibold ${isIncome ? 'text-status-success' : 'text-status-danger'}`}
                     >
                       {isIncome ? '+' : '-'}
                       {formatCurrency(amount)}
@@ -119,7 +119,7 @@ export function OverviewSupplierTable({ rows }: OverviewSupplierTableProps) {
                           </span>
                         </td>
                         <td
-                          className={`py-2 px-4 border-b border-border/20 text-right text-xs ${detail.type === 'income' ? 'text-morandi-green' : 'text-morandi-red'}`}
+                          className={`py-2 px-4 border-b border-border/20 text-right text-xs ${detail.type === 'income' ? 'text-status-success' : 'text-status-danger'}`}
                         >
                           {formatCurrency(detail.amount)}
                         </td>
@@ -137,7 +137,7 @@ export function OverviewSupplierTable({ rows }: OverviewSupplierTableProps) {
           <tr className="bg-morandi-gold-header font-semibold">
             <td className="py-2.5 px-4"></td>
             <td className="py-2.5 px-4 text-morandi-primary">{LABELS.TOTAL}</td>
-            <td className="py-2.5 px-4 text-right text-morandi-red">
+            <td className="py-2.5 px-4 text-right text-status-danger">
               -{formatCurrency(rows.reduce((sum, r) => sum + r.expense, 0))}
             </td>
             <td className="py-2.5 px-4 text-right text-morandi-secondary">

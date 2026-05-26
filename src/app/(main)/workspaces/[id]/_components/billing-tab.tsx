@@ -48,7 +48,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 const STATUS_BADGE_CLASS: Record<string, string> = {
   pending: 'bg-morandi-gold/20 text-morandi-gold',
-  paid: 'bg-morandi-green/20 text-morandi-green',
+  paid: 'bg-status-success/20 text-status-success',
   overdue: 'bg-status-warning-bg text-status-warning',
 }
 

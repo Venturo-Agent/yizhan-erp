@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
 
         {done ? (
           <div className="mt-6 flex flex-col items-center gap-3 text-center">
-            <CheckSquare size={40} className="text-morandi-green" />
+            <CheckSquare size={40} className="text-status-success" />
             <p className="text-sm text-morandi-primary font-medium">密碼已更新！</p>
             <p className="text-xs text-morandi-muted">正在跳回登入頁...</p>
           </div>
@@ -76,9 +76,9 @@ export default function ResetPasswordPage() {
         ) : (
           <form onSubmit={handleSubmit} className="mt-5">
             {error && (
-              <div className="mb-3 p-3 bg-morandi-red/10 border border-morandi-red/30 rounded-2xl flex items-start gap-2">
-                <AlertTriangle size={14} className="text-morandi-red mt-0.5 shrink-0" />
-                <span className="text-xs text-morandi-red">{error}</span>
+              <div className="mb-3 p-3 bg-status-danger/10 border border-status-danger/30 rounded-2xl flex items-start gap-2">
+                <AlertTriangle size={14} className="text-status-danger mt-0.5 shrink-0" />
+                <span className="text-xs text-status-danger">{error}</span>
               </div>
             )}
 

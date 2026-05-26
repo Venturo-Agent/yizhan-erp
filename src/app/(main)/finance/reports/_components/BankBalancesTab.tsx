@@ -71,7 +71,9 @@ export function BankBalancesTab() {
       width: '140',
       render: (value, row) => {
         if (!value) {
-          return <span className="text-xs text-morandi-red">{COMPONENT_LABELS.UNLINKED_BADGE}</span>
+          return (
+            <span className="text-xs text-status-danger">{COMPONENT_LABELS.UNLINKED_BADGE}</span>
+          )
         }
         return (
           <span className="text-sm">
@@ -114,7 +116,7 @@ export function BankBalancesTab() {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[300px]">
-        <div className="text-morandi-red">{error}</div>
+        <div className="text-status-danger">{error}</div>
       </div>
     )
   }

@@ -74,7 +74,7 @@ export function ContractFillInfoStep({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-morandi-primary mb-1">
-                {PAGE_LABELS.LABEL_PHONE} <span className="text-morandi-red">*</span>
+                {PAGE_LABELS.LABEL_PHONE} <span className="text-status-danger">*</span>
               </label>
               <input
                 type="tel"
@@ -87,7 +87,7 @@ export function ContractFillInfoStep({
 
             <div>
               <label className="block text-sm font-medium text-morandi-primary mb-1">
-                {PAGE_LABELS.LABEL_ADDRESS} <span className="text-morandi-red">*</span>
+                {PAGE_LABELS.LABEL_ADDRESS} <span className="text-status-danger">*</span>
               </label>
               <input
                 type="text"
@@ -113,7 +113,7 @@ export function ContractFillInfoStep({
           </div>
 
           {error && (
-            <div className="mt-4 p-3 bg-morandi-red/10 text-morandi-red rounded-lg text-sm">
+            <div className="mt-4 p-3 bg-status-danger/10 text-status-danger rounded-lg text-sm">
               {error}
             </div>
           )}

@@ -50,9 +50,9 @@ function getAccountLevel(code: string): number {
 
 const typeConfig = {
   asset: { label: '資產', color: 'text-status-info' },
-  liability: { label: '負債', color: 'text-morandi-red' },
+  liability: { label: '負債', color: 'text-status-danger' },
   equity: { label: '權益', color: 'text-morandi-secondary' },
-  revenue: { label: '收入', color: 'text-morandi-green' },
+  revenue: { label: '收入', color: 'text-status-success' },
   expense: { label: '費用', color: 'text-status-warning' },
   cost: { label: '成本', color: 'text-morandi-gold' },
 }

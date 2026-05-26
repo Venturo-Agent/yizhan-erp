@@ -70,7 +70,7 @@ export function ResourceImagePanel({
               )}
               <button
                 onClick={() => onDeleteImage(allImages[currentImageIndex])}
-                className="bg-black/60 hover:bg-morandi-red text-white p-1.5 rounded transition-colors"
+                className="bg-black/60 hover:bg-status-danger text-white p-1.5 rounded transition-colors"
                 title={LABELS.DELETE_PHOTO}
               >
                 <Trash2 size="0.875em" />

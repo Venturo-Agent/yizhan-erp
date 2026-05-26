@@ -184,7 +184,7 @@ export function PackageItineraryDialog({
 
                   {/* 錯誤訊息 */}
                   {hook.createError && (
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-morandi-red/10 border border-morandi-red/30 text-morandi-red text-sm">
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-status-danger/10 border border-status-danger/30 text-status-danger text-sm">
                       <AlertTriangle className="w-4 h-4 shrink-0" />
                       <span>{hook.createError}</span>
                     </div>

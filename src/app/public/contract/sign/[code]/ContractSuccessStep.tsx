@@ -21,10 +21,10 @@ export function ContractSuccessStep({
   onViewContract,
 }: ContractSuccessStepProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-morandi-green/10 to-card flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-status-success/10 to-card flex items-center justify-center p-4">
       <div className="bg-card rounded-xl shadow-lg p-8 max-w-md text-center">
-        <div className="w-20 h-20 bg-morandi-green/15 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Check className="w-10 h-10 text-morandi-green" />
+        <div className="w-20 h-20 bg-status-success/15 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Check className="w-10 h-10 text-status-success" />
         </div>
         <h1 className="text-2xl font-bold text-morandi-primary mb-2">
           {PAGE_LABELS.SIGN_COMPLETE}

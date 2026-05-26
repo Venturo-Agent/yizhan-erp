@@ -35,6 +35,8 @@ html[data-font-scale='xl'] {
   /* 主色系（莫蘭迪金 — 預設主題） */
   --morandi-primary: #3a3633;
   --morandi-secondary: #8b8680;
+  /* 側邊欄選單圖標+文字專用、比 secondary 深、好讀（2026-05-26 William 拍板 #5c5852）*/
+  --sidebar-fg: #5c5852;
   --morandi-gold: #c9aa7c;
   --morandi-gold-rgb: 201, 170, 124;
   --morandi-gold-hover: #b8996b;
@@ -439,6 +441,7 @@ html[data-font-scale='xl'] {
   /* 莫蘭迪色系 */
   --color-morandi-primary: var(--morandi-primary);
   --color-morandi-secondary: var(--morandi-secondary);
+  --color-sidebar-fg: var(--sidebar-fg);
   --color-morandi-gold: var(--morandi-gold);
   --color-morandi-gold-hover: var(--morandi-gold-hover);
   --color-morandi-gold-light: var(--morandi-gold-light);

@@ -142,7 +142,7 @@ export function NotesSection({ todo, onUpdate }: NotesSectionProps) {
                       const newNotes = (todo.notes || []).filter((_, i) => i !== index)
                       onUpdate({ notes: newNotes })
                     }}
-                    className="p-1 hover:bg-morandi-red/10 rounded text-morandi-red"
+                    className="p-1 hover:bg-status-danger/10 rounded text-status-danger"
                     title={t('deleteNote')}
                   >
                     <X size={12} />

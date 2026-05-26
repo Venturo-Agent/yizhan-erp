@@ -72,7 +72,7 @@ export function TierPricingCard({
           {!isReadOnly && (
             <button
               onClick={() => onRemove(tier.id)}
-              className="text-morandi-red hover:bg-morandi-red/10 p-1 rounded transition-colors"
+              className="text-status-danger hover:bg-status-danger/10 p-1 rounded transition-colors"
               type="button"
             >
               <X size={14} />

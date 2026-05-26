@@ -94,7 +94,7 @@ export function BasicInfoSection({
         <div className="space-y-1.5">
           <Label className={LABEL_CLASS}>
             {LABELS.ROLE}{' '}
-            {!isEditMode && mode === 'hr' && <span className="text-morandi-red">*</span>}
+            {!isEditMode && mode === 'hr' && <span className="text-status-danger">*</span>}
           </Label>
           {mode === 'self' ? (
             // 個人設定：唯讀，職務由 HR 指派不可自改
@@ -159,7 +159,7 @@ export function BasicInfoSection({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5" data-tutorial="field-email">
           <Label className={LABEL_CLASS}>
-            {LABELS.EMAIL} <span className="text-morandi-red">*</span>
+            {LABELS.EMAIL} <span className="text-status-danger">*</span>
           </Label>
           <Input
             required

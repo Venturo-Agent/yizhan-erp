@@ -126,7 +126,7 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
   const tourTypeSelect = enabledTourCategories.length > 1 && (
     <div>
       <label className="text-sm font-medium text-morandi-primary">
-        {t('tourFormTourType')} <span className="text-morandi-red">*</span>
+        {t('tourFormTourType')} <span className="text-status-danger">*</span>
       </label>
       <Select
         value={newTour.tour_service_type || enabledTourCategories[0]?.id || 'tour_group'}
@@ -209,7 +209,7 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
           {brands.length > 1 && (
             <div>
               <label className="text-sm font-medium text-morandi-primary">
-                品牌 <span className="text-morandi-red">*</span>
+                品牌 <span className="text-status-danger">*</span>
               </label>
               <Select
                 value={newTour.brand_id || ''}
@@ -238,7 +238,7 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
           {needsController && (
             <div>
               <label className="text-sm font-medium text-morandi-primary">
-                團控 <span className="text-morandi-red">*</span>
+                團控 <span className="text-status-danger">*</span>
               </label>
               <Select
                 value={newTour.controller_id || ''}

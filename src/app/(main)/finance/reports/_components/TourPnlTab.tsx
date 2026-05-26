@@ -262,7 +262,7 @@ export function TourPnlTab() {
                 <td className="py-2 px-3 text-right tabular-nums">{formatMoney(row.cost)}</td>
                 <td
                   className={`py-2 px-3 text-right tabular-nums font-medium ${
-                    row.profit >= 0 ? 'text-morandi-green' : 'text-morandi-red'
+                    row.profit >= 0 ? 'text-status-success' : 'text-status-danger'
                   }`}
                 >
                   {formatMoney(row.profit)}
@@ -277,8 +277,8 @@ export function TourPnlTab() {
                   className={`py-2 px-3 text-right tabular-nums font-semibold ${
                     row.company_profit !== null
                       ? row.company_profit >= 0
-                        ? 'text-morandi-green'
-                        : 'text-morandi-red'
+                        ? 'text-status-success'
+                        : 'text-status-danger'
                       : 'text-morandi-muted'
                   }`}
                 >
@@ -286,7 +286,10 @@ export function TourPnlTab() {
                 </td>
                 <td className="py-2 px-3 text-center">
                   {row.is_closed ? (
-                    <Badge variant="outline" className="text-morandi-green border-morandi-green/40">
+                    <Badge
+                      variant="outline"
+                      className="text-status-success border-status-success/40"
+                    >
                       已結算
                     </Badge>
                   ) : (

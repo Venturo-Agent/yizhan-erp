@@ -36,10 +36,13 @@ export function HistoryBatchCard({
     if (batch.status === 'paid')
       return {
         label: '已付清',
-        cls: 'bg-morandi-green/10 text-morandi-green border-morandi-green/30',
+        cls: 'bg-status-success/10 text-status-success border-status-success/30',
       }
     if (isExpired)
-      return { label: '連結過期', cls: 'bg-morandi-red/10 text-morandi-red border-morandi-red/30' }
+      return {
+        label: '連結過期',
+        cls: 'bg-status-danger/10 text-status-danger border-status-danger/30',
+      }
     if (batch.status === 'partial')
       return {
         label: '部分付款',
@@ -94,7 +97,7 @@ export function HistoryBatchCard({
               <span
                 className={`tabular-nums ${
                   inv.status === 'paid'
-                    ? 'text-morandi-green'
+                    ? 'text-status-success'
                     : inv.status === 'partial'
                       ? 'text-status-warning'
                       : 'text-morandi-secondary'

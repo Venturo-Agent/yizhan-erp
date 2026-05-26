@@ -28,10 +28,10 @@ interface ConfirmDialogProps {
 const TYPE_CONFIG = {
   danger: {
     icon: Trash2,
-    iconColor: 'text-morandi-red',
-    titleColor: 'text-morandi-red',
-    buttonClass: 'bg-morandi-red hover:bg-morandi-red/90 text-white',
-    detailsBg: 'bg-morandi-red/5 border-morandi-red/20',
+    iconColor: 'text-status-danger',
+    titleColor: 'text-status-danger',
+    buttonClass: 'bg-status-danger hover:bg-status-danger/90 text-white',
+    detailsBg: 'bg-status-danger/5 border-status-danger/20',
   },
   warning: {
     icon: AlertTriangle,

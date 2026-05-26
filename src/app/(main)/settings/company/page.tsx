@@ -189,7 +189,7 @@ export default function CompanySettingsPage() {
       <ContentPageLayout title={t('companyTitle')}>
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="p-8 text-center">
-            <AlertTriangle className="h-12 w-12 mx-auto text-morandi-red mb-4" />
+            <AlertTriangle className="h-12 w-12 mx-auto text-status-danger mb-4" />
             <p className="text-morandi-secondary">{t('companyNoPermission')}</p>
           </Card>
         </div>

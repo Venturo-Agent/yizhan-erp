@@ -191,7 +191,7 @@ export function FlightSection({
             <button
               type="button"
               onClick={onRemoveOutbound}
-              className="text-morandi-red hover:text-morandi-red/80 p-1"
+              className="text-status-danger hover:text-status-danger/80 p-1"
             >
               <Trash2 size={12} />
             </button>
@@ -290,7 +290,7 @@ export function FlightSection({
             <button
               type="button"
               onClick={onRemoveReturn}
-              className="text-morandi-red hover:text-morandi-red/80 p-1"
+              className="text-status-danger hover:text-status-danger/80 p-1"
             >
               <Trash2 size={12} />
             </button>

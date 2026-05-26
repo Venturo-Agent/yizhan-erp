@@ -228,9 +228,9 @@ export default function TrialBalancePage() {
                             <td
                               className={`px-4 py-3 text-sm text-right font-mono font-semibold ${
                                 item.balance > 0
-                                  ? 'text-morandi-green'
+                                  ? 'text-status-success'
                                   : item.balance < 0
-                                    ? 'text-morandi-red'
+                                    ? 'text-status-danger'
                                     : ''
                               }`}
                             >
@@ -257,8 +257,11 @@ export default function TrialBalancePage() {
                     </tr>
                     {/* 平衡檢查 */}
                     {Math.abs(totals.debit - totals.credit) > 0.01 && (
-                      <tr className="bg-morandi-red/10">
-                        <td colSpan={6} className="px-4 py-3 text-sm text-morandi-red text-center">
+                      <tr className="bg-status-danger/10">
+                        <td
+                          colSpan={6}
+                          className="px-4 py-3 text-sm text-status-danger text-center"
+                        >
                           ⚠️ 警告：借貸不平衡！差額：
                           {(totals.debit - totals.credit).toLocaleString()}
                         </td>

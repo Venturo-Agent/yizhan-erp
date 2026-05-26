@@ -40,13 +40,13 @@ export function PnrMatchStats({
       {/* 統計 */}
       <div className="flex items-center gap-4 p-3 bg-morandi-container/30 rounded-lg flex-wrap">
         <span className="text-sm font-medium">{t('matchResult')}</span>
-        <span className="flex items-center gap-1 text-sm text-morandi-green">
+        <span className="flex items-center gap-1 text-sm text-status-success">
           <Check size={14} /> {stats.exact} {t('fullMatch')}
         </span>
         <span className="flex items-center gap-1 text-sm text-morandi-gold">
           <AlertTriangle size={14} /> {stats.partial} {t('partialMatch')}
         </span>
-        <span className="flex items-center gap-1 text-sm text-morandi-red">
+        <span className="flex items-center gap-1 text-sm text-status-danger">
           <X size={14} /> {stats.none} {t('noMatch')}
         </span>
         {stats.withSuggestions > 0 && (

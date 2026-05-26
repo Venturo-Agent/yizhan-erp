@@ -30,7 +30,7 @@ export function DeleteConfirmDialog({
       <Button
         onClick={onConfirm}
         disabled={loading}
-        className="bg-morandi-red hover:bg-morandi-red/90 text-white gap-2"
+        className="bg-status-danger hover:bg-status-danger/90 text-white gap-2"
       >
         <Trash2 size={16} />
         {loading ? '處理中...' : TOUR_DELETE.confirm}
@@ -43,7 +43,7 @@ export function DeleteConfirmDialog({
       open={isOpen}
       onOpenChange={open => !open && !loading && onClose()}
       title={
-        <span className="flex items-center gap-2 text-morandi-red">
+        <span className="flex items-center gap-2 text-status-danger">
           <AlertTriangle size={20} />
           {TOUR_DELETE.title}
         </span>
@@ -54,14 +54,14 @@ export function DeleteConfirmDialog({
     >
       <div className="space-y-4">
         <p className="text-sm text-morandi-primary">{TOUR_DELETE.confirm_text(tour?.name)}</p>
-        <div className="bg-morandi-red/5 border border-morandi-red/20 rounded-lg p-3 space-y-2">
-          <p className="text-sm font-medium text-morandi-red">{TOUR_DELETE.impact_title}</p>
+        <div className="bg-status-danger/5 border border-status-danger/20 rounded-lg p-3 space-y-2">
+          <p className="text-sm font-medium text-status-danger">{TOUR_DELETE.impact_title}</p>
           <ul className="text-sm text-morandi-secondary space-y-1 ml-4">
             <li>{TOUR_DELETE.impact_orders}</li>
             <li>{TOUR_DELETE.impact_payments}</li>
             <li>{TOUR_DELETE.impact_quotes}</li>
           </ul>
-          <p className="text-xs text-morandi-red font-medium mt-2">{TOUR_DELETE.warning}</p>
+          <p className="text-xs text-status-danger font-medium mt-2">{TOUR_DELETE.warning}</p>
         </div>
       </div>
     </FormDialog>

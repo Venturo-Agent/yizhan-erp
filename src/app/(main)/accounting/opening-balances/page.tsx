@@ -244,7 +244,7 @@ export default function OpeningBalancesPage() {
               <div className="text-sm text-muted-foreground">{PAGE_LABELS.DIFFERENCE}</div>
               <div
                 className={`text-xl font-mono font-bold ${
-                  isBalanced ? 'text-morandi-green' : 'text-morandi-red'
+                  isBalanced ? 'text-status-success' : 'text-status-danger'
                 }`}
               >
                 {isBalanced ? '✅ 平衡' : `$${totals.diff.toLocaleString()}`}

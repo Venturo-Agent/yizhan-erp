@@ -361,7 +361,7 @@ export function DisbursementPage() {
           }}
           className={cn(
             ACTION_BUTTON_BASE,
-            'text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10'
+            'text-status-success hover:text-status-success hover:bg-status-success/10'
           )}
         >
           {t('disbursementActionPay')}

@@ -74,7 +74,7 @@ export function TenantOrgSection({
                     variant="ghost"
                     size="icon"
                     onClick={() => onRemoveBranch(idx)}
-                    className="text-morandi-red"
+                    className="text-status-danger"
                     type="button"
                   >
                     <Trash2 className="h-4 w-4" />

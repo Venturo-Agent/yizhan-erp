@@ -160,7 +160,7 @@ export function AttractionsList({
           className={cn(
             'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
             attraction.is_active
-              ? 'bg-morandi-green/80 text-white'
+              ? 'bg-status-success/80 text-white'
               : 'bg-morandi-container text-morandi-secondary'
           )}
         >
@@ -249,7 +249,7 @@ export function AttractionsList({
             >
               <Power
                 size="0.95em"
-                className={attraction.is_active ? 'text-morandi-green' : 'text-morandi-secondary'}
+                className={attraction.is_active ? 'text-status-success' : 'text-morandi-secondary'}
               />
             </Button>
             <Button

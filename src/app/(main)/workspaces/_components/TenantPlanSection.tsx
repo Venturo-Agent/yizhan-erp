@@ -107,7 +107,7 @@ export function TenantPlanSection({
     <section className="space-y-3">
       <div>
         <p className="text-sm font-medium text-morandi-primary">
-          訂閱方案 <span className="text-morandi-red">*</span>
+          訂閱方案 <span className="text-status-danger">*</span>
         </p>
         <p className="text-xs text-morandi-secondary mt-0.5">
           選擇後自動配置對應功能，建立後可在租戶詳情調整
@@ -172,7 +172,7 @@ export function TenantPlanSection({
                 {/* 該方案新增的功能 */}
                 {def.features.map(f => (
                   <div key={f.name} className="flex items-center gap-1.5">
-                    <Check className="h-3 w-3 text-morandi-green flex-shrink-0" />
+                    <Check className="h-3 w-3 text-status-success flex-shrink-0" />
                     <span className="text-[11px] text-morandi-primary leading-tight">
                       {f.name}
                       {f.note && <span className="text-morandi-secondary"> ({f.note})</span>}
@@ -228,7 +228,7 @@ export function TenantPlanSection({
               進階版 — 選擇 2 個模組
             </span>
             {advancePicks.length !== 2 && (
-              <span className="text-xs text-morandi-red font-medium">請選擇 2 個</span>
+              <span className="text-xs text-status-danger font-medium">請選擇 2 個</span>
             )}
           </div>
           <div className="grid grid-cols-3 gap-2">

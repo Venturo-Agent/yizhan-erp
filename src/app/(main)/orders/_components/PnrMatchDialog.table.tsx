@@ -96,7 +96,7 @@ export function PnrMatchTable({
               className={cn(
                 'border-t',
                 result.selectedCustomerId && 'bg-morandi-container',
-                !result.selectedCustomerId && result.confidence === 'none' && 'bg-morandi-red/10',
+                !result.selectedCustomerId && result.confidence === 'none' && 'bg-status-danger/10',
                 !result.selectedCustomerId &&
                   result.confidence === 'partial' &&
                   'bg-morandi-gold/10'
@@ -109,7 +109,7 @@ export function PnrMatchTable({
                     <UserPlus size={14} /> {t('selectedCustomer')}
                   </span>
                 ) : result.confidence === 'exact' ? (
-                  <span className="flex items-center gap-1 text-morandi-green">
+                  <span className="flex items-center gap-1 text-status-success">
                     <Check size={14} /> {t('fullMatch')}
                   </span>
                 ) : result.confidence === 'partial' ? (
@@ -117,7 +117,7 @@ export function PnrMatchTable({
                     <AlertTriangle size={14} /> {t('partialMatch')}
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-morandi-red">
+                  <span className="flex items-center gap-1 text-status-danger">
                     <X size={14} /> {t('noMatch')}
                   </span>
                 )}

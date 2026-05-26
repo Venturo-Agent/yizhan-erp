@@ -144,7 +144,7 @@ function TwoColumnProfit({
       <span
         className={cn(
           'text-right font-mono tabular-nums min-w-[80px]',
-          row.amount < 0 ? 'text-morandi-red font-medium' : 'text-morandi-primary',
+          row.amount < 0 ? 'text-status-danger font-medium' : 'text-morandi-primary',
           row.highlight && 'font-bold text-morandi-gold'
         )}
       >
@@ -322,7 +322,7 @@ export function ProfitTab({ tour }: ProfitTabProps) {
       label: '營收稅額',
       sublabel: profitResult.tax_rate > 0 ? `${profitResult.tax_rate}%` : '手填寫總額',
       amount: profitResult.profit_tax,
-      badgeClass: 'bg-morandi-red/15 text-morandi-red',
+      badgeClass: 'bg-status-danger/15 text-status-danger',
       badgeText: '扣項',
     })
   }
@@ -479,7 +479,7 @@ export function ProfitTab({ tour }: ProfitTabProps) {
                       {!row.setting ? (
                         <span className="text-xs text-morandi-secondary/60">—</span>
                       ) : issuedRequestId ? (
-                        <span className="inline-flex items-center gap-1.5 text-xs text-morandi-green">
+                        <span className="inline-flex items-center gap-1.5 text-xs text-status-success">
                           <FileCheck className="h-3.5 w-3.5" />
                           {t('profitBonusIssued')}{' '}
                           {issuedCode || `(${issuedRequestId.slice(0, 8)})`}

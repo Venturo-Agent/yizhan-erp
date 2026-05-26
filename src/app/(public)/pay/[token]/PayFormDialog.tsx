@@ -139,7 +139,7 @@ export function PayFormDialog({
 
         {success ? (
           <div className="text-center py-6">
-            <CheckSquare className="h-12 w-12 mx-auto text-morandi-green mb-3" />
+            <CheckSquare className="h-12 w-12 mx-auto text-status-success mb-3" />
             <p className="text-sm text-morandi-primary">{LABELS.SUBMIT_SUCCESS}</p>
           </div>
         ) : (
@@ -180,7 +180,7 @@ export function PayFormDialog({
                 {LABELS.FORM_PAY_METHOD}
               </label>
               {paymentMethods.length === 0 ? (
-                <div className="text-sm text-morandi-red px-3 py-2 bg-morandi-red/10 rounded-lg">
+                <div className="text-sm text-status-danger px-3 py-2 bg-status-danger/10 rounded-lg">
                   {LABELS.NO_PAYMENT_METHODS}
                 </div>
               ) : (
@@ -263,7 +263,7 @@ export function PayFormDialog({
             )}
 
             {error && (
-              <div className="flex items-start gap-2 px-3 py-2 bg-morandi-red/10 border border-morandi-red/30 rounded-lg text-sm text-morandi-red">
+              <div className="flex items-start gap-2 px-3 py-2 bg-status-danger/10 border border-status-danger/30 rounded-lg text-sm text-status-danger">
                 <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>

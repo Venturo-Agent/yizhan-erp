@@ -92,8 +92,8 @@ export function useTourPageState() {
     const colors: Record<string, string> = {
       提案: 'text-morandi-gold font-medium',
       進行中: 'text-morandi-gold',
-      結案: 'text-morandi-green',
-      取消: 'text-morandi-red',
+      結案: 'text-status-success',
+      取消: 'text-status-danger',
     }
     return colors[status] || 'text-morandi-secondary'
   }, [])

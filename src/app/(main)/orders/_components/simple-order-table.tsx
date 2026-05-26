@@ -309,7 +309,7 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
               }}
               className={cn(
                 ACTION_BUTTON_BASE,
-                'text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10'
+                'text-status-success hover:text-status-success hover:bg-status-success/10'
               )}
             >
               <Wallet size="0.95em" />
@@ -331,7 +331,7 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
               }}
               className={cn(
                 ACTION_BUTTON_BASE,
-                'text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10'
+                'text-status-danger hover:text-status-danger hover:bg-status-danger/10'
               )}
             >
               <HandCoins size="0.95em" />
@@ -362,7 +362,7 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
               onClick={e => handleDelete(order, e)}
               className={cn(
                 ACTION_BUTTON_BASE,
-                'text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10'
+                'text-status-danger hover:text-status-danger hover:bg-status-danger/10'
               )}
             >
               <Trash2 size="0.95em" />
