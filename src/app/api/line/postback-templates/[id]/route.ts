@@ -22,10 +22,7 @@ const patchSchema = z.object({
   is_active: z.boolean().optional(),
 })
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.LINE_BOT_CONFIG)
     if (!guard.ok) return guard.response

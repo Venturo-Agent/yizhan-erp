@@ -48,22 +48,22 @@ export default function SharedDataPage() {
 
   return (
     <ContentPageLayout title={t('title')}>
-      <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {sharedDataModules.map(m => {
           const Icon = m.icon
           return (
             <button
               key={m.id}
-              type='button'
+              type="button"
               onClick={() => router.push(m.href)}
-              className='group flex flex-col items-start gap-3 rounded-lg border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md'
+              className="group flex flex-col items-start gap-3 rounded-lg border bg-card p-6 text-left transition-all hover:border-primary hover:shadow-md"
             >
               <div className={cn('rounded-md p-3 text-white', m.color)}>
-                <Icon className='size-6' />
+                <Icon className="size-6" />
               </div>
               <div>
-                <h3 className='text-lg font-semibold group-hover:text-primary'>{m.title}</h3>
-                <p className='mt-1 text-sm text-muted-foreground'>{m.description}</p>
+                <h3 className="text-lg font-semibold group-hover:text-primary">{m.title}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">{m.description}</p>
               </div>
             </button>
           )

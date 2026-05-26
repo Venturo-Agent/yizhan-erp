@@ -278,10 +278,22 @@ export async function perspectiveCropImage(
       const srcHeight = img.height
 
       // 4 角的原圖像素座標（按 cornerOffsets 百分比換算）
-      const tl = { x: (cornerOffsets.tl.x / 100) * srcWidth, y: (cornerOffsets.tl.y / 100) * srcHeight }
-      const tr = { x: (cornerOffsets.tr.x / 100) * srcWidth, y: (cornerOffsets.tr.y / 100) * srcHeight }
-      const br = { x: (cornerOffsets.br.x / 100) * srcWidth, y: (cornerOffsets.br.y / 100) * srcHeight }
-      const bl = { x: (cornerOffsets.bl.x / 100) * srcWidth, y: (cornerOffsets.bl.y / 100) * srcHeight }
+      const tl = {
+        x: (cornerOffsets.tl.x / 100) * srcWidth,
+        y: (cornerOffsets.tl.y / 100) * srcHeight,
+      }
+      const tr = {
+        x: (cornerOffsets.tr.x / 100) * srcWidth,
+        y: (cornerOffsets.tr.y / 100) * srcHeight,
+      }
+      const br = {
+        x: (cornerOffsets.br.x / 100) * srcWidth,
+        y: (cornerOffsets.br.y / 100) * srcHeight,
+      }
+      const bl = {
+        x: (cornerOffsets.bl.x / 100) * srcWidth,
+        y: (cornerOffsets.bl.y / 100) * srcHeight,
+      }
 
       // 估算輸出尺寸：取上邊 / 下邊長度的平均當寬、左邊 / 右邊平均當高
       const topEdge = Math.hypot(tr.x - tl.x, tr.y - tl.y)
@@ -393,4 +405,3 @@ export async function perspectiveCropImage(
     img.src = src
   })
 }
-

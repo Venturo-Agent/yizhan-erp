@@ -39,27 +39,35 @@ export function useQuoteVisibility({
         .from('tour_itinerary_items')
         .update({ show_on_quote: newVisibility })
         .eq('id', item.itinerary_item_id)
-      if (error) { toast.error(UPDATE_DISPLAY_STATUS_FAILED); return }
-      setCategories(prev => prev.map(cat => {
-        if (cat.id !== categoryId) return cat
-        if (newVisibility) {
-          const restoredItem = cat.hiddenItems?.find(i => i.id === itemId)
-          return {
-            ...cat,
-            items: restoredItem ? [...cat.items, restoredItem] : cat.items,
-            hiddenItems: cat.hiddenItems?.filter(i => i.id !== itemId),
-            total: cat.items.reduce((sum, i) => sum + i.total, 0) + (restoredItem?.total || 0),
+      if (error) {
+        toast.error(UPDATE_DISPLAY_STATUS_FAILED)
+        return
+      }
+      setCategories(prev =>
+        prev.map(cat => {
+          if (cat.id !== categoryId) return cat
+          if (newVisibility) {
+            const restoredItem = cat.hiddenItems?.find(i => i.id === itemId)
+            return {
+              ...cat,
+              items: restoredItem ? [...cat.items, restoredItem] : cat.items,
+              hiddenItems: cat.hiddenItems?.filter(i => i.id !== itemId),
+              total: cat.items.reduce((sum, i) => sum + i.total, 0) + (restoredItem?.total || 0),
+            }
+          } else {
+            const hiddenItem = cat.items.find(i => i.id === itemId)
+            return {
+              ...cat,
+              items: cat.items.filter(i => i.id !== itemId),
+              hiddenItems: [
+                ...(cat.hiddenItems || []),
+                ...(hiddenItem ? [{ ...hiddenItem, show_on_quote: false }] : []),
+              ],
+              total: cat.items.filter(i => i.id !== itemId).reduce((sum, i) => sum + i.total, 0),
+            }
           }
-        } else {
-          const hiddenItem = cat.items.find(i => i.id === itemId)
-          return {
-            ...cat,
-            items: cat.items.filter(i => i.id !== itemId),
-            hiddenItems: [...(cat.hiddenItems || []), ...(hiddenItem ? [{ ...hiddenItem, show_on_quote: false }] : [])],
-            total: cat.items.filter(i => i.id !== itemId).reduce((sum, i) => sum + i.total, 0),
-          }
-        }
-      }))
+        })
+      )
       refreshCoreItems()
       toast.success(newVisibility ? '已恢復顯示' : '已隱藏')
     },

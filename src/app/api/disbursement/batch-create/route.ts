@@ -84,17 +84,14 @@ export async function POST(request: NextRequest) {
   const allItemIds = body.batches.flatMap(b => b.payment_request_item_ids)
   const itemIdSet = new Set(allItemIds)
   if (itemIdSet.size !== allItemIds.length) {
-    return NextResponse.json(
-      { error: '同一品項出現在多個 batch、請檢查勾選' },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: '同一品項出現在多個 batch、請檢查勾選' }, { status: 400 })
   }
 
   for (const b of body.batches) {
     if (!b.from_bank_account_id || !b.payment_request_item_ids?.length) {
       return NextResponse.json(
         { error: 'batch 缺 from_bank_account_id 或 payment_request_item_ids' },
-        { status: 400 },
+        { status: 400 }
       )
     }
     if (b.total_fee < 0) {
@@ -115,13 +112,18 @@ export async function POST(request: NextRequest) {
   // ─── 一次性抓所有資料（避免 N+1）───
   type ItemFetchChain = {
     select: (c: string) => {
-      in: (k: string, v: string[]) => Promise<{ data: ItemRow[] | null; error: { message?: string } | null }>
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{ data: ItemRow[] | null; error: { message?: string } | null }>
     }
   }
   const { data: items, error: itemsErr } = await (
     admin.from as unknown as (t: string) => ItemFetchChain
   )('payment_request_items')
-    .select('id, request_id, subtotal, supplier_id, workspace_id, advanced_by, payee_employee_id, payment_method_id')
+    .select(
+      'id, request_id, subtotal, supplier_id, workspace_id, advanced_by, payee_employee_id, payment_method_id'
+    )
     .in('id', allItemIds)
 
   if (itemsErr) {
@@ -135,21 +137,21 @@ export async function POST(request: NextRequest) {
   // admin client 跳 RLS、必須 application-level 防偽 workspace
   const crossWsItem = items.find(i => i.workspace_id !== workspaceId)
   if (crossWsItem) {
-    return NextResponse.json(
-      { error: '部分請款品項不屬於目前工作空間' },
-      { status: 403 },
-    )
+    return NextResponse.json({ error: '部分請款品項不屬於目前工作空間' }, { status: 403 })
   }
 
   // ─── 排除已被收進其他 disbursement_order_items 的品項（UNIQUE constraint 防呆 + UX 友善訊息）───
   type DoiCheckChain = {
     select: (c: string) => {
-      in: (k: string, v: string[]) => Promise<{ data: { payment_request_item_id: string }[] | null }>
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{ data: { payment_request_item_id: string }[] | null }>
     }
   }
-  const { data: existingDoi } = await (
-    admin.from as unknown as (t: string) => DoiCheckChain
-  )('disbursement_order_items')
+  const { data: existingDoi } = await (admin.from as unknown as (t: string) => DoiCheckChain)(
+    'disbursement_order_items'
+  )
     .select('payment_request_item_id')
     .in('payment_request_item_id', allItemIds)
 
@@ -159,7 +161,7 @@ export async function POST(request: NextRequest) {
         error: `${existingDoi.length} 筆品項已在其他出納單、請重新整理頁面`,
         conflicting_item_ids: existingDoi.map(r => r.payment_request_item_id),
       },
-      { status: 409 },
+      { status: 409 }
     )
   }
 
@@ -173,12 +175,15 @@ export async function POST(request: NextRequest) {
   if (paymentMethodIds.length > 0) {
     type PmFetchChain = {
       select: (c: string) => {
-        in: (k: string, v: string[]) => Promise<{ data: { id: string; kind: string | null }[] | null }>
+        in: (
+          k: string,
+          v: string[]
+        ) => Promise<{ data: { id: string; kind: string | null }[] | null }>
       }
     }
-    const { data: pms } = await (
-      admin.from as unknown as (t: string) => PmFetchChain
-    )('payment_methods')
+    const { data: pms } = await (admin.from as unknown as (t: string) => PmFetchChain)(
+      'payment_methods'
+    )
       .select('id, kind')
       .in('id', paymentMethodIds)
     for (const pm of pms || []) {
@@ -187,9 +192,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 所有相關 supplier bank_code（用於 snapshot has_cross_bank_fee）
-  const supplierIds = Array.from(
-    new Set(items.map(i => i.supplier_id).filter(Boolean) as string[]),
-  )
+  const supplierIds = Array.from(new Set(items.map(i => i.supplier_id).filter(Boolean) as string[]))
   let supplierMap = new Map<string, SupplierRow>()
   if (supplierIds.length > 0) {
     type SupFetchChain = {
@@ -197,33 +200,36 @@ export async function POST(request: NextRequest) {
         in: (k: string, v: string[]) => Promise<{ data: SupplierRow[] | null }>
       }
     }
-    const { data: suppliers } = await (
-      admin.from as unknown as (t: string) => SupFetchChain
-    )('suppliers')
+    const { data: suppliers } = await (admin.from as unknown as (t: string) => SupFetchChain)(
+      'suppliers'
+    )
       .select('id, bank_code')
       .in('id', supplierIds)
     supplierMap = new Map((suppliers ?? []).map(s => [s.id, s]))
   }
 
   // 所有相關 bank_account bank_code + workspace 驗證
-  const bankAccountIds = Array.from(
-    new Set(body.batches.map(b => b.from_bank_account_id)),
-  )
+  const bankAccountIds = Array.from(new Set(body.batches.map(b => b.from_bank_account_id)))
   type BankFetchChain = {
     select: (c: string) => {
-      in: (k: string, v: string[]) => Promise<{
-        data: {
-          id: string
-          bank_code: string | null
-          workspace_id: string | null
-          cross_bank_fee: number | null
-        }[] | null
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{
+        data:
+          | {
+              id: string
+              bank_code: string | null
+              workspace_id: string | null
+              cross_bank_fee: number | null
+            }[]
+          | null
       }>
     }
   }
-  const { data: banks } = await (
-    admin.from as unknown as (t: string) => BankFetchChain
-  )('bank_accounts')
+  const { data: banks } = await (admin.from as unknown as (t: string) => BankFetchChain)(
+    'bank_accounts'
+  )
     .select('id, bank_code, workspace_id, cross_bank_fee')
     .in('id', bankAccountIds)
 
@@ -232,10 +238,7 @@ export async function POST(request: NextRequest) {
   }
   const crossWsBank = banks.find(b => b.workspace_id !== workspaceId)
   if (crossWsBank) {
-    return NextResponse.json(
-      { error: '部分出帳帳戶不屬於目前工作空間' },
-      { status: 403 },
-    )
+    return NextResponse.json({ error: '部分出帳帳戶不屬於目前工作空間' }, { status: 403 })
   }
   const bankCodeById = new Map(banks.map(b => [b.id, b.bank_code]))
   // 2026-05-21 William 拍板：unified 手續費 per 帳戶（取代 workspaces.transfer_fee_unified_amount 整 ws 值）
@@ -272,14 +275,13 @@ export async function POST(request: NextRequest) {
       .filter(i => i.request_id === origReqId && itemIdSet.has(i.id))
       .map(i => i.id)
     const allIdsForReq = itemsByRequest.get(origReqId) ?? []
-    const isPartial =
-      selectedIdsForReq.length > 0 && selectedIdsForReq.length < allIdsForReq.length
+    const isPartial = selectedIdsForReq.length > 0 && selectedIdsForReq.length < allIdsForReq.length
 
     if (!isPartial) continue
 
     type RpcChain = (
       fn: string,
-      args: Record<string, unknown>,
+      args: Record<string, unknown>
     ) => Promise<{ data: string | null; error: { message?: string } | null }>
     const { data: newReqId, error: forkErr } = await (admin.rpc as unknown as RpcChain)(
       'fork_payment_request_for_partial_billing',
@@ -287,7 +289,7 @@ export async function POST(request: NextRequest) {
         p_request_id: origReqId,
         p_item_ids: selectedIdsForReq,
         p_actor_id: employeeId,
-      },
+      }
     )
 
     if (forkErr || !newReqId) {
@@ -312,8 +314,7 @@ export async function POST(request: NextRequest) {
     .eq('id', workspaceId)
     .maybeSingle()
   const ws = workspaceData as { transfer_fee_mode?: string } | null
-  const feeMode: 'average' | 'unified' =
-    ws?.transfer_fee_mode === 'unified' ? 'unified' : 'average'
+  const feeMode: 'average' | 'unified' = ws?.transfer_fee_mode === 'unified' ? 'unified' : 'average'
 
   // ─── Phase 7：單張 DO，所有 batches 合併進一筆 ───
   // 取一次性的 disbursement_date（使用第一個 batch 的日期）
@@ -373,14 +374,13 @@ export async function POST(request: NextRequest) {
         id: r.item.id,
         amount: r.amount,
         is_cross_bank: r.is_cross_bank,
-        payer_key:
-          r.item.advanced_by
-            ? `e:${r.item.advanced_by}`
-            : r.item.payee_employee_id
-              ? `e:${r.item.payee_employee_id}`
-              : r.item.supplier_id
-                ? `s:${r.item.supplier_id}`
-                : r.item.id, // 都沒設 → 該 item 自己一組（unique）
+        payer_key: r.item.advanced_by
+          ? `e:${r.item.advanced_by}`
+          : r.item.payee_employee_id
+            ? `e:${r.item.payee_employee_id}`
+            : r.item.supplier_id
+              ? `s:${r.item.supplier_id}`
+              : r.item.id, // 都沒設 → 該 item 自己一組（unique）
       })),
       average_strategy: batch.fee_distribution,
     })
@@ -456,9 +456,9 @@ export async function POST(request: NextRequest) {
   type DoiInsertChain = {
     insert: (rows: Record<string, unknown>[]) => Promise<{ error: { message?: string } | null }>
   }
-  const { error: doiErr } = await (
-    admin.from as unknown as (t: string) => DoiInsertChain
-  )('disbursement_order_items').insert(doiRows)
+  const { error: doiErr } = await (admin.from as unknown as (t: string) => DoiInsertChain)(
+    'disbursement_order_items'
+  ).insert(doiRows)
 
   if (doiErr) {
     // rollback the single order we just created
@@ -476,18 +476,16 @@ export async function POST(request: NextRequest) {
   }
 
   // UPDATE payment_requests.disbursement_order_id（舊 link，供舊報表向下相容）
-  const allRequestIdsInOrder = Array.from(
-    new Set(allItemRowsEnriched.map(r => r.item.request_id)),
-  )
+  const allRequestIdsInOrder = Array.from(new Set(allItemRowsEnriched.map(r => r.item.request_id)))
 
   type UpdReqChain = {
     update: (v: Record<string, unknown>) => {
       in: (k: string, v: string[]) => Promise<{ error: { message?: string } | null }>
     }
   }
-  const { error: updErr } = await (
-    admin.from as unknown as (t: string) => UpdReqChain
-  )('payment_requests')
+  const { error: updErr } = await (admin.from as unknown as (t: string) => UpdReqChain)(
+    'payment_requests'
+  )
     .update({
       disbursement_order_id: orderRow.id,
       status: 'confirmed',

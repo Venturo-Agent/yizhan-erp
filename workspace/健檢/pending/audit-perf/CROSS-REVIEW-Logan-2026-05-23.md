@@ -54,6 +54,7 @@ JWT 本地驗確實是全站最大加速機會。`getClaims()` 在 `@supabase/au
 **主 CLAUDE 講**：「app server 在 Tokyo（Vultr）、Supabase project URL `aawrgygqgemgqssflfrx.supabase.co`、預設 region 沒確認」、「如果真跨洋：每次 DB call 100-150ms 純網路」
 
 **我不同意**：
+
 - 我看 `.env.local`、Supabase URL 是 `https://aawrgygqgemgqssflfrx.supabase.co`、專案 ID 是 `aawrgygqgemgqssflfrx`
 - **我沒有辦法從這台機器確認 Supabase project 的實際 region 是哪裡**
 - 主 Claude 自己都說「懷疑跨洋」、不是「確認跨洋」
@@ -62,6 +63,7 @@ JWT 本地驗確實是全站最大加速機會。`getClaims()` 在 `@supabase/au
 **這個 claim 如果不成立、「最大 leverage」就蒸發了**。不應該在還沒驗證之前就把「跨洋」當成事實寫進給老闆的總覽。
 
 **我建議**：在開始大改建之前、先要 William 30 秒去 Supabase Dashboard 首頁截個圖、確認 project 在哪個 region。只有兩種情況：
+
 - 在 Asia（Singapore 或 Tokyo）→ 跨洋 claim 不成立、刀 1-3 仍然有效、但 A 條不用做
 - 在 US/EU → 跨洋 claim 成立、A 條是認真的最大刀
 
@@ -84,6 +86,7 @@ JWT 本地驗確實是全站最大加速機會。`getClaims()` 在 `@supabase/au
 **我不同意「低風險」這句話**：
 
 從我 grep 的結果、`getApiContext` 現在只出現在 `disbursement/` 和 `setup-tokens/` 和 `permissions/`。這些是常見的業務 route。但：
+
 - **cron / webhook / service-only route** 可能故意不走 `getApiContext`（因為它們有特殊繞過邏輯）
 - 還有 **`/api/auth/` 本身** 的 route、如果走 `getApiContext` 會有雞生蛋問題
 
@@ -124,6 +127,7 @@ yizhan-erp 的 `.env.local` 有 `NEXT_PUBLIC_SUPABASE_URL`、但我沒看到 `ST
 升等全景 H 條提到「確認 `DB_URL` 是 pooler endpoint」，但**沒有實際查、現在到底用沒用在用**。
 
 我 grep `.env*` 找不到 `DATABASE_URL` / `pooler` 字樣。意味著：
+
 - 要嘛 `.env.local` 根本沒設定這個（Next.js 不直接帶、需要另外設定）
 - 要嘛連接池根本沒在用、直接連 Supabase（每個 request 都開新 connection、connection 很快就用光）
 
@@ -195,5 +199,5 @@ yizhan-erp 的 `.env.local` 有 `NEXT_PUBLIC_SUPABASE_URL`、但我沒看到 `ST
 
 ---
 
-*Review by Logan — MiniMax-M2.7 — 2026-05-23*
-*紅線：純讀檔、純評論、不動 code/DB/commit/push*
+_Review by Logan — MiniMax-M2.7 — 2026-05-23_
+_紅線：純讀檔、純評論、不動 code/DB/commit/push_

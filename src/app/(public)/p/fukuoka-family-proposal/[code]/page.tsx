@@ -22,9 +22,7 @@ export default async function FamilyProposalPage({ params }: PageProps) {
         <FamilyProposalHotels />
       </div>
       <footer className="border-t py-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          此為 Venturo 客製化行程提案
-        </p>
+        <p className="text-sm text-muted-foreground">此為 Venturo 客製化行程提案</p>
       </footer>
     </div>
   )

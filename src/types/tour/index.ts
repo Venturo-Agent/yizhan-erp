@@ -3,15 +3,9 @@
  * 統一從此匯出，外部一律 import from '@/types/tour.types'（走主檔 re-export）
  */
 
-export type {
-  FlightSegment,
-  FlightInfo,
-} from './flight.types'
+export type { FlightSegment, FlightInfo } from './flight.types'
 
-export type {
-  Member,
-  TourAddOn,
-} from './member.types'
+export type { Member, TourAddOn } from './member.types'
 
 export type {
   ItineraryFeature,

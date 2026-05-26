@@ -41,7 +41,11 @@ export function AvatarHeader({
           className="w-20 h-20 rounded-xl bg-morandi-gold/10 border-2 border-dashed border-morandi-gold/30 flex items-center justify-center overflow-hidden cursor-pointer group-hover:border-morandi-gold transition-all"
         >
           {avatarPreview ? (
-            <img src={avatarPreview} alt={LABELS.AVATAR_PREVIEW_ALT} className="w-full h-full object-cover" />
+            <img
+              src={avatarPreview}
+              alt={LABELS.AVATAR_PREVIEW_ALT}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <Camera className="w-7 h-7 text-morandi-secondary" />
           )}
@@ -63,9 +67,7 @@ export function AvatarHeader({
         </h3>
       </div>
       {/* 5/13 William 拍板：settings 個人頁傳「顯示偏好」進來、HR 不傳 */}
-      {headerRightSlot && (
-        <div className="flex-shrink-0 ml-auto">{headerRightSlot}</div>
-      )}
+      {headerRightSlot && <div className="flex-shrink-0 ml-auto">{headerRightSlot}</div>}
     </div>
   )
 }

@@ -43,7 +43,9 @@ export function VersionDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 mb-2" align="start">
         <div className="px-2 py-1.5 text-xs font-medium text-morandi-primary border-b border-border">
-          {t('versionHistoryLabel', { count: versionRecords.length > 0 ? versionRecords.length : 1 })}
+          {t('versionHistoryLabel', {
+            count: versionRecords.length > 0 ? versionRecords.length : 1,
+          })}
         </div>
         {/* 主版本（當前狀態） */}
         <DropdownMenuItem

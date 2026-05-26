@@ -25,11 +25,7 @@ export const viewport: Viewport = {
   themeColor: '#3B82F6',
 }
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
       <main className="app-content">{children}</main>

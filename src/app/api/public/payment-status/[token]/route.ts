@@ -14,10 +14,7 @@ import { NextResponse } from 'next/server'
 import { confirmSinopacPaymentByToken } from '@/lib/payment-providers/sinopac/confirm-payment'
 import { checkRateLimit } from '@/lib/rate-limit'
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ token: string }> },
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const rateLimited = await checkRateLimit(request, 'public-payment-status', 30, 60_000)
   if (rateLimited) return rateLimited
 

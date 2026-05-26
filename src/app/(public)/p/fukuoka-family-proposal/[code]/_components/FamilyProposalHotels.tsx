@@ -25,7 +25,10 @@ export function FamilyProposalHotels() {
           >
             Accommodation
           </span>
-          <h2 className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+          <h2
+            className="text-5xl lg:text-6xl font-bold"
+            style={{ fontFamily: 'Noto Serif TC, serif' }}
+          >
             精選住宿
           </h2>
         </motion.div>
@@ -46,13 +49,8 @@ export function FamilyProposalHotels() {
               alt="ANA InterContinental Beppu Resort & Spa"
               className="absolute inset-0 w-full h-full object-cover"
             />
-            <div
-              className="absolute top-6 left-6 px-4 py-2"
-              style={{ backgroundColor: '#8B7355' }}
-            >
-              <span className="text-xs tracking-[0.15em] uppercase text-white">
-                方案主軸
-              </span>
+            <div className="absolute top-6 left-6 px-4 py-2" style={{ backgroundColor: '#8B7355' }}>
+              <span className="text-xs tracking-[0.15em] uppercase text-white">方案主軸</span>
             </div>
           </div>
 
@@ -67,7 +65,10 @@ export function FamilyProposalHotels() {
             <h3 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Noto Serif TC, serif' }}>
               ANA InterContinental Beppu Resort
             </h3>
-            <p className="text-lg mb-4" style={{ fontFamily: 'Noto Serif TC, serif', color: '#8B7355' }}>
+            <p
+              className="text-lg mb-4"
+              style={{ fontFamily: 'Noto Serif TC, serif', color: '#8B7355' }}
+            >
               & Spa by IHG
             </p>
             <p className="text-sm mb-6" style={{ color: '#666' }}>
@@ -76,27 +77,24 @@ export function FamilyProposalHotels() {
 
             <div className="mb-6">
               <p className="text-base leading-relaxed" style={{ color: '#444' }}>
-                座落於明礬溫泉附近的山坡高處，融合現代奢華與傳統日本溫泉文化。能俯瞰別府灣、翠綠山巒以及市區內裊裊升起的溫泉煙霧景致。榮獲米其林指南「米其林一星級鑰匙（One MICHELIN Key）」肯定。
+                座落於明礬溫泉附近的山坡高處，融合現代奢華與傳統日本溫泉文化。能俯瞰別府灣、翠綠山巒以及市區內裊裊升起的溫泉煙霧景致。榮獲米其林指南「米其林一星級鑰匙（One
+                MICHELIN Key）」肯定。
               </p>
             </div>
 
             {/* 特色 */}
             <div className="flex flex-wrap gap-2 mb-8">
-              {[
-                '米其林一星級鑰匙',
-                '五星級奢華',
-                '溫泉度假',
-                '海灣景觀',
-                'IHG 品牌',
-              ].map((h, i) => (
-                <span
-                  key={i}
-                  className="text-xs px-3 py-1 border"
-                  style={{ borderColor: '#ddd', color: '#666' }}
-                >
-                  {h}
-                </span>
-              ))}
+              {['米其林一星級鑰匙', '五星級奢華', '溫泉度假', '海灣景觀', 'IHG 品牌'].map(
+                (h, i) => (
+                  <span
+                    key={i}
+                    className="text-xs px-3 py-1 border"
+                    style={{ borderColor: '#ddd', color: '#666' }}
+                  >
+                    {h}
+                  </span>
+                )
+              )}
             </div>
           </div>
         </motion.div>
@@ -122,7 +120,10 @@ export function FamilyProposalHotels() {
               '別府距離福岡約2小時車程，移動距離適中',
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3 text-base" style={{ color: '#444' }}>
-                <span className="flex-shrink-0 w-1 h-1 mt-2" style={{ backgroundColor: '#8B7355' }} />
+                <span
+                  className="flex-shrink-0 w-1 h-1 mt-2"
+                  style={{ backgroundColor: '#8B7355' }}
+                />
                 {item}
               </li>
             ))}
@@ -154,7 +155,10 @@ export function FamilyProposalHotels() {
               <h4 className="text-xl font-bold mb-2" style={{ fontFamily: 'Noto Serif TC, serif' }}>
                 The Miyako Hotel
               </h4>
-              <p className="text-sm mb-4" style={{ fontFamily: 'Noto Serif TC, serif', color: '#6B7B8B' }}>
+              <p
+                className="text-sm mb-4"
+                style={{ fontFamily: 'Noto Serif TC, serif', color: '#6B7B8B' }}
+              >
                 博多都酒店
               </p>
               <p className="text-sm mb-4" style={{ color: '#666' }}>

@@ -17,7 +17,6 @@ import { CostCategory, CostItem } from '../_types'
 import { CostItemRow } from './CostItemRow'
 import { AccommodationItemRow } from './AccommodationItemRow'
 
-
 import { useTranslations } from 'next-intl'
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -123,7 +122,8 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
             {category.hiddenItems && category.hiddenItems.length > 0 && (
               <details className="inline">
                 <summary className="inline cursor-pointer text-xs text-morandi-secondary hover:text-status-info ml-2">
-                  {t('quoteCategoryHiddenPrefix')} {category.hiddenItems.length} {t('quoteCategoryHiddenSuffix')}
+                  {t('quoteCategoryHiddenPrefix')} {category.hiddenItems.length}{' '}
+                  {t('quoteCategoryHiddenSuffix')}
                 </summary>
                 <div className="absolute mt-1 bg-card border border-border rounded-lg shadow-lg p-2 z-10 space-y-1">
                   {category.hiddenItems.map(h => (
@@ -141,7 +141,6 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                 </div>
               </details>
             )}
-
           </div>
         </td>
         <td className="py-3 px-4"></td>
@@ -221,15 +220,9 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
             <div className="flex gap-1 justify-end">
               {/* 成人/小孩/嬰兒 各只能新增一次 */}
               {(() => {
-                const hasAdult = category.items.some(
-                  item => item.name === '成人'
-                )
-                const hasChild = category.items.some(
-                  item => item.name === '兒童'
-                )
-                const hasInfant = category.items.some(
-                  item => item.name === '嬰兒'
-                )
+                const hasAdult = category.items.some(item => item.name === '成人')
+                const hasChild = category.items.some(item => item.name === '兒童')
+                const hasInfant = category.items.some(item => item.name === '嬰兒')
                 return (
                   <>
                     <Button
@@ -476,7 +469,6 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
           <td className="py-2 px-4"></td>
         </tr>
       )}
-
     </React.Fragment>
   )
 }

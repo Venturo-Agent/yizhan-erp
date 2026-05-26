@@ -50,7 +50,10 @@ interface OperationResult {
 }
 
 interface UpdateBuilder {
-  eq: (column: string, value: unknown) => UpdateBuilder | Promise<{ error: null | { message: string } }>
+  eq: (
+    column: string,
+    value: unknown
+  ) => UpdateBuilder | Promise<{ error: null | { message: string } }>
   or: (filter: string) => UpdateBuilder | Promise<{ error: null | { message: string } }>
   then?: (resolve: (value: { error: null | { message: string } }) => void) => void
 }
@@ -92,21 +95,20 @@ export async function softDelete(
 
   // 1. UPDATE 加 is_active=false + audit timestamp + actor + reason
   // 地方法律 #3：軟刪除統一 is_active=false（業務狀態）、audit 欄位輔助、不准散刻
-  const builder = supabase
-    .from(payload.table)
-    .update!({
-      is_active: false,
-      deleted_at: new Date().toISOString(),
-      deleted_by: ctx.actorId,
-      deleted_reason: payload.reason ?? null,
-    })
-    .eq('id', payload.id) as UpdateBuilder
+  const builder = supabase.from(payload.table).update!({
+    is_active: false,
+    deleted_at: new Date().toISOString(),
+    deleted_by: ctx.actorId,
+    deleted_reason: payload.reason ?? null,
+  }).eq('id', payload.id) as UpdateBuilder
 
   // 對 platform-shared row（workspaceColumn IS NULL）允許刪除、依賴 RLS 擋未授權
   // shared library 99.9% 是 NULL、enforce workspace eq 會 0 rows updated（假成功）
   const final = (
     payload.allowPlatformShared
-      ? (builder as UpdateBuilder).or(`${workspaceColumn}.is.null,${workspaceColumn}.eq.${ctx.workspaceId}`)
+      ? (builder as UpdateBuilder).or(
+          `${workspaceColumn}.is.null,${workspaceColumn}.eq.${ctx.workspaceId}`
+        )
       : (builder as UpdateBuilder).eq(workspaceColumn, ctx.workspaceId)
   ) as Promise<{
     error: null | { message: string }
@@ -143,15 +145,12 @@ export async function restoreSoftDeleted(
   const workspaceColumn = payload.workspaceColumn ?? 'workspace_id'
 
   // 1. UPDATE 把 deleted_* 都清掉
-  const builder = supabase
-    .from(payload.table)
-    .update!({
-      is_active: true,
-      deleted_at: null,
-      deleted_by: null,
-      deleted_reason: null,
-    })
-    .eq('id', payload.id) as UpdateBuilder
+  const builder = supabase.from(payload.table).update!({
+    is_active: true,
+    deleted_at: null,
+    deleted_by: null,
+    deleted_reason: null,
+  }).eq('id', payload.id) as UpdateBuilder
 
   const final = (builder as UpdateBuilder).eq(workspaceColumn, ctx.workspaceId) as Promise<{
     error: null | { message: string }

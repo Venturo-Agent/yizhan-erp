@@ -19,6 +19,7 @@ created: 2026-05-15
 ## Schema
 
 主要表：`public.workspaces`
+
 - `id` / `name` / `code` / `tax_id`
 - `is_active` / `setup_completed_at` / `setup_banner_dismissed_at`
 - HR 政策：`leave_policy` / `pension_system`
@@ -26,6 +27,7 @@ created: 2026-05-15
 - 出帳設定：`default_billing_day_of_week`
 
 子模組：
+
 - `workspaces.overview` / `.features` / `.addons` / `.ai-settings` / `.billing` / `.integrations`
 
 ## 不變式
@@ -53,6 +55,6 @@ created: 2026-05-15
 
 ## 變更
 
-| 日期 | 變更 |
-|------|------|
+| 日期       | 變更                              |
+| ---------- | --------------------------------- |
 | 2026-05-15 | 初版（QDF R19）含 setup gate 設計 |

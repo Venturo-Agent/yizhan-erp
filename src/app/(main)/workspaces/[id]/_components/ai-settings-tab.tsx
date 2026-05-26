@@ -104,7 +104,9 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
         ])
         if (!behaviorRes.ok) {
           const body = await behaviorRes.json().catch(() => ({}))
-          toast.error('讀取 AI 設定失敗', { description: body.error || `HTTP ${behaviorRes.status}` })
+          toast.error('讀取 AI 設定失敗', {
+            description: body.error || `HTTP ${behaviorRes.status}`,
+          })
           return
         }
         const data = await behaviorRes.json()
@@ -178,8 +180,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
       toast.success('已儲存 AI 設定')
     },
     {
-      onError: () =>
-        toast.error('儲存失敗', { description: '請稍後再試' }),
+      onError: () => toast.error('儲存失敗', { description: '請稍後再試' }),
     }
   )
 
@@ -201,9 +202,8 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
 
         <div className="space-y-4">
           <p className="text-xs text-morandi-secondary">
-            幫此租戶填入 LLM 服務商的 API token。
-            該租戶的 LINE Bot AI 對話會用這組憑證跑、計費也算在他們頭上。
-            漫途幫客戶代設（客戶自己看不到這個分頁）。
+            幫此租戶填入 LLM 服務商的 API token。 該租戶的 LINE Bot AI
+            對話會用這組憑證跑、計費也算在他們頭上。 漫途幫客戶代設（客戶自己看不到這個分頁）。
           </p>
 
           <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-morandi-cream-soft/40 border border-morandi-gold/10">
@@ -242,9 +242,11 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
             <div className="col-span-2">
               <div className="text-xs text-morandi-secondary">最後使用</div>
               <div className="text-sm font-medium">
-                {llmStatus?.last_used_at
-                  ? new Date(llmStatus.last_used_at).toLocaleString('zh-TW')
-                  : <span className="text-morandi-secondary">—</span>}
+                {llmStatus?.last_used_at ? (
+                  new Date(llmStatus.last_used_at).toLocaleString('zh-TW')
+                ) : (
+                  <span className="text-morandi-secondary">—</span>
+                )}
               </div>
             </div>
           </div>
@@ -304,9 +306,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
             </p>
             <Textarea
               value={settings.prompt_template}
-              onChange={e =>
-                setSettings(prev => ({ ...prev, prompt_template: e.target.value }))
-              }
+              onChange={e => setSettings(prev => ({ ...prev, prompt_template: e.target.value }))}
               placeholder="例如：你是漫途旅行社的 AI 助理、回答客戶旅遊相關問題、語氣親切..."
               rows={6}
             />
@@ -323,8 +323,9 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
               </span>
             </div>
             <p className="text-xs text-morandi-secondary leading-relaxed">
-              勾選 HAPPY（對內查資料客服）可以查的 ERP 模組。**目前僅儲存設定、HAPPY 尚未接 RAG / tool use、勾了還不會生效**。
-              之後 RAG 開動後、HAPPY 會根據此設定決定要不要查對應模組的資料。
+              勾選 HAPPY（對內查資料客服）可以查的 ERP 模組。**目前僅儲存設定、HAPPY 尚未接 RAG /
+              tool use、勾了還不會生效**。 之後 RAG 開動後、HAPPY
+              會根據此設定決定要不要查對應模組的資料。
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
               {DATA_SOURCE_OPTIONS.map(option => {
@@ -341,9 +342,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
                       className="mt-0.5"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-morandi-primary">
-                        {option.label}
-                      </div>
+                      <div className="text-sm font-medium text-morandi-primary">{option.label}</div>
                       <div className="text-[0.65rem] text-morandi-secondary mt-0.5 leading-relaxed">
                         {option.description}
                       </div>
@@ -356,12 +355,8 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
 
           {/* Response Mode */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-morandi-primary">
-              回應語氣
-            </Label>
-            <p className="text-xs text-morandi-secondary">
-              AI 回覆給客戶時的口吻風格。
-            </p>
+            <Label className="text-sm font-medium text-morandi-primary">回應語氣</Label>
+            <p className="text-xs text-morandi-secondary">AI 回覆給客戶時的口吻風格。</p>
             <Select
               value={settings.response_mode}
               onValueChange={value =>
@@ -439,7 +434,9 @@ function HappyPersonaSection({ workspaceId }: { workspaceId: string }) {
       }
     }
     void load()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [workspaceId])
 
   const handleSave = async () => {
@@ -472,11 +469,13 @@ function HappyPersonaSection({ workspaceId }: { workspaceId: string }) {
       <div className="flex items-center gap-2 mb-2">
         <Sparkles className="h-4 w-4 text-morandi-gold" />
         <h3 className="font-semibold text-morandi-primary">HAPPY 機器人人格（漫途專用）</h3>
-        <span className="text-[0.65rem] text-morandi-muted ml-auto">workspaces.write 守門 · 客戶看不到此區</span>
+        <span className="text-[0.65rem] text-morandi-muted ml-auto">
+          workspaces.write 守門 · 客戶看不到此區
+        </span>
       </div>
       <p className="text-xs text-morandi-secondary mb-5 leading-relaxed">
-        HAPPY 是漫途提供給客戶的內部 AI 助手、客戶不能客製化、由漫途 staff 在此微調。
-        不填 → HAPPY 用預設人格。
+        HAPPY 是漫途提供給客戶的內部 AI 助手、客戶不能客製化、由漫途 staff 在此微調。 不填 → HAPPY
+        用預設人格。
       </p>
 
       <div className="space-y-5">
@@ -497,7 +496,8 @@ function HappyPersonaSection({ workspaceId }: { workspaceId: string }) {
             品牌 / 客戶 context（append 模式）
           </Label>
           <p className="text-xs text-morandi-secondary">
-            補充客戶品牌資訊、會接在 HAPPY 預設 prompt 後面。譬如「該客戶是角落旅行社、員工常問日本團行程」。
+            補充客戶品牌資訊、會接在 HAPPY 預設 prompt
+            後面。譬如「該客戶是角落旅行社、員工常問日本團行程」。
           </p>
           <Textarea
             value={persona.brand_description ?? ''}

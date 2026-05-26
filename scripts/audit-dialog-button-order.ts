@@ -29,12 +29,20 @@ interface Finding {
 
 function walk(dir: string, out: string[] = []): string[] {
   let entries: string[]
-  try { entries = readdirSync(dir) } catch { return out }
+  try {
+    entries = readdirSync(dir)
+  } catch {
+    return out
+  }
   for (const entry of entries) {
     const p = join(dir, entry)
     if (EXCLUDED.some(re => re.test(p))) continue
     let st
-    try { st = statSync(p) } catch { continue }
+    try {
+      st = statSync(p)
+    } catch {
+      continue
+    }
     if (st.isDirectory()) walk(p, out)
     else if (entry.endsWith('.tsx')) out.push(p)
   }
@@ -97,7 +105,9 @@ function main() {
     console.log(`    ${f.excerpt}`)
   }
   console.log('')
-  console.log('💡 修法：對齊 07-ui-consistency-blueprint.md R4：取消（左、outline）/ 主操作（右、實心）')
+  console.log(
+    '💡 修法：對齊 07-ui-consistency-blueprint.md R4：取消（左、outline）/ 主操作（右、實心）'
+  )
 }
 
 main()

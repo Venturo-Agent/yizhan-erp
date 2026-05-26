@@ -86,8 +86,16 @@ export function DetailsTab({
             value={orderRelated?.id || ''}
             onChange={onSelectOrder}
             options={orderOptions}
-            placeholder={tourRelated ? COMPONENT_LABELS.ORDER_PLACEHOLDER : COMPONENT_LABELS.ORDER_NEED_TOUR_FIRST}
-            emptyMessage={tourRelated ? COMPONENT_LABELS.ORDER_EMPTY_FOR_TOUR : COMPONENT_LABELS.ORDER_NEED_TOUR_FIRST}
+            placeholder={
+              tourRelated
+                ? COMPONENT_LABELS.ORDER_PLACEHOLDER
+                : COMPONENT_LABELS.ORDER_NEED_TOUR_FIRST
+            }
+            emptyMessage={
+              tourRelated
+                ? COMPONENT_LABELS.ORDER_EMPTY_FOR_TOUR
+                : COMPONENT_LABELS.ORDER_NEED_TOUR_FIRST
+            }
             showClearButton
             disabled={!canEdit || !tourRelated}
             disablePortal
@@ -97,13 +105,13 @@ export function DetailsTab({
       </div>
 
       <div>
-        <h4 className="text-sm font-medium text-morandi-primary mb-2">{COMPONENT_LABELS.DESCRIPTION_TITLE}</h4>
+        <h4 className="text-sm font-medium text-morandi-primary mb-2">
+          {COMPONENT_LABELS.DESCRIPTION_TITLE}
+        </h4>
         <Textarea
           placeholder={COMPONENT_LABELS.DESCRIPTION_PLACEHOLDER}
           value={todo.description || ''}
-          onChange={e =>
-            canEdit && onUpdate({ description: e.target.value || undefined })
-          }
+          onChange={e => canEdit && onUpdate({ description: e.target.value || undefined })}
           disabled={!canEdit}
           className="min-h-[80px] text-sm bg-card border-border resize-none focus-visible:ring-morandi-gold focus-visible:border-morandi-gold"
         />

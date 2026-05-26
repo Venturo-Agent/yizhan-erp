@@ -98,4 +98,3 @@ export const DEFAULT_SETTINGS: ImageEditorSettings = {
   mode: 'crop',
   cornerOffsets: { ...DEFAULT_CORNER_OFFSETS },
 }
-

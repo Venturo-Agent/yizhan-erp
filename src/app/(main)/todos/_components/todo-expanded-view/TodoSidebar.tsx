@@ -107,7 +107,9 @@ export function TodoSidebar({
   return (
     <aside className="w-[16rem] pl-3 pr-4 py-4 space-y-3 shrink-0 overflow-y-auto border-l border-border/40">
       <div>
-        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">{COMPONENT_LABELS.STATUS}</label>
+        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">
+          {COMPONENT_LABELS.STATUS}
+        </label>
         <Select
           value={todo.status}
           onValueChange={(v: 'pending' | 'in_progress' | 'completed' | 'cancelled') => {
@@ -136,7 +138,9 @@ export function TodoSidebar({
       </div>
 
       <div>
-        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">{COMPONENT_LABELS.PRIORITY}</label>
+        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">
+          {COMPONENT_LABELS.PRIORITY}
+        </label>
         <Select
           value={String(todo.priority || 3)}
           onValueChange={v => canEdit && onUpdate({ priority: Number(v) as 1 | 2 | 3 | 4 | 5 })}
@@ -148,7 +152,8 @@ export function TodoSidebar({
           <SelectContent>
             <SelectItem value="5">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500" />緊急
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                緊急
               </span>
             </SelectItem>
             <SelectItem value="4">
@@ -168,7 +173,8 @@ export function TodoSidebar({
             </SelectItem>
             <SelectItem value="1">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-slate-300" />很低
+                <span className="w-2 h-2 rounded-full bg-slate-300" />
+                很低
               </span>
             </SelectItem>
           </SelectContent>
@@ -176,7 +182,9 @@ export function TodoSidebar({
       </div>
 
       <div>
-        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">{COMPONENT_LABELS.DEADLINE}</label>
+        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">
+          {COMPONENT_LABELS.DEADLINE}
+        </label>
         <DatePicker
           value={todo.deadline || ''}
           onChange={v => canEdit && onUpdate({ deadline: v || undefined })}
@@ -185,9 +193,7 @@ export function TodoSidebar({
       </div>
 
       <div>
-        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">
-          {t('tags')}
-        </label>
+        <label className="text-xs font-medium text-morandi-muted mb-1.5 block">{t('tags')}</label>
         {tags.length > 0 ? (
           <div className="flex flex-wrap gap-1 mb-1.5">
             {tags.map(tag => (
@@ -209,11 +215,7 @@ export function TodoSidebar({
             ))}
           </div>
         ) : (
-          !canEdit && (
-            <p className="text-xs text-morandi-muted mb-1.5">
-              {t('noTags')}
-            </p>
-          )
+          !canEdit && <p className="text-xs text-morandi-muted mb-1.5">{t('noTags')}</p>
         )}
         {canEdit && (
           <Input
@@ -234,7 +236,9 @@ export function TodoSidebar({
       </div>
 
       <div>
-        <label className="text-xs font-medium text-morandi-muted mb-2 block">{COMPONENT_LABELS.ACTIONS}</label>
+        <label className="text-xs font-medium text-morandi-muted mb-2 block">
+          {COMPONENT_LABELS.ACTIONS}
+        </label>
         <div className="flex flex-col gap-1">
           <button
             onClick={() => onClose()}
@@ -266,7 +270,10 @@ export function TodoSidebar({
           <button
             onClick={async () => {
               if (!onDelete) return
-              const ok = await confirm(`${COMPONENT_LABELS.CONFIRM_DELETE_PREFIX}${todo.title}${COMPONENT_LABELS.CONFIRM_DELETE_SUFFIX}`, { title: '刪除待辦事項', type: 'warning' })
+              const ok = await confirm(
+                `${COMPONENT_LABELS.CONFIRM_DELETE_PREFIX}${todo.title}${COMPONENT_LABELS.CONFIRM_DELETE_SUFFIX}`,
+                { title: '刪除待辦事項', type: 'warning' }
+              )
               if (!ok) return
               await onDelete()
             }}
@@ -289,82 +296,81 @@ export function TodoSidebar({
           <Tag className="w-3.5 h-3.5" />
           {COMPONENT_LABELS.SHARE_WITH_TEAMMATES}
           <ChevronDown
-            className={cn(
-              'w-3 h-3 ml-auto transition-transform',
-              showShareForm && 'rotate-180'
-            )}
+            className={cn('w-3 h-3 ml-auto transition-transform', showShareForm && 'rotate-180')}
           />
         </button>
-        {showShareForm && canEdit && (() => {
-          const otherEmployees = employees.filter(emp => emp.id !== currentUserId)
-          const sharedWith = otherEmployees.filter(emp => currentVisibility.includes(emp.id))
-          const availableToShare = otherEmployees.filter(emp => !currentVisibility.includes(emp.id))
+        {showShareForm &&
+          canEdit &&
+          (() => {
+            const otherEmployees = employees.filter(emp => emp.id !== currentUserId)
+            const sharedWith = otherEmployees.filter(emp => currentVisibility.includes(emp.id))
+            const availableToShare = otherEmployees.filter(
+              emp => !currentVisibility.includes(emp.id)
+            )
 
-          return (
-            <div className="mt-2 space-y-2 px-2">
-              {sharedWith.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {sharedWith.map(emp => (
-                    <span
-                      key={emp.id}
-                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.588rem] bg-morandi-green/10 text-morandi-green border border-morandi-green/20"
-                    >
-                      {emp.display_name || emp.chinese_name || emp.english_name}
-                      <button
-                        onClick={() => {
-                          onUpdate({
-                            visibility: currentVisibility.filter(id => id !== emp.id),
-                          })
-                        }}
-                        className="hover:bg-morandi-red/20 rounded"
-                        title={t('removeShare')}
+            return (
+              <div className="mt-2 space-y-2 px-2">
+                {sharedWith.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {sharedWith.map(emp => (
+                      <span
+                        key={emp.id}
+                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.588rem] bg-morandi-green/10 text-morandi-green border border-morandi-green/20"
                       >
-                        <X size={10} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
+                        {emp.display_name || emp.chinese_name || emp.english_name}
+                        <button
+                          onClick={() => {
+                            onUpdate({
+                              visibility: currentVisibility.filter(id => id !== emp.id),
+                            })
+                          }}
+                          className="hover:bg-morandi-red/20 rounded"
+                          title={t('removeShare')}
+                        >
+                          <X size={10} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-              {otherEmployees.length === 0 ? (
-                <p className="text-xs text-morandi-muted">
-                  {COMPONENT_LABELS.SHARE_NO_OTHERS}
-                </p>
-              ) : availableToShare.length === 0 ? (
-                <p className="text-xs text-morandi-muted">{COMPONENT_LABELS.SHARE_ALL_SHARED}</p>
-              ) : (
-                <>
-                  <Select value={shareTargetId} onValueChange={setShareTargetId}>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue placeholder={COMPONENT_LABELS.SELECT_MEMBER} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableToShare.map(emp => (
-                        <SelectItem key={emp.id} value={emp.id}>
-                          {emp.display_name || emp.chinese_name || emp.english_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="soft-gold"
-                    size="sm"
-                    className="w-full h-8 text-xs"
-                    disabled={!shareTargetId}
-                    onClick={() => {
-                      onUpdate({
-                        visibility: [...currentVisibility, shareTargetId],
-                      })
-                      setShareTargetId('')
-                    }}
-                  >
-                    {COMPONENT_LABELS.ADD_TO_SHARE}
-                  </Button>
-                </>
-              )}
-            </div>
-          )
-        })()}
+                {otherEmployees.length === 0 ? (
+                  <p className="text-xs text-morandi-muted">{COMPONENT_LABELS.SHARE_NO_OTHERS}</p>
+                ) : availableToShare.length === 0 ? (
+                  <p className="text-xs text-morandi-muted">{COMPONENT_LABELS.SHARE_ALL_SHARED}</p>
+                ) : (
+                  <>
+                    <Select value={shareTargetId} onValueChange={setShareTargetId}>
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue placeholder={COMPONENT_LABELS.SELECT_MEMBER} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableToShare.map(emp => (
+                          <SelectItem key={emp.id} value={emp.id}>
+                            {emp.display_name || emp.chinese_name || emp.english_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="soft-gold"
+                      size="sm"
+                      className="w-full h-8 text-xs"
+                      disabled={!shareTargetId}
+                      onClick={() => {
+                        onUpdate({
+                          visibility: [...currentVisibility, shareTargetId],
+                        })
+                        setShareTargetId('')
+                      }}
+                    >
+                      {COMPONENT_LABELS.ADD_TO_SHARE}
+                    </Button>
+                  </>
+                )}
+              </div>
+            )
+          })()}
       </div>
     </aside>
   )

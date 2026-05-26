@@ -4,7 +4,11 @@ export * from './hooks'
 export * from './module-tabs'
 export * from './capabilities'
 export { useCapabilities } from './useCapabilities'
-export { useMyCapabilities, hasCapabilitySync, invalidateCapabilityCache } from './useMyCapabilities'
+export {
+  useMyCapabilities,
+  hasCapabilitySync,
+  invalidateCapabilityCache,
+} from './useMyCapabilities'
 
 export interface PermissionConfig {
   id: string

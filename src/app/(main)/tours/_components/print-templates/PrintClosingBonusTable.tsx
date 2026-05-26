@@ -24,10 +24,7 @@ interface PrintClosingBonusTableProps {
   SectionHeader: React.ComponentType<{ children: React.ReactNode }>
 }
 
-export function PrintClosingBonusTable({
-  detailRows,
-  SectionHeader,
-}: PrintClosingBonusTableProps) {
+export function PrintClosingBonusTable({ detailRows, SectionHeader }: PrintClosingBonusTableProps) {
   const t = useTranslations('tour')
   return (
     <>

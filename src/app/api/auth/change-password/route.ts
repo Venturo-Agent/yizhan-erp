@@ -33,7 +33,12 @@ export async function POST(request: NextRequest) {
 
     const validation = await validateBody(request, changePasswordSchema)
     if (!validation.success) return validation.error
-    const { employee_number, workspace_code: _workspace_code, current_password, new_password } = validation.data
+    const {
+      employee_number,
+      workspace_code: _workspace_code,
+      current_password,
+      new_password,
+    } = validation.data
 
     const supabaseAdmin = getSupabaseAdminClient()
 
@@ -53,9 +58,7 @@ export async function POST(request: NextRequest) {
     // 2. 取得 authEmail（先從 auth.users 查、fallback 用舊邏輯拼）
     let authEmail: string | undefined
     if (employee.user_id) {
-      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(
-        employee.user_id
-      )
+      const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(employee.user_id)
       authEmail = authUser?.user?.email ?? undefined
     }
     if (!authEmail) {
@@ -103,10 +106,9 @@ export async function POST(request: NextRequest) {
       reason: '員工自行更改密碼',
     })
 
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      employee.user_id,
-      { password: new_password }
-    )
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(employee.user_id, {
+      password: new_password,
+    })
 
     if (updateError) {
       logger.error('Failed to update password:', updateError)

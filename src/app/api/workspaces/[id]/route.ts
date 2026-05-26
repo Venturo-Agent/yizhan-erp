@@ -34,10 +34,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (workspaceId !== auth.data.workspaceId) {
       // 跨租戶讀：要租戶管理權限
       const { hasCapabilityByCode } = await import('@/app/api/lib/check-capability')
-      const canManageTenants = await hasCapabilityByCode(
-        auth.data.employeeId,
-        'workspaces.write'
-      )
+      const canManageTenants = await hasCapabilityByCode(auth.data.employeeId, 'workspaces.write')
       if (!canManageTenants) {
         return NextResponse.json({ error: '不能讀取其他公司的租戶詳情' }, { status: 403 })
       }
@@ -49,7 +46,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // subscription_plan 是 2026-05-18 加的欄位、typegen 還沒 regen、cast 繞過
     const { data, error } = (await supabase
       .from('workspaces')
-      .select('id, name, code, is_active, premium_enabled, leave_policy, pension_system, subscription_plan')
+      .select(
+        'id, name, code, is_active, premium_enabled, leave_policy, pension_system, subscription_plan'
+      )
       .eq('id', workspaceId)
       .single()) as { data: Record<string, unknown> | null; error: unknown }
 
@@ -68,9 +67,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // 查所有員工
     const { data: employees } = await supabase
       .from('employees')
-      .select(
-        'id, employee_number, chinese_name, display_name, english_name, role_id, created_at'
-      )
+      .select('id, employee_number, chinese_name, display_name, english_name, role_id, created_at')
       .eq('workspace_id', workspaceId)
       .order('created_at', { ascending: true })
 
@@ -142,10 +139,7 @@ export async function DELETE(
 
     // 必須有租戶管理權限
     const { hasCapabilityByCode } = await import('@/app/api/lib/check-capability')
-    const canManageTenants = await hasCapabilityByCode(
-      auth.data.employeeId,
-      'workspaces.write'
-    )
+    const canManageTenants = await hasCapabilityByCode(auth.data.employeeId, 'workspaces.write')
     if (!canManageTenants) {
       return NextResponse.json({ error: '需租戶管理權限' }, { status: 403 })
     }
@@ -214,7 +208,10 @@ export async function DELETE(
         error: error.message,
       })
       const t = translateDbError(error)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     return NextResponse.json({
@@ -235,10 +232,7 @@ export async function DELETE(
  * - 必須有 workspaces.write capability
  * - 接受 { subscription_plan: PlanId }
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: workspaceId } = await params
 

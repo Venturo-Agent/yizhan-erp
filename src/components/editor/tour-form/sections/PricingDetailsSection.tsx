@@ -63,7 +63,11 @@ const getDefaultPricingDetails = (): PricingDetails => ({
   ],
 })
 
-export function PricingDetailsSection({ data, updateField: _updateField, onChange }: PricingDetailsSectionProps) {
+export function PricingDetailsSection({
+  data,
+  updateField: _updateField,
+  onChange,
+}: PricingDetailsSectionProps) {
   const pricingDetails = data.pricingDetails || getDefaultPricingDetails()
 
   // 更新 pricingDetails

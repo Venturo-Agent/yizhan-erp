@@ -28,10 +28,7 @@ import { apiPost } from '@/lib/api/client'
 import { useContracts, invalidateContracts, useOrderMembers, useItineraries } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import type { Order } from '@/stores/types'
-import {
-  CONTRACT_LABELS as L,
-  CONTRACT_STATUS_LABELS,
-} from './constants/labels'
+import { CONTRACT_LABELS as L, CONTRACT_STATUS_LABELS } from './constants/labels'
 
 interface Props {
   open: boolean
@@ -217,7 +214,9 @@ export function OrderContractDialog({ open, onOpenChange, order }: Props) {
             <span className="text-morandi-secondary">{L.STATUS}</span>
             <StatusBadge
               tone={STATUS_TONE[status] ?? 'neutral'}
-              label={CONTRACT_STATUS_LABELS[status as keyof typeof CONTRACT_STATUS_LABELS] ?? status}
+              label={
+                CONTRACT_STATUS_LABELS[status as keyof typeof CONTRACT_STATUS_LABELS] ?? status
+              }
             />
           </div>
           {existing.signed_at && (
@@ -290,15 +289,27 @@ export function OrderContractDialog({ open, onOpenChange, order }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>{L.COMPANY_NAME}</Label>
-              <Input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder={L.COMPANY_NAME_PLACEHOLDER} />
+              <Input
+                value={companyName}
+                onChange={e => setCompanyName(e.target.value)}
+                placeholder={L.COMPANY_NAME_PLACEHOLDER}
+              />
             </div>
             <div className="space-y-2">
               <Label>{L.COMPANY_TAX_ID}</Label>
-              <Input value={companyTaxId} onChange={e => setCompanyTaxId(e.target.value)} placeholder={L.OPTIONAL_PLACEHOLDER} />
+              <Input
+                value={companyTaxId}
+                onChange={e => setCompanyTaxId(e.target.value)}
+                placeholder={L.OPTIONAL_PLACEHOLDER}
+              />
             </div>
             <div className="space-y-2">
               <Label>{L.COMPANY_REPRESENTATIVE}</Label>
-              <Input value={companyRepresentative} onChange={e => setCompanyRepresentative(e.target.value)} placeholder={L.NAME_PLACEHOLDER} />
+              <Input
+                value={companyRepresentative}
+                onChange={e => setCompanyRepresentative(e.target.value)}
+                placeholder={L.NAME_PLACEHOLDER}
+              />
             </div>
           </div>
         )}
@@ -306,15 +317,27 @@ export function OrderContractDialog({ open, onOpenChange, order }: Props) {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>{L.SIGNER_NAME}</Label>
-            <Input value={signerName} onChange={e => setSignerName(e.target.value)} placeholder={L.NAME_PLACEHOLDER} />
+            <Input
+              value={signerName}
+              onChange={e => setSignerName(e.target.value)}
+              placeholder={L.NAME_PLACEHOLDER}
+            />
           </div>
           <div className="space-y-2">
             <Label>{L.PHONE}</Label>
-            <Input value={signerPhone} onChange={e => setSignerPhone(e.target.value)} placeholder={L.PHONE_PLACEHOLDER} />
+            <Input
+              value={signerPhone}
+              onChange={e => setSignerPhone(e.target.value)}
+              placeholder={L.PHONE_PLACEHOLDER}
+            />
           </div>
           <div className="space-y-2">
             <Label>{L.ID_NUMBER}</Label>
-            <Input value={signerIdNumber} onChange={e => setSignerIdNumber(e.target.value)} placeholder={L.OPTIONAL_PLACEHOLDER} />
+            <Input
+              value={signerIdNumber}
+              onChange={e => setSignerIdNumber(e.target.value)}
+              placeholder={L.OPTIONAL_PLACEHOLDER}
+            />
           </div>
         </div>
 
@@ -322,11 +345,19 @@ export function OrderContractDialog({ open, onOpenChange, order }: Props) {
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label>{L.MEETING_LOCATION}</Label>
-            <Input value={meetingLocation} onChange={e => setMeetingLocation(e.target.value)} placeholder={L.MEETING_LOCATION_PLACEHOLDER} />
+            <Input
+              value={meetingLocation}
+              onChange={e => setMeetingLocation(e.target.value)}
+              placeholder={L.MEETING_LOCATION_PLACEHOLDER}
+            />
           </div>
           <div className="space-y-2">
             <Label>{L.MEETING_TIME}</Label>
-            <Input type="datetime-local" value={meetingTime} onChange={e => setMeetingTime(e.target.value)} />
+            <Input
+              type="datetime-local"
+              value={meetingTime}
+              onChange={e => setMeetingTime(e.target.value)}
+            />
           </div>
         </div>
 

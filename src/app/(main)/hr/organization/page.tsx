@@ -16,10 +16,7 @@ import { OrganizationSection } from '@/app/(main)/settings/company/_components/O
 
 export default function HrOrganizationPage() {
   return (
-    <ContentPageLayout
-      title="組織管理"
-      icon={Network}
-    >
+    <ContentPageLayout title="組織管理" icon={Network}>
       <div className="mb-4 text-sm text-morandi-secondary">
         管理品牌、分公司、部門三層架構。部門必須掛在某個分公司底下。
       </div>

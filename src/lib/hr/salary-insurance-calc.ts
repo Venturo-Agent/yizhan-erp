@@ -67,7 +67,7 @@ export function checkGradeCoverage(
   const missing: Array<'labor' | 'health' | 'pension'> = []
   for (const kind of kinds) {
     const hasCoverage = allGrades.some(
-      (g) =>
+      g =>
         g.kind === kind &&
         g.effective_from <= periodFirstDay &&
         (g.effective_until === null || g.effective_until >= periodFirstDay)
@@ -134,9 +134,12 @@ export function calcInsuranceForEmployee(
 
   // 投保薪資（級距配對、user 可 override）
   const overrideAmt = input.insured_salary_override
-  const insuredLabor = overrideAmt && overrideAmt > 0 ? overrideAmt : findGradeAmount(grades.labor, base)
-  const insuredHealth = overrideAmt && overrideAmt > 0 ? overrideAmt : findGradeAmount(grades.health, base)
-  const insuredPension = overrideAmt && overrideAmt > 0 ? overrideAmt : findGradeAmount(grades.pension, base)
+  const insuredLabor =
+    overrideAmt && overrideAmt > 0 ? overrideAmt : findGradeAmount(grades.labor, base)
+  const insuredHealth =
+    overrideAmt && overrideAmt > 0 ? overrideAmt : findGradeAmount(grades.health, base)
+  const insuredPension =
+    overrideAmt && overrideAmt > 0 ? overrideAmt : findGradeAmount(grades.pension, base)
 
   // 勞保（laborHere=true 才算）
   const laborTotal = laborHere ? insuredLabor * RATES.labor.total : 0

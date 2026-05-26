@@ -18,8 +18,10 @@ export interface ApiErrorBody {
  *     return NextResponse.json({ data })
  *   })
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function apiHandler(handler: (...args: any[]) => Promise<Response>): (req: NextRequest) => Promise<Response> {
+export function apiHandler(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handler: (...args: any[]) => Promise<Response>
+): (req: NextRequest) => Promise<Response> {
   return async (req: NextRequest) => {
     try {
       return await handler(req)

@@ -258,9 +258,7 @@ export const SellingPriceSection: React.FC<SellingPriceSectionProps> = ({
           >
             <div className="flex items-center gap-1">
               {tierPricings.length > 0 && (
-                <span className="text-xs font-semibold text-morandi-gold mr-1">
-                  {'檻次 1'}
-                </span>
+                <span className="text-xs font-semibold text-morandi-gold mr-1">{'檻次 1'}</span>
               )}
               <input
                 onClick={e => e.stopPropagation()}
@@ -376,9 +374,7 @@ export const SellingPriceSection: React.FC<SellingPriceSectionProps> = ({
                         accommodationSummary,
                         identityCosts
                       )}
-                      onPriceChange={value =>
-                        handleRoomTypePriceChange(room.name, 'adult', value)
-                      }
+                      onPriceChange={value => handleRoomTypePriceChange(room.name, 'adult', value)}
                       isReadOnly={isReadOnly}
                       indented
                     />
@@ -398,9 +394,7 @@ export const SellingPriceSection: React.FC<SellingPriceSectionProps> = ({
                         accommodationSummary,
                         identityCosts
                       )}
-                      onPriceChange={value =>
-                        handleRoomTypePriceChange(room.name, 'child', value)
-                      }
+                      onPriceChange={value => handleRoomTypePriceChange(room.name, 'child', value)}
                       isReadOnly={isReadOnly}
                       indented
                     />

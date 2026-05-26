@@ -47,9 +47,7 @@ describe.skipIf(!hasServiceRoleKey())('generate_order_number 並發競態', () =
       .single()
 
     if (tourError) {
-      console.warn(
-        `tours INSERT failed (race test 將 skip 主測試): ${tourError.message}`
-      )
+      console.warn(`tours INSERT failed (race test 將 skip 主測試): ${tourError.message}`)
       return
     }
     tourId = (tourData as { id: string }).id
@@ -61,39 +59,35 @@ describe.skipIf(!hasServiceRoleKey())('generate_order_number 並發競態', () =
     await teardownSandboxWorkspace(admin, workspaceId)
   })
 
-  it(
-    '10 並發 call → 回 10 個不同的 {tour}-O01 .. -O10',
-    async () => {
-      if (!tourId || !tourCode) {
-        console.warn('skip: tour setup failed')
-        return
-      }
+  it('10 並發 call → 回 10 個不同的 {tour}-O01 .. -O10', async () => {
+    if (!tourId || !tourCode) {
+      console.warn('skip: tour setup failed')
+      return
+    }
 
-      const N = 10
-      const promises = Array.from({ length: N }, () =>
-        admin.rpc('generate_order_number', { p_tour_id: tourId })
-      )
-      const results = await Promise.all(promises)
+    const N = 10
+    const promises = Array.from({ length: N }, () =>
+      admin.rpc('generate_order_number', { p_tour_id: tourId })
+    )
+    const results = await Promise.all(promises)
 
-      for (const r of results) {
-        expect(r.error, `RPC error: ${r.error?.message}`).toBeNull()
-      }
+    for (const r of results) {
+      expect(r.error, `RPC error: ${r.error?.message}`).toBeNull()
+    }
 
-      const codes = results.map(r => r.data as string)
-      const unique = new Set(codes)
-      expect(
-        unique.size,
-        `預期 ${N} 個不同、實際 ${unique.size}。codes: ${JSON.stringify(codes)}`
-      ).toBe(N)
+    const codes = results.map(r => r.data as string)
+    const unique = new Set(codes)
+    expect(
+      unique.size,
+      `預期 ${N} 個不同、實際 ${unique.size}。codes: ${JSON.stringify(codes)}`
+    ).toBe(N)
 
-      const sorted = [...codes].sort()
-      for (let i = 0; i < N; i++) {
-        const expected = `${tourCode}-O${String(i + 1).padStart(2, '0')}`
-        expect(sorted[i]).toBe(expected)
-      }
-    },
-    30_000
-  )
+    const sorted = [...codes].sort()
+    for (let i = 0; i < N; i++) {
+      const expected = `${tourCode}-O${String(i + 1).padStart(2, '0')}`
+      expect(sorted[i]).toBe(expected)
+    }
+  }, 30_000)
 
   it('tour_id 不存在 → RPC raise exception', async () => {
     const { data, error } = await admin.rpc('generate_order_number', {

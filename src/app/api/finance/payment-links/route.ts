@@ -23,7 +23,10 @@ import { validateBody } from '@/lib/api/validation'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { apiHandler } from '@/lib/api/api-handler'
 import { PROVIDER_CODES, PAYMENT_LINK_EXPIRY_DAYS } from '@/constants/payment-provider'
-import { createSinopacCardTransaction, SINOPAC_ERR } from '@/lib/payment-providers/sinopac/create-transaction'
+import {
+  createSinopacCardTransaction,
+  SINOPAC_ERR,
+} from '@/lib/payment-providers/sinopac/create-transaction'
 
 // 後端可接受的效期上限 = 前端選單最大天數（SSOT：UI 改選單、這裡自動跟）
 const MAX_EXPIRY_MINUTES = Math.max(...PAYMENT_LINK_EXPIRY_DAYS) * 24 * 60

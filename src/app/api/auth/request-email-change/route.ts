@@ -26,9 +26,7 @@ import { getServerAuth } from '@/lib/auth/server-auth'
 import { validateBody } from '@/lib/api/validation'
 import { apiHandler } from '@/lib/api/api-handler'
 import { createApprovalRequest } from '@/app/api/approvals/route'
-import {
-  APPROVAL_REQUEST_TYPES,
-} from '@/lib/approvals/dispatch'
+import { APPROVAL_REQUEST_TYPES } from '@/lib/approvals/dispatch'
 import { logger } from '@/lib/utils/logger'
 
 const schema = z.object({

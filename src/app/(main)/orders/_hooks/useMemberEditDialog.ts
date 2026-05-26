@@ -202,15 +202,11 @@ export function useMemberEditDialog({ members, setMembers }: UseMemberEditDialog
       // 4. 關閉彈窗
       setIsEditDialogOpen(false)
       setEditingMember(null)
-      void alert(
-        editMode === 'verify' ? t('verifyComplete') : t('saveSuccess'),
-        'success'
-      )
+      void alert(editMode === 'verify' ? t('verifyComplete') : t('saveSuccess'), 'success')
     } catch (error) {
       logger.error(t('saveFailed2'), error)
       void alert(
-        t('saveFailed3') +
-          (error instanceof Error ? error.message : t('unknownError')),
+        t('saveFailed3') + (error instanceof Error ? error.message : t('unknownError')),
         'error'
       )
     } finally {

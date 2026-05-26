@@ -105,7 +105,7 @@ export function CanvasStaysSection({
           marginTop: 40,
         }}
       >
-        {items.map((stay) => (
+        {items.map(stay => (
           <div
             key={stay.id}
             style={{

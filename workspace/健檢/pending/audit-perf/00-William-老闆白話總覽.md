@@ -71,11 +71,13 @@
 ### Task 3 + Task 5：DB 查詢熱點 + DB trigger 全表
 
 要連 production Supabase 跑 `pg_stat_statements` / `pg_trigger`、現在這台機器：
+
 - `.mcp.json` 上一個 session 清掉寫死的 token（資安做得對）
 - 你的 `secrets.env` 有 `SUPABASE_MCP_AIERP_TOKEN`、但 MCP server 沒被啟動帶這把
 - 沒這份資料、無法知道「production 真實最慢的 SQL 是哪一條 + 各 trigger 平均 cost」
 
 選一個讓 Task 3+5 動：
+
 - **A）我加 `.mcp.json`**（寫 supabase-aierp server 用 env var、重啟 Claude Code 再派）
 - **B）你 Supabase Studio 跑 3+4 條 SQL**（我把確切 SQL 整好給你、貼結果回來）
 - **C）暫時跳過**、先動上面 3 把刀（不需要 DB 數據也能修）
@@ -84,14 +86,14 @@
 
 ## 複查抓到的 hallucination（已剔除、不影響上面結論）
 
-| 來源 | 不成立的 claim | 修正 |
-|---|---|---|
-| Task 7 | jspdf-autotable 是殭屍 | 在用（disbursement-pdf.ts）、不可砍 |
-| Task 2 | `/tours/[code]` egress 殺手（5 component 全 workspace 撈） | filter 有套、只 5 次同 filter query、第一次 mount 5 round-trip、不是全撈 |
-| Task 2 | createEntityHook filter 被靜默丟棄 | filter 實作完整、被誤導的是 tour-receipts.tsx:65 的 stale comment |
-| Task 6 | 37 處散刻 useSWR | 實際 8 處（agent 算進 useSWRConfig 之類變體）、紅線 F 偏離仍真但量級不像 37 那麼驚悚 |
-| Task 6 | useTourItineraryItems.ts 散刻 supabase.from | 檔名 camelCase 是假的、真檔是 `tour-itinerary-items.ts`、grep 0 supabase 引用 |
-| Task 1 | top 5 DB call 數（18/14/11/11/10） | 是把 helper 內 DB call 加總的估值、ranking 對、絕對數字偏高 |
+| 來源   | 不成立的 claim                                             | 修正                                                                                 |
+| ------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Task 7 | jspdf-autotable 是殭屍                                     | 在用（disbursement-pdf.ts）、不可砍                                                  |
+| Task 2 | `/tours/[code]` egress 殺手（5 component 全 workspace 撈） | filter 有套、只 5 次同 filter query、第一次 mount 5 round-trip、不是全撈             |
+| Task 2 | createEntityHook filter 被靜默丟棄                         | filter 實作完整、被誤導的是 tour-receipts.tsx:65 的 stale comment                    |
+| Task 6 | 37 處散刻 useSWR                                           | 實際 8 處（agent 算進 useSWRConfig 之類變體）、紅線 F 偏離仍真但量級不像 37 那麼驚悚 |
+| Task 6 | useTourItineraryItems.ts 散刻 supabase.from                | 檔名 camelCase 是假的、真檔是 `tour-itinerary-items.ts`、grep 0 supabase 引用        |
+| Task 1 | top 5 DB call 數（18/14/11/11/10）                         | 是把 helper 內 DB call 加總的估值、ranking 對、絕對數字偏高                          |
 
 ---
 

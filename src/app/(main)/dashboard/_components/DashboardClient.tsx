@@ -98,9 +98,7 @@ export function DashboardClient() {
             <h3 className="text-lg font-semibold text-morandi-primary mb-2">
               {t('noWidgetsTitle')}
             </h3>
-            <p className="text-sm text-morandi-muted mb-6">
-              {t('noWidgetsDescription')}
-            </p>
+            <p className="text-sm text-morandi-muted mb-6">{t('noWidgetsDescription')}</p>
           </div>
         </Card>
       ) : (

@@ -21,10 +21,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export async function POST(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
     if (!guard.ok) return guard.response
@@ -53,7 +50,11 @@ export async function POST(
     })
 
     if (!result.ok) {
-      logger.warn('regenerate memory failed', { conversationId, reason: result.reason, error: result.error })
+      logger.warn('regenerate memory failed', {
+        conversationId,
+        reason: result.reason,
+        error: result.error,
+      })
       return NextResponse.json(
         {
           success: false,

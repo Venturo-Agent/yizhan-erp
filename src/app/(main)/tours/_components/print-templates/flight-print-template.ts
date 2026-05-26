@@ -187,7 +187,9 @@ export function generateFlightPrintContent({
               '國際線建議提前 3 小時抵達機場辦理報到手續。',
               '日本入境需事先完成 Visit Japan Web 線上申報。',
               '護照效期需超過預定返國日 6 個月以上。',
-            ].map(item => `<li>${escapeHtml(item)}</li>`).join('')}
+            ]
+              .map(item => `<li>${escapeHtml(item)}</li>`)
+              .join('')}
           </ul>
         </div>
 

@@ -35,7 +35,20 @@ interface CanvasDayHeaderProps {
  * 推不出來回空字串、由 caller 用 monthLabel prop 覆寫
  */
 function inferMonth(dateStr: string): string {
-  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+  const months = [
+    'JAN',
+    'FEB',
+    'MAR',
+    'APR',
+    'MAY',
+    'JUN',
+    'JUL',
+    'AUG',
+    'SEP',
+    'OCT',
+    'NOV',
+    'DEC',
+  ]
   // 試「2026.12.02」/「2026-12-02」格式
   const m = dateStr.match(/^\d{4}[.\-/](\d{1,2})/)
   if (m && m[1]) {

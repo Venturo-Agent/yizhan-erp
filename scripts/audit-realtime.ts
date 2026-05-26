@@ -60,7 +60,11 @@ function fetchPublicationTables(): string[] | null {
       `psql "${dbUrl}" -t -A -c "SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime' ORDER BY tablename;"`,
       { timeout: 10_000, stdio: ['pipe', 'pipe', 'pipe'] }
     ).toString()
-    return result.split('\n').map(s => s.trim()).filter(Boolean).sort()
+    return result
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean)
+      .sort()
   } catch (err) {
     console.log('  ⚠️  無法查詢 DB（Mac IPv6 或連線問題）、跳過 publication 比對')
     return null

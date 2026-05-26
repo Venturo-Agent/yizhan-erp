@@ -1,14 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import {
-  User,
-  Bell,
-  Shield,
-  HelpCircle,
-  ChevronRight,
-  LogOut,
-} from 'lucide-react'
+import { User, Bell, Shield, HelpCircle, ChevronRight, LogOut } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useRequireAppAuth } from '../_hooks/useRequireAppAuth'
 
@@ -40,11 +33,7 @@ export default function AppMorePage() {
           {menuItems.map((item, index) => {
             const Icon = item.icon
             return (
-              <button
-                key={index}
-                className="app-menu-item"
-                onClick={() => router.push(item.href)}
-              >
+              <button key={index} className="app-menu-item" onClick={() => router.push(item.href)}>
                 <div className="app-menu-item-left">
                   <div className="app-menu-icon">
                     <Icon size={20} strokeWidth={1.75} />

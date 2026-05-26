@@ -4,7 +4,7 @@
 
 import { BaseEntity } from '@/types'
 import { TableName } from '@/lib/db/schemas'
-import type {  } from '@/lib/supabase/types'
+import type {} from '@/lib/supabase/types'
 
 /**
  * Supabase 表格名稱類型（用於 .from() 方法）

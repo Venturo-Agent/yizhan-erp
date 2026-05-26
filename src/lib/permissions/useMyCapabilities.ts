@@ -43,10 +43,7 @@ export function useMyCapabilities() {
   }, [capabilitiesSet])
 
   // 精準檢查：擁有特定 capability code
-  const has = useCallback(
-    (code: string): boolean => capabilitiesSet.has(code),
-    [capabilitiesSet],
-  )
+  const has = useCallback((code: string): boolean => capabilitiesSet.has(code), [capabilitiesSet])
 
   // 模組層任一資格：用於 sidebar / route guard 的「至少能看到這模組」判斷
   // 規則：codes 中存在任一以 `${module}.` 開頭、以 `.read` 結尾的 code 就算
@@ -61,7 +58,7 @@ export function useMyCapabilities() {
       }
       return false
     },
-    [capabilitiesSet],
+    [capabilitiesSet]
   )
 
   const canWriteAnyInModule = useCallback(
@@ -74,7 +71,7 @@ export function useMyCapabilities() {
       }
       return false
     },
-    [capabilitiesSet],
+    [capabilitiesSet]
   )
 
   return useMemo(
@@ -85,6 +82,6 @@ export function useMyCapabilities() {
       canReadAnyInModule,
       canWriteAnyInModule,
     }),
-    [capabilitiesSet, loading, has, canReadAnyInModule, canWriteAnyInModule],
+    [capabilitiesSet, loading, has, canReadAnyInModule, canWriteAnyInModule]
   )
 }

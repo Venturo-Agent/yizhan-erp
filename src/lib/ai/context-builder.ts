@@ -106,7 +106,9 @@ export async function buildConversationContext(
       }
 
       if (memoryLines.length > 0) {
-        parts.push(`【客戶速記卡】（上次更新：${memory.last_summarized_at ?? '剛建立'}）\n${memoryLines.join('\n')}`)
+        parts.push(
+          `【客戶速記卡】（上次更新：${memory.last_summarized_at ?? '剛建立'}）\n${memoryLines.join('\n')}`
+        )
       }
     }
   } catch (error) {
@@ -142,11 +144,12 @@ export async function buildConversationContext(
   // 2. 對話 thread 綁定的客戶資料 + 最近訂單
   try {
     const supabase = getSupabaseAdminClient()
-    const convTable = supabase.from.bind(supabase) as unknown as (
-      table: string
-    ) => {
+    const convTable = supabase.from.bind(supabase) as unknown as (table: string) => {
       select: (cols: string) => {
-        eq: (col: string, value: string) => {
+        eq: (
+          col: string,
+          value: string
+        ) => {
           maybeSingle: () => Promise<{
             data: ConversationRow | null
             error: { message: string } | null

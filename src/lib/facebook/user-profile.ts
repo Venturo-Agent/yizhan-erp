@@ -33,7 +33,11 @@ async function fetchProfileFromGraphAPI(
     const res = await fetch(url, { method: 'GET' })
     if (!res.ok) {
       const body = await res.text().catch(() => '')
-      logger.debug('fb user profile fetch failed', { externalUserId, status: res.status, body: body.slice(0, 200) })
+      logger.debug('fb user profile fetch failed', {
+        externalUserId,
+        status: res.status,
+        body: body.slice(0, 200),
+      })
       return { name: null, pictureUrl: null }
     }
     const data = (await res.json()) as {
@@ -44,9 +48,7 @@ async function fetchProfileFromGraphAPI(
     }
     // 台灣慣用「姓 + 空格 + 名」、Meta 預設 name 是「名 姓」、有 first/last 就重組
     const name =
-      data.last_name && data.first_name
-        ? `${data.last_name} ${data.first_name}`
-        : data.name || null
+      data.last_name && data.first_name ? `${data.last_name} ${data.first_name}` : data.name || null
     return { name, pictureUrl: data.profile_pic || null }
   } catch (e) {
     logger.debug('fb user profile fetch error', { externalUserId, error: e })
@@ -73,11 +75,12 @@ export async function ensureContactProfile(args: {
   const supabase = getSupabaseAdminClient()
 
   // 檢查 conversation 現有 display_name（.bind 保 this、避免 supabase.from cast 後丟 context）
-  const convTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const convTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
         maybeSingle: () => Promise<{
           data: { display_name: string | null } | null
           error: { message: string } | null
@@ -109,12 +112,8 @@ export async function ensureContactProfile(args: {
     displayName = `${channelLabel} 用戶 ${externalUserId.slice(-4)}`
   }
 
-  const updateTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
-    update: (
-      values: { display_name?: string | null; picture_url?: string | null }
-    ) => {
+  const updateTable = supabase.from.bind(supabase) as unknown as (table: string) => {
+    update: (values: { display_name?: string | null; picture_url?: string | null }) => {
       eq: (col: string, value: string) => Promise<{ error: { message: string } | null }>
     }
   }

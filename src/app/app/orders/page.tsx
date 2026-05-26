@@ -29,11 +29,12 @@ export default function AppOrdersPage() {
           <Search size={32} />
         </div>
         <h2>訂單頁面</h2>
-        <p>即將推出<br />可在網頁版查看完整訂單</p>
-        <button
-          className="app-placeholder-btn"
-          onClick={() => router.push('/orders')}
-        >
+        <p>
+          即將推出
+          <br />
+          可在網頁版查看完整訂單
+        </p>
+        <button className="app-placeholder-btn" onClick={() => router.push('/orders')}>
           前往網頁版
         </button>
       </div>

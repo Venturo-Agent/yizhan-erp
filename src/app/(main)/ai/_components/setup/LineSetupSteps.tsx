@@ -61,7 +61,8 @@ export function StepWelcome({ onNext }: { onNext: () => void }) {
             </a>
             開、不收費）
           </li>
-          <li>該 Channel 的 <code className="px-1 bg-morandi-container/30 rounded">Channel ID</code> /
+          <li>
+            該 Channel 的 <code className="px-1 bg-morandi-container/30 rounded">Channel ID</code> /
             <code className="px-1 bg-morandi-container/30 rounded">Channel access token</code> /
             <code className="px-1 bg-morandi-container/30 rounded">Channel secret</code>
           </li>
@@ -96,8 +97,16 @@ export function StepCredentials({
   validating,
   error,
 }: {
-  credentials: { channel_id: string; channel_access_token: string; channel_secret: string; bot_greeting: string }
-  onChange: (k: 'channel_id' | 'channel_access_token' | 'channel_secret' | 'bot_greeting', v: string) => void
+  credentials: {
+    channel_id: string
+    channel_access_token: string
+    channel_secret: string
+    bot_greeting: string
+  }
+  onChange: (
+    k: 'channel_id' | 'channel_access_token' | 'channel_secret' | 'bot_greeting',
+    v: string
+  ) => void
   onBack: () => void
   onValidate: () => void
   validating: boolean
@@ -113,7 +122,8 @@ export function StepCredentials({
       <div>
         <h2 className="text-lg font-bold mb-1">填 LINE Channel 資料</h2>
         <p className="text-xs text-morandi-secondary">
-          在 LINE Developers Console → 你的 Channel → 「Basic settings」找 Channel ID 跟 Channel secret、「Messaging API」分頁找 Channel access token（按 Issue 產生）。
+          在 LINE Developers Console → 你的 Channel → 「Basic settings」找 Channel ID 跟 Channel
+          secret、「Messaging API」分頁找 Channel access token（按 Issue 產生）。
         </p>
       </div>
 
@@ -129,9 +139,12 @@ export function StepCredentials({
             />
           </div>
           <div className="flex-1 space-y-2 py-1">
-            <h4 className="text-sm font-semibold text-morandi-primary">第一步：建立 Provider（服務提供者）</h4>
+            <h4 className="text-sm font-semibold text-morandi-primary">
+              第一步：建立 Provider（服務提供者）
+            </h4>
             <p className="text-xs text-morandi-secondary">
-              點擊「<strong>Create a new provider</strong>」按鈕，輸入你的公司或組織名稱。Provider 是代表你的公司、個人或組織的實體，未來會用來建立多個 Channel。
+              點擊「<strong>Create a new provider</strong>」按鈕，輸入你的公司或組織名稱。Provider
+              是代表你的公司、個人或組織的實體，未來會用來建立多個 Channel。
             </p>
           </div>
         </div>
@@ -146,9 +159,12 @@ export function StepCredentials({
             />
           </div>
           <div className="flex-1 space-y-2 py-1">
-            <h4 className="text-sm font-semibold text-morandi-primary">第二步：填寫 Provider 名稱</h4>
+            <h4 className="text-sm font-semibold text-morandi-primary">
+              第二步：填寫 Provider 名稱
+            </h4>
             <p className="text-xs text-morandi-secondary">
-              在「<strong>Provider name</strong>」欄位輸入你的公司或組織名稱（不需要特殊字元、不超過 100 字），確認三條規則都變成綠色勾勾後，點擊「<strong>Create</strong>」建立。
+              在「<strong>Provider name</strong>」欄位輸入你的公司或組織名稱（不需要特殊字元、不超過
+              100 字），確認三條規則都變成綠色勾勾後，點擊「<strong>Create</strong>」建立。
             </p>
           </div>
         </div>
@@ -163,9 +179,13 @@ export function StepCredentials({
             />
           </div>
           <div className="flex-1 space-y-2 py-1">
-            <h4 className="text-sm font-semibold text-morandi-primary">第三步：建立 LINE 官方帳號（新制）</h4>
+            <h4 className="text-sm font-semibold text-morandi-primary">
+              第三步：建立 LINE 官方帳號（新制）
+            </h4>
             <p className="text-xs text-morandi-secondary">
-              直接建立 Messaging API Channel 已停用。現在要先去外部網站建立「<strong>LINE 官方帳號</strong>」。<br/>
+              直接建立 Messaging API Channel 已停用。現在要先去外部網站建立「
+              <strong>LINE 官方帳號</strong>」。
+              <br />
               點「<strong>Create a LINE Official Account</strong>」（會跳到 external site）。
             </p>
           </div>
@@ -181,13 +201,16 @@ export function StepCredentials({
             />
           </div>
           <div className="flex-1 space-y-2 py-1">
-            <h4 className="text-sm font-semibold text-morandi-primary">第四步：填寫 LINE 官方帳號資料</h4>
+            <h4 className="text-sm font-semibold text-morandi-primary">
+              第四步：填寫 LINE 官方帳號資料
+            </h4>
             <p className="text-xs text-morandi-secondary">
-              必填項目：<br/>
-              - <strong>帳號名稱</strong>：你的 LINE 官方帳號名稱（20 字以內）<br/>
-              - <strong>電子郵件</strong>：填 Email<br/>
-              - <strong>公司所在國家/地區</strong>：選「<strong>台灣</strong>」<br/>
-              - <strong>業種</strong>：選大分類 / 小分類（例：旅行社 / 旅行社）<br/>
+              必填項目：
+              <br />- <strong>帳號名稱</strong>：你的 LINE 官方帳號名稱（20 字以內）
+              <br />- <strong>電子郵件</strong>：填 Email
+              <br />- <strong>公司所在國家/地區</strong>：選「<strong>台灣</strong>」<br />-{' '}
+              <strong>業種</strong>：選大分類 / 小分類（例：旅行社 / 旅行社）
+              <br />
               填完點「<strong>確定</strong>」申請。
             </p>
           </div>
@@ -215,10 +238,12 @@ export function StepCredentials({
       </div>
 
       <div className="p-2 bg-morandi-gold/10 border border-morandi-gold/30 rounded-md text-xs text-morandi-secondary">
-        <strong>LINE Console 重新調整過位置，Credential 在這裡：</strong><br/>
-        - <strong>Channel ID</strong>：Basic settings 分頁<br/>
-        - <strong>Channel secret</strong>：Basic settings 分頁（旁邊有「<strong>Issue</strong>」按鈕）<br/>
-        - <strong>Channel access token</strong>：點到「<strong>Messaging API</strong>」分頁，最下方有「Channel access token」區塊，點「<strong>Issue</strong>」產生（long-lived）
+        <strong>LINE Console 重新調整過位置，Credential 在這裡：</strong>
+        <br />- <strong>Channel ID</strong>：Basic settings 分頁
+        <br />- <strong>Channel secret</strong>：Basic settings 分頁（旁邊有「<strong>Issue</strong>
+        」按鈕）
+        <br />- <strong>Channel access token</strong>：點到「<strong>Messaging API</strong>
+        」分頁，最下方有「Channel access token」區塊，點「<strong>Issue</strong>」產生（long-lived）
       </div>
 
       <div className="space-y-1.5">
@@ -430,8 +455,8 @@ export function StepDone({
       </div>
 
       <div className="rounded-md border border-morandi-muted/30 p-4 text-xs text-morandi-secondary">
-        <strong>怎麼測？</strong> 用手機加你的 LINE OA 為好友、傳「7/8 郵輪」之類的訊息、看 bot 是否回應。
-        後台 ERP 訂單頁會看到 sales_person = LINE Bot 系統 的新單。
+        <strong>怎麼測？</strong> 用手機加你的 LINE OA 為好友、傳「7/8 郵輪」之類的訊息、看 bot
+        是否回應。 後台 ERP 訂單頁會看到 sales_person = LINE Bot 系統 的新單。
       </div>
     </div>
   )

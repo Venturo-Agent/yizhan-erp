@@ -70,7 +70,7 @@ export function getCardPayUrl(result: CardOrderResult): string | undefined {
  */
 export async function createCardOrder(
   config: SinopacConfig,
-  input: CreateCardOrderInput,
+  input: CreateCardOrderInput
 ): Promise<CardOrderResult> {
   const payload: Record<string, unknown> = {
     ShopNo: config.shopNo,
@@ -105,7 +105,7 @@ export interface OrderQueryResult {
 /** 用我方訂單編號查交易狀態（webhook 收到通知後反查確認、防偽造） */
 export async function queryOrder(
   config: SinopacConfig,
-  orderNo: string,
+  orderNo: string
 ): Promise<OrderQueryResult> {
   return callApiService<OrderQueryResult>(config, 'OrderQuery', {
     ShopNo: config.shopNo,
@@ -142,7 +142,7 @@ export interface MaintainResult {
 /** 訂單維護（目前僅開放退款 Command='R'） */
 export async function maintainCardOrder(
   config: SinopacConfig,
-  input: MaintainCardOrderInput,
+  input: MaintainCardOrderInput
 ): Promise<MaintainResult> {
   return callApiService<MaintainResult>(config, 'OrderMaintain', {
     ShopNo: config.shopNo,
@@ -158,7 +158,7 @@ export async function maintainCardOrder(
 export async function refundCardOrder(
   config: SinopacConfig,
   orderNo: string,
-  opts?: { amount?: number; remark?: string },
+  opts?: { amount?: number; remark?: string }
 ): Promise<MaintainResult> {
   return maintainCardOrder(config, {
     orderNo,

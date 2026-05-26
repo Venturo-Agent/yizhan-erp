@@ -118,21 +118,17 @@ export function useLayoutContext(): UseLayoutContextResult {
       features: [],
       premium_enabled: storedPremium ?? false,
     }),
-    [storedCaps, storedPremium],
+    [storedCaps, storedPremium]
   )
 
-  const { data, isLoading } = useSWR<LayoutContextPayload>(
-    shouldFetch ? SWR_KEY : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      // mount 時必 revalidate、fallback 寫死空 features 是「等 server 回」用、不能永遠 stuck 在 fallback
-      revalidateOnMount: true,
-      dedupingInterval: 5 * 60 * 1000,
-      refreshInterval: 0,
-      fallbackData: fallback,
-    },
-  )
+  const { data, isLoading } = useSWR<LayoutContextPayload>(shouldFetch ? SWR_KEY : null, fetcher, {
+    revalidateOnFocus: false,
+    // mount 時必 revalidate、fallback 寫死空 features 是「等 server 回」用、不能永遠 stuck 在 fallback
+    revalidateOnMount: true,
+    dedupingInterval: 5 * 60 * 1000,
+    refreshInterval: 0,
+    fallbackData: fallback,
+  })
 
   const payload = data ?? fallback
 

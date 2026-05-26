@@ -2,11 +2,12 @@
 
 > **Proposer**: Max（OPENCLAW agent: main）
 > **依據**: Pass 2 判决 — 4 個財報頁 🔴 P0
+>
 > - `accounting/reports/balance-sheet/page.tsx`
 > - `accounting/reports/general-ledger/page.tsx`
 > - `accounting/reports/income-statement/page.tsx`
 > - `accounting/reports/trial-balance/page.tsx`
-> **目的**: 4 個財報頁全部直接 `supabase.from()` → 改 entity hook（SWR cache + dedupingInterval）
+>   **目的**: 4 個財報頁全部直接 `supabase.from()` → 改 entity hook（SWR cache + dedupingInterval）
 
 ---
 
@@ -14,12 +15,12 @@
 
 ### 共同模式：每頁都有兩段直接 supabase query
 
-| 頁面 | Query 1 | Query 2 |
-|---|---|---|
-| `balance-sheet/page.tsx` | `chart_of_accounts` 行51-57 | `journal_lines` 行70-86 |
-| `general-ledger/page.tsx` | `chart_of_accounts` 行77-83 | `journal_lines` 行87-99 |
+| 頁面                        | Query 1                     | Query 2                  |
+| --------------------------- | --------------------------- | ------------------------ |
+| `balance-sheet/page.tsx`    | `chart_of_accounts` 行51-57 | `journal_lines` 行70-86  |
+| `general-ledger/page.tsx`   | `chart_of_accounts` 行77-83 | `journal_lines` 行87-99  |
 | `income-statement/page.tsx` | `chart_of_accounts` 行78-84 | `journal_lines` 行88-100 |
-| `trial-balance/page.tsx` | `chart_of_accounts` 行69-75 | `journal_lines` 行79-91 |
+| `trial-balance/page.tsx`    | `chart_of_accounts` 行69-75 | `journal_lines` 行79-91  |
 
 ### 每頁都是無 SWR cache 的直接 DB query
 
@@ -46,6 +47,7 @@ const { data: accounts, error: accountsError } = await supabase
 ### 不需要 realtime（財報是 read-only 聚合查詢）
 
 財報頁的邏輯是：
+
 1. 查 chart_of_accounts（很少變動）
 2. 查 journal_lines（透過 join 聚合）
 3. 在 client 做減法/餘額計算
@@ -53,6 +55,7 @@ const { data: accounts, error: accountsError } = await supabase
 這不是 CRUD，是 OLAP-style 聚合。realtime subscription 沒有幫助（OLAP 不需要）。
 
 **但是**：SWR cache + dedupingInterval 是有用的，可以：
+
 - 避免每次進頁面都打 DB
 - 多個 user 同時查同一個 period 的財報，只打一次 DB（deduping）
 - 財報數據在 1-2 分鐘內 stale 是可接受的
@@ -194,11 +197,11 @@ export function useBalanceSheetData(asOfDate: string) {
 
 ## 對其他 3 頁的同樣修法
 
-| 頁面 | Hook 檔 | SWR key |
-|---|---|---|
-| `general-ledger/page.tsx` | `_hooks/useGeneralLedgerData.ts` | `['general-ledger', workspaceId, accountId, startDate, endDate]` |
-| `income-statement/page.tsx` | `_hooks/useIncomeStatementData.ts` | `['income-statement', workspaceId, startDate, endDate]` |
-| `trial-balance/page.tsx` | `_hooks/useTrialBalanceData.ts` | `['trial-balance', workspaceId, asOfDate]` |
+| 頁面                        | Hook 檔                            | SWR key                                                          |
+| --------------------------- | ---------------------------------- | ---------------------------------------------------------------- |
+| `general-ledger/page.tsx`   | `_hooks/useGeneralLedgerData.ts`   | `['general-ledger', workspaceId, accountId, startDate, endDate]` |
+| `income-statement/page.tsx` | `_hooks/useIncomeStatementData.ts` | `['income-statement', workspaceId, startDate, endDate]`          |
+| `trial-balance/page.tsx`    | `_hooks/useTrialBalanceData.ts`    | `['trial-balance', workspaceId, asOfDate]`                       |
 
 每個都是 `useSWR` + `dedupingInterval: 5min` + workspace_id in key（修 G 類紅線）。
 
@@ -227,25 +230,27 @@ grep "import { supabase }" src/app/\(main\)/accounting/reports/trial-balance/pag
 
 ## 影響行數 / 風險 / 回滾
 
-| 項目 | 值 |
-|---|---|
-| **新增檔** | 4 個 hook 檔（每個 ~80 行）|
-| **改動行數** | 4 個 page.tsx（每個 ~+5/-100 行，把 loadBalanceSheet 之類的拆進 hook）|
-| **風險** | 中（財報邏輯複雜、client-side 聚合計算需要回歸測試）|
-| **回滾** | git revert 8 commits（4 個 hook 新建 + 4 個 page 改寫）|
-| **測試驗證** | 1. 建一張 posted 傳票 2. 四個財報頁都即時更新（不用 F5）3. deduping：兩個 tab 同時打開只打一次 DB（看 network tab）|
-| **依賴** | 無（只動 client-side SWR，不動 DB schema）|
+| 項目         | 值                                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------------------- |
+| **新增檔**   | 4 個 hook 檔（每個 ~80 行）                                                                                         |
+| **改動行數** | 4 個 page.tsx（每個 ~+5/-100 行，把 loadBalanceSheet 之類的拆進 hook）                                              |
+| **風險**     | 中（財報邏輯複雜、client-side 聚合計算需要回歸測試）                                                                |
+| **回滾**     | git revert 8 commits（4 個 hook 新建 + 4 個 page 改寫）                                                             |
+| **測試驗證** | 1. 建一張 posted 傳票 2. 四個財報頁都即時更新（不用 F5）3. deduping：兩個 tab 同時打開只打一次 DB（看 network tab） |
+| **依賴**     | 無（只動 client-side SWR，不動 DB schema）                                                                          |
 
 ---
 
 ## 附：為什麼不走 entity hook（複雜 join 不適合 CRUD entity）
 
 `createEntityHook` 是給 CRUD 用的：
+
 - list: `supabase.from('journal_vouchers').select(...)`
 - detail: `supabase.from('journal_vouchers').select('*').eq('id', id)`
 - create/update/delete: `supabase.from('journal_vouchers').insert/update/delete`
 
 但財報的 query 是：
+
 ```sql
 SELECT chart_of_accounts.code, chart_of_accounts.name,
        SUM(journal_lines.debit_amount - journal_lines.credit_amount) as balance
@@ -262,5 +267,5 @@ GROUP BY chart_of_accounts.id
 
 ---
 
-*Draft by Max — 等待 William review + approve*
-*⚠️ 注意：此草稿尚未實際 apply 到 src/ 目錄*
+_Draft by Max — 等待 William review + approve_
+_⚠️ 注意：此草稿尚未實際 apply 到 src/ 目錄_

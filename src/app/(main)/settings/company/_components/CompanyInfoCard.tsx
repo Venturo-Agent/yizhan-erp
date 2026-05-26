@@ -143,15 +143,11 @@ export function CompanyInfoCard({
       {/* 基本資料 + 聯絡資訊 + Logo + 描述 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-4">
         <div>
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyName')}
-          </Label>
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyName')}</Label>
           <Input value={form.name} disabled className="mt-1.5 bg-morandi-container/30" />
         </div>
         <div id="field-tax_id" className="scroll-mt-24">
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyTaxId')}
-          </Label>
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyTaxId')}</Label>
           <Input
             value={form.tax_id}
             onChange={e => updateField('tax_id', e.target.value)}
@@ -183,9 +179,7 @@ export function CompanyInfoCard({
           />
         </div>
         <div id="field-address" className="md:col-span-2 scroll-mt-24">
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyAddress')}
-          </Label>
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyAddress')}</Label>
           <Input
             value={form.address}
             onChange={e => updateField('address', e.target.value)}
@@ -194,9 +188,7 @@ export function CompanyInfoCard({
           />
         </div>
         <div id="field-phone" className="scroll-mt-24">
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyPhone')}
-          </Label>
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyPhone')}</Label>
           <Input
             value={form.phone}
             onChange={e => updateField('phone', e.target.value)}
@@ -205,9 +197,7 @@ export function CompanyInfoCard({
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyFax')}
-          </Label>
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyFax')}</Label>
           <Input
             value={form.fax}
             onChange={e => updateField('fax', e.target.value)}
@@ -216,9 +206,7 @@ export function CompanyInfoCard({
           />
         </div>
         <div id="field-email" className="scroll-mt-24">
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyEmail')}
-          </Label>
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyEmail')}</Label>
           <Input
             type="email"
             value={form.email}
@@ -228,9 +216,7 @@ export function CompanyInfoCard({
           />
         </div>
         <div>
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyWebsite')}
-          </Label>
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyWebsite')}</Label>
           <Input
             value={form.website}
             onChange={e => updateField('website', e.target.value)}
@@ -238,7 +224,10 @@ export function CompanyInfoCard({
             className="mt-1.5"
           />
         </div>
-        <div id="field-logo_url" className="md:col-span-3 scroll-mt-24 pt-4 border-t border-border/40">
+        <div
+          id="field-logo_url"
+          className="md:col-span-3 scroll-mt-24 pt-4 border-t border-border/40"
+        >
           {/* 並排 layout:左欄上傳框、右欄編輯器(只有 logo 上傳後才顯示) */}
           {form.logo_url ? (
             <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-start">
@@ -294,9 +283,7 @@ export function CompanyInfoCard({
             <Landmark className="h-5 w-5 text-morandi-gold" />
             <h2 className="text-base font-semibold">結帳設定</h2>
           </div>
-          <span className="text-xs text-morandi-muted">
-            未來支援多帳戶切換（不同部門收帳）
-          </span>
+          <span className="text-xs text-morandi-muted">未來支援多帳戶切換（不同部門收帳）</span>
         </div>
 
         {/* 銀行資訊（報價單顯示） */}
@@ -364,9 +351,7 @@ export function CompanyInfoCard({
 
           {/* 預設出帳日期 */}
           <div id="field-default_billing_day_of_week" className="scroll-mt-24 max-w-xs">
-            <Label className="text-sm font-medium text-morandi-primary">
-              預設出帳日期
-            </Label>
+            <Label className="text-sm font-medium text-morandi-primary">預設出帳日期</Label>
             <select
               value={form.default_billing_day_of_week ?? ''}
               onChange={e =>
@@ -395,9 +380,7 @@ export function CompanyInfoCard({
 
           {/* 匯款手續費設定 */}
           <div className="space-y-3 pt-3 border-t border-border/30">
-            <Label className="text-sm font-medium text-morandi-primary">
-              匯款手續費分攤模式
-            </Label>
+            <Label className="text-sm font-medium text-morandi-primary">匯款手續費分攤模式</Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Average mode */}
               <label
@@ -421,7 +404,8 @@ export function CompanyInfoCard({
                   <span className="text-xs text-morandi-secondary">（公司不賺不虧）</span>
                 </div>
                 <p className="text-xs text-morandi-muted ml-6">
-                  實際手續費平均分到每筆請款、餘額（除不盡）由最後一筆吃。譬如 15 元 / 10 筆 = 9 筆 1 元 + 1 筆 6 元。
+                  實際手續費平均分到每筆請款、餘額（除不盡）由最後一筆吃。譬如 15 元 / 10 筆 = 9 筆
+                  1 元 + 1 筆 6 元。
                 </p>
               </label>
 
@@ -464,10 +448,7 @@ export function CompanyInfoCard({
                     value={form.transfer_fee_unified_amount ?? ''}
                     onChange={e => {
                       const v = e.target.value
-                      updateField(
-                        'transfer_fee_unified_amount',
-                        v === '' ? null : Number(v) || 0
-                      )
+                      updateField('transfer_fee_unified_amount', v === '' ? null : Number(v) || 0)
                     }}
                     placeholder="例如 30"
                     min={0}
@@ -478,16 +459,11 @@ export function CompanyInfoCard({
                   </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-morandi-primary">
-                    差額入賬帳戶
-                  </Label>
+                  <Label className="text-sm font-medium text-morandi-primary">差額入賬帳戶</Label>
                   <select
                     value={form.transfer_fee_overflow_account_id ?? ''}
                     onChange={e =>
-                      updateField(
-                        'transfer_fee_overflow_account_id',
-                        e.target.value || null
-                      )
+                      updateField('transfer_fee_overflow_account_id', e.target.value || null)
                     }
                     className="mt-1.5 w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
                   >
@@ -509,9 +485,7 @@ export function CompanyInfoCard({
 
           {/* 結帳稅率（公司預設、auto-save、開團獎金結算時自動帶入）*/}
           <div className="pt-3 border-t border-border/30 max-w-md">
-            <Label className="text-sm font-medium text-morandi-primary">
-              結帳稅率（%）
-            </Label>
+            <Label className="text-sm font-medium text-morandi-primary">結帳稅率（%）</Label>
             <Input
               type="number"
               value={taxRate}

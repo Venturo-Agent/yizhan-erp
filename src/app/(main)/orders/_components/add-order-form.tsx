@@ -75,9 +75,7 @@ export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange }: Ad
       {/* 選擇旅遊團（如果沒有預設 tour_id） */}
       {!tourId && (
         <div>
-          <label className="text-sm font-medium text-morandi-primary">
-            {t('selectTourLabel')}
-          </label>
+          <label className="text-sm font-medium text-morandi-primary">{t('selectTourLabel')}</label>
           <Combobox
             options={tourOptions}
             value={formData.tour_id || ''}
@@ -92,9 +90,7 @@ export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange }: Ad
 
       {/* 聯絡人 */}
       <div>
-        <label className="text-sm font-medium text-morandi-primary">
-          {t('contactPerson')}
-        </label>
+        <label className="text-sm font-medium text-morandi-primary">{t('contactPerson')}</label>
         <Input
           value={formData.contact_person || ''}
           onChange={e => updateFormData?.({ ...formData, contact_person: e.target.value })}
@@ -140,10 +136,10 @@ export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange }: Ad
           <Button type="button" variant="soft-gold" onClick={onCancel}>
             {t('cancel')}
           </Button>
-          <Button variant="soft-gold"
+          <Button
+            variant="soft-gold"
             type="submit"
             disabled={!formData.tour_id || !formData.contact_person}
-
           >
             {t('addOrder')} <span className="ml-1 text-xs opacity-70">(Enter)</span>
           </Button>

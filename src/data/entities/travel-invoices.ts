@@ -48,8 +48,7 @@ const travelInvoiceEntity = createEntityHook<TravelInvoice>('travel_invoices', {
     filterSoftDeleted: true,
   },
   slim: {
-    select:
-      'id,workspace_id,invoice_number,invoice_date,buyer_name,total_amount,status,issued_at',
+    select: 'id,workspace_id,invoice_number,invoice_date,buyer_name,total_amount,status,issued_at',
   },
   detail: {
     select: '*',

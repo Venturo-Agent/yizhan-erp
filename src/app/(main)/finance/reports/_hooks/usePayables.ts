@@ -32,7 +32,12 @@ interface PayablesStats {
   overdue_amount: number
 }
 
-const DEFAULT_STATS: PayablesStats = { count: 0, total_payable: 0, overdue_count: 0, overdue_amount: 0 }
+const DEFAULT_STATS: PayablesStats = {
+  count: 0,
+  total_payable: 0,
+  overdue_count: 0,
+  overdue_amount: 0,
+}
 
 export const usePayables = createReportHook<PayableRow, PayablesStats>({
   key: 'payables-report',
@@ -47,8 +52,12 @@ export const usePayables = createReportHook<PayableRow, PayablesStats>({
 
     if (queryError) throw new Error(queryError.message)
 
-    const supplierIds = Array.from(new Set((requests || []).map(r => r.supplier_id).filter(Boolean))) as string[]
-    const tourIds = Array.from(new Set((requests || []).map(r => r.tour_id).filter(Boolean))) as string[]
+    const supplierIds = Array.from(
+      new Set((requests || []).map(r => r.supplier_id).filter(Boolean))
+    ) as string[]
+    const tourIds = Array.from(
+      new Set((requests || []).map(r => r.tour_id).filter(Boolean))
+    ) as string[]
 
     const [suppliersRes, toursRes] = await Promise.all([
       supplierIds.length > 0
@@ -80,7 +89,7 @@ export const usePayables = createReportHook<PayableRow, PayablesStats>({
         request_code: r.code,
         supplier_id: r.supplier_id,
         supplier_name: r.supplier_id
-          ? (supplierName.get(r.supplier_id) || '(無供應商資料)')
+          ? supplierName.get(r.supplier_id) || '(無供應商資料)'
           : '(公司請款 / 無 FK)',
         tour_id: r.tour_id,
         tour_code: r.tour_id ? tourCode.get(r.tour_id) || null : null,

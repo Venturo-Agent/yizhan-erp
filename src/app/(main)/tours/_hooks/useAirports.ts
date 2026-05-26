@@ -137,10 +137,12 @@ async function fetchCountries(): Promise<CountryInfo[]> {
   }
 
   // map ref_countries 欄位到 CountryInfo（{ name, code }）
-  return (data || []).map((c: { name_zh: string | null; name_en: string | null; code: string }) => ({
-    name: c.name_zh || c.name_en || c.code,
-    code: c.code,
-  })) as CountryInfo[]
+  return (data || []).map(
+    (c: { name_zh: string | null; name_en: string | null; code: string }) => ({
+      name: c.name_zh || c.name_en || c.code,
+      code: c.code,
+    })
+  ) as CountryInfo[]
 }
 
 interface UseAirportsOptions {

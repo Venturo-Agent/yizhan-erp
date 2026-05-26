@@ -59,12 +59,16 @@ export default function LoginPage() {
     ;(async () => {
       try {
         // 第一段：本地快取有沒有 session（無網路開銷）
-        const { data: { session } } = await supabase.auth.getSession()
+        const {
+          data: { session },
+        } = await supabase.auth.getSession()
         if (cancelled || !session) return
 
         // 第二段：向 Supabase server 驗證 session 仍有效
         // （admin.updateUserById 改密後 access/refresh token 全失效、getSession 不知道）
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
         if (cancelled) return
         if (!user) {
           // 本地有 session 但 server 已 invalidate → 清掉防止 redirect 死循環
@@ -151,13 +155,9 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background via-card to-morandi-container">
       {/* eslint-disable-next-line venturo/no-forbidden-classes */}
-      <div
-        className="w-full max-w-[380px] mx-4 bg-gradient-to-t from-white to-morandi-cream rounded-[40px] px-10 py-8 border-[5px] border-white shadow-[rgba(180,160,120,0.45)_0px_30px_30px_-20px]"
-      >
+      <div className="w-full max-w-[380px] mx-4 bg-gradient-to-t from-white to-morandi-cream rounded-[40px] px-10 py-8 border-[5px] border-white shadow-[rgba(180,160,120,0.45)_0px_30px_30px_-20px]">
         {/* 標題 */}
-        <h1
-          className="text-center font-black text-[1.647rem] tracking-tight text-[var(--morandi-gold)]"
-        >
+        <h1 className="text-center font-black text-[1.647rem] tracking-tight text-[var(--morandi-gold)]">
           {t('title')}
         </h1>
         <p className="text-center text-xs text-morandi-muted mt-1">{t('subtitle')}</p>
@@ -225,7 +225,10 @@ export default function LoginPage() {
         {!showForgot ? (
           <button
             type="button"
-            onClick={() => { setShowForgot(true); setForgotEmail(email) }}
+            onClick={() => {
+              setShowForgot(true)
+              setForgotEmail(email)
+            }}
             className="mt-4 w-full text-center text-xs text-morandi-muted hover:text-morandi-secondary transition-colors"
           >
             忘記密碼？
@@ -238,7 +241,9 @@ export default function LoginPage() {
               </p>
             ) : (
               <form onSubmit={handleForgotPassword}>
-                <p className="text-xs text-morandi-secondary mb-2 text-center">輸入帳號 Email，我們會寄重設連結給你</p>
+                <p className="text-xs text-morandi-secondary mb-2 text-center">
+                  輸入帳號 Email，我們會寄重設連結給你
+                </p>
                 <input
                   type="email"
                   value={forgotEmail}

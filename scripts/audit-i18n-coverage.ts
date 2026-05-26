@@ -32,7 +32,7 @@ const EXCLUDED = [
   /Print[A-Z]/,
 ]
 
-const CJK_REGEX = /[一-鿿]/  // 中文字符範圍
+const CJK_REGEX = /[一-鿿]/ // 中文字符範圍
 
 interface FileStat {
   file: string
@@ -42,12 +42,20 @@ interface FileStat {
 
 function walk(dir: string, out: string[] = []): string[] {
   let entries: string[]
-  try { entries = readdirSync(dir) } catch { return out }
+  try {
+    entries = readdirSync(dir)
+  } catch {
+    return out
+  }
   for (const entry of entries) {
     const p = join(dir, entry)
     if (EXCLUDED.some(re => re.test(p))) continue
     let st
-    try { st = statSync(p) } catch { continue }
+    try {
+      st = statSync(p)
+    } catch {
+      continue
+    }
     if (st.isDirectory()) walk(p, out)
     else if (entry.endsWith('.tsx')) out.push(p)
   }

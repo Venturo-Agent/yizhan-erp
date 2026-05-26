@@ -59,7 +59,10 @@ export function CustomerInfoSidebar({ lineUserId }: CustomerInfoSidebarProps) {
   const [unbinding, setUnbinding] = useState(false)
 
   const handleUnbind = async () => {
-    const confirmed = await confirm('確定要解除綁定這個客戶嗎？解綁後對話跟客戶歷史訂單會脫鉤。', { title: '解除綁定', type: 'warning' })
+    const confirmed = await confirm('確定要解除綁定這個客戶嗎？解綁後對話跟客戶歷史訂單會脫鉤。', {
+      title: '解除綁定',
+      type: 'warning',
+    })
     if (!confirmed) return
     setUnbinding(true)
     try {
@@ -92,9 +95,7 @@ export function CustomerInfoSidebar({ lineUserId }: CustomerInfoSidebarProps) {
   if (error) {
     return (
       <Card className="p-4 border-status-danger/30 bg-status-danger/5">
-        <p className="text-sm text-status-danger">
-          載入失敗：{(error as Error).message}
-        </p>
+        <p className="text-sm text-status-danger">載入失敗：{(error as Error).message}</p>
       </Card>
     )
   }
@@ -152,9 +153,7 @@ export function CustomerInfoSidebar({ lineUserId }: CustomerInfoSidebarProps) {
               </div>
               <div className="flex items-baseline gap-2">
                 <Mail className="h-3 w-3 text-morandi-secondary mt-1 shrink-0" />
-                <span className="text-morandi-primary break-all">
-                  {customer.email || '-'}
-                </span>
+                <span className="text-morandi-primary break-all">{customer.email || '-'}</span>
               </div>
             </div>
           ) : (
@@ -192,9 +191,7 @@ export function CustomerInfoSidebar({ lineUserId }: CustomerInfoSidebarProps) {
                       )}
                     </div>
                     {order.tour_name && (
-                      <div className="text-morandi-secondary line-clamp-2">
-                        {order.tour_name}
-                      </div>
+                      <div className="text-morandi-secondary line-clamp-2">{order.tour_name}</div>
                     )}
                     <div className="flex items-center justify-between text-morandi-muted">
                       <span>出發：{formatDate(order.departure_date)}</span>

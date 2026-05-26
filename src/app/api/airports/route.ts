@@ -17,10 +17,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
     return ApiError.unauthorized('請先登入')
   }
 
-  const allowed = await hasCapabilityByCode(
-    auth.data.employeeId,
-    'shared_data.airports.write'
-  )
+  const allowed = await hasCapabilityByCode(auth.data.employeeId, 'shared_data.airports.write')
   if (!allowed) {
     return NextResponse.json(
       { error: '您沒有此權限（新增機場需 shared_data.airports.write capability）' },
@@ -29,10 +26,25 @@ export const POST = apiHandler(async (req: NextRequest) => {
   }
 
   const auditClient = await createApiClient()
-  await recordApiAuditContext(auditClient, { actorId: auth.data.employeeId, reason: '新增/更新機場資料' })
+  await recordApiAuditContext(auditClient, {
+    actorId: auth.data.employeeId,
+    reason: '新增/更新機場資料',
+  })
 
   const body = await req.json()
-  const { iata_code, icao_code, name_en, name_zh, city_code, city_name_en, city_name_zh, country_code, timezone, latitude, longitude } = body
+  const {
+    iata_code,
+    icao_code,
+    name_en,
+    name_zh,
+    city_code,
+    city_name_en,
+    city_name_zh,
+    country_code,
+    timezone,
+    latitude,
+    longitude,
+  } = body
 
   if (!iata_code) {
     return NextResponse.json({ error: '缺少必填欄位 iata_code' }, { status: 400 })
@@ -63,7 +75,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ iata_code })

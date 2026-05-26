@@ -36,7 +36,10 @@ export const GET = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data ?? [])

@@ -47,12 +47,7 @@ export function AddColumnInput({
           />
           <div className="flex gap-2">
             {/* 2026-05-16 QDF R51：對齊按鈕順序規則（取消左、主操作右）*/}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-7 text-xs"
-              onClick={onCancelAddColumn}
-            >
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={onCancelAddColumn}>
               {t('cancel')}
             </Button>
             <Button

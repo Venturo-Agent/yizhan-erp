@@ -63,7 +63,8 @@ export const POST = apiHandler(async (req: NextRequest) => {
   }
 
   // workspace 隔離：確認 channel 屬於 caller 的 workspace（admin client 繞過 RLS、需手動驗證）
-  const channelWorkspaceId = (memberCheck as { channels?: { workspace_id?: string } }).channels?.workspace_id
+  const channelWorkspaceId = (memberCheck as { channels?: { workspace_id?: string } }).channels
+    ?.workspace_id
   if (channelWorkspaceId !== guard.workspaceId) {
     return NextResponse.json({ error: '你不是該頻道成員' }, { status: 403 })
   }

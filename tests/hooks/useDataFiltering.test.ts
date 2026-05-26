@@ -12,11 +12,46 @@ interface TourItem extends Record<string, unknown> {
 }
 
 const tours: TourItem[] = [
-  { id: '1', name: '清邁清新假期', code: 'CNX250128A', location: 'Chiang Mai', status: 'active', total_amount: 25000 },
-  { id: '2', name: '東京賞櫻', code: 'TYO250301B', location: 'Tokyo', status: 'draft', total_amount: 60000 },
-  { id: '3', name: '京都楓葉', code: 'KIX251115A', location: 'Kyoto', status: 'active', total_amount: 80000 },
-  { id: '4', name: 'Bali Beach', code: 'DPS250410C', location: 'Bali', status: 'archived', total_amount: 45000 },
-  { id: '5', name: 'Tokyo Skyline', code: 'TYO250901D', location: 'Tokyo', status: 'active', total_amount: 70000 },
+  {
+    id: '1',
+    name: '清邁清新假期',
+    code: 'CNX250128A',
+    location: 'Chiang Mai',
+    status: 'active',
+    total_amount: 25000,
+  },
+  {
+    id: '2',
+    name: '東京賞櫻',
+    code: 'TYO250301B',
+    location: 'Tokyo',
+    status: 'draft',
+    total_amount: 60000,
+  },
+  {
+    id: '3',
+    name: '京都楓葉',
+    code: 'KIX251115A',
+    location: 'Kyoto',
+    status: 'active',
+    total_amount: 80000,
+  },
+  {
+    id: '4',
+    name: 'Bali Beach',
+    code: 'DPS250410C',
+    location: 'Bali',
+    status: 'archived',
+    total_amount: 45000,
+  },
+  {
+    id: '5',
+    name: 'Tokyo Skyline',
+    code: 'TYO250901D',
+    location: 'Tokyo',
+    status: 'active',
+    total_amount: 70000,
+  },
 ]
 
 describe('useDataFiltering', () => {
@@ -114,7 +149,14 @@ describe('useDataFiltering', () => {
       const data: TourItem[] = [
         ...tours,
         // 強制塞 null 進來測試 null guard
-        { id: '6', name: 'NoLoc', code: 'X', location: null as unknown as string, status: 'active', total_amount: 0 },
+        {
+          id: '6',
+          name: 'NoLoc',
+          code: 'X',
+          location: null as unknown as string,
+          status: 'active',
+          total_amount: 0,
+        },
       ]
       const { result } = renderHook(() =>
         useDataFiltering(data, 'all', 'tokyo', { searchFields: ['location'] })

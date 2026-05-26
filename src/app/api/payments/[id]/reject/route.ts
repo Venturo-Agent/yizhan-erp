@@ -40,10 +40,7 @@ const rejectSchema = z.object({
   reason: z.string().min(1).max(500),
 })
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
 
@@ -67,11 +64,11 @@ export async function POST(
       requestId: id,
     })
 
-    const { data: receipt, error: queryErr } = await supabase
+    const { data: receipt, error: queryErr } = (await supabase
       .from('receipts')
       .select('id, status, workspace_id')
       .eq('id', id)
-      .maybeSingle() as { data: ReceiptRow | null; error: PostgrestError | null }
+      .maybeSingle()) as { data: ReceiptRow | null; error: PostgrestError | null }
 
     if (queryErr) {
       logger.error('[payments/reject] query error:', queryErr)
@@ -93,7 +90,7 @@ export async function POST(
       )
     }
 
-    const { data: updated, error: updateErr } = await supabase
+    const { data: updated, error: updateErr } = (await supabase
       .from('receipts')
       .update({
         status: 'rejected',
@@ -104,7 +101,7 @@ export async function POST(
       })
       .eq('id', id)
       .select('id, status, rejected_reason, verified_by, verified_at')
-      .single() as { data: ReceiptUpdated | null; error: PostgrestError | null }
+      .single()) as { data: ReceiptUpdated | null; error: PostgrestError | null }
 
     if (updateErr) {
       logger.error('[payments/reject] update error:', updateErr)

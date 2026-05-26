@@ -196,9 +196,7 @@ ${JSON.stringify(allQuestions, null, 2)}
       updated_by: actorEmployeeId,
     }))
 
-    const { error: insErr } = await supabase
-      .from('rag_topic_queue')
-      .insert(rows)
+    const { error: insErr } = await supabase.from('rag_topic_queue').insert(rows)
 
     if (insErr) {
       logger.warn(`${HANDLER}: insert failed`, { workspaceId, runId, err: insErr.message })
@@ -225,7 +223,10 @@ ${JSON.stringify(allQuestions, null, 2)}
 
 function parseTopics(raw: string): AggregatedTopic[] | null {
   let cleaned = raw.trim()
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
+  cleaned = cleaned
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/```\s*$/i, '')
+    .trim()
   try {
     const parsed = JSON.parse(cleaned) as { topics?: unknown }
     if (!parsed.topics || !Array.isArray(parsed.topics)) return null
@@ -240,7 +241,9 @@ function parseTopics(raw: string): AggregatedTopic[] | null {
           ? (obj.example_questions as unknown[]).filter((x): x is string => typeof x === 'string')
           : [],
         example_conversation_ids: Array.isArray(obj.example_conversation_ids)
-          ? (obj.example_conversation_ids as unknown[]).filter((x): x is string => typeof x === 'string')
+          ? (obj.example_conversation_ids as unknown[]).filter(
+              (x): x is string => typeof x === 'string'
+            )
           : [],
         occurrence_count: typeof obj.occurrence_count === 'number' ? obj.occurrence_count : 1,
       })

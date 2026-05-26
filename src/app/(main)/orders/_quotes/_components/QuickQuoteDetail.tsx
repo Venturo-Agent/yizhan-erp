@@ -7,7 +7,7 @@ import React, { useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Save, Printer, Edit2, X, Download} from 'lucide-react'
+import { Save, Printer, Edit2, X, Download } from 'lucide-react'
 import { ResponsiveHeader } from '@/components/layout/responsive-header'
 import { Quote, QuickQuoteItem } from '@/stores/types'
 import type { Quote as PrintableQuote } from '@/types/quote.types'
@@ -218,12 +218,7 @@ export const QuickQuoteDetail: React.FC<QuickQuoteDetailProps> = ({
       {/* 嵌入模式：actions 透過 Portal 傳到 tour-quote-tab 的版本 tabs row 右側 */}
       {embedded && actionsContainer && createPortal(<ActionButtons />, actionsContainer)}
 
-      <div
-        className={cn(
-          'w-full overflow-x-auto',
-          embedded ? 'pb-4' : 'p-3 space-y-3'
-        )}
-      >
+      <div className={cn('w-full overflow-x-auto', embedded ? 'pb-4' : 'p-3 space-y-3')}>
         {/* 嵌入模式：3 個 section 合進一張大卡、共用最外層 border + rounded-xl */}
         {embedded ? (
           <div className="border border-border bg-card rounded-xl shadow-sm overflow-hidden">

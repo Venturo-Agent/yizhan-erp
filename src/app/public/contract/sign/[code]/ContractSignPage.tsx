@@ -201,7 +201,15 @@ export function ContractSignPage({ contract }: ContractSignPageProps) {
       members: contract.members,
       dailyData,
     })
-  }, [contractHtml, contract, signerAddress, signerIdNumber, signerPhone, savedSignature, dailyData])
+  }, [
+    contractHtml,
+    contract,
+    signerAddress,
+    signerIdNumber,
+    signerPhone,
+    savedSignature,
+    dailyData,
+  ])
 
   const handleConfirmSign = async () => {
     if (!signaturePreview) {
@@ -280,8 +288,14 @@ export function ContractSignPage({ contract }: ContractSignPageProps) {
         onIdNumberChange={setSignerIdNumber}
         onBack={() => setStep('preview')}
         onNext={() => {
-          if (!signerPhone.trim()) { setError('請輸入聯絡電話'); return }
-          if (!signerAddress.trim()) { setError('請輸入地址'); return }
+          if (!signerPhone.trim()) {
+            setError('請輸入聯絡電話')
+            return
+          }
+          if (!signerAddress.trim()) {
+            setError('請輸入地址')
+            return
+          }
           setError(null)
           setStep('sign')
         }}

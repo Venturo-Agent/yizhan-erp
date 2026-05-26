@@ -90,7 +90,11 @@ export function BankCombobox({
   const { has } = useMyCapabilities()
   const canCreate = has('shared_data.banks.write')
 
-  const { data: banks = [], isLoading, mutate } = useSWR<BankRef[]>('ref_banks', fetchBanks, {
+  const {
+    data: banks = [],
+    isLoading,
+    mutate,
+  } = useSWR<BankRef[]>('ref_banks', fetchBanks, {
     revalidateOnFocus: false,
     dedupingInterval: 60 * 60 * 1000, // 1 hour
   })
@@ -152,7 +156,13 @@ export function BankCombobox({
       }
       await mutate()
       onChange(code)
-      onSelect?.({ bank_code: code, bank_name: name, english_name: englishName.trim() || null, is_active: true, display_order: 999 })
+      onSelect?.({
+        bank_code: code,
+        bank_name: name,
+        english_name: englishName.trim() || null,
+        is_active: true,
+        display_order: 999,
+      })
       setCreateOpen(false)
     } catch (err) {
       logger.error('[BankCombobox] create failed:', err)
@@ -187,11 +197,14 @@ export function BankCombobox({
           loading={submitting}
           submitLabel={LABELS.SUBMIT}
         >
-          <div className='space-y-4'>
+          <div className="space-y-4">
             <div>
-              <Label htmlFor='bank-code'>{LABELS.FIELD_BANK_CODE}<span className='text-red-500'>*</span></Label>
+              <Label htmlFor="bank-code">
+                {LABELS.FIELD_BANK_CODE}
+                <span className="text-red-500">*</span>
+              </Label>
               <Input
-                id='bank-code'
+                id="bank-code"
                 value={bankCode}
                 onChange={e => setBankCode(e.target.value.replace(/\D/g, '').slice(0, 3))}
                 placeholder={LABELS.PLACEHOLDER_BANK_CODE}
@@ -199,26 +212,26 @@ export function BankCombobox({
               />
             </div>
             <div>
-              <Label htmlFor='bank-name'>{LABELS.FIELD_BANK_NAME} <span className='text-red-500'>*</span></Label>
+              <Label htmlFor="bank-name">
+                {LABELS.FIELD_BANK_NAME} <span className="text-red-500">*</span>
+              </Label>
               <Input
-                id='bank-name'
+                id="bank-name"
                 value={bankName}
                 onChange={e => setBankName(e.target.value)}
                 placeholder={LABELS.PLACEHOLDER_BANK_NAME}
               />
             </div>
             <div>
-              <Label htmlFor='bank-name-en'>{LABELS.FIELD_ENGLISH_NAME}</Label>
+              <Label htmlFor="bank-name-en">{LABELS.FIELD_ENGLISH_NAME}</Label>
               <Input
-                id='bank-name-en'
+                id="bank-name-en"
                 value={englishName}
                 onChange={e => setEnglishName(e.target.value)}
                 placeholder={LABELS.PLACEHOLDER_ENGLISH_NAME}
               />
             </div>
-            {errorMsg && (
-              <div className='text-sm text-red-600'>{errorMsg}</div>
-            )}
+            {errorMsg && <div className="text-sm text-red-600">{errorMsg}</div>}
           </div>
         </FormDialog>
       )}

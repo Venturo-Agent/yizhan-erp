@@ -115,9 +115,7 @@ export function EntityFormDialog<T extends { id?: string }>({
   const dialogTitle =
     typeof title === 'string' ? (
       <div className="flex items-center gap-3">
-        <span>
-          {isEditMode ? `${LABELS.EDIT_PREFIX}${title}` : `${LABELS.ADD_PREFIX}${title}`}
-        </span>
+        <span>{isEditMode ? `${LABELS.EDIT_PREFIX}${title}` : `${LABELS.ADD_PREFIX}${title}`}</span>
         {isEditMode && onDelete && (
           <Button
             type="button"

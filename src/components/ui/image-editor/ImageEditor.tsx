@@ -325,10 +325,14 @@ export function ImageEditor({
     const c = settings.cornerOffsets
     const d = DEFAULT_CORNER_OFFSETS
     return (
-      c.tl.x !== d.tl.x || c.tl.y !== d.tl.y ||
-      c.tr.x !== d.tr.x || c.tr.y !== d.tr.y ||
-      c.br.x !== d.br.x || c.br.y !== d.br.y ||
-      c.bl.x !== d.bl.x || c.bl.y !== d.bl.y
+      c.tl.x !== d.tl.x ||
+      c.tl.y !== d.tl.y ||
+      c.tr.x !== d.tr.x ||
+      c.tr.y !== d.tr.y ||
+      c.br.x !== d.br.x ||
+      c.br.y !== d.br.y ||
+      c.bl.x !== d.bl.x ||
+      c.bl.y !== d.bl.y
     )
   }, [settings.cornerOffsets])
 
@@ -339,8 +343,18 @@ export function ImageEditor({
     if (settings.mode !== 'perspective' || !hasCornerOffsets) return undefined
     // viewport 還沒 ResizeObserver 量好（< 10px）→ 不算 transform、避免縮成 1px 黑底
     if (viewportSize.width < 10 || viewportSize.height < 10) return undefined
-    return cornerOffsetsToPreviewMatrix(settings.cornerOffsets, viewportSize.width, viewportSize.height)
-  }, [settings.mode, settings.cornerOffsets, viewportSize.width, viewportSize.height, hasCornerOffsets])
+    return cornerOffsetsToPreviewMatrix(
+      settings.cornerOffsets,
+      viewportSize.width,
+      viewportSize.height
+    )
+  }, [
+    settings.mode,
+    settings.cornerOffsets,
+    viewportSize.width,
+    viewportSize.height,
+    hasCornerOffsets,
+  ])
 
   return (
     <Dialog open={open} onOpenChange={isOpen => !isOpen && onClose()}>
@@ -421,7 +435,11 @@ export function ImageEditor({
               className="gap-1.5"
               title="套用裁切後可繼續編輯曝光 / 視角矯正"
             >
-              {isProcessing ? <Loader2 size="0.875em" className="animate-spin" /> : <Crop size="0.875em" />}
+              {isProcessing ? (
+                <Loader2 size="0.875em" className="animate-spin" />
+              ) : (
+                <Crop size="0.875em" />
+              )}
               套用裁切
             </Button>
           )}
@@ -432,7 +450,11 @@ export function ImageEditor({
             disabled={isProcessing}
             className="gap-1.5"
           >
-            {isProcessing ? <Loader2 size="0.875em" className="animate-spin" /> : <Check size="0.875em" />}
+            {isProcessing ? (
+              <Loader2 size="0.875em" className="animate-spin" />
+            ) : (
+              <Check size="0.875em" />
+            )}
             儲存並關閉
           </Button>
         </div>

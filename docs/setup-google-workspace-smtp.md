@@ -9,11 +9,13 @@
 ## 為什麼
 
 Supabase 預設 SMTP 限制：
+
 - **30 封 / 小時**（free tier）
 - 寄件人 `noreply@mail.app.supabase.io`、看起來像詐騙
 - 信件常進 spam folder
 
 改自己的 SMTP（Google Workspace）：
+
 - **10,000 封 / 天 / user**（SMTP Relay）
 - 寄件人 `noreply@venturo.tw`、客戶信任
 - 不會被擋 spam
@@ -51,15 +53,15 @@ Supabase 預設 SMTP 限制：
 5. 勾「**Enable Custom SMTP**」
 6. 填：
 
-| 欄位 | 值 |
-|---|---|
-| **Host** | `smtp-relay.gmail.com` |
-| **Port** | `587` |
-| **Min interval** | `60` 秒 |
-| **Sender email** | `noreply@venturo.tw` |
-| **Sender name** | `Venturo ERP` |
-| **Username** | `noreply@venturo.tw` |
-| **Password** | 步驟 2 複製的 16 位 App Password（不要有空格）|
+| 欄位             | 值                                             |
+| ---------------- | ---------------------------------------------- |
+| **Host**         | `smtp-relay.gmail.com`                         |
+| **Port**         | `587`                                          |
+| **Min interval** | `60` 秒                                        |
+| **Sender email** | `noreply@venturo.tw`                           |
+| **Sender name**  | `Venturo ERP`                                  |
+| **Username**     | `noreply@venturo.tw`                           |
+| **Password**     | 步驟 2 複製的 16 位 App Password（不要有空格） |
 
 7. **Save**
 
@@ -72,6 +74,7 @@ Supabase 預設 SMTP 限制：
 5. 點連結進 reset-password 頁面、確認流程完整
 
 如果信件沒到：
+
 - Supabase Dashboard → Logs → Auth Logs 看 send 紀錄
 - Google Admin Console → Reports → Email Log Search 看出站紀錄
 - Spam folder
@@ -81,6 +84,7 @@ Supabase 預設 SMTP 限制：
 ## 進階：自訂信件範本
 
 Supabase Dashboard → Authentication → Email Templates、有 6 種範本：
+
 - Confirm signup
 - Invite user
 - Magic link
@@ -91,6 +95,7 @@ Supabase Dashboard → Authentication → Email Templates、有 6 種範本：
 每個都可以改 Subject / HTML。建議至少改 Reset password / Change email 兩個、加上 venturo 品牌色 + logo。
 
 範本變數：
+
 - `{{ .ConfirmationURL }}` — 點按連結 URL
 - `{{ .Token }}` — token（少用）
 - `{{ .SiteURL }}` — 你的 app URL
@@ -109,6 +114,7 @@ Supabase Dashboard → Authentication → Email Templates、有 6 種範本：
 ## Phase 2：若量超過 10,000 封 / 天
 
 兩個方向：
+
 1. **多開幾個 Workspace 帳號**（每個 10k）— 走多 sender 輪流
 2. **改用 Resend / SES / Postmark** — 5 萬 / 月免費（Resend）、無限量付費（SES $0.10 / 1000 封）
 

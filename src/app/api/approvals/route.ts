@@ -24,10 +24,7 @@ import { validateBody } from '@/lib/api/validation'
 import { apiHandler } from '@/lib/api/api-handler'
 import { translateDbError } from '@/lib/db-error-translate'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import {
-  sendChannelNotification,
-  NOTIFICATION_SOURCE_TYPES,
-} from '@/lib/channels/send'
+import { sendChannelNotification, NOTIFICATION_SOURCE_TYPES } from '@/lib/channels/send'
 import { logger } from '@/lib/utils/logger'
 
 const createSchema = z.object({
@@ -67,7 +64,10 @@ export const GET = apiHandler(async (request: NextRequest) => {
     .limit(100)
 
   if (scope === 'review') {
-    const canReview = await hasCapabilityByCode(auth.data.employeeId, CAPABILITIES.HR_MANAGE_EMPLOYEES)
+    const canReview = await hasCapabilityByCode(
+      auth.data.employeeId,
+      CAPABILITIES.HR_MANAGE_EMPLOYEES
+    )
     if (!canReview) return NextResponse.json({ error: '無審核權限' }, { status: 403 })
     // 預設只看 pending
     query = query.eq('status', statusFilter ?? 'pending')

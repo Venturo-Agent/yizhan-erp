@@ -15,14 +15,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import {
-  ExternalLink,
-  Copy,
-  Check,
-  Sparkles,
-  ClipboardList,
-  Clock,
-} from 'lucide-react'
+import { ExternalLink, Copy, Check, Sparkles, ClipboardList, Clock } from 'lucide-react'
 import { toast } from 'sonner'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
@@ -54,10 +47,7 @@ import {
   findBlock,
   applyAiPatch,
 } from '../[code]/display-editor/_components/canvas-utils'
-import type {
-  SelectionKey,
-  AiPatch,
-} from '../[code]/display-editor/_components/canvas-utils'
+import type { SelectionKey, AiPatch } from '../[code]/display-editor/_components/canvas-utils'
 
 // ── Props ─────────────────────────────────────────────────
 
@@ -99,7 +89,7 @@ function useBootstrap(code: string): BootstrapState {
       try {
         // Step 1: 同時拉草稿 canvas + tour 基本資料
         const [overrideRes, tourRes] = await Promise.all([
-          fetchDisplayCanvas(code).catch((err) => {
+          fetchDisplayCanvas(code).catch(err => {
             logger.warn('display-canvas API unavailable, fallback to auto-generate', {
               code,
               error: err instanceof Error ? err.message : String(err),
@@ -129,9 +119,7 @@ function useBootstrap(code: string): BootstrapState {
         if (tourRes.error || !tourRes.data) {
           setState({
             loading: false,
-            error: tourRes.error
-              ? `資料庫錯誤：${tourRes.error.message}`
-              : `查不到團號 ${code}`,
+            error: tourRes.error ? `資料庫錯誤：${tourRes.error.message}` : `查不到團號 ${code}`,
             canvas: null,
             updatedAt: null,
             published: false,
@@ -172,9 +160,7 @@ function useBootstrap(code: string): BootstrapState {
 
         const tourData: TourData = {
           ...tourRes.data,
-          itinerary: itineraryData
-            ? { ...itineraryData, daily_itinerary: enrichedDaily }
-            : null,
+          itinerary: itineraryData ? { ...itineraryData, daily_itinerary: enrichedDaily } : null,
         } as TourData
 
         let heroImage: string | null = null
@@ -223,7 +209,13 @@ function useBootstrap(code: string): BootstrapState {
         if (cancelled) return
         const message = err instanceof Error ? err.message : '載入失敗'
         logger.error('display-itinerary-tab bootstrap failed', err)
-        setState({ loading: false, error: message, canvas: null, updatedAt: null, published: false })
+        setState({
+          loading: false,
+          error: message,
+          canvas: null,
+          updatedAt: null,
+          published: false,
+        })
       }
     }
 
@@ -245,9 +237,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
 
   const previewPath = `/p/tour/${tour.code}/canvas`
   const fullUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}${previewPath}`
-      : previewPath
+    typeof window !== 'undefined' ? `${window.location.origin}${previewPath}` : previewPath
 
   const handleCopy = async () => {
     try {
@@ -275,9 +265,7 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
   if (bootstrap.error || !bootstrap.canvas) {
     return (
       <div className="flex items-center justify-center py-24">
-        <p className="text-sm text-muted-foreground">
-          {bootstrap.error ?? '無法載入預覽'}
-        </p>
+        <p className="text-sm text-muted-foreground">{bootstrap.error ?? '無法載入預覽'}</p>
       </div>
     )
   }
@@ -321,11 +309,7 @@ function ReadOnlyToolbar({
   return (
     <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 pb-2 bg-background">
       <Button variant="outline" onClick={onCopy} className="gap-2">
-        {copied ? (
-          <Check className="h-4 w-4 text-green-500" />
-        ) : (
-          <Copy className="h-4 w-4" />
-        )}
+        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
         {copied ? '已複製' : '複製連結'}
       </Button>
       <Button variant="outline" onClick={onOpen} className="gap-2">
@@ -380,7 +364,7 @@ function EditorView({
   const [publishLoading, setPublishLoading] = useState(false)
   const [unpublishLoading, setUnpublishLoading] = useState(false)
   const [selection, setSelection] = useState<SelectionKey | null>(
-    initialCanvas.sections.some((s) => s.type === 'cover') ? { kind: 'cover' } : null
+    initialCanvas.sections.some(s => s.type === 'cover') ? { kind: 'cover' } : null
   )
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
@@ -453,22 +437,14 @@ function EditorView({
         <div className="mx-1 h-5 w-px bg-border" />
 
         {/* AI 助理 */}
-        <Button
-          variant="outline"
-          onClick={() => setShowAiDialog(true)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setShowAiDialog(true)} className="gap-2">
           <Sparkles className="h-4 w-4" />
           AI 助理
         </Button>
 
         {/* 複製連結 */}
         <Button variant="outline" onClick={onCopy} className="gap-2">
-          {copied ? (
-            <Check className="h-4 w-4 text-green-500" />
-          ) : (
-            <Copy className="h-4 w-4" />
-          )}
+          {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
           {copied ? '已複製' : '複製連結'}
         </Button>
 
@@ -495,36 +471,16 @@ function EditorView({
                 目前連結永久有效。一次性連結（24h / 72h / 7 日）即將推出。
               </p>
               <div className="space-y-1.5">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  className="w-full justify-start"
-                >
+                <Button variant="outline" size="sm" disabled className="w-full justify-start">
                   24 小時後過期
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  className="w-full justify-start"
-                >
+                <Button variant="outline" size="sm" disabled className="w-full justify-start">
                   72 小時後過期
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  className="w-full justify-start"
-                >
+                <Button variant="outline" size="sm" disabled className="w-full justify-start">
                   7 日後過期
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  className="w-full justify-start"
-                >
+                <Button variant="outline" size="sm" disabled className="w-full justify-start">
                   永久有效（預設）
                 </Button>
               </div>
@@ -557,11 +513,7 @@ function EditorView({
 
         {/* 發布 */}
         {published && (
-          <Button
-            variant="outline"
-            onClick={handleUnpublish}
-            disabled={unpublishLoading}
-          >
+          <Button variant="outline" onClick={handleUnpublish} disabled={unpublishLoading}>
             {unpublishLoading ? '處理中⋯' : '取消發布'}
           </Button>
         )}
@@ -583,7 +535,7 @@ function EditorView({
           selection={selection}
           onSelect={setSelection}
           onChange={setCanvas}
-          onRequestDeleteBlock={(id) => setPendingDeleteId(id)}
+          onRequestDeleteBlock={id => setPendingDeleteId(id)}
         />
       </div>
 

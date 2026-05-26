@@ -94,7 +94,10 @@ export async function GET(request: NextRequest) {
           .from('customer_memories' as unknown as SupabaseTableName)
           .select('conversation_id, memory_json, failed_attempts')
           .eq('workspace_id', workspaceId)
-          .in('conversation_id', conversations.map(c => c.id))
+          .in(
+            'conversation_id',
+            conversations.map(c => c.id)
+          )
         const { data: memories } = await filterActive(memoryBaseQuery).returns<MemoryLite[]>()
 
         if (memories && memories.length > 0) {

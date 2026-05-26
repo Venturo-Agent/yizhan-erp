@@ -21,11 +21,13 @@ related: [[finance-spec]] [[2026-05-15-出納單完整重構-spec]]
 對齊 workspaces.transfer_fee_mode：
 
 ### average mode
+
 - 銀行實扣 N 元、平均分給「跨行」品項
 - strategy `'equal'`：整數平均、最後一筆吃尾數（15/10 = 9×1 + 1×6）
 - strategy `'proportional'`：按金額比例
 
 ### unified mode
+
 - 公司向每筆收 `unified_amount_per_item`（譬如 30）
 - 不分同行 / 跨行、所有 item 都收
 - bank_actual_fee 是「銀行實扣」、寫 disbursement_orders.total_fee
@@ -39,7 +41,7 @@ import { distributeFees, type FeeMode } from '@/lib/disbursement/fee-distributio
 const result = distributeFees({
   mode: 'average', // or 'unified'
   bank_actual_fee: 15,
-  unified_amount_per_item: 30,  // unified mode 才用
+  unified_amount_per_item: 30, // unified mode 才用
   items: [
     { id: 'a', amount: 1000, is_cross_bank: true },
     { id: 'b', amount: 2000, is_cross_bank: false },
@@ -66,7 +68,7 @@ const result = distributeFees({
 
 ## 變更
 
-| 日期 | 變更 |
-|------|------|
+| 日期       | 變更                                                 |
+| ---------- | ---------------------------------------------------- |
 | 2026-05-15 | 抽出 helper + 11 tests + batch-create swap（QDF R4） |
-| 2026-05-15 | spec 文檔（QDF R32） |
+| 2026-05-15 | spec 文檔（QDF R32）                                 |

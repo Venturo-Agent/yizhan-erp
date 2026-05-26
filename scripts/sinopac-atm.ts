@@ -8,7 +8,10 @@ import type { SinopacConfig } from '@/lib/payment-providers/sinopac/config'
 
 function reqEnv(n: string): string {
   const v = process.env[n]
-  if (!v) { console.error('缺', n); process.exit(1) }
+  if (!v) {
+    console.error('缺', n)
+    process.exit(1)
+  }
   return v
 }
 
@@ -60,7 +63,14 @@ async function main() {
   })
   const ol = (q.OrderList as Array<Record<string, unknown>> | undefined)?.[0]
   console.log('PayStatus:', ol?.PayStatus, '（1A200=待付款、1A400=付款完成）')
-  console.log('（虛擬帳號:', ol?.AtmPayNo ?? (create.ATMParam as Record<string, unknown>)?.AtmPayNo, '）')
+  console.log(
+    '（虛擬帳號:',
+    ol?.AtmPayNo ?? (create.ATMParam as Record<string, unknown>)?.AtmPayNo,
+    '）'
+  )
   console.log('\nOrderNo（記著、等 5 分鐘後再查自動付款）:', orderNo)
 }
-main().catch((e) => { console.error('失敗：', e); process.exit(1) })
+main().catch(e => {
+  console.error('失敗：', e)
+  process.exit(1)
+})

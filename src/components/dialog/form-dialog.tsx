@@ -25,7 +25,13 @@
  * ```
  */
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, type DialogLevel } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  type DialogLevel,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ReactNode } from 'react'
 import { Save, X } from 'lucide-react'
@@ -159,10 +165,11 @@ export function FormDialog({
                       <X size="1em" />
                       {cancelLabel}
                     </Button>
-                    <Button variant="soft-gold"
+                    <Button
+                      variant="soft-gold"
                       type="submit"
                       disabled={loading || submitDisabled}
- className="gap-2"
+                      className="gap-2"
                     >
                       <Save size="1em" />
                       {loading ? '處理中...' : submitLabel}

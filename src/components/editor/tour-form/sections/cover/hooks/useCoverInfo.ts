@@ -1,7 +1,10 @@
 'use client'
 import { useMemo } from 'react'
 import { TourFormData, CoverStyleType, FlightStyleType } from '../../../types'
-import { useTemplates, getTemplateColor } from '@/app/(main)/tours/[code]/_itinerary/_hooks/useTemplates'
+import {
+  useTemplates,
+  getTemplateColor,
+} from '@/app/(main)/tours/[code]/_itinerary/_hooks/useTemplates'
 
 interface UseCoverInfoProps {
   data: TourFormData

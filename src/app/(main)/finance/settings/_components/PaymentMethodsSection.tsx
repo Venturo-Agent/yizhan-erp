@@ -15,28 +15,13 @@ import {
   useSensors,
   type DragEndEvent,
 } from '@dnd-kit/core'
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from '@dnd-kit/sortable'
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 import { COMMON_MESSAGES } from '@/constants/messages'
 import { useTranslations } from 'next-intl'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from './shared-table'
-import {
-  PAGE_LABELS,
-  type PaymentMethod,
-  type ChartOfAccount,
-} from './types'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './shared-table'
+import { PAGE_LABELS, type PaymentMethod, type ChartOfAccount } from './types'
 import { SortableMethodRow } from './SortableMethodRow'
 import { MethodDialog } from './MethodDialog'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -77,8 +62,7 @@ export function PaymentMethodsSection({
 
   // 防連點 per-row loading 狀態（key = method.id）
   const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({})
-  const setLoading = (id: string, v: boolean) =>
-    setRowLoading(prev => ({ ...prev, [id]: v }))
+  const setLoading = (id: string, v: boolean) => setRowLoading(prev => ({ ...prev, [id]: v }))
 
   // ===== 拖曳排序 =====
   const sensors = useSensors(
@@ -278,7 +262,10 @@ export function PaymentMethodsSection({
               <TableBody>
                 {list.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={hasAccounting ? 9 : 7} className="text-center py-8 text-morandi-muted">
+                    <TableCell
+                      colSpan={hasAccounting ? 9 : 7}
+                      className="text-center py-8 text-morandi-muted"
+                    >
                       {emptyText}
                     </TableCell>
                   </TableRow>

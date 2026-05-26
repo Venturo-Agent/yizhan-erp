@@ -10,7 +10,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 
 type Channel = 'line' | 'facebook' | 'instagram'
 
-const CHANNELS: { value: Channel; label: string; icon: typeof Bot; brand: string; disabled?: boolean }[] = [
+const CHANNELS: {
+  value: Channel
+  label: string
+  icon: typeof Bot
+  brand: string
+  disabled?: boolean
+}[] = [
   { value: 'line', label: 'LINE', icon: Bot, brand: 'text-[#06c755]' },
   { value: 'facebook', label: 'Facebook', icon: Facebook, brand: 'text-[#1877f2]' },
   { value: 'instagram', label: 'Instagram', icon: Instagram, brand: 'text-[#e4405f]' },
@@ -37,7 +43,7 @@ export function AiSetupTab() {
       {/* Sub-tab 切三通路 */}
       <div className="shrink-0 flex items-center gap-2 px-6 py-3 border-b border-morandi-muted/20 bg-morandi-container/20">
         <span className="text-xs font-medium text-morandi-muted mr-2">通路：</span>
-        {CHANNELS.map((c) => {
+        {CHANNELS.map(c => {
           const isActive = active === c.value
           const Icon = c.icon
           return (
@@ -50,8 +56,8 @@ export function AiSetupTab() {
                     isActive
                       ? 'bg-white text-morandi-primary shadow-sm border border-morandi-muted/20'
                       : c.disabled
-                      ? 'text-morandi-muted cursor-not-allowed opacity-60'
-                      : 'text-morandi-secondary hover:text-morandi-primary hover:bg-white/50'
+                        ? 'text-morandi-muted cursor-not-allowed opacity-60'
+                        : 'text-morandi-secondary hover:text-morandi-primary hover:bg-white/50'
                   )}
                 >
                   <Icon className={cn('w-4 h-4', isActive ? c.brand : '')} strokeWidth={1.5} />

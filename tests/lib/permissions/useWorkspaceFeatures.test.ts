@@ -52,10 +52,7 @@ vi.mock('@/lib/auth/useLayoutContext', () => ({
 // Load SUT
 // ============================================================
 
-import {
-  useWorkspaceFeatures,
-  useVisibleModuleTabs,
-} from '@/lib/permissions/hooks'
+import { useWorkspaceFeatures, useVisibleModuleTabs } from '@/lib/permissions/hooks'
 
 // ============================================================
 // Helpers
@@ -304,9 +301,7 @@ describe('useVisibleModuleTabs', () => {
       { value: 'b', label: 'B' },
     ] as const
 
-    const { result } = renderHook(() =>
-      useVisibleModuleTabs('not-a-real-module', tabs),
-    )
+    const { result } = renderHook(() => useVisibleModuleTabs('not-a-real-module', tabs))
 
     expect(result.current).toHaveLength(2)
   })

@@ -60,9 +60,14 @@ export function OnePageView({
                     系統按 bank_accounts.cross_bank_fee × unique payer 自動算
                     = 0 時顯示警告引導 user 去設定 */}
                 {b.total_fee > 0 ? (
-                  <span className="text-morandi-secondary">手續費 NT$ {b.total_fee.toLocaleString()}</span>
+                  <span className="text-morandi-secondary">
+                    手續費 NT$ {b.total_fee.toLocaleString()}
+                  </span>
                 ) : (
-                  <span className="text-status-danger text-xs" title="該帳戶未設跨行手續費、請到「公司設定 → 銀行帳戶」填寫">
+                  <span
+                    className="text-status-danger text-xs"
+                    title="該帳戶未設跨行手續費、請到「公司設定 → 銀行帳戶」填寫"
+                  >
                     ⚠ 未設手續費
                   </span>
                 )}

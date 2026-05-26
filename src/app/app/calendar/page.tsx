@@ -29,11 +29,12 @@ export default function AppCalendarPage() {
           <Plus size={32} />
         </div>
         <h2>行事曆頁面</h2>
-        <p>即將推出<br />可在網頁版查看完整行事曆</p>
-        <button
-          className="app-placeholder-btn"
-          onClick={() => router.push('/calendar')}
-        >
+        <p>
+          即將推出
+          <br />
+          可在網頁版查看完整行事曆
+        </p>
+        <button className="app-placeholder-btn" onClick={() => router.push('/calendar')}>
           前往網頁版
         </button>
       </div>

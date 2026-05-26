@@ -14,11 +14,7 @@ import { TodoSidebar } from './TodoSidebar'
 import { SubtasksTab } from './SubtasksTab'
 import { DetailsTab } from './DetailsTab'
 import { useAuthStore } from '@/stores/auth-store'
-import {
-  useEmployeesSlim,
-  useToursSlim,
-  useOrdersSlim,
-} from '@/data'
+import { useEmployeesSlim, useToursSlim, useOrdersSlim } from '@/data'
 import { cn } from '@/lib/utils'
 import type { ComboboxOption } from '@/components/ui/combobox'
 import { useTourOptions } from '@/hooks'
@@ -85,18 +81,14 @@ export function TodoExpandedView({ todo, onUpdate, onClose, onDelete }: TodoExpa
   const handleSubtaskToggle = (subtaskId: string) => {
     if (!canEdit) return
     onUpdate({
-      sub_tasks: subTasks.map(st =>
-        st.id === subtaskId ? { ...st, done: !st.done } : st
-      ),
+      sub_tasks: subTasks.map(st => (st.id === subtaskId ? { ...st, done: !st.done } : st)),
     })
   }
 
   const handleSubtaskDone = (subtaskId: string) => {
     if (!canEdit) return
     onUpdate({
-      sub_tasks: subTasks.map(st =>
-        st.id === subtaskId ? { ...st, done: true } : st
-      ),
+      sub_tasks: subTasks.map(st => (st.id === subtaskId ? { ...st, done: true } : st)),
     })
     setExpandedSubtaskIds(prev => {
       const next = new Set(prev)
@@ -143,7 +135,7 @@ export function TodoExpandedView({ todo, onUpdate, onClose, onDelete }: TodoExpa
     order?: { id: string; order_number: string }
   }) => {
     const newRelatedItems = [
-      ...todo.related_items?.filter(r => r.type !== 'group' && r.type !== 'order') || [],
+      ...(todo.related_items?.filter(r => r.type !== 'group' && r.type !== 'order') || []),
       { type: 'group' as const, id: tour.id, title: tour.code },
     ]
     if (tour.order) {

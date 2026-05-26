@@ -29,10 +29,7 @@ interface HappyPersonaRow {
   updated_at: string
 }
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
     if (!guard.ok) return guard.response
@@ -72,10 +69,7 @@ const putSchema = z.object({
   is_active: z.boolean().optional(),
 })
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
     if (!guard.ok) return guard.response
@@ -91,20 +85,18 @@ export async function PUT(
     const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
 
     // upsert by (workspace_id, channel_type='happy')
-    const { error } = await supabase
-      .from('workspace_ai_agents')
-      .upsert(
-        {
-          workspace_id: workspaceId,
-          channel_type: 'happy',
-          brand_description: parsed.data.brand_description ?? null,
-          system_prompt_override: parsed.data.system_prompt_override ?? null,
-          is_active: parsed.data.is_active ?? true,
-          data_sources: {},
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'workspace_id,channel_type' }
-      )
+    const { error } = await supabase.from('workspace_ai_agents').upsert(
+      {
+        workspace_id: workspaceId,
+        channel_type: 'happy',
+        brand_description: parsed.data.brand_description ?? null,
+        system_prompt_override: parsed.data.system_prompt_override ?? null,
+        is_active: parsed.data.is_active ?? true,
+        data_sources: {},
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'workspace_id,channel_type' }
+    )
 
     if (error) {
       logger.error('PUT happy-persona error', { error })

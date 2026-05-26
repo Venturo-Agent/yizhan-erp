@@ -43,10 +43,7 @@ interface MemoryRow {
 
 const TABLE = 'customer_memories' as unknown as SupabaseTableName
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_READ)
     if (!guard.ok) return guard.response
@@ -62,7 +59,9 @@ export async function GET(
     const supabase = await createApiClient()
     const baseQuery = supabase
       .from(TABLE)
-      .select('id, memory_json, last_summarized_message_count, last_summarized_at, failed_attempts, last_error, created_at, updated_at')
+      .select(
+        'id, memory_json, last_summarized_message_count, last_summarized_at, failed_attempts, last_error, created_at, updated_at'
+      )
       .eq('conversation_id', conversationId)
       .eq('workspace_id', workspaceId)
     const { data, error } = await filterActive(baseQuery).maybeSingle<MemoryRow>()
@@ -79,10 +78,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
     if (!guard.ok) return guard.response
@@ -101,18 +97,16 @@ export async function PATCH(
     const supabase = await createApiClient()
 
     // upsert：沒卡建一張、有卡就更新
-    const { error } = await supabase
-      .from(TABLE)
-      .upsert(
-        {
-          workspace_id: workspaceId,
-          conversation_id: conversationId,
-          memory_json: validation.data.memory_json,
-          updated_by: guard.employeeId ?? undefined,
-          updated_at: new Date().toISOString(),
-        } as never,
-        { onConflict: 'conversation_id' }
-      )
+    const { error } = await supabase.from(TABLE).upsert(
+      {
+        workspace_id: workspaceId,
+        conversation_id: conversationId,
+        memory_json: validation.data.memory_json,
+        updated_by: guard.employeeId ?? undefined,
+        updated_at: new Date().toISOString(),
+      } as never,
+      { onConflict: 'conversation_id' }
+    )
 
     if (error) {
       logger.error('PATCH memory error', { error })

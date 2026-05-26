@@ -27,7 +27,9 @@ import { useTranslations } from 'next-intl'
 // Dynamic imports for dialogs (reduce initial bundle)
 const AddRequestDialog = dynamic(
   () =>
-    import('@/app/(main)/finance/requests/_components/AddRequestDialog').then(m => m.AddRequestDialog),
+    import('@/app/(main)/finance/requests/_components/AddRequestDialog').then(
+      m => m.AddRequestDialog
+    ),
   { loading: () => null }
 )
 
@@ -126,7 +128,7 @@ export default function RequestsPage() {
     setSelectedRequest(request)
   }
 
-  if (permLoading) return null  // ModuleGuard 已在外層顯示 loading
+  if (permLoading) return null // ModuleGuard 已在外層顯示 loading
   // 沒有任何 capability → 整頁擋
   if (!canTour && !canCompany && !canSalary) return <UnauthorizedPage />
 

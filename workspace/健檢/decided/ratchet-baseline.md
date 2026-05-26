@@ -8,6 +8,7 @@
 ## 為什麼這份文件存在
 
 5/19 SWR 健檢時、抽象層蓋好但 0 個 caller 在用。為了不讓「未來再加新違規」，需要 ratchet（棘輪）機制：
+
 1. 凍結現有違規（已有的不擋）
 2. 新加違規 → ESLint error → CI 擋 PR
 3. 修完的違規自動從 baseline 移除（不可加回）
@@ -18,13 +19,13 @@
 
 ## 現況快照（2026-05-20 19:30）
 
-| 指標 | 數 |
-|---|---|
-| Baseline 檔 | `.eslint-suppressions.json`（350 行）|
-| 違規檔數 | 68 |
-| `venturo/no-direct-supabase-writes` 違規數 | 127（53 檔）|
-| `venturo/no-direct-useswr-in-pages` 違規數 | 18（18 檔）|
-| 合計違規 | **145** |
+| 指標                                       | 數                                    |
+| ------------------------------------------ | ------------------------------------- |
+| Baseline 檔                                | `.eslint-suppressions.json`（350 行） |
+| 違規檔數                                   | 68                                    |
+| `venturo/no-direct-supabase-writes` 違規數 | 127（53 檔）                          |
+| `venturo/no-direct-useswr-in-pages` 違規數 | 18（18 檔）                           |
+| 合計違規                                   | **145**                               |
 
 ---
 
@@ -72,16 +73,19 @@
 ### 寫新 code 撞到 ESLint error
 
 報錯如下：
+
 ```
 error  Direct useSWR in page detected — use entity hook instead  venturo/no-direct-useswr-in-pages
 ```
 
 **正確做法**：
+
 1. 翻 `src/data/entities/*.ts` 找對應 entity hook
 2. 沒有 → 補一個（用 `createEntityHook` from `src/data/core/createEntityHook.ts`）
 3. 改寫頁面用 entity hook
 
 **不要做的**：
+
 - ❌ 用 `// eslint-disable-next-line` 繞過
 - ❌ 手動加 `.eslint-suppressions.json` 凍結
 
@@ -102,18 +106,21 @@ error  Direct useSWR in page detected — use entity hook instead  venturo/no-di
 ## 未來該升級的 rules（pending decisions）
 
 ### 1. `form-dialog-loading-required` — warn → error
+
 - 現況：warn 級、不擋 PR
 - 升級成本：對 codebase grep 出 N 處未傳 loading 的 FormDialog、凍結 baseline、升 error
 - 風險：低
 - 工時：30 分鐘
 
 ### 2. 新 rule：`no-svar-in-realtime-handler`
+
 - 用途：防 5/19 useTourEdit 那種 stale closure bug
 - 寫法：偵測 `useRealtimeSync` callback 內引用未 ref 的變數
 - 工時：3-5 小時（新寫 ESLint rule）
 
 ### 3. 新 rule：`no-deprecated-imports`
-- 用途：偵測引用已廢的 module（譬如 5/14 已廢的 bot/* 內容）
+
+- 用途：偵測引用已廢的 module（譬如 5/14 已廢的 bot/\* 內容）
 - 寫法：白名單列已廢 import path
 - 工時：1 小時
 
@@ -126,6 +133,7 @@ error  Direct useSWR in page detected — use entity hook instead  venturo/no-di
 **要不要把 baseline 變更也加 CI 守門**（防有人手 patch baseline 加新 supression）？
 
 選項：
+
 - **A**：加 check 比對 baseline 跟 main 分支、新 supression 必須有 commit 說明
 - **B**：保持現狀（信任 prune + reviewer）
 
@@ -136,6 +144,7 @@ error  Direct useSWR in page detected — use entity hook instead  venturo/no-di
 ## ratchet 哲學（給 William 看）
 
 「**抽象層蓋好但沒人用**」這個 5/19 問題、靠 ratchet 解決：
+
 - **不要動現有的 145 違規**：太多、修要 1-2 週工
 - **不要再加新違規**：CI 擋
 - **慢慢清舊違規**：時間到自然 0
@@ -143,6 +152,7 @@ error  Direct useSWR in page detected — use entity hook instead  venturo/no-di
 預估 1-2 個月可清光（每週修 10-20 處）。
 
 跟「整個 codebase 砍掉重寫」對比：
+
 - 重寫：3-6 個月、停止新功能
 - ratchet：日常工作中漸進清、不影響新功能
 

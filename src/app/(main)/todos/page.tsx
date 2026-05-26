@@ -113,7 +113,9 @@ export default function TodosPage() {
   // 按 column_id 分組
   const todosByColumn = useMemo(() => {
     const map: Record<string, Todo[]> = {}
-    columns.forEach(col => { map[col.id] = [] })
+    columns.forEach(col => {
+      map[col.id] = []
+    })
     const defaultCol = columns.find(c => c.mapped_status === 'pending') || columns[0]
     visibleTodos.forEach(todo => {
       const colId = todo.column_id || defaultCol?.id
@@ -189,7 +191,9 @@ export default function TodosPage() {
       {/* 看板 */}
       <div className="h-full flex flex-col">
         {columnsLoading ? (
-          <div className="flex-1 flex items-center justify-center text-morandi-muted">載入中...</div>
+          <div className="flex-1 flex items-center justify-center text-morandi-muted">
+            載入中...
+          </div>
         ) : (
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="board" type="column" direction="horizontal">
@@ -213,11 +217,19 @@ export default function TodosPage() {
                         editingColumnName={editingColumnName}
                         currentUserId={user?.id}
                         getEmployeeName={getEmployeeName}
-                        onStartQuickAdd={id => { setQuickAddColumn(id); setQuickAddValue('') }}
+                        onStartQuickAdd={id => {
+                          setQuickAddColumn(id)
+                          setQuickAddValue('')
+                        }}
                         onCancelQuickAdd={() => setQuickAddColumn(null)}
                         onQuickAddValueChange={setQuickAddValue}
-                        onQuickAdd={id => handleQuickAdd(id, quickAddColumn, () => setQuickAddColumn(null))}
-                        onStartEditColumn={(id, name) => { setEditingColumnId(id); setEditingColumnName(name) }}
+                        onQuickAdd={id =>
+                          handleQuickAdd(id, quickAddColumn, () => setQuickAddColumn(null))
+                        }
+                        onStartEditColumn={(id, name) => {
+                          setEditingColumnId(id)
+                          setEditingColumnName(name)
+                        }}
                         onEditingColumnNameChange={setEditingColumnName}
                         onRenameColumn={handleRenameColumn}
                         onCancelEditColumn={() => setEditingColumnId(null)}
@@ -241,7 +253,10 @@ export default function TodosPage() {
                       addingColumnInFlight={addingColumnInFlight}
                       onNewColumnNameChange={setNewColumnName}
                       onAddColumn={handleAddColumn}
-                      onCancelAddColumn={() => { setIsAddingColumn(false); setNewColumnName('') }}
+                      onCancelAddColumn={() => {
+                        setIsAddingColumn(false)
+                        setNewColumnName('')
+                      }}
                       onStartAddColumn={() => setIsAddingColumn(true)}
                     />
                   </div>
@@ -253,20 +268,28 @@ export default function TodosPage() {
       </div>
 
       {/* 展開卡片 */}
-      {expandedTodo && (() => {
-        const todo = todos?.find(t => t.id === expandedTodo)
-        if (!todo) return null
-        return (
-          <TodoExpandedView
-            todo={todo}
-            onUpdate={async updates => {
-              try { await updateTodo(expandedTodo, updates) } catch { /* useTodos 已處理回滾 */ }
-            }}
-            onClose={() => setExpandedTodo(null)}
-            onDelete={() => { setExpandedTodo(null); handleDeleteTodo(todo) }}
-          />
-        )
-      })()}
+      {expandedTodo &&
+        (() => {
+          const todo = todos?.find(t => t.id === expandedTodo)
+          if (!todo) return null
+          return (
+            <TodoExpandedView
+              todo={todo}
+              onUpdate={async updates => {
+                try {
+                  await updateTodo(expandedTodo, updates)
+                } catch {
+                  /* useTodos 已處理回滾 */
+                }
+              }}
+              onClose={() => setExpandedTodo(null)}
+              onDelete={() => {
+                setExpandedTodo(null)
+                handleDeleteTodo(todo)
+              }}
+            />
+          )
+        })()}
 
       {/* 新增 Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>

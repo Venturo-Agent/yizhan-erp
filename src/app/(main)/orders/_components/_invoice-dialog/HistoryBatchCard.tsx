@@ -24,12 +24,21 @@ export function HistoryBatchCard({ batch, link, copied, onCopy }: HistoryBatchCa
     if (batch.status === 'cancelled')
       return { label: '已取消', cls: 'bg-muted text-morandi-secondary border-border' }
     if (batch.status === 'paid')
-      return { label: '已付清', cls: 'bg-morandi-green/10 text-morandi-green border-morandi-green/30' }
+      return {
+        label: '已付清',
+        cls: 'bg-morandi-green/10 text-morandi-green border-morandi-green/30',
+      }
     if (isExpired)
       return { label: '連結過期', cls: 'bg-morandi-red/10 text-morandi-red border-morandi-red/30' }
     if (batch.status === 'partial')
-      return { label: '部分付款', cls: 'bg-status-warning-bg text-status-warning border-status-warning/30' }
-    return { label: '待付', cls: 'bg-morandi-gold-light/40 text-morandi-primary border-morandi-gold/30' }
+      return {
+        label: '部分付款',
+        cls: 'bg-status-warning-bg text-status-warning border-status-warning/30',
+      }
+    return {
+      label: '待付',
+      cls: 'bg-morandi-gold-light/40 text-morandi-primary border-morandi-gold/30',
+    }
   })()
 
   return (
@@ -70,13 +79,8 @@ export function HistoryBatchCard({ batch, link, copied, onCopy }: HistoryBatchCa
       {batch.invoices.length > 0 && (
         <div className="space-y-0.5 mt-1.5 pt-1.5 border-t border-border/50">
           {batch.invoices.map(inv => (
-            <div
-              key={inv.id}
-              className="flex items-center justify-between text-xs"
-            >
-              <span className="text-morandi-secondary truncate flex-1">
-                {inv.member_name}
-              </span>
+            <div key={inv.id} className="flex items-center justify-between text-xs">
+              <span className="text-morandi-secondary truncate flex-1">{inv.member_name}</span>
               <span
                 className={`tabular-nums ${
                   inv.status === 'paid'

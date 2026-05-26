@@ -81,9 +81,7 @@ function resolveCategories(
   return cats
 }
 
-export function useRequestsListView(
-  params: UseRequestsListViewParams
-): UseRequestsListViewResult {
+export function useRequestsListView(params: UseRequestsListViewParams): UseRequestsListViewResult {
   const {
     page,
     pageSize,

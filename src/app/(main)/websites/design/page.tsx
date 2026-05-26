@@ -73,9 +73,7 @@ export default function WebsiteDesignPage() {
           <div className="text-xs font-semibold text-morandi-secondary uppercase tracking-wider mb-2">
             屬性
           </div>
-          <div className="text-xs text-morandi-muted py-8 text-center">
-            選取元件後顯示屬性
-          </div>
+          <div className="text-xs text-morandi-muted py-8 text-center">選取元件後顯示屬性</div>
         </aside>
       </div>
     </div>

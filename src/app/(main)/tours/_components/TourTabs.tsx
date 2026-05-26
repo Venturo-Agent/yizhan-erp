@@ -84,7 +84,9 @@ const TourDisplayItineraryTab = dynamic(
 const TourContractTab = ({ tour: _tour }: { tour: unknown }) => {
   const t = useTranslations('tour')
   return (
-    <div className="text-sm text-morandi-secondary text-center py-12">{t('tabContractRebuildNotice')}</div>
+    <div className="text-sm text-morandi-secondary text-center py-12">
+      {t('tabContractRebuildNotice')}
+    </div>
   )
 }
 

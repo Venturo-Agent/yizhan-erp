@@ -246,11 +246,7 @@ export function ActivitiesSection({
               </button>
             </>
           )}
-          <Button
-            onClick={() => onOpenAttractionSelector(dayIndex)}
-            size="xs"
-            variant="soft-gold"
-          >
+          <Button onClick={() => onOpenAttractionSelector(dayIndex)} size="xs" variant="soft-gold">
             {COMP_EDITOR_LABELS.SELECT_1031}
           </Button>
           <Button onClick={() => addActivity(dayIndex)} size="xs" variant="secondary">

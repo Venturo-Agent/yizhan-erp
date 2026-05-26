@@ -19,7 +19,7 @@ async function requireTenantAdmin(): Promise<
       ok: false,
       response: NextResponse.json(
         { error: ctx.status === 401 ? '請先登入' : '無權限操作' },
-        { status: ctx.status },
+        { status: ctx.status }
       ),
     }
   }
@@ -53,7 +53,10 @@ export const GET = apiHandler(async (request: NextRequest) => {
 
     if (error) {
       const t = translateDbError(error)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
     return NextResponse.json(data)
   }
@@ -64,7 +67,10 @@ export const GET = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -83,7 +89,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
   const ctx = await getApiContext({ capabilityCode: 'workspaces.write' })
   const supabaseForAudit = await createApiClient()
   if (ctx.ok) {
-    await recordApiAuditContext(supabaseForAudit, { actorId: ctx.employee_id, reason: '更新租戶功能開關' })
+    await recordApiAuditContext(supabaseForAudit, {
+      actorId: ctx.employee_id,
+      reason: '更新租戶功能開關',
+    })
   }
 
   const body = await request.json()
@@ -106,7 +115,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
 
     if (wsError) {
       const t = translateDbError(wsError)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
   }
 
@@ -133,7 +145,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ success: true })

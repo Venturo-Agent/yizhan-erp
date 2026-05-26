@@ -11,9 +11,10 @@
 
 William 拍板：「沒有滿分要怎麼進步、怎麼升級？」
 5 維度矩陣現況：
+
 - 5/5：0 module
 - 4.5/5：calendar、visas（最接近）
-- 4/5：channels、customers、orders、tours、todos、tour_attributes、marketing、hr、ai_hub、addon_data_*
+- 4/5：channels、customers、orders、tours、todos、tour*attributes、marketing、hr、ai_hub、addon_data*\*
 - 3.5/5：database、documents、esim、office、hr_salary_settlement、platform_integrations、workspaces
 - 3/5：settings、shared_data_management
 - 2.5/5：accounting、archive-management、finance、hr_bonus_settlement
@@ -27,15 +28,18 @@ William 拍板：「沒有滿分要怎麼進步、怎麼升級？」
 對每個非 5/5 module（= 全部 27 個）、產出一份「升級書」（upgrade plan）：
 
 ### 每份升級書格式
+
 路徑：`workspace/健檢/pending/upgrades/{module}-to-5of5.md`
 
 內容：
+
 ```markdown
 # {module} 升級到 5/5 計劃
 
 ## 當前分數：X/5（依據：5dim 矩陣）
 
 ## 5 維度狀態
+
 - 讀取效能：✅ / ⚠️ / ❌（具體缺什麼）
 - 資安：✅ / ⚠️ / ❌
 - 架構：✅ / ⚠️ / ❌
@@ -43,21 +47,26 @@ William 拍板：「沒有滿分要怎麼進步、怎麼升級？」
 - 清理：✅ / ⚠️ / ❌（unused exports/files、dead code）
 
 ## 升 5/5 具體 actions（最簡可行）
+
 1. {action 1} — 影響檔 + 預估工時
 2. {action 2} — ...
 3. ...
 
 ## 總工時
+
 N 小時 / 人天
 
 ## 預期難度
+
 低 / 中 / 高 + 風險
 
 ## 推薦執行順序
+
 給 William 看的 — 我建議先做哪個 action
 ```
 
 ### 範圍紀律
+
 - 27 個 module 都要做、不准跳
 - 每份升級書短而精（200-300 行就夠、不要寫成長篇大論）
 - 用業務語言寫 William 看得懂的「為什麼這個 action 重要」

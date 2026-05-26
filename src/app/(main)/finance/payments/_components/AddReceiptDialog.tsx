@@ -217,27 +217,20 @@ export function AddReceiptDialog({
         if (isConfirmed) {
           const firstItem = paymentItems[0]
           const oldActual = Number(editingReceipt.actual_amount || 0)
-          const oldFees = Number(
-            (editingReceipt as unknown as { fees?: number | null }).fees || 0
-          )
+          const oldFees = Number((editingReceipt as unknown as { fees?: number | null }).fees || 0)
           const newActual = Number(firstItem?.actual_amount || 0)
           const newFees = Number(firstItem?.fees || 0)
 
           if (oldActual !== newActual || oldFees !== newFees) {
-            const ts = new Date()
-              .toLocaleString('zh-TW', { hour12: false })
-              .replace(/\//g, '-')
+            const ts = new Date().toLocaleString('zh-TW', { hour12: false }).replace(/\//g, '-')
             const name =
               user?.display_name ||
               user?.chinese_name ||
               user?.email ||
               (user?.id ? user.id.slice(0, 8) : 'unknown')
             const auditLine = `[${ts} ${name} 覆蓋] 實收 ${oldActual} → ${newActual}, 手續費 ${oldFees} → ${newFees}`
-            const newNotes =
-              (firstItem?.notes ? firstItem.notes + '\n' : '') + auditLine
-            submitItems = paymentItems.map((it, i) =>
-              i === 0 ? { ...it, notes: newNotes } : it
-            )
+            const newNotes = (firstItem?.notes ? firstItem.notes + '\n' : '') + auditLine
+            submitItems = paymentItems.map((it, i) => (i === 0 ? { ...it, notes: newNotes } : it))
           }
         }
 
@@ -280,7 +273,10 @@ export function AddReceiptDialog({
       })
 
       toast.success(t('receiptCreateSuccess'), {
-        description: t('receiptCreatedDesc', { itemCount: result.itemCount, totalAmount: formatMoney(result.totalAmount) }),
+        description: t('receiptCreatedDesc', {
+          itemCount: result.itemCount,
+          totalAmount: formatMoney(result.totalAmount),
+        }),
       })
       resetForm()
       onOpenChange(false)
@@ -311,8 +307,7 @@ export function AddReceiptDialog({
         order_number: selectedOrder.order_number || undefined,
         tour_name: selectedOrder.tour_name || undefined,
         contact_person: selectedOrder.contact_person || undefined,
-        contact_email:
-          (selectedOrder as { contact_email?: string }).contact_email || undefined,
+        contact_email: (selectedOrder as { contact_email?: string }).contact_email || undefined,
       }
     : undefined
 
@@ -333,9 +328,7 @@ export function AddReceiptDialog({
             filteredOrders={filteredOrders}
             tourId={formData.tour_id}
             orderId={formData.order_id}
-            onTourChange={value =>
-              setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))
-            }
+            onTourChange={value => setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))}
             onOrderChange={value => setFormData(prev => ({ ...prev, order_id: value }))}
             batchReceiptDate={batchReceiptDate}
             onBatchReceiptDateChange={setBatchReceiptDate}
@@ -368,8 +361,12 @@ export function AddReceiptDialog({
             <BatchReceiptDialog
               inline
               open={activeTab === 'batch'}
-              onOpenChange={open => { if (!open) onOpenChange(false) }}
-              onSuccess={() => { onSuccess?.() }}
+              onOpenChange={open => {
+                if (!open) onOpenChange(false)
+              }}
+              onSuccess={() => {
+                onSuccess?.()
+              }}
               receiptDate={batchReceiptDate}
               onReceiptDateChange={setBatchReceiptDate}
               paymentMethod={batchPaymentMethod as never}
@@ -438,8 +435,7 @@ export function AddReceiptDialog({
             id: editingReceipt.id,
             receipt_number: editingReceipt.receipt_number,
             tour_id: editingReceipt.tour_id ?? null,
-            order_id:
-              (editingReceipt as unknown as { order_id?: string | null }).order_id ?? null,
+            order_id: (editingReceipt as unknown as { order_id?: string | null }).order_id ?? null,
             tour_code: '',
             tour_name: editingReceipt.tour_name || '',
             receipt_amount: editingReceipt.receipt_amount || 0,

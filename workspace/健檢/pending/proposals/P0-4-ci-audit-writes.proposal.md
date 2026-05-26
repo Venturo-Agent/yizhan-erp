@@ -18,40 +18,42 @@
 ## 修法 — `.github/workflows/audit-rls.yml` diff
 
 **before（現況）**：
-```yaml
-      - name: Run blueprint audit
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: npm run audit:rls
 
-      - name: Realtime publication audit (code-only, no DB needed)
-        run: npm run audit:realtime
+```yaml
+- name: Run blueprint audit
+  env:
+    SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+  run: npm run audit:rls
+
+- name: Realtime publication audit (code-only, no DB needed)
+  run: npm run audit:realtime
 ```
 
 **after（加 1 個 step）**：
+
 ```yaml
-      - name: Run blueprint audit
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: npm run audit:rls
+- name: Run blueprint audit
+  env:
+    SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+  run: npm run audit:rls
 
-      - name: Realtime publication audit (code-only, no DB needed)
-        run: npm run audit:realtime
+- name: Realtime publication audit (code-only, no DB needed)
+  run: npm run audit:realtime
 
-      - name: Write paths audit (code-only, 5/14 onboarding 撞號事故防護)
-        run: npm run audit:writes
+- name: Write paths audit (code-only, 5/14 onboarding 撞號事故防護)
+  run: npm run audit:writes
 ```
 
 ---
 
 ## 風險評估
 
-| 維度 | 評估 |
-|---|---|
-| 影響行數 | +3 行 yaml |
-| 可逆性 | 完全可逆（revert commit 即可） |
-| 副作用 | CI 跑 grep 多 1-2 秒、無 DB 連線、無 cost |
-| 觀感 | 不會影響開發者本地、只在 PR / push 時跑 |
+| 維度     | 評估                                      |
+| -------- | ----------------------------------------- |
+| 影響行數 | +3 行 yaml                                |
+| 可逆性   | 完全可逆（revert commit 即可）            |
+| 副作用   | CI 跑 grep 多 1-2 秒、無 DB 連線、無 cost |
+| 觀感     | 不會影響開發者本地、只在 PR / push 時跑   |
 
 ---
 
@@ -59,6 +61,7 @@
 
 跑後可能會發現 production 已有 violation（如果 ALLOWLIST 不完整）。
 建議：
+
 - 先在 main branch run 一次看現況
 - 如果出 fail、可能要把已知合理雙寫加進 `scripts/audit-write-paths.ts` 的 `ALLOWLIST`
 - 已知 ALLOWLIST 條目（從 script 抓的）：channel_members / journal_lines
@@ -88,4 +91,4 @@
 
 ---
 
-*作者：Claude Opus 4.7、2026-05-20、為 William 把關 P0 修法*
+_作者：Claude Opus 4.7、2026-05-20、為 William 把關 P0 修法_

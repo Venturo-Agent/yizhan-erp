@@ -13,7 +13,14 @@ interface TourHeroProps {
   nightsCount: number
 }
 
-export function TourHero({ heroImage, title, subtitle, code, daysCount, nightsCount }: TourHeroProps) {
+export function TourHero({
+  heroImage,
+  title,
+  subtitle,
+  code,
+  daysCount,
+  nightsCount,
+}: TourHeroProps) {
   return (
     <section className="relative h-[31.25rem] md:h-[38.375rem] w-full overflow-hidden flex items-end pb-24 px-8 md:px-24">
       {heroImage ? (
@@ -35,9 +42,7 @@ export function TourHero({ heroImage, title, subtitle, code, daysCount, nightsCo
         <h1 className="text-white text-4xl md:text-6xl lg:text-7xl font-extrabold leading-tight tracking-tight">
           {title || code}
         </h1>
-        {subtitle && (
-          <p className="text-white/80 text-lg mt-4 max-w-2xl">{subtitle}</p>
-        )}
+        {subtitle && <p className="text-white/80 text-lg mt-4 max-w-2xl">{subtitle}</p>}
       </div>
     </section>
   )

@@ -17,10 +17,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
     return ApiError.unauthorized('請先登入')
   }
 
-  const allowed = await hasCapabilityByCode(
-    auth.data.employeeId,
-    'shared_data.countries.write'
-  )
+  const allowed = await hasCapabilityByCode(auth.data.employeeId, 'shared_data.countries.write')
   if (!allowed) {
     return NextResponse.json(
       { error: '您沒有此權限（新增國家需 shared_data.countries.write capability）' },
@@ -29,7 +26,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
   }
 
   const auditClient = await createApiClient()
-  await recordApiAuditContext(auditClient, { actorId: auth.data.employeeId, reason: '新增/更新國家資料' })
+  await recordApiAuditContext(auditClient, {
+    actorId: auth.data.employeeId,
+    reason: '新增/更新國家資料',
+  })
 
   const body = await req.json()
   const { code, name_zh, name_en, continent, sub_region, is_active } = body
@@ -38,7 +38,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
     return NextResponse.json({ error: '缺少必填欄位（code / name_zh / name_en）' }, { status: 400 })
   }
   if (!/^[A-Z]{2}$/.test(code)) {
-    return NextResponse.json({ error: '國家代碼必須為 2 碼大寫英文（ISO 3166-1 alpha-2）' }, { status: 400 })
+    return NextResponse.json(
+      { error: '國家代碼必須為 2 碼大寫英文（ISO 3166-1 alpha-2）' },
+      { status: 400 }
+    )
   }
 
   const supabase = getSupabaseAdminClient()
@@ -58,7 +61,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ code })

@@ -187,7 +187,9 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   if (!customer) {
     return (
       <ContentPageLayout title={PAGE_LABELS.TITLE} icon={User}>
-        <div className="flex-1 flex items-center justify-center text-morandi-secondary">{PAGE_LABELS.NOT_FOUND}</div>
+        <div className="flex-1 flex items-center justify-center text-morandi-secondary">
+          {PAGE_LABELS.NOT_FOUND}
+        </div>
       </ContentPageLayout>
     )
   }
@@ -200,33 +202,116 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   ]
 
   const orderColumns: TableColumn<OrderRow>[] = [
-    { key: 'order_number', label: '訂單號', width: '140', render: v => <span className="font-mono text-sm">{String(v || '')}</span> },
-    { key: 'tour_code', label: '團號', width: '140', render: v => <span className="font-mono text-sm">{String(v || '')}</span> },
-    { key: 'total_amount', label: '金額', width: '120', align: 'right', render: v => <CurrencyCell amount={Number(v) || 0} /> },
-    { key: 'payment_status', label: '付款狀態', width: '100', render: v => <StatusBadge status={v as string | null} /> },
-    { key: 'created_at', label: '建立日期', width: '110', render: v => <DateCell date={v as string} /> },
+    {
+      key: 'order_number',
+      label: '訂單號',
+      width: '140',
+      render: v => <span className="font-mono text-sm">{String(v || '')}</span>,
+    },
+    {
+      key: 'tour_code',
+      label: '團號',
+      width: '140',
+      render: v => <span className="font-mono text-sm">{String(v || '')}</span>,
+    },
+    {
+      key: 'total_amount',
+      label: '金額',
+      width: '120',
+      align: 'right',
+      render: v => <CurrencyCell amount={Number(v) || 0} />,
+    },
+    {
+      key: 'payment_status',
+      label: '付款狀態',
+      width: '100',
+      render: v => <StatusBadge status={v as string | null} />,
+    },
+    {
+      key: 'created_at',
+      label: '建立日期',
+      width: '110',
+      render: v => <DateCell date={v as string} />,
+    },
   ]
 
   const receiptColumns: TableColumn<ReceiptRow>[] = [
-    { key: 'receipt_no', label: '收款單號', width: '140', render: v => <span className="font-mono text-sm">{String(v || '')}</span> },
-    { key: 'receipt_date', label: '收款日', width: '110', render: v => <DateCell date={v as string} /> },
-    { key: 'actual_amount', label: '實收金額', width: '120', align: 'right', render: v => <CurrencyCell amount={Number(v) || 0} variant="income" /> },
-    { key: 'bank_account_last5', label: '後五碼', width: '90', render: v => <span className="font-mono text-xs">{String(v || '—')}</span> },
-    { key: 'status', label: '狀態', width: '100', render: v => <StatusBadge status={v as string | null} /> },
+    {
+      key: 'receipt_no',
+      label: '收款單號',
+      width: '140',
+      render: v => <span className="font-mono text-sm">{String(v || '')}</span>,
+    },
+    {
+      key: 'receipt_date',
+      label: '收款日',
+      width: '110',
+      render: v => <DateCell date={v as string} />,
+    },
+    {
+      key: 'actual_amount',
+      label: '實收金額',
+      width: '120',
+      align: 'right',
+      render: v => <CurrencyCell amount={Number(v) || 0} variant="income" />,
+    },
+    {
+      key: 'bank_account_last5',
+      label: '後五碼',
+      width: '90',
+      render: v => <span className="font-mono text-xs">{String(v || '—')}</span>,
+    },
+    {
+      key: 'status',
+      label: '狀態',
+      width: '100',
+      render: v => <StatusBadge status={v as string | null} />,
+    },
   ]
 
   const invoiceColumns: TableColumn<InvoiceRow>[] = [
-    { key: 'created_at', label: '開立日', width: '110', render: v => <DateCell date={v as string} /> },
-    { key: 'due_date', label: '到期日', width: '110', render: v => <DateCell date={v as string} /> },
-    { key: 'total_amount', label: '應收', width: '120', align: 'right', render: v => <CurrencyCell amount={Number(v) || 0} /> },
-    { key: 'paid_amount', label: '已收', width: '120', align: 'right', render: v => <CurrencyCell amount={Number(v) || 0} variant="income" /> },
-    { key: 'status', label: '狀態', width: '100', render: v => <StatusBadge status={v as string | null} /> },
+    {
+      key: 'created_at',
+      label: '開立日',
+      width: '110',
+      render: v => <DateCell date={v as string} />,
+    },
+    {
+      key: 'due_date',
+      label: '到期日',
+      width: '110',
+      render: v => <DateCell date={v as string} />,
+    },
+    {
+      key: 'total_amount',
+      label: '應收',
+      width: '120',
+      align: 'right',
+      render: v => <CurrencyCell amount={Number(v) || 0} />,
+    },
+    {
+      key: 'paid_amount',
+      label: '已收',
+      width: '120',
+      align: 'right',
+      render: v => <CurrencyCell amount={Number(v) || 0} variant="income" />,
+    },
+    {
+      key: 'status',
+      label: '狀態',
+      width: '100',
+      render: v => <StatusBadge status={v as string | null} />,
+    },
   ]
 
   const handleSave = async (data: Partial<Customer>) => {
     await updateCustomer(id, data as never)
     // refresh
-    const { data: refreshed } = await supabase.from('customers').select('*').eq('id', id).maybeSingle()
+    const { data: refreshed } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle()
     setCustomer((refreshed as unknown as Customer) || null)
     setEditOpen(false)
   }
@@ -237,7 +322,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
       icon={User}
       tabs={tabs}
       activeTab={activeTab}
-      onTabChange={(v) => setActiveTab(v as TabValue)}
+      onTabChange={v => setActiveTab(v as TabValue)}
       headerActions={
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => router.back()}>
@@ -252,7 +337,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
       }
     >
       <div>
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)}>
+        <Tabs value={activeTab} onValueChange={v => setActiveTab(v as TabValue)}>
           <TabsContent value="basic" className="mt-0">
             <Card className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-sm">
@@ -281,21 +366,39 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
           </TabsContent>
 
           <TabsContent value="orders" className="mt-0">
-            {tabLoading ? <LoadingBlock /> : orders.length === 0 ? (
-              <Card className="p-8 text-center text-morandi-secondary">{PAGE_LABELS.EMPTY_ORDERS}</Card>
-            ) : <EnhancedTable columns={orderColumns} data={orders} />}
+            {tabLoading ? (
+              <LoadingBlock />
+            ) : orders.length === 0 ? (
+              <Card className="p-8 text-center text-morandi-secondary">
+                {PAGE_LABELS.EMPTY_ORDERS}
+              </Card>
+            ) : (
+              <EnhancedTable columns={orderColumns} data={orders} />
+            )}
           </TabsContent>
 
           <TabsContent value="transactions" className="mt-0">
-            {tabLoading ? <LoadingBlock /> : receipts.length === 0 ? (
-              <Card className="p-8 text-center text-morandi-secondary">{PAGE_LABELS.EMPTY_TRANSACTIONS}</Card>
-            ) : <EnhancedTable columns={receiptColumns} data={receipts} />}
+            {tabLoading ? (
+              <LoadingBlock />
+            ) : receipts.length === 0 ? (
+              <Card className="p-8 text-center text-morandi-secondary">
+                {PAGE_LABELS.EMPTY_TRANSACTIONS}
+              </Card>
+            ) : (
+              <EnhancedTable columns={receiptColumns} data={receipts} />
+            )}
           </TabsContent>
 
           <TabsContent value="invoices" className="mt-0">
-            {tabLoading ? <LoadingBlock /> : invoices.length === 0 ? (
-              <Card className="p-8 text-center text-morandi-secondary">{PAGE_LABELS.EMPTY_INVOICES}</Card>
-            ) : <EnhancedTable columns={invoiceColumns} data={invoices} />}
+            {tabLoading ? (
+              <LoadingBlock />
+            ) : invoices.length === 0 ? (
+              <Card className="p-8 text-center text-morandi-secondary">
+                {PAGE_LABELS.EMPTY_INVOICES}
+              </Card>
+            ) : (
+              <EnhancedTable columns={invoiceColumns} data={invoices} />
+            )}
           </TabsContent>
         </Tabs>
       </div>
@@ -313,7 +416,17 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   )
 }
 
-function Field({ label, value, mono = false, full = false }: { label: string; value?: string | null; mono?: boolean; full?: boolean }) {
+function Field({
+  label,
+  value,
+  mono = false,
+  full = false,
+}: {
+  label: string
+  value?: string | null
+  mono?: boolean
+  full?: boolean
+}) {
   return (
     <div className={full ? 'md:col-span-2' : ''}>
       <div className="text-xs text-morandi-secondary mb-0.5">{label}</div>

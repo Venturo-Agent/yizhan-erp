@@ -194,7 +194,12 @@ export default function SalarySettlementDetailPage({
       icon={Wallet}
       primaryAction={
         detail.status === 'draft'
-          ? { label: submitting ? '確認中...' : '確認結算', icon: Check, onClick: handleSubmit, disabled: submitting }
+          ? {
+              label: submitting ? '確認中...' : '確認結算',
+              icon: Check,
+              onClick: handleSubmit,
+              disabled: submitting,
+            }
           : undefined
       }
       breadcrumb={[
@@ -209,27 +214,32 @@ export default function SalarySettlementDetailPage({
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <Badge className={badge.className}>{badge.label}</Badge>
-              <span className="text-xs text-morandi-muted">建立 {detail.created_at.slice(0, 10)}</span>
+              <span className="text-xs text-morandi-muted">
+                建立 {detail.created_at.slice(0, 10)}
+              </span>
               {detail.submitted_at && (
-                <span className="text-xs text-morandi-muted">確認 {detail.submitted_at.slice(0, 10)}</span>
+                <span className="text-xs text-morandi-muted">
+                  確認 {detail.submitted_at.slice(0, 10)}
+                </span>
               )}
             </div>
             <div className="text-sm text-morandi-secondary flex items-center gap-4">
               <span>{detail.employee_count} 位員工</span>
-              <span className="text-morandi-gold font-semibold text-base">{formatNT(detail.total_amount)}</span>
+              <span className="text-morandi-gold font-semibold text-base">
+                {formatNT(detail.total_amount)}
+              </span>
               {detail.payment_request_id && (
                 <span className="text-xs">
                   · 請款單：
-                  <a
-                    href={`/finance/requests`}
-                    className="text-morandi-gold underline"
-                  >
+                  <a href={`/finance/requests`} className="text-morandi-gold underline">
                     查看
                   </a>
                 </span>
               )}
             </div>
-            {detail.notes && <p className="text-xs text-morandi-muted mt-2">備註：{detail.notes}</p>}
+            {detail.notes && (
+              <p className="text-xs text-morandi-muted mt-2">備註：{detail.notes}</p>
+            )}
           </div>
           {detail.status === 'draft' && (
             <Button variant="ghost" size="sm" onClick={handleDelete} className="text-red-600">
@@ -255,7 +265,7 @@ export default function SalarySettlementDetailPage({
               </tr>
             </thead>
             <tbody>
-              {detail.items.map((it) => {
+              {detail.items.map(it => {
                 const calc = it.breakdown?.calc ?? {}
                 const grossPay = calc.gross_pay ?? it.total_amount + it.deductions
                 const pensionVol = calc.pension_voluntary ?? 0
@@ -298,10 +308,17 @@ export default function SalarySettlementDetailPage({
                 <td className="px-4 py-3 text-right tabular-nums font-bold text-morandi-gold">
                   {formatNT(detail.total_amount)}
                 </td>
-                <td className="px-4 py-3 text-right tabular-nums font-semibold text-morandi-secondary" colSpan={2}>
+                <td
+                  className="px-4 py-3 text-right tabular-nums font-semibold text-morandi-secondary"
+                  colSpan={2}
+                >
                   公司支出總計：
                   {formatNT(
-                    detail.items.reduce((sum, it) => sum + (it.breakdown?.calc?.company_total_cost ?? it.total_amount), 0)
+                    detail.items.reduce(
+                      (sum, it) =>
+                        sum + (it.breakdown?.calc?.company_total_cost ?? it.total_amount),
+                      0
+                    )
                   )}
                 </td>
               </tr>

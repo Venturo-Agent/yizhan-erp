@@ -55,25 +55,26 @@ export async function POST(
 
   // line_conversation_overrides 尚未納入生成類型，用 unknown 中轉
   const supabaseAny = supabase as unknown as SupabaseClient
-  const { error } = await supabaseAny
-    .from('line_conversation_overrides')
-    .upsert(
-      {
-        workspace_id: guard.workspaceId,
-        line_user_id: lineUserId,
-        bot_paused: paused,
-        paused_by: paused ? guard.employeeId : null,
-        paused_at: paused ? new Date().toISOString() : null,
-        notes,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'workspace_id,line_user_id' }
-    )
+  const { error } = await supabaseAny.from('line_conversation_overrides').upsert(
+    {
+      workspace_id: guard.workspaceId,
+      line_user_id: lineUserId,
+      bot_paused: paused,
+      paused_by: paused ? guard.employeeId : null,
+      paused_at: paused ? new Date().toISOString() : null,
+      notes,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'workspace_id,line_user_id' }
+  )
 
   if (error) {
     logger.error('[pause] upsert error:', error)
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ ok: true, paused })
@@ -105,5 +106,9 @@ export async function GET(
     .eq('line_user_id', lineUserId)
     .maybeSingle()
 
-  return NextResponse.json({ paused: data?.bot_paused ?? false, paused_at: data?.paused_at, notes: data?.notes })
+  return NextResponse.json({
+    paused: data?.bot_paused ?? false,
+    paused_at: data?.paused_at,
+    notes: data?.notes,
+  })
 }

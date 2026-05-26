@@ -12,12 +12,7 @@
 
 import React from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Save,
-  User,
-  DollarSign,
-  Lock,
-} from 'lucide-react'
+import { Save, User, DollarSign, Lock } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 
 import { AvatarHeader } from './EmployeeForm/AvatarHeader'
@@ -182,9 +177,7 @@ export function EmployeeForm({
           </div>
 
           {mode !== 'self' && (
-            <div className="px-6 py-4 flex justify-end gap-3 flex-shrink-0">
-              {bottomButtons}
-            </div>
+            <div className="px-6 py-4 flex justify-end gap-3 flex-shrink-0">{bottomButtons}</div>
           )}
         </div>
       </div>

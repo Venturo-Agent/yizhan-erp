@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  stripHtml,
-  truncateText,
-  camelToKebab,
-  kebabToCamel,
-} from '@/lib/utils/string-utils'
+import { stripHtml, truncateText, camelToKebab, kebabToCamel } from '@/lib/utils/string-utils'
 
 describe('string-utils', () => {
   describe('stripHtml', () => {
@@ -29,9 +24,7 @@ describe('string-utils', () => {
     })
 
     it('should strip nested tags', () => {
-      expect(stripHtml('<p><strong>hello</strong> <em>world</em></p>')).toBe(
-        'hello world'
-      )
+      expect(stripHtml('<p><strong>hello</strong> <em>world</em></p>')).toBe('hello world')
     })
 
     it('should strip self-closing tags', () => {
@@ -39,9 +32,7 @@ describe('string-utils', () => {
     })
 
     it('should strip tags with attributes', () => {
-      expect(stripHtml('<a href="https://example.com" target="_blank">click</a>')).toBe(
-        'click'
-      )
+      expect(stripHtml('<a href="https://example.com" target="_blank">click</a>')).toBe('click')
     })
 
     it('should trim leading/trailing whitespace', () => {

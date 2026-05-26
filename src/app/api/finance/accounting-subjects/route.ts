@@ -78,7 +78,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -96,7 +99,11 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: '缺少 id' }, { status: 400 })
   }
 
-  await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '更新會計科目', requestId: id })
+  await recordApiAuditContext(supabase, {
+    actorId: guard.employeeId,
+    reason: '更新會計科目',
+    requestId: id,
+  })
 
   const body = await request.json()
   const { name, description, is_active } = body
@@ -115,7 +122,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -133,7 +143,11 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: '缺少 id' }, { status: 400 })
   }
 
-  await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '刪除會計科目', requestId: id })
+  await recordApiAuditContext(supabase, {
+    actorId: guard.employeeId,
+    reason: '刪除會計科目',
+    requestId: id,
+  })
 
   // 檢查是否為系統科目
   const { data: subject } = await supabase
@@ -150,7 +164,10 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ success: true })

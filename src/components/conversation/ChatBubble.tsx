@@ -128,7 +128,14 @@ export function ChatBubble({
 
         {/* 訊息本體 */}
         {isRevoked ? (
-          <div className={cn('overflow-hidden w-fit', isInbound ? '' : 'ml-auto', padding, 'rounded-2xl bg-morandi-container/30 italic text-morandi-muted text-sm')}>
+          <div
+            className={cn(
+              'overflow-hidden w-fit',
+              isInbound ? '' : 'ml-auto',
+              padding,
+              'rounded-2xl bg-morandi-container/30 italic text-morandi-muted text-sm'
+            )}
+          >
             本訊息已撤回
           </div>
         ) : imageContent ? (

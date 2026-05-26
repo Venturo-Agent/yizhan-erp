@@ -48,7 +48,9 @@ interface ResourceActionOptions {
   editName: string
   editDescription: string
   editAddress: string
-  onSetFullData: (updater: (prev: Record<string, unknown> | null) => Record<string, unknown> | null) => void
+  onSetFullData: (
+    updater: (prev: Record<string, unknown> | null) => Record<string, unknown> | null
+  ) => void
   onSetIsEditing: (v: boolean) => void
   onSetSaving: (v: boolean) => void
   onSetDeleting: (v: boolean) => void
@@ -99,10 +101,20 @@ export function buildResourceActions(opts: ResourceActionOptions) {
       opts.onSetIsEditing(false)
       opts.onSetFullData(prev =>
         prev
-          ? { ...prev, name: opts.editName, description: opts.editDescription, address: opts.editAddress }
+          ? {
+              ...prev,
+              name: opts.editName,
+              description: opts.editDescription,
+              address: opts.editAddress,
+            }
           : null
       )
-      opts.onSave?.({ id: opts.resourceId, name: opts.editName, description: opts.editDescription, address: opts.editAddress })
+      opts.onSave?.({
+        id: opts.resourceId,
+        name: opts.editName,
+        description: opts.editDescription,
+        address: opts.editAddress,
+      })
     } catch (err) {
       logger.error('儲存失敗:', err)
       toast.error(LABELS.TOAST_SAVE_FAILED)
@@ -118,7 +130,10 @@ export function buildResourceActions(opts: ResourceActionOptions) {
   //   - 走 invalidateXxx 而不是 entity hook delete、跟紅線 F「不直接 useSWR」精神不違背
   //     （仍透過 entity hook SSOT 失效 cache、只是寫入用 softDelete helper 保留 audit）
   const handleDelete = async () => {
-    const ok = await confirm(`${LABELS.CONFIRM_DELETE_PREFIX}${opts.resourceName}${LABELS.CONFIRM_DELETE_SUFFIX}`, { title: '刪除', type: 'warning' })
+    const ok = await confirm(
+      `${LABELS.CONFIRM_DELETE_PREFIX}${opts.resourceName}${LABELS.CONFIRM_DELETE_SUFFIX}`,
+      { title: '刪除', type: 'warning' }
+    )
     if (!ok) return
     opts.onSetDeleting(true)
     try {
@@ -174,7 +189,9 @@ export function buildResourceActions(opts: ResourceActionOptions) {
       return
     }
     if (imageFiles.length < files.length) {
-      toast.warning(`${LABELS.TOAST_FILTERED_PREFIX}${files.length - imageFiles.length}${LABELS.TOAST_FILTERED_SUFFIX}`)
+      toast.warning(
+        `${LABELS.TOAST_FILTERED_PREFIX}${files.length - imageFiles.length}${LABELS.TOAST_FILTERED_SUFFIX}`
+      )
     }
 
     opts.onSetUploading(true)
@@ -184,7 +201,9 @@ export function buildResourceActions(opts: ResourceActionOptions) {
         const ext = file.name.split('.').pop()
         const filePath = `${opts.resourceType}s/${opts.resourceId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
         // storage upload 保留 raw（不是 SWR cache 問題、entity hook 不 cover Storage）
-        const { error: uploadError } = await supabase.storage.from('resources').upload(filePath, file)
+        const { error: uploadError } = await supabase.storage
+          .from('resources')
+          .upload(filePath, file)
         if (uploadError) throw uploadError
         const { data: urlData } = supabase.storage.from('resources').getPublicUrl(filePath)
         newImageUrls.push(urlData.publicUrl)
@@ -197,7 +216,9 @@ export function buildResourceActions(opts: ResourceActionOptions) {
       await updateByType(opts.resourceType, opts.resourceId, { images: updatedImages })
 
       opts.onSetFullData(prev => (prev ? { ...prev, images: updatedImages } : null))
-      toast.success(`${LABELS.TOAST_UPLOADED_PREFIX}${newImageUrls.length}${LABELS.TOAST_UPLOADED_SUFFIX}`)
+      toast.success(
+        `${LABELS.TOAST_UPLOADED_PREFIX}${newImageUrls.length}${LABELS.TOAST_UPLOADED_SUFFIX}`
+      )
     } catch (err) {
       logger.error('上傳失敗:', err)
       toast.error(LABELS.TOAST_UPLOAD_FAILED)
@@ -238,5 +259,12 @@ export function buildResourceActions(opts: ResourceActionOptions) {
     }
   }
 
-  return { handleSave, handleDelete, handleToggleVerify, handleImageUpload, handleDeleteImage, handleSetCover }
+  return {
+    handleSave,
+    handleDelete,
+    handleToggleVerify,
+    handleImageUpload,
+    handleDeleteImage,
+    handleSetCover,
+  }
 }

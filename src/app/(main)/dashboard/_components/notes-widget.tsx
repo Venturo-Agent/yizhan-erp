@@ -120,7 +120,12 @@ export function NotesWidget() {
                       }}
                       className="opacity-0 group-hover:opacity-100 text-morandi-muted hover:text-status-danger transition-opacity flex-shrink-0"
                     >
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -139,7 +144,12 @@ export function NotesWidget() {
                   className="flex items-center justify-center p-1 rounded-md bg-card/50 border border-border/40 text-morandi-muted hover:bg-card/80 hover:text-morandi-gold hover:border-border/60 transition-all shadow-sm"
                   title={t('add5952')}
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"

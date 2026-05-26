@@ -14,14 +14,7 @@ import { SquarePen, Trash2 } from 'lucide-react'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { COMMON_MESSAGES } from '@/constants/messages'
 import { useTranslations } from 'next-intl'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from './shared-table'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './shared-table'
 import { PAGE_LABELS, type BankAccount } from './types'
 import { BankCombobox } from '@/components/bank-combobox'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -47,8 +40,7 @@ export function BankAccountsSection({
 }: BankAccountsSectionProps) {
   const t = useTranslations('finance')
   const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({})
-  const setLoading = (id: string, v: boolean) =>
-    setRowLoading(prev => ({ ...prev, [id]: v }))
+  const setLoading = (id: string, v: boolean) => setRowLoading(prev => ({ ...prev, [id]: v }))
 
   // 儲存銀行帳戶
   const handleSaveBank = async (bank: Partial<BankAccount>) => {
@@ -128,9 +120,11 @@ export function BankAccountsSection({
                     <TableCell>{bank.bank_name || '-'}</TableCell>
                     <TableCell className="font-mono">{bank.account_number || '-'}</TableCell>
                     <TableCell className="text-right font-mono">
-                      {bank.cross_bank_fee && bank.cross_bank_fee > 0
-                        ? `$${bank.cross_bank_fee}`
-                        : <span className="text-morandi-muted">-</span>}
+                      {bank.cross_bank_fee && bank.cross_bank_fee > 0 ? (
+                        `$${bank.cross_bank_fee}`
+                      ) : (
+                        <span className="text-morandi-muted">-</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
                       {bank.is_default && (

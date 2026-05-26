@@ -79,14 +79,15 @@ export function AccommodationChangeDialog({
 
         {quoteChanges.length > 0 && (
           <div className="bg-morandi-gold/10 border border-morandi-gold/30 rounded-md p-2">
-            <p className="font-medium text-morandi-primary">{t('accommodationChangeQuoteImpact')}</p>
-            <p className="text-morandi-gold text-xs mt-1">
-              {t('accommodationChangeQuoteNote')}
+            <p className="font-medium text-morandi-primary">
+              {t('accommodationChangeQuoteImpact')}
             </p>
+            <p className="text-morandi-gold text-xs mt-1">{t('accommodationChangeQuoteNote')}</p>
             <ul className="text-xs text-morandi-gold mt-1 space-y-0.5">
               {quoteChanges.map(c => (
                 <li key={c.dayNumber}>
-                  {t('accommodationChangeDay')} {c.dayNumber} {t('accommodationChangeDayDash')} {c.oldHotel}
+                  {t('accommodationChangeDay')} {c.dayNumber} {t('accommodationChangeDayDash')}{' '}
+                  {c.oldHotel}
                   {c.quotedPrice ? ` ($${c.quotedPrice.toLocaleString()})` : ''}
                 </li>
               ))}
@@ -96,14 +97,17 @@ export function AccommodationChangeDialog({
 
         {requestChanges.length > 0 && (
           <div className="bg-morandi-red/10 border border-morandi-red/30 rounded-md p-2">
-            <p className="font-medium text-morandi-red">{t('accommodationChangeRequirementImpact')}</p>
+            <p className="font-medium text-morandi-red">
+              {t('accommodationChangeRequirementImpact')}
+            </p>
             <p className="text-morandi-red text-xs mt-1">
               {t('accommodationChangeRequirementNote')}
             </p>
             <ul className="text-xs text-morandi-red mt-1 space-y-0.5">
               {requestChanges.map(c => (
                 <li key={c.dayNumber}>
-                  {t('accommodationChangeDay')} {c.dayNumber} {t('accommodationChangeDayDash')} {c.oldHotel}（{c.requestStatus || '已發出'}）
+                  {t('accommodationChangeDay')} {c.dayNumber} {t('accommodationChangeDayDash')}{' '}
+                  {c.oldHotel}（{c.requestStatus || '已發出'}）
                 </li>
               ))}
             </ul>

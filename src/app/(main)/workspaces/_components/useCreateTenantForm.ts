@@ -10,7 +10,14 @@ import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { useTranslations } from 'next-intl'
-import { type FormData, type LoginInfo, type DimensionRow, type Industry, type SubIndustry, INITIAL_FORM } from './create-tenant-types'
+import {
+  type FormData,
+  type LoginInfo,
+  type DimensionRow,
+  type Industry,
+  type SubIndustry,
+  INITIAL_FORM,
+} from './create-tenant-types'
 import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
 
 export function useCreateTenantForm(existingCodes: string[]) {
@@ -94,7 +101,8 @@ export function useCreateTenantForm(existingCodes: string[]) {
       return { ...prev, brands: next }
     })
   }
-  const addBrand = () => setForm(prev => ({ ...prev, brands: [...prev.brands, { code: '', name: '' }] }))
+  const addBrand = () =>
+    setForm(prev => ({ ...prev, brands: [...prev.brands, { code: '', name: '' }] }))
   const removeBrand = (idx: number) =>
     setForm(prev => ({ ...prev, brands: prev.brands.filter((_, i) => i !== idx) }))
 
@@ -167,7 +175,8 @@ export function useCreateTenantForm(existingCodes: string[]) {
     if (!form.adminName.trim() || !form.adminEmail.trim()) return false
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.adminEmail)) return false
     if (!form.industry) return false
-    if ((form.industry === 'tourism' || form.industry === 'beauty') && !form.subIndustry) return false
+    if ((form.industry === 'tourism' || form.industry === 'beauty') && !form.subIndustry)
+      return false
     if (form.subscriptionPlan === 'advance' && form.advancePicks.length !== 2) return false
     for (const b of form.brands) {
       if (b.name.trim() === '' && b.code.trim() !== '') return false

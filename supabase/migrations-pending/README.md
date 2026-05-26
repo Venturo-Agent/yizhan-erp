@@ -11,6 +11,7 @@ upgrade_target: N/A
 **這個目錄的 SQL 還沒 apply。等搬完伺服器（2026-05-10）才執行。**
 
 跟 `migrations/_pending_review/` 不同：
+
 - `_pending_review/` 是 **destructive**（DROP / DELETE）、需 William 確認
 - `migrations-pending/` 是 **純加法**（ADD COLUMN / CREATE TABLE）、配合搬遷 + ADR 拍板才 apply
 
@@ -18,11 +19,11 @@ upgrade_target: N/A
 
 ## 待 apply 順序
 
-| 順序 | 檔案 | 對應 ADR | 對應 backlog |
-|---|---|---|---|
-| 1 | `001_soft_delete_columns.sql` | [ADR-0002](../../docs/adr/0002-soft-delete-policy.md) | [#23](../../docs/refactor-backlog/23-data-lifecycle.md) |
-| 2 | `002_audit_logs_table.sql` | [ADR-0003](../../docs/adr/0003-audit-log.md) | [#16](../../docs/refactor-backlog/16-audit-log.md) |
-| 3 | `003_set_audit_context_function.sql` | [ADR-0003](../../docs/adr/0003-audit-log.md) | [#16](../../docs/refactor-backlog/16-audit-log.md) |
+| 順序 | 檔案                                 | 對應 ADR                                              | 對應 backlog                                            |
+| ---- | ------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------- |
+| 1    | `001_soft_delete_columns.sql`        | [ADR-0002](../../docs/adr/0002-soft-delete-policy.md) | [#23](../../docs/refactor-backlog/23-data-lifecycle.md) |
+| 2    | `002_audit_logs_table.sql`           | [ADR-0003](../../docs/adr/0003-audit-log.md)          | [#16](../../docs/refactor-backlog/16-audit-log.md)      |
+| 3    | `003_set_audit_context_function.sql` | [ADR-0003](../../docs/adr/0003-audit-log.md)          | [#16](../../docs/refactor-backlog/16-audit-log.md)      |
 
 ---
 
@@ -45,6 +46,7 @@ upgrade_target: N/A
 ```
 
 **相依關係**：
+
 - **001 必先於 002**：002 的 `fn_record_audit` trigger 用 `OLD.deleted_at` / `NEW.deleted_at` 偵測軟刪除 vs 一般 update。沒 001 加欄位、trigger 跑會炸 `column "deleted_at" does not exist`。
 - **002 必先於 003**：003 用 `CREATE OR REPLACE FUNCTION public.fn_record_audit()` 升級 trigger function（加抓 reason / request_id）、function 必先存在。
 - **003 是升級、不是新建**：003 換掉 002 已建的 trigger function、不影響已掛的 trigger。
@@ -290,6 +292,7 @@ END $$;
 ```
 
 ⚠️ 紅線總綱：
+
 - rollback **不刪** `audit_logs` 已有的 row、只 drop trigger / function
 - rollback 001 前確認沒 row 已軟刪除、否則資料永久消失
 - 緊急狀況跑前先 William 拍板、否則照「升級派」做（fix forward、不 rollback）

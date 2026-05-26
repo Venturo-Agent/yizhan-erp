@@ -23,12 +23,7 @@ export function DeleteConfirmDialog({
 }: DeleteConfirmDialogProps) {
   const customFooter = (
     <div className="flex justify-end gap-2">
-      <Button
-        variant="soft-gold"
-        onClick={onClose}
-        disabled={loading}
-        className="gap-2"
-      >
+      <Button variant="soft-gold" onClick={onClose} disabled={loading} className="gap-2">
         <X size={16} />
         {TOUR_DELETE.cancel}
       </Button>

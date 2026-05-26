@@ -6,10 +6,7 @@
  */
 
 import * as React from 'react'
-import type {
-  Canvas,
-  CanvasDayHeaderBlock,
-} from '@/components/canvas-renderer/types'
+import type { Canvas, CanvasDayHeaderBlock } from '@/components/canvas-renderer/types'
 import { updateDayHeaderBlock } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
@@ -35,18 +32,14 @@ export function DayHeaderEditor({
         <TextField
           label="日期顯示"
           value={block.data.date}
-          onChange={(v) => patch({ date: v })}
+          onChange={v => patch({ date: v })}
           placeholder="例：2026.12.02（星期三）"
         />
-        <TextField
-          label="標題"
-          value={block.data.title}
-          onChange={(v) => patch({ title: v })}
-        />
+        <TextField label="標題" value={block.data.title} onChange={v => patch({ title: v })} />
         <TextAreaField
           label="一句摘要"
           value={block.data.summary ?? ''}
-          onChange={(v) => patch({ summary: v })}
+          onChange={v => patch({ summary: v })}
           rows={2}
         />
       </FormSection>

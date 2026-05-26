@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
-import { ArrowRightLeft, X} from 'lucide-react'
+import { ArrowRightLeft, X } from 'lucide-react'
 import { useToursSlim, invalidateReceipts } from '@/data'
 import { useTourOptions } from '@/hooks'
 import { supabase } from '@/lib/supabase/client'
@@ -177,19 +177,15 @@ export function ReceiptTransferDialog({
         await supabase
           .from('receipts')
           .delete()
-          .in('id', [
-            (srcReceipt as { id: string }).id,
-            (dstReceipt as { id: string }).id,
-          ])
+          .in('id', [(srcReceipt as { id: string }).id, (dstReceipt as { id: string }).id])
         throw new Error('目標端收款單 transferred_pair_id 寫入失敗、轉移已取消')
       }
 
       // 4. 重算來源 / 目標團的收款統計（pending 狀態 actual_amount=0、不影響數字、
       //    但 invalidate cache 讓 UI 立即抓到新建的兩張）
       try {
-        const { recalculateReceiptStats } = await import(
-          '@/app/(main)/finance/payments/_services/receipt-core.service'
-        )
+        const { recalculateReceiptStats } =
+          await import('@/app/(main)/finance/payments/_services/receipt-core.service')
         await Promise.all([
           recalculateReceiptStats(sourceReceipt.order_id ?? null, sourceReceipt.tour_id),
           recalculateReceiptStats(null, targetTour.id),
@@ -233,11 +229,7 @@ export function ReceiptTransferDialog({
         disabled={transferring || !targetTourId}
         className="gap-2"
       >
-        {transferring ? (
-          <Spinner size="sm" />
-        ) : (
-          <ArrowRightLeft size={14} />
-        )}
+        {transferring ? <Spinner size="sm" /> : <ArrowRightLeft size={14} />}
         {COMPONENT_LABELS.CONFIRM_TRANSFER}
       </Button>
     </div>
@@ -262,7 +254,8 @@ export function ReceiptTransferDialog({
     >
       {/* 來源資訊 */}
       <div className="text-sm text-morandi-secondary mb-2">
-        {COMPONENT_LABELS.FROM} <span className="font-medium text-morandi-primary">{sourceReceipt.tour_code}</span>{' '}
+        {COMPONENT_LABELS.FROM}{' '}
+        <span className="font-medium text-morandi-primary">{sourceReceipt.tour_code}</span>{' '}
         {sourceReceipt.tour_name} {COMPONENT_LABELS.TRANSFER_TO_OTHER_TOUR}
       </div>
 

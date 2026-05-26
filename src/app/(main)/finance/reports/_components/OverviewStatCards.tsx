@@ -86,9 +86,7 @@ export function OverviewStatCards({ stats, isLoading }: OverviewStatCardsProps) 
       {/* 第 4 欄 - 淨額（跨兩列、stacked、置中、邊框跟一般卡一致）*/}
       <Card className="bg-card border-border/60 hover:border-morandi-gold/40 transition-colors md:row-span-2">
         <CardContent className="h-full p-4 flex flex-col items-center justify-center gap-2">
-          <span className="text-sm font-medium text-morandi-secondary">
-            {LABELS.CARD_NET}
-          </span>
+          <span className="text-sm font-medium text-morandi-secondary">{LABELS.CARD_NET}</span>
           <span
             className={`text-3xl font-bold tabular-nums ${stats.balance >= 0 ? 'text-morandi-green' : 'text-morandi-red'}`}
           >

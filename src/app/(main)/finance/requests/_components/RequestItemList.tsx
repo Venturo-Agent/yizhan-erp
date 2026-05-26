@@ -159,9 +159,7 @@ export function EditableRequestItemList({
       render: ({ row, onUpdate }) => {
         // 優先用 category_id；舊資料 fallback 從 row.category（文字）反查 id
         const currentId =
-          row.category_id ||
-          categoryColumnOptions.find(o => o.label === row.category)?.value ||
-          ''
+          row.category_id || categoryColumnOptions.find(o => o.label === row.category)?.value || ''
         return (
           <Select
             value={currentId}
@@ -187,9 +185,7 @@ export function EditableRequestItemList({
             <SelectTrigger className="input-no-focus h-10 border-0 shadow-none bg-transparent text-sm px-2">
               <SelectValue placeholder={COMPONENT_LABELS.PH_CATEGORY}>
                 {/* 顯示優先：category_id → name；fallback row.category 文字 */}
-                {currentId
-                  ? catNameById.get(currentId) || row.category || ''
-                  : row.category || ''}
+                {currentId ? catNameById.get(currentId) || row.category || '' : row.category || ''}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -246,9 +242,7 @@ export function EditableRequestItemList({
                 selected_id: value,
               })
             }}
-            placeholder={
-              payeeIsEmployee ? '選擇員工' : t('requestItemsSelectSupplier')
-            }
+            placeholder={payeeIsEmployee ? '選擇員工' : t('requestItemsSelectSupplier')}
             className="input-no-focus [&_input]:h-9 [&_input]:px-1 [&_input]:bg-transparent"
             onCreate={payeeIsEmployee ? undefined : onCreateSupplier}
             showSearchIcon={false}

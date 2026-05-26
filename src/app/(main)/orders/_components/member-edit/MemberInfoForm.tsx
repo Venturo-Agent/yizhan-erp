@@ -66,7 +66,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
         <div>
           <label className={labelClass}>
             {t('memberEditTagPinyin')}
-            <span className="text-morandi-muted font-normal ml-1 text-[0.588rem]">{COMPONENT_LABELS.PRINT_LABEL}</span>
+            <span className="text-morandi-muted font-normal ml-1 text-[0.588rem]">
+              {COMPONENT_LABELS.PRINT_LABEL}
+            </span>
           </label>
           <input
             type="text"

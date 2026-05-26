@@ -14,7 +14,11 @@ import { zhTW } from 'date-fns/locale'
 import type { DateRange } from './DateRangeSelector'
 import { getStatusLabelFor } from '@/lib/design/status-tone-map'
 import { OverviewStatCards } from './OverviewStatCards'
-import { OverviewSupplierTable, type TransactionRow, type GroupedRow } from './OverviewSupplierTable'
+import {
+  OverviewSupplierTable,
+  type TransactionRow,
+  type GroupedRow,
+} from './OverviewSupplierTable'
 
 import type { DetailGranularity } from '@/app/(main)/finance/reports/page'
 
@@ -207,10 +211,18 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
         label = d ? format(new Date(d), 'MM/dd (EEE)', { locale: zhTW }) : '-'
       } else if (granularity === 'tour') {
         key = tx.tourCode || (tx.category === 'company' ? '__company__' : '__no_tour__')
-        label = tx.tourCode || (tx.category === 'company' ? COMPONENT_LABELS.GROUP_COMPANY : COMPONENT_LABELS.GROUP_NO_TOUR)
+        label =
+          tx.tourCode ||
+          (tx.category === 'company'
+            ? COMPONENT_LABELS.GROUP_COMPANY
+            : COMPONENT_LABELS.GROUP_NO_TOUR)
       } else if (granularity === 'supplier') {
         key = tx.supplierName || (tx.type === 'income' ? '__income__' : '__no_supplier__')
-        label = tx.supplierName || (tx.type === 'income' ? COMPONENT_LABELS.GROUP_INCOME : COMPONENT_LABELS.GROUP_NO_SUPPLIER)
+        label =
+          tx.supplierName ||
+          (tx.type === 'income'
+            ? COMPONENT_LABELS.GROUP_INCOME
+            : COMPONENT_LABELS.GROUP_NO_SUPPLIER)
       }
 
       if (!groups.has(key)) {
@@ -277,9 +289,7 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
     {
       key: 'description',
       label: COMPONENT_LABELS.COL_DESCRIPTION,
-      render: value => (
-        <span className="text-sm">{String(value)}</span>
-      ),
+      render: value => <span className="text-sm">{String(value)}</span>,
     },
     {
       key: 'amount',
@@ -300,7 +310,12 @@ export function OverviewTab({ dateRange, granularity }: OverviewTabProps) {
   const groupColumns: TableColumn<GroupedRow>[] = [
     {
       key: 'label',
-      label: granularity === 'day' ? COMPONENT_LABELS.GROUP_LABEL_DAY : granularity === 'tour' ? COMPONENT_LABELS.GROUP_LABEL_TOUR : COMPONENT_LABELS.GROUP_LABEL_SUPPLIER,
+      label:
+        granularity === 'day'
+          ? COMPONENT_LABELS.GROUP_LABEL_DAY
+          : granularity === 'tour'
+            ? COMPONENT_LABELS.GROUP_LABEL_TOUR
+            : COMPONENT_LABELS.GROUP_LABEL_SUPPLIER,
       render: value => <span className="text-sm font-medium">{String(value)}</span>,
     },
     {

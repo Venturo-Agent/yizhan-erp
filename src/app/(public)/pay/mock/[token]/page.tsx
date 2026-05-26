@@ -176,7 +176,9 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
           </div>
           <div className="flex justify-between items-baseline">
             <span className="text-sm text-morandi-muted">付款方式</span>
-            <span className="text-sm font-medium">{tx.provider_info?.provider_name ?? tx.provider}</span>
+            <span className="text-sm font-medium">
+              {tx.provider_info?.provider_name ?? tx.provider}
+            </span>
           </div>
           <div className="flex justify-between items-baseline pt-3 border-t border-morandi-muted/15">
             <span className="text-sm text-morandi-muted">應付金額</span>
@@ -187,7 +189,10 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
         </div>
 
         {/* 刷卡表單 */}
-        <form onSubmit={handleSubmit} className="bg-card rounded-b-xl border border-t-0 border-border p-5">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-card rounded-b-xl border border-t-0 border-border p-5"
+        >
           <div className="flex items-center gap-2 mb-4 pb-3 border-b border-morandi-muted/15">
             <CreditCard className="w-4 h-4 text-morandi-gold" />
             <span className="text-sm font-semibold text-morandi-primary">信用卡資訊</span>
@@ -275,7 +280,8 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
           </button>
 
           <p className="text-[0.65rem] text-morandi-muted mt-4 text-center leading-relaxed">
-            ⚠️ 此為 Phase 1 demo 頁面、無真實刷卡<br />
+            ⚠️ 此為 Phase 1 demo 頁面、無真實刷卡
+            <br />
             Phase 2 將替換為永豐 EPOS 官方 URL 付款頁
           </p>
         </form>

@@ -58,9 +58,7 @@ export function DayCardDateColumn({
       </div>
 
       <div className={`${isMobile ? 'text-right' : 'space-y-1'} z-10`}>
-        <div
-          className={`text-xs uppercase tracking-widest opacity-70 ${isMobile ? 'hidden' : ''}`}
-        >
+        <div className={`text-xs uppercase tracking-widest opacity-70 ${isMobile ? 'hidden' : ''}`}>
           {isAlternative ? '建議行程' : '地點'}
         </div>
         <div

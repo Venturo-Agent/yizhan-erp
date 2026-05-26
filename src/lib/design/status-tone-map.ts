@@ -210,9 +210,9 @@ export const STATUS_LABEL_MAP: Record<StatusType, Record<string, string>> = {
   },
   payment_request: {
     // 2026-05-15 William 拍板：請款單只有 3 狀態、舊值已批次 UPDATE 進 paid
-    pending: '未付款',     // 新建請款單
-    confirmed: '待付款',   // 已綁定出納單、等實際付款
-    paid: '已付款',        // 款項實際匯出（含舊 billed / approved 一律歸這）
+    pending: '未付款', // 新建請款單
+    confirmed: '待付款', // 已綁定出納單、等實際付款
+    paid: '已付款', // 款項實際匯出（含舊 billed / approved 一律歸這）
     // 防呆：歷史殘留值、業務語意等同 paid（2026-05-15 SSOT 盤點）
     billed: '已付款',
   },
@@ -232,9 +232,9 @@ export const STATUS_LABEL_MAP: Record<StatusType, Record<string, string>> = {
   },
   disbursement: {
     // 2026-05-15 William 拍板對齊請款單 3 狀態語意（未付款 / 待付款 / 已付款）
-    pending: '未付款',     // 出納單建好、尚未實際出帳
-    confirmed: '待付款',   // 已確認、等實際付款（理論流程、實際 DB 暫無此狀態）
-    paid: '已付款',        // 款項實際匯出
+    pending: '未付款', // 出納單建好、尚未實際出帳
+    confirmed: '待付款', // 已確認、等實際付款（理論流程、實際 DB 暫無此狀態）
+    paid: '已付款', // 款項實際匯出
   },
   tour: {
     template: '模板',

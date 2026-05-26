@@ -182,10 +182,14 @@ export default function TrialBalancePage() {
                 <tr>
                   <th className="px-4 py-3 text-left text-sm font-semibold">{t('accountCode')}</th>
                   <th className="px-4 py-3 text-left text-sm font-semibold">{t('accountName')}</th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold">{PAGE_LABELS.COL_TYPE}</th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold">
+                    {PAGE_LABELS.COL_TYPE}
+                  </th>
                   <th className="px-4 py-3 text-right text-sm font-semibold">借方總額</th>
                   <th className="px-4 py-3 text-right text-sm font-semibold">貸方總額</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold">{PAGE_LABELS.COL_BALANCE}</th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold">
+                    {PAGE_LABELS.COL_BALANCE}
+                  </th>
                 </tr>
               </thead>
               <tbody>

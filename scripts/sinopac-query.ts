@@ -7,7 +7,10 @@ import type { SinopacConfig } from '@/lib/payment-providers/sinopac/config'
 
 function reqEnv(n: string): string {
   const v = process.env[n]
-  if (!v) { console.error(`缺 ${n}`); process.exit(1) }
+  if (!v) {
+    console.error(`缺 ${n}`)
+    process.exit(1)
+  }
   return v
 }
 
@@ -35,4 +38,7 @@ async function main() {
   })
   console.log(JSON.stringify(res, null, 2))
 }
-main().catch(e => { console.error('失敗：', e); process.exit(1) })
+main().catch(e => {
+  console.error('失敗：', e)
+  process.exit(1)
+})

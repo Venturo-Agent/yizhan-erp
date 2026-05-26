@@ -12,21 +12,15 @@ import { ChevronDown } from 'lucide-react'
 const pricingDetails = [
   {
     category: '機票',
-    items: [
-      { label: '台北 ←→ 福岡 來回機票（16人）', price: 280000, note: '經濟艙' },
-    ],
+    items: [{ label: '台北 ←→ 福岡 來回機票（16人）', price: 280000, note: '經濟艙' }],
   },
   {
     category: '飯店 Day 1-3',
-    items: [
-      { label: 'The Ritz-Carlton Fukuoka（3晚 × 8間）', price: 2400000, note: '含早餐' },
-    ],
+    items: [{ label: 'The Ritz-Carlton Fukuoka（3晚 × 8間）', price: 2400000, note: '含早餐' }],
   },
   {
     category: '飯店 Day 3-5',
-    items: [
-      { label: '一壺天（2晚 × 8間）', price: 2880000, note: '含早晚餐、溫泉' },
-    ],
+    items: [{ label: '一壺天（2晚 × 8間）', price: 2880000, note: '含早晚餐、溫泉' }],
   },
   {
     category: '高爾夫',
@@ -38,9 +32,7 @@ const pricingDetails = [
   },
   {
     category: '包車',
-    items: [
-      { label: '全程 16人座小巴（5天）', price: 150000, note: '含過路費、停車費' },
-    ],
+    items: [{ label: '全程 16人座小巴（5天）', price: 150000, note: '含過路費、停車費' }],
   },
   {
     category: '餐食',
@@ -76,7 +68,8 @@ export function FukuokaGolfProposalHotels() {
       period: 'Day 1 — Day 3',
       roomType: 'Deluxe Room',
       pricePerNight: '¥85,000-120,000/間',
-      description: '福岡最頂級的國際五星，位於 Canal City 旁，距離機場僅 10 分鐘車程。飯店內有法式餐廳、SPA、室內泳池。',
+      description:
+        '福岡最頂級的國際五星，位於 Canal City 旁，距離機場僅 10 分鐘車程。飯店內有法式餐廳、SPA、室內泳池。',
       highlights: ['Ritz-Carlton SPA', '法式餐廳', '室內溫水泳池', '管家服務'],
       image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800&q=80',
     },
@@ -87,7 +80,8 @@ export function FukuokaGolfProposalHotels() {
       period: 'Day 3 — Day 5',
       roomType: '獨棟 Villa',
       pricePerNight: '¥120,000-180,000/間',
-      description: '隱藏在由布岳山麓的秘境溫泉旅館，獨棟別墅佔地約2,300坪，周圍山林環繞，彷彿深山秘境中的童話村莊。每棟別墅皆配客廳、餐廳、臥室與私人露天溫泉。米其林指南四紅樓推薦。',
+      description:
+        '隱藏在由布岳山麓的秘境溫泉旅館，獨棟別墅佔地約2,300坪，周圍山林環繞，彷彿深山秘境中的童話村莊。每棟別墅皆配客廳、餐廳、臥室與私人露天溫泉。米其林指南四紅樓推薦。',
       highlights: ['私人露天溫泉入戶', '獨棟 Villa 設計', '米其林指南推薦', '私人管家服務'],
       image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
       isSwap: true,
@@ -111,7 +105,10 @@ export function FukuokaGolfProposalHotels() {
           >
             Accommodation
           </span>
-          <h2 className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+          <h2
+            className="text-5xl lg:text-6xl font-bold"
+            style={{ fontFamily: 'Noto Serif TC, serif' }}
+          >
             精選住宿
           </h2>
           <p className="text-lg mt-4" style={{ color: '#666' }}>
@@ -143,9 +140,7 @@ export function FukuokaGolfProposalHotels() {
                     className="absolute top-6 left-6 px-4 py-2"
                     style={{ backgroundColor: '#8B7355' }}
                   >
-                    <span className="text-xs tracking-[0.15em] uppercase text-white">
-                      換宿
-                    </span>
+                    <span className="text-xs tracking-[0.15em] uppercase text-white">換宿</span>
                   </div>
                 )}
               </div>
@@ -158,10 +153,15 @@ export function FukuokaGolfProposalHotels() {
                 >
                   {hotel.period} · {hotel.nights}
                 </span>
-                <h3 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                <h3
+                  className="text-3xl font-bold mb-2"
+                  style={{ fontFamily: 'Noto Serif TC, serif' }}
+                >
                   {hotel.name}
                 </h3>
-                <p className="text-base mb-6" style={{ color: '#666' }}>{hotel.location}</p>
+                <p className="text-base mb-6" style={{ color: '#666' }}>
+                  {hotel.location}
+                </p>
 
                 <p className="text-base leading-relaxed mb-6" style={{ color: '#444' }}>
                   {hotel.description}
@@ -200,8 +200,8 @@ export function FukuokaGolfProposalHotels() {
             為什麼第三晚要換宿？
           </h4>
           <p className="text-base leading-relaxed" style={{ color: '#666' }}>
-            從繁華的博多都會，換到靜謐的由布院溫泉區。Day 3 下午打完球、太太做完 SPA，
-            傍晚搭車約 1.5 小時抵達溫泉旅館。隔天（Day 4）可以在溫泉區悠閒度過，
+            從繁華的博多都會，換到靜謐的由布院溫泉區。Day 3 下午打完球、太太做完 SPA， 傍晚搭車約
+            1.5 小時抵達溫泉旅館。隔天（Day 4）可以在溫泉區悠閒度過，
             先生們可以在飯店享受設施或加打第三回合，太太們探索金麟湖、由布院小鎮。
             這樣的節奏對比，讓旅程更有層次感。
           </p>
@@ -221,7 +221,10 @@ export function FukuokaGolfProposalHotels() {
             >
               Pricing
             </span>
-            <h2 className="text-4xl lg:text-5xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+            <h2
+              className="text-4xl lg:text-5xl font-bold"
+              style={{ fontFamily: 'Noto Serif TC, serif' }}
+            >
               費用說明
             </h2>
           </div>
@@ -229,14 +232,12 @@ export function FukuokaGolfProposalHotels() {
           {/* Accordion */}
           <div className="space-y-0">
             {pricingDetails.map((category, index) => (
-              <div
-                key={category.category}
-                className="border-t"
-                style={{ borderColor: '#E5E5E5' }}
-              >
+              <div key={category.category} className="border-t" style={{ borderColor: '#E5E5E5' }}>
                 <button
                   className="w-full flex justify-between items-center py-6 text-left"
-                  onClick={() => setOpenAccordion(openAccordion === category.category ? null : category.category)}
+                  onClick={() =>
+                    setOpenAccordion(openAccordion === category.category ? null : category.category)
+                  }
                 >
                   <span
                     className="text-lg font-bold"
@@ -248,7 +249,8 @@ export function FukuokaGolfProposalHotels() {
                     className="w-5 h-5 transition-transform duration-300"
                     style={{
                       color: '#8B7355',
-                      transform: openAccordion === category.category ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transform:
+                        openAccordion === category.category ? 'rotate(180deg)' : 'rotate(0deg)',
                     }}
                   />
                 </button>
@@ -262,13 +264,22 @@ export function FukuokaGolfProposalHotels() {
                     className="pb-6"
                   >
                     <div className="space-y-4">
-                      {category.items.map((item) => (
-                        <div key={item.label} className="flex justify-between items-start py-3 border-b" style={{ borderColor: '#f0f0f0' }}>
+                      {category.items.map(item => (
+                        <div
+                          key={item.label}
+                          className="flex justify-between items-start py-3 border-b"
+                          style={{ borderColor: '#f0f0f0' }}
+                        >
                           <div>
                             <p className="text-base">{item.label}</p>
-                            <p className="text-sm" style={{ color: '#999' }}>{item.note}</p>
+                            <p className="text-sm" style={{ color: '#999' }}>
+                              {item.note}
+                            </p>
                           </div>
-                          <p className="text-lg font-bold ml-8" style={{ color: '#8B7355', fontFamily: 'Noto Serif TC, serif' }}>
+                          <p
+                            className="text-lg font-bold ml-8"
+                            style={{ color: '#8B7355', fontFamily: 'Noto Serif TC, serif' }}
+                          >
                             ${item.price.toLocaleString()}
                           </p>
                         </div>
@@ -296,7 +307,10 @@ export function FukuokaGolfProposalHotels() {
                 >
                   Total
                 </span>
-                <h3 className="text-2xl lg:text-3xl font-bold text-white" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                <h3
+                  className="text-2xl lg:text-3xl font-bold text-white"
+                  style={{ fontFamily: 'Noto Serif TC, serif' }}
+                >
                   基礎費用合計
                 </h3>
                 <p className="text-sm mt-2" style={{ color: '#666' }}>
@@ -307,7 +321,10 @@ export function FukuokaGolfProposalHotels() {
                 <p className="text-4xl lg:text-5xl font-bold text-white">
                   ${baseTotal.toLocaleString()}
                 </p>
-                <p className="text-xl mt-2" style={{ color: '#8B7355', fontFamily: 'Noto Serif TC, serif' }}>
+                <p
+                  className="text-xl mt-2"
+                  style={{ color: '#8B7355', fontFamily: 'Noto Serif TC, serif' }}
+                >
                   每人約 ${perPersonTotal.toLocaleString()} 元
                 </p>
               </div>
@@ -316,7 +333,9 @@ export function FukuokaGolfProposalHotels() {
 
           {/* 未含項目 */}
           <div className="mt-12 p-8 border" style={{ borderColor: '#E5E5E5' }}>
-            <h4 className="text-base font-bold mb-4" style={{ fontFamily: 'Noto Serif TC, serif' }}>費用未含</h4>
+            <h4 className="text-base font-bold mb-4" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+              費用未含
+            </h4>
             <ul className="space-y-2 text-sm" style={{ color: '#666' }}>
               <li>私人消費（SPA 加時、球場私人教練等）</li>
               <li>機場行李托運費用</li>

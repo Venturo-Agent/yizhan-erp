@@ -64,12 +64,7 @@ describe('encryptSecret + decryptSecret - round-trip', () => {
   })
 
   it('支援 UTF-8 多字節字元（中文 / emoji）', () => {
-    const samples = [
-      '中文密碼',
-      '混合 Mixed 123 ABC',
-      'emoji 🔐 test',
-      '',
-    ]
+    const samples = ['中文密碼', '混合 Mixed 123 ABC', 'emoji 🔐 test', '']
     for (const s of samples) {
       expect(decryptSecret(encryptSecret(s))).toBe(s)
     }

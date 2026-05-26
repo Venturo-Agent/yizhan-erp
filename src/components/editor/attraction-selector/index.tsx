@@ -27,7 +27,7 @@ import { ATTRACTION_SELECTOR_LABELS } from './constants/labels'
 const AttractionsMap = dynamic(
   () =>
     import('@/app/(main)/library/attractions/_components/AttractionsMap').then(
-      mod => mod.AttractionsMap,
+      mod => mod.AttractionsMap
     ),
   {
     ssr: false,
@@ -282,10 +282,7 @@ export function AttractionSelector({
             {ATTRACTION_SELECTOR_LABELS.CANCEL}
           </Button>
           {selectedIds.size > 0 && (
-            <Button variant="soft-gold"
-              onClick={handleConfirm}
- className="rounded-xl"
-            >
+            <Button variant="soft-gold" onClick={handleConfirm} className="rounded-xl">
               加入 {selectedIds.size} 個景點
             </Button>
           )}
@@ -341,7 +338,9 @@ export function AttractionSelector({
                   </p>
                 )}
                 {!detailAttraction.description && (
-                  <p className="text-sm text-morandi-muted italic">{COMPONENT_LABELS.NO_DESCRIPTION}</p>
+                  <p className="text-sm text-morandi-muted italic">
+                    {COMPONENT_LABELS.NO_DESCRIPTION}
+                  </p>
                 )}
               </div>
             </>

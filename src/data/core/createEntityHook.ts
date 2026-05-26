@@ -20,7 +20,7 @@
 import { useEffect } from 'react'
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
-import type {  } from '@/lib/supabase/typed-client'
+import type {} from '@/lib/supabase/typed-client'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
 import { set_cache } from '@/lib/cache/indexeddb-cache'
@@ -40,11 +40,7 @@ import {
 } from './types'
 
 // Sub-module imports
-import {
-  getCurrentUserContext,
-  useIdbFallback,
-  WORKSPACE_SCOPED_TABLES,
-} from './entityHookCache'
+import { getCurrentUserContext, useIdbFallback, WORKSPACE_SCOPED_TABLES } from './entityHookCache'
 import { useRealtimeSync } from './entityHookRealtime'
 import { registerSwrKey, unregisterSwrKey } from './entityHookRegistry'
 import {
@@ -222,12 +218,18 @@ export function createEntityHook<T extends BaseEntity>(
           if (filter) {
             Object.entries(filter).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
-                q = (q as never as { eq: (col: string, val: unknown) => typeof q }).eq(key, value) as typeof q
+                q = (q as never as { eq: (col: string, val: unknown) => typeof q }).eq(
+                  key,
+                  value
+                ) as typeof q
               }
             })
           }
           if (config.list?.filterSoftDeleted) {
-            q = (q as never as { is: (col: string, val: null) => typeof q }).is('deleted_at', null) as typeof q
+            q = (q as never as { is: (col: string, val: null) => typeof q }).is(
+              'deleted_at',
+              null
+            ) as typeof q
           }
           q = q.limit(limit)
           const { data: rows, error } = await q
@@ -263,13 +265,19 @@ export function createEntityHook<T extends BaseEntity>(
             // caller 傳的 filter（如 { tour_id: 'xxx' }）→ supabase .eq()
             Object.entries(filter).forEach(([key, value]) => {
               if (value !== undefined && value !== null) {
-                q = (q as never as { eq: (col: string, val: unknown) => typeof q }).eq(key, value) as typeof q
+                q = (q as never as { eq: (col: string, val: unknown) => typeof q }).eq(
+                  key,
+                  value
+                ) as typeof q
               }
             })
           }
           if (config.list?.filterSoftDeleted) {
             // 過濾已軟刪除的 row（deleted_at IS NULL = 活的）
-            q = (q as never as { is: (col: string, val: null) => typeof q }).is('deleted_at', null) as typeof q
+            q = (q as never as { is: (col: string, val: null) => typeof q }).is(
+              'deleted_at',
+              null
+            ) as typeof q
           }
           q = q.range(from, from + PAGE - 1)
           const { data: page, error } = await q
@@ -338,7 +346,10 @@ export function createEntityHook<T extends BaseEntity>(
             .select(selectFields)
           q = applyWorkspaceScope(q)
           if (config.list?.filterSoftDeleted) {
-            q = (q as never as { is: (col: string, val: null) => typeof q }).is('deleted_at', null) as typeof q
+            q = (q as never as { is: (col: string, val: null) => typeof q }).is(
+              'deleted_at',
+              null
+            ) as typeof q
           }
           q = q.range(from, from + PAGE - 1)
           const { data: page, error } = await q
@@ -456,7 +467,8 @@ export function createEntityHook<T extends BaseEntity>(
     const { data, error, isLoading, mutate } = useSWR(
       swrKey,
       async () => {
-        const { page, pageSize, filter, search, searchFields, sortBy, sortOrder, multiSort } = params
+        const { page, pageSize, filter, search, searchFields, sortBy, sortOrder, multiSort } =
+          params
         const from = (page - 1) * pageSize
         const to = from + pageSize - 1
 
@@ -489,7 +501,10 @@ export function createEntityHook<T extends BaseEntity>(
 
         // 軟刪除過濾
         if (config.list?.filterSoftDeleted) {
-          query = (query as never as { is: (col: string, val: null) => typeof query }).is('deleted_at', null) as typeof query
+          query = (query as never as { is: (col: string, val: null) => typeof query }).is(
+            'deleted_at',
+            null
+          ) as typeof query
         }
 
         // 過濾
@@ -499,7 +514,9 @@ export function createEntityHook<T extends BaseEntity>(
           Object.entries(filter).forEach(([key, value]) => {
             if (Array.isArray(value)) {
               if (value.length > 0) {
-                query = (query as never as { in: (col: string, vals: unknown[]) => typeof query }).in(key, value)
+                query = (
+                  query as never as { in: (col: string, vals: unknown[]) => typeof query }
+                ).in(key, value)
               }
             } else if (value !== undefined && value !== null && value !== '' && value !== 'all') {
               query = query.eq(key, value)
@@ -586,4 +603,3 @@ export function createEntityHook<T extends BaseEntity>(
     invalidate,
   }
 }
-

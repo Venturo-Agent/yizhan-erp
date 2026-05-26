@@ -1,6 +1,9 @@
 import React, { useMemo } from 'react'
 import { TourFormData, FeaturesStyleType } from '../types'
-import { useTemplates, getTemplateColor } from '@/app/(main)/tours/[code]/_itinerary/_hooks/useTemplates'
+import {
+  useTemplates,
+  getTemplateColor,
+} from '@/app/(main)/tours/[code]/_itinerary/_hooks/useTemplates'
 import { useFeatures } from './features/hooks/useFeatures'
 import { FeatureList } from './features/FeatureList'
 import { TOUR_FORM_LABELS } from './constants/labels'

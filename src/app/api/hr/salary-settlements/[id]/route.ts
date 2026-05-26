@@ -90,10 +90,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: '找不到結算 batch' }, { status: 404 })
     }
     if (settlement.status !== 'draft') {
-      return NextResponse.json(
-        { error: '已確認的結算不可刪除、只可標記取消' },
-        { status: 409 }
-      )
+      return NextResponse.json({ error: '已確認的結算不可刪除、只可標記取消' }, { status: 409 })
     }
 
     // CASCADE 會帶走 items

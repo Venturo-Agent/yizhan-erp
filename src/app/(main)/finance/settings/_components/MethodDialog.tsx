@@ -138,7 +138,7 @@ export function MethodDialog({
       credit_account_id: creditAccountId || null,
       fee_percent: feePercentNum,
       fee_fixed: hasAccounting ? feeFixedNum : 0,
-      fee_account_id: (feePercentNum > 0 || feeFixedNum > 0) ? feeAccountId || null : null,
+      fee_account_id: feePercentNum > 0 || feeFixedNum > 0 ? feeAccountId || null : null,
       kind: kind || null,
       sort_order: sortOrder,
       provider,
@@ -198,7 +198,8 @@ export function MethodDialog({
               ))}
             </select>
             <p className="text-xs text-morandi-muted">
-              💡 選擇「永豐」相關金流商、平台會自動串接 API 產生付款連結。選「手動處理」則不接 API、由人工輸入交易資訊。
+              💡 選擇「永豐」相關金流商、平台會自動串接 API 產生付款連結。選「手動處理」則不接
+              API、由人工輸入交易資訊。
             </p>
           </div>
         )}
@@ -279,7 +280,10 @@ export function MethodDialog({
               <select
                 value={feeAccountId}
                 onChange={e => setFeeAccountId(e.target.value)}
-                disabled={(!feePercent || parseFloat(feePercent) <= 0) && (!feeFixed || parseFloat(feeFixed) <= 0)}
+                disabled={
+                  (!feePercent || parseFloat(feePercent) <= 0) &&
+                  (!feeFixed || parseFloat(feeFixed) <= 0)
+                }
                 className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm disabled:opacity-50"
               >
                 <option value="">{PAGE_LABELS.FEE_ACCOUNT}</option>
@@ -293,7 +297,9 @@ export function MethodDialog({
               </select>
             )}
             <p className="text-xs text-morandi-muted">
-              💡 {FEE_KIND_HINT[kind as PaymentMethodKind] ?? '手續費比例（若有）。收款核准時自動扣減實收。'}
+              💡{' '}
+              {FEE_KIND_HINT[kind as PaymentMethodKind] ??
+                '手續費比例（若有）。收款核准時自動扣減實收。'}
             </p>
           </div>
         )}

@@ -91,7 +91,9 @@ export function MemberPassportInfo({
               className="w-full bg-transparent text-xs border-none outline-none shadow-none focus:ring-0 text-morandi-primary"
             />
           ) : (
-            <span className="text-xs text-morandi-primary">{member.passport_number || <EmptyValue />}</span>
+            <span className="text-xs text-morandi-primary">
+              {member.passport_number || <EmptyValue />}
+            </span>
           )}
         </td>
       )}

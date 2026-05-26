@@ -121,9 +121,7 @@ export function useItineraryLoader({
           }
           if (itinerary.return_flight) {
             const returnFlt = itinerary.return_flight
-            const returnArr = (
-              Array.isArray(returnFlt) ? returnFlt : [returnFlt]
-            ) as FlightInfo[]
+            const returnArr = (Array.isArray(returnFlt) ? returnFlt : [returnFlt]) as FlightInfo[]
             setReturnFlights(returnArr)
             const firstDate = (returnArr[0] as FlightInfo & { departureDate?: string })
               ?.departureDate

@@ -246,25 +246,27 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
  *   - 全形符號（「」『』等）
  */
 function stripMarkdownForLine(text: string): string {
-  return text
-    // **bold** → bold（最常見、必砍）
-    .replace(/\*\*(.+?)\*\*/g, '$1')
-    // __bold__ → bold
-    .replace(/__(.+?)__/g, '$1')
-    // *italic* → italic（但不動句首 * 列表符 / 已被前一條砍的粗體殘留）
-    // 用 lookbehind 避開列表項：星號前不能是行首 / 空白
-    .replace(/(?<=\S)\*([^*\n]+?)\*(?=\S|$)/g, '$1')
-    // # heading → heading
-    .replace(/^#{1,6}\s+/gm, '')
-    // [link](url) → link
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    // `inline code` → inline code
-    .replace(/`([^`\n]+)`/g, '$1')
-    // ```code block``` 整段保留內容、移除 fence
-    .replace(/```[a-z]*\n?([\s\S]*?)```/g, '$1')
-    // 連續 3 個以上換行壓縮成 2 個
-    .replace(/\n{3,}/g, '\n\n')
-    .trim()
+  return (
+    text
+      // **bold** → bold（最常見、必砍）
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      // __bold__ → bold
+      .replace(/__(.+?)__/g, '$1')
+      // *italic* → italic（但不動句首 * 列表符 / 已被前一條砍的粗體殘留）
+      // 用 lookbehind 避開列表項：星號前不能是行首 / 空白
+      .replace(/(?<=\S)\*([^*\n]+?)\*(?=\S|$)/g, '$1')
+      // # heading → heading
+      .replace(/^#{1,6}\s+/gm, '')
+      // [link](url) → link
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      // `inline code` → inline code
+      .replace(/`([^`\n]+)`/g, '$1')
+      // ```code block``` 整段保留內容、移除 fence
+      .replace(/```[a-z]*\n?([\s\S]*?)```/g, '$1')
+      // 連續 3 個以上換行壓縮成 2 個
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  )
 }
 
 // ============================================================================

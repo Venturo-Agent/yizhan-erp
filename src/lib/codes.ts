@@ -81,10 +81,7 @@ export async function generateSupplierCode(
  * @param tourId 對應 tour 的 id（系統會自動找 tour.code）
  * @returns 如 'CNX250128A-O02'
  */
-export async function generateOrderNumber(
-  tourId: string,
-  client?: CodesDbClient
-): Promise<string> {
+export async function generateOrderNumber(tourId: string, client?: CodesDbClient): Promise<string> {
   const { data, error } = await pickClient(client).rpc('generate_order_number', {
     p_tour_id: tourId,
   })
@@ -145,10 +142,7 @@ export async function generateTourCode(
  * @param tourId 對應 tour 的 id（系統會自動找 tour.code）
  * @returns 如 'BKK260610A-R03'
  */
-export async function generateReceiptNo(
-  tourId: string,
-  client?: CodesDbClient
-): Promise<string> {
+export async function generateReceiptNo(tourId: string, client?: CodesDbClient): Promise<string> {
   const { data, error } = await pickClient(client).rpc('generate_receipt_no', {
     p_tour_id: tourId,
   })
@@ -163,10 +157,7 @@ export async function generateReceiptNo(
  * @param tourCode tour.code 字串（譬如 'BKK260610A'）
  * @returns 如 'BKK260610A-I02'
  */
-export async function generateRequestNo(
-  tourCode: string,
-  client?: CodesDbClient
-): Promise<string> {
+export async function generateRequestNo(tourCode: string, client?: CodesDbClient): Promise<string> {
   const { data, error } = await pickClient(client).rpc('generate_request_no', {
     p_tour_code: tourCode,
   })
@@ -252,14 +243,11 @@ export async function generateCompanyPaymentRequestCode(
   requestDate?: Date | string,
   client?: CodesDbClient
 ): Promise<string> {
-  const { data, error } = await pickClient(client).rpc(
-    'generate_company_payment_request_code',
-    {
-      p_workspace_id: workspaceId,
-      p_expense_type: expenseType.toUpperCase(),
-      p_request_date: toDateString(requestDate),
-    }
-  )
+  const { data, error } = await pickClient(client).rpc('generate_company_payment_request_code', {
+    p_workspace_id: workspaceId,
+    p_expense_type: expenseType.toUpperCase(),
+    p_request_date: toDateString(requestDate),
+  })
   if (error || !data) {
     throw error ?? new Error('generate_company_payment_request_code returned null')
   }

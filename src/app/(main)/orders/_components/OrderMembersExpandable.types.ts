@@ -4,7 +4,6 @@
  * 從主組件拆出，讓 toolbar / main 共用同一份 SSOT，不重複定義。
  */
 
-
 // 可切換顯示的欄位定義
 export interface ColumnVisibility {
   passport_name: boolean

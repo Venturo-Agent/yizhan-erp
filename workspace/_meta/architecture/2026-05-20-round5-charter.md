@@ -14,6 +14,7 @@
 **背景**：SWR 健檢 Round 4 結論 `baseline: 72 檔 / 151 處`、走 ratchet 機制（修一個少一個）。本輪改 5 個高頻檔。
 
 **做法**：
+
 1. 跑 `npm run lint -- --suppressions-location .eslint-suppressions.json` 看當前 baseline
 2. 從 baseline 挑 **5 個檔**、選擇優先順序：
    - 寫入頻率最高（看 `finance/` / `tours/` / `orders/`）
@@ -35,6 +36,7 @@
 **背景**：Round 2/3 連環踩坑（OPENCLAW 看 `.next/dev/types/validator.ts` 推論 CIS page 存在、實際 source 早被砍）。寫一個 audit script 防再犯。
 
 **做法**：
+
 1. 寫 `scripts/audit-stale-refs.ts`
 2. 邏輯：
    - 掃 `.next/dev/types/validator.ts`（如果存在）
@@ -52,6 +54,7 @@
 **背景**：Round 1 提及 audit:rls 在 CI 應能跑 L3/L4/L5 全量、但需要 `SUPABASE_DB_URL` secret。
 
 **做法**：
+
 1. 讀 `.github/workflows/audit-rls.yml`
 2. 確認是否要求 `SUPABASE_DB_URL` secret
 3. 如果 yml 已就位但 secret 沒設、寫進 Round 5 audit「待 William 在 GitHub 加 secret」
@@ -65,6 +68,7 @@
 **背景**：Claude Opus 一輪輪累積、需要一份整體優化清單給 William 7 點起床決策。
 
 **做法**：
+
 1. 寫 `2026-05-20-round5-recommendations.md`
 2. 內容：
    - **已完成的 11 件事**（Round 1-5 各 commit 摘要）

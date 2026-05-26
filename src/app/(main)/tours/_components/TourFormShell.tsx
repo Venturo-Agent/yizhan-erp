@@ -1,7 +1,13 @@
 'use client'
 
 import React from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, type DialogLevel } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  type DialogLevel,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
 import { X } from 'lucide-react'
@@ -197,11 +203,7 @@ export function TourFormShell({
             <X size={16} />
             {TOUR_FORM.cancel}
           </Button>
-          <Button variant="soft-gold"
-            onClick={onSubmit}
-            disabled={isSubmitDisabled()}
- 
-          >
+          <Button variant="soft-gold" onClick={onSubmit} disabled={isSubmitDisabled()}>
             {getSubmitLabel()}
           </Button>
         </div>

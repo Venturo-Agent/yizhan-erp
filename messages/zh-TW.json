@@ -586,15 +586,7 @@
     "itinerarySaveFailed": "儲存行程表失敗",
     "itineraryUpdateFailed": "建立行程表失敗",
     "itineraryDayNth": "第{day}",
-    "itineraryWeekdays": [
-      "日",
-      "一",
-      "二",
-      "三",
-      "四",
-      "五",
-      "六"
-    ],
+    "itineraryWeekdays": ["日", "一", "二", "三", "四", "五", "六"],
     "hooksSaveSuccess": "行程表更新成功",
     "hooksSavedAsNewVersion": "已另存為新版本",
     "hooksSaveAsNewVersionFailed": "另存新版本失敗：",

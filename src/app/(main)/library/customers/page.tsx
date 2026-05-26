@@ -11,22 +11,20 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import {
-  Plus,
-  AlertTriangle,
-  Trash2,
-  Users,
-  FileSpreadsheet,
-  Eye,
-  Info,
-} from 'lucide-react'
+import { Plus, AlertTriangle, Trash2, Users, FileSpreadsheet, Eye, Info } from 'lucide-react'
 import { formatPassportExpiryWithStatus } from '@/lib/utils/passport-expiry'
 import { DateCell } from '@/components/table-cells'
 
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { Button } from '@/components/ui/button'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
-import { useCustomersSlim, useCustomersPaginated, createCustomer, updateCustomer, deleteCustomer } from '@/data'
+import {
+  useCustomersSlim,
+  useCustomersPaginated,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer,
+} from '@/data'
 import type { Customer, CreateCustomerData } from '@/types/customer.types'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { supabase } from '@/lib/supabase/client'
@@ -356,11 +354,7 @@ export default function CustomersPage() {
       headerActions={
         // 主操作走 primaryAction、其他兩顆輔助按鈕（群組 / 匯入）走 escape hatch、樣式套 header-outline 維持視覺一致
         <div className="flex items-center gap-2">
-          <Button
-            variant="header-outline"
-            size="sm"
-            onClick={() => setIsImportDialogOpen(true)}
-          >
+          <Button variant="header-outline" size="sm" onClick={() => setIsImportDialogOpen(true)}>
             <FileSpreadsheet size={16} />
             <span className="hidden sm:inline">{t('customerImportBtnSelectFile')}</span>
           </Button>

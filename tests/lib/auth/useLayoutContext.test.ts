@@ -78,11 +78,7 @@ import {
 // 改用：dedupingInterval: 0、其他保持 default
 function makeWrapper() {
   return function Wrapper({ children }: { children: React.ReactNode }) {
-    return React.createElement(
-      SWRConfig,
-      { value: { dedupingInterval: 0 } },
-      children,
-    )
+    return React.createElement(SWRConfig, { value: { dedupingInterval: 0 } }, children)
   }
 }
 
@@ -194,7 +190,7 @@ describe('useLayoutContext — hydration race', () => {
     await waitFor(() => expect(fetchMock).toHaveBeenCalled())
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/auth/layout-context',
-      expect.objectContaining({ credentials: 'include' }),
+      expect.objectContaining({ credentials: 'include' })
     )
   })
 

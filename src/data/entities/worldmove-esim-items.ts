@@ -42,8 +42,7 @@ const worldmoveEsimItemEntity = createEntityHook<WorldmoveEsimItem>('worldmove_e
     orderBy: { column: 'created_at', ascending: false },
   },
   slim: {
-    select:
-      'id,order_id,workspace_id,product_name,iccid,status,valid_until,unit_price',
+    select: 'id,order_id,workspace_id,product_name,iccid,status,valid_until,unit_price',
   },
   detail: {
     select: '*',

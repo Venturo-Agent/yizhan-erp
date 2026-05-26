@@ -53,7 +53,7 @@ export default function TourDetailPage() {
   const visibleTabs = useMemo(() => {
     if (!tour || needsItineraryServiceType(tour.tour_service_type)) return featureVisibleTabs
     return featureVisibleTabs.filter(
-      (t) => t.value !== 'itinerary' && t.value !== 'display-itinerary'
+      t => t.value !== 'itinerary' && t.value !== 'display-itinerary'
     )
   }, [featureVisibleTabs, tour])
 

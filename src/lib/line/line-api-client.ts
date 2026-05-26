@@ -12,8 +12,8 @@ import { logger } from '@/lib/utils/logger'
 const LINE_BOT_INFO_ENDPOINT = 'https://api.line.me/v2/bot/info'
 
 export interface LineBotInfo {
-  userId: string         // bot 自己的 LINE user ID（webhook destination）
-  basicId: string        // @abc123 顯示用 ID
+  userId: string // bot 自己的 LINE user ID（webhook destination）
+  basicId: string // @abc123 顯示用 ID
   displayName: string
   pictureUrl?: string
   premiumId?: string

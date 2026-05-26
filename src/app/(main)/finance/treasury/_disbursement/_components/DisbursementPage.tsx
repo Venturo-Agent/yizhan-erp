@@ -59,7 +59,9 @@ function useDisbursementBankGroupSummaries(workspaceId: string | undefined) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamicFrom escape hatch
       const { data } = await (supabase as any)
         .from('disbursement_order_items')
-        .select('disbursement_order_id, from_bank_account_id, bank_accounts:from_bank_account_id(name)')
+        .select(
+          'disbursement_order_id, from_bank_account_id, bank_accounts:from_bank_account_id(name)'
+        )
         .eq('workspace_id', workspaceId)
 
       if (!data) return
@@ -78,10 +80,7 @@ function useDisbursementBankGroupSummaries(workspaceId: string | undefined) {
           orderBankMap.set(row.disbursement_order_id, new Map())
         }
         const bankMap = orderBankMap.get(row.disbursement_order_id)!
-        bankMap.set(
-          row.from_bank_account_id,
-          (bankMap.get(row.from_bank_account_id) ?? 0) + 1,
-        )
+        bankMap.set(row.from_bank_account_id, (bankMap.get(row.from_bank_account_id) ?? 0) + 1)
       }
 
       // 把 bank_account_id → name 備查
@@ -153,9 +152,7 @@ export function DisbursementPage() {
         label: '出納單號',
         width: '140px',
         render: (value: unknown) => (
-          <div className="font-medium text-morandi-primary">
-            {String(value || '自動產生')}
-          </div>
+          <div className="font-medium text-morandi-primary">{String(value || '自動產生')}</div>
         ),
       },
       // 「分公司」column 拿掉(William 2026-05-20 拍板):出納單是 batch 動作、
@@ -166,7 +163,11 @@ export function DisbursementPage() {
         label: '出帳日期',
         width: '110px',
         render: (value: unknown) => (
-          <DateCell date={value as string | null} showIcon={false} className="text-morandi-secondary" />
+          <DateCell
+            date={value as string | null}
+            showIcon={false}
+            className="text-morandi-secondary"
+          />
         ),
       },
       {
@@ -175,7 +176,8 @@ export function DisbursementPage() {
         width: '80px',
         render: (_value: unknown, row: DisbursementOrder) => (
           <div className="text-center">
-            {linkedRequests.filter(r => r.disbursement_order_id === row.id).length} {t('disbursementUnit')}
+            {linkedRequests.filter(r => r.disbursement_order_id === row.id).length}{' '}
+            {t('disbursementUnit')}
           </div>
         ),
       },
@@ -256,9 +258,7 @@ export function DisbursementPage() {
           logger.error('產生出納傳票失敗:', err)
         }
 
-        const orderLinkedRequests = linkedRequests.filter(
-          r => r.disbursement_order_id === order.id
-        )
+        const orderLinkedRequests = linkedRequests.filter(r => r.disbursement_order_id === order.id)
         const tour_ids_to_recalculate = new Set<string>()
         for (const req of orderLinkedRequests) {
           await updatePaymentRequestApi(req.id, { status: 'paid' })
@@ -280,23 +280,26 @@ export function DisbursementPage() {
     [user, linkedRequests, refreshAll]
   )
 
-  const handleDelete = useCallback(async (order: DisbursementOrder) => {
-    const confirmed = await confirm(
-      `確定要刪除出納單 ${order.order_number || order.id}？`,
-      { title: '刪除出納單', type: 'warning' }
-    )
-    if (!confirmed) return
+  const handleDelete = useCallback(
+    async (order: DisbursementOrder) => {
+      const confirmed = await confirm(`確定要刪除出納單 ${order.order_number || order.id}？`, {
+        title: '刪除出納單',
+        type: 'warning',
+      })
+      if (!confirmed) return
 
-    try {
-      await deleteDisbursementOrderApi(order.id)
-      // 刪單會把連動請款單的 disbursement_order_id 釋放 → null、計數欄需更新
-      await refreshAll()
-      await alert(t('disbursementDeleted'), 'success')
-    } catch (error) {
-      logger.error(t('disbursementDeleteFailedColon'), error)
-      await alert(t('disbursementDeleteFailed'), 'error')
-    }
-  }, [refreshAll])
+      try {
+        await deleteDisbursementOrderApi(order.id)
+        // 刪單會把連動請款單的 disbursement_order_id 釋放 → null、計數欄需更新
+        await refreshAll()
+        await alert(t('disbursementDeleted'), 'success')
+      } catch (error) {
+        logger.error(t('disbursementDeleteFailedColon'), error)
+        await alert(t('disbursementDeleteFailed'), 'error')
+      }
+    },
+    [refreshAll]
+  )
 
   const handleCreateSuccess = useCallback(async () => {
     setIsCreateDialogOpen(false)
@@ -371,7 +374,7 @@ export function DisbursementPage() {
     </div>
   )
 
-  if (permLoading) return null  // ModuleGuard 已在外層顯示 loading
+  if (permLoading) return null // ModuleGuard 已在外層顯示 loading
   if (!can(CAPABILITIES.FINANCE_READ_DISBURSEMENT)) return <UnauthorizedPage />
 
   return (

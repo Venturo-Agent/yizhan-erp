@@ -69,7 +69,13 @@ function genPayToken(): string {
 
 /** 我方訂單號（英數、唯一、不超長；永豐 OrderNo 用） */
 function genOrderNo(): string {
-  return 'V' + Date.now() + Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+  return (
+    'V' +
+    Date.now() +
+    Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, '0')
+  )
 }
 
 /**
@@ -77,7 +83,7 @@ function genOrderNo(): string {
  * 失敗一律 throw（message 開頭是 SINOPAC_ERR.*）、caller 翻成中文回前端。
  */
 export async function createSinopacCardTransaction(
-  input: CreateCardTxInput,
+  input: CreateCardTxInput
 ): Promise<CreateCardTxResult> {
   const config = await getSinopacConfig(input.workspaceId)
   if (!config) {

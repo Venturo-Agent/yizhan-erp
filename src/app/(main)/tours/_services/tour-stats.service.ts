@@ -103,10 +103,7 @@ export async function recalculateTourRevenue(tour_id: string): Promise<void> {
       throw error
     }
 
-    const totalRevenue = (orders || []).reduce(
-      (sum, o) => sum + (Number(o.paid_amount) || 0),
-      0
-    )
+    const totalRevenue = (orders || []).reduce((sum, o) => sum + (Number(o.paid_amount) || 0), 0)
 
     // 取現有 total_cost 算 profit
     const { data: tour } = await supabase

@@ -59,10 +59,7 @@ export async function checkCapability(
 /**
  * 直接用 capability code 字串檢查（新 caller 用這個）
  */
-export async function hasCapabilityByCode(
-  employeeId: string,
-  code: string
-): Promise<boolean> {
+export async function hasCapabilityByCode(employeeId: string, code: string): Promise<boolean> {
   const adminClient = getSupabaseAdminClient()
 
   const { data: employee, error: empError } = await adminClient

@@ -6,10 +6,7 @@
  */
 
 import * as React from 'react'
-import type {
-  Canvas,
-  CanvasSpotlightBlock,
-} from '@/components/canvas-renderer/types'
+import type { Canvas, CanvasSpotlightBlock } from '@/components/canvas-renderer/types'
 import { updateSpotlightBlock } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
@@ -35,18 +32,14 @@ export function SpotlightEditor({
         <TextField
           label="Tag（眉標）"
           value={block.data.tag ?? ''}
-          onChange={(v) => patch({ tag: v })}
+          onChange={v => patch({ tag: v })}
           placeholder="例：— LUNCH · 元祖日光ゆば料理"
         />
-        <TextField
-          label="標題"
-          value={block.data.title}
-          onChange={(v) => patch({ title: v })}
-        />
+        <TextField label="標題" value={block.data.title} onChange={v => patch({ title: v })} />
         <TextAreaField
           label="段落（Lead）"
           value={block.data.lead ?? ''}
-          onChange={(v) => patch({ lead: v })}
+          onChange={v => patch({ lead: v })}
           rows={6}
           placeholder="多行用 Enter 換行"
         />

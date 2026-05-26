@@ -36,9 +36,7 @@ export const useReceiptsInRange = createReportHook<Receipt, Record<string, never
     const all: Receipt[] = []
     // 自動翻頁：抓到某批不足 PAGE 筆為止（避免單次查詢 1000 筆上限靜默截斷）
     for (let from = 0; ; from += PAGE) {
-      const { data, error } = await filterActive(
-        supabase.from('receipts').select(SELECT)
-      )
+      const { data, error } = await filterActive(supabase.from('receipts').select(SELECT))
         // 超集：receipt_date 在範圍內、或 receipt_date 為 null（client 端再用 coalesce 精確 trim）
         .or(
           `and(receipt_date.gte.${p.startDate},receipt_date.lte.${p.endDate}),receipt_date.is.null`

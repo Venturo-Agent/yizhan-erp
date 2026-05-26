@@ -15,26 +15,11 @@
     "errors": 0,
     "totalRules": 11,
     "topRules": [
-      [
-        "@typescript-eslint/no-unused-vars",
-        906
-      ],
-      [
-        "venturo/no-hardcoded-chinese-jsx",
-        495
-      ],
-      [
-        "venturo/no-silent-catch",
-        123
-      ],
-      [
-        "venturo/no-direct-supabase-in-feature-layer",
-        70
-      ],
-      [
-        "venturo/consistent-form-label",
-        21
-      ]
+      ["@typescript-eslint/no-unused-vars", 906],
+      ["venturo/no-hardcoded-chinese-jsx", 495],
+      ["venturo/no-silent-catch", 123],
+      ["venturo/no-direct-supabase-in-feature-layer", 70],
+      ["venturo/consistent-form-label", 21]
     ]
   },
   "patterns": {

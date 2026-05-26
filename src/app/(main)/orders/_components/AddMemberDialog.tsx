@@ -83,7 +83,11 @@ function PassportCompareCard({
           <div className="text-[0.647rem] text-morandi-muted font-medium">現有護照（目前存的）</div>
           <div className="relative aspect-[3/2] rounded-md overflow-hidden border bg-morandi-container/30 flex items-center justify-center">
             {existingSignedUrl ? (
-              <img src={existingSignedUrl} alt="現有護照" className="w-full h-full object-contain" />
+              <img
+                src={existingSignedUrl}
+                alt="現有護照"
+                className="w-full h-full object-contain"
+              />
             ) : (
               <div className="flex flex-col items-center gap-1 text-morandi-muted text-[0.647rem]">
                 <ImageIcon size={20} />
@@ -160,9 +164,7 @@ export function AddMemberDialog({
       <div className="space-y-6">
         {/* 手動新增 */}
         <div className="flex items-center justify-between gap-4">
-          <h4 className="text-sm font-medium text-morandi-primary">
-            {t('addBlankMember')}
-          </h4>
+          <h4 className="text-sm font-medium text-morandi-primary">{t('addBlankMember')}</h4>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
               <div className="relative w-20">

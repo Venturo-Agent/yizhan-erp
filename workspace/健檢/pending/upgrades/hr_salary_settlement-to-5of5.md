@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ⚠️ | `salary-settlement/[id]/page.tsx` 用 `useSWR` + `apiMutate`；無 entity hook；其他 hr/salary-settlement/ 頁面也有類似問題 |
-| **資安** | ✅ | 紅線 D guard（closed period）在 salary_settlements 已補（Round 4）✅ |
-| **架構** | ✅ | L1-L6 全過；apiMutate 有 |
-| **開發品管** | ⚠️ | salary-settlement 無 e2e；eslint suppress 有 |
-| **清理** | ⚠️ | HrSalarySettlementModule 是 HrModule 子功能；employee-eligibilities entity 有 |
+| 維度         | 現狀 | 具體缺口                                                                                                                 |
+| ------------ | ---- | ------------------------------------------------------------------------------------------------------------------------ |
+| **讀取效能** | ⚠️   | `salary-settlement/[id]/page.tsx` 用 `useSWR` + `apiMutate`；無 entity hook；其他 hr/salary-settlement/ 頁面也有類似問題 |
+| **資安**     | ✅   | 紅線 D guard（closed period）在 salary_settlements 已補（Round 4）✅                                                     |
+| **架構**     | ✅   | L1-L6 全過；apiMutate 有                                                                                                 |
+| **開發品管** | ⚠️   | salary-settlement 無 e2e；eslint suppress 有                                                                             |
+| **清理**     | ⚠️   | HrSalarySettlementModule 是 HrModule 子功能；employee-eligibilities entity 有                                            |
 
 ---
 
@@ -23,6 +23,7 @@
 **缺口**：`salary-settlement/[id]/page.tsx` 無 entity hook。
 
 **修法**：
+
 1. 確認 `useSalarySettlements` entity hook 是否存在
 2. 如果存在 → rewrite page.tsx 走 entity hook
 3. 如果不存在 → 建立 `salary-settlements.ts` entity hook
@@ -39,6 +40,7 @@
 
 **修法**：
 `tests/e2e/hr-salary-settlement.spec.ts`：
+
 ```
 建立薪資結算 → 填寫資料 →
 提交 → 確認狀態為「已結算」→
@@ -55,6 +57,7 @@
 **缺口**：HrSalarySettlementModule 是 HrModule 子功能，清理優先級低。
 
 **修法**：
+
 1. 修完 Action A 後跑 `npm run lint:swr-prune`
 2. 確認 hr_salary_settlement 相關 suppress
 
@@ -83,4 +86,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

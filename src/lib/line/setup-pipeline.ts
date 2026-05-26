@@ -42,7 +42,8 @@ export interface ProvisionResult {
 }
 
 function buildWebhookUrl(): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL || process.env.LINE_WEBHOOK_BASE_URL || 'https://erp.venturo.tw'
+  const base =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.LINE_WEBHOOK_BASE_URL || 'https://erp.venturo.tw'
   return `${base.replace(/\/$/, '')}/api/line/webhook`
 }
 
@@ -115,24 +116,22 @@ export async function provisionLineBot(input: ProvisionInput): Promise<Provision
 
   // 4. upsert workspace_line_settings（token/secret 加密存入、明文欄位清空）
   const supabaseAny = supabase as unknown as SupabaseClient
-  const { error: settingsError } = await supabaseAny
-    .from('workspace_line_settings')
-    .upsert(
-      {
-        workspace_id: input.workspaceId,
-        channel_id: botInfo.userId,
-        channel_access_token: null,
-        channel_secret: null,
-        channel_access_token_encrypted: encryptIntegrationSecret(input.channelAccessToken.trim()),
-        channel_secret_encrypted: encryptIntegrationSecret(input.channelSecret.trim()),
-        bot_greeting: input.botGreeting || null,
-        bot_employee_id: botEmployeeId,
-        is_active: true,
-        webhook_verified_at: new Date().toISOString(),
-        effective_from: formatDateTaipei(new Date()),
-      },
-      { onConflict: 'workspace_id' }
-    )
+  const { error: settingsError } = await supabaseAny.from('workspace_line_settings').upsert(
+    {
+      workspace_id: input.workspaceId,
+      channel_id: botInfo.userId,
+      channel_access_token: null,
+      channel_secret: null,
+      channel_access_token_encrypted: encryptIntegrationSecret(input.channelAccessToken.trim()),
+      channel_secret_encrypted: encryptIntegrationSecret(input.channelSecret.trim()),
+      bot_greeting: input.botGreeting || null,
+      bot_employee_id: botEmployeeId,
+      is_active: true,
+      webhook_verified_at: new Date().toISOString(),
+      effective_from: formatDateTaipei(new Date()),
+    },
+    { onConflict: 'workspace_id' }
+  )
 
   if (settingsError) {
     logger.error('LINE bot setup: failed to upsert settings', {

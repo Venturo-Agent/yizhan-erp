@@ -24,10 +24,7 @@ import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import {
-  validateCreateTenantRequest,
-  type CreateTenantRequest,
-} from './create-tenant-validation'
+import { validateCreateTenantRequest, type CreateTenantRequest } from './create-tenant-validation'
 import {
   rollback,
   createWorkspace,
@@ -245,11 +242,14 @@ export async function POST(request: NextRequest) {
     // 寫入初始配額 log（新增租戶時記錄首次設定值）
     // workspace_employee_quota_logs 是新表、typegen 尚未 regen，cast 繞過
     if (body.maxEmployees != null) {
-      const { error: quotaLogError } = await (supabaseAdmin as unknown as {
-        from: (t: string) => {
-          insert: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>
+      const { error: quotaLogError } = await (
+        supabaseAdmin as unknown as {
+          from: (t: string) => {
+            insert: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>
+          }
         }
-      }).from('workspace_employee_quota_logs')
+      )
+        .from('workspace_employee_quota_logs')
         .insert({
           workspace_id: wsResult.workspaceId,
           changed_by: guard.employeeId,

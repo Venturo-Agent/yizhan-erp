@@ -135,7 +135,12 @@ describe('userStoreHelpers (pure helpers)', () => {
     })
 
     it('returns only active users', () => {
-      expect(userStoreHelpers.getUsersByStatus('active').map(u => u.id).sort()).toEqual(['1', '2'])
+      expect(
+        userStoreHelpers
+          .getUsersByStatus('active')
+          .map(u => u.id)
+          .sort()
+      ).toEqual(['1', '2'])
     })
 
     it('returns only probation users', () => {

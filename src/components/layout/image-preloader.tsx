@@ -38,12 +38,7 @@ export function ImagePreloader() {
       const img = new window.Image()
       img.src = url
     }
-  }, [
-    ws.logo_url,
-    ws.company_seal_url,
-    ws.personal_seal_url,
-    ws.invoice_seal_image_url,
-  ])
+  }, [ws.logo_url, ws.company_seal_url, ws.personal_seal_url, ws.invoice_seal_image_url])
 
   return null
 }

@@ -156,7 +156,11 @@ export async function markDebounceSent(
 ): Promise<void> {
   await (supabase as unknown as SupabaseClient)
     .from('line_bot_reply_debounce')
-    .update({ sent_at: new Date().toISOString(), is_expired: false, updated_at: new Date().toISOString() })
+    .update({
+      sent_at: new Date().toISOString(),
+      is_expired: false,
+      updated_at: new Date().toISOString(),
+    })
     .eq('workspace_id', opts.workspaceId)
     .eq('line_user_id', opts.lineUserId)
 }

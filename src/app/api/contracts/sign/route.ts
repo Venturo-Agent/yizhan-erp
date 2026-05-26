@@ -41,7 +41,10 @@ export async function POST(request: NextRequest) {
     // 取得請求資訊（x-forwarded-for 可能多個 IP 串接、取第一個）
     const headersList = await headers()
     const xff = headersList.get('x-forwarded-for')
-    const ip = (xff?.split(',')[0]?.trim() || headersList.get('x-real-ip') || 'unknown').slice(0, 100)
+    const ip = (xff?.split(',')[0]?.trim() || headersList.get('x-real-ip') || 'unknown').slice(
+      0,
+      100
+    )
     const userAgent = (headersList.get('user-agent') || 'unknown').slice(0, 500)
 
     // 檢查合約是否存在且未簽署
@@ -92,13 +95,19 @@ export async function POST(request: NextRequest) {
     if (updateError) {
       logger.error('Contract sign update error:', updateError)
       const t = translateDbError(updateError)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     return NextResponse.json({ success: true })
   } catch (err) {
     logger.error('Contract sign error:', err)
     const t = translateDbError(err)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 }

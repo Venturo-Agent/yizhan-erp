@@ -18,23 +18,12 @@ import {
   useSensors,
   type DragEndEvent,
 } from '@dnd-kit/core'
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from '@dnd-kit/sortable'
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 import { COMMON_MESSAGES } from '@/constants/messages'
 import { useTranslations } from 'next-intl'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from './shared-table'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './shared-table'
 import { PAGE_LABELS, type ExpenseCategory, type ChartOfAccount } from './types'
 import { SortableCategoryRow } from './SortableCategoryRow'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -73,8 +62,7 @@ export function CategoriesSection({
   const { isFeatureEnabled } = useWorkspaceFeatures()
   const hasAccounting = isFeatureEnabled('accounting')
   const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({})
-  const setLoading = (id: string, v: boolean) =>
-    setRowLoading(prev => ({ ...prev, [id]: v }))
+  const setLoading = (id: string, v: boolean) => setRowLoading(prev => ({ ...prev, [id]: v }))
 
   // 依 variant 篩 list + 設定 dialog 用 categoryType
   const list =
@@ -244,7 +232,10 @@ export function CategoriesSection({
               <TableBody>
                 {list.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={hasAccounting ? 6 : 4} className="text-center py-8 text-morandi-muted">
+                    <TableCell
+                      colSpan={hasAccounting ? 6 : 4}
+                      className="text-center py-8 text-morandi-muted"
+                    >
                       {emptyText}
                     </TableCell>
                   </TableRow>
@@ -357,7 +348,12 @@ function CategoryDialog({
       onOpenChange={onOpenChange}
       title={(() => {
         const mode = category ? 'Edit' : 'Create'
-        const kind = categoryType === 'company_expense' ? 'CompanyExpense' : categoryType === 'company_income' ? 'CompanyIncome' : 'Expense'
+        const kind =
+          categoryType === 'company_expense'
+            ? 'CompanyExpense'
+            : categoryType === 'company_income'
+              ? 'CompanyIncome'
+              : 'Expense'
         return t(`categoryDialogTitle${mode}${kind}` as Parameters<typeof t>[0])
       })()}
       onSubmit={handleSubmit}
@@ -409,9 +405,7 @@ function CategoryDialog({
             </div>
           </div>
         )}
-        <p className="text-xs text-morandi-muted">
-          {t('categoryHint')}
-        </p>
+        <p className="text-xs text-morandi-muted">{t('categoryHint')}</p>
       </div>
     </FormDialog>
   )

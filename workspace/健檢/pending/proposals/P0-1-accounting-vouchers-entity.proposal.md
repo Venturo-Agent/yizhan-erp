@@ -18,20 +18,26 @@ const loadVouchers = async () => {
   try {
     let query = supabase
       .from('journal_vouchers')
-      .select('id, voucher_no, voucher_date, memo, status, total_debit, total_credit, created_by, workspace_id, created_at')
-      .eq('workspace_id', user.workspace_id)  // ← workspace_id 有對，但没用 SWR cache
+      .select(
+        'id, voucher_no, voucher_date, memo, status, total_debit, total_credit, created_by, workspace_id, created_at'
+      )
+      .eq('workspace_id', user.workspace_id) // ← workspace_id 有對，但没用 SWR cache
 
     // 應用日期範圍篩選
     if (filters.startDate) query = query.gte('voucher_date', filters.startDate)
-    if (filters.endDate)   query = query.lte('voucher_date', filters.endDate)
+    if (filters.endDate) query = query.lte('voucher_date', filters.endDate)
     if (filters.status !== 'all') query = query.eq('status', filters.status as never)
 
-    query = query.order('voucher_date', { ascending: false }).order('voucher_no', { ascending: false })
+    query = query
+      .order('voucher_date', { ascending: false })
+      .order('voucher_no', { ascending: false })
 
-    const { data, error } = await query  // ← 每次都打 DB，沒 SWR cache
+    const { data, error } = await query // ← 每次都打 DB，沒 SWR cache
     if (error) throw error
     setVouchers(data || [])
-  } finally { setIsLoading(false) }
+  } finally {
+    setIsLoading(false)
+  }
 }
 ```
 
@@ -71,12 +77,13 @@ const journalVoucherEntity = createEntityHook<JournalVoucher>('journal_vouchers'
   workspaceScoped: true,
   list: {
     // 對照 vouchers/page.tsx 行83-84 的 select 欄位
-    select: 'id, voucher_no, voucher_date, memo, status, total_debit, total_credit, created_by, workspace_id, created_at',
+    select:
+      'id, voucher_no, voucher_date, memo, status, total_debit, total_credit, created_by, workspace_id, created_at',
     orderBy: { column: 'voucher_date', ascending: false },
     // secondarySort: voucher_no descending（同一日期內）
   },
   detail: { select: '*' },
-  cache: CACHE_PRESETS.low,  // 傳票要即時、cache 設短
+  cache: CACHE_PRESETS.low, // 傳票要即時、cache 設短
 })
 
 export const useJournalVouchers = journalVoucherEntity.useList
@@ -169,14 +176,14 @@ grep "CACHE_PRESETS" src/data/core/types.ts | head -5
 
 ## 影響行數 / 風險 / 回滾
 
-| 項目 | 值 |
-|---|---|
-| **新增檔** | `src/data/entities/journal-vouchers.ts`（~35 行） |
-| **改動行數** | `vouchers/page.tsx` ~+10/-15 行（去掉 loadVouchers，換成 useJournalVouchers）|
-| **風險** | 中（傳票是核心功能，需要 regression test）|
-| **回滾** | git revert 2 commits（entity 新建 + page 改寫）|
+| 項目         | 值                                                                                                                                                       |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **新增檔**   | `src/data/entities/journal-vouchers.ts`（~35 行）                                                                                                        |
+| **改動行數** | `vouchers/page.tsx` ~+10/-15 行（去掉 loadVouchers，換成 useJournalVouchers）                                                                            |
+| **風險**     | 中（傳票是核心功能，需要 regression test）                                                                                                               |
+| **回滾**     | git revert 2 commits（entity 新建 + page 改寫）                                                                                                          |
 | **測試驗證** | 1. 正常流程：建傳票 → 出現在列表 2. 跨 tab：開兩個瀏覽器，一個建傳票，另一個應即時看到 3. reverse：反沖後列表狀態更新 4. 篩選：篩選條件切換後 cache 命中 |
-| **依賴** | CI 先跑 `audit:realtime` 確認 journal_vouchers publication 已存在 |
+| **依賴**     | CI 先跑 `audit:realtime` 確認 journal_vouchers publication 已存在                                                                                        |
 
 ---
 
@@ -192,5 +199,5 @@ CACHE_PRESETS.low     → 1 min（傳票要即時看到別人建/反沖）
 
 ---
 
-*Draft by Max — 等待 William review + approve*
-*⚠️ 注意：此草稿尚未實際 apply 到 src/ 目錄*
+_Draft by Max — 等待 William review + approve_
+_⚠️ 注意：此草稿尚未實際 apply 到 src/ 目錄_

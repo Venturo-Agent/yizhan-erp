@@ -30,10 +30,7 @@ describe('setAuditContext', () => {
     it('call rpc("set_audit_context")', async () => {
       const { supabase, rpcMock } = createMockSupabase()
       await setAuditContext(supabase, validCtx)
-      expect(rpcMock).toHaveBeenCalledWith(
-        'set_audit_context',
-        expect.any(Object)
-      )
+      expect(rpcMock).toHaveBeenCalledWith('set_audit_context', expect.any(Object))
     })
 
     it('帶 p_actor_id 參數', async () => {

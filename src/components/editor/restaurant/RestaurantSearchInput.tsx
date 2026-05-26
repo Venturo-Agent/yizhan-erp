@@ -155,7 +155,10 @@ export function RestaurantSearchInput({
 
       {/* 搜尋框 */}
       <div className="flex-1 relative min-w-[10rem]">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-morandi-muted" size="1.125em" />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-morandi-muted"
+          size="1.125em"
+        />
         <Input
           value={searchQuery}
           onChange={e => onSearchChange(e.target.value)}

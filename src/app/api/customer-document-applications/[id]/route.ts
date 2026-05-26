@@ -61,7 +61,7 @@ export const PATCH = apiHandler(async ({ params, req }) => {
 
   if (existing.status === 'collected' || existing.collected_at) {
     const lockedKeys = (LOCKED_AFTER_COLLECTED as unknown as string[]).filter(
-      (k) => body[k] !== undefined
+      k => body[k] !== undefined
     )
     if (lockedKeys.length > 0) {
       return NextResponse.json(

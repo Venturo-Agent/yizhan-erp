@@ -39,12 +39,20 @@ interface Finding {
 
 function walk(dir: string, out: string[] = []): string[] {
   let entries: string[]
-  try { entries = readdirSync(dir) } catch { return out }
+  try {
+    entries = readdirSync(dir)
+  } catch {
+    return out
+  }
   for (const entry of entries) {
     const p = join(dir, entry)
     if (EXCLUDED.some(re => re.test(p))) continue
     let st
-    try { st = statSync(p) } catch { continue }
+    try {
+      st = statSync(p)
+    } catch {
+      continue
+    }
     if (st.isDirectory()) walk(p, out)
     else if (entry.match(/\.(ts|tsx|js|jsx)$/)) out.push(p)
   }

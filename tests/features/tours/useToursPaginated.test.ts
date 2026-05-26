@@ -116,7 +116,7 @@ function makeChain(table: string): unknown {
   // 結束 chain（await 直接拿 { data, count, error }）
   ;(chain as unknown as { then: PromiseLike<QueryResult>['then'] }).then = (
     onFulfilled,
-    onRejected,
+    onRejected
   ) => Promise.resolve(nextResponse()).then(onFulfilled, onRejected)
 
   return chain
@@ -203,7 +203,7 @@ function makeWrapper() {
     return React.createElement(
       SWRConfig,
       { value: { provider: () => new Map(), dedupingInterval: 0 } },
-      children,
+      children
     )
   }
 }
@@ -226,10 +226,9 @@ describe('useToursPaginated — pagination', () => {
   it('page=1, pageSize=15 → range(0, 14)', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    const { result } = renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15 }),
-      { wrapper: makeWrapper() },
-    )
+    const { result } = renderHook(() => useToursPaginated({ page: 1, pageSize: 15 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
@@ -241,10 +240,9 @@ describe('useToursPaginated — pagination', () => {
   it('page=2, pageSize=15 → range(15, 29)', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    const { result } = renderHook(
-      () => useToursPaginated({ page: 2, pageSize: 15 }),
-      { wrapper: makeWrapper() },
-    )
+    const { result } = renderHook(() => useToursPaginated({ page: 2, pageSize: 15 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
@@ -255,10 +253,9 @@ describe('useToursPaginated — pagination', () => {
   it('page=3, pageSize=20 → range(40, 59)', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    const { result } = renderHook(
-      () => useToursPaginated({ page: 3, pageSize: 20 }),
-      { wrapper: makeWrapper() },
-    )
+    const { result } = renderHook(() => useToursPaginated({ page: 3, pageSize: 20 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(result.current.loading).toBe(false))
 
@@ -285,10 +282,9 @@ describe('useToursPaginated — pagination', () => {
       error: null,
     })
 
-    const { result } = renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15 }),
-      { wrapper: makeWrapper() },
-    )
+    const { result } = renderHook(() => useToursPaginated({ page: 1, pageSize: 15 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.totalCount).toBe(42)
@@ -299,25 +295,23 @@ describe('useToursPaginated — search', () => {
   it('search="tokyo" → .or() 套 ilike 到 name / code / location / description', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, search: 'tokyo' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, search: 'tokyo' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const tourOp = mockState.ops.find(o => o.table === 'tours')
     expect(tourOp!.or).toBe(
-      'name.ilike.%tokyo%,code.ilike.%tokyo%,location.ilike.%tokyo%,description.ilike.%tokyo%',
+      'name.ilike.%tokyo%,code.ilike.%tokyo%,location.ilike.%tokyo%,description.ilike.%tokyo%'
     )
   })
 
   it('search 是空字串 → 不套 .or()', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, search: '' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, search: '' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const tourOp = mockState.ops.find(o => o.table === 'tours')
@@ -327,10 +321,9 @@ describe('useToursPaginated — search', () => {
   it('search 是純空白 → trim 後不套 .or()', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, search: '   ' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, search: '   ' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const tourOp = mockState.ops.find(o => o.table === 'tours')
@@ -343,10 +336,9 @@ describe.skip('useToursPaginated — status filter 散落', () => {
   it('status="proposal" → eq("status","proposal") + neq("archived",true)', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, status: 'proposal' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, status: 'proposal' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -357,10 +349,9 @@ describe.skip('useToursPaginated — status filter 散落', () => {
   it('status="template" → eq("status","template") + neq archived', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, status: 'template' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, status: 'template' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -370,10 +361,9 @@ describe.skip('useToursPaginated — status filter 散落', () => {
   it('status="archived" → eq("archived",true)（封存是獨立欄位）', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, status: 'archived' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, status: 'archived' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -383,10 +373,9 @@ describe.skip('useToursPaginated — status filter 散落', () => {
   it('status="upcoming" → in status [upcoming,ongoing] + 排除 VISA/ESIM', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, status: 'upcoming' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, status: 'upcoming' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -406,10 +395,9 @@ describe.skip('useToursPaginated — status filter 散落', () => {
   it('status="closed" → eq("status","closed") + 排除 VISA/ESIM + neq archived', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, status: 'closed' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, status: 'closed' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -421,18 +409,15 @@ describe.skip('useToursPaginated — status filter 散落', () => {
   it('status="all" → in 4 種 status + 排除工具團 + neq archived', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, status: 'all' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, status: 'all' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
     const inFilter = op.filters.find(f => f[0] === 'in' && f[1] === 'status')
     const values = inFilter![2] as string[]
-    expect(values).toEqual(
-      expect.arrayContaining(['upcoming', 'ongoing', 'returned', 'closed']),
-    )
+    expect(values).toEqual(expect.arrayContaining(['upcoming', 'ongoing', 'returned', 'closed']))
   })
 
   it('一律 eq("is_active", true)（過濾已軟刪除的團）', async () => {
@@ -464,10 +449,9 @@ describe('useToursPaginated — sort', () => {
   it('status="proposal" → sortBy=created_at（提案 / 模板沒出發日）', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, status: 'proposal' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, status: 'proposal' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -477,10 +461,9 @@ describe('useToursPaginated — sort', () => {
   it('sortOrder="asc" → ascending: true', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, sortOrder: 'asc' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, sortOrder: 'asc' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -490,10 +473,9 @@ describe('useToursPaginated — sort', () => {
   it('明確指定 sortBy 蓋過預設', async () => {
     pushResponse({ data: [], count: 0, error: null })
 
-    renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15, sortBy: 'price' }),
-      { wrapper: makeWrapper() },
-    )
+    renderHook(() => useToursPaginated({ page: 1, pageSize: 15, sortBy: 'price' }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.ops.length).toBeGreaterThan(0))
     const op = mockState.ops.find(o => o.table === 'tours')!
@@ -505,10 +487,9 @@ describe('useToursPaginated — error handling', () => {
   it('supabase error → result.error 帶 message', async () => {
     pushResponse({ data: null, count: null, error: { message: 'rls denied' } })
 
-    const { result } = renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15 }),
-      { wrapper: makeWrapper() },
-    )
+    const { result } = renderHook(() => useToursPaginated({ page: 1, pageSize: 15 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(result.current.error).toBe('rls denied'))
     expect(result.current.tours).toEqual([])
@@ -517,10 +498,9 @@ describe('useToursPaginated — error handling', () => {
   it('成功時 error=null', async () => {
     pushResponse({ data: [{ id: 't1' }], count: 1, error: null })
 
-    const { result } = renderHook(
-      () => useToursPaginated({ page: 1, pageSize: 15 }),
-      { wrapper: makeWrapper() },
-    )
+    const { result } = renderHook(() => useToursPaginated({ page: 1, pageSize: 15 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.error).toBeNull()
@@ -552,9 +532,9 @@ describe.skip('useToursPaginated — realtime channel', () => {
     const { supabase } = await import('@/lib/supabase/client')
     const removeChannelSpy = supabase.removeChannel as unknown as ReturnType<typeof vi.fn>
 
-    const { unmount } = renderHook(() =>
-      useToursPaginated({ page: 1, pageSize: 15 }),
-    { wrapper: makeWrapper() })
+    const { unmount } = renderHook(() => useToursPaginated({ page: 1, pageSize: 15 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(mockState.realtimeChannels.length).toBe(1))
     unmount()

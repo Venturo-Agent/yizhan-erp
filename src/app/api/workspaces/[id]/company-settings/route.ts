@@ -16,10 +16,7 @@ import { BonusSettingType, BonusCalculationType } from '@/types/bonus.types'
  *
  * 2026-05-19 加：對齊紅線 F、client 不直接 supabase write、走 API route。
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
 
   const guard = await requireCapability(CAPABILITIES.SETTINGS_MANAGE_COMPANY)
@@ -90,10 +87,7 @@ export async function PATCH(
       logoPatch.logo_offset_y = y
     }
     if (Object.keys(logoPatch).length > 0) {
-      const { error } = await supabase
-        .from('workspaces')
-        .update(logoPatch)
-        .eq('id', workspaceId)
+      const { error } = await supabase.from('workspaces').update(logoPatch).eq('id', workspaceId)
       if (error) {
         const t = translateDbError(error)
         return NextResponse.json({ error: t.message }, { status: t.httpStatus })

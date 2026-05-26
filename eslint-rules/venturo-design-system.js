@@ -51,8 +51,10 @@ const FORBIDDEN_CLASS_PATTERNS = [
   // 對應 docs/DESIGN_TOKENS.md 紅線
   // ─────────────────────────────────────────────
   {
-    pattern: /\b(?:bg|text|border|fill|stroke|ring|outline|divide|placeholder|caret|accent|decoration)-\[#[0-9a-fA-F]{3,8}\]/g,
-    message: '禁止硬編碼顏色。請用 design token（bg-gold / bg-info / bg-morandi-* 等）。見 docs/DESIGN_TOKENS.md',
+    pattern:
+      /\b(?:bg|text|border|fill|stroke|ring|outline|divide|placeholder|caret|accent|decoration)-\[#[0-9a-fA-F]{3,8}\]/g,
+    message:
+      '禁止硬編碼顏色。請用 design token（bg-gold / bg-info / bg-morandi-* 等）。見 docs/DESIGN_TOKENS.md',
     suggestion: 'bg-gold',
   },
   {
@@ -62,7 +64,8 @@ const FORBIDDEN_CLASS_PATTERNS = [
   },
   {
     pattern: /\brounded(?:-[trblxy]{1,2})?-\[\d+(?:\.\d+)?(?:px|rem|em)\]/g,
-    message: '禁止硬編碼 rounded。請用 rounded-card / rounded-card-sm / rounded-button / rounded-input / rounded-badge',
+    message:
+      '禁止硬編碼 rounded。請用 rounded-card / rounded-card-sm / rounded-button / rounded-input / rounded-badge',
     suggestion: 'rounded-card',
   },
 ]
@@ -236,7 +239,11 @@ module.exports = {
           },
           JSXAttribute(node) {
             // placeholder / title / aria-label 內的 hardcoded 中文
-            if (!['placeholder', 'title'].includes(node.name.name) && node.name.name !== 'aria-label') return
+            if (
+              !['placeholder', 'title'].includes(node.name.name) &&
+              node.name.name !== 'aria-label'
+            )
+              return
             if (!node.value || node.value.type !== 'Literal') return
             const val = node.value.value
             if (typeof val === 'string' && /[一-鿿]/.test(val)) {
@@ -563,7 +570,8 @@ module.exports = {
           recommended: true,
         },
         messages: {
-          missing: '<FormDialog> 必傳 `loading` prop（紅線：防連點）。父元件加 `const [isSubmitting, setIsSubmitting] = useState(false)`、handleSubmit 包 try-finally、傳 `loading={isSubmitting}`',
+          missing:
+            '<FormDialog> 必傳 `loading` prop（紅線：防連點）。父元件加 `const [isSubmitting, setIsSubmitting] = useState(false)`、handleSubmit 包 try-finally、傳 `loading={isSubmitting}`',
         },
         schema: [],
       },
@@ -575,9 +583,7 @@ module.exports = {
             if (node.name.name !== 'FormDialog') return
 
             const hasLoading = node.attributes.some(
-              attr =>
-                attr.type === 'JSXAttribute' &&
-                attr.name?.name === 'loading'
+              attr => attr.type === 'JSXAttribute' && attr.name?.name === 'loading'
             )
 
             if (!hasLoading) {
@@ -614,7 +620,8 @@ module.exports = {
       create(context) {
         const filename = context.getFilename()
         // 只檢查 app pages / components（不含 api routes、lib 工廠本身）
-        const isPage = filename.includes('/src/app/(main)/') || filename.includes('/src/components/')
+        const isPage =
+          filename.includes('/src/app/(main)/') || filename.includes('/src/components/')
         const isFactory = filename.includes('/src/lib/swr/') || filename.includes('/src/data/core/')
         if (!isPage || isFactory) return {}
 
@@ -735,7 +742,8 @@ module.exports = {
       },
       create(context) {
         const filename = context.getFilename()
-        const isClientPage = filename.includes('/src/app/(main)/') || filename.includes('/src/components/')
+        const isClientPage =
+          filename.includes('/src/app/(main)/') || filename.includes('/src/components/')
         const isApiRoute = filename.includes('/src/app/api/')
         const isLibrary = filename.includes('/src/lib/') || filename.includes('/src/data/')
         if (!isClientPage || isApiRoute || isLibrary) return {}

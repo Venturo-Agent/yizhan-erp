@@ -99,7 +99,11 @@ export async function executePassportUpdates({
       </div>
     `
 
-    const shouldUpdate = await confirm(`${needConfirmItems.length} 位客戶資料有變更，是否更新？`, 'warning', confirmHtml)
+    const shouldUpdate = await confirm(
+      `${needConfirmItems.length} 位客戶資料有變更，是否更新？`,
+      'warning',
+      confirmHtml
+    )
     if (shouldUpdate) {
       confirmedUpdates = [...confirmedUpdates, ...needConfirmItems]
     } else {
@@ -185,8 +189,10 @@ export async function executePassportUpdates({
 
   let message = `成功辨識 ${allFileCount - failedItems.length}/${allFileCount} 張護照`
   if (successCount > 0) message += `\n新增 ${successCount} 位客戶`
-  if (autoUpdateSuccessCount > 0) message += `\n自動更新 ${autoUpdateSuccessCount} 位客戶護照圖片（資料無變更）`
-  if (confirmedUpdateSuccessCount > 0) message += `\n更新 ${confirmedUpdateSuccessCount} 位客戶護照資料`
+  if (autoUpdateSuccessCount > 0)
+    message += `\n自動更新 ${autoUpdateSuccessCount} 位客戶護照圖片（資料無變更）`
+  if (confirmedUpdateSuccessCount > 0)
+    message += `\n更新 ${confirmedUpdateSuccessCount} 位客戶護照資料`
   if (skippedConfirmCount > 0) message += `\n跳過 ${skippedConfirmCount} 位客戶（使用者取消）`
   if (duplicateItems.length > 0) message += `\n跳過 ${duplicateItems.length} 筆重複護照`
   if (googleVisionError) {

@@ -54,10 +54,7 @@ interface PutBody {
   publish_now?: boolean
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.MARKETING_WEBSITE_WRITE)
     if (!guard.ok) return guard.response
@@ -97,9 +94,7 @@ export async function PUT(
       data: { session },
     } = await serverClient.auth.getSession()
     const userId = session?.user.id
-    const employeeId = userId
-      ? await resolveEmployeeIdFromUser(serverClient, userId)
-      : null
+    const employeeId = userId ? await resolveEmployeeIdFromUser(serverClient, userId) : null
     const actorId = employeeId ?? guard.employeeId
 
     // 3. audit context

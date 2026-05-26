@@ -16,10 +16,7 @@
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
-import {
-  sendChannelNotification,
-  NOTIFICATION_SOURCE_TYPES,
-} from '@/lib/channels/send'
+import { sendChannelNotification, NOTIFICATION_SOURCE_TYPES } from '@/lib/channels/send'
 
 const HANDLER = 'ai-notify-payment-captured'
 
@@ -31,8 +28,7 @@ interface NotifyArgs {
 }
 
 export async function notifyPaymentCapturedToConversation(args: NotifyArgs): Promise<void> {
-  const conversationId =
-    (args.rawWebhookPayload?.conversation_id as string | undefined) ?? null
+  const conversationId = (args.rawWebhookPayload?.conversation_id as string | undefined) ?? null
   const createdByAi = Boolean(args.rawWebhookPayload?.created_by_ai)
 
   // 1. 內部 channel 通知（不管是 AI 還是業務手動產的、都通知系統頻道）

@@ -123,7 +123,9 @@ export const TourReceipts = React.memo(function TourReceipts({
             <th className="px-4 py-2 text-left font-medium">{COMPONENT_LABELS.TH_METHOD}</th>
             <th className="px-4 py-2 text-left font-medium">{COMPONENT_LABELS.TH_PAYER}</th>
             <th className="px-4 py-2 text-left font-medium">{COMPONENT_LABELS.TH_REMARK}</th>
-            <th className="px-4 py-2 text-right font-medium">{COMPONENT_LABELS.TH_PENDING_AMOUNT}</th>
+            <th className="px-4 py-2 text-right font-medium">
+              {COMPONENT_LABELS.TH_PENDING_AMOUNT}
+            </th>
             <th className="px-4 py-2 text-center font-medium">{COMPONENT_LABELS.TH_STATUS}</th>
             <th className="px-4 py-2 text-right font-medium">{COMPONENT_LABELS.TH_AMOUNT}</th>
           </tr>
@@ -152,7 +154,9 @@ export const TourReceipts = React.memo(function TourReceipts({
                   </td>
                   <td className="px-4 py-2 text-morandi-secondary">{formatDate(r.receipt_date)}</td>
                   <td className="px-4 py-2 text-morandi-secondary">{resolveMethodLabel(r)}</td>
-                  <td className="px-4 py-2 text-morandi-secondary">{r.receipt_account || <EmptyValue />}</td>
+                  <td className="px-4 py-2 text-morandi-secondary">
+                    {r.receipt_account || <EmptyValue />}
+                  </td>
                   <td className="px-4 py-2 text-morandi-secondary">{r.notes || <EmptyValue />}</td>
                   <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-red font-medium">
                     {/* 待核金額：pending / pending_verify 才顯示、會計核准後就空 */}
@@ -167,11 +171,7 @@ export const TourReceipts = React.memo(function TourReceipts({
                   </td>
                   <td className="px-4 py-2 text-right font-mono tabular-nums text-morandi-green font-medium">
                     {/* 金額：confirmed（已勾稽）才顯示、pending 期間留空 */}
-                    {r.status === 'confirmed' ? (
-                      <>+{formatCurrency(amount)}</>
-                    ) : (
-                      <EmptyValue />
-                    )}
+                    {r.status === 'confirmed' ? <>+{formatCurrency(amount)}</> : <EmptyValue />}
                   </td>
                 </tr>
               )

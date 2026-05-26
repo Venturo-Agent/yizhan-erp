@@ -87,17 +87,14 @@ function checkFile(filePath: string): Finding[] {
 
   for (const method of HTTP_METHODS) {
     // 找 export async function METHOD 或 export const METHOD =
-    const exportRegex = new RegExp(
-      `export\\s+(async\\s+function|const)\\s+${method}\\b`,
-    )
+    const exportRegex = new RegExp(`export\\s+(async\\s+function|const)\\s+${method}\\b`)
     if (!exportRegex.test(src)) continue
 
     // 該 method 整段 source（粗略：從該 export 到下一個 export 或 EOF）
     const matchIdx = src.search(exportRegex)
     const nextExportIdx = src.slice(matchIdx + 10).search(/export\s+(async\s+function|const)\s+\w+/)
-    const methodSrc = nextExportIdx > 0
-      ? src.slice(matchIdx, matchIdx + 10 + nextExportIdx)
-      : src.slice(matchIdx)
+    const methodSrc =
+      nextExportIdx > 0 ? src.slice(matchIdx, matchIdx + 10 + nextExportIdx) : src.slice(matchIdx)
 
     const hasAuth = AUTH_PATTERNS.some(p => p.test(methodSrc))
     if (!hasAuth) {
@@ -158,7 +155,9 @@ function main() {
     }
   }
   console.log('')
-  console.log('💡 修法：每個 method handler 第一件事呼叫 requireCapability(CAPABILITIES.XXX_READ/WRITE)')
+  console.log(
+    '💡 修法：每個 method handler 第一件事呼叫 requireCapability(CAPABILITIES.XXX_READ/WRITE)'
+  )
   console.log('   若是公開 API、加進 EXCLUDED_PATHS（scripts/audit-capability-coverage.ts）')
 
   process.exit(1)

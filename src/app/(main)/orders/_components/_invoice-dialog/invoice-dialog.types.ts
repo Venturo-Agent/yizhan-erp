@@ -44,8 +44,6 @@ export function formatFlightSegment(f: MemberFlightRow): string {
   const date = f.departure_date ? f.departure_date.slice(5).replace('-', '/') : ''
   const route = `${f.origin || '?'}/${f.destination || '?'}`
   const timeRange =
-    f.departure_time || f.arrival_time
-      ? `${f.departure_time || ''}-${f.arrival_time || ''}`
-      : ''
+    f.departure_time || f.arrival_time ? `${f.departure_time || ''}-${f.arrival_time || ''}` : ''
   return [date, route, timeRange].filter(Boolean).join(' ')
 }

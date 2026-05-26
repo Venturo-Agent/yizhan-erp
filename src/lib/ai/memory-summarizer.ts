@@ -60,7 +60,13 @@ interface MemoryRow {
 
 export interface SummarizeResult {
   ok: boolean
-  reason?: 'no_messages' | 'llm_failed' | 'parse_failed' | 'too_many_failures' | 'no_change' | 'db_error'
+  reason?:
+    | 'no_messages'
+    | 'llm_failed'
+    | 'parse_failed'
+    | 'too_many_failures'
+    | 'no_change'
+    | 'db_error'
   error?: string
 }
 
@@ -139,9 +145,7 @@ JSON 結構（缺欄位用 null 或空陣列、不要省略 key）：
 /**
  * 主入口：生成速記卡並寫進 customer_memories
  */
-export async function generateMemorySummary(
-  input: SummarizeInput
-): Promise<SummarizeResult> {
+export async function generateMemorySummary(input: SummarizeInput): Promise<SummarizeResult> {
   const { conversationId, workspaceId } = input
   const startedAt = Date.now()
 
@@ -155,11 +159,14 @@ export async function generateMemorySummary(
       .from('customer_memories')
       .select('id, last_summarized_message_count, failed_attempts')
       .eq('conversation_id', conversationId)
-    const { data: existing, error: memErr } = await filterActive(existingQuery)
-      .maybeSingle<MemoryRow>()
+    const { data: existing, error: memErr } =
+      await filterActive(existingQuery).maybeSingle<MemoryRow>()
 
     if (memErr) {
-      logger.warn(`${HANDLER}: existing memory query failed`, { conversationId, err: memErr.message })
+      logger.warn(`${HANDLER}: existing memory query failed`, {
+        conversationId,
+        err: memErr.message,
+      })
       return { ok: false, reason: 'db_error', error: memErr.message }
     }
 
@@ -228,18 +235,26 @@ export async function generateMemorySummary(
     const transcript = textMessages
       .map(m => {
         const role =
-          m.direction === 'inbound' ? '客戶' :
-          m.sender_type === 'ai_agent' ? 'AI 助理' :
-          m.sender_type === 'system' ? '系統' : '客服人員'
+          m.direction === 'inbound'
+            ? '客戶'
+            : m.sender_type === 'ai_agent'
+              ? 'AI 助理'
+              : m.sender_type === 'system'
+                ? '系統'
+                : '客服人員'
         return `[${role}] ${m.content}`
       })
       .join('\n')
 
     const customerName = conv.display_name || '客戶'
     const channelLabel =
-      conv.channel_type === 'line' ? 'LINE' :
-      conv.channel_type === 'facebook' ? 'Facebook Messenger' :
-      conv.channel_type === 'instagram' ? 'Instagram DM' : conv.channel_type
+      conv.channel_type === 'line'
+        ? 'LINE'
+        : conv.channel_type === 'facebook'
+          ? 'Facebook Messenger'
+          : conv.channel_type === 'instagram'
+            ? 'Instagram DM'
+            : conv.channel_type
 
     const userPrompt = `客戶名稱：${customerName}
 通路：${channelLabel}
@@ -266,7 +281,13 @@ ${transcript}
 
     if (!llmResult.ok || !llmResult.content) {
       logger.warn(`${HANDLER}: LLM failed`, { conversationId, error: llmResult.error ?? undefined })
-      await bumpFailedAttempts(supabase, conversationId, workspaceId, conv.customer_id, llmResult.error ?? 'LLM no content')
+      await bumpFailedAttempts(
+        supabase,
+        conversationId,
+        workspaceId,
+        conv.customer_id,
+        llmResult.error ?? 'LLM no content'
+      )
       return { ok: false, reason: 'llm_failed', error: llmResult.error ?? undefined }
     }
 
@@ -277,28 +298,32 @@ ${transcript}
         conversationId,
         sample: llmResult.content.slice(0, 200),
       })
-      await bumpFailedAttempts(supabase, conversationId, workspaceId, conv.customer_id, 'JSON parse failed')
+      await bumpFailedAttempts(
+        supabase,
+        conversationId,
+        workspaceId,
+        conv.customer_id,
+        'JSON parse failed'
+      )
       return { ok: false, reason: 'parse_failed' }
     }
 
     // Upsert
     const now = new Date().toISOString()
-    const { error: upsertErr } = await supabase
-      .from('customer_memories')
-      .upsert(
-        {
-          workspace_id: workspaceId,
-          conversation_id: conversationId,
-          customer_id: conv.customer_id,
-          memory_json: memoryJson,
-          last_summarized_message_count: currentTotalCount,
-          last_summarized_at: now,
-          failed_attempts: 0,
-          last_error: null,
-          updated_at: now,
-        },
-        { onConflict: 'conversation_id' }
-      )
+    const { error: upsertErr } = await supabase.from('customer_memories').upsert(
+      {
+        workspace_id: workspaceId,
+        conversation_id: conversationId,
+        customer_id: conv.customer_id,
+        memory_json: memoryJson,
+        last_summarized_message_count: currentTotalCount,
+        last_summarized_at: now,
+        failed_attempts: 0,
+        last_error: null,
+        updated_at: now,
+      },
+      { onConflict: 'conversation_id' }
+    )
 
     if (upsertErr) {
       logger.warn(`${HANDLER}: upsert failed`, { conversationId, err: upsertErr.message })
@@ -329,7 +354,10 @@ ${transcript}
 function parseMemoryJson(raw: string): MemoryJson | null {
   let cleaned = raw.trim()
   // 剝掉 ```json ... ``` 或 ``` ... ```
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
+  cleaned = cleaned
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/```\s*$/i, '')
+    .trim()
 
   try {
     const parsed = JSON.parse(cleaned) as unknown
@@ -357,8 +385,10 @@ async function bumpFailedAttempts(
     .from('customer_memories')
     .select('id, failed_attempts')
     .eq('conversation_id', conversationId)
-  const { data: existing } = await filterActive(existingQuery)
-    .maybeSingle<{ id: string; failed_attempts: number }>()
+  const { data: existing } = await filterActive(existingQuery).maybeSingle<{
+    id: string
+    failed_attempts: number
+  }>()
 
   if (existing) {
     await supabase
@@ -370,16 +400,14 @@ async function bumpFailedAttempts(
       })
       .eq('id', existing.id)
   } else {
-    await supabase
-      .from('customer_memories')
-      .insert({
-        workspace_id: workspaceId,
-        conversation_id: conversationId,
-        customer_id: customerId ?? undefined,
-        memory_json: {},
-        last_summarized_message_count: 0,
-        failed_attempts: 1,
-        last_error: errorMessage.slice(0, 500),
-      })
+    await supabase.from('customer_memories').insert({
+      workspace_id: workspaceId,
+      conversation_id: conversationId,
+      customer_id: customerId ?? undefined,
+      memory_json: {},
+      last_summarized_message_count: 0,
+      failed_attempts: 1,
+      last_error: errorMessage.slice(0, 500),
+    })
   }
 }

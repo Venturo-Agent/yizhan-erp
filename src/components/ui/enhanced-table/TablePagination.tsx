@@ -34,15 +34,12 @@ export const TablePagination = React.memo(function TablePagination({
 }: TablePaginationProps) {
   if (totalItems === 0) return null
 
-  const visiblePageNums = Array.from(
-    { length: Math.min(5, Math.max(totalPages, 1)) },
-    (_, i) => {
-      if (totalPages <= 5) return i + 1
-      if (currentPage <= 3) return i + 1
-      if (currentPage >= totalPages - 2) return totalPages - 4 + i
-      return currentPage - 2 + i
-    }
-  )
+  const visiblePageNums = Array.from({ length: Math.min(5, Math.max(totalPages, 1)) }, (_, i) => {
+    if (totalPages <= 5) return i + 1
+    if (currentPage <= 3) return i + 1
+    if (currentPage >= totalPages - 2) return totalPages - 4 + i
+    return currentPage - 2 + i
+  })
 
   return (
     <div className="p-3 flex flex-col sm:flex-row items-center justify-end gap-3 border-t border-border/40 bg-morandi-container/10">

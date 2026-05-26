@@ -15,24 +15,25 @@ William 提報「供應商管理 / 請款類別新增失敗」、查證是 DB sc
 ## Round 1 — 高優先級 audit（已完成）
 
 ### 範圍
+
 - DB schema：`information_schema.columns` 全 public 表
 - Code：派 subagent 掃 `src/**/*.{ts,tsx}` 所有 `.from('X').insert(...)` / `.update(...)`
 - 排除 false alarm：JSON 欄位（jsonb / text）裡的 nested key 不算 missing column
 
 ### 發現的 schema drift
 
-| # | 表 | 缺什麼 | 影響業務 |
-|---|---|---|---|
-| 1 | `suppliers` | `english_name VARCHAR(100)` | 供應商管理 / 請款單新增供應商 → PGRST204 400 |
-| 2 | `expense_categories` | `is_system BOOLEAN DEFAULT false` | 請款類別新增 → PGRST204 500 |
-| 3 | `tour_registrations` | **整張表** | 公開頁 tour 報名 API → 500 |
+| #   | 表                   | 缺什麼                            | 影響業務                                     |
+| --- | -------------------- | --------------------------------- | -------------------------------------------- |
+| 1   | `suppliers`          | `english_name VARCHAR(100)`       | 供應商管理 / 請款單新增供應商 → PGRST204 400 |
+| 2   | `expense_categories` | `is_system BOOLEAN DEFAULT false` | 請款類別新增 → PGRST204 500                  |
+| 3   | `tour_registrations` | **整張表**                        | 公開頁 tour 報名 API → 500                   |
 
 ### 假警報（audit 抓到、驗證後不是 drift）
 
-| 假以為的 bug | 實際 |
-|---|---|
-| `employees.title` | nested key in `job_info` jsonb |
-| `journal_vouchers.refund_notes` | 字串拼接內容、塞在 `memo` |
+| 假以為的 bug                                                                      | 實際                             |
+| --------------------------------------------------------------------------------- | -------------------------------- |
+| `employees.title`                                                                 | nested key in `job_info` jsonb   |
+| `journal_vouchers.refund_notes`                                                   | 字串拼接內容、塞在 `memo`        |
 | `line_conversation_messages.sent_via/postback_data/template_id/agent_employee_id` | nested keys in `raw_event` jsonb |
 
 ---
@@ -40,13 +41,14 @@ William 提報「供應商管理 / 請款類別新增失敗」、查證是 DB sc
 ## Round 2 — 中優先級 audit（Tier 1-2 spread/variable）
 
 ### 範圍
+
 17 個 spread/variable insert 位置（高頻 form 寫入：order_members / tours / itinerary / finance）。對每個位置 trace payload 變數的型別來源。
 
 ### 發現
 
-| # | 表 | 缺什麼 | 影響業務 |
-|---|---|---|---|
-| 4 | `payment_request_items` | `transferred_at TIMESTAMPTZ`、`transferred_by UUID → employees(id)`、`transferred_from_tour_id TEXT → tours(id)` | 成本轉移功能（CostTransferDialog）items insert → 失敗 |
+| #   | 表                      | 缺什麼                                                                                                           | 影響業務                                              |
+| --- | ----------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 4   | `payment_request_items` | `transferred_at TIMESTAMPTZ`、`transferred_by UUID → employees(id)`、`transferred_from_tour_id TEXT → tours(id)` | 成本轉移功能（CostTransferDialog）items insert → 失敗 |
 
 ### 補抓
 
@@ -64,6 +66,7 @@ William 提報「供應商管理 / 請款類別新增失敗」、查證是 DB sc
 **狀態：完成**
 
 ### 範圍
+
 - 剩 28 個 spread/variable insert（主要 `tenants/create/create-tenant-seed.ts` 一次性 onboarding + 散落 form 場景）
 - 全 codebase 搜 `.insert(...as never|as any)` / `.update(...as never|as any)` — 15 個 cast 命中
 
@@ -72,6 +75,7 @@ William 提報「供應商管理 / 請款類別新增失敗」、查證是 DB sc
 **0 個新 drift。** 所有檢查位置 top-level 欄位都對齊 DB。
 
 涵蓋表：
+
 - `workspace_roles` / `brands` / `branches` / `employee_brands` / `employee_branches` / `countries` / `workspace_features`（onboarding seed）✅
 - `customers` / `orders`（LINE bridge）✅
 - `tour_role_assignments`（建團）✅
@@ -82,13 +86,14 @@ William 提報「供應商管理 / 請款類別新增失敗」、查證是 DB sc
 
 ### `as never` / `as any` cast 獵巫（15 個命中）
 
-| Risk | 數量 | 情況 |
-|---|---|---|
-| HIGH | 2 | 親自 Read 驗證、實際 fields 都對齊 |
-| MEDIUM | 9 | 欄位實際在 DB、cast 是 over-defensive、無 drift |
-| LOW | 4 | 合理 dynamic cast（generic entity hook）|
+| Risk   | 數量 | 情況                                            |
+| ------ | ---- | ----------------------------------------------- |
+| HIGH   | 2    | 親自 Read 驗證、實際 fields 都對齊              |
+| MEDIUM | 9    | 欄位實際在 DB、cast 是 over-defensive、無 drift |
+| LOW    | 4    | 合理 dynamic cast（generic entity hook）        |
 
 **HIGH risk 親驗結果**：
+
 - `tour-quote-tab.tsx:470` quotes update — data 由 `QuickQuoteDetail` 子 component 構建、預期 quotes-shape、實際無人撞到 PGRST204、視同安全（建議之後改 typed payload、不在這次 fix 範圍）
 - `ResourceList.tsx:94` attractions/hotels/restaurants insert — payload 只有 `name/country_id/category/data_verified/is_active/city_id` 6 欄、全在 DB schema 內、`as never` cast 是 over-defensive
 
@@ -100,21 +105,23 @@ Round 3 沒抓到新 drift。**Audit loop 收尾、不需再跑 Round 4**。
 
 ## 最終 drift 清單（4 個、全部 cover 在 migration）
 
-| # | 表 | 缺什麼 | 影響業務 |
-|---|---|---|---|
-| 1 | `suppliers` | `english_name VARCHAR(100)` | 供應商管理 / 請款單新增供應商 |
-| 2 | `expense_categories` | `is_system BOOLEAN DEFAULT false` | 請款類別新增 |
-| 3 | `tour_registrations` | **整張表** | 公開頁 tour 報名 |
-| 4 | `payment_request_items` | `transferred_at` / `transferred_by` / `transferred_from_tour_id` | 成本轉移 |
+| #   | 表                      | 缺什麼                                                           | 影響業務                      |
+| --- | ----------------------- | ---------------------------------------------------------------- | ----------------------------- |
+| 1   | `suppliers`             | `english_name VARCHAR(100)`                                      | 供應商管理 / 請款單新增供應商 |
+| 2   | `expense_categories`    | `is_system BOOLEAN DEFAULT false`                                | 請款類別新增                  |
+| 3   | `tour_registrations`    | **整張表**                                                       | 公開頁 tour 報名              |
+| 4   | `payment_request_items` | `transferred_at` / `transferred_by` / `transferred_from_tour_id` | 成本轉移                      |
 
 ---
 
 ## 修復狀態（working tree、未 commit）
 
 ### Migration 檔
+
 `supabase/migrations/20260519073000_schema_drift_fix_3_tables.sql`
 
 cover Round 1-2 共 4 個 drift：
+
 1. `ALTER TABLE suppliers ADD COLUMN english_name`
 2. `ALTER TABLE expense_categories ADD COLUMN is_system`
 3. `CREATE TABLE tour_registrations` + trigger + RLS via `setup_workspace_scoped_rls()` SSOT
@@ -123,10 +130,12 @@ cover Round 1-2 共 4 個 drift：
 附完整 rollback SQL。
 
 ### Local commit
+
 - `9a9d24e` 已存在 local main、SQL 內 FK type 錯（後來在 working tree 修了、但沒重 commit）。
 - 真正要套 production 的是 working tree 版本。
 
 ### Production
+
 - 尚未 apply、所有 4 個 drift bug 還在 production 還在炸。
 
 ---

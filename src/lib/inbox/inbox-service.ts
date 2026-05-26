@@ -20,7 +20,7 @@ export type ChannelType = 'line' | 'facebook' | 'instagram'
 export interface UpsertConversationInput {
   workspaceId: string
   channelType: ChannelType
-  externalUserId: string  // LINE userId / FB PSID / IG IGSID
+  externalUserId: string // LINE userId / FB PSID / IG IGSID
   displayName?: string | null
   pictureUrl?: string | null
 }
@@ -28,7 +28,7 @@ export interface UpsertConversationInput {
 export interface InboundMessageInput {
   conversationId: string
   workspaceId: string
-  sourceId: string | null  // channel-native message ID（重送去重）
+  sourceId: string | null // channel-native message ID（重送去重）
   messageType?: string
   content: string | null
   rawEvent: unknown
@@ -88,15 +88,16 @@ type AdminFromShape = (table: string) => {
     options: { onConflict: string }
   ) => {
     select: (cols: string) => {
-      maybeSingle: () => Promise<{ data: ConversationRow | null; error: { message: string } | null }>
+      maybeSingle: () => Promise<{
+        data: ConversationRow | null
+        error: { message: string } | null
+      }>
     }
   }
   insert: (
     values: MessageInsertPayload
   ) => Promise<{ error: { message: string; code?: string } | null }>
-  update: (
-    values: Partial<ConversationRow> & { unread_count?: number | string }
-  ) => {
+  update: (values: Partial<ConversationRow> & { unread_count?: number | string }) => {
     eq: (col: string, value: string) => Promise<{ error: { message: string } | null }>
   }
 }
@@ -122,7 +123,9 @@ export async function upsertConversation(input: UpsertConversationInput): Promis
       },
       { onConflict: 'workspace_id,channel_type,external_user_id' }
     )
-    .select('id, workspace_id, channel_type, external_user_id, display_name, picture_url, customer_id, last_message_at, last_message_preview, unread_count')
+    .select(
+      'id, workspace_id, channel_type, external_user_id, display_name, picture_url, customer_id, last_message_at, last_message_preview, unread_count'
+    )
     .maybeSingle()
 
   if (error || !data) {
@@ -181,10 +184,12 @@ export async function recordInboundMessage(input: InboundMessageInput): Promise<
 
   // unread_count 增 1：走 RPC（避免 race）
   try {
-    await (supabase.rpc as unknown as (
-      fn: string,
-      args: Record<string, unknown>
-    ) => Promise<{ error: { message: string } | null }>)('increment_inbox_unread', {
+    await (
+      supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>
+      ) => Promise<{ error: { message: string } | null }>
+    )('increment_inbox_unread', {
       p_conversation_id: input.conversationId,
     })
   } catch (rpcError) {
@@ -232,7 +237,7 @@ export async function recordOutboundMessage(input: OutboundMessageInput): Promis
       last_message_at: new Date().toISOString(),
       last_message_preview: previewText,
       last_message_direction: 'outbound',
-      unread_count: 0,  // 我方回覆 → 對方已讀 reset
+      unread_count: 0, // 我方回覆 → 對方已讀 reset
     } as Partial<ConversationRow>)
     .eq('id', input.conversationId)
 

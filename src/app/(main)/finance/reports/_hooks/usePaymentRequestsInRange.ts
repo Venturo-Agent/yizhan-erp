@@ -22,15 +22,17 @@ const SELECT =
 
 const PAGE = 1000
 
-export const usePaymentRequestsInRange = createReportHook<PaymentRequest, Record<string, never>, DateRange>({
+export const usePaymentRequestsInRange = createReportHook<
+  PaymentRequest,
+  Record<string, never>,
+  DateRange
+>({
   key: (p: DateRange) => `payment-requests-in-range:${p.startDate}:${p.endDate}`,
   defaultStats: {},
   fetcher: async (p: DateRange) => {
     const all: PaymentRequest[] = []
     for (let from = 0; ; from += PAGE) {
-      const { data, error } = await filterActive(
-        supabase.from('payment_requests').select(SELECT)
-      )
+      const { data, error } = await filterActive(supabase.from('payment_requests').select(SELECT))
         .or(
           `and(request_date.gte.${p.startDate},request_date.lte.${p.endDate}),request_date.is.null`
         )

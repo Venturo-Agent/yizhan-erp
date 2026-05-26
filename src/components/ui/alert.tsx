@@ -49,16 +49,16 @@ const variantIcon: Record<AlertVariant, React.ComponentType<{ className?: string
 export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
   (
     { variant = 'default', title, description, icon, onClose, className, children, ...props },
-    ref,
+    ref
   ) => {
     const DefaultIcon = variantIcon[variant]
     const showIcon = icon !== null && (icon !== undefined || DefaultIcon !== null)
     const renderedIcon =
-      icon !== null && icon !== undefined
-        ? icon
-        : DefaultIcon
-          ? <DefaultIcon className="h-4 w-4 shrink-0" />
-          : null
+      icon !== null && icon !== undefined ? (
+        icon
+      ) : DefaultIcon ? (
+        <DefaultIcon className="h-4 w-4 shrink-0" />
+      ) : null
 
     return (
       <div
@@ -67,7 +67,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
         className={cn(
           'flex items-start gap-3 rounded-md border px-4 py-3 text-sm',
           variantClass[variant],
-          className,
+          className
         )}
         {...props}
       >
@@ -89,6 +89,6 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
         )}
       </div>
     )
-  },
+  }
 )
 Alert.displayName = 'Alert'

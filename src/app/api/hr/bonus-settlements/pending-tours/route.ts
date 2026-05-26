@@ -40,7 +40,16 @@ export const GET = apiHandler(async () => {
   }
 
   // 按 tour 聚合
-  const map = new Map<string, { tour_id: string; tour_code: string | null; total_amount: number; employee_set: Set<string>; bonus_count: number }>()
+  const map = new Map<
+    string,
+    {
+      tour_id: string
+      tour_code: string | null
+      total_amount: number
+      employee_set: Set<string>
+      bonus_count: number
+    }
+  >()
   for (const r of (data ?? []) as PendingRow[]) {
     const key = r.tour_id
     if (!map.has(key)) {
@@ -68,14 +77,16 @@ export const GET = apiHandler(async () => {
       .in('id', tourIds)
     if (tours) {
       tourMeta = Object.fromEntries(
-        (tours as Array<{ id: string; name: string; closing_date: string | null }>)
-          .map((t) => [t.id, { name: t.name, closing_date: t.closing_date }])
+        (tours as Array<{ id: string; name: string; closing_date: string | null }>).map(t => [
+          t.id,
+          { name: t.name, closing_date: t.closing_date },
+        ])
       )
     }
   }
 
   const result = Array.from(map.values())
-    .map((agg) => ({
+    .map(agg => ({
       tour_id: agg.tour_id,
       tour_code: agg.tour_code,
       tour_name: tourMeta[agg.tour_id]?.name ?? '(未知團名)',

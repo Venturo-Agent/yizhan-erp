@@ -47,9 +47,7 @@ export function QuotaHistorySection({ workspaceId }: { workspaceId: string }) {
       </div>
 
       <div className="p-6">
-        {isLoading && (
-          <p className="text-sm text-morandi-secondary">載入中…</p>
-        )}
+        {isLoading && <p className="text-sm text-morandi-secondary">載入中…</p>}
 
         {!isLoading && logs.length === 0 && (
           <p className="text-sm text-morandi-secondary">尚無配額變更紀錄</p>
@@ -60,10 +58,18 @@ export function QuotaHistorySection({ workspaceId }: { workspaceId: string }) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-morandi-border/30">
-                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[180px]">時間</th>
-                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[120px]">操作人</th>
-                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[100px]">變更前</th>
-                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[100px]">變更後</th>
+                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[180px]">
+                    時間
+                  </th>
+                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[120px]">
+                    操作人
+                  </th>
+                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[100px]">
+                    變更前
+                  </th>
+                  <th className="text-left pb-2 font-medium text-morandi-secondary w-[100px]">
+                    變更後
+                  </th>
                   <th className="text-left pb-2 font-medium text-morandi-secondary">備註</th>
                 </tr>
               </thead>
@@ -72,22 +78,21 @@ export function QuotaHistorySection({ workspaceId }: { workspaceId: string }) {
                   <tr key={log.id} className="border-b border-morandi-border/10 last:border-0">
                     <td className="py-2.5 text-morandi-secondary font-mono text-xs">
                       {new Date(log.created_at).toLocaleString('zh-TW', {
-                        year: 'numeric', month: '2-digit', day: '2-digit',
-                        hour: '2-digit', minute: '2-digit',
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
                       })}
                     </td>
                     <td className="py-2.5 text-morandi-primary">
                       {getEmployeeName(log.changed_by_employee)}
                     </td>
-                    <td className="py-2.5 text-morandi-secondary">
-                      {formatQuota(log.old_quota)}
-                    </td>
+                    <td className="py-2.5 text-morandi-secondary">{formatQuota(log.old_quota)}</td>
                     <td className="py-2.5 font-semibold text-morandi-primary">
                       {formatQuota(log.new_quota)}
                     </td>
-                    <td className="py-2.5 text-morandi-secondary">
-                      {log.reason ?? '—'}
-                    </td>
+                    <td className="py-2.5 text-morandi-secondary">{log.reason ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

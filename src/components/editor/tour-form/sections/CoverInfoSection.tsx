@@ -31,11 +31,10 @@ export function CoverInfoSection({
   updateField,
   onChange,
 }: CoverInfoSectionProps) {
-  const {
-    coverStyleOptions,
-    templatesLoading,
-    handleCoverStyleChange,
-  } = useCoverInfo({ data, onChange })
+  const { coverStyleOptions, templatesLoading, handleCoverStyleChange } = useCoverInfo({
+    data,
+    onChange,
+  })
 
   // 取得機場代碼（data.city 現在直接存城市代碼）
   // 向後兼容：如果是舊資料存城市名稱，嘗試反向查找

@@ -16,10 +16,10 @@
 
 ### 嘗試的連法
 
-| # | 工具 | 結果 |
-|---|---|---|
-| 1 | `mcp__supabase__execute_sql`（project_id `aawrgygqgemgqssflfrx`、查 `information_schema.triggers`） | ❌ `Unauthorized. Please provide a valid access token to the MCP server via the --access-token flag or SUPABASE_ACCESS_TOKEN.` |
-| 2 | `mcp__supabase__execute_sql`（同上、查 trigger count by table） | ❌ 同樣 Unauthorized |
+| #   | 工具                                                                                                | 結果                                                                                                                           |
+| --- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | `mcp__supabase__execute_sql`（project_id `aawrgygqgemgqssflfrx`、查 `information_schema.triggers`） | ❌ `Unauthorized. Please provide a valid access token to the MCP server via the --access-token flag or SUPABASE_ACCESS_TOKEN.` |
+| 2   | `mcp__supabase__execute_sql`（同上、查 trigger count by table）                                     | ❌ 同樣 Unauthorized                                                                                                           |
 
 依鐵律「第一次失敗立刻停手」、未繼續試查詢 3 / 4。
 
@@ -36,10 +36,12 @@ CLAUDE.md 提到 token 應該在 `$SUPABASE_MCP_AIERP_TOKEN`、但 generic `supa
 **選項 A（推薦）**：修 MCP server 設定、把 `SUPABASE_ACCESS_TOKEN` 設給 `supabase` MCP server、然後重跑這個 task。
 
 **選項 B（備案）**：直接在 terminal 跑 psql：
+
 ```bash
 source ~/.config/venturo/secrets.env
 psql "$DB_URL" -f /tmp/trigger-audit.sql
 ```
+
 但 CLAUDE.md 紅線寫「不准 psql 直連 port 5432」、需要 William 拍板才能走。
 
 **選項 C（如果只想要 trigger 清單、不要 pg_stat_statements）**：

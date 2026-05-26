@@ -21,7 +21,10 @@
 
 import { logger } from '@/lib/utils/logger'
 import { PROVIDER_CODES, PAYMENT_LINK_DEFAULT_EXPIRY_DAYS } from '@/constants/payment-provider'
-import { createSinopacCardTransaction, SINOPAC_ERR } from '@/lib/payment-providers/sinopac/create-transaction'
+import {
+  createSinopacCardTransaction,
+  SINOPAC_ERR,
+} from '@/lib/payment-providers/sinopac/create-transaction'
 import type { LLMTool } from '@/types/line.types'
 
 const HANDLER = 'ai-tool:send-payment-link'

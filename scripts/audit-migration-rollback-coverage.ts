@@ -33,7 +33,11 @@ interface MigrationInfo {
 const RISK_PATTERNS: Array<{ pattern: RegExp; level: 'critical' | 'warn'; reason: string }> = [
   { pattern: /DROP\s+TABLE/i, level: 'critical', reason: 'DROP TABLE 不可逆' },
   { pattern: /DROP\s+COLUMN/i, level: 'critical', reason: 'DROP COLUMN 含資料' },
-  { pattern: /ALTER\s+COLUMN.*TYPE/i, level: 'critical', reason: 'ALTER TYPE 可能 silent truncate' },
+  {
+    pattern: /ALTER\s+COLUMN.*TYPE/i,
+    level: 'critical',
+    reason: 'ALTER TYPE 可能 silent truncate',
+  },
   { pattern: /TRUNCATE/i, level: 'critical', reason: 'TRUNCATE 砍資料' },
   { pattern: /DELETE\s+FROM/i, level: 'warn', reason: 'DELETE 砍 row' },
   { pattern: /UPDATE\s+.*\bSET\b/i, level: 'warn', reason: 'UPDATE 改值' },
@@ -90,7 +94,7 @@ function main() {
   console.log(`Recent migration（${ROLLBACK_REQUIRED_FROM}+）：${recent.length} 個`)
   console.log(`其中沒 Rollback：${recentNoRollback.length} 個`)
   console.log(
-    `Recent 覆蓋率：${recent.length > 0 ? (((recent.length - recentNoRollback.length) / recent.length) * 100).toFixed(1) : 'N/A'}%`,
+    `Recent 覆蓋率：${recent.length > 0 ? (((recent.length - recentNoRollback.length) / recent.length) * 100).toFixed(1) : 'N/A'}%`
   )
   console.log('')
 

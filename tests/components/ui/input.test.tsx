@@ -156,12 +156,7 @@ describe('Input Component', () => {
     it('should not calculate when enableMathCalculation is false', () => {
       const handleChange = vi.fn()
       render(
-        <Input
-          data-testid="i"
-          type="text"
-          enableMathCalculation={false}
-          onChange={handleChange}
-        />
+        <Input data-testid="i" type="text" enableMathCalculation={false} onChange={handleChange} />
       )
       const input = screen.getByTestId('i') as HTMLInputElement
 
@@ -183,9 +178,7 @@ describe('Input Component', () => {
     it('should not break blur on plain non-math text', () => {
       const handleChange = vi.fn()
       const handleBlur = vi.fn()
-      render(
-        <Input data-testid="i" type="text" onChange={handleChange} onBlur={handleBlur} />
-      )
+      render(<Input data-testid="i" type="text" onChange={handleChange} onBlur={handleBlur} />)
       const input = screen.getByTestId('i') as HTMLInputElement
       input.value = 'hello world'
       fireEvent.blur(input)

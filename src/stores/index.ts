@@ -11,12 +11,10 @@ import { createStore } from './core/create-store'
 import type { Tour, Order, Employee } from '@/types'
 
 // 從本地 types 匯入
-import type {
-  Quote,
-} from './types'
+import type { Quote } from './types'
 
 // Supplier 從標準 types 匯入
-import type {  } from '@/types/supplier.types'
+import type {} from '@/types/supplier.types'
 
 // ============================================
 // 仍有引用的 createStore Stores
@@ -72,20 +70,15 @@ const _useEmployeeStore = createStore<Employee>({
 // 地區型別 re-export（供既有 import 使用）
 // ============================================
 
-
-
 // ============================================
 // 保留的特殊 Stores（認證、UI 狀態）
 // ============================================
 
 export { useAuthStore } from './auth-store'
 
-
 // ============================================
 // 進階 Stores
 // ============================================
-
-
 
 export { useCalendarStore } from './calendar-store'
 export { useWorkspaceStore } from './workspace'
@@ -94,32 +87,9 @@ export { useWorkspaceStore } from './workspace'
 // 型別匯出（方便使用）
 // ============================================
 
-
-
-
 // 財務收款系統型別
-export type {
-  Receipt,
-  
-  
-  
-  
-  
-  
-  ReceiptItem,
-  
-  
-  
-  
-  
-} from '@/types/receipt.types'
+export type { Receipt, ReceiptItem } from '@/types/receipt.types'
 
 // ============================================
 // Store 同步系統
 // ============================================
-
-
-
-
-
-

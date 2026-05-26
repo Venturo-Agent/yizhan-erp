@@ -5,13 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWorkspaceFeatures } from '@/lib/permissions'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
-import {
-  ChevronRight,
-  ChevronDown,
-  User,
-  Wrench,
-  LogOut,
-} from 'lucide-react'
+import { ChevronRight, ChevronDown, User, Wrench, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -175,13 +169,7 @@ export function Sidebar() {
         .filter((item): item is MenuItem => item !== null)
     }
     return filterMenuByPermissions(menuItems)
-  }, [
-    user?.id,
-    user?.workspace_code,
-    canReadAnyInModule,
-    isFeatureEnabled,
-    enabledFeatures,
-  ])
+  }, [user?.id, user?.workspace_code, canReadAnyInModule, isFeatureEnabled, enabledFeatures])
 
   const visiblePersonalToolItems = useMemo(() => {
     return personalToolItems.filter(item => {

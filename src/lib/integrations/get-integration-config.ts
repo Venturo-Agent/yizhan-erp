@@ -31,23 +31,31 @@ interface WorkspaceIntegrationRow {
  */
 export async function getIntegrationConfig(
   workspaceId: string,
-  integrationCode: string,
+  integrationCode: string
 ): Promise<Record<string, string> | null> {
   if (!workspaceId) return null
   const admin = getSupabaseAdminClient()
   // type cast：generated types regen 後可拿掉
-  const { data, error } = await (admin.from as unknown as (t: string) => {
-    select: (c: string) => {
-      eq: (c1: string, v1: string) => {
-        eq: (c2: string, v2: string) => {
-          maybeSingle: () => Promise<{
-            data: WorkspaceIntegrationRow | null
-            error: { message: string } | null
-          }>
+  const { data, error } = await (
+    admin.from as unknown as (t: string) => {
+      select: (c: string) => {
+        eq: (
+          c1: string,
+          v1: string
+        ) => {
+          eq: (
+            c2: string,
+            v2: string
+          ) => {
+            maybeSingle: () => Promise<{
+              data: WorkspaceIntegrationRow | null
+              error: { message: string } | null
+            }>
+          }
         }
       }
     }
-  })('workspace_integrations')
+  )('workspace_integrations')
     .select('config, enabled')
     .eq('workspace_id', workspaceId)
     .eq('integration_code', integrationCode)

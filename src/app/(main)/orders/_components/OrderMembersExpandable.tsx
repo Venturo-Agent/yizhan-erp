@@ -37,10 +37,7 @@ import {
   useMemberFieldHandlers,
   useMemberTableActions,
 } from '../_hooks'
-import {
-  MemberRow,
-  MemberTableHeader,
-} from './'
+import { MemberRow, MemberTableHeader } from './'
 import { OrderMembersToolbar } from './OrderMembersExpandable.toolbar'
 import { OrderMembersDialogs } from './OrderMembersExpandable.dialogs'
 import type {
@@ -49,9 +46,7 @@ import type {
   CustomCostField,
 } from '../_types/order-member.types'
 import { computeRowSpans } from '../_utils'
-import {
-  defaultColumnVisibility,
-} from './OrderMembersExpandable.types'
+import { defaultColumnVisibility } from './OrderMembersExpandable.types'
 import type { ColumnVisibility } from './OrderMembersExpandable.types'
 
 // Re-export so existing importers of ColumnVisibility from this file still work
@@ -322,11 +317,7 @@ export function OrderMembersExpandable({
 
       {/* 表格 */}
       <div className="flex-1 overflow-auto">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <table className="border-collapse text-sm member-table-inline table-fixed w-full">
             <MemberTableHeader
               mode={mode}

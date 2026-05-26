@@ -9,8 +9,7 @@ import { useTranslations } from 'next-intl'
 import { CalendarSettingsDialog } from './_components/calendar-settings-dialog'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { Button } from '@/components/ui/button'
-import {
-} from '@/components/ui/select'
+import {} from '@/components/ui/select'
 import {
   CalendarStyles,
   AddEventDialog,
@@ -20,17 +19,14 @@ import {
   BirthdayListDialog,
 } from './_components'
 
-const CalendarGrid = dynamic(
-  () => import('./_components/CalendarGrid').then(m => m.CalendarGrid),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-morandi-gold" />
-      </div>
-    ),
-  }
-)
+const CalendarGrid = dynamic(() => import('./_components/CalendarGrid').then(m => m.CalendarGrid), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-96">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-morandi-gold" />
+    </div>
+  ),
+})
 import {
   useCalendarEvents,
   useCalendarNavigation,
@@ -46,10 +42,7 @@ export default function CalendarPage() {
   const [birthdayDialogOpen, setBirthdayDialogOpen] = useState(false)
 
   // Custom hooks for calendar logic
-  const {
-    filteredEvents,
-    onDatesChange,
-  } = useCalendarEvents()
+  const { filteredEvents, onDatesChange } = useCalendarEvents()
   const {
     calendarRef,
     handlePrevMonth,

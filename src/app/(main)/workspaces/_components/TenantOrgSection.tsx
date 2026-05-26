@@ -62,11 +62,7 @@ export function TenantOrgSection({
                 <Input
                   value={br.tax_id ?? ''}
                   onChange={e =>
-                    onUpdateBranch(
-                      idx,
-                      'tax_id',
-                      e.target.value.replace(/\D/g, '').slice(0, 8)
-                    )
+                    onUpdateBranch(idx, 'tax_id', e.target.value.replace(/\D/g, '').slice(0, 8))
                   }
                   placeholder="分公司統編（8 碼數字）"
                   maxLength={8}

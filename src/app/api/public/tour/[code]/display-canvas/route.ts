@@ -25,25 +25,14 @@ import { logger } from '@/lib/utils/logger'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   // Rate limit：120 req/min per IP
-  const rateLimited = await checkRateLimit(
-    request,
-    'public-tour-display-canvas',
-    120,
-    60_000
-  )
+  const rateLimited = await checkRateLimit(request, 'public-tour-display-canvas', 120, 60_000)
   if (rateLimited) return rateLimited
 
   const { code } = await params
   if (!code) {
-    return NextResponse.json(
-      { success: false, error: '缺少團號' },
-      { status: 400 }
-    )
+    return NextResponse.json({ success: false, error: '缺少團號' }, { status: 400 })
   }
 
   try {
@@ -103,9 +92,6 @@ export async function GET(
   } catch (error) {
     logger.error('GET public display-canvas error', error)
     // 公開端點不洩漏 DB error 內部訊息、給通用 500
-    return NextResponse.json(
-      { success: false, error: '系統錯誤、請稍後再試' },
-      { status: 500 }
-    )
+    return NextResponse.json({ success: false, error: '系統錯誤、請稍後再試' }, { status: 500 })
   }
 }

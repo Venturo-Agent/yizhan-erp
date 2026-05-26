@@ -64,10 +64,7 @@ export async function rollback(
     if (error) logger.error('Rollback deleteUser failed:', error)
   }
   if (createdWorkspaceId) {
-    const { error } = await supabaseAdmin
-      .from('workspaces')
-      .delete()
-      .eq('id', createdWorkspaceId)
+    const { error } = await supabaseAdmin.from('workspaces').delete().eq('id', createdWorkspaceId)
     if (error) logger.error('Rollback delete workspace failed:', error)
   }
 }

@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ✅ | marketing/website page.tsx 有；`website-tours.ts` entity hook 有 |
-| **資安** | ✅ | marketing 是 Corner 官網；workspace_id guard 有 |
-| **架構** | ✅ | L1-L6 全過；marketing 是 5/20 新 module |
-| **開發品管** | ⚠️ | marketing 無 e2e（新 module 相對新）；`website-tours.ts` entity 是牛步（Pass 1 supplement 做一半）|
-| **清理** | ⚠️ | `website-tours.ts` entity 是牛步；marketing 是新 module、dead code 不多 |
+| 維度         | 現狀 | 具體缺口                                                                                           |
+| ------------ | ---- | -------------------------------------------------------------------------------------------------- |
+| **讀取效能** | ✅   | marketing/website page.tsx 有；`website-tours.ts` entity hook 有                                   |
+| **資安**     | ✅   | marketing 是 Corner 官網；workspace_id guard 有                                                    |
+| **架構**     | ✅   | L1-L6 全過；marketing 是 5/20 新 module                                                            |
+| **開發品管** | ⚠️   | marketing 無 e2e（新 module 相對新）；`website-tours.ts` entity 是牛步（Pass 1 supplement 做一半） |
+| **清理**     | ⚠️   | `website-tours.ts` entity 是牛步；marketing 是新 module、dead code 不多                            |
 
 ---
 
@@ -24,6 +24,7 @@
 
 **修法**：
 `tests/e2e/marketing-website.spec.ts`：
+
 ```
 打開官網 → 確認網站 tour 列表正確顯示 →
 點擊 tour → 確認詳細頁正確載入 →
@@ -40,6 +41,7 @@
 **缺口**：`website-tours.ts` entity 是牛步（Pass 1 supplement 有記錄）。
 
 **修法**：
+
 1. 確認 `src/data/entities/website-tours.ts` 實際狀態（是否存在、完整度）
 2. 如果存在且完整 → 從牛步移至完成
 3. 如果不完整 → 完成 entity hook
@@ -55,6 +57,7 @@
 **缺口**：marketing 是新 module，dead code 不多。
 
 **修法**：
+
 1. knip 跑 `workspace/健檢/reports/` marketing 相關
 2. 確認 `.eslint-suppressions.json` 中 marketing entries
 
@@ -83,4 +86,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

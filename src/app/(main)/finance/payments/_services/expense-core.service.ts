@@ -61,12 +61,14 @@ export async function recalculateExpenseStats(tour_id: string): Promise<void> {
         total_cost += item.subtotal || 0
         // disbursement_order_items 可能是 single object 或 array（generated types 推斷不準）
         // cast 透過 unknown 處理兩種情況、reduce fee_amount
-        const doi = (item as unknown as {
-          disbursement_order_items?:
-            | { fee_amount: number | null }
-            | Array<{ fee_amount: number | null }>
-            | null
-        }).disbursement_order_items
+        const doi = (
+          item as unknown as {
+            disbursement_order_items?:
+              | { fee_amount: number | null }
+              | Array<{ fee_amount: number | null }>
+              | null
+          }
+        ).disbursement_order_items
         if (Array.isArray(doi)) {
           for (const d of doi) {
             fee_cost += d.fee_amount || 0

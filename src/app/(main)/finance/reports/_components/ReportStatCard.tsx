@@ -24,7 +24,11 @@ export function ReportStatCard({ title, value, isCurrency = false, variant }: Re
             {title}
           </span>
           {isCurrency ? (
-            <CurrencyCell amount={value} variant={variant} className="text-xl font-bold tabular-nums" />
+            <CurrencyCell
+              amount={value}
+              variant={variant}
+              className="text-xl font-bold tabular-nums"
+            />
           ) : (
             <span className="text-xl font-bold text-morandi-primary tabular-nums">{value}</span>
           )}

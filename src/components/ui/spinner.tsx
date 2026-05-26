@@ -34,6 +34,6 @@ export const Spinner = React.forwardRef<SVGSVGElement, SpinnerProps>(
       aria-hidden="true"
       {...props}
     />
-  ),
+  )
 )
 Spinner.displayName = 'Spinner'

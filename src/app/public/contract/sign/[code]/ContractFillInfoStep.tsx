@@ -51,22 +51,19 @@ export function ContractFillInfoStep({
     <div className="min-h-screen bg-gradient-to-b from-morandi-gold/10 to-card flex flex-col">
       <div className="bg-card border-b border-border px-4 py-4">
         <div className="max-w-md mx-auto flex items-center">
-          <button
-            onClick={onBack}
-            className="text-morandi-muted hover:text-morandi-primary mr-4"
-          >
+          <button onClick={onBack} className="text-morandi-muted hover:text-morandi-primary mr-4">
             {PAGE_LABELS.BACK_TO_CONTRACT}
           </button>
-          <h1 className="text-lg font-semibold text-morandi-primary">{PAGE_LABELS.CONFIRM_SIGNER_INFO}</h1>
+          <h1 className="text-lg font-semibold text-morandi-primary">
+            {PAGE_LABELS.CONFIRM_SIGNER_INFO}
+          </h1>
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4">
         <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-md">
           <div className="mb-6 pb-4 border-b border-border">
-            <div className="text-sm text-morandi-muted mb-1">
-              {templateLabel}
-            </div>
+            <div className="text-sm text-morandi-muted mb-1">{templateLabel}</div>
             <div className="font-semibold text-morandi-primary">{tourName}</div>
             <div className="text-sm text-morandi-secondary mt-1">
               簽約人：{signerName}
@@ -122,17 +119,15 @@ export function ContractFillInfoStep({
           )}
 
           <div className="mt-6">
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={onNext}
-            >
+            <Button size="lg" className="w-full" onClick={onNext}>
               <FileSignature className="w-5 h-5 mr-2" />
               {PAGE_LABELS.NEXT_STEP_SIGN}
             </Button>
           </div>
 
-          <p className="text-xs text-morandi-muted text-center mt-4">{PAGE_LABELS.INFO_RECORDED_NOTE}</p>
+          <p className="text-xs text-morandi-muted text-center mt-4">
+            {PAGE_LABELS.INFO_RECORDED_NOTE}
+          </p>
         </div>
       </div>
     </div>

@@ -98,9 +98,10 @@ function ErrorDisplay({ error, errorInfo, onRetry }: ErrorDisplayProps) {
           )}
 
           {/* Retry Button */}
-          <Button variant="soft-gold"
+          <Button
+            variant="soft-gold"
             onClick={onRetry || (() => window.location.reload())}
- className="w-full gap-2"
+            className="w-full gap-2"
           >
             <RefreshCw size="1em" />
             {COMPONENT_LABELS.LOADING_8807}
@@ -312,4 +313,3 @@ function _ErrorFallback({ error, resetError }: ErrorFallbackProps) {
 // ============================================
 // Default Export
 // ============================================
-

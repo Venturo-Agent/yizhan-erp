@@ -148,9 +148,7 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
     }
     if (channel.name) return channel.name
     if (!user?.id) return '私訊'
-    const peer = (members ?? []).find(
-      m => m.channel_id === channel.id && m.employee_id !== user.id
-    )
+    const peer = (members ?? []).find(m => m.channel_id === channel.id && m.employee_id !== user.id)
     if (!peer) return '私訊'
     const emp = getEmployee(peer.employee_id)
     return emp?.display_name || emp?.chinese_name || emp?.english_name || '私訊'
@@ -220,9 +218,7 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
       (c.name?.toLowerCase().includes(normalizedSearch) ?? false) ||
       displayName.toLowerCase().includes(normalizedSearch)
     return {
-      officialFlat: sections.officialFlat.filter(c =>
-        matchChannel(c, c.name ?? '')
-      ),
+      officialFlat: sections.officialFlat.filter(c => matchChannel(c, c.name ?? '')),
       dms: sections.dms.filter(c => matchChannel(c, resolveDmDisplayName(c))),
       projectsAndGroups: sections.projectsAndGroups.filter(c => matchChannel(c, c.name ?? '')),
     }
@@ -231,8 +227,7 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
   const filteredCoworkers = useMemo(() => {
     if (!normalizedSearch) return coworkers
     return coworkers.filter(e => {
-      const name =
-        (e.display_name || e.chinese_name || e.english_name || '').toLowerCase()
+      const name = (e.display_name || e.chinese_name || e.english_name || '').toLowerCase()
       return name.includes(normalizedSearch)
     })
   }, [coworkers, normalizedSearch])
@@ -290,7 +285,7 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
             const display =
               c.type === 'bot' && c.agent_id
                 ? (aiAgents ?? []).find(a => a.id === c.agent_id)?.name || c.name || 'HAPPY'
-                : c.name ?? '未命名'
+                : (c.name ?? '未命名')
             const unread = isUnread(c) && activeChannelId !== c.id
             const isActive = activeChannelId === c.id
             return (
@@ -496,7 +491,7 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
                     const display =
                       c.type === 'bot' && c.agent_id
                         ? (aiAgents ?? []).find(a => a.id === c.agent_id)?.name || c.name || 'HAPPY'
-                        : c.name ?? '未命名'
+                        : (c.name ?? '未命名')
                     return renderChannelItem(c, display, Icon)
                   })}
                 </ul>
@@ -512,7 +507,8 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
                 </div>
                 <ul>
                   {filteredCoworkers.map(emp => {
-                    const display = emp.display_name || emp.chinese_name || emp.english_name || '未命名'
+                    const display =
+                      emp.display_name || emp.chinese_name || emp.english_name || '未命名'
                     const avatarUrl = (emp as { avatar_url?: string | null }).avatar_url ?? null
                     const initial = display[0] ?? '?'
                     const isOpening = openingDm === emp.id
@@ -549,7 +545,11 @@ export function ChannelsSidebar({ activeChannelId, onCreateChannel }: Props) {
                           {/* 頭像 20×20 圓形、無頭像顯首字 */}
                           <div className="shrink-0 w-5 h-5 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-[0.588rem] font-medium text-morandi-gold">
                             {avatarUrl ? (
-                              <img src={avatarUrl} alt={display} className="w-full h-full object-cover" />
+                              <img
+                                src={avatarUrl}
+                                alt={display}
+                                className="w-full h-full object-cover"
+                              />
                             ) : (
                               <span>{initial}</span>
                             )}

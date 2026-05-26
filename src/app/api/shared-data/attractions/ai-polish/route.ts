@@ -18,7 +18,10 @@ export async function POST(req: NextRequest) {
   if (!guard.ok) return guard.response
 
   const auditClient = await createApiClient()
-  await recordApiAuditContext(auditClient, { actorId: guard.employeeId, reason: '景點文字 AI 潤飾' })
+  await recordApiAuditContext(auditClient, {
+    actorId: guard.employeeId,
+    reason: '景點文字 AI 潤飾',
+  })
 
   let body: {
     name?: string

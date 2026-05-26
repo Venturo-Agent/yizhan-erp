@@ -59,16 +59,18 @@ export function StepWelcome({ onNext }: { onNext: () => void }) {
           <li>
             把你的 IG 帳號切換為 <strong>Business / Creator</strong> account
           </li>
-          <li>
-            在 IG App → 設定 → 商業中心 → 連接 FB Page
-          </li>
+          <li>在 IG App → 設定 → 商業中心 → 連接 FB Page</li>
           <li>
             在 Meta App（同 FB Messenger 用的那個）加上 Messenger 跟 Instagram product、勾選
             <code className="px-1 bg-morandi-container/30 rounded mx-1">instagram_basic</code>+
-            <code className="px-1 bg-morandi-container/30 rounded mx-1">instagram_manage_messages</code>權限
+            <code className="px-1 bg-morandi-container/30 rounded mx-1">
+              instagram_manage_messages
+            </code>
+            權限
           </li>
           <li>
-            產生 <strong>Page Access Token</strong>（跟 FB Messenger 同一個 token、IG 透過 FB Page 操作）
+            產生 <strong>Page Access Token</strong>（跟 FB Messenger 同一個 token、IG 透過 FB Page
+            操作）
           </li>
           <li>
             到{' '}
@@ -80,7 +82,8 @@ export function StepWelcome({ onNext }: { onNext: () => void }) {
             >
               Graph API Explorer <ExternalLink className="w-3 h-3" />
             </a>
-            查你的 <strong>IG Business Account ID</strong>（GET /me?fields=instagram_business_account）
+            查你的 <strong>IG Business Account ID</strong>（GET
+            /me?fields=instagram_business_account）
           </li>
         </ol>
       </div>
@@ -116,10 +119,7 @@ export function StepCredentials({
     app_secret: string
     bot_greeting: string
   }
-  onChange: (
-    k: 'instagram_user_access_token' | 'app_secret' | 'bot_greeting',
-    v: string
-  ) => void
+  onChange: (k: 'instagram_user_access_token' | 'app_secret' | 'bot_greeting', v: string) => void
   onBack: () => void
   onValidate: () => void
   validating: boolean
@@ -132,7 +132,8 @@ export function StepCredentials({
       <div>
         <h2 className="text-lg font-bold mb-1">填 Instagram User Access Token</h2>
         <p className="text-xs text-morandi-secondary">
-          Meta 2024+ 新版 IG API：單一 Instagram User Access Token 即可、IG_ID 從 token 反查、不再要 IG Business Account ID。
+          Meta 2024+ 新版 IG API：單一 Instagram User Access Token 即可、IG_ID 從 token 反查、不再要
+          IG Business Account ID。
         </p>
       </div>
 
@@ -255,9 +256,7 @@ export function StepValidateConfirm({
         )}
         <div className="flex-1 min-w-0">
           <h3 className="font-bold text-lg">@{igInfo.igUsername}</h3>
-          {igInfo.igName && (
-            <p className="text-xs text-morandi-secondary">{igInfo.igName}</p>
-          )}
+          {igInfo.igName && <p className="text-xs text-morandi-secondary">{igInfo.igName}</p>}
           <p className="text-[0.647rem] text-morandi-muted font-mono mt-1">
             IG Business ID: {igInfo.igBusinessAccountId}
           </p>
@@ -355,7 +354,9 @@ export function StepDone({
       </div>
 
       <div className="rounded-md bg-morandi-gold/10 border border-morandi-gold/30 p-4 text-sm">
-        <strong className="text-morandi-primary">最後一步：在 Meta App 訂閱 Instagram webhook</strong>
+        <strong className="text-morandi-primary">
+          最後一步：在 Meta App 訂閱 Instagram webhook
+        </strong>
         <ol className="list-decimal list-inside mt-2 space-y-1 text-xs text-morandi-secondary">
           <li>
             到{' '}

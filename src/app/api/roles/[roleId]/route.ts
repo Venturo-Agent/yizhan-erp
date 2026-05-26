@@ -23,7 +23,11 @@ export async function DELETE(
     const { roleId } = await params
     const supabase = await createApiClient()
 
-    await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '刪除職務', requestId: roleId })
+    await recordApiAuditContext(supabase, {
+      actorId: guard.employeeId,
+      reason: '刪除職務',
+      requestId: roleId,
+    })
 
     // 檢查職務是否擁有管理員資格
     const { data: role } = await supabase
@@ -40,7 +44,10 @@ export async function DELETE(
 
     if (error) {
       const t = translateDbError(error)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     return NextResponse.json({ success: true })

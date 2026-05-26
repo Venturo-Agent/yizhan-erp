@@ -84,10 +84,22 @@ export function homographyToCSSMatrix3d(H: Homography): string {
   const [h11, h12, h13, h21, h22, h23, h31, h32, h33] = H
   // column-major: col0 col1 col2 col3
   const m = [
-    h11, h21, 0, h31, // col 0
-    h12, h22, 0, h32, // col 1
-    0, 0, 1, 0, // col 2
-    h13, h23, 0, h33, // col 3
+    h11,
+    h21,
+    0,
+    h31, // col 0
+    h12,
+    h22,
+    0,
+    h32, // col 1
+    0,
+    0,
+    1,
+    0, // col 2
+    h13,
+    h23,
+    0,
+    h33, // col 3
   ]
   return `matrix3d(${m.join(',')})`
 }
@@ -119,10 +131,22 @@ export function cornerOffsetsToPreviewMatrix(
   ]
   // 目標點：cornerOffsets 換算成像素（user 拖到的位置）
   const dst: [CornerPoint, CornerPoint, CornerPoint, CornerPoint] = [
-    { x: (cornerOffsets.tl.x / 100) * viewportWidth, y: (cornerOffsets.tl.y / 100) * viewportHeight },
-    { x: (cornerOffsets.tr.x / 100) * viewportWidth, y: (cornerOffsets.tr.y / 100) * viewportHeight },
-    { x: (cornerOffsets.br.x / 100) * viewportWidth, y: (cornerOffsets.br.y / 100) * viewportHeight },
-    { x: (cornerOffsets.bl.x / 100) * viewportWidth, y: (cornerOffsets.bl.y / 100) * viewportHeight },
+    {
+      x: (cornerOffsets.tl.x / 100) * viewportWidth,
+      y: (cornerOffsets.tl.y / 100) * viewportHeight,
+    },
+    {
+      x: (cornerOffsets.tr.x / 100) * viewportWidth,
+      y: (cornerOffsets.tr.y / 100) * viewportHeight,
+    },
+    {
+      x: (cornerOffsets.br.x / 100) * viewportWidth,
+      y: (cornerOffsets.br.y / 100) * viewportHeight,
+    },
+    {
+      x: (cornerOffsets.bl.x / 100) * viewportWidth,
+      y: (cornerOffsets.bl.y / 100) * viewportHeight,
+    },
   ]
   const H = solveHomography(src, dst)
   return homographyToCSSMatrix3d(H)

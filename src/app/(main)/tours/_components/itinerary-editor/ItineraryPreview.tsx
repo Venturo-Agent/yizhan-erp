@@ -61,10 +61,11 @@ export function ItineraryPreview({
                 <Edit2 size={12} />
                 {t('itineraryPreviewEdit')}
               </Button>
-              <Button variant="soft-gold"
+              <Button
+                variant="soft-gold"
                 size="sm"
                 onClick={onPrint}
- className="h-7 text-[0.647rem] gap-1"
+                className="h-7 text-[0.647rem] gap-1"
               >
                 <Printer size={12} />
                 {t('printPrint')}
@@ -101,9 +102,7 @@ export function ItineraryPreview({
                   <span className="font-medium">{startDate || <EmptyValue />}</span>
                 </div>
                 <div className="flex gap-2">
-                  <span className="text-morandi-secondary">
-                    {t('itineraryPreviewDaysLabel')}
-                  </span>
+                  <span className="text-morandi-secondary">{t('itineraryPreviewDaysLabel')}</span>
                   <span className="font-medium">
                     {dailyData.length} {t('itineraryPreviewDayUnit')}
                   </span>
@@ -216,8 +215,7 @@ export function ItineraryPreview({
             {/* 頁尾 */}
             <div className="mt-6 pt-4 border-t border-morandi-container text-xs text-morandi-secondary text-center">
               <p>
-                {t('itineraryPreviewFooter')} {companyName}{' '}
-                {t('itineraryPreviewFooterProvided')}
+                {t('itineraryPreviewFooter')} {companyName} {t('itineraryPreviewFooterProvided')}
               </p>
             </div>
           </div>
@@ -250,14 +248,20 @@ export function ItineraryPreviewContent({
           <span className="text-sm font-normal text-morandi-secondary">- {title}</span>
         </DialogTitle>
         <div className="flex items-center gap-2">
-          <Button variant="soft-gold" size="sm" onClick={onEdit} className="h-7 text-[0.647rem] gap-1">
+          <Button
+            variant="soft-gold"
+            size="sm"
+            onClick={onEdit}
+            className="h-7 text-[0.647rem] gap-1"
+          >
             <Edit2 size={12} />
             {t('itineraryPreviewEdit')}
           </Button>
-          <Button variant="soft-gold"
+          <Button
+            variant="soft-gold"
             size="sm"
             onClick={onPrint}
- className="h-7 text-[0.647rem] gap-1"
+            className="h-7 text-[0.647rem] gap-1"
           >
             <Printer size={12} />
             {t('printPrint')}
@@ -288,15 +292,11 @@ export function ItineraryPreviewContent({
               <span className="font-medium">{destination || <EmptyValue />}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-morandi-secondary">
-                {t('itineraryPreviewDepartDateLabel')}
-              </span>
+              <span className="text-morandi-secondary">{t('itineraryPreviewDepartDateLabel')}</span>
               <span className="font-medium">{startDate || <EmptyValue />}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-morandi-secondary">
-                {t('itineraryPreviewDaysLabel')}
-              </span>
+              <span className="text-morandi-secondary">{t('itineraryPreviewDaysLabel')}</span>
               <span className="font-medium">
                 {dailyData.length} {t('itineraryPreviewDayUnit')}
               </span>
@@ -392,8 +392,7 @@ export function ItineraryPreviewContent({
         {/* 頁尾 */}
         <div className="mt-6 pt-4 border-t border-morandi-container text-xs text-morandi-secondary text-center">
           <p>
-            {t('itineraryPreviewFooter')} {companyName}{' '}
-            {t('itineraryPreviewFooterProvided')}
+            {t('itineraryPreviewFooter')} {companyName} {t('itineraryPreviewFooterProvided')}
           </p>
         </div>
       </div>

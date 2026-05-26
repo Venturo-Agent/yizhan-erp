@@ -54,7 +54,15 @@ export async function POST(request: NextRequest) {
     reason: `獎金結算（${tour_ids.length} 團、日期 ${request_date}）`,
   })
   const today = request_date
-  const results: Array<{ tour_id: string; ok: boolean; payment_request_id?: string; payment_request_code?: string; total_amount?: number; bonus_count?: number; error?: string }> = []
+  const results: Array<{
+    tour_id: string
+    ok: boolean
+    payment_request_id?: string
+    payment_request_code?: string
+    total_amount?: number
+    bonus_count?: number
+    error?: string
+  }> = []
 
   for (const tourId of tour_ids) {
     try {
@@ -100,8 +108,7 @@ export async function POST(request: NextRequest) {
         .ilike('name', '%匯款%')
         .limit(1)
         .maybeSingle()
-      let paymentMethodId: string | null =
-        (transferPm as { id?: string } | null)?.id ?? null
+      let paymentMethodId: string | null = (transferPm as { id?: string } | null)?.id ?? null
       if (!paymentMethodId) {
         const { data: anyPm } = await supabase
           .from('payment_methods')
@@ -155,9 +162,7 @@ export async function POST(request: NextRequest) {
         request_id: pr.id,
         workspace_id: guard.workspaceId,
         item_number: idx + 1,
-        description: b.bonus_kind
-          ? `${b.bonus_kind} - ${b.employee_name}`
-          : b.employee_name,
+        description: b.bonus_kind ? `${b.bonus_kind} - ${b.employee_name}` : b.employee_name,
         quantity: 1,
         unit_price: Number(b.amount ?? 0),
         amount: Number(b.amount ?? 0),
@@ -168,9 +173,7 @@ export async function POST(request: NextRequest) {
         tour_id: tourId,
       }))
 
-      const { error: itemsError } = await supabase
-        .from('payment_request_items')
-        .insert(prItems)
+      const { error: itemsError } = await supabase.from('payment_request_items').insert(prItems)
 
       if (itemsError) {
         await supabase.from('payment_requests').delete().eq('id', pr.id)
@@ -222,8 +225,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const okCount = results.filter((r) => r.ok).length
-  const failCount = results.filter((r) => !r.ok).length
+  const okCount = results.filter(r => r.ok).length
+  const failCount = results.filter(r => !r.ok).length
 
   return NextResponse.json({
     data: {

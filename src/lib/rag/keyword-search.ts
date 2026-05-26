@@ -32,51 +32,66 @@ const HANDLER = 'rag-keyword-search'
 // ════════════════════════════════════════
 
 const REGION_KEYWORDS: Record<string, { country: string; region: string }> = {
-  '金澤': { country: '日本', region: '金澤' },
-  '沖繩': { country: '日本', region: '沖繩' },
-  '北海道': { country: '日本', region: '北海道' },
-  '名古屋': { country: '日本', region: '名古屋' },
-  '大阪': { country: '日本', region: '大阪' },
-  '東京': { country: '日本', region: '東京' },
-  '四國': { country: '日本', region: '四國' },
-  '曼谷': { country: '泰國', region: '曼谷' },
-  '蘇美島': { country: '泰國', region: '蘇美島' },
-  '蘇美': { country: '泰國', region: '蘇美島' },
-  '清邁': { country: '泰國', region: '清邁' },
+  金澤: { country: '日本', region: '金澤' },
+  沖繩: { country: '日本', region: '沖繩' },
+  北海道: { country: '日本', region: '北海道' },
+  名古屋: { country: '日本', region: '名古屋' },
+  大阪: { country: '日本', region: '大阪' },
+  東京: { country: '日本', region: '東京' },
+  四國: { country: '日本', region: '四國' },
+  曼谷: { country: '泰國', region: '曼谷' },
+  蘇美島: { country: '泰國', region: '蘇美島' },
+  蘇美: { country: '泰國', region: '蘇美島' },
+  清邁: { country: '泰國', region: '清邁' },
 }
 
 const COUNTRY_KEYWORDS = ['日本', '日', '泰國', '泰']
 
 const AUDIENCE_KEYWORDS: Record<string, { tag: string; chunkType: string }> = {
-  '親子':  { tag: 'family_kids', chunkType: 'family_kids' },
-  '小孩':  { tag: 'family_kids', chunkType: 'family_kids' },
-  '小朋友': { tag: 'family_kids', chunkType: 'family_kids' },
-  '兒童':  { tag: 'family_kids', chunkType: 'family_kids' },
-  '銀髮':  { tag: 'family_senior', chunkType: 'family_senior' },
-  '長輩':  { tag: 'family_senior', chunkType: 'family_senior' },
-  '老人':  { tag: 'family_senior', chunkType: 'family_senior' },
-  '父母':  { tag: 'family_senior', chunkType: 'family_senior' },
-  '蜜月':  { tag: 'couples', chunkType: '' },
-  '情侶':  { tag: 'couples', chunkType: '' },
-  '朋友':  { tag: 'friends', chunkType: '' },
-  '閨蜜':  { tag: 'friends', chunkType: '' },
+  親子: { tag: 'family_kids', chunkType: 'family_kids' },
+  小孩: { tag: 'family_kids', chunkType: 'family_kids' },
+  小朋友: { tag: 'family_kids', chunkType: 'family_kids' },
+  兒童: { tag: 'family_kids', chunkType: 'family_kids' },
+  銀髮: { tag: 'family_senior', chunkType: 'family_senior' },
+  長輩: { tag: 'family_senior', chunkType: 'family_senior' },
+  老人: { tag: 'family_senior', chunkType: 'family_senior' },
+  父母: { tag: 'family_senior', chunkType: 'family_senior' },
+  蜜月: { tag: 'couples', chunkType: '' },
+  情侶: { tag: 'couples', chunkType: '' },
+  朋友: { tag: 'friends', chunkType: '' },
+  閨蜜: { tag: 'friends', chunkType: '' },
 }
 
 const SEASON_KEYWORDS: Record<string, string> = {
-  '春': 'spring', '櫻': 'spring', '櫻花': 'spring',
-  '夏': 'summer',
-  '秋': 'autumn', '楓': 'autumn',
-  '冬': 'winter', '雪': 'winter', '溫泉': 'winter',
+  春: 'spring',
+  櫻: 'spring',
+  櫻花: 'spring',
+  夏: 'summer',
+  秋: 'autumn',
+  楓: 'autumn',
+  冬: 'winter',
+  雪: 'winter',
+  溫泉: 'winter',
 }
 
 const STYLE_KEYWORDS: Record<string, string> = {
-  '美食': 'food', '吃': 'food',
-  '文化': 'culture', '傳統': 'culture', '神社': 'culture', '寺廟': 'culture',
-  '購物': 'shopping',
-  '海島': 'island', '海灘': 'island', '潛水': 'island',
-  '慢活': 'leisurely', '悠閒': 'leisurely',
-  '都會': 'urban', '夜生活': 'urban',
-  '自然': 'nature', '森林': 'nature', '山': 'nature',
+  美食: 'food',
+  吃: 'food',
+  文化: 'culture',
+  傳統: 'culture',
+  神社: 'culture',
+  寺廟: 'culture',
+  購物: 'shopping',
+  海島: 'island',
+  海灘: 'island',
+  潛水: 'island',
+  慢活: 'leisurely',
+  悠閒: 'leisurely',
+  都會: 'urban',
+  夜生活: 'urban',
+  自然: 'nature',
+  森林: 'nature',
+  山: 'nature',
 }
 
 // ════════════════════════════════════════
@@ -99,7 +114,13 @@ interface ExtractedKeywords {
 }
 
 function extractKeywords(userText: string): ExtractedKeywords {
-  const out: ExtractedKeywords = { regions: [], countries: [], audiences: [], seasons: [], styles: [] }
+  const out: ExtractedKeywords = {
+    regions: [],
+    countries: [],
+    audiences: [],
+    seasons: [],
+    styles: [],
+  }
 
   for (const [kw, { region }] of Object.entries(REGION_KEYWORDS)) {
     if (userText.includes(kw)) out.regions.push(region)
@@ -147,7 +168,12 @@ export async function searchKnowledgeByKeywords(args: {
   const kw = extractKeywords(userText)
 
   // 全 miss → 不查、避免抓一堆雜訊塞 prompt
-  const totalHits = kw.regions.length + kw.countries.length + kw.audiences.length + kw.seasons.length + kw.styles.length
+  const totalHits =
+    kw.regions.length +
+    kw.countries.length +
+    kw.audiences.length +
+    kw.seasons.length +
+    kw.styles.length
   if (totalHits === 0) {
     return []
   }
@@ -158,14 +184,16 @@ export async function searchKnowledgeByKeywords(args: {
     // 組 query：join documents + chunks、依抽到的關鍵字篩
     let query = supabase
       .from('knowledge_chunks')
-      .select(`
+      .select(
+        `
         chunk_type,
         content,
         knowledge_documents!inner (
           region,
           country
         )
-      `)
+      `
+      )
       .eq('workspace_id', workspaceId)
 
     // 優先序：地區 > 國家 > 客群 chunk_type > 風格 metadata

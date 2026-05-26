@@ -33,9 +33,9 @@ export async function logIntegrationUsage(params: UsageLogParams): Promise<void>
     type InsertChain = {
       insert: (v: Record<string, unknown>) => Promise<{ error: unknown }>
     }
-    const { error } = await (
-      admin.from as unknown as (t: string) => InsertChain
-    )('integration_usage_log').insert({
+    const { error } = await (admin.from as unknown as (t: string) => InsertChain)(
+      'integration_usage_log'
+    ).insert({
       workspace_id: params.workspaceId,
       integration_code: params.integrationCode,
       success: params.success,
@@ -60,7 +60,7 @@ export async function logIntegrationUsage(params: UsageLogParams): Promise<void>
  */
 export async function getMonthlyUsage(
   workspaceId: string,
-  integrationCode: string,
+  integrationCode: string
 ): Promise<{ total: number; success: number; failed: number }> {
   const admin = getSupabaseAdminClient()
   const monthStart = new Date()
@@ -72,15 +72,21 @@ export async function getMonthlyUsage(
     // （資料量月 25,000 row 上限、走 list 比 server-side count chain 簡單）
     type SelectChain = {
       select: (c: string) => {
-        eq: (k: string, v: string) => {
-          eq: (k: string, v: string) => {
+        eq: (
+          k: string,
+          v: string
+        ) => {
+          eq: (
+            k: string,
+            v: string
+          ) => {
             gte: (k: string, v: string) => Promise<{ data: Array<{ success: boolean }> | null }>
           }
         }
       }
     }
     const { data } = await (admin.from as unknown as (t: string) => SelectChain)(
-      'integration_usage_log',
+      'integration_usage_log'
     )
       .select('success')
       .eq('workspace_id', workspaceId)

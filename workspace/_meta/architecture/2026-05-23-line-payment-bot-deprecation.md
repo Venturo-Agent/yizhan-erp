@@ -13,6 +13,7 @@
   → `src/lib/payment-providers/sinopac/crypto.ts`（TypeScript、加 unit test）
 
 涵蓋函式：
+
 - `generateHashID(h1, h2, h3, h4)` — SHA-256 取前 32 碼
 - `generateSign(message, nonce, hashID)` — 訊息 Sign 產生
 - `encryptMessage(obj, hashID, nonce)` — AES-256-CBC 加密
@@ -76,6 +77,7 @@ git push
 ### 3. 確認 production / Coolify 沒有跑這個 bot
 
 如果以前有部署這個 bot 到 production server、現在要停掉、避免：
+
 - 兩邊 webhook 都收（撞單）
 - 客戶 confusion
 

@@ -69,13 +69,13 @@ export interface AiHealthResponse {
     outbound_ai: number
     outbound_human: number
     last7d_total: number
-    ai_takeover_rate: number  // 0-1
+    ai_takeover_rate: number // 0-1
   }
   memories: {
     total: number
-    paused_failures: number  // failed_attempts ≥ 3
-    tone_active: number   // 主動 / 完整
-    tone_passive: number  // 應付
+    paused_failures: number // failed_attempts ≥ 3
+    tone_active: number // 主動 / 完整
+    tone_passive: number // 應付
     tone_unknown: number
   }
   retrospectives: {
@@ -104,10 +104,7 @@ export interface AiHealthResponse {
   }
 }
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
     if (!guard.ok) return guard.response
@@ -235,14 +232,16 @@ export async function GET(
       .select('provider, caller, prompt_tokens, completion_tokens, cost_usd, success')
       .eq('workspace_id', workspaceId)
       .gte('created_at', thirtyDaysAgo)
-      .returns<Array<{
-        provider: string
-        caller: string | null
-        prompt_tokens: number
-        completion_tokens: number
-        cost_usd: number
-        success: boolean
-      }>>()
+      .returns<
+        Array<{
+          provider: string
+          caller: string | null
+          prompt_tokens: number
+          completion_tokens: number
+          cost_usd: number
+          success: boolean
+        }>
+      >()
 
     const usageInit = {
       last30d_calls: 0,

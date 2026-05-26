@@ -35,7 +35,7 @@ export function DeleteBlockDialog({
   return (
     <Dialog
       open={open}
-      onOpenChange={(v) => {
+      onOpenChange={v => {
         if (!v) onCancel()
       }}
     >

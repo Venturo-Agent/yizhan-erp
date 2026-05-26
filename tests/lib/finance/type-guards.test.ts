@@ -52,9 +52,7 @@ describe('isTourReceipt', () => {
   })
 
   it('returns true when both tour_id and order_id present', () => {
-    expect(
-      isTourReceipt(makeReceipt({ tour_id: 'tour-001', order_id: 'order-001' }))
-    ).toBe(true)
+    expect(isTourReceipt(makeReceipt({ tour_id: 'tour-001', order_id: 'order-001' }))).toBe(true)
   })
 
   it('returns false when both null (= 公司進帳)', () => {
@@ -62,9 +60,9 @@ describe('isTourReceipt', () => {
   })
 
   it('returns false when both undefined', () => {
-    expect(
-      isTourReceipt(makeReceipt({ tour_id: undefined as never, order_id: undefined }))
-    ).toBe(false)
+    expect(isTourReceipt(makeReceipt({ tour_id: undefined as never, order_id: undefined }))).toBe(
+      false
+    )
   })
 
   it('returns false when both empty string (空字串應視為未綁)', () => {
@@ -107,7 +105,7 @@ describe('isTourReceipt + isCompanyReceipt 互斥性', () => {
     { tour_id: undefined as never, order_id: undefined },
   ]
 
-  it.each(cases)('一筆 receipt 必恰好屬於團體或公司其中一邊 (%j)', (fields) => {
+  it.each(cases)('一筆 receipt 必恰好屬於團體或公司其中一邊 (%j)', fields => {
     const r = makeReceipt(fields)
     const tour = isTourReceipt(r)
     const company = isCompanyReceipt(r)
@@ -163,59 +161,41 @@ describe('isSalaryRequest', () => {
 
 describe('isCompanyRequest', () => {
   it('returns true 當無 tour_id 且非薪資（公司營業費用）', () => {
-    expect(
-      isCompanyRequest(makeRequest({ tour_id: null, request_type: '辦公用品' }))
-    ).toBe(true)
+    expect(isCompanyRequest(makeRequest({ tour_id: null, request_type: '辦公用品' }))).toBe(true)
   })
 
   it('returns false 當薪資（薪資自成一類、不算公司請款）', () => {
-    expect(
-      isCompanyRequest(makeRequest({ tour_id: null, request_type: '薪資' }))
-    ).toBe(false)
+    expect(isCompanyRequest(makeRequest({ tour_id: null, request_type: '薪資' }))).toBe(false)
   })
 
   it('returns false 當有 tour_id（屬於團體）', () => {
-    expect(
-      isCompanyRequest(makeRequest({ tour_id: 'tour-001', request_type: '住宿' }))
-    ).toBe(false)
+    expect(isCompanyRequest(makeRequest({ tour_id: 'tour-001', request_type: '住宿' }))).toBe(false)
   })
 
   it('returns false 當 tour_id + 薪資（罕見、應歸薪資不歸公司）', () => {
-    expect(
-      isCompanyRequest(makeRequest({ tour_id: 'tour-001', request_type: '薪資' }))
-    ).toBe(false)
+    expect(isCompanyRequest(makeRequest({ tour_id: 'tour-001', request_type: '薪資' }))).toBe(false)
   })
 
   it('treats empty-string tour_id as 未綁團 (= 公司請款)', () => {
-    expect(
-      isCompanyRequest(makeRequest({ tour_id: '', request_type: '辦公用品' }))
-    ).toBe(true)
+    expect(isCompanyRequest(makeRequest({ tour_id: '', request_type: '辦公用品' }))).toBe(true)
   })
 })
 
 describe('isTourRequest', () => {
   it('returns true 當有 tour_id 且非薪資', () => {
-    expect(
-      isTourRequest(makeRequest({ tour_id: 'tour-001', request_type: '住宿' }))
-    ).toBe(true)
+    expect(isTourRequest(makeRequest({ tour_id: 'tour-001', request_type: '住宿' }))).toBe(true)
   })
 
   it('returns false 當無 tour_id', () => {
-    expect(
-      isTourRequest(makeRequest({ tour_id: null, request_type: '住宿' }))
-    ).toBe(false)
+    expect(isTourRequest(makeRequest({ tour_id: null, request_type: '住宿' }))).toBe(false)
   })
 
   it('returns false 當 tour_id + 薪資（薪資優先、不算團體）', () => {
-    expect(
-      isTourRequest(makeRequest({ tour_id: 'tour-001', request_type: '薪資' }))
-    ).toBe(false)
+    expect(isTourRequest(makeRequest({ tour_id: 'tour-001', request_type: '薪資' }))).toBe(false)
   })
 
   it('returns false 當 empty-string tour_id', () => {
-    expect(
-      isTourRequest(makeRequest({ tour_id: '', request_type: '住宿' }))
-    ).toBe(false)
+    expect(isTourRequest(makeRequest({ tour_id: '', request_type: '住宿' }))).toBe(false)
   })
 })
 
@@ -237,21 +217,18 @@ describe('PaymentRequest 三向分流互斥性 (salary / tour / company)', () =>
     { tour_id: null, request_type: '', expected: 'company' }, // 空 type 默認公司
   ]
 
-  it.each(cases)(
-    'tour_id=%s / type=%s → expected %s',
-    ({ tour_id, request_type, expected }) => {
-      const r = makeRequest({ tour_id, request_type })
-      const salary = isSalaryRequest(r)
-      const tour = isTourRequest(r)
-      const company = isCompanyRequest(r)
+  it.each(cases)('tour_id=%s / type=%s → expected %s', ({ tour_id, request_type, expected }) => {
+    const r = makeRequest({ tour_id, request_type })
+    const salary = isSalaryRequest(r)
+    const tour = isTourRequest(r)
+    const company = isCompanyRequest(r)
 
-      // 三類必恰好命中一類
-      const hits = [salary, tour, company].filter(Boolean).length
-      expect(hits).toBe(1)
+    // 三類必恰好命中一類
+    const hits = [salary, tour, company].filter(Boolean).length
+    expect(hits).toBe(1)
 
-      if (expected === 'salary') expect(salary).toBe(true)
-      if (expected === 'tour') expect(tour).toBe(true)
-      if (expected === 'company') expect(company).toBe(true)
-    }
-  )
+    if (expected === 'salary') expect(salary).toBe(true)
+    if (expected === 'tour') expect(tour).toBe(true)
+    if (expected === 'company') expect(company).toBe(true)
+  })
 })

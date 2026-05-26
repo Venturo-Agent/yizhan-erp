@@ -131,14 +131,7 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
       <Select
         value={newTour.tour_service_type || enabledTourCategories[0]?.id || 'tour_group'}
         onValueChange={(
-          value:
-            | 'flight'
-            | 'flight_hotel'
-            | 'hotel'
-            | 'tour_group'
-            | 'outsource'
-            | 'visa'
-            | 'esim'
+          value: 'flight' | 'flight_hotel' | 'hotel' | 'tour_group' | 'outsource' | 'visa' | 'esim'
         ) =>
           setNewTour(prev => {
             // 切到「不需國家 / 機場」類型時、清掉之前選的國家 / 機場（避免殘留誤判）
@@ -154,7 +147,8 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
               }
             }
             // 從「不需」切回「需要」類型時、清掉前面塞的固定 prefix（讓使用者重選）
-            const prevWasNoDest = prev.tour_service_type && prev.tour_service_type in TOUR_TYPE_CODE_PREFIX
+            const prevWasNoDest =
+              prev.tour_service_type && prev.tour_service_type in TOUR_TYPE_CODE_PREFIX
             return {
               ...prev,
               tour_service_type: value,
@@ -258,8 +252,8 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
                 <SelectContent>
                   {controllers.map(emp => (
                     <SelectItem key={emp.id} value={emp.id}>
-                      {emp.display_name || emp.english_name || emp.chinese_name}{' '}
-                      ({emp.employee_number})
+                      {emp.display_name || emp.english_name || emp.chinese_name} (
+                      {emp.employee_number})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -271,7 +265,6 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
           )}
         </div>
       )}
-
 
       {/* 國家/機場選擇 - 使用共用組件
           外丟團 / 簽證 / 網卡 三類不需選地點、tour code 走 OUT / VISA / ESIM 固定 prefix */}
@@ -347,7 +340,6 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
           </div>
         </div>
       )}
-
     </div>
   )
 }

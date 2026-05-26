@@ -11,7 +11,12 @@
 
 import * as React from 'react'
 
-import { YONGCHENG_COLORS, YONGCHENG_CSS_VARS, YONGCHENG_FONTS, YONGCHENG_FONTS_URL } from './tokens'
+import {
+  YONGCHENG_COLORS,
+  YONGCHENG_CSS_VARS,
+  YONGCHENG_FONTS,
+  YONGCHENG_FONTS_URL,
+} from './tokens'
 import type { Canvas } from './types'
 import { CanvasSidenav } from './sections/CanvasSidenav'
 

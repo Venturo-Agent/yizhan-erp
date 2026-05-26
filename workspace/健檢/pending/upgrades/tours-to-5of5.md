@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ✅ | ToursPage 用 `useTours` + `useTourItineraryItems`；createEntityHook 有 realtime |
-| **資安** | ✅ | RLS/FK 完整；紅線 B（tours.created_by → employees）✅；紅線 G ✅ |
-| **架構** | ✅ | L1-L6 全過；apiMutate 有 |
-| **開發品管** | ⚠️ | tours 無 realtime e2e；但 concurrency test 有（order-number-race）|
-| **清理** | ⚠️ | tours 是 Phase 1 最大 module；unused exports 待清理（knip 456 中大量是 tours 相關）|
+| 維度         | 現狀 | 具體缺口                                                                            |
+| ------------ | ---- | ----------------------------------------------------------------------------------- |
+| **讀取效能** | ✅   | ToursPage 用 `useTours` + `useTourItineraryItems`；createEntityHook 有 realtime     |
+| **資安**     | ✅   | RLS/FK 完整；紅線 B（tours.created_by → employees）✅；紅線 G ✅                    |
+| **架構**     | ✅   | L1-L6 全過；apiMutate 有                                                            |
+| **開發品管** | ⚠️   | tours 無 realtime e2e；但 concurrency test 有（order-number-race）                  |
+| **清理**     | ⚠️   | tours 是 Phase 1 最大 module；unused exports 待清理（knip 456 中大量是 tours 相關） |
 
 ---
 
@@ -24,8 +24,9 @@
 
 **修法**：
 `tests/e2e/tours-realtime.spec.ts`：
+
 ```
-建立 tour → 
+建立 tour →
 在兩個分頁開啟同一 tour →
 在 A 分頁編輯行程項目 →
 確認 B 分頁即時看到更新
@@ -42,8 +43,9 @@
 
 **修法**：
 `tests/e2e/full/tours-full.spec.ts`：
+
 ```
-建立 tour → 設定基本資料 → 
+建立 tour → 設定基本資料 →
 加入 itinerary items → 設定出團日期 →
 確認報價頁正確計算 →
 建立相關 orders → 收款 →
@@ -60,6 +62,7 @@
 **缺口**：tours 是 Phase 1 最大 module，knip 456 unused exports 中大量是 tours 相關。
 
 **修法**：
+
 1. knip 跑 tours 相關，列出前 10-20 個最明顯的 unused exports
 2. 確認是否真的沒人用（動態 import 要小心）
 3. 漸進清理（每週清 5-10 個）
@@ -101,4 +104,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

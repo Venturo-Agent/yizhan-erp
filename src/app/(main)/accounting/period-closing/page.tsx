@@ -149,7 +149,7 @@ export default function PeriodClosingPage() {
       loadClosings()
     },
     {
-      onError: (error) => {
+      onError: error => {
         logger.error('結轉失敗:', error)
         toast.error(error instanceof Error ? error.message : PAGE_LABELS.CLOSE_FAILED)
       },
@@ -166,7 +166,12 @@ export default function PeriodClosingPage() {
 
     const ok = await confirm(
       `確定要執行 ${periodTypeLabels[periodType]}（${start} ~ ${end}）？此操作將結轉損益科目餘額，執行後無法復原！`,
-      { title: `執行${periodTypeLabels[periodType]}`, type: 'warning', confirmText: '確認執行', cancelText: '取消' }
+      {
+        title: `執行${periodTypeLabels[periodType]}`,
+        type: 'warning',
+        confirmText: '確認執行',
+        cancelText: '取消',
+      }
     )
 
     if (!ok) return
@@ -311,7 +316,9 @@ export default function PeriodClosingPage() {
           <h2 className="text-lg font-semibold mb-4">{PAGE_LABELS.CLOSING_HISTORY}</h2>
 
           {closings.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">{PAGE_LABELS.NO_CLOSING_RECORDS}</div>
+            <div className="text-center text-muted-foreground py-8">
+              {PAGE_LABELS.NO_CLOSING_RECORDS}
+            </div>
           ) : (
             <div className="space-y-2">
               {closings.map(closing => (

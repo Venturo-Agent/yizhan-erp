@@ -158,9 +158,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
           <p className="text-morandi-secondary mb-6">
             {verify.integration_name} 已成功設定到 {verify.workspace_name}。
           </p>
-          <p className="text-sm text-morandi-muted">
-            您可以關閉此頁面、設定立即生效。
-          </p>
+          <p className="text-sm text-morandi-muted">您可以關閉此頁面、設定立即生效。</p>
         </div>
       </div>
     )
@@ -184,9 +182,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
             <Lock size={14} />
             <span>安全的一次性設定連結</span>
           </div>
-          <h1 className="text-2xl font-semibold text-morandi-primary">
-            {intDef.name}
-          </h1>
+          <h1 className="text-2xl font-semibold text-morandi-primary">{intDef.name}</h1>
           <p className="text-morandi-secondary mt-2">
             為 <span className="font-medium">{verify.workspace_name}</span> 設定
           </p>
@@ -235,9 +231,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
                         {field.required && <span className="text-morandi-red ml-1">*</span>}
                       </span>
                     </label>
-                    {field.hint && (
-                      <p className="text-xs text-morandi-muted ml-7">{field.hint}</p>
-                    )}
+                    {field.hint && <p className="text-xs text-morandi-muted ml-7">{field.hint}</p>}
                   </div>
                 )
               }
@@ -252,15 +246,11 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
                   <input
                     type={field.type === 'password' ? 'password' : 'text'}
                     value={formData[field.key] || ''}
-                    onChange={e =>
-                      setFormData(prev => ({ ...prev, [field.key]: e.target.value }))
-                    }
+                    onChange={e => setFormData(prev => ({ ...prev, [field.key]: e.target.value }))}
                     placeholder={field.placeholder}
                     className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:border-morandi-gold"
                   />
-                  {field.hint && (
-                    <p className="text-xs text-morandi-muted mt-1">{field.hint}</p>
-                  )}
+                  {field.hint && <p className="text-xs text-morandi-muted mt-1">{field.hint}</p>}
                 </div>
               )
             })}

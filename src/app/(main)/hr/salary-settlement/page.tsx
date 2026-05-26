@@ -79,7 +79,7 @@ export default function SalarySettlementListPage() {
   // 撈 active 員工給 wizard 顯示
   const { items: allEmployees } = useEmployeesSlim({ all: true })
   const activeEmployees = (allEmployees ?? []).filter(
-    (e) => (e as unknown as { status?: string }).status === 'active'
+    e => (e as unknown as { status?: string }).status === 'active'
   )
 
   const loadList = useCallback(async () => {
@@ -115,16 +115,16 @@ export default function SalarySettlementListPage() {
       toast.error(`${trimmed} 已加入`)
       return
     }
-    setPeriods((prev) => [...prev, trimmed])
+    setPeriods(prev => [...prev, trimmed])
     setPeriodInput('')
   }
 
   const removePeriod = (p: string) => {
-    setPeriods((prev) => prev.filter((x) => x !== p))
+    setPeriods(prev => prev.filter(x => x !== p))
   }
 
   const toggleExclude = (employeeId: string) => {
-    setExcludedIds((prev) => {
+    setExcludedIds(prev => {
       const next = new Set(prev)
       if (next.has(employeeId)) next.delete(employeeId)
       else next.add(employeeId)
@@ -200,14 +200,14 @@ export default function SalarySettlementListPage() {
       label: '員工數',
       sortable: true,
       width: '90px',
-      render: (v) => <span className="text-morandi-secondary">{Number(v) || 0} 位</span>,
+      render: v => <span className="text-morandi-secondary">{Number(v) || 0} 位</span>,
     },
     {
       key: 'total_amount',
       label: '總金額',
       sortable: true,
       width: '140px',
-      render: (v) => (
+      render: v => (
         <span className="text-morandi-gold font-semibold">{formatNT(Number(v) || 0)}</span>
       ),
     },
@@ -216,7 +216,7 @@ export default function SalarySettlementListPage() {
       label: '狀態',
       sortable: true,
       width: '100px',
-      render: (v) => {
+      render: v => {
         const badge = STATUS_BADGE[v as SettlementRow['status']]
         return <Badge className={badge.className}>{badge.label}</Badge>
       },
@@ -224,15 +224,14 @@ export default function SalarySettlementListPage() {
     {
       key: 'notes',
       label: '備註',
-      render: (v) =>
-        typeof v === 'string' && v ? v : <span className="text-morandi-muted">—</span>,
+      render: v => (typeof v === 'string' && v ? v : <span className="text-morandi-muted">—</span>),
     },
     {
       key: 'created_at',
       label: '建立時間',
       sortable: true,
       width: '140px',
-      render: (v) => (
+      render: v => (
         <span className="text-xs text-morandi-muted">
           {v ? new Date(String(v)).toLocaleDateString('zh-TW') : '—'}
         </span>
@@ -250,7 +249,7 @@ export default function SalarySettlementListPage() {
         columns={columns}
         searchFields={['period', 'notes']}
         searchPlaceholder="搜尋月份 / 備註"
-        onRowClick={(row) => router.push(`/hr/salary-settlement/${row.id}`)}
+        onRowClick={row => router.push(`/hr/salary-settlement/${row.id}`)}
         initialPageSize={15}
         primaryAction={{
           label: '新增薪資結算',
@@ -264,7 +263,7 @@ export default function SalarySettlementListPage() {
       />
 
       {/* 新增薪資結算 wizard dialog（William 2026-05-22 拍板：跟出納單 / 獎金 wizard 對齊） */}
-      <Dialog open={createOpen} onOpenChange={(o) => !creating && setCreateOpen(o)}>
+      <Dialog open={createOpen} onOpenChange={o => !creating && setCreateOpen(o)}>
         <DialogContent className="!max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -281,7 +280,7 @@ export default function SalarySettlementListPage() {
               {/* 已加入的月份 chips */}
               {periods.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-2">
-                  {periods.map((p) => (
+                  {periods.map(p => (
                     <div
                       key={p}
                       className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-morandi-gold/15 border border-morandi-gold/30 text-sm text-morandi-primary"
@@ -306,8 +305,8 @@ export default function SalarySettlementListPage() {
                 <Input
                   placeholder="2026-04（按 Enter 或點加號加入）"
                   value={periodInput}
-                  onChange={(e) => setPeriodInput(e.target.value)}
-                  onKeyDown={(e) => {
+                  onChange={e => setPeriodInput(e.target.value)}
+                  onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
                       addPeriod()
@@ -323,7 +322,8 @@ export default function SalarySettlementListPage() {
                   onClick={addPeriod}
                   disabled={creating || !periodInput.trim()}
                 >
-                  <Plus className="w-3 h-3 mr-1" />加月份
+                  <Plus className="w-3 h-3 mr-1" />
+                  加月份
                 </Button>
               </div>
 
@@ -345,7 +345,7 @@ export default function SalarySettlementListPage() {
                   <div className="p-4 text-center text-sm text-morandi-muted">無 active 員工</div>
                 ) : (
                   <div className="divide-y divide-morandi-muted/10">
-                    {activeEmployees.map((emp) => {
+                    {activeEmployees.map(emp => {
                       const isExcluded = excludedIds.has(emp.id)
                       return (
                         <div
@@ -358,24 +358,27 @@ export default function SalarySettlementListPage() {
                           <Checkbox
                             checked={isExcluded}
                             onCheckedChange={() => toggleExclude(emp.id)}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={e => e.stopPropagation()}
                             aria-label="排除此員工"
                           />
                           <div className="flex-1 text-sm">
                             <span
-                              className={isExcluded ? 'line-through text-morandi-muted' : 'text-morandi-primary'}
+                              className={
+                                isExcluded
+                                  ? 'line-through text-morandi-muted'
+                                  : 'text-morandi-primary'
+                              }
                             >
                               {(emp as unknown as { display_name?: string }).display_name ??
                                 (emp as unknown as { chinese_name?: string }).chinese_name ??
                                 '(未填名稱)'}
                             </span>
                             <span className="ml-2 text-xs text-morandi-muted">
-                              {(emp as unknown as { employee_number?: string }).employee_number || ''}
+                              {(emp as unknown as { employee_number?: string }).employee_number ||
+                                ''}
                             </span>
                           </div>
-                          {isExcluded && (
-                            <span className="text-xs text-status-danger">排除</span>
-                          )}
+                          {isExcluded && <span className="text-xs text-status-danger">排除</span>}
                         </div>
                       )
                     })}

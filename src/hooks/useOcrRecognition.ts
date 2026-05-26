@@ -71,9 +71,10 @@ export function useOcrRecognition() {
         if (typeof imageSource === 'string') {
           // bare filename (新格式) → 現場簽 15 分鐘 URL 再 fetch
           // 完整 URL 或 base64 data URL → 直接 fetch
-          const fetchUrl = imageSource.startsWith('http') || imageSource.startsWith('data:')
-            ? imageSource
-            : await getPassportDisplayUrl(imageSource)
+          const fetchUrl =
+            imageSource.startsWith('http') || imageSource.startsWith('data:')
+              ? imageSource
+              : await getPassportDisplayUrl(imageSource)
           if (!fetchUrl) throw new Error(TOAST_LABELS.PASSPORT_URL_FAILED)
           const response = await fetch(fetchUrl)
           const blob = await response.blob()

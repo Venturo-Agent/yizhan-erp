@@ -178,8 +178,7 @@ export function BillingTab({ workspaceId }: BillingTabProps) {
       await load()
     },
     {
-      onError: () =>
-        toast.error('新增失敗', { description: '請稍後再試' }),
+      onError: () => toast.error('新增失敗', { description: '請稍後再試' }),
     }
   )
 
@@ -238,9 +237,7 @@ export function BillingTab({ workspaceId }: BillingTabProps) {
         </div>
         <div className="p-6">
           {records.length === 0 ? (
-            <div className="text-center py-8 text-morandi-secondary text-sm">
-              尚無付款紀錄
-            </div>
+            <div className="text-center py-8 text-morandi-secondary text-sm">尚無付款紀錄</div>
           ) : (
             <div className="space-y-3">
               {records.map(record => (
@@ -269,9 +266,7 @@ export function BillingTab({ workspaceId }: BillingTabProps) {
                   </div>
                   <div className="col-span-3">
                     <div className="text-xs text-morandi-secondary">付款日</div>
-                    <div className="text-sm text-morandi-primary">
-                      {formatDate(record.paid_at)}
-                    </div>
+                    <div className="text-sm text-morandi-primary">{formatDate(record.paid_at)}</div>
                   </div>
                   {record.notes && (
                     <div className="col-span-12 mt-1">

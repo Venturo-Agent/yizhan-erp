@@ -13,7 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Plus, Link, MapPin, Calendar, Plane} from 'lucide-react'
+import { Plus, Link, MapPin, Calendar, Plane } from 'lucide-react'
 import { useToursSlim, invalidateTours } from '@/data'
 import type { Tour } from '@/stores/types'
 import { useTourDisplayResolver } from '@/app/(main)/tours/_utils/tour-display'

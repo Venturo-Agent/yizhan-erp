@@ -27,14 +27,14 @@
 
 ## 熱點 6 處（每 request 跑、要改）
 
-| # | 檔案:行 | 函式 | 用到的欄位 |
-|---|---|---|---|
-| 1 | `src/proxy.ts:114` | `isAuthenticated` | 只要 boolean |
-| 2 | `src/lib/auth/server-auth.ts:43` | `getServerAuth` | id / email(log) / user_metadata |
-| 3 | `src/lib/auth/server-auth.ts:134` | `_getServerUser`（`_` 前綴、疑未用） | 只要存在 |
-| 4 | `src/lib/auth/get-api-context.ts:66` | `getApiContext` | id |
-| 5 | `src/lib/auth/get-layout-context.ts:67` | `getLayoutContext` | id |
-| 6 | `src/lib/supabase/api-client.ts:55` | `getCurrentWorkspaceId` | id / user_metadata |
+| #   | 檔案:行                                 | 函式                                 | 用到的欄位                      |
+| --- | --------------------------------------- | ------------------------------------ | ------------------------------- |
+| 1   | `src/proxy.ts:114`                      | `isAuthenticated`                    | 只要 boolean                    |
+| 2   | `src/lib/auth/server-auth.ts:43`        | `getServerAuth`                      | id / email(log) / user_metadata |
+| 3   | `src/lib/auth/server-auth.ts:134`       | `_getServerUser`（`_` 前綴、疑未用） | 只要存在                        |
+| 4   | `src/lib/auth/get-api-context.ts:66`    | `getApiContext`                      | id                              |
+| 5   | `src/lib/auth/get-layout-context.ts:67` | `getLayoutContext`                   | id                              |
+| 6   | `src/lib/supabase/api-client.ts:55`     | `getCurrentWorkspaceId`              | id / user_metadata              |
 
 **不動**（非每-request 熱路徑）：`src/app/api/auth/sync-employee/route.ts:39,50`（同步、:39 傳 access_token）、`src/app/(main)/login/page.tsx:67`（client 端、登入後一次性）。
 
@@ -42,14 +42,21 @@
 
 ```ts
 // before
-const { data: { user }, error } = await supabase.auth.getUser()
-if (error || !user) { /* 未登入 */ }
+const {
+  data: { user },
+  error,
+} = await supabase.auth.getUser()
+if (error || !user) {
+  /* 未登入 */
+}
 // ...用 user.id / user.email / user.user_metadata
 
 // after
 const { data, error } = await supabase.auth.getClaims()
 const claims = data?.claims
-if (error || !claims) { /* 未登入 */ }
+if (error || !claims) {
+  /* 未登入 */
+}
 // ...用 claims.sub / claims.email / claims.user_metadata
 ```
 
@@ -70,4 +77,4 @@ if (error || !claims) { /* 未登入 */ }
 
 ---
 
-*狀態：等 William dashboard 切 ES256。切完套用即可。*
+_狀態：等 William dashboard 切 ES256。切完套用即可。_

@@ -14,10 +14,7 @@ import { ApiError } from '@/lib/api/response'
 import { filterActive } from '@/lib/data/filter-active'
 import { logger } from '@/lib/utils/logger'
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_READ)
     if (!guard.ok) return guard.response
@@ -33,7 +30,9 @@ export async function GET(
     const supabase = await createApiClient()
     const query = supabase
       .from('conversation_retrospectives')
-      .select('id, summary_text, notes, status, conversation_type, message_count_at_generation, generated_by, created_at, updated_at')
+      .select(
+        'id, summary_text, notes, status, conversation_type, message_count_at_generation, generated_by, created_at, updated_at'
+      )
       .eq('conversation_id', conversationId)
       .eq('workspace_id', workspaceId)
     const { data, error } = await filterActive(query)

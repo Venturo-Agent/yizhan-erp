@@ -54,24 +54,22 @@ const argv = process.argv.slice(2)
 const flags = {
   warnOnly: argv.includes('--warn-only'),
   skipDb: argv.includes('--skip-db'),
-  format: argv.find((a) => a.startsWith('--format='))?.split('=')[1] ?? 'console',
-  layer: argv.find((a) => a.startsWith('--layer='))?.split('=')[1] ?? 'ALL',
+  format: argv.find(a => a.startsWith('--format='))?.split('=')[1] ?? 'console',
+  layer: argv.find(a => a.startsWith('--layer='))?.split('=')[1] ?? 'ALL',
 }
 
 // 自動偵測：能不能連 DB
 let DB_AVAILABLE = false
 if (!flags.skipDb && SUPA_DB_URL) {
   // 透過 psql 跑 SELECT 1 + 短 timeout 試水溫
-  const probe = spawnSync(
-    'psql',
-    [SUPA_DB_URL, '-tA', '-c', 'SELECT 1', '-v', 'ON_ERROR_STOP=1'],
-    { encoding: 'utf8', timeout: 8000, env: { ...process.env, PGCONNECT_TIMEOUT: '5' } },
-  )
+  const probe = spawnSync('psql', [SUPA_DB_URL, '-tA', '-c', 'SELECT 1', '-v', 'ON_ERROR_STOP=1'], {
+    encoding: 'utf8',
+    timeout: 8000,
+    env: { ...process.env, PGCONNECT_TIMEOUT: '5' },
+  })
   DB_AVAILABLE = probe.status === 0
   if (!DB_AVAILABLE) {
-    console.warn(
-      '⚠️  psql 連 DB 失敗（Mac IPv6 限制？）— DB 部分自動 skip、只跑 code grep。',
-    )
+    console.warn('⚠️  psql 連 DB 失敗（Mac IPv6 限制？）— DB 部分自動 skip、只跑 code grep。')
     console.warn(`   probe stderr: ${(probe.stderr || '').split('\n')[0]}`)
   }
 } else if (!SUPA_DB_URL && !flags.skipDb) {
@@ -96,7 +94,9 @@ interface Finding {
 // ─────────────────────────────────────────────────────────────────────────────
 // 工具
 
-type SqlResult<T> = { ok: true; rows: T[] } | { ok: false; reason: 'skipped' | 'error'; message: string }
+type SqlResult<T> =
+  | { ok: true; rows: T[] }
+  | { ok: false; reason: 'skipped' | 'error'; message: string }
 
 async function trySql<T = Record<string, unknown>>(sql: string): Promise<SqlResult<T>> {
   if (!DB_AVAILABLE) {
@@ -117,15 +117,11 @@ async function runSql<T = Record<string, unknown>>(sql: string): Promise<T[]> {
   // 走 psql、輸出 JSON aggregate、parse 回 array
   // 包成 SELECT coalesce(jsonb_agg(t), '[]'::jsonb) FROM (USER_SQL) t
   const wrapped = `SELECT coalesce(jsonb_agg(t), '[]'::jsonb)::text FROM (${sql}) t`
-  const res = spawnSync(
-    'psql',
-    [SUPA_DB_URL!, '-tA', '-c', wrapped, '-v', 'ON_ERROR_STOP=1'],
-    {
-      encoding: 'utf8',
-      timeout: 30000,
-      env: { ...process.env, PGCONNECT_TIMEOUT: '8' },
-    },
-  )
+  const res = spawnSync('psql', [SUPA_DB_URL!, '-tA', '-c', wrapped, '-v', 'ON_ERROR_STOP=1'], {
+    encoding: 'utf8',
+    timeout: 30000,
+    env: { ...process.env, PGCONNECT_TIMEOUT: '8' },
+  })
   if (res.status !== 0) {
     throw new Error(`psql 失敗：${res.stderr || res.stdout}`)
   }
@@ -140,14 +136,14 @@ async function runSql<T = Record<string, unknown>>(sql: string): Promise<T[]> {
 
 function grepRepo(pattern: string, paths: string[] = ['src/']): string[] {
   const cmd = `grep -rnE ${JSON.stringify(pattern)} ${paths
-    .map((p) => `'${p}'`)
+    .map(p => `'${p}'`)
     .join(' ')} --include='*.ts' --include='*.tsx' 2>/dev/null || true`
   const out = execSync(cmd, { cwd: REPO_ROOT, encoding: 'utf8' })
   return out
     .split('\n')
-    .filter((line) => line.trim())
-    .filter((line) => !line.includes('.test.ts'))
-    .filter((line) => !line.includes('.spec.ts'))
+    .filter(line => line.trim())
+    .filter(line => !line.includes('.test.ts'))
+    .filter(line => !line.includes('.spec.ts'))
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -174,7 +170,7 @@ const CAP_MODULE_EXCEPTIONS = new Set([
 
 // Parser 改用 TS import、不用 regex parse、更穩
 function parseFeaturesTs(): { code: string; routes: string[]; category: string }[] {
-  return FEATURES.map((f) => ({
+  return FEATURES.map(f => ({
     code: f.code,
     routes: [...f.routes],
     category: f.category,
@@ -182,7 +178,7 @@ function parseFeaturesTs(): { code: string; routes: string[]; category: string }
 }
 
 function parseModuleCodes(): string[] {
-  return MODULE_TABS_MODULES.map((m) => m.code)
+  return MODULE_TABS_MODULES.map(m => m.code)
 }
 
 function parseCapabilityValues(): string[] {
@@ -204,7 +200,7 @@ function fail(
   name: string,
   severity: Severity,
   message: string,
-  details?: string[] | object[],
+  details?: string[] | object[]
 ): Finding {
   return { layer, name, severity, pass: false, message, details }
 }
@@ -229,34 +225,29 @@ async function auditL1FeatureGate(): Promise<Finding[]> {
       feature_count: 0,
     }
     if (Number(workspace_count) === 0) {
-      findings.push(
-        fail('L1', 'workspace_seed', 'warn', '系統內 0 個 workspace、不應該發生', []),
-      )
+      findings.push(fail('L1', 'workspace_seed', 'warn', '系統內 0 個 workspace、不應該發生', []))
     } else if (Number(feature_count) === 0) {
       findings.push(
         fail(
           'L1',
           'feature_seed',
           'error',
-          `${workspace_count} 個 workspace、但 workspace_features 表 0 種 feature_code`,
-        ),
+          `${workspace_count} 個 workspace、但 workspace_features 表 0 種 feature_code`
+        )
       )
     } else {
       findings.push(
         ok(
           'L1',
           'feature_seed',
-          `${workspace_count} workspace × ${feature_count} feature 全 seed 完`,
-        ),
+          `${workspace_count} workspace × ${feature_count} feature 全 seed 完`
+        )
       )
     }
   }
 
   // L1.2: code 不准 hardcoded workspace.code === '漫途' 或 workspaces.type
-  const hardcoded = grepRepo(
-    `workspace\\.code\\s*===|workspaces?\\.type\\s*===`,
-    ['src/'],
-  )
+  const hardcoded = grepRepo(`workspace\\.code\\s*===|workspaces?\\.type\\s*===`, ['src/'])
   if (hardcoded.length > 0) {
     findings.push(
       fail(
@@ -264,8 +255,8 @@ async function auditL1FeatureGate(): Promise<Finding[]> {
         'no_hardcoded_workspace',
         'error',
         `${hardcoded.length} 處 hardcoded workspace 判斷（違反平等原則 / 紅線 #0）`,
-        hardcoded.slice(0, 10),
-      ),
+        hardcoded.slice(0, 10)
+      )
     )
   } else {
     findings.push(ok('L1', 'no_hardcoded_workspace', '0 處 hardcoded workspace 判斷'))
@@ -289,26 +280,26 @@ async function auditL1FeatureGate(): Promise<Finding[]> {
         'module_routes_exist',
         'warn',
         `${missingRoutes.length} 個 module route 對應 page.tsx 不存在`,
-        missingRoutes,
-      ),
+        missingRoutes
+      )
     )
   } else {
     findings.push(
-      ok('L1', 'module_routes_exist', `${ALL_MODULES.length} 個 module 的 routes 都存在`),
+      ok('L1', 'module_routes_exist', `${ALL_MODULES.length} 個 module 的 routes 都存在`)
     )
   }
 
   // L1.5: features.ts 跟 modules/ 對齊（features.ts 是 downstream、應該從 modules 衍生）
   // 衍生來源：ALL_MODULES.code (module-level) + ALL_MODULES.subFeatures[].code (sub-feature gate)
   // codegen-permissions.ts line 75-76 已把 subFeatures 衍生進 features.ts、audit 也要跟同
-  const featureCodesInTs = parseFeaturesTs().map((f) => f.code)
-  const moduleCodes_l1 = ALL_MODULES.map((m) => m.code)
-  const subFeatureCodes_l1 = ALL_MODULES.flatMap((m) =>
-    ((m as { subFeatures?: readonly { code: string }[] }).subFeatures ?? []).map((sf) => sf.code),
+  const featureCodesInTs = parseFeaturesTs().map(f => f.code)
+  const moduleCodes_l1 = ALL_MODULES.map(m => m.code)
+  const subFeatureCodes_l1 = ALL_MODULES.flatMap(m =>
+    ((m as { subFeatures?: readonly { code: string }[] }).subFeatures ?? []).map(sf => sf.code)
   )
   const validFeatureCodes = new Set([...moduleCodes_l1, ...subFeatureCodes_l1])
-  const featuresOnlyInTs = featureCodesInTs.filter((c) => !validFeatureCodes.has(c))
-  const modulesNotInFeaturesTs = moduleCodes_l1.filter((c) => !featureCodesInTs.includes(c))
+  const featuresOnlyInTs = featureCodesInTs.filter(c => !validFeatureCodes.has(c))
+  const modulesNotInFeaturesTs = moduleCodes_l1.filter(c => !featureCodesInTs.includes(c))
   if (featuresOnlyInTs.length > 0 || modulesNotInFeaturesTs.length > 0) {
     findings.push(
       fail(
@@ -317,33 +308,32 @@ async function auditL1FeatureGate(): Promise<Finding[]> {
         'warn',
         `features.ts 跟 modules/ drift：features.ts 多 ${featuresOnlyInTs.length} / modules/ 多 ${modulesNotInFeaturesTs.length}`,
         [
-          ...featuresOnlyInTs.map((c) => `features.ts 有 / modules/ 沒：${c}`),
-          ...modulesNotInFeaturesTs.map((c) => `modules/ 有 / features.ts 沒：${c}`),
-        ],
-      ),
+          ...featuresOnlyInTs.map(c => `features.ts 有 / modules/ 沒：${c}`),
+          ...modulesNotInFeaturesTs.map(c => `modules/ 有 / features.ts 沒：${c}`),
+        ]
+      )
     )
   } else {
     findings.push(
       ok(
         'L1',
         'features_ts_synced_with_modules',
-        `features.ts ${featureCodesInTs.length} 個跟 modules/ ${ALL_MODULES.length} 個對齊`,
-      ),
+        `features.ts ${featureCodesInTs.length} 個跟 modules/ ${ALL_MODULES.length} 個對齊`
+      )
     )
   }
 
   // L1.7: sidebar.tsx requiredPermission 對齊 modules/
   // 防 sidebar 寫 requiredPermission: 'channels' 但 modules/ 沒對應 module
-  const sidebarReqPerms = grepRepo(
-    `requiredPermission:\\s*['"]([a-z_]+)['"]`,
-    ['src/components/layout/sidebar.tsx'],
-  )
+  const sidebarReqPerms = grepRepo(`requiredPermission:\\s*['"]([a-z_]+)['"]`, [
+    'src/components/layout/sidebar.tsx',
+  ])
   const sidebarCodes = new Set<string>()
   for (const line of sidebarReqPerms) {
     const m = line.match(/requiredPermission:\s*['"]([a-z_]+)['"]/)
     if (m) sidebarCodes.add(m[1])
   }
-  const sidebarMissing = [...sidebarCodes].filter((c) => !moduleCodes_l1.includes(c))
+  const sidebarMissing = [...sidebarCodes].filter(c => !moduleCodes_l1.includes(c))
   if (sidebarMissing.length > 0) {
     findings.push(
       fail(
@@ -351,24 +341,24 @@ async function auditL1FeatureGate(): Promise<Finding[]> {
         'sidebar_aligned_with_modules',
         'warn',
         `sidebar.tsx requiredPermission 找不到對應 module`,
-        sidebarMissing,
-      ),
+        sidebarMissing
+      )
     )
   } else {
     findings.push(
       ok(
         'L1',
         'sidebar_aligned_with_modules',
-        `sidebar.tsx ${sidebarCodes.size} 個 requiredPermission 都對齊 modules/`,
-      ),
+        `sidebar.tsx ${sidebarCodes.size} 個 requiredPermission 都對齊 modules/`
+      )
     )
   }
 
   // L1.6: module-tabs.ts 跟 modules/ exposedToHr 對齊
   const moduleTabsCodes = new Set(parseModuleCodes())
-  const exposedToHr = getHrExposedModules().map((m) => m.code)
-  const inModuleTabsOnly = [...moduleTabsCodes].filter((c) => !exposedToHr.includes(c))
-  const exposedNotInModuleTabs = exposedToHr.filter((c) => !moduleTabsCodes.has(c))
+  const exposedToHr = getHrExposedModules().map(m => m.code)
+  const inModuleTabsOnly = [...moduleTabsCodes].filter(c => !exposedToHr.includes(c))
+  const exposedNotInModuleTabs = exposedToHr.filter(c => !moduleTabsCodes.has(c))
   if (inModuleTabsOnly.length > 0 || exposedNotInModuleTabs.length > 0) {
     findings.push(
       fail(
@@ -377,18 +367,18 @@ async function auditL1FeatureGate(): Promise<Finding[]> {
         'warn',
         `module-tabs.ts 跟 modules/ 對齊 drift（5/12 channels 同類問題）`,
         [
-          ...inModuleTabsOnly.map((c) => `module-tabs.ts 有 / exposedToHr 沒：${c}`),
-          ...exposedNotInModuleTabs.map((c) => `exposedToHr 有 / module-tabs.ts 沒：${c}`),
-        ],
-      ),
+          ...inModuleTabsOnly.map(c => `module-tabs.ts 有 / exposedToHr 沒：${c}`),
+          ...exposedNotInModuleTabs.map(c => `exposedToHr 有 / module-tabs.ts 沒：${c}`),
+        ]
+      )
     )
   } else {
     findings.push(
       ok(
         'L1',
         'module_tabs_ts_synced_with_modules',
-        `module-tabs.ts ${moduleTabsCodes.size} 個跟 exposedToHr modules ${exposedToHr.length} 個對齊`,
-      ),
+        `module-tabs.ts ${moduleTabsCodes.size} 個跟 exposedToHr modules ${exposedToHr.length} 個對齊`
+      )
     )
   }
 
@@ -418,8 +408,8 @@ async function auditL2Capability(): Promise<Finding[]> {
         'no_ghost_capabilities',
         'warn',
         '殘留廢棄 capability（DB 重建時要砍）',
-        ghostResult.rows,
-      ),
+        ghostResult.rows
+      )
     )
   } else {
     findings.push(ok('L2', 'no_ghost_capabilities', '0 條廢棄 capability'))
@@ -434,16 +424,16 @@ async function auditL2Capability(): Promise<Finding[]> {
         'L2',
         'permissions_files_present',
         'error',
-        `permissions 檔案空：capabilities ${capValues.length} / module-tabs ${moduleCodes2.length}`,
-      ),
+        `permissions 檔案空：capabilities ${capValues.length} / module-tabs ${moduleCodes2.length}`
+      )
     )
   } else {
     findings.push(
       ok(
         'L2',
         'permissions_files_present',
-        `capabilities ${capValues.length} 項 / module-tabs ${moduleCodes2.length} module`,
-      ),
+        `capabilities ${capValues.length} 項 / module-tabs ${moduleCodes2.length} module`
+      )
     )
   }
 
@@ -454,13 +444,10 @@ async function auditL2Capability(): Promise<Finding[]> {
   // - exposedToHr=false 的 module（dashboard / customers / tour_attributes /
   //   workspaces / shared_data_management / platform_integrations）
   const moduleSet = new Set(moduleCodes2)
-  const notExposedToHr = new Set(
-    ALL_MODULES.filter((m) => m.exposedToHr === false).map((m) => m.code),
-  )
-  const capPrefixes = new Set(capValues.map((c) => c.split('.')[0]))
+  const notExposedToHr = new Set(ALL_MODULES.filter(m => m.exposedToHr === false).map(m => m.code))
+  const capPrefixes = new Set(capValues.map(c => c.split('.')[0]))
   const missingCapModules = [...capPrefixes].filter(
-    (m) =>
-      !moduleSet.has(m) && !CAP_MODULE_EXCEPTIONS.has(m) && !notExposedToHr.has(m),
+    m => !moduleSet.has(m) && !CAP_MODULE_EXCEPTIONS.has(m) && !notExposedToHr.has(m)
   )
   if (missingCapModules.length > 0) {
     findings.push(
@@ -469,16 +456,16 @@ async function auditL2Capability(): Promise<Finding[]> {
         'capability_modules_in_module_tabs',
         'warn',
         `${missingCapModules.length} 個 capability module 沒在 module-tabs.ts 定義`,
-        missingCapModules,
-      ),
+        missingCapModules
+      )
     )
   } else {
     findings.push(
       ok(
         'L2',
         'capability_modules_in_module_tabs',
-        `${capPrefixes.size} 個 capability module 都對齊 module-tabs`,
-      ),
+        `${capPrefixes.size} 個 capability module 都對齊 module-tabs`
+      )
     )
   }
 
@@ -493,12 +480,12 @@ async function auditL2Capability(): Promise<Finding[]> {
   }
   const capInTs = new Set(capValues)
   const inTsOnly = [...capInTs]
-    .filter((c) => !derivedCaps.has(c))
-    .filter((c) => {
+    .filter(c => !derivedCaps.has(c))
+    .filter(c => {
       const prefix = c.split('.')[0]
       return !CAP_MODULE_EXCEPTIONS.has(prefix) // 排除 cross_branch / cross_department / workspaces
     })
-  const inModulesOnly = [...derivedCaps].filter((c) => !capInTs.has(c))
+  const inModulesOnly = [...derivedCaps].filter(c => !capInTs.has(c))
   if (inTsOnly.length > 0 || inModulesOnly.length > 0) {
     findings.push(
       fail(
@@ -507,18 +494,18 @@ async function auditL2Capability(): Promise<Finding[]> {
         'warn',
         `capabilities.ts 跟 modules/ 衍生 drift：capabilities.ts 多 ${inTsOnly.length} / modules/ 多 ${inModulesOnly.length}`,
         [
-          ...inTsOnly.slice(0, 5).map((c) => `capabilities.ts 有 / modules 衍生沒：${c}`),
-          ...inModulesOnly.slice(0, 10).map((c) => `modules 衍生有 / capabilities.ts 沒：${c}`),
-        ],
-      ),
+          ...inTsOnly.slice(0, 5).map(c => `capabilities.ts 有 / modules 衍生沒：${c}`),
+          ...inModulesOnly.slice(0, 10).map(c => `modules 衍生有 / capabilities.ts 沒：${c}`),
+        ]
+      )
     )
   } else {
     findings.push(
       ok(
         'L2',
         'capabilities_ts_synced_with_modules',
-        `capabilities.ts ${capInTs.size} 跟 modules 衍生 ${derivedCaps.size} 完全對齊`,
-      ),
+        `capabilities.ts ${capInTs.size} 跟 modules 衍生 ${derivedCaps.size} 完全對齊`
+      )
     )
   }
 
@@ -529,13 +516,13 @@ async function auditL2Capability(): Promise<Finding[]> {
   if (!seedRes.ok) {
     findings.push(fail('L2', 'capabilities_seeded_in_db', 'warn', seedRes.message))
   } else {
-    const dbCodes = new Set(seedRes.rows.map((r) => r.capability_code))
-    const codeOnlyCodes = capValues.filter((c) => !dbCodes.has(c))
+    const dbCodes = new Set(seedRes.rows.map(r => r.capability_code))
+    const codeOnlyCodes = capValues.filter(c => !dbCodes.has(c))
     const dbOnlyCodes = [...dbCodes].filter(
-      (c) =>
+      c =>
         !capValues.includes(c) &&
         !c.startsWith('platform.is_admin') && // 廢棄、另檢核（L2.1）
-        !c.includes('super_admin'),
+        !c.includes('super_admin')
     )
 
     if (codeOnlyCodes.length > 0) {
@@ -545,16 +532,12 @@ async function auditL2Capability(): Promise<Finding[]> {
           'capabilities_seeded_in_db',
           'warn',
           `${codeOnlyCodes.length} 個 capability 在 code 但 DB 沒 seed（沒人 assign）`,
-          codeOnlyCodes,
-        ),
+          codeOnlyCodes
+        )
       )
     } else {
       findings.push(
-        ok(
-          'L2',
-          'capabilities_seeded_in_db',
-          `${capValues.length} 個 capability 都已 seed`,
-        ),
+        ok('L2', 'capabilities_seeded_in_db', `${capValues.length} 個 capability 都已 seed`)
       )
     }
 
@@ -565,8 +548,8 @@ async function auditL2Capability(): Promise<Finding[]> {
           'no_orphan_db_capabilities',
           'warn',
           `${dbOnlyCodes.length} 個 DB capability 不在 capabilities.ts（殘留 / 廢棄）`,
-          dbOnlyCodes,
-        ),
+          dbOnlyCodes
+        )
       )
     } else {
       findings.push(ok('L2', 'no_orphan_db_capabilities', '0 條 orphan capability'))
@@ -606,8 +589,8 @@ async function auditL3Scope(): Promise<Finding[]> {
         'no_sprinkled_capability',
         'warn',
         `${sprinkled.length} 條 policy 散刻 sales_id/created_by（應走 scope_visible）`,
-        sprinkled,
-      ),
+        sprinkled
+      )
     )
   } else {
     findings.push(ok('L3', 'no_sprinkled_capability', '0 條散刻 policy'))
@@ -620,11 +603,9 @@ async function auditL3Scope(): Promise<Finding[]> {
   `)
   if (dim.length < 3) {
     const missing = ['brands', 'branches', 'departments'].filter(
-      (t) => !dim.find((d) => d.relname === t),
+      t => !dim.find(d => d.relname === t)
     )
-    findings.push(
-      fail('L3', 'three_dim_tables', 'error', `缺三維基礎表`, missing),
-    )
+    findings.push(fail('L3', 'three_dim_tables', 'error', `缺三維基礎表`, missing))
   } else {
     findings.push(ok('L3', 'three_dim_tables', '三維表齊全'))
   }
@@ -649,13 +630,11 @@ async function auditL4Editable(): Promise<Finding[]> {
         'L4',
         'is_row_editable_exists',
         'warn',
-        'is_row_editable() function 不存在（之後新表加狀態守門時要建）',
-      ),
+        'is_row_editable() function 不存在（之後新表加狀態守門時要建）'
+      )
     )
   } else {
-    findings.push(
-      ok('L4', 'is_row_editable_exists', `is_row_editable function 存在`),
-    )
+    findings.push(ok('L4', 'is_row_editable_exists', `is_row_editable function 存在`))
   }
 
   return findings
@@ -674,12 +653,7 @@ async function auditL5RLS(): Promise<Finding[]> {
   `)
   if (forcedWorkspaces.length > 0) {
     findings.push(
-      fail(
-        'L5',
-        'workspaces_no_force',
-        'error',
-        'workspaces 被 FORCE RLS（紅線 A、會炸登入）',
-      ),
+      fail('L5', 'workspaces_no_force', 'error', 'workspaces 被 FORCE RLS（紅線 A、會炸登入）')
     )
   } else {
     findings.push(ok('L5', 'workspaces_no_force', 'workspaces 沒 FORCE'))
@@ -698,8 +672,8 @@ async function auditL5RLS(): Promise<Finding[]> {
         'force_rls_audit',
         'warn',
         `${allForce.length} 張 FORCE RLS 表（確認 admin client 寫入有對應 policy）`,
-        allForce,
-      ),
+        allForce
+      )
     )
   } else {
     findings.push(ok('L5', 'force_rls_audit', '0 張 FORCE RLS 表'))
@@ -728,13 +702,11 @@ async function auditL5RLS(): Promise<Finding[]> {
         'workspace_scoped_must_enable_rls',
         'error',
         `${wsScopedNoRls.length} 張有 workspace_id 但 RLS 沒開（資料庫紅線）`,
-        wsScopedNoRls,
-      ),
+        wsScopedNoRls
+      )
     )
   } else {
-    findings.push(
-      ok('L5', 'workspace_scoped_must_enable_rls', '所有 workspace 表 RLS 都開'),
-    )
+    findings.push(ok('L5', 'workspace_scoped_must_enable_rls', '所有 workspace 表 RLS 都開'))
   }
 
   // L5.4: ENABLE RLS 但 0 policy（全擋、可能漏寫）
@@ -758,8 +730,8 @@ async function auditL5RLS(): Promise<Finding[]> {
         'zero_policy_tables',
         'warn',
         `${zeroPolicy.length} 張 RLS ON 但 0 policy（admin only / 漏寫）`,
-        zeroPolicy,
-      ),
+        zeroPolicy
+      )
     )
   } else {
     findings.push(ok('L5', 'zero_policy_tables', '0 張零 policy 表'))
@@ -783,8 +755,8 @@ async function auditL5RLS(): Promise<Finding[]> {
         'no_null_workspace_leak',
         'error',
         `${nullLeak.length} 條 policy 寫 OR workspace_id IS NULL（資料外洩風險）`,
-        nullLeak,
-      ),
+        nullLeak
+      )
     )
   } else {
     findings.push(ok('L5', 'no_null_workspace_leak', '0 條 NULL workspace leak'))
@@ -800,14 +772,10 @@ async function auditL5RLS(): Promise<Finding[]> {
       'setup_workspace_scoped_rls',
       'setup_join_table_rls',
       'setup_inherited_rls',
-    ].filter((p) => !procExists.find((e) => e.proname === p))
-    findings.push(
-      fail('L5', 'rls_helpers_present', 'error', `缺 RLS helper procedure`, missing),
-    )
+    ].filter(p => !procExists.find(e => e.proname === p))
+    findings.push(fail('L5', 'rls_helpers_present', 'error', `缺 RLS helper procedure`, missing))
   } else {
-    findings.push(
-      ok('L5', 'rls_helpers_present', '3 個 RLS helper procedure 齊全'),
-    )
+    findings.push(ok('L5', 'rls_helpers_present', '3 個 RLS helper procedure 齊全'))
   }
 
   // L5.7: 有 workspace_id 的 table 必有 (workspace_id, ...) index
@@ -836,8 +804,8 @@ async function auditL5RLS(): Promise<Finding[]> {
         'workspace_id_index',
         'warn',
         `${noWsIndex.length} 張表有 workspace_id 但無對應 index（RLS 過濾慢）`,
-        noWsIndex,
-      ),
+        noWsIndex
+      )
     )
   } else {
     findings.push(ok('L5', 'workspace_id_index', '所有 workspace 表都有 index'))
@@ -853,10 +821,7 @@ async function auditL6CentralModule(): Promise<Finding[]> {
   const findings: Finding[] = []
 
   // L6.1: 中央 module 檔案存在
-  const centralFiles = [
-    'src/lib/codes.ts',
-    'src/lib/db-error-translate.ts',
-  ]
+  const centralFiles = ['src/lib/codes.ts', 'src/lib/db-error-translate.ts']
   const missing: string[] = []
   for (const f of centralFiles) {
     try {
@@ -868,16 +833,13 @@ async function auditL6CentralModule(): Promise<Finding[]> {
   if (missing.length > 0) {
     findings.push(fail('L6', 'central_modules_exist', 'error', '缺中央 module', missing))
   } else {
-    findings.push(
-      ok('L6', 'central_modules_exist', `${centralFiles.length} 個中央 module 都在`),
-    )
+    findings.push(ok('L6', 'central_modules_exist', `${centralFiles.length} 個中央 module 都在`))
   }
 
   // L6.2: 不准 inline supabase.rpc('generate_xxx_code')（應走 @/lib/codes）
-  const inlineRpc = grepRepo(
-    `supabase\\.rpc\\(['"]generate_[a-z_]+_code`,
-    ['src/'],
-  ).filter((line) => !line.includes('src/lib/codes.ts'))
+  const inlineRpc = grepRepo(`supabase\\.rpc\\(['"]generate_[a-z_]+_code`, ['src/']).filter(
+    line => !line.includes('src/lib/codes.ts')
+  )
   if (inlineRpc.length > 0) {
     findings.push(
       fail(
@@ -885,8 +847,8 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         'no_inline_code_rpc',
         'error',
         `${inlineRpc.length} 處 inline supabase.rpc('generate_xxx_code')（應走 @/lib/codes）`,
-        inlineRpc.slice(0, 10),
-      ),
+        inlineRpc.slice(0, 10)
+      )
     )
   } else {
     findings.push(ok('L6', 'no_inline_code_rpc', '0 處 inline 編號 RPC'))
@@ -896,7 +858,7 @@ async function auditL6CentralModule(): Promise<Finding[]> {
   // 抓 src/app/api/ 直接 return err / error.message
   const rawErrorReturn = grepRepo(
     `(NextResponse\\.json|Response\\.json|return\\s+Response).*error.message`,
-    ['src/app/api/'],
+    ['src/app/api/']
   )
   if (rawErrorReturn.length > 0) {
     findings.push(
@@ -905,8 +867,8 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         'no_raw_error_message',
         'warn',
         `${rawErrorReturn.length} 處 API return error.message（應走 dbErrorResponse）`,
-        rawErrorReturn.slice(0, 10),
-      ),
+        rawErrorReturn.slice(0, 10)
+      )
     )
   } else {
     findings.push(ok('L6', 'no_raw_error_message', '0 處 raw error.message return'))
@@ -947,18 +909,15 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         'audit_fk_employees',
         'error',
         `${fkResult.rows.length} 條審計欄位 FK 沒指 employees(id)（紅線 B）`,
-        fkResult.rows,
-      ),
+        fkResult.rows
+      )
     )
   } else {
     findings.push(ok('L6', 'audit_fk_employees', '審計欄位 FK 全指 employees'))
   }
 
   // L6.5: created_by 寫 || '' 空字串（紅線、會炸）
-  const emptyFk = grepRepo(
-    `created_by\\s*:\\s*[^,\\n]*\\|\\|\\s*['"]['"]`,
-    ['src/'],
-  )
+  const emptyFk = grepRepo(`created_by\\s*:\\s*[^,\\n]*\\|\\|\\s*['"]['"]`, ['src/'])
   if (emptyFk.length > 0) {
     findings.push(
       fail(
@@ -966,11 +925,11 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         'no_empty_string_fk',
         'error',
         `${emptyFk.length} 處 created_by: x || ''（紅線、應為 || undefined）`,
-        emptyFk.slice(0, 10),
-      ),
+        emptyFk.slice(0, 10)
+      )
     )
   } else {
-    findings.push(ok('L6', 'no_empty_string_fk', '0 處 || \'\' 空字串 FK'))
+    findings.push(ok('L6', 'no_empty_string_fk', "0 處 || '' 空字串 FK"))
   }
 
   // L6.6: as any / : any 不准（CLAUDE.md 紅線）
@@ -982,13 +941,11 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         'L6',
         'no_as_any_explosion',
         'warn',
-        `${asAnyHits} 處 'as any'（建議 npm run audit:any-usage 詳查）`,
-      ),
+        `${asAnyHits} 處 'as any'（建議 npm run audit:any-usage 詳查）`
+      )
     )
   } else {
-    findings.push(
-      ok('L6', 'no_as_any_explosion', `as any 控制在 ${asAnyHits} 處`),
-    )
+    findings.push(ok('L6', 'no_as_any_explosion', `as any 控制在 ${asAnyHits} 處`))
   }
 
   // L6.7: 砍欄位 caller 0 reference check（5/13 加、防 A1 orders.code 同類 bug 再發）
@@ -1019,14 +976,11 @@ async function auditL6CentralModule(): Promise<Finding[]> {
     // grep 限制（single-line）：用兩階段抓
     // 1. 先抓「該 table 出現 + 同檔內 column 出現」、再人工 review
     const fromHits = grepRepo(`from\\(['"]${table}['"]`, ['src/'])
-    const filesWithFrom = new Set(fromHits.map((l) => l.split(':')[0]))
+    const filesWithFrom = new Set(fromHits.map(l => l.split(':')[0]))
 
     // 對每個用該 table 的檔、grep column reference
     for (const file of filesWithFrom) {
-      const colRefs = grepRepo(
-        `(?:[,'"\\s]|^)${column}(?:[,'"\\s:]|$)`,
-        [file],
-      )
+      const colRefs = grepRepo(`(?:[,'"\\s]|^)${column}(?:[,'"\\s:]|$)`, [file])
       // 讀檔內容供 context 檢查
       const fileLines = readFileSync(join(REPO_ROOT, file), 'utf8').split('\n')
       for (const ref of colRefs) {
@@ -1046,7 +1000,10 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         let nearestFrom = ''
         for (let i = lineNum; i >= Math.max(0, lineNum - 10); i--) {
           const fromMatch = fileLines[i]?.match(/\.from\(['"]([\w_]+)['"]\)/)
-          if (fromMatch) { nearestFrom = fromMatch[1]; break }
+          if (fromMatch) {
+            nearestFrom = fromMatch[1]
+            break
+          }
         }
         // 如果最近的 from() 不是目標 table，這是 false positive，skip
         if (nearestFrom && nearestFrom !== table) continue
@@ -1066,15 +1023,15 @@ async function auditL6CentralModule(): Promise<Finding[]> {
 
     const entitySrc = readFileSync(entityFile, 'utf8')
     const callerMatches = Array.from(
-      entitySrc.matchAll(/export const ((?:create|update|delete)\w+)\s*=/g),
+      entitySrc.matchAll(/export const ((?:create|update|delete)\w+)\s*=/g)
     )
-    const callerNames = callerMatches.map((m) => m[1])
+    const callerNames = callerMatches.map(m => m[1])
     if (callerNames.length === 0) continue
 
     // 拿全 src/ TS 檔案
     const tsFiles = execSync(
       `find src -type f \\( -name '*.ts' -o -name '*.tsx' \\) ! -name '*.test.ts' ! -name '*.spec.ts'`,
-      { cwd: REPO_ROOT, encoding: 'utf8' },
+      { cwd: REPO_ROOT, encoding: 'utf8' }
     )
       .split('\n')
       .filter(Boolean)
@@ -1084,10 +1041,7 @@ async function auditL6CentralModule(): Promise<Finding[]> {
       for (const caller of callerNames) {
         // 多行 regex：caller(\s*{...column[:,]...})
         // 限制 800 字避免 catastrophic backtracking
-        const re = new RegExp(
-          `${caller}\\(\\s*\\{[^}]{0,800}\\b${column}\\b\\s*[:,]`,
-          'g',
-        )
+        const re = new RegExp(`${caller}\\(\\s*\\{[^}]{0,800}\\b${column}\\b\\s*[:,]`, 'g')
         let m: RegExpExecArray | null
         while ((m = re.exec(src)) !== null) {
           const lineNum = src.substring(0, m.index).split('\n').length
@@ -1108,16 +1062,12 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         'no_deleted_column_refs',
         'error',
         `${deletedColumnRefs.length} 處 caller 還用已砍欄位（會炸 42703 undefined_column）`,
-        deletedColumnRefs.map((r) => `${r.table}.${r.column}: ${r.ref.slice(0, 120)}`),
-      ),
+        deletedColumnRefs.map(r => `${r.table}.${r.column}: ${r.ref.slice(0, 120)}`)
+      )
     )
   } else {
     findings.push(
-      ok(
-        'L6',
-        'no_deleted_column_refs',
-        `${DELETED_COLUMNS.length} 個已砍欄位 0 caller 殘留`,
-      ),
+      ok('L6', 'no_deleted_column_refs', `${DELETED_COLUMNS.length} 個已砍欄位 0 caller 殘留`)
     )
   }
 
@@ -1135,18 +1085,20 @@ async function auditL6CentralModule(): Promise<Finding[]> {
     findings.push(fail('L6', 'entity_hook_schema_drift', 'warn', schemaResult.message))
   } else {
     const schemaMap = new Map<string, Set<string>>(
-      schemaResult.rows.map((r) => [r.table_name, new Set(r.columns.split(','))]),
+      schemaResult.rows.map(r => [r.table_name, new Set(r.columns.split(','))])
     )
 
     // 抓所有 createEntityHook / createCloudHook 用法
-    const hookGrep = grepRepo(
-      `(createEntityHook|createCloudHook)<[^>]+>\\(`,
-      ['src/data/entities/', 'src/hooks/'],
-    )
+    const hookGrep = grepRepo(`(createEntityHook|createCloudHook)<[^>]+>\\(`, [
+      'src/data/entities/',
+      'src/hooks/',
+    ])
 
     const driftFindings: { hook: string; table: string; missing: string[] }[] = []
     for (const grepLine of hookGrep) {
-      const m = grepLine.match(/^([^:]+):(\d+):.*?(createEntityHook|createCloudHook)<[^>]+>\(['"]([a-z_]+)['"]/)
+      const m = grepLine.match(
+        /^([^:]+):(\d+):.*?(createEntityHook|createCloudHook)<[^>]+>\(['"]([a-z_]+)['"]/
+      )
       if (!m) continue
       const [, file, lineNum, , tableName] = m
       const dbCols = schemaMap.get(tableName)
@@ -1168,19 +1120,20 @@ async function auditL6CentralModule(): Promise<Finding[]> {
         while ((m2 = re2.exec(block)) !== null) selectStrs.push(m2[1])
 
         // 抓 const X_FIELDS = [...].join(',')（同檔內）
-        const constRe = /const\s+[A-Z_]+_(?:LIST_)?(?:SELECT_)?FIELDS\s*=\s*\[([^\]]+)\]\.join\(',?'?\)/g
+        const constRe =
+          /const\s+[A-Z_]+_(?:LIST_)?(?:SELECT_)?FIELDS\s*=\s*\[([^\]]+)\]\.join\(',?'?\)/g
         while ((m2 = constRe.exec(fileContent)) !== null) {
           const arrStr = m2[1]
-          const cols = [...arrStr.matchAll(/'([^']+)'/g)].map((mm) => mm[1])
+          const cols = [...arrStr.matchAll(/'([^']+)'/g)].map(mm => mm[1])
           if (cols.length > 0) selectStrs.push(cols.join(','))
         }
 
         for (const sel of selectStrs) {
           const cols = sel
             .split(',')
-            .map((c) => c.trim().split('(')[0].split(':')[0].trim())
-            .filter((c) => c && !c.startsWith('!') && /^[a-z_]+$/.test(c))
-          const missing = cols.filter((c) => !dbCols.has(c))
+            .map(c => c.trim().split('(')[0].split(':')[0].trim())
+            .filter(c => c && !c.startsWith('!') && /^[a-z_]+$/.test(c))
+          const missing = cols.filter(c => !dbCols.has(c))
           if (missing.length > 0) {
             driftFindings.push({ hook: `${file}:${lineNum}`, table: tableName, missing })
           }
@@ -1197,14 +1150,16 @@ async function auditL6CentralModule(): Promise<Finding[]> {
           'entity_hook_schema_drift',
           'error',
           `${driftFindings.length} 個 entity hook SELECT 內含 DB 不存在的欄位（會炸 42703）`,
-          driftFindings.map(
-            (d) => `${d.table} @ ${d.hook}: ${d.missing.join(', ')}`,
-          ),
-        ),
+          driftFindings.map(d => `${d.table} @ ${d.hook}: ${d.missing.join(', ')}`)
+        )
       )
     } else {
       findings.push(
-        ok('L6', 'entity_hook_schema_drift', `${hookGrep.length} 個 entity hook SELECT 跟 DB schema 0 drift`),
+        ok(
+          'L6',
+          'entity_hook_schema_drift',
+          `${hookGrep.length} 個 entity hook SELECT 跟 DB schema 0 drift`
+        )
       )
     }
   }
@@ -1249,14 +1204,12 @@ async function main() {
             layer,
             `${layer}_db_skipped`,
             'warn',
-            'DB 不通、本層 DB 檢核 skip（CI 環境應該能連）',
-          ),
+            'DB 不通、本層 DB 檢核 skip（CI 環境應該能連）'
+          )
         )
       } else {
         console.error(`❌ ${layer} audit 出錯：`, err)
-        allFindings.push(
-          fail(layer, `${layer}_runtime_error`, 'error', msg),
-        )
+        allFindings.push(fail(layer, `${layer}_runtime_error`, 'error', msg))
       }
     }
   }
@@ -1267,12 +1220,12 @@ async function main() {
     printConsole(allFindings)
   }
 
-  const errorFails = allFindings.filter((f) => !f.pass && f.severity === 'error')
-  const warnFails = allFindings.filter((f) => !f.pass && f.severity === 'warn')
+  const errorFails = allFindings.filter(f => !f.pass && f.severity === 'error')
+  const warnFails = allFindings.filter(f => !f.pass && f.severity === 'warn')
 
   console.log('')
   console.log(
-    `總計：${allFindings.length} 項 / 通過 ${allFindings.filter((f) => f.pass).length} / error ${errorFails.length} / warn ${warnFails.length}`,
+    `總計：${allFindings.length} 項 / 通過 ${allFindings.filter(f => f.pass).length} / error ${errorFails.length} / warn ${warnFails.length}`
   )
 
   if (errorFails.length > 0 && !flags.warnOnly) {
@@ -1314,7 +1267,7 @@ function printConsole(findings: Finding[]) {
         const detailLines =
           Array.isArray(f.details) && typeof f.details[0] === 'string'
             ? (f.details as string[])
-            : (f.details as object[]).map((d) => JSON.stringify(d))
+            : (f.details as object[]).map(d => JSON.stringify(d))
         for (const line of detailLines.slice(0, 8)) {
           console.log(`      ${line}`)
         }
@@ -1335,13 +1288,11 @@ function printMarkdown(findings: Finding[]) {
   console.log('|---|---|---|---|---|')
   for (const f of findings) {
     const status = f.pass ? '✅' : f.severity === 'error' ? '❌' : '⚠️'
-    console.log(
-      `| ${f.layer} | ${f.name} | ${f.severity} | ${status} | ${f.message} |`,
-    )
+    console.log(`| ${f.layer} | ${f.name} | ${f.severity} | ${status} | ${f.message} |`)
   }
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error('❌ audit script 崩掉：', err)
   process.exit(2)
 })

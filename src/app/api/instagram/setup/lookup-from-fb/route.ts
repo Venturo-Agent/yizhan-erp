@@ -51,11 +51,12 @@ export async function GET(_request: NextRequest) {
     }
 
     // 必須先開通 FB Messenger（才有 page token 能用）
-    const fbTable = supabase.from.bind(supabase) as unknown as (
-      table: string
-    ) => {
+    const fbTable = supabase.from.bind(supabase) as unknown as (table: string) => {
       select: (cols: string) => {
-        eq: (col: string, value: string) => {
+        eq: (
+          col: string,
+          value: string
+        ) => {
           maybeSingle: () => Promise<{
             data: FbSettingsRow | null
             error: { message: string } | null
@@ -93,7 +94,10 @@ export async function GET(_request: NextRequest) {
 
     if (!res.ok) {
       const body = await res.text().catch(() => '')
-      logger.warn('lookup-from-fb Meta API failed', { status: res.status, body: body.slice(0, 300) })
+      logger.warn('lookup-from-fb Meta API failed', {
+        status: res.status,
+        body: body.slice(0, 300),
+      })
       let parsed: { error?: { code?: number; message?: string } } | null = null
       try {
         parsed = JSON.parse(body)
@@ -124,7 +128,8 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'FB Page 尚未連結 Instagram Business 帳號。請先在 IG App 設定 → 帳號 → 切換為「專業帳號」+ 連結到此 FB Page。',
+          error:
+            'FB Page 尚未連結 Instagram Business 帳號。請先在 IG App 設定 → 帳號 → 切換為「專業帳號」+ 連結到此 FB Page。',
         },
         { status: 200 }
       )

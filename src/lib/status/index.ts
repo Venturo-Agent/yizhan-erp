@@ -89,7 +89,10 @@ export function getStatusLabel(type: StatusType, status: string): string {
 /**
  * 獲取狀態圖示
  */
-export function getStatusIcon(type: StatusType, status: string): import('lucide-react').LucideIcon | undefined {
+export function getStatusIcon(
+  type: StatusType,
+  status: string
+): import('lucide-react').LucideIcon | undefined {
   return getStatusConfig(type, status).icon
 }
 

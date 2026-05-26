@@ -192,7 +192,7 @@ export function BonusSettingsDialog({ open, onOpenChange, tour }: BonusSettingsD
   }, [rows, originalIds, workspace_id, tour.id, onOpenChange])
 
   const { isSubmitting: saving, execute: handleSave } = useAsyncSubmit(saveFn, {
-    onError: (err) => {
+    onError: err => {
       logger.error('儲存獎金設定失敗', err)
       toast.error(COMPONENT_LABELS.SAVE_FAILED)
     },
@@ -299,18 +299,19 @@ export function BonusSettingsDialog({ open, onOpenChange, tour }: BonusSettingsD
       align: 'right',
       render: ({ row }) => {
         const amount = computeRowAmount(row)
-        return (
-          <span className="text-morandi-gold font-medium pr-2">
-            {formatMoney(amount)}
-          </span>
-        )
+        return <span className="text-morandi-gold font-medium pr-2">{formatMoney(amount)}</span>
       },
     },
   ]
 
   const customFooter = (
     <div className="flex items-center justify-end gap-2">
-      <Button type="button" variant="soft-gold" onClick={() => onOpenChange(false)} disabled={saving}>
+      <Button
+        type="button"
+        variant="soft-gold"
+        onClick={() => onOpenChange(false)}
+        disabled={saving}
+      >
         {BONUS_TAB_LABELS.CANCEL}
       </Button>
       <Button type="button" onClick={handleSave} disabled={saving}>
@@ -360,9 +361,7 @@ export function BonusSettingsDialog({ open, onOpenChange, tour }: BonusSettingsD
           onRemove={removeRow}
           canRemove={() => true}
           addLabel="新增獎金項目"
-          rowClassName={row =>
-            isCostRow(row.type) ? 'bg-morandi-container/40' : undefined
-          }
+          rowClassName={row => (isCostRow(row.type) ? 'bg-morandi-container/40' : undefined)}
         />
 
         <p className="text-xs text-morandi-muted">{t('bonusAmountNote')}</p>

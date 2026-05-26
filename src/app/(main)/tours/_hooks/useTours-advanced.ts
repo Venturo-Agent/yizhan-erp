@@ -1,6 +1,5 @@
 'use client'
 
-
 import useSWR from 'swr'
 import { mutate } from '@/lib/swr/scoped-mutate'
 import { supabase } from '@/lib/supabase/client'

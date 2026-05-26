@@ -238,10 +238,7 @@ export function Calendar({
 
   return (
     <div
-      className={cn(
-        'w-[20rem] rounded-xl border border-border bg-card p-4 shadow-md',
-        className
-      )}
+      className={cn('w-[20rem] rounded-xl border border-border bg-card p-4 shadow-md', className)}
     >
       {/* Header — title 左 / chevrons 右 */}
       <div className="flex items-center justify-between pb-3.5 px-1">
@@ -327,10 +324,7 @@ export function Calendar({
           {/* Weekday headers */}
           <div className="grid grid-cols-7 gap-0.5">
             {WEEKDAYS.map(day => (
-              <div
-                key={day}
-                className="py-1 text-center text-xs font-medium text-cal-weekday-text"
-              >
+              <div key={day} className="py-1 text-center text-xs font-medium text-cal-weekday-text">
                 {day}
               </div>
             ))}
@@ -353,7 +347,9 @@ export function Calendar({
                     // 上下月（淡）
                     !day.isCurrentMonth && !day.isSelected && 'text-morandi-muted font-normal',
                     // 今天（金字 + ring inset，與 selected 有視覺區分）
-                    day.isToday && !day.isSelected && 'text-cal-today-fg font-bold ring-1 ring-cal-today-ring ring-inset',
+                    day.isToday &&
+                      !day.isSelected &&
+                      'text-cal-today-fg font-bold ring-1 ring-cal-today-ring ring-inset',
                     // 選中（cal-selected-bg 底 + 白字）
                     day.isSelected && 'bg-cal-selected-bg text-cal-selected-fg',
                     // 範圍內（淡金底）

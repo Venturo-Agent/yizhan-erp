@@ -14,21 +14,21 @@
 
 export interface CanvasImage {
   url: string
-  focal_x?: number  // 0-100、object-position
+  focal_x?: number // 0-100、object-position
   focal_y?: number
-  brightness?: number  // -50 ~ +50
-  contrast?: number    // -50 ~ +50
+  brightness?: number // -50 ~ +50
+  contrast?: number // -50 ~ +50
   caption?: string
 }
 
-export type CanvasBlockId = string  // UUID
+export type CanvasBlockId = string // UUID
 
 // ============ Sidenav / 整頁設定 ============
 
 export interface CanvasBrandInfo {
-  name: string           // 例「角落旅行社」
-  english_name?: string  // 例「Corner Travel」
-  logo_url?: string      // 客戶公司 logo（footer）
+  name: string // 例「角落旅行社」
+  english_name?: string // 例「Corner Travel」
+  logo_url?: string // 客戶公司 logo（footer）
 }
 
 export interface CanvasContactInfo {
@@ -43,10 +43,10 @@ export interface CanvasContactInfo {
 
 // C01 封面
 export interface CanvasCoverData {
-  eyebrow?: string      // 「2026 私人包團・東京仙台六日」
-  title: string         // 主標
-  subtitle?: string     // 副標
-  destination?: string  // 例「東京 ✕ 仙台」
+  eyebrow?: string // 「2026 私人包團・東京仙台六日」
+  title: string // 主標
+  subtitle?: string // 副標
+  destination?: string // 例「東京 ✕ 仙台」
   cover_image?: CanvasImage
   departure_date?: string
   brand?: CanvasBrandInfo
@@ -60,8 +60,8 @@ export interface CanvasCoverSection {
 // C02 行程總覽時間軸
 export interface CanvasTimelineDay {
   day_index: number
-  title: string         // 「輕井澤」
-  summary: string       // 「抵達後直奔輕井澤」
+  title: string // 「輕井澤」
+  summary: string // 「抵達後直奔輕井澤」
 }
 
 export interface CanvasOverviewTimelineSection {
@@ -77,9 +77,9 @@ export interface CanvasDayHeaderBlock {
   type: 'day_header'
   data: {
     day_index: number
-    date: string         // 「2026.12.02（星期三）」
-    title: string        // 當天標題
-    summary?: string     // 一句摘要
+    date: string // 「2026.12.02（星期三）」
+    title: string // 當天標題
+    summary?: string // 一句摘要
   }
 }
 
@@ -87,12 +87,12 @@ export interface CanvasDayHeaderBlock {
 export interface CanvasAttraction {
   id: CanvasBlockId
   name: string
-  subtitle?: string     // 地點 / 子標
+  subtitle?: string // 地點 / 子標
   description?: string
   image?: CanvasImage
   highlights?: string[]
-  category?: string     // 標籤
-  suggested_duration?: string  // 「建議停留 2 小時」
+  category?: string // 標籤
+  suggested_duration?: string // 「建議停留 2 小時」
 }
 
 export interface CanvasRouteCardBlock {
@@ -101,15 +101,15 @@ export interface CanvasRouteCardBlock {
   layout: '1up' | '2up' | '3up' | 'transit'
   data: {
     attractions: CanvasAttraction[]
-    transit_note?: string  // transit 模式用、無圖移動日的說明
+    transit_note?: string // transit 模式用、無圖移動日的說明
   }
 }
 
 // C05 時序步驟（非標配、右鍵加）
 export interface CanvasSequenceStep {
   id: CanvasBlockId
-  time: string          // 「10:00」
-  title: string         // 「前往川越」
+  time: string // 「10:00」
+  title: string // 「前往川越」
   description?: string
 }
 
@@ -117,7 +117,7 @@ export interface CanvasSequenceStepsBlock {
   id: CanvasBlockId
   type: 'sequence_steps'
   data: {
-    title?: string       // 「TIMELINE · DAY 3」
+    title?: string // 「TIMELINE · DAY 3」
     steps: CanvasSequenceStep[]
   }
 }
@@ -128,7 +128,7 @@ export interface CanvasHotelCardBlock {
   type: 'hotel_card'
   data: {
     name: string
-    rating?: number      // 星級 1-5
+    rating?: number // 星級 1-5
     location?: string
     description?: string
     image?: CanvasImage
@@ -200,11 +200,11 @@ export interface CanvasSpotlightBlock {
   id: CanvasBlockId
   type: 'spotlight'
   data: {
-    tag?: string         // eyebrow（紅銅 italic）例：「— LUNCH · 元祖日光ゆば料理 惠比壽家」
-    title: string        // 標題（36px、可帶 [accent]xxx[/accent] 紅銅標記）
-    lead?: string        // 段落文字（17px、line-height 1.85）多行用 \n
+    tag?: string // eyebrow（紅銅 italic）例：「— LUNCH · 元祖日光ゆば料理 惠比壽家」
+    title: string // 標題（36px、可帶 [accent]xxx[/accent] 紅銅標記）
+    lead?: string // 段落文字（17px、line-height 1.85）多行用 \n
     image?: CanvasImage
-    image_position?: 'left' | 'right'  // 圖在哪邊；不設預設 right
+    image_position?: 'left' | 'right' // 圖在哪邊；不設預設 right
   }
 }
 
@@ -216,8 +216,8 @@ export interface CanvasJpNoteBlock {
   id: CanvasBlockId
   type: 'jp_note'
   data: {
-    term: string         // 用語本身、紅銅粗體（例：「湯波（ゆば）」）
-    description: string  // 解釋（例：「日光特產、豆乳加熱後表面凝結的薄膜。」）
+    term: string // 用語本身、紅銅粗體（例：「湯波（ゆば）」）
+    description: string // 解釋（例：「日光特產、豆乳加熱後表面凝結的薄膜。」）
   }
 }
 
@@ -244,7 +244,7 @@ export interface CanvasDaySection {
 // C11 住宿總覽（自動彙整）
 export interface CanvasStayItem {
   id: CanvasBlockId
-  nights_label: string  // 「Night 1-2」
+  nights_label: string // 「Night 1-2」
   name: string
   image?: CanvasImage
   description?: string
@@ -261,9 +261,9 @@ export interface CanvasStaysSection {
 export interface CanvasAppendixSection {
   type: 'appendix'
   data: {
-    inclusions?: string[]    // 費用包含
-    exclusions?: string[]    // 費用不含
-    notices?: string[]       // 注意事項
+    inclusions?: string[] // 費用包含
+    exclusions?: string[] // 費用不含
+    notices?: string[] // 注意事項
     contact?: CanvasContactInfo
   }
 }

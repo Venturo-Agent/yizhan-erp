@@ -29,11 +29,9 @@ export function useEmployeesWithCapability(capabilityCode: string | readonly str
   return useMemo(() => {
     const wanted = new Set(Array.isArray(capabilityCode) ? capabilityCode : [capabilityCode])
     const roleIdsWithCap = new Set(
-      roleCaps
-        .filter((rc) => wanted.has(rc.capability_code) && rc.enabled)
-        .map((rc) => rc.role_id),
+      roleCaps.filter(rc => wanted.has(rc.capability_code) && rc.enabled).map(rc => rc.role_id)
     )
-    return employees.filter((emp) => {
+    return employees.filter(emp => {
       const roleId = (emp as { role_id?: string | null }).role_id
       return roleId != null && roleIdsWithCap.has(roleId)
     })

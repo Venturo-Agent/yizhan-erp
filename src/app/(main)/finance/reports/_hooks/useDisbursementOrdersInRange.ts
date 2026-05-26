@@ -17,7 +17,11 @@ import type { DisbursementOrder } from '@/stores/types'
 const SELECT = 'id,order_number,disbursement_date,amount,status,created_at'
 const PAGE = 1000
 
-export const useDisbursementOrdersInRange = createReportHook<DisbursementOrder, Record<string, never>, DateRange>({
+export const useDisbursementOrdersInRange = createReportHook<
+  DisbursementOrder,
+  Record<string, never>,
+  DateRange
+>({
   key: (p: DateRange) => `disbursement-orders-in-range:${p.startDate}:${p.endDate}`,
   defaultStats: {},
   fetcher: async (p: DateRange) => {

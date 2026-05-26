@@ -16,6 +16,7 @@ goal: 「客戶官網系統」新模組完整規劃、5 維度檢查、5 SSOT + 
 > Reuse 既有 marketing module 70%（tours 9 個欄位 + API + UI 樣板）、Corner 不動。
 
 範圍三句話：
+
 1. 新 `websites` module（addon）、route `/websites/design`（全螢幕）+ `/websites/products`（list 樣板）
 2. 子網域 multi-tenant（`{客戶}.venturo.tw`）渲染 Canvas、走 Next.js (public) route group
 3. Canvas 從 YongchengCanvas 通用化、改名為 `Canvas`、放 `src/lib/canvas/`、不再 client-specific
@@ -28,13 +29,13 @@ goal: 「客戶官網系統」新模組完整規劃、5 維度檢查、5 SSOT + 
 
 ### 命名紀律（紅線 #1 對齊）
 
-| 舊（client-specific）| 新（通用）|
-|---|---|
-| `YongchengCanvas` (type) | `Canvas` |
-| `YongchengRenderer` (component) | `CanvasRenderer` |
-| `YongchengLayout` (component) | `CanvasLayout` |
-| `tour-display-yongcheng/` (目錄) | `canvas-renderer/` |
-| `src/lib/yongcheng/` | `src/lib/canvas/` |
+| 舊（client-specific）             | 新（通用）              |
+| --------------------------------- | ----------------------- |
+| `YongchengCanvas` (type)          | `Canvas`                |
+| `YongchengRenderer` (component)   | `CanvasRenderer`        |
+| `YongchengLayout` (component)     | `CanvasLayout`          |
+| `tour-display-yongcheng/` (目錄)  | `canvas-renderer/`      |
+| `src/lib/yongcheng/`              | `src/lib/canvas/`       |
 | 「Yongcheng / 永成」(註解 / 文案) | 「Canvas」/「客戶官網」 |
 
 **理由**：YongchengCanvas 當初只是給永成做的、現在通用化、不該繼續綁 client 名。
@@ -44,22 +45,24 @@ goal: 「客戶官網系統」新模組完整規劃、5 維度檢查、5 SSOT + 
 `marketing` module + `/marketing/website` 路由 + Corner Astro repo + `corner.venturo.tw` 子網域 = **保留**、純做 Corner 一個客戶。
 
 理由：
+
 - William 2026-05-23 講「砍掉會死人」
 - Corner 走 Astro SSG（外部 repo）、跟新 Next.js multi-tenant 模式不相容
 - 新模組從零做、不嘗試把 Corner 遷移
 
 ### 新舊模組職責分界
 
-| Module | 目的 | 對誰 | 渲染方式 | 主題 |
-|---|---|---|---|---|
-| `marketing`（既有）| Corner 一個客戶的官網行程上架 | Corner workspace | Astro SSG 外部 repo | Corner ad-hoc 設計 |
-| `websites`（新）| 多客戶官網（加購） | 任何有買 addon 的 workspace | Next.js SSR/ISR 內建 | 9 套 component 變體 mix-and-match |
+| Module              | 目的                          | 對誰                        | 渲染方式             | 主題                              |
+| ------------------- | ----------------------------- | --------------------------- | -------------------- | --------------------------------- |
+| `marketing`（既有） | Corner 一個客戶的官網行程上架 | Corner workspace            | Astro SSG 外部 repo  | Corner ad-hoc 設計                |
+| `websites`（新）    | 多客戶官網（加購）            | 任何有買 addon 的 workspace | Next.js SSR/ISR 內建 | 9 套 component 變體 mix-and-match |
 
 → 兩條路線並存、新客戶走 `websites`、Corner 走 `marketing`、未來看狀況再考慮 Corner 遷移。
 
 ### DB schema reuse
 
 `tours` 表既有 9 個欄位（5/20 加的）**通用、不是 Corner 寫死**、新 module 直接 reuse：
+
 - `is_public_listed` / `marketing_title` / `marketing_subtitle` / `marketing_body`
 - `hero_image_url` / `seo_title` / `seo_description`
 - `published_at` / `published_by`
@@ -113,18 +116,18 @@ goal: 「客戶官網系統」新模組完整規劃、5 維度檢查、5 SSOT + 
 
 ### 紅線對照表
 
-| 紅線 | 對齊狀況 |
-|---|---|
-| 0 — 沒有 admin only | ✅ 用 capability 表達、不寫 `if (isAdmin)`。文案 / commit 不講「admin 限定」 |
-| 0.1 — 用詞紀律 | ✅ 不講「admin 可改主題」、講「有 `website.design.write` capability 的員工可改」 |
-| A — workspaces 不 FORCE RLS | ✅ workspace 加 canvas jsonb 欄位、RLS 不動 FORCE |
-| B — 審計欄位 FK 指 employees | ✅ canvas_updated_by / canvas_published_by FK → `employees(id)` ON DELETE SET NULL |
-| C — admin client per-request | ✅ 任何 API route 用 `getSupabaseAdminClient()` 每 request 新建 |
-| D — 不開作弊後門 | ✅ 沒有「unlock canvas」「reopen published」這種 API |
-| E — DB trigger / API 不雙寫 | ✅ canvas 寫入只走 API、不加 trigger 自動填、`npm run audit:writes` 必跑 |
-| F — 走 entity hook + apiMutate | ✅ canvas / website-tours 都走 entity hook、寫入走 apiMutate |
-| G — SWR cache per-user | ✅ 不另外加 cache key、繼承既有 per-user namespace |
-| H — 業務表 RLS workspace 守門 | ✅ canvas 欄位掛在 workspaces 表、走既有 RLS；新表 (如有) 走 `setup_workspace_scoped_rls` |
+| 紅線                           | 對齊狀況                                                                                  |
+| ------------------------------ | ----------------------------------------------------------------------------------------- |
+| 0 — 沒有 admin only            | ✅ 用 capability 表達、不寫 `if (isAdmin)`。文案 / commit 不講「admin 限定」              |
+| 0.1 — 用詞紀律                 | ✅ 不講「admin 可改主題」、講「有 `website.design.write` capability 的員工可改」          |
+| A — workspaces 不 FORCE RLS    | ✅ workspace 加 canvas jsonb 欄位、RLS 不動 FORCE                                         |
+| B — 審計欄位 FK 指 employees   | ✅ canvas_updated_by / canvas_published_by FK → `employees(id)` ON DELETE SET NULL        |
+| C — admin client per-request   | ✅ 任何 API route 用 `getSupabaseAdminClient()` 每 request 新建                           |
+| D — 不開作弊後門               | ✅ 沒有「unlock canvas」「reopen published」這種 API                                      |
+| E — DB trigger / API 不雙寫    | ✅ canvas 寫入只走 API、不加 trigger 自動填、`npm run audit:writes` 必跑                  |
+| F — 走 entity hook + apiMutate | ✅ canvas / website-tours 都走 entity hook、寫入走 apiMutate                              |
+| G — SWR cache per-user         | ✅ 不另外加 cache key、繼承既有 per-user namespace                                        |
+| H — 業務表 RLS workspace 守門  | ✅ canvas 欄位掛在 workspaces 表、走既有 RLS；新表 (如有) 走 `setup_workspace_scoped_rls` |
 
 ### 額外資安考量
 
@@ -138,6 +141,7 @@ goal: 「客戶官網系統」新模組完整規劃、5 維度檢查、5 SSOT + 
 #### Public 子網域：跨 workspace 滲透
 
 威脅模型：客戶 A 連 `客戶B.venturo.tw` 想看 B 的 canvas？
+
 - ✅ Middleware resolve subdomain → workspace_id
 - ✅ Public API 只回該 workspace_id 的 canvas + public-listed tours
 - ✅ RLS policy：`canvas` 是 workspaces.canvas、tours 已有 workspace RLS、`is_public_listed = true` 的 tour 才返
@@ -160,10 +164,12 @@ goal: 「客戶官網系統」新模組完整規劃、5 維度檢查、5 SSOT + 
 ### L1 Feature Gate（workspace_features）
 
 新 feature code：
+
 - `website_builder` — 基礎、付費加購才開
 - `website_custom_domain`（保留位、未來自帶域名功能）
 
 `workspace_features` 新增 row：
+
 ```sql
 -- seed migration
 INSERT INTO workspace_features (workspace_id, feature_code, enabled)
@@ -173,6 +179,7 @@ ON CONFLICT (workspace_id, feature_code) DO NOTHING;
 ```
 
 ModuleGuard 守門：
+
 ```ts
 <ModuleGuard requireFeature="website_builder" requireCapability="website.design.read">
 ```
@@ -180,23 +187,26 @@ ModuleGuard 守門：
 ### L2 Capability（role_capabilities）
 
 新 capability codes：
+
 - `website.design.read` — 看 design 編輯器
 - `website.design.write` — 編 design / 發布
 - `website.products.read` — 看上架管理
 - `website.products.write` — 切換上架 / 編內容
 
 衍生自 `src/modules/websites.ts` 的 tabs：
+
 ```ts
 defineModule({
   code: 'websites',
   tabs: [
     { code: 'design', name: '版面設計' },
     { code: 'products', name: '產品上架' },
-  ]
+  ],
 })
 ```
 
 seed migration：
+
 - 預設給 admin / manager role 開 design.read+write / products.read+write
 - 一般 sales 預設 products.read（看上架狀態、不能改 design）
 
@@ -224,6 +234,7 @@ seed migration：
 #### website_canvas_history（新 table、optional）
 
 如果要做版本歷史：
+
 ```sql
 CREATE TABLE website_canvas_history (
   id uuid PRIMARY KEY,
@@ -251,11 +262,13 @@ CREATE TABLE website_canvas_history (
 Public 站不走 user login、用 anon role。但 anon 不能直接 `SELECT * FROM workspaces`、會違反 RLS。
 
 策略：
+
 1. **不開 anon SELECT policy**（會洩漏所有 workspace）
 2. **server-side render 走 service_role**（per-request admin client、強制 filter workspace_id）
 3. **API route 提供 public-safe endpoint**：`GET /api/public/sites/[subdomain]` 回 canvas + listed tours
 
 server 端流程：
+
 ```
 1. Middleware 解 subdomain → 拿 workspace_id（從 workspaces.subdomain 查）
 2. server component / API route call admin client
@@ -269,14 +282,14 @@ server 端流程：
 
 ### 5 SSOT 改動清單
 
-| # | 檔案 | 改動 |
-|---|---|---|
-| 1 | `src/modules/websites.ts`（新）| `defineModule({ code: 'websites', tabs: [design, products], category: 'addon', exposedToHr: true, defaultRoles: ['admin'] })` |
-| 2 | `src/modules/_registry.ts` | import + 加進 ALL_MODULES |
-| 3 | `src/lib/permissions/capabilities.ts` | 跑 `npm run codegen:permissions` 自動同步（不手改） |
-| 4 | `src/lib/permissions/module-tabs.ts` | 跑 codegen 自動同步 |
-| 5 | `src/lib/permissions/features.ts` | 跑 codegen 自動同步 |
-| 6 | seed migration | `INSERT INTO workspace_features (workspace_id, feature_code, enabled) SELECT id, 'website_builder', false ...` + `role_capabilities` 給 admin role 開 4 個 capability |
+| #   | 檔案                                  | 改動                                                                                                                                                                  |
+| --- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `src/modules/websites.ts`（新）       | `defineModule({ code: 'websites', tabs: [design, products], category: 'addon', exposedToHr: true, defaultRoles: ['admin'] })`                                         |
+| 2   | `src/modules/_registry.ts`            | import + 加進 ALL_MODULES                                                                                                                                             |
+| 3   | `src/lib/permissions/capabilities.ts` | 跑 `npm run codegen:permissions` 自動同步（不手改）                                                                                                                   |
+| 4   | `src/lib/permissions/module-tabs.ts`  | 跑 codegen 自動同步                                                                                                                                                   |
+| 5   | `src/lib/permissions/features.ts`     | 跑 codegen 自動同步                                                                                                                                                   |
+| 6   | seed migration                        | `INSERT INTO workspace_features (workspace_id, feature_code, enabled) SELECT id, 'website_builder', false ...` + `role_capabilities` 給 admin role 開 4 個 capability |
 
 ### HR UI 暴露（exposedToHr: true）
 
@@ -287,6 +300,7 @@ server 端流程：
 ### 為什麼是 addon category（不是 basic / premium）
 
 定義（從 `_define.ts`）：
+
 - basic：月費基本含
 - premium：付費加購、同月費 + 加價
 - enterprise：限漫途使用、跨 workspace 能力
@@ -302,14 +316,14 @@ server 端流程：
 
 ## 六、6 層架構 mapping
 
-| Layer | websites module 怎麼過 |
-|---|---|
-| **L1 Feature Gate** | `workspace_features.website_builder` + ModuleGuard `requireFeature` |
-| **L2 Capability** | `website.{design,products}.{read,write}` 4 個 + `requireCapability` |
-| **L3 Scope** | workspace-level、不分 brand/branch/dept |
-| **L4 狀態守門** | N/A（無狀態鎖） |
-| **L5 RLS** | workspaces 既有 RLS / public 走 admin client + filter workspace_id |
-| **L6 SSOT** | dbErrorResponse + recordApiAuditContext + loading prop + employees FK |
+| Layer               | websites module 怎麼過                                                |
+| ------------------- | --------------------------------------------------------------------- |
+| **L1 Feature Gate** | `workspace_features.website_builder` + ModuleGuard `requireFeature`   |
+| **L2 Capability**   | `website.{design,products}.{read,write}` 4 個 + `requireCapability`   |
+| **L3 Scope**        | workspace-level、不分 brand/branch/dept                               |
+| **L4 狀態守門**     | N/A（無狀態鎖）                                                       |
+| **L5 RLS**          | workspaces 既有 RLS / public 走 admin client + filter workspace_id    |
+| **L6 SSOT**         | dbErrorResponse + recordApiAuditContext + loading prop + employees FK |
 
 ---
 
@@ -384,13 +398,13 @@ src/lib/canvas/
 
 ```ts
 interface ComponentVariant<TProps = unknown> {
-  id: string                    // 'hero_minimal_v1'
-  type: ComponentType           // 'hero' | 'about' | ...
-  themeId: string               // 'theme_1' | 'theme_2' ...
-  name: string                  // 「極簡 Hero」
+  id: string // 'hero_minimal_v1'
+  type: ComponentType // 'hero' | 'about' | ...
+  themeId: string // 'theme_1' | 'theme_2' ...
+  name: string // 「極簡 Hero」
   description?: string
-  previewImage?: string         // 縮圖
-  defaultProps: TProps          // 預設參數
+  previewImage?: string // 縮圖
+  defaultProps: TProps // 預設參數
   Component: React.ComponentType<TProps>
 }
 ```
@@ -458,7 +472,7 @@ interface ComponentVariant<TProps = unknown> {
 
 - [ ] 沿用 marketing/website list page 樣板、複製改通用
 - [ ] tour list + toggle is_public_listed
-- [ ] 編輯 marketing_* 欄位（複用 marketing/website/[code] 樣板）
+- [ ] 編輯 marketing\_\* 欄位（複用 marketing/website/[code] 樣板）
 
 ### Day 8：子網域 routing + public render
 
@@ -491,7 +505,7 @@ interface ComponentVariant<TProps = unknown> {
 ### 動工前必答
 
 1. **websites module 進 sidebar 嗎？**
-   - 進、走既有 sidebar feature gate pattern：`feature: 'website_builder'`、沒加購 = 不顯示（對齊 finance.* / accounting.* 既有作法、不顯示鎖頭、ERP 慣例 = 乾淨 sidebar）
+   - 進、走既有 sidebar feature gate pattern：`feature: 'website_builder'`、沒加購 = 不顯示（對齊 finance._ / accounting._ 既有作法、不顯示鎖頭、ERP 慣例 = 乾淨 sidebar）
    - 2026-05-23 William 拍板：原本就沒有的東西、不要顯示「鎖」、不 tease 用戶
 
 2. **subdomain 命名規則？**
@@ -502,7 +516,7 @@ interface ComponentVariant<TProps = unknown> {
 3. **public 站 SEO 怎麼處理？**
    - workspace.subdomain 唯一一台站
    - 同個 page 有 indexability 設定（custom seo_title / description per page）
-   - tour 詳情頁 SEO 走 tours 既有 seo_* 欄位
+   - tour 詳情頁 SEO 走 tours 既有 seo\_\* 欄位
    - 推薦：v1 用 workspace 級的 SEO defaults + tour 級 override
 
 4. **9 主題的設計時程？**
@@ -543,6 +557,7 @@ CI（GitHub Actions）跑相同清單、error 擋 merge。
 每個 migration 末尾附 rollback SQL（紅線「破壞性 migration 必附反向 SQL」對齊）。
 
 緊急回滾：
+
 1. 砍 `workspace_features.website_builder` row → 所有客戶看不到 design 編輯器
 2. revert commit → 路由消失 / sidebar entry 消失
 3. canvas 欄位保留（純加欄位不影響既有）

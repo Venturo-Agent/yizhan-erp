@@ -306,14 +306,15 @@ export function MemberEditDialog({
               <X size={16} />
               {t('cancel')}
             </Button>
-            <Button variant="soft-gold"
+            <Button
+              variant="soft-gold"
               onClick={onSave}
               disabled={isSaving}
               size="lg"
               className={
                 editMode === 'verify'
                   ? 'bg-status-success hover:bg-morandi-green text-white px-8 font-medium'
- : 'px-8 font-medium'
+                  : 'px-8 font-medium'
               }
             >
               {isSaving

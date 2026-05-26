@@ -20,6 +20,7 @@ related: [[orders-spec]] [[tours-spec]]
 ## 2. 核心 entity & schema
 
 主要表：`public.customers`
+
 - `id` UUID PK
 - `code` TEXT UNIQUE
 - `name` / `phone` / `email`
@@ -48,11 +49,11 @@ related: [[orders-spec]] [[tours-spec]]
 
 ## 6. 跨 module 依賴
 
-| 依賴 module | 關係 |
-|------------|------|
-| orders | order.customer_id |
-| channels | channels 對話綁 customer_id（透過 line_user_id 等） |
-| messaging_inbox | inbox 內訊息綁客戶 |
+| 依賴 module     | 關係                                                |
+| --------------- | --------------------------------------------------- |
+| orders          | order.customer_id                                   |
+| channels        | channels 對話綁 customer_id（透過 line_user_id 等） |
+| messaging_inbox | inbox 內訊息綁客戶                                  |
 
 ## 7. Capability
 
@@ -60,6 +61,6 @@ related: [[orders-spec]] [[tours-spec]]
 
 ## 10. 變更
 
-| 日期 | 變更 |
-|------|------|
+| 日期       | 變更                 |
+| ---------- | -------------------- |
 | 2026-05-15 | 初版（QDF Round 11） |

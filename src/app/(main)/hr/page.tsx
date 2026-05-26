@@ -43,10 +43,7 @@ export default function HRPage() {
   }, [fetchAll])
 
   // 員工列表：只顯示在職員工（不含已離職）
-  const filteredEmployees = useMemo(
-    () => users.filter(emp => emp.status !== 'terminated'),
-    [users]
-  )
+  const filteredEmployees = useMemo(() => users.filter(emp => emp.status !== 'terminated'), [users])
 
   const getStatusLabel = (status: EmployeeFull['status']) => {
     const statusMap = {
@@ -119,12 +116,7 @@ export default function HRPage() {
       type: 'danger',
       title: t('deleteTitle'),
       message: `${t('deleteConfirmPrefix')}${employeeName}${t('deleteConfirmSuffix')}`,
-      details: [
-        t('deleteDetail1'),
-        t('deleteDetail2'),
-        t('deleteDetail3'),
-        t('deleteDetail4'),
-      ],
+      details: [t('deleteDetail1'), t('deleteDetail2'), t('deleteDetail3'), t('deleteDetail4')],
       confirmLabel: t('deleteConfirmLabel'),
       cancelLabel: t('cancel'),
     })
@@ -135,10 +127,9 @@ export default function HRPage() {
 
     try {
       // 5/15 走 API、級聯清 auth.users，避免 orphan 害新員工撞 email unique
-      const res = await apiMutate<{ message?: string }>(
-        `/api/employees/${employee.id}`,
-        { method: 'DELETE' }
-      )
+      const res = await apiMutate<{ message?: string }>(`/api/employees/${employee.id}`, {
+        method: 'DELETE',
+      })
 
       if (!res.ok) {
         const msg = res.data?.message ?? res.error ?? `刪除失敗 (HTTP ${res.status})`
@@ -298,7 +289,12 @@ export default function HRPage() {
         data={filteredEmployees}
         columns={columns}
         searchFields={
-          ['chinese_name', 'display_name', 'employee_number', 'personal_info'] as (keyof EmployeeFull)[]
+          [
+            'chinese_name',
+            'display_name',
+            'employee_number',
+            'personal_info',
+          ] as (keyof EmployeeFull)[]
         }
         searchPlaceholder={t('searchPlaceholder')}
         onRowClick={handleEmployeeClick}

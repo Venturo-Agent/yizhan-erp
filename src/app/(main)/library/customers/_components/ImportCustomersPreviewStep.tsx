@@ -155,9 +155,13 @@ export function ImportCustomersPreviewStep({
     [t]
   )
 
-  const previewSummary = error_count > 0
-    ? t('customerImportPreviewSummaryError', { total: parsed_rows_count, errorCount: error_count })
-    : t('customerImportPreviewSummaryOk', { total: parsed_rows_count })
+  const previewSummary =
+    error_count > 0
+      ? t('customerImportPreviewSummaryError', {
+          total: parsed_rows_count,
+          errorCount: error_count,
+        })
+      : t('customerImportPreviewSummaryOk', { total: parsed_rows_count })
 
   return (
     <>
@@ -175,9 +179,7 @@ export function ImportCustomersPreviewStep({
 
       {/* 摘要 */}
       <div className="flex items-center justify-between bg-morandi-container/10 rounded-lg px-4 py-2">
-        <div className="text-sm text-morandi-primary">
-          {previewSummary}
-        </div>
+        <div className="text-sm text-morandi-primary">{previewSummary}</div>
         {selected_file && (
           <span className="text-xs text-morandi-secondary">
             {t('customerImportFileSelected', { name: selected_file.name })}

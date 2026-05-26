@@ -122,21 +122,24 @@ export const SuppliersPage: React.FC = () => {
     setIsAddDialogOpen(true)
   }, [])
 
-  const handleDelete = useCallback(async (supplier: Supplier) => {
-    const confirmed = await confirm(t('supplierDeleteConfirm', { name: supplier.name }), {
-      title: t('supplierDeleteTitle'),
-      type: 'warning',
-    })
-    if (!confirmed) return
+  const handleDelete = useCallback(
+    async (supplier: Supplier) => {
+      const confirmed = await confirm(t('supplierDeleteConfirm', { name: supplier.name }), {
+        title: t('supplierDeleteTitle'),
+        type: 'warning',
+      })
+      if (!confirmed) return
 
-    try {
-      await deleteSupplierApi(supplier.id)
-      await alert(t('supplierDeleteSuccess'), 'success')
-    } catch (error) {
-      logger.error('❌ Delete Supplier Error:', error)
-      await alert(t('supplierDeleteFailed'), 'error')
-    }
-  }, [t])
+      try {
+        await deleteSupplierApi(supplier.id)
+        await alert(t('supplierDeleteSuccess'), 'success')
+      } catch (error) {
+        logger.error('❌ Delete Supplier Error:', error)
+        await alert(t('supplierDeleteFailed'), 'error')
+      }
+    },
+    [t]
+  )
 
   const handleCloseDialog = useCallback(() => {
     setIsAddDialogOpen(false)
@@ -248,11 +251,7 @@ export const SuppliersPage: React.FC = () => {
       searchPlaceholder={t('supplierSearchPlaceholder')}
       headerActions={
         // 主操作（新增供應商）走 primaryAction、輔助（匯入）走 escape hatch、樣式套 header-outline 維持視覺一致
-        <Button
-          variant="header-outline"
-          size="sm"
-          onClick={() => setIsImportDialogOpen(true)}
-        >
+        <Button variant="header-outline" size="sm" onClick={() => setIsImportDialogOpen(true)}>
           <FileSpreadsheet size={16} />
           <span className="hidden sm:inline">{t('supplierImportBtnSelectFile')}</span>
         </Button>

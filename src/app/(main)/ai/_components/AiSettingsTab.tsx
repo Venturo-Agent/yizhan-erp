@@ -92,7 +92,8 @@ function BotsSection() {
       <div className="mb-4">
         <h2 className="text-base font-semibold text-morandi-primary">AI 機器人</h2>
         <p className="text-xs text-morandi-muted mt-0.5">
-          管理 workspace 內的 AI bot 啟用狀態。對外 bot（LINE / FB）可自訂人格、對內 HAPPY 統一身份不可變更。
+          管理 workspace 內的 AI bot 啟用狀態。對外 bot（LINE / FB）可自訂人格、對內 HAPPY
+          統一身份不可變更。
         </p>
       </div>
 
@@ -201,9 +202,7 @@ function BotCard({
           {badge.label}
         </div>
       )}
-      {hint && (
-        <p className="text-[0.65rem] text-morandi-muted italic mb-2">{hint}</p>
-      )}
+      {hint && <p className="text-[0.65rem] text-morandi-muted italic mb-2">{hint}</p>}
       {actionHref && actionLabel && (
         <Button
           variant="outline"
@@ -235,7 +234,10 @@ function PostbackTemplatesSection() {
   const handleDelete = async (id: string, label: string) => {
     if (!confirm(`確定刪除「${label}」？`)) return
     const res = await fetch(`${API}/${id}`, { method: 'DELETE' })
-    if (!res.ok) { toast.error('刪除失敗'); return }
+    if (!res.ok) {
+      toast.error('刪除失敗')
+      return
+    }
     await mutate(API)
     toast.success('已刪除')
   }
@@ -246,7 +248,10 @@ function PostbackTemplatesSection() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ is_active: !t.is_active }),
     })
-    if (!res.ok) { toast.error('更新失敗'); return }
+    if (!res.ok) {
+      toast.error('更新失敗')
+      return
+    }
     await mutate(API)
   }
 
@@ -261,7 +266,10 @@ function PostbackTemplatesSection() {
         </div>
         <Button
           size="sm"
-          onClick={() => { setShowForm(true); setEditingId(null) }}
+          onClick={() => {
+            setShowForm(true)
+            setEditingId(null)
+          }}
           className="gap-1.5"
         >
           <Plus className="w-4 h-4" />
@@ -274,14 +282,17 @@ function PostbackTemplatesSection() {
 
       {showForm && !editingId && (
         <TemplateForm
-          onSave={async (payload) => {
+          onSave={async payload => {
             const res = await fetch(API, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload),
             })
-            const json = await res.json() as { error?: string }
-            if (!res.ok) { toast.error(json.error || '建立失敗'); return }
+            const json = (await res.json()) as { error?: string }
+            if (!res.ok) {
+              toast.error(json.error || '建立失敗')
+              return
+            }
             await mutate(API)
             setShowForm(false)
             toast.success('已新增')
@@ -296,13 +307,16 @@ function PostbackTemplatesSection() {
             {editingId === t.id ? (
               <TemplateForm
                 initial={t}
-                onSave={async (payload) => {
+                onSave={async payload => {
                   const res = await fetch(`${API}/${t.id}`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                   })
-                  if (!res.ok) { toast.error('更新失敗'); return }
+                  if (!res.ok) {
+                    toast.error('更新失敗')
+                    return
+                  }
                   await mutate(API)
                   setEditingId(null)
                   toast.success('已更新')
@@ -344,7 +358,9 @@ function TemplateRow({
   return (
     <div
       className={`flex items-start gap-3 p-3 rounded-xl border transition-colors ${
-        t.is_active ? 'border-morandi-muted/20 bg-white' : 'border-morandi-muted/10 bg-morandi-container/20 opacity-60'
+        t.is_active
+          ? 'border-morandi-muted/20 bg-white'
+          : 'border-morandi-muted/10 bg-morandi-container/20 opacity-60'
       }`}
     >
       <GripVertical className="w-4 h-4 text-morandi-muted/40 mt-0.5 shrink-0" />
@@ -409,7 +425,12 @@ function TemplateForm({
     }
     setSaving(true)
     try {
-      await onSave({ label: label.trim(), postback_data: postbackData.trim(), response_text: responseText.trim(), sort_order: sortOrder })
+      await onSave({
+        label: label.trim(),
+        postback_data: postbackData.trim(),
+        response_text: responseText.trim(),
+        sort_order: sortOrder,
+      })
     } finally {
       setSaving(false)
     }
@@ -419,7 +440,9 @@ function TemplateForm({
     <div className="border border-morandi-gold/30 rounded-xl p-4 bg-morandi-gold/5 space-y-3 mb-2">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-medium text-morandi-secondary mb-1 block">按鈕標籤 *</label>
+          <label className="text-xs font-medium text-morandi-secondary mb-1 block">
+            按鈕標籤 *
+          </label>
           <Input
             value={label}
             onChange={e => setLabel(e.target.value)}
@@ -428,7 +451,9 @@ function TemplateForm({
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-morandi-secondary mb-1 block">Postback Data *</label>
+          <label className="text-xs font-medium text-morandi-secondary mb-1 block">
+            Postback Data *
+          </label>
           <Input
             value={postbackData}
             onChange={e => setPostbackData(e.target.value)}
@@ -464,7 +489,11 @@ function TemplateForm({
             取消
           </Button>
           <Button size="sm" onClick={handleSubmit} disabled={saving} className="gap-1">
-            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+            {saving ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Check className="w-3.5 h-3.5" />
+            )}
             儲存
           </Button>
         </div>

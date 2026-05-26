@@ -152,7 +152,11 @@ export async function tryHappyReply(channelId: string): Promise<void> {
         .select('data_sources')
         .eq('workspace_id', channel.workspace_id)
         .maybeSingle<{ data_sources: string[] | null }>()
-      erpContext = await buildHappyErpContext(supabase, channel.workspace_id, aiSettings?.data_sources)
+      erpContext = await buildHappyErpContext(
+        supabase,
+        channel.workspace_id,
+        aiSettings?.data_sources
+      )
     } catch (err) {
       logger.warn(`${HANDLER}: build erp context failed (ignored)`, {
         workspaceId: channel.workspace_id,
@@ -161,9 +165,7 @@ export async function tryHappyReply(channelId: string): Promise<void> {
     }
 
     // MiniMax-M2 不接連續多個 system messages、合併成 1 個
-    const systemContent = erpContext
-      ? `${happyPrompt}\n\n${erpContext}`
-      : happyPrompt
+    const systemContent = erpContext ? `${happyPrompt}\n\n${erpContext}` : happyPrompt
 
     const messages: LLMChatMessage[] = [
       { role: 'system', content: systemContent },
@@ -201,15 +203,13 @@ export async function tryHappyReply(channelId: string): Promise<void> {
     }
 
     // 6. INSERT bot reply（sender_agent_id 標明是 HAPPY agent 發的、不是任何 employee）
-    const { error: insertErr } = await supabase
-      .from('channel_messages')
-      .insert({
-        channel_id: channelId,
-        sender_employee_id: null,
-        sender_agent_id: channel.agent_id,
-        body: llmRes.content.trim(),
-        message_type: 'text',
-      })
+    const { error: insertErr } = await supabase.from('channel_messages').insert({
+      channel_id: channelId,
+      sender_employee_id: null,
+      sender_agent_id: channel.agent_id,
+      body: llmRes.content.trim(),
+      message_type: 'text',
+    })
 
     if (insertErr) {
       logger.error(`${HANDLER}: insert bot reply failed`, insertErr, { channelId })

@@ -190,11 +190,12 @@ export function HotelSearchInput({
             }}
             autoFocus
           />
-          <Button variant="soft-gold"
+          <Button
+            variant="soft-gold"
             type="button"
             onClick={onManualAdd}
             disabled={!manualHotelName.trim()}
- className="rounded-lg h-10 px-4 gap-1.5"
+            className="rounded-lg h-10 px-4 gap-1.5"
           >
             <Plus size="1em" />
             {COMP_EDITOR_LABELS.新增}

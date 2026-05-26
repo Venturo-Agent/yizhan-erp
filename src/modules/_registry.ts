@@ -99,12 +99,12 @@ export type AllModulesType = typeof ALL_MODULES
  * 取 module by code
  */
 export function getModule(code: string) {
-  return ALL_MODULES.find((m) => m.code === code)
+  return ALL_MODULES.find(m => m.code === code)
 }
 
 /**
  * 取暴露給 HR /hr/roles UI 的 module（exposedToHr !== false）
  */
 export function getHrExposedModules() {
-  return ALL_MODULES.filter((m) => m.exposedToHr !== false)
+  return ALL_MODULES.filter(m => m.exposedToHr !== false)
 }

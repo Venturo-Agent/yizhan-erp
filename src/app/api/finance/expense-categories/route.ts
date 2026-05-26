@@ -84,7 +84,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
       icon: icon || '💰',
       color: color || '#c9aa7c',
       type: categoryType,
-      workspace_id: workspaceId,  // 2026-05-21：寫真 workspace_id、不再塞 user_id
+      workspace_id: workspaceId, // 2026-05-21：寫真 workspace_id、不再塞 user_id
       is_active: true,
       is_system: false,
       sort_order: sort_order || 100,
@@ -102,7 +102,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -145,7 +148,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -163,7 +169,11 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: '缺少 id' }, { status: 400 })
   }
 
-  await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '刪除請款類別', requestId: id })
+  await recordApiAuditContext(supabase, {
+    actorId: guard.employeeId,
+    reason: '刪除請款類別',
+    requestId: id,
+  })
 
   // 檢查是否為系統預設（不能刪除）
   const { data: category } = await supabase
@@ -181,7 +191,10 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ success: true })

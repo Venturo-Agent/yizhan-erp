@@ -188,8 +188,8 @@ export function deriveModuleTabsEntry(m: ModuleConfig) {
     name: m.name,
     description: m.description,
     tabs: m.tabs
-      .filter((t) => t.hiddenInHr !== true)
-      .map((t) => ({
+      .filter(t => t.hiddenInHr !== true)
+      .map(t => ({
         code: t.code,
         name: t.name,
         description: t.description,

@@ -88,7 +88,8 @@ export async function GET() {
       .eq('source_type', 'opening_balance')
       .maybeSingle()
 
-    let existingLines: Array<{ account_id: string; debit_amount: number; credit_amount: number }> = []
+    let existingLines: Array<{ account_id: string; debit_amount: number; credit_amount: number }> =
+      []
     if (existingVoucher) {
       const { data: lines } = await supabase
         .from('journal_lines')

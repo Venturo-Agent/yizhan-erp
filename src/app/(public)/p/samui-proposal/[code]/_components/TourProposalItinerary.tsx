@@ -110,7 +110,10 @@ export function TourProposalItinerary() {
         >
           Itinerary
         </span>
-        <h2 className="text-4xl md:text-5xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+        <h2
+          className="text-4xl md:text-5xl font-bold"
+          style={{ fontFamily: 'Noto Serif TC, serif' }}
+        >
           行程總覽
         </h2>
         <p className="text-muted-foreground text-base">6 天 5 夜完整時間表</p>
@@ -127,13 +130,15 @@ export function TourProposalItinerary() {
             transition={{ delay: index * 0.1, duration: 0.6 }}
             className="group"
           >
-            <div className="grid lg:grid-cols-12 gap-0 bg-card rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-lg"
+            <div
+              className="grid lg:grid-cols-12 gap-0 bg-card rounded-2xl border overflow-hidden transition-all duration-300 hover:shadow-lg"
               style={{
                 borderColor: 'rgba(201,170,124,0.15)',
               }}
             >
               {/* 左：日期區塊 */}
-              <div className="lg:col-span-3 relative"
+              <div
+                className="lg:col-span-3 relative"
                 style={{
                   background: `linear-gradient(135deg, #1a4a5e 0%, #2d6a7a 100%)`,
                 }}
@@ -145,17 +150,22 @@ export function TourProposalItinerary() {
                   >
                     DAY
                   </span>
-                  <span className="text-4xl font-bold mb-1" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                  <span
+                    className="text-4xl font-bold mb-1"
+                    style={{ fontFamily: 'Noto Serif TC, serif' }}
+                  >
                     {day.day}
                   </span>
                   <span className="text-sm text-white/70">{day.date}</span>
 
                   {/* 類型標籤 */}
-                  <span className={`
+                  <span
+                    className={`
                     mt-3 text-xs px-3 py-1 rounded-full font-medium
                     ${day.type === '自由活動' ? 'bg-[#c9aa7c] text-[#1a1a1a]' : 'bg-white/20 text-white'}
                     ${day.type === '返程日' ? 'bg-[#c08374] text-white' : ''}
-                  `}>
+                  `}
+                  >
                     {day.type}
                   </span>
                 </div>
@@ -164,13 +174,18 @@ export function TourProposalItinerary() {
               {/* 中：內容 */}
               <div className="lg:col-span-6 p-6">
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: `${LUXURY.secondary}15` }}>
+                  <div
+                    className="flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center text-2xl"
+                    style={{ backgroundColor: `${LUXURY.secondary}15` }}
+                  >
                     {day.icon}
                   </div>
 
                   <div className="flex-1">
-                    <h3 className="text-xl font-bold mb-2" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                    <h3
+                      className="text-xl font-bold mb-2"
+                      style={{ fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {day.title}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">{day.description}</p>
@@ -178,7 +193,9 @@ export function TourProposalItinerary() {
                     {/* 高亮標籤 */}
                     <div className="flex flex-wrap gap-2">
                       {day.highlights.slice(0, 2).map((h, i) => (
-                        <span key={i} className="text-xs px-3 py-1 rounded-full"
+                        <span
+                          key={i}
+                          className="text-xs px-3 py-1 rounded-full"
                           style={{
                             backgroundColor: `${LUXURY.secondary}10`,
                             color: LUXURY.secondary,
@@ -216,31 +233,46 @@ export function TourProposalItinerary() {
         transition={{ delay: 0.3, duration: 0.6 }}
       >
         {/* 左側強調線 */}
-        <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: LUXURY.secondary }} />
+        <div
+          className="absolute top-0 left-0 w-1 h-full"
+          style={{ backgroundColor: LUXURY.secondary }}
+        />
 
         <div className="p-8">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: `${LUXURY.secondary}15` }}>
+            <div
+              className="w-12 h-12 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: `${LUXURY.secondary}15` }}
+            >
               <span className="text-2xl">✈️</span>
             </div>
             <div>
-              <span className="text-xs font-bold tracking-widest uppercase" style={{ color: LUXURY.secondary }}>
+              <span
+                className="text-xs font-bold tracking-widest uppercase"
+                style={{ color: LUXURY.secondary }}
+              >
                 Flight Details
               </span>
-              <h3 className="text-2xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>航班資訊</h3>
+              <h3 className="text-2xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                航班資訊
+              </h3>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* 去程 */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: LUXURY.secondary }}>
+              <h4
+                className="text-sm font-bold uppercase tracking-wider mb-4"
+                style={{ color: LUXURY.secondary }}
+              >
                 去程 — 8/29（五）
               </h4>
               <div className="space-y-3">
                 {flightInfo.outbound.map((f, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-lg"
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-4 rounded-lg"
                     style={{
                       backgroundColor: `${LUXURY.secondary}05`,
                       border: `1px solid ${LUXURY.secondary}15`,
@@ -251,7 +283,9 @@ export function TourProposalItinerary() {
                       <p className="text-base font-medium">{f.route}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold" style={{ color: LUXURY.primary }}>{f.time}</p>
+                      <p className="text-lg font-bold" style={{ color: LUXURY.primary }}>
+                        {f.time}
+                      </p>
                       <p className="text-xs text-muted-foreground">{f.flight}</p>
                     </div>
                   </div>
@@ -261,12 +295,17 @@ export function TourProposalItinerary() {
 
             {/* 回程 */}
             <div>
-              <h4 className="text-sm font-bold uppercase tracking-wider mb-4" style={{ color: LUXURY.secondary }}>
+              <h4
+                className="text-sm font-bold uppercase tracking-wider mb-4"
+                style={{ color: LUXURY.secondary }}
+              >
                 回程 — 9/3（三）
               </h4>
               <div className="space-y-3">
                 {flightInfo.return.map((f, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 rounded-lg"
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-4 rounded-lg"
                     style={{
                       backgroundColor: `${LUXURY.secondary}05`,
                       border: `1px solid ${LUXURY.secondary}15`,
@@ -277,7 +316,9 @@ export function TourProposalItinerary() {
                       <p className="text-base font-medium">{f.route}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold" style={{ color: LUXURY.primary }}>{f.time}</p>
+                      <p className="text-lg font-bold" style={{ color: LUXURY.primary }}>
+                        {f.time}
+                      </p>
                       <p className="text-xs text-muted-foreground">{f.flight}</p>
                     </div>
                   </div>

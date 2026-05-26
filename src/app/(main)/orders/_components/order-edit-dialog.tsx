@@ -41,7 +41,7 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
       onOpenChange(false)
     },
     {
-      onError: (err) => {
+      onError: err => {
         logger.error(t('editOrderUpdateFailed'), err)
         toast.error(t('updateOrderFailed'))
       },
@@ -79,22 +79,23 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent level={level} className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t('editOrderTitle')} {order?.order_number}</DialogTitle>
+          <DialogTitle>
+            {t('editOrderTitle')} {order?.order_number}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* 訂單資訊（唯讀） */}
           <div className="p-3 bg-morandi-container/30 rounded-lg space-y-1">
             <div className="text-xs text-morandi-secondary">
-              {t('tourPrefix')}<span className="font-medium text-morandi-primary">{order?.tour_name}</span>
+              {t('tourPrefix')}
+              <span className="font-medium text-morandi-primary">{order?.tour_name}</span>
             </div>
           </div>
 
           {/* 聯絡人 */}
           <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('contactPerson')}
-            </label>
+            <label className="text-sm font-medium text-morandi-primary">{t('contactPerson')}</label>
             <Input
               value={formData.contact_person}
               onChange={e => setFormData(prev => ({ ...prev, contact_person: e.target.value }))}
@@ -108,9 +109,7 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
           <div>
             <label className="text-sm font-medium text-morandi-primary">
               {t('salesPerson')}
-              {formData.contact_person?.trim() && (
-                <span className="text-morandi-red ml-1">*</span>
-              )}
+              {formData.contact_person?.trim() && <span className="text-morandi-red ml-1">*</span>}
             </label>
             <Combobox
               options={salesPersons.map(emp => ({
@@ -147,7 +146,8 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
               <X size={16} />
               {t('cancel')}
             </Button>
-            <Button variant="soft-gold"
+            <Button
+              variant="soft-gold"
               type="submit"
               disabled={!formData.contact_person || isSubmitting}
             >

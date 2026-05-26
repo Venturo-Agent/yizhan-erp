@@ -38,10 +38,7 @@ interface ReceiptUpdated {
   invoice_id: string | null
 }
 
-export async function POST(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
 
@@ -56,11 +53,11 @@ export async function POST(
     })
 
     // 查 receipt 確認 status 跟 workspace
-    const { data: receipt, error: queryErr } = await supabase
+    const { data: receipt, error: queryErr } = (await supabase
       .from('receipts')
       .select('id, status, workspace_id, invoice_id, receipt_amount')
       .eq('id', id)
-      .maybeSingle() as { data: ReceiptRow | null; error: PostgrestError | null }
+      .maybeSingle()) as { data: ReceiptRow | null; error: PostgrestError | null }
 
     if (queryErr) {
       logger.error('[payments/verify] query error:', queryErr)
@@ -83,7 +80,7 @@ export async function POST(
     }
 
     // UPDATE → trigger 自動 recalc invoice.paid_amount
-    const { data: updated, error: updateErr } = await supabase
+    const { data: updated, error: updateErr } = (await supabase
       .from('receipts')
       .update({
         status: 'confirmed',
@@ -94,7 +91,7 @@ export async function POST(
       })
       .eq('id', id)
       .select('id, status, verified_by, verified_at, invoice_id')
-      .single() as { data: ReceiptUpdated | null; error: PostgrestError | null }
+      .single()) as { data: ReceiptUpdated | null; error: PostgrestError | null }
 
     if (updateErr) {
       logger.error('[payments/verify] update error:', updateErr)

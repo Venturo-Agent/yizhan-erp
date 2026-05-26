@@ -93,7 +93,8 @@ export function OrderSelectDialog({ isOpen, orders, onClose, onSelect }: OrderSe
             <X size={16} />
             {t('cancel')}
           </Button>
-          <Button variant="soft-gold"
+          <Button
+            variant="soft-gold"
             onClick={handleConfirm}
             disabled={!selectedOrderId}
             className="gap-2"

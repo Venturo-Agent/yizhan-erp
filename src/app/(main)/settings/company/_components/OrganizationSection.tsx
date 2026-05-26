@@ -23,7 +23,8 @@ export function OrganizationSection() {
           <h2 className="text-base font-semibold">組織管理</h2>
         </div>
         <p className="text-sm text-morandi-secondary">
-          管理「分公司」維度。新增第 2 筆後、業務單據（旅遊團 / 訂單 / 請款 / 出納）就會自動冒對應下拉、員工編輯頁也會冒對應勾選。
+          管理「分公司」維度。新增第 2 筆後、業務單據（旅遊團 / 訂單 / 請款 /
+          出納）就會自動冒對應下拉、員工編輯頁也會冒對應勾選。
         </p>
         <p className="text-xs text-morandi-muted mt-2">
           <strong>品牌</strong>由漫途在開通時設定；若需新增品牌請通知漫途追加。

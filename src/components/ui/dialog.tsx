@@ -244,7 +244,6 @@ export {
   DialogTitle,
   DialogDescription,
   // Types
-  
+
   // Constants
-  
 }

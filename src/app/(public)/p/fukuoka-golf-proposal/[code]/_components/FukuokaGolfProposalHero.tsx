@@ -23,7 +23,8 @@ export function FukuokaGolfProposalHero() {
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(to right, #FAF8F5 0%, #FAF8F5 45%, rgba(250,248,245,0.5) 55%, rgba(250,248,245,0) 70%)',
+          background:
+            'linear-gradient(to right, #FAF8F5 0%, #FAF8F5 45%, rgba(250,248,245,0.5) 55%, rgba(250,248,245,0) 70%)',
         }}
       />
 
@@ -45,23 +46,20 @@ export function FukuokaGolfProposalHero() {
               </span>
             </div>
 
-            <h1
-              className="leading-none mb-8"
-              style={{ fontFamily: 'Noto Serif TC, serif' }}
-            >
+            <h1 className="leading-none mb-8" style={{ fontFamily: 'Noto Serif TC, serif' }}>
               <span className="block text-7xl lg:text-8xl xl:text-9xl font-bold text-[#1a1a1a]">
                 日本福岡
               </span>
-              <span className="block text-4xl lg:text-5xl xl:text-6xl font-bold mt-4" style={{ color: '#8B7355' }}>
+              <span
+                className="block text-4xl lg:text-5xl xl:text-6xl font-bold mt-4"
+                style={{ color: '#8B7355' }}
+              >
                 光明頂 · 深度之旅
               </span>
             </h1>
 
             <div className="mb-8">
-              <p
-                className="text-lg"
-                style={{ fontFamily: 'Noto Serif TC, serif', color: '#666' }}
-              >
+              <p className="text-lg" style={{ fontFamily: 'Noto Serif TC, serif', color: '#666' }}>
                 頂級福岡行程 · 高球搖擺 · 深度體驗
               </p>
             </div>

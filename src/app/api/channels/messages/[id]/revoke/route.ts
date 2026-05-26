@@ -18,10 +18,7 @@ import { logger } from '@/lib/utils/logger'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-export async function POST(
-  _req: NextRequest,
-  ctx: { params: Promise<{ id: string }> },
-) {
+export async function POST(_req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await ctx.params
     const guard = await requireCapability(CAPABILITIES.CHANNELS_WRITE)
@@ -40,7 +37,8 @@ export async function POST(
     if (!msg) return NextResponse.json({ error: '訊息不存在' }, { status: 404 })
 
     // workspace 隔離：確認 channel 屬於 caller 的 workspace（admin client 繞過 RLS、需手動驗證）
-    const channelWorkspaceId = (msg as { channels?: { workspace_id?: string } }).channels?.workspace_id
+    const channelWorkspaceId = (msg as { channels?: { workspace_id?: string } }).channels
+      ?.workspace_id
     if (channelWorkspaceId !== guard.workspaceId) {
       return NextResponse.json({ error: '訊息不存在' }, { status: 404 })
     }

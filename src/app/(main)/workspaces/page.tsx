@@ -63,9 +63,7 @@ export default function TenantsPage() {
       try {
         const newStatus = !workspace.is_active
         await updateWorkspace(workspace.id, { is_active: newStatus })
-        toast.success(
-          newStatus ? t('toastToggleSuccessActive') : t('toastToggleSuccessInactive')
-        )
+        toast.success(newStatus ? t('toastToggleSuccessActive') : t('toastToggleSuccessInactive'))
       } catch (error) {
         logger.error('Failed to toggle workspace status:', error)
         toast.error(t('toastToggleFailed'))

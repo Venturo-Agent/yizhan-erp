@@ -1,5 +1,13 @@
 import { useTranslations } from 'next-intl'
-import { MapPin, Trash2, Power, SquarePen, ChevronUp, ChevronDown, AlertTriangle } from 'lucide-react'
+import {
+  MapPin,
+  Trash2,
+  Power,
+  SquarePen,
+  ChevronUp,
+  ChevronDown,
+  AlertTriangle,
+} from 'lucide-react'
 
 const COMPONENT_LABELS = {
   PENDING_VERIFY: '待驗證',

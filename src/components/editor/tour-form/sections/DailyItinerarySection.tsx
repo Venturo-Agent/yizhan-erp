@@ -4,9 +4,11 @@ import React, { useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { TourFormData, ItineraryStyleType } from '../types'
 import { AttractionSelector } from '../../attraction-selector'
-import { useTemplates, getTemplateColor } from '@/app/(main)/tours/[code]/_itinerary/_hooks/useTemplates'
 import {
-} from '@/components/ui/select'
+  useTemplates,
+  getTemplateColor,
+} from '@/app/(main)/tours/[code]/_itinerary/_hooks/useTemplates'
+import {} from '@/components/ui/select'
 import { FolderPlus, Loader2 } from 'lucide-react'
 
 const HotelSelector = dynamic(() => import('../../HotelSelector').then(m => m.HotelSelector), {
@@ -280,11 +282,11 @@ export function DailyItinerarySection({
             >
               {COMP_EDITOR_LABELS.LABEL_1066}
             </Button>
-            <Button variant="soft-gold"
+            <Button
+              variant="soft-gold"
               type="button"
               onClick={handleSaveToLibrary}
               disabled={isSavingToLibrary}
- 
             >
               {isSavingToLibrary ? (
                 <>

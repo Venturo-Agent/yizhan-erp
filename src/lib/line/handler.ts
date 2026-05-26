@@ -288,8 +288,10 @@ async function maybeTriggerMemorySummary(
       .from('customer_memories')
       .select('last_summarized_message_count, failed_attempts')
       .eq('conversation_id', conversationId)
-    const { data: memory } = await filterActive(memoryQuery)
-      .maybeSingle<{ last_summarized_message_count: number; failed_attempts: number }>()
+    const { data: memory } = await filterActive(memoryQuery).maybeSingle<{
+      last_summarized_message_count: number
+      failed_attempts: number
+    }>()
 
     const lastCount = memory?.last_summarized_message_count ?? 0
     const failed = memory?.failed_attempts ?? 0

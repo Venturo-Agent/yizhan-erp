@@ -221,9 +221,7 @@ export function AddonsTab({ features, onToggle, workspaceId }: AddonsTabProps) {
       />
       <Card className="rounded-[24px] p-6 border-[3px] border-dashed border-morandi-muted/20 bg-morandi-container/10 text-center">
         <Bot className="size-6 mx-auto text-morandi-muted mb-2" strokeWidth={1.5} />
-        <p className="text-sm text-morandi-muted">
-          AI 加值功能開發中、近期上線。
-        </p>
+        <p className="text-sm text-morandi-muted">AI 加值功能開發中、近期上線。</p>
       </Card>
 
       {/* API 加值設定 dialog */}

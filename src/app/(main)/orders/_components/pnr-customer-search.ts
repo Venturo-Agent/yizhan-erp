@@ -28,11 +28,7 @@ export async function searchCustomersForPassengers(
   try {
     // 提取所有旅客的姓氏
     const surnames = [
-      ...new Set(
-        pnrNames
-          .map(name => splitPassportName(name).surname)
-          .filter(Boolean)
-      ),
+      ...new Set(pnrNames.map(name => splitPassportName(name).surname).filter(Boolean)),
     ]
 
     if (surnames.length === 0) return {}

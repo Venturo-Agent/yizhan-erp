@@ -16,18 +16,19 @@ related: 2026-05-14-資料隱私三層保護-上線前待辦.md
 
 ### 1. 職務 (roles)
 
-| Role | Capability | 預設 seed |
-|---|---|---|
-| 系統管理員 | 全部 | 給老闆 |
-| 業務 | tours.as_sales | 預設職務 |
-| 助理 | tours.as_assistant | 預設職務 |
-| 會計 | finance.* | 預設職務 |
+| Role       | Capability         | 預設 seed |
+| ---------- | ------------------ | --------- |
+| 系統管理員 | 全部               | 給老闆    |
+| 業務       | tours.as_sales     | 預設職務  |
+| 助理       | tours.as_assistant | 預設職務  |
+| 會計       | finance.\*         | 預設職務  |
 
 老闆之後自己加 / 改職務。
 
 ### 2. 國家 / 機場代號
 
 **不 seed**、走 shared_data：
+
 - 漫途維護共享池（已存在）
 - 客戶啟用 `shared_data_codes` feature 就看得到
 - **客戶不能自己加**（要寫去找漫途、單向供應）
@@ -77,16 +78,19 @@ ALTER TABLE departments ADD COLUMN type TEXT NOT NULL DEFAULT 'custom'
 ```
 
 業務用意：
+
 - name = 客戶顯示（可改、A 客戶叫「總部」、B 客戶叫「Main HQ」）
 - type = 系統識別（固定 enum、跨 workspace 一致）
 
 未來能：
+
 - 「列出所有客戶的『headquarters』」（不管名字叫什麼）
 - 跨分公司統計 / 公用 / 全線邏輯
 
 ### B. branches.code 欄位（William 認為沒意義）
 
 待釐清：
+
 - 砍掉？
 - 還是改用 type 取代 code 的功能？
 
@@ -95,6 +99,7 @@ ALTER TABLE departments ADD COLUMN type TEXT NOT NULL DEFAULT 'custom'
 William 訊息：「部門管理沒有什麼預設主要次要這些啦、這功能移除」
 
 待釐清：
+
 - 砍掉 DB 欄位？
 - 還是只砍 UI、保留 DB（is_default 之後可能還用）
 
@@ -105,6 +110,7 @@ William 訊息：「部門管理沒有什麼預設主要次要這些啦、這功
 ### 觸發點
 
 新 workspace 建立時、跑 onboarding seed trigger：
+
 - Migration 加 `trigger_on_workspace_insert`
 - 或寫進 Supabase Edge Function
 
@@ -150,15 +156,15 @@ CREATE TRIGGER trg_workspace_onboarding
 
 ## 工程量
 
-| 範圍 | Time |
-|---|---|
-| Migration: branches/departments 加 type 欄位 | 10 min |
-| Migration: seed_new_workspace function + trigger | 30 min |
-| 處理現有 workspaces 的 backfill（type='headquarters' 給現有 first row）| 15 min |
-| Workspace 創建頁 UI（漫途 admin 建客戶）銜接 | 30 min |
-| 砍 is_default UI / 評估 schema 影響 | 30 min |
-| E2E 測試（建測試 workspace 看 seed 是否齊）| 30 min |
-| **Total** | **~2-3 hr** |
+| 範圍                                                                    | Time        |
+| ----------------------------------------------------------------------- | ----------- |
+| Migration: branches/departments 加 type 欄位                            | 10 min      |
+| Migration: seed_new_workspace function + trigger                        | 30 min      |
+| 處理現有 workspaces 的 backfill（type='headquarters' 給現有 first row） | 15 min      |
+| Workspace 創建頁 UI（漫途 admin 建客戶）銜接                            | 30 min      |
+| 砍 is_default UI / 評估 schema 影響                                     | 30 min      |
+| E2E 測試（建測試 workspace 看 seed 是否齊）                             | 30 min      |
+| **Total**                                                               | **~2-3 hr** |
 
 ---
 

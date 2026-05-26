@@ -13,8 +13,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SERVICE_ROLE_KEY =
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
   console.error('❌ 沒讀到環境變數。先跑：source ~/.config/venturo/secrets.env')
@@ -31,7 +30,8 @@ async function main(): Promise<void> {
   // 1. 列所有速記卡狀態
   const { data: memories, error: memErr } = await supabase
     .from('customer_memories')
-    .select(`
+    .select(
+      `
       id,
       conversation_id,
       workspace_id,
@@ -42,7 +42,8 @@ async function main(): Promise<void> {
       last_error,
       memory_json,
       updated_at
-    `)
+    `
+    )
     .is('deleted_at', null)
     .order('updated_at', { ascending: false })
     .limit(50)
@@ -80,7 +81,9 @@ async function main(): Promise<void> {
       }
 
       console.log(`${status}  conv ${m.conversation_id.slice(0, 8)}`)
-      console.log(`     上次摘要到第 ${m.last_summarized_message_count} 則 / ${m.last_summarized_at?.slice(0, 19) ?? '從未'}`)
+      console.log(
+        `     上次摘要到第 ${m.last_summarized_message_count} 則 / ${m.last_summarized_at?.slice(0, 19) ?? '從未'}`
+      )
       console.log(`     摘要：${summaryPreview}`)
       if (m.last_error) console.log(`     ❌ 最近錯誤：${m.last_error.slice(0, 100)}`)
       console.log()
@@ -118,7 +121,9 @@ async function main(): Promise<void> {
     const diff = totalMsgs - lastSummarized
 
     if (totalMsgs >= MEMORY_THRESHOLD && diff >= MEMORY_THRESHOLD) {
-      console.log(`⏰ ${conv.channel_type}/${conv.display_name ?? '(無名)'} — ${totalMsgs} 則 / 上次摘要到 ${lastSummarized}（差 ${diff}）`)
+      console.log(
+        `⏰ ${conv.channel_type}/${conv.display_name ?? '(無名)'} — ${totalMsgs} 則 / 上次摘要到 ${lastSummarized}（差 ${diff}）`
+      )
       dueCount++
     }
   }

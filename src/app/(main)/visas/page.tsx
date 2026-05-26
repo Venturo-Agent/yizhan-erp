@@ -120,9 +120,7 @@ export default function VisasPage() {
         const label = STATUS_LABELS[status] ?? status
         const color = STATUS_COLORS[status] ?? 'bg-morandi-gray-100 text-morandi-gray-600'
         return (
-          <span
-            className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${color}`}
-          >
+          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${color}`}>
             {label}
           </span>
         )
@@ -188,7 +186,12 @@ export default function VisasPage() {
       await invalidateCustomerDocumentApplications()
       toast.success(PAGE_LABELS.CREATE_SUCCESS)
       setIsAddDialogOpen(false)
-      setAddFormData({ customer_document_id: '', application_service_type_id: '', supplier_id: '', notes: '' })
+      setAddFormData({
+        customer_document_id: '',
+        application_service_type_id: '',
+        supplier_id: '',
+        notes: '',
+      })
     } catch (err) {
       logger.error('建立申辦失敗:', err)
       toast.error(PAGE_LABELS.CREATE_FAILED)
@@ -198,13 +201,13 @@ export default function VisasPage() {
   }, [addFormData])
 
   const filteredApplications = filterStatus
-    ? applications.filter((a) => a.status === filterStatus)
+    ? applications.filter(a => a.status === filterStatus)
     : applications
 
   // 組成完整 row（含 join 來的 label）
-  const mappedApplications: ApplicationRow[] = filteredApplications.map((app) => {
-    const serviceType = serviceTypes.find((s) => s.id === app.application_service_type_id)
-    const docType = documentTypes.find((d) => d.id === serviceType?.document_type_id)
+  const mappedApplications: ApplicationRow[] = filteredApplications.map(app => {
+    const serviceType = serviceTypes.find(s => s.id === app.application_service_type_id)
+    const docType = documentTypes.find(d => d.id === serviceType?.document_type_id)
     return {
       ...app,
       document_type_label: docType?.label ?? '—',
@@ -220,20 +223,16 @@ export default function VisasPage() {
         <select
           className="rounded-md border border-morandi-gray-300 bg-white px-3 py-1.5 text-sm"
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
+          onChange={e => setFilterStatus(e.target.value)}
         >
           <option value="">全部狀態</option>
-          {statusOptions.map((opt) => (
+          {statusOptions.map(opt => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
         </select>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => setIsAddDialogOpen(true)}
-        >
+        <Button variant="default" size="sm" onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-1 h-4 w-4" />
           {PAGE_LABELS.NEW_APPLICATION}
         </Button>
@@ -265,9 +264,7 @@ export default function VisasPage() {
           <select
             className="w-full rounded-md border border-morandi-gray-300 px-3 py-2 text-sm"
             value={addFormData.customer_document_id}
-            onChange={(e) =>
-              setAddFormData((p) => ({ ...p, customer_document_id: e.target.value }))
-            }
+            onChange={e => setAddFormData(p => ({ ...p, customer_document_id: e.target.value }))}
           >
             <option value="">選擇證件...</option>
             {/* TODO: populate from customer_documents entity with customer name */}
@@ -282,12 +279,12 @@ export default function VisasPage() {
           <select
             className="w-full rounded-md border border-morandi-gray-300 px-3 py-2 text-sm"
             value={addFormData.application_service_type_id}
-            onChange={(e) =>
-              setAddFormData((p) => ({ ...p, application_service_type_id: e.target.value }))
+            onChange={e =>
+              setAddFormData(p => ({ ...p, application_service_type_id: e.target.value }))
             }
           >
             <option value="">選擇服務...</option>
-            {serviceTypes.map((st) => (
+            {serviceTypes.map(st => (
               <option key={st.id} value={st.id}>
                 {st.label}
                 {st.is_urgent ? ' [急件]' : ''}
@@ -304,9 +301,7 @@ export default function VisasPage() {
             rows={3}
             placeholder="選填"
             value={addFormData.notes}
-            onChange={(e) =>
-              setAddFormData((p) => ({ ...p, notes: e.target.value }))
-            }
+            onChange={e => setAddFormData(p => ({ ...p, notes: e.target.value }))}
           />
         </div>
       </FormDialog>

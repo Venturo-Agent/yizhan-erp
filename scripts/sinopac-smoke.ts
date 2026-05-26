@@ -45,7 +45,9 @@ async function main() {
   }
 
   const orderNo = 'SMOKE' + Date.now()
-  console.log(`→ 連永豐 sandbox、ShopNo=${config.shopNo}、送 OrderCreate(信用卡) OrderNo=${orderNo}`)
+  console.log(
+    `→ 連永豐 sandbox、ShopNo=${config.shopNo}、送 OrderCreate(信用卡) OrderNo=${orderNo}`
+  )
   console.log('  （憑證不印出、只看回應）\n')
 
   try {
@@ -62,11 +64,15 @@ async function main() {
     if (url) {
       console.log(`\n✓✓ 拿到刷卡頁網址 = A 階段過關：\n  ${url}`)
     } else {
-      console.log('\n⚠ 解密成功但沒看到 URL 欄位 — 上面 JSON 找哪個欄位是刷卡網址、回報 Logan 對齊型別。')
+      console.log(
+        '\n⚠ 解密成功但沒看到 URL 欄位 — 上面 JSON 找哪個欄位是刷卡網址、回報 Logan 對齊型別。'
+      )
     }
   } catch (e) {
     console.error('\n✗ 煙霧測試失敗：', e instanceof Error ? e.message : e)
-    console.error('  常見原因：金鑰填錯 / X-Key 過期 / Sign 演算法對不上 / SSL（加 NODE_TLS_REJECT_UNAUTHORIZED=0 再試）')
+    console.error(
+      '  常見原因：金鑰填錯 / X-Key 過期 / Sign 演算法對不上 / SSL（加 NODE_TLS_REJECT_UNAUTHORIZED=0 再試）'
+    )
     process.exit(1)
   }
 }

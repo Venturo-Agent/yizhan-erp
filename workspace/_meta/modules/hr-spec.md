@@ -20,12 +20,14 @@ related: [[hr_bonus_settlement-spec]] [[hr_salary_settlement-spec]] [[leave-seve
 ## 2. 核心 entity
 
 主要表：
+
 - `public.employees`（員工 + 巢狀 jsonb：personal_info / job_info / salary_info）
 - `public.workspace_roles`（職務）
 - `public.role_capabilities`（職務 → cap mapping）
 - `public.bonus_pending`（結團衍生）
 
 公司級設定（在 workspaces 表）：
+
 - `leave_policy`: calendar_year / hire_anniversary
 - `pension_system`: old / new / mixed
 - `transfer_fee_mode`: average / unified（影響獎金 / 薪資結算的出納分攤）
@@ -50,20 +52,20 @@ related: [[hr_bonus_settlement-spec]] [[hr_salary_settlement-spec]] [[leave-seve
 
 ## 6. 跨 module 依賴
 
-| 依賴 | 關係 |
-|------|------|
+| 依賴                 | 關係                      |
+| -------------------- | ------------------------- |
 | hr_salary_settlement | 員工列表 → 月度薪資 batch |
-| hr_bonus_settlement | bonus_pending → 結算產 PR |
-| accounting | settle 後自動產傳票 |
+| hr_bonus_settlement  | bonus_pending → 結算產 PR |
+| accounting           | settle 後自動產傳票       |
 
 ## 7. UI / Route
 
-| Route | Layout |
-|-------|--------|
-| /hr | ListPageLayout（員工列表） |
-| /hr/organization | ContentPageLayout |
-| /hr/salary-settlement | ListPageLayout |
-| /hr/bonus-settlement | ListPageLayout |
+| Route                 | Layout                     |
+| --------------------- | -------------------------- |
+| /hr                   | ListPageLayout（員工列表） |
+| /hr/organization      | ContentPageLayout          |
+| /hr/salary-settlement | ListPageLayout             |
+| /hr/bonus-settlement  | ListPageLayout             |
 
 ## 8. Capability
 
@@ -72,6 +74,6 @@ related: [[hr_bonus_settlement-spec]] [[hr_salary_settlement-spec]] [[leave-seve
 
 ## 10. 變更
 
-| 日期 | 變更 |
-|------|------|
+| 日期       | 變更                 |
+| ---------- | -------------------- |
 | 2026-05-15 | 初版（QDF Round 13） |

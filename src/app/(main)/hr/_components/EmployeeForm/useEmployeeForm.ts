@@ -102,26 +102,29 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     emergency_contact_phone: employee?.personal_info?.emergency_contact?.phone || '',
     emergency_contact_address: employee?.personal_info?.emergency_contact?.address || '',
     role_id: ((employee as unknown as Record<string, unknown>)?.role_id as string) || '',
-    branch_id: ((employee as unknown as Record<string, unknown>)?.branch_id as string) || (branches.length === 1 ? branches[0].id : ''),
-    base_salary:
-      Number(employee?.monthly_salary) || employee?.salary_info?.base_salary || 0,
+    branch_id:
+      ((employee as unknown as Record<string, unknown>)?.branch_id as string) ||
+      (branches.length === 1 ? branches[0].id : ''),
+    base_salary: Number(employee?.monthly_salary) || employee?.salary_info?.base_salary || 0,
     attendance_bonus: employee?.salary_info?.attendance_bonus || 0,
     other_allowances: employee?.salary_info?.other_allowances || 0,
-    insured_salary:
-      employee?.salary_info?.insured_salary ?? null,
+    insured_salary: employee?.salary_info?.insured_salary ?? null,
     pension_voluntary_rate: employee?.salary_info?.pension_voluntary_rate || 0,
     pay_day: (employee?.salary_info?.pay_day as number | 'last') || 10,
     dependents_count: (employee?.salary_info?.dependents_count as number | undefined) ?? 0,
     labor_insured_here: (employee?.salary_info?.labor_insured_here as boolean | undefined) ?? true,
-    health_insured_here: (employee?.salary_info?.health_insured_here as boolean | undefined) ?? true,
+    health_insured_here:
+      (employee?.salary_info?.health_insured_here as boolean | undefined) ?? true,
     avatar_url: employee?.avatar_url ?? '',
     bank_code: employee?.bank_code ?? '',
     bank_name: employee?.bank_name ?? '',
     bank_account_number: employee?.bank_account_number ?? '',
     bank_account_name: employee?.bank_account_name ?? '',
     // 旅行社業界日期（2026-05-18 加）
-    tourism_join_date: ((employee as unknown as Record<string, unknown>)?.tourism_join_date as string) ?? '',
-    labor_insurance_date: ((employee as unknown as Record<string, unknown>)?.labor_insurance_date as string) ?? '',
+    tourism_join_date:
+      ((employee as unknown as Record<string, unknown>)?.tourism_join_date as string) ?? '',
+    labor_insurance_date:
+      ((employee as unknown as Record<string, unknown>)?.labor_insurance_date as string) ?? '',
   })
 
   // 職務列表改用 SWR 快取
@@ -166,29 +169,35 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         emergency_contact_address: employee.personal_info?.emergency_contact?.address || '',
         role_id: ((employee as unknown as Record<string, unknown>).role_id as string) || '',
         branch_id: ((employee as unknown as Record<string, unknown>).branch_id as string) || '',
-        base_salary:
-          Number(employee.monthly_salary) || employee.salary_info?.base_salary || 0,
+        base_salary: Number(employee.monthly_salary) || employee.salary_info?.base_salary || 0,
         attendance_bonus: employee.salary_info?.attendance_bonus || 0,
         other_allowances: employee.salary_info?.other_allowances || 0,
         insured_salary: employee.salary_info?.insured_salary ?? null,
         pension_voluntary_rate: employee.salary_info?.pension_voluntary_rate || 0,
         pay_day: (employee.salary_info?.pay_day as number | 'last') || 10,
         dependents_count: (employee.salary_info?.dependents_count as number | undefined) ?? 0,
-        labor_insured_here: (employee.salary_info?.labor_insured_here as boolean | undefined) ?? true,
-        health_insured_here: (employee.salary_info?.health_insured_here as boolean | undefined) ?? true,
+        labor_insured_here:
+          (employee.salary_info?.labor_insured_here as boolean | undefined) ?? true,
+        health_insured_here:
+          (employee.salary_info?.health_insured_here as boolean | undefined) ?? true,
         bank_code: employee.bank_code ?? '',
         bank_name: employee.bank_name ?? '',
         bank_account_number: employee.bank_account_number ?? '',
         bank_account_name: employee.bank_account_name ?? '',
-        tourism_join_date: ((employee as unknown as Record<string, unknown>).tourism_join_date as string) ?? '',
-        labor_insurance_date: ((employee as unknown as Record<string, unknown>).labor_insurance_date as string) ?? '',
+        tourism_join_date:
+          ((employee as unknown as Record<string, unknown>).tourism_join_date as string) ?? '',
+        labor_insurance_date:
+          ((employee as unknown as Record<string, unknown>).labor_insurance_date as string) ?? '',
       }))
       setAvatarPreview(employee.avatar_url || null)
     }
   }, [employee])
 
   const handleCreateBranch = async () => {
-    const name = await prompt('輸入新分公司名稱', { title: '新增分公司', placeholder: '例如：台北分公司' })
+    const name = await prompt('輸入新分公司名稱', {
+      title: '新增分公司',
+      placeholder: '例如：台北分公司',
+    })
     if (!name?.trim()) return
     try {
       const created = await apiPost<ScopeOption>('/api/branches', { name: name.trim() })
@@ -320,7 +329,9 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         } catch (err) {
           if (err instanceof HttpError) {
             const body = err.body as { message?: string } | null
-            throw new Error(body?.message || extractHttpErrorMessage(err, COMPONENT_LABELS.ERR_UPDATE_FAILED))
+            throw new Error(
+              body?.message || extractHttpErrorMessage(err, COMPONENT_LABELS.ERR_UPDATE_FAILED)
+            )
           }
           throw err
         }
@@ -329,22 +340,23 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         const defaultPassword = '12345678'
         let newEmployeeNumber: string | undefined
         try {
-          const created = await apiPost<{ success: boolean; employee: { id: string; employee_number: string } }>(
-            '/api/employees/create',
-            {
-              ...payload,
-              password: defaultPassword,
-            }
-          )
+          const created = await apiPost<{
+            success: boolean
+            employee: { id: string; employee_number: string }
+          }>('/api/employees/create', {
+            ...payload,
+            password: defaultPassword,
+          })
           newEmployeeNumber = created?.employee?.employee_number
         } catch (err) {
           if (err instanceof HttpError) {
             const body = err.body as { message?: string; error?: string } | null
-            throw new Error(body?.message || extractHttpErrorMessage(err, COMPONENT_LABELS.ERR_CREATE_FAILED))
+            throw new Error(
+              body?.message || extractHttpErrorMessage(err, COMPONENT_LABELS.ERR_CREATE_FAILED)
+            )
           }
           throw err
         }
-
 
         const { alert } = await import('@/lib/ui/alert-dialog')
         await alert(
@@ -357,12 +369,16 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
         )
       }
 
-      await alertSuccess(isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_SUCCESS : COMPONENT_LABELS.ALERT_CREATE_SUCCESS)
+      await alertSuccess(
+        isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_SUCCESS : COMPONENT_LABELS.ALERT_CREATE_SUCCESS
+      )
       onSubmit()
     } catch (error) {
       // 把 server 回的具體訊息（譬如「email 已被使用、需聯絡管理員清孤兒」）直接顯示給用戶看、
       // 不要用固定「建立失敗 / 更新失敗」蓋掉、不然用戶根本不知道怎麼跟管理員描述問題。
-      const fallback = isEditMode ? COMPONENT_LABELS.ALERT_UPDATE_FAILED : COMPONENT_LABELS.ALERT_CREATE_FAILED
+      const fallback = isEditMode
+        ? COMPONENT_LABELS.ALERT_UPDATE_FAILED
+        : COMPONENT_LABELS.ALERT_CREATE_FAILED
       const detail = error instanceof Error && error.message ? error.message : fallback
       logger.error(isEditMode ? '更新失敗' : '建立員工失敗', error)
       await alertError(detail, isEditMode ? '更新員工失敗' : '建立員工失敗')

@@ -68,7 +68,12 @@ export async function botEnsureCustomer(ctx: BotContext): Promise<CustomerRow> {
     is_active: true,
     created_by: ctx.botEmployeeId, // FK → employees.id
     updated_by: ctx.botEmployeeId,
-  } satisfies Partial<CustomerRow> & { id: string; code: string; name: string; workspace_id: string }
+  } satisfies Partial<CustomerRow> & {
+    id: string
+    code: string
+    name: string
+    workspace_id: string
+  }
 
   const { data: created, error: createErr } = await supabase
     .from('customers')

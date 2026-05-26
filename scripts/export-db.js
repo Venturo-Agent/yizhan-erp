@@ -75,17 +75,19 @@ async function exportTable(tableName) {
     const csvRows = [
       headers.join(','),
       ...allData.map(row =>
-        headers.map(h => {
-          const val = row[h]
-          if (val === null) return ''
-          if (typeof val === 'object') return `"${JSON.stringify(val).replace(/"/g, '""')}"`
-          const str = String(val)
-          if (str.includes(',') || str.includes('\n') || str.includes('"')) {
-            return `"${str.replace(/"/g, '""')}"`
-          }
-          return str
-        }).join(',')
-      )
+        headers
+          .map(h => {
+            const val = row[h]
+            if (val === null) return ''
+            if (typeof val === 'object') return `"${JSON.stringify(val).replace(/"/g, '""')}"`
+            const str = String(val)
+            if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+              return `"${str.replace(/"/g, '""')}"`
+            }
+            return str
+          })
+          .join(',')
+      ),
     ]
     const csvPath = path.join(OUTPUT_DIR, `${tableName}.csv`)
     fs.writeFileSync(csvPath, csvRows.join('\n'))

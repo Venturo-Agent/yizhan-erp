@@ -4,27 +4,27 @@
  */
 
 export type ChannelType =
-  | 'announcement'    // 公告（人發、限 channels.announcement.write、其他人 reply）
-  | 'system_notice'   // 系統通知（個人化 recipient_employee_id 過濾）
-  | 'bot'             // 機器人頻道（HAPPY 等、agent_id 連 ai_agents）
-  | 'dm'              // 1on1 私訊（含員工↔員工、員工↔AI agent）
-  | 'blank'           // 空白群組
-  | 'project'         // 團專案頻道（綁 tour_id）
+  | 'announcement' // 公告（人發、限 channels.announcement.write、其他人 reply）
+  | 'system_notice' // 系統通知（個人化 recipient_employee_id 過濾）
+  | 'bot' // 機器人頻道（HAPPY 等、agent_id 連 ai_agents）
+  | 'dm' // 1on1 私訊（含員工↔員工、員工↔AI agent）
+  | 'blank' // 空白群組
+  | 'project' // 團專案頻道（綁 tour_id）
 
 export type ChannelMemberRole = 'owner' | 'member'
 
 export type MessageType =
-  | 'text'             // 一般文字訊息
-  | 'card'             // 結構化卡片
-  | 'system'           // 系統訊息
-  | 'action_result'    // 業務動作結果（v2 才會用、欄位先留）
+  | 'text' // 一般文字訊息
+  | 'card' // 結構化卡片
+  | 'system' // 系統訊息
+  | 'action_result' // 業務動作結果（v2 才會用、欄位先留）
 
 export interface Channel {
   id: string
   workspace_id: string
   type: ChannelType
-  tour_id: string | null  // tours.id 是 text、所以是 string
-  agent_id: string | null  // DM channel 對話對象是 AI agent 時設（員工↔HAPPY DM）
+  tour_id: string | null // tours.id 是 text、所以是 string
+  agent_id: string | null // DM channel 對話對象是 AI agent 時設（員工↔HAPPY DM）
   name: string | null
   description: string | null
   created_by: string | null

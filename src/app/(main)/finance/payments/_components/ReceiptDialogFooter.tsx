@@ -169,9 +169,7 @@ export function ReceiptDialogFooter({
     <div className="flex justify-between items-center pt-4 border-t border-border">
       {/* 左側：總金額 */}
       <div className="flex items-center gap-2">
-        <span className="text-sm text-morandi-secondary">
-          {t('receiptTotalAmount')}
-        </span>
+        <span className="text-sm text-morandi-secondary">{t('receiptTotalAmount')}</span>
         <span className="text-lg font-semibold text-morandi-gold whitespace-nowrap">
           NT$ {formatMoney(totalAmount)}
         </span>
@@ -204,12 +202,7 @@ export function ReceiptDialogFooter({
         {canEdit && (
           <Button
             onClick={onSubmit}
-            disabled={
-              isSubmitting ||
-              !tourId ||
-              !orderId ||
-              paymentItemsCount === 0
-            }
+            disabled={isSubmitting || !tourId || !orderId || paymentItemsCount === 0}
             variant="soft-gold"
             className="gap-2"
           >

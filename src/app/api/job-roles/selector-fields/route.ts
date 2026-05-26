@@ -36,7 +36,10 @@ export const GET = apiHandler(async () => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   // 整理格式：把 nested 的 roles 攤平
@@ -105,7 +108,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
       return NextResponse.json({ error: '此欄位名稱已存在' }, { status: 409 })
     }
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   // 建立映射
@@ -119,7 +125,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
 
     if (mapError) {
       const t = translateDbError(mapError)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
   }
 

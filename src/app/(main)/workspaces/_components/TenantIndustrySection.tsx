@@ -7,7 +7,13 @@
  * 一般產業 → 暫時不細分
  */
 
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { useTranslations } from 'next-intl'
 import type { Industry, SubIndustry } from './create-tenant-types'
 
@@ -36,10 +42,7 @@ export function TenantIndustrySection({
           {t('fieldIndustry')}
           <span className="text-morandi-red">{t('fieldRequired')}</span>
         </label>
-        <Select
-          value={industry}
-          onValueChange={val => onIndustryChange(val as Industry)}
-        >
+        <Select value={industry} onValueChange={val => onIndustryChange(val as Industry)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder={t('fieldIndustryPlaceholder')} />
           </SelectTrigger>

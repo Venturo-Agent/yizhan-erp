@@ -181,12 +181,12 @@ export function GroupedDisbursementItemsTable({
                   (sum, i) => (pickedSet.has(i.id) ? sum + i.subtotal : sum),
                   0
                 )
-                const income = g.key !== NO_TOUR_KEY && incomeByTourId
-                  ? (incomeByTourId.get(g.key) ?? 0)
-                  : null
-                const alreadyPaid = g.key !== NO_TOUR_KEY && alreadyPaidByTourId
-                  ? (alreadyPaidByTourId.get(g.key) ?? 0)
-                  : 0
+                const income =
+                  g.key !== NO_TOUR_KEY && incomeByTourId ? (incomeByTourId.get(g.key) ?? 0) : null
+                const alreadyPaid =
+                  g.key !== NO_TOUR_KEY && alreadyPaidByTourId
+                    ? (alreadyPaidByTourId.get(g.key) ?? 0)
+                    : 0
                 return (
                   <GroupRows
                     key={g.key}
@@ -270,9 +270,7 @@ function GroupRows({
             <span className="text-morandi-secondary">
               {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
             </span>
-            <span className="font-semibold text-morandi-primary truncate">
-              {group.label}
-            </span>
+            <span className="font-semibold text-morandi-primary truncate">{group.label}</span>
           </div>
         </td>
         {/* N/N 筆對齊「請款人」column */}
@@ -287,7 +285,8 @@ function GroupRows({
             <span className="text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded bg-status-danger/10 text-status-danger font-medium">
               <AlertTriangle size={12} />
               已收 NT$ {(income ?? 0).toLocaleString()} / 累計支出 NT$ {totalSpend.toLocaleString()}
-              {alreadyPaid > 0 && pickedAmount > 0 &&
+              {alreadyPaid > 0 &&
+                pickedAmount > 0 &&
                 ` (已付 ${alreadyPaid.toLocaleString()}＋本次 ${pickedAmount.toLocaleString()})`}
               ・超支 NT$ {(totalSpend - (income ?? 0)).toLocaleString()}
             </span>
@@ -313,16 +312,12 @@ function GroupRows({
               <td className="px-3 py-2 text-morandi-secondary whitespace-nowrap">
                 {it.request_date || '-'}
               </td>
-              <td className="px-3 py-2 text-morandi-secondary">
-                {it.request_code || '-'}
-              </td>
+              <td className="px-3 py-2 text-morandi-secondary">{it.request_code || '-'}</td>
               <td className="px-3 py-2 text-morandi-secondary truncate">
                 {it.requester_name || '-'}
               </td>
               <td className="px-3 py-2 truncate">{it.description || '-'}</td>
-              <td className="px-3 py-2 truncate text-morandi-primary">
-                {it.payer_label}
-              </td>
+              <td className="px-3 py-2 truncate text-morandi-primary">{it.payer_label}</td>
               <td className="px-3 py-2 text-xs text-morandi-secondary truncate">
                 {it.advanced_by
                   ? `${it.advanced_by_name ?? '代墊人'}（員工代墊）`

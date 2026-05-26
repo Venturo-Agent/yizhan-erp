@@ -236,13 +236,19 @@ export function usePassportUpload(options: UsePassportUploadOptions) {
                 )
                 hasRealDifference = true
               }
-              if (ocrData.passport_expiry && existingCustomer.passport_expiry !== ocrData.passport_expiry) {
+              if (
+                ocrData.passport_expiry &&
+                existingCustomer.passport_expiry !== ocrData.passport_expiry
+              ) {
                 differences.push(
                   `效期: ${existingCustomer.passport_expiry || '無'} → ${ocrData.passport_expiry}`
                 )
                 hasRealDifference = true
               }
-              if (ocrData.passport_name && existingCustomer.passport_name !== ocrData.passport_name) {
+              if (
+                ocrData.passport_name &&
+                existingCustomer.passport_name !== ocrData.passport_name
+              ) {
                 differences.push(
                   `拼音: ${existingCustomer.passport_name || '無'} → ${ocrData.passport_name}`
                 )
@@ -258,9 +264,7 @@ export function usePassportUpload(options: UsePassportUploadOptions) {
               }
               const normalizedGenderValue = normalizeGender(gender)
               if (normalizedGenderValue && !existingCustomer.gender) {
-                differences.push(
-                  `性別: 新增 ${normalizedGenderValue === 'M' ? '男' : '女'}`
-                )
+                differences.push(`性別: 新增 ${normalizedGenderValue === 'M' ? '男' : '女'}`)
                 hasRealDifference = true
               }
             }
@@ -318,10 +322,7 @@ export function usePassportUpload(options: UsePassportUploadOptions) {
       }
     } catch (error) {
       logger.error('批次上傳失敗:', error)
-      await alert(
-        '批次上傳失敗：' + (error instanceof Error ? error.message : '未知錯誤'),
-        'error'
-      )
+      await alert('批次上傳失敗：' + (error instanceof Error ? error.message : '未知錯誤'), 'error')
     } finally {
       setIsUploading(false)
     }

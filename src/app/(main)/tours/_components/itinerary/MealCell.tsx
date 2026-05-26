@@ -56,7 +56,9 @@ export function MealCell({
   const mealText = day.meals[mealKey]
 
   return (
-    <td className={`px-0 py-0 ${cellClass} align-middle text-center hover:bg-morandi-gold/10 transition-colors`}>
+    <td
+      className={`px-0 py-0 ${cellClass} align-middle text-center hover:bg-morandi-gold/10 transition-colors`}
+    >
       <DroppableZone id={`meal-${mealKey}-drop-${idx}`} acceptType="restaurant">
         <div className="relative min-h-8 flex items-center justify-center">
           {/* Breakfast: hotel breakfast preset chip */}
@@ -212,4 +214,3 @@ export function MealCell({
     </td>
   )
 }
-

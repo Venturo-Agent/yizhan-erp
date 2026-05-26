@@ -26,7 +26,7 @@ import {
   type SendPaymentLinkArgs,
 } from './tools/send-payment-link'
 
-const MAX_HISTORY_MESSAGES = 30  // 拉最近 30 則對話當 context（介於 LINE 50 / 原 FB 10、context window 充足）
+const MAX_HISTORY_MESSAGES = 30 // 拉最近 30 則對話當 context（介於 LINE 50 / 原 FB 10、context window 充足）
 
 // 預設 system prompt（2026-05-22 對齊 LINE 業務 SOP、含對話節奏 + 絕對禁止 + 繁體鐵律）
 // 跟 line-llm-compose.ts 的 SYSTEM_PROMPT 同步、之後抽共用 helper（followup）
@@ -113,11 +113,12 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
   const supabase = getSupabaseAdminClient()
 
   // 檢查 bot_paused（.bind 保 this、避免 cast 後丟 supabase context 炸 TypeError）
-  const convTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const convTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
         maybeSingle: () => Promise<{
           data: { bot_paused: boolean; bot_paused_until: string | null } | null
           error: { message: string } | null
@@ -136,12 +137,16 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
   }
 
   // 撈歷史對話（.bind 保 this）
-  const msgTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const msgTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
-        order: (col: string, opts: { ascending: boolean }) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
+        order: (
+          col: string,
+          opts: { ascending: boolean }
+        ) => {
           limit: (n: number) => Promise<{
             data: ConversationMessageRow[] | null
             error: { message: string } | null
@@ -225,11 +230,9 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
           const absoluteLink = result.payment_link // 永豐刷卡頁絕對網址、直接用
           toolAppendix +=
             (toolAppendix ? '\n\n' : '\n\n') +
-            `💳 付款連結（NT$ ${result.amount.toLocaleString()}、有效 ${
-              Math.ceil(
-                (new Date(result.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-              )
-            } 天）：\n${absoluteLink}`
+            `💳 付款連結（NT$ ${result.amount.toLocaleString()}、有效 ${Math.ceil(
+              (new Date(result.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+            )} 天）：\n${absoluteLink}`
         } else {
           toolAppendix +=
             (toolAppendix ? '\n\n' : '\n\n') +

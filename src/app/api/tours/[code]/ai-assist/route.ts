@@ -184,10 +184,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cod
     const rawPatches = parsePatches(raw)
 
     // 把 AI 回傳的 patch 跟原始 request 的 target 合併
-    const requestMap = new Map(body.requests.map((r) => [r.id, r]))
+    const requestMap = new Map(body.requests.map(r => [r.id, r]))
     const patches = rawPatches
-      .filter((p) => requestMap.has(p.id) && p.generated)
-      .map((p) => {
+      .filter(p => requestMap.has(p.id) && p.generated)
+      .map(p => {
         const req = requestMap.get(p.id)!
         return {
           id: p.id,

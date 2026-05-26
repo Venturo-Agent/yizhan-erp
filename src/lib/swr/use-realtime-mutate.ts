@@ -63,7 +63,8 @@ export function useRealtimeMutate({
     if (!enabled) return
     if (swrKeys.length === 0) return
 
-    const name = channelName ?? `realtime:${table}:${filter ?? '*'}:${Math.random().toString(36).slice(2, 8)}`
+    const name =
+      channelName ?? `realtime:${table}:${filter ?? '*'}:${Math.random().toString(36).slice(2, 8)}`
     const channel = supabase.channel(name)
 
     // postgres_changes payload 型別由 supabase-js 提供、我們只用 commit_timestamp 跟 eventType
@@ -76,8 +77,10 @@ export function useRealtimeMutate({
       void Promise.all(swrKeys.map(k => globalMutate(k)))
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    channel.on('postgres_changes' as any, { event, schema: 'public', table, filter }, handler).subscribe()
+    channel
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on('postgres_changes' as any, { event, schema: 'public', table, filter }, handler)
+      .subscribe()
 
     return () => {
       void supabase.removeChannel(channel)

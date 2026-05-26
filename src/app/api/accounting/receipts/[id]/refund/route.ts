@@ -26,14 +26,14 @@ import { generateVoucherNo, generateDisbursementNo } from '@/lib/codes'
 
 const refundSchema = z.object({
   refund_amount: z.number().positive(),
-  refund_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  refund_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
   refund_notes: z.string().optional(),
 })
 
-export async function POST(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     // capability 守門（CLAUDE.md「API + RLS 雙保險」）
     const guard = await requireCapability(CAPABILITIES.FINANCE_MANAGE_PAYMENTS)
@@ -264,9 +264,8 @@ export async function POST(
 
     // 重算訂單 paid_amount + 團 total_revenue（refund 邏輯：refunded 狀態用 actual−refund_amount 算淨額）
     // 這裡務必傳 server-side supabase client、否則用瀏覽器單例會拿不到 session、RLS 擋下、財務數字默默不更新
-    const { recalculateReceiptStats } = await import(
-      '@/app/(main)/finance/payments/_services/receipt-core.service'
-    )
+    const { recalculateReceiptStats } =
+      await import('@/app/(main)/finance/payments/_services/receipt-core.service')
     await recalculateReceiptStats(receipt.order_id, receipt.tour_id, supabase)
 
     return NextResponse.json({

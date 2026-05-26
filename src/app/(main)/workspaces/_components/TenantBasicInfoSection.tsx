@@ -34,8 +34,7 @@ export function TenantBasicInfoSection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldName')}{' '}
-            <span className="text-morandi-red">{t('fieldNameRequired')}</span>
+            {t('fieldName')} <span className="text-morandi-red">{t('fieldNameRequired')}</span>
           </label>
           <Input
             value={form.name}
@@ -46,8 +45,7 @@ export function TenantBasicInfoSection({
 
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldCode')}{' '}
-            <span className="text-morandi-red">{t('fieldCodeRequired')}</span>
+            {t('fieldCode')} <span className="text-morandi-red">{t('fieldCodeRequired')}</span>
           </label>
           <Input
             value={form.code}
@@ -60,8 +58,7 @@ export function TenantBasicInfoSection({
 
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldTaxId')}{' '}
-            <span className="text-morandi-red">{t('fieldTaxIdRequired')}</span>
+            {t('fieldTaxId')} <span className="text-morandi-red">{t('fieldTaxIdRequired')}</span>
           </label>
           <Input
             value={form.taxId}

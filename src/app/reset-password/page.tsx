@@ -15,7 +15,9 @@ export default function ResetPasswordPage() {
 
   // Supabase 把 token 放在 URL hash，監聽 PASSWORD_RECOVERY 事件
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(event => {
       if (event === 'PASSWORD_RECOVERY') {
         setReady(true)
       }
@@ -41,7 +43,9 @@ export default function ResetPasswordPage() {
       const { error: updateError } = await supabase.auth.updateUser({ password })
       if (updateError) throw updateError
       setDone(true)
-      setTimeout(() => { window.location.href = '/login' }, 2500)
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 2500)
     } catch (err) {
       setError(err instanceof Error ? err.message : '設定失敗，請重試')
     } finally {

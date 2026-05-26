@@ -53,9 +53,7 @@ export async function POST(
       data: { session },
     } = await supabase.auth.getSession()
     const userId = session?.user.id
-    const employeeId = userId
-      ? await resolveEmployeeIdFromUser(supabase, userId)
-      : null
+    const employeeId = userId ? await resolveEmployeeIdFromUser(supabase, userId) : null
     const actorId = employeeId ?? guard.employeeId
 
     await recordApiAuditContext(supabase, {

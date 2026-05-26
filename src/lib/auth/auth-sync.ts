@@ -164,12 +164,7 @@ export async function ensureAuthSync(options?: SyncOptions): Promise<boolean> {
 
       // 如果查詢失敗（可能因為 RLS），直接嘗試同步
       if (checkError) {
-        return await syncEmployeeToSupabase(
-          employeeId,
-          userId,
-          workspaceId,
-          session.access_token
-        )
+        return await syncEmployeeToSupabase(employeeId, userId, workspaceId, session.access_token)
       }
 
       // 4. 如果 user_id 已經正確，不需要同步
@@ -184,12 +179,7 @@ export async function ensureAuthSync(options?: SyncOptions): Promise<boolean> {
 
       // 5. 需要同步
       logger.log('🔄 執行 Auth 同步...')
-      return await syncEmployeeToSupabase(
-        employeeId,
-        userId,
-        workspaceId,
-        session.access_token
-      )
+      return await syncEmployeeToSupabase(employeeId, userId, workspaceId, session.access_token)
     } catch (error) {
       logger.error('❌ ensureAuthSync 錯誤:', error)
       syncState = {

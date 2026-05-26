@@ -11,24 +11,26 @@
 
 Round 1-10 完成 audit + 部分修復。本輪做剩餘 5 個 finding 的真修：
 
-| # | Finding | Source |
-|---|---|---|
-| 1 | knowledge_tags dead code 砍（0 caller、0 row）| Round 8 |
-| 2 | 紅線 D guard 補 journal_vouchers / receipts refund / disbursement_orders | Round 8 |
-| 3 | SWR ratchet 再清 5 個 baseline 檔（剩 146 處）| Round 6 ratchet 機制 |
-| 4 | line_conversation_messages → inbox_messages 過渡期收尾（**僅 audit + 寫 migration 草稿、不真搬資料**）| Round 8 |
-| 5 | knowledge_tags / 過渡期等的 cleanup migration 寫進 supabase/migrations/ | 補強 |
+| #   | Finding                                                                                                | Source               |
+| --- | ------------------------------------------------------------------------------------------------------ | -------------------- |
+| 1   | knowledge_tags dead code 砍（0 caller、0 row）                                                         | Round 8              |
+| 2   | 紅線 D guard 補 journal_vouchers / receipts refund / disbursement_orders                               | Round 8              |
+| 3   | SWR ratchet 再清 5 個 baseline 檔（剩 146 處）                                                         | Round 6 ratchet 機制 |
+| 4   | line_conversation_messages → inbox_messages 過渡期收尾（**僅 audit + 寫 migration 草稿、不真搬資料**） | Round 8              |
+| 5   | knowledge_tags / 過渡期等的 cleanup migration 寫進 supabase/migrations/                                | 補強                 |
 
 ---
 
 ## 4 個 sub-task（自排順序）
 
 ### R11-1：砍 knowledge_tags（最簡單、先做）
+
 - 寫 migration `YYYYMMDDHHMMSS_drop_knowledge_tags.sql` 內含 `DROP TABLE IF EXISTS public.knowledge_tags CASCADE;`
 - BEGIN/COMMIT 包圍、reverse SQL 註解
 - 不 apply（留 Claude 用 MCP 跑）
 
 ### R11-2：補紅線 D guard
+
 查以下 API route、加 closed period check（仿照 Round 4 salary_settlements 寫法）：
 
 - `src/app/api/accounting/receipts/[id]/refund/route.ts` — 退款不能對 closed period
@@ -36,6 +38,7 @@ Round 1-10 完成 audit + 部分修復。本輪做剩餘 5 個 finding 的真修
 - `src/app/api/disbursement-orders/.../route.ts` — 出納單關帳後不可改
 
 模板：
+
 ```typescript
 // 紅線 D guard
 const { data: period } = await supabase
@@ -56,12 +59,14 @@ if (period && period.is_closed) {
 如果找不到對應 period 欄位、寫進 progress 「跳過、需 William 確認 schema」。
 
 ### R11-3：SWR ratchet 再清 5 個 baseline 檔
+
 - 跟 Round 6 同模式：從 `.eslint-suppressions.json` 挑 5 個 count=1 低風險檔
 - 改 supabase.from().insert/update → entity hook 寫法
 - 跑 `npm run lint:swr-prune` 拔 entry
 - 單一 commit
 
 ### R11-4：寫 line_conversation_messages 過渡期收尾 plan（純文件）
+
 - 寫 `workspace/_meta/architecture/2026-05-20-line-conversation-transition-plan.md`
 - 列：backfill 步驟、拔舊 caller 順序、最後 DROP TABLE 時機
 - **不真執行** — 只寫 plan

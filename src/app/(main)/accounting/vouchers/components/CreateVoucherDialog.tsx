@@ -274,7 +274,7 @@ export function CreateVoucherDialog({ open, onOpenChange, onSuccess }: CreateVou
       handleClose()
     },
     {
-      onError: (error) => {
+      onError: error => {
         logger.error('建立傳票失敗:', error)
         toast.error(error instanceof Error ? error.message : PAGE_LABELS.CREATE_FAILED)
       },
@@ -318,169 +318,178 @@ export function CreateVoucherDialog({ open, onOpenChange, onSuccess }: CreateVou
       maxWidth="5xl"
       contentClassName="max-h-[90vh] overflow-y-auto"
     >
-        <div className="space-y-4">
-          {/* 傳票資訊 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>{PAGE_LABELS.FIELD_VOUCHER_DATE}</Label>
-              <DatePicker value={voucherDate} onChange={setVoucherDate} />
-            </div>
-            <div>
-              <Label>{PAGE_LABELS.MEMO_LABEL}</Label>
-              <Input placeholder={PAGE_LABELS.MEMO_PLACEHOLDER} value={memo} onChange={e => setMemo(e.target.value)} />
-            </div>
-          </div>
-
-          {/* 關聯單據 */}
-          <div className="grid grid-cols-2 gap-4 p-3 bg-muted/50 rounded-lg">
-            <div>
-              <Label>{PAGE_LABELS.FIELD_LINK_DOC_TYPE}</Label>
-              <Select
-                value={sourceType || 'none'}
-                onValueChange={v => setSourceType(v === 'none' ? '' : (v as SourceType))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={PAGE_LABELS.NO_LINK_PLACEHOLDER} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{PAGE_LABELS.NO_LINK}</SelectItem>
-                  <SelectItem value="receipt">{PAGE_LABELS.RECEIPT}</SelectItem>
-                  <SelectItem value="payment_request">{PAGE_LABELS.PAYMENT_REQUEST}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>{PAGE_LABELS.SELECT_DOCUMENT}</Label>
-              <Select
-                value={sourceId}
-                onValueChange={setSourceId}
-                disabled={!sourceType || isLoadingDocuments}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={isLoadingDocuments ? PAGE_LABELS.LOADING : PAGE_LABELS.PLEASE_SELECT_TYPE_FIRST} />
-                </SelectTrigger>
-                <SelectContent>
-                  {sourceDocuments.map(doc => (
-                    <SelectItem key={doc.id} value={doc.id}>
-                      {doc.code} - {doc.description} (${doc.amount.toLocaleString()})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {sourceType && sourceDocuments.length === 0 && !isLoadingDocuments && (
-                <p className="text-xs text-muted-foreground mt-1">{PAGE_LABELS.NO_AVAILABLE_DOCUMENTS}</p>
-              )}
-            </div>
-          </div>
-
-          {/* 分錄明細 */}
+      <div className="space-y-4">
+        {/* 傳票資訊 */}
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <Label>{PAGE_LABELS.ENTRY_DETAILS}</Label>
-              <Button type="button" variant="soft-gold" size="sm" onClick={addLine}>
-                <Plus size={14} className="mr-1" />
-                {PAGE_LABELS.ADD_LINE}
-              </Button>
-            </div>
+            <Label>{PAGE_LABELS.FIELD_VOUCHER_DATE}</Label>
+            <DatePicker value={voucherDate} onChange={setVoucherDate} />
+          </div>
+          <div>
+            <Label>{PAGE_LABELS.MEMO_LABEL}</Label>
+            <Input
+              placeholder={PAGE_LABELS.MEMO_PLACEHOLDER}
+              value={memo}
+              onChange={e => setMemo(e.target.value)}
+            />
+          </div>
+        </div>
 
-            <div className="border rounded-lg overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="text-left p-2 w-[25%]">{PAGE_LABELS.COL_ACCOUNT}</th>
-                    <th className="text-left p-2 w-[30%]">{PAGE_LABELS.COL_SUMMARY}</th>
-                    <th className="text-right p-2 w-[18%]">{PAGE_LABELS.COL_DEBIT}</th>
-                    <th className="text-right p-2 w-[18%]">{PAGE_LABELS.COL_CREDIT}</th>
-                    <th className="text-center p-2 w-[9%]">{PAGE_LABELS.COL_ACTION}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lines.map(line => (
-                    <tr key={line.id} className="border-t">
-                      <td className="p-2">
-                        <Select
-                          value={line.account_id}
-                          onValueChange={value => updateLine(line.id, 'account_id', value)}
-                        >
-                          <SelectTrigger className="h-8">
-                            <SelectValue placeholder={PAGE_LABELS.SELECT_ACCOUNT_PLACEHOLDER} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {accounts.map(account => (
-                              <SelectItem key={account.id} value={account.id}>
-                                {account.code} - {account.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </td>
-                      <td className="p-2">
-                        <Input
-                          className="h-8"
-                          placeholder={PAGE_LABELS.SUMMARY_PLACEHOLDER}
-                          value={line.description}
-                          onChange={e => updateLine(line.id, 'description', e.target.value)}
-                        />
-                      </td>
-                      <td className="p-2">
-                        <Input
-                          className="h-8 text-right"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={line.debit_amount || ''}
-                          onChange={e =>
-                            updateLine(line.id, 'debit_amount', parseFloat(e.target.value) || 0)
-                          }
-                        />
-                      </td>
-                      <td className="p-2">
-                        <Input
-                          className="h-8 text-right"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={line.credit_amount || ''}
-                          onChange={e =>
-                            updateLine(line.id, 'credit_amount', parseFloat(e.target.value) || 0)
-                          }
-                        />
-                      </td>
-                      <td className="p-2 text-center">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeLine(line.id)}
-                          disabled={lines.length <= 2}
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+        {/* 關聯單據 */}
+        <div className="grid grid-cols-2 gap-4 p-3 bg-muted/50 rounded-lg">
+          <div>
+            <Label>{PAGE_LABELS.FIELD_LINK_DOC_TYPE}</Label>
+            <Select
+              value={sourceType || 'none'}
+              onValueChange={v => setSourceType(v === 'none' ? '' : (v as SourceType))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={PAGE_LABELS.NO_LINK_PLACEHOLDER} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{PAGE_LABELS.NO_LINK}</SelectItem>
+                <SelectItem value="receipt">{PAGE_LABELS.RECEIPT}</SelectItem>
+                <SelectItem value="payment_request">{PAGE_LABELS.PAYMENT_REQUEST}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>{PAGE_LABELS.SELECT_DOCUMENT}</Label>
+            <Select
+              value={sourceId}
+              onValueChange={setSourceId}
+              disabled={!sourceType || isLoadingDocuments}
+            >
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    isLoadingDocuments ? PAGE_LABELS.LOADING : PAGE_LABELS.PLEASE_SELECT_TYPE_FIRST
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {sourceDocuments.map(doc => (
+                  <SelectItem key={doc.id} value={doc.id}>
+                    {doc.code} - {doc.description} (${doc.amount.toLocaleString()})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {sourceType && sourceDocuments.length === 0 && !isLoadingDocuments && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {PAGE_LABELS.NO_AVAILABLE_DOCUMENTS}
+              </p>
+            )}
+          </div>
+        </div>
 
-                  {/* 總計行 */}
-                  <tr className="border-t bg-muted font-semibold">
-                    <td colSpan={2} className="p-2 text-right">
-                      總計
-                    </td>
-                    <td className="p-2 text-right">{totalDebit.toLocaleString()}</td>
-                    <td className="p-2 text-right">{totalCredit.toLocaleString()}</td>
-                    <td className="p-2 text-center">
-                      {isBalanced ? (
-                        <span className="text-morandi-green">✅ 平衡</span>
-                      ) : (
-                        <span className="text-morandi-red">❌ 不平衡</span>
-                      )}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+        {/* 分錄明細 */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <Label>{PAGE_LABELS.ENTRY_DETAILS}</Label>
+            <Button type="button" variant="soft-gold" size="sm" onClick={addLine}>
+              <Plus size={14} className="mr-1" />
+              {PAGE_LABELS.ADD_LINE}
+            </Button>
           </div>
 
+          <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="text-left p-2 w-[25%]">{PAGE_LABELS.COL_ACCOUNT}</th>
+                  <th className="text-left p-2 w-[30%]">{PAGE_LABELS.COL_SUMMARY}</th>
+                  <th className="text-right p-2 w-[18%]">{PAGE_LABELS.COL_DEBIT}</th>
+                  <th className="text-right p-2 w-[18%]">{PAGE_LABELS.COL_CREDIT}</th>
+                  <th className="text-center p-2 w-[9%]">{PAGE_LABELS.COL_ACTION}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lines.map(line => (
+                  <tr key={line.id} className="border-t">
+                    <td className="p-2">
+                      <Select
+                        value={line.account_id}
+                        onValueChange={value => updateLine(line.id, 'account_id', value)}
+                      >
+                        <SelectTrigger className="h-8">
+                          <SelectValue placeholder={PAGE_LABELS.SELECT_ACCOUNT_PLACEHOLDER} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accounts.map(account => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.code} - {account.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </td>
+                    <td className="p-2">
+                      <Input
+                        className="h-8"
+                        placeholder={PAGE_LABELS.SUMMARY_PLACEHOLDER}
+                        value={line.description}
+                        onChange={e => updateLine(line.id, 'description', e.target.value)}
+                      />
+                    </td>
+                    <td className="p-2">
+                      <Input
+                        className="h-8 text-right"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={line.debit_amount || ''}
+                        onChange={e =>
+                          updateLine(line.id, 'debit_amount', parseFloat(e.target.value) || 0)
+                        }
+                      />
+                    </td>
+                    <td className="p-2">
+                      <Input
+                        className="h-8 text-right"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={line.credit_amount || ''}
+                        onChange={e =>
+                          updateLine(line.id, 'credit_amount', parseFloat(e.target.value) || 0)
+                        }
+                      />
+                    </td>
+                    <td className="p-2 text-center">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeLine(line.id)}
+                        disabled={lines.length <= 2}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+
+                {/* 總計行 */}
+                <tr className="border-t bg-muted font-semibold">
+                  <td colSpan={2} className="p-2 text-right">
+                    總計
+                  </td>
+                  <td className="p-2 text-right">{totalDebit.toLocaleString()}</td>
+                  <td className="p-2 text-right">{totalCredit.toLocaleString()}</td>
+                  <td className="p-2 text-center">
+                    {isBalanced ? (
+                      <span className="text-morandi-green">✅ 平衡</span>
+                    ) : (
+                      <span className="text-morandi-red">❌ 不平衡</span>
+                    )}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </FormDialog>
   )
 }

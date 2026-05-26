@@ -20,7 +20,7 @@ describe('StarRating Component', () => {
     it('should render buttons of type="button"', () => {
       render(<StarRating value={0} />)
       const buttons = screen.getAllByRole('button')
-      buttons.forEach((b) => expect(b).toHaveAttribute('type', 'button'))
+      buttons.forEach(b => expect(b).toHaveAttribute('type', 'button'))
     })
   })
 
@@ -40,13 +40,13 @@ describe('StarRating Component', () => {
     it('should show no filled stars when value is 0', () => {
       const { container } = render(<StarRating value={0} />)
       const svgs = container.querySelectorAll('svg')
-      svgs.forEach((svg) => expect(svg).not.toHaveClass('fill-morandi-gold'))
+      svgs.forEach(svg => expect(svg).not.toHaveClass('fill-morandi-gold'))
     })
 
     it('should fill all stars when value equals max', () => {
       const { container } = render(<StarRating value={5} max={5} />)
       const svgs = container.querySelectorAll('svg')
-      svgs.forEach((svg) => expect(svg).toHaveClass('fill-morandi-gold'))
+      svgs.forEach(svg => expect(svg).toHaveClass('fill-morandi-gold'))
     })
   })
 
@@ -113,13 +113,13 @@ describe('StarRating Component', () => {
     it('should disable buttons when readonly', () => {
       render(<StarRating value={3} readonly />)
       const buttons = screen.getAllByRole('button')
-      buttons.forEach((b) => expect(b).toBeDisabled())
+      buttons.forEach(b => expect(b).toBeDisabled())
     })
 
     it('should disable buttons when disabled', () => {
       render(<StarRating value={3} disabled />)
       const buttons = screen.getAllByRole('button')
-      buttons.forEach((b) => expect(b).toBeDisabled())
+      buttons.forEach(b => expect(b).toBeDisabled())
     })
   })
 

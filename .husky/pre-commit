@@ -50,4 +50,18 @@ if [ -x scripts/check-standards.sh ]; then
   fi
 fi
 
+# 7. Prettier 排版檢查（只查本次 staged 檔、防全 repo 格式債再累積）
+#    2026-05-26 加：CI 的 format:check 是全 repo prettier --check、本地過去沒這道 →
+#    格式債一路累積到 ~1000 檔、卡住每個 PR。本地存檔當下就擋住未排版的檔、根治復發。
+echo "🎨 Checking code formatting (staged files)..."
+STAGED_FMT=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx|json|css|md)$' || true)
+if [ -n "$STAGED_FMT" ]; then
+  echo "$STAGED_FMT" | xargs npx prettier --check
+  if [ $? -ne 0 ]; then
+    echo "❌ 排版未對齊 Prettier 規範（上面 [warn] 的檔）"
+    echo "💡 跑 'npm run format' 自動修正後、重新 git add 再 commit"
+    exit 1
+  fi
+fi
+
 echo "✅ All checks passed!"

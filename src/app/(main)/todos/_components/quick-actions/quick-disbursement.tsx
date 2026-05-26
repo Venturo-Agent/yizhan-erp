@@ -27,7 +27,11 @@ interface QuickDisbursementProps {
   defaultOrderId?: string
 }
 
-export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: QuickDisbursementProps) {
+export function QuickDisbursement({
+  onSubmit,
+  defaultTourId,
+  defaultOrderId,
+}: QuickDisbursementProps) {
   const t = useTranslations('todos')
   const {
     formData,
@@ -55,16 +59,13 @@ export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: Q
   >(null)
 
   // 快速新增供應商（和 AddRequestDialog 同一套邏輯）
-  const handleCreateSupplier = useCallback(
-    async (name: string): Promise<string | null> => {
-      return new Promise(resolve => {
-        setPendingSupplierName(name)
-        setSupplierCreateResolver(() => resolve)
-        setCreateSupplierDialogOpen(true)
-      })
-    },
-    []
-  )
+  const handleCreateSupplier = useCallback(async (name: string): Promise<string | null> => {
+    return new Promise(resolve => {
+      setPendingSupplierName(name)
+      setSupplierCreateResolver(() => resolve)
+      setCreateSupplierDialogOpen(true)
+    })
+  }, [])
 
   // 如果待辦已關聯團號/訂單，自動帶入
   React.useEffect(() => {
@@ -126,9 +127,7 @@ export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: Q
           <Combobox
             options={tourOptions}
             value={formData.tour_id}
-            onChange={value =>
-              setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))
-            }
+            onChange={value => setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))}
             placeholder={t('searchTourPlaceholder')}
             emptyMessage={t('tourEmptyMessage')}
             className="w-[280px]"
@@ -140,11 +139,7 @@ export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: Q
             options={orderOptions}
             value={formData.order_id}
             onChange={value => setFormData(prev => ({ ...prev, order_id: value }))}
-            placeholder={
-              !formData.tour_id
-                ? t('selectTourFirst')
-                : t('searchOrderPlaceholder')
-            }
+            placeholder={!formData.tour_id ? t('selectTourFirst') : t('searchOrderPlaceholder')}
             disabled={!formData.tour_id}
             className="w-[240px]"
             maxHeight="300px"
@@ -196,7 +191,8 @@ export function QuickDisbursement({ onSubmit, defaultTourId, defaultOrderId }: Q
           className="w-full"
         >
           <FileText size={16} className="mr-2" />
-          {t('createRequestPrefix')}{requestItems.length} {t('itemsSuffix')}
+          {t('createRequestPrefix')}
+          {requestItems.length} {t('itemsSuffix')}
           <CurrencyCell amount={total_amount} className="inline text-white" />)
         </Button>
       </div>

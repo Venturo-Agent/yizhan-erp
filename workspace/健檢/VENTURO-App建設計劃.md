@@ -20,15 +20,15 @@
 
 ## 2. 技術決策
 
-| 決策 | 選擇 | 理由 |
-|------|------|------|
-| Framework | Flutter 3.x | iOS/Android 一次開發 |
-| 目標平台 | iOS 優先 | William 確認 |
-| UI 風格 | 明亮活潑 | William 確認 |
-| 認證 | Supabase Auth | 與 ERP 共用 |
-| 訊息整合 | LINE@ 訊息同步 | William 確認 |
-| 狀態管理 | Riverpod | William 熟悉 |
-| 路由 | GoRouter | Flutter 標準 |
+| 決策      | 選擇           | 理由                 |
+| --------- | -------------- | -------------------- |
+| Framework | Flutter 3.x    | iOS/Android 一次開發 |
+| 目標平台  | iOS 優先       | William 確認         |
+| UI 風格   | 明亮活潑       | William 確認         |
+| 認證      | Supabase Auth  | 與 ERP 共用          |
+| 訊息整合  | LINE@ 訊息同步 | William 確認         |
+| 狀態管理  | Riverpod       | William 熟悉         |
+| 路由      | GoRouter       | Flutter 標準         |
 
 ---
 

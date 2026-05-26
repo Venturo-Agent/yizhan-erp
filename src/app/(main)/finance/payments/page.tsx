@@ -285,9 +285,7 @@ export default function PaymentsPage() {
       width: '90px',
       // SSOT：唯一真相是 payment_methods.name (FK join)
       // 抓不到顯示「-」、不再用 5 大類中文 fallback 污染
-      render: (_, row) => (
-        <span className="text-sm">{row.payment_methods?.name || '-'}</span>
-      ),
+      render: (_, row) => <span className="text-sm">{row.payment_methods?.name || '-'}</span>,
     },
     {
       key: 'status',
@@ -394,7 +392,7 @@ export default function PaymentsPage() {
     )
   }
 
-  if (permLoading) return null  // ModuleGuard 已在外層顯示 loading
+  if (permLoading) return null // ModuleGuard 已在外層顯示 loading
   if (!canTour && !canCompany) return <UnauthorizedPage />
 
   return (

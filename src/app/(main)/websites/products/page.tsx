@@ -29,16 +29,13 @@ export default function WebsiteProductsPage() {
             <div>
               <h2 className="text-base font-semibold text-morandi-primary mb-1">產品上架管理</h2>
               <p className="text-xs text-morandi-secondary leading-relaxed">
-                挑選哪些行程要展示到客戶官網（{'{subdomain}.venturo.tw'}）、編輯行銷文案 / SEO / 封面圖。
+                挑選哪些行程要展示到客戶官網（{'{subdomain}.venturo.tw'}）、編輯行銷文案 / SEO /
+                封面圖。
                 <br />
                 Day 7 落地、會 reuse 既有 /marketing/website 樣板。
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/websites/design')}
-            >
+            <Button variant="outline" size="sm" onClick={() => router.push('/websites/design')}>
               <LayoutIcon className="w-4 h-4 mr-1.5" />
               切到版面設計
             </Button>

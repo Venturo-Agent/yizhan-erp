@@ -74,6 +74,7 @@ src/app/(main)/workspaces/_components/TenantPrepSection.tsx:24
 **總覽寫**：架構 5/20 8.0 → 5/23 8.0（持平），原因是「進步（L4 trigger / L6 audit context 30→75）抵掉退步（websites 漏 SSOT + 舊洞沒動）」
 
 **我不同意**：
+
 - 3 天內新長 3 個洞：websites seed 缺 role_capabilities / approval framework 未進 module registry / auth orphan 1 筆
 - 5 個舊洞沒動（esim 4 routes 404 / visas 3 routes 404 / documents 1 route 404 / L4 closed period guard 缺 / 3 個 module 無 entity hook）
 - L6 audit context 採用 30→75 是「口頭採用」、要看實際有沒有真的跑
@@ -87,6 +88,7 @@ src/app/(main)/workspaces/_components/TenantPrepSection.tsx:24
 **總覽寫**：開發品管 5/20 持平 → 5/23 退步（lint errors 11→23、ESLint baseline 145 → 145）
 
 實際問題：
+
 - **lint errors 11→23（+12）**：這個數字如果包括 6 個真實撞號 bug，那退步不是「code quality 退步」是「真實功能 bug 存在」
 - **pre-commit 被繞過**：2 個散刻 useSWR（AiSidebar + MethodDialog）在 5/23 commit 進去，pre-commit type-check 過了但 lint 沒跑。pre-commit 機制失效不只是「退步」，是「防守破口」
 - **audit:rls 在 CI 跳過 4 層**：L3-L5 DB 層的 RLS 檢核全部 skip、生產環境 drift 沒人擋
@@ -148,6 +150,7 @@ src/app/(main)/workspaces/_components/TenantPrepSection.tsx:24
 104 vs 115、65% vs 72%，兩個數字明顯對不上。為什麼？
 
 可能：架構維度把 `getApiContext` 也算進守門（9 routes），效能維度只算 `requireCapability`。但即使這樣，159 routes 裡：
+
 - 架構：115 個有守門（requireCapability 或 getApiContext）
 - 效能：104 個走 requireCapability
 
@@ -174,13 +177,13 @@ src/app/(main)/workspaces/_components/TenantPrepSection.tsx:24
 
 按「6/1 前會不會撞」+ 「實際 user-facing impact」重新排：
 
-| 順序 | 項目 | 為什麼 |
-|---|---|---|
-| #1 | TenantPrepSection travel_invoice（15 分鐘） | 6/1 客戶直接撞、立刻可修 |
-| #2 | 6 個撞號 bug（半天）| 真的會炸、批次操作 user 會看到 |
-| #3 | contract sign admin client（5 分鐘）| 紅線 C、直接修 |
-| #4 | auth orphan（1 分鐘）| `npm run audit:orphans -- --clean` |
-| #5 | accounting 7 pages（P1、如果來不及就只修 vouchers 最肥的 1-2 頁）| stale 了 3 天 |
+| 順序 | 項目                                                              | 為什麼                             |
+| ---- | ----------------------------------------------------------------- | ---------------------------------- |
+| #1   | TenantPrepSection travel_invoice（15 分鐘）                       | 6/1 客戶直接撞、立刻可修           |
+| #2   | 6 個撞號 bug（半天）                                              | 真的會炸、批次操作 user 會看到     |
+| #3   | contract sign admin client（5 分鐘）                              | 紅線 C、直接修                     |
+| #4   | auth orphan（1 分鐘）                                             | `npm run audit:orphans -- --clean` |
+| #5   | accounting 7 pages（P1、如果來不及就只修 vouchers 最肥的 1-2 頁） | stale 了 3 天                      |
 
 CAPABILITIES 59% dead code 移到 P2/P3、不是 P0。
 
@@ -202,5 +205,5 @@ CAPABILITIES 59% dead code 移到 P2/P3、不是 P0。
 
 ---
 
-*Review by Logan — MiniMax-M2.7 — 2026-05-23*
-*紅線：純讀檔、純評論、不動 code/DB/commit/push、不 git commit 這個 markdown*
+_Review by Logan — MiniMax-M2.7 — 2026-05-23_
+_紅線：純讀檔、純評論、不動 code/DB/commit/push、不 git commit 這個 markdown_

@@ -7,7 +7,14 @@
  */
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import { ParticipantCounts, SellingPrices, CostCategory, CostItem, TierPricing, costCategories } from '@/app/(main)/orders/_quotes/_types'
+import {
+  ParticipantCounts,
+  SellingPrices,
+  CostCategory,
+  CostItem,
+  TierPricing,
+  costCategories,
+} from '@/app/(main)/orders/_quotes/_types'
 import { coreItemsToCostCategories } from '@/app/(main)/orders/_quotes/_utils/core-table-adapter'
 import type { TourItineraryItem } from '@/app/(main)/tours/_types/tour-itinerary-item.types'
 
@@ -27,7 +34,10 @@ interface UseQuoteStateOptions {
   quote: QuoteRef | null | undefined
   coreItems: TourItineraryItem[]
   coreItemsLoading: boolean
-  fullTour: { liability_insurance_coverage?: number | null; medical_insurance_coverage?: number | null } | null | undefined
+  fullTour:
+    | { liability_insurance_coverage?: number | null; medical_insurance_coverage?: number | null }
+    | null
+    | undefined
 }
 
 interface UseQuoteStateReturn {

@@ -111,9 +111,7 @@ export const ResponsiveHeader = memo(function ResponsiveHeader(props: Responsive
       style={{ transition: 'left 300ms ease-in-out' }}
     >
       {/* 分割線 */}
-      <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none mx-6 border-t border-[var(--border)] h-px"
-      ></div>
+      <div className="absolute bottom-0 left-0 right-0 pointer-events-none mx-6 border-t border-[var(--border)] h-px"></div>
       {/* 左側 - 返回按鈕、Breadcrumb 和主標題 */}
       <div className="flex items-center gap-3 relative z-[300]">
         {props.showBackButton && (
@@ -330,7 +328,6 @@ export const ResponsiveHeader = memo(function ResponsiveHeader(props: Responsive
             {props.primaryAction.label}
           </Button>
         )}
-
       </div>
     </div>
   )

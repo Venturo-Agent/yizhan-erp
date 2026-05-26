@@ -59,14 +59,10 @@ export function ChatHeader({
       <div className="flex-1 min-w-0 flex items-center gap-2">
         <div className="min-w-0 flex flex-col">
           <div className="flex items-center gap-1 min-w-0">
-            <span className="font-semibold text-sm text-morandi-primary truncate">
-              {title}
-            </span>
+            <span className="font-semibold text-sm text-morandi-primary truncate">{title}</span>
             {titleBadge}
           </div>
-          {subtitle && (
-            <span className="text-xs text-morandi-muted truncate">{subtitle}</span>
-          )}
+          {subtitle && <span className="text-xs text-morandi-muted truncate">{subtitle}</span>}
         </div>
       </div>
 

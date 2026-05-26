@@ -130,7 +130,15 @@ const nextConfig: NextConfig = {
 
   // SEC-015: 只在 dev 環境允許本地/ngrok 跨域（production 不帶）
   ...(process.env.NODE_ENV === 'development'
-    ? { allowedDevOrigins: ['frisky-masonic-mellissa.ngrok-free.dev', '192.168.1.181', '100.89.92.46', 'corner-mac-mini', '100.85.149.128'] }
+    ? {
+        allowedDevOrigins: [
+          'frisky-masonic-mellissa.ngrok-free.dev',
+          '192.168.1.181',
+          '100.89.92.46',
+          'corner-mac-mini',
+          '100.85.149.128',
+        ],
+      }
     : {}),
 
   // ✅ 啟用 standalone 輸出模式（適合 Docker/Vercel 部署）

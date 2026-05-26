@@ -69,14 +69,10 @@ async function fetchCountries(): Promise<Country[]> {
 }
 
 export function useCountries(_options?: UseCountriesOptions): ListResult {
-  const { data, error, isLoading, mutate } = useSWR<Country[]>(
-    CACHE_KEY,
-    fetchCountries,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 5 * 60 * 1000,
-    }
-  )
+  const { data, error, isLoading, mutate } = useSWR<Country[]>(CACHE_KEY, fetchCountries, {
+    revalidateOnFocus: false,
+    dedupingInterval: 5 * 60 * 1000,
+  })
   return {
     items: data ?? [],
     loading: isLoading,
@@ -94,17 +90,12 @@ export const invalidateCountries = async (): Promise<void> => {
 // ref_countries 是 ISO 標準表、不該由 user 端 create / update / delete
 // 保留 stub 是因為舊 caller (CountryAirportSelector / useTourOperations) 還在 import
 // 5/12 拍板：拿掉「新增國家」UI + usage_count 統計、排序改 alphabetical (name_zh)
-export const createCountry = async (
-  _payload: Partial<Country>
-): Promise<Country | null> => {
+export const createCountry = async (_payload: Partial<Country>): Promise<Country | null> => {
   logger.warn('createCountry 已 stub、ref_countries 不允許 user-level 新增')
   return null
 }
 
-export const updateCountry = async (
-  _id: string,
-  _patch: Partial<Country>
-): Promise<void> => {
+export const updateCountry = async (_id: string, _patch: Partial<Country>): Promise<void> => {
   // ref_countries 是只讀 SSOT、usage_count 等 user-tracking 暫拿掉
   // 之後若要做使用統計、走獨立的 user_country_usage 表
 }

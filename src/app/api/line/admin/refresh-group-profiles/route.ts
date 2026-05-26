@@ -37,11 +37,12 @@ export async function POST(_request: NextRequest) {
     const supabase = getSupabaseAdminClient()
 
     // 拿 LINE channel token
-    const settingsTable = supabase.from.bind(supabase) as unknown as (
-      table: string
-    ) => {
+    const settingsTable = supabase.from.bind(supabase) as unknown as (table: string) => {
       select: (cols: string) => {
-        eq: (col: string, value: string) => {
+        eq: (
+          col: string,
+          value: string
+        ) => {
           maybeSingle: () => Promise<{
             data: { channel_access_token_encrypted: string } | null
             error: { message: string } | null
@@ -67,13 +68,22 @@ export async function POST(_request: NextRequest) {
     }
 
     // 找所有 line 群組對話（external_user_id 開頭 'group:'）
-    const convTable = supabase.from.bind(supabase) as unknown as (
-      table: string
-    ) => {
+    const convTable = supabase.from.bind(supabase) as unknown as (table: string) => {
       select: (cols: string) => {
-        eq: (col: string, value: string) => {
-          like: (col: string, pattern: string) => Promise<{
-            data: Array<{ id: string; external_user_id: string; display_name: string | null; picture_url: string | null }> | null
+        eq: (
+          col: string,
+          value: string
+        ) => {
+          like: (
+            col: string,
+            pattern: string
+          ) => Promise<{
+            data: Array<{
+              id: string
+              external_user_id: string
+              display_name: string | null
+              picture_url: string | null
+            }> | null
             error: { message: string } | null
           }>
         }
@@ -97,9 +107,7 @@ export async function POST(_request: NextRequest) {
     }
 
     // 對每個 group call LINE API + 更新 picture_url
-    const updateTable = supabase.from.bind(supabase) as unknown as (
-      table: string
-    ) => {
+    const updateTable = supabase.from.bind(supabase) as unknown as (table: string) => {
       update: (values: { picture_url?: string | null; display_name?: string | null }) => {
         eq: (col: string, value: string) => Promise<{ error: { message: string } | null }>
       }

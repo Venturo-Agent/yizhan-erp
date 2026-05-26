@@ -36,10 +36,7 @@ export function DisbursementTab({ dateRange }: DisbursementTabProps) {
   const { items: linkedRequests } = useLinkedPaymentRequests()
   // 2026-05-21 Phase 2：類別顯示走 expense_categories.id 反查、舊 EXPENSE_TYPE_CONFIG 退休
   const { items: allCats } = useExpenseCategories({ all: true })
-  const catNameById = useMemo(
-    () => new Map((allCats ?? []).map(c => [c.id, c.name])),
-    [allCats]
-  )
+  const catNameById = useMemo(() => new Map((allCats ?? []).map(c => [c.id, c.name])), [allCats])
 
   const filteredPaymentRequests = useMemo(() => {
     const { startDate, endDate } = dateRange
@@ -106,7 +103,9 @@ export function DisbursementTab({ dateRange }: DisbursementTabProps) {
             </span>
           )
         }
-        return <span className="text-sm text-morandi-secondary">{row.tour_code || <EmptyValue />}</span>
+        return (
+          <span className="text-sm text-morandi-secondary">{row.tour_code || <EmptyValue />}</span>
+        )
       },
     },
     {
@@ -148,7 +147,8 @@ export function DisbursementTab({ dateRange }: DisbursementTabProps) {
       width: '100',
       render: (_value, row) => (
         <span className="text-sm">
-          {linkedRequests.filter(pr => pr.disbursement_order_id === row.id).length} {COMPONENT_LABELS.COUNT_UNIT}
+          {linkedRequests.filter(pr => pr.disbursement_order_id === row.id).length}{' '}
+          {COMPONENT_LABELS.COUNT_UNIT}
         </span>
       ),
     },

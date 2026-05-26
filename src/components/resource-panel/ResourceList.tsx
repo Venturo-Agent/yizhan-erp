@@ -139,9 +139,7 @@ export function ResourceList({
     <div>
       {filteredResources.length === 0 ? (
         <div className="text-center py-6">
-          <p className="text-sm text-muted-foreground">
-            找不到「{searchQuery}」
-          </p>
+          <p className="text-sm text-muted-foreground">找不到「{searchQuery}」</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-1.5">
@@ -163,7 +161,11 @@ export function ResourceList({
             onClick={handleCreate}
             className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 text-xs font-medium text-morandi-gold hover:bg-morandi-gold/10 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isCreating ? <Loader2 size="0.875em" className="animate-spin" /> : <Plus size="0.875em" />}
+            {isCreating ? (
+              <Loader2 size="0.875em" className="animate-spin" />
+            ) : (
+              <Plus size="0.875em" />
+            )}
             {isCreating ? '建立中...' : `新增「${searchQuery}」`}
           </button>
         </div>

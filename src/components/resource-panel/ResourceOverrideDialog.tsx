@@ -96,7 +96,10 @@ export function ResourceOverrideDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent level={2} className={hasImages ? 'max-w-3xl' : 'max-w-md'}>
         <DialogHeader>
-          <DialogTitle>{COMPONENT_LABELS.TITLE_PREFIX}{resourceName}</DialogTitle>
+          <DialogTitle>
+            {COMPONENT_LABELS.TITLE_PREFIX}
+            {resourceName}
+          </DialogTitle>
         </DialogHeader>
 
         <div className={hasImages ? 'flex gap-6' : 'space-y-4'}>
@@ -153,7 +156,9 @@ export function ResourceOverrideDialog({
             {/* 原始內容 */}
             {originalDescription && (
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{COMPONENT_LABELS.ORIGINAL_DESC}</Label>
+                <Label className="text-xs text-muted-foreground">
+                  {COMPONENT_LABELS.ORIGINAL_DESC}
+                </Label>
                 <div className="p-2 bg-muted/50 rounded text-sm text-muted-foreground max-h-24 overflow-y-auto">
                   {originalDescription}
                 </div>

@@ -43,10 +43,7 @@ export async function POST(request: NextRequest) {
     const { source_type, source_id, workspace_id } = validation.data
 
     if (workspace_id !== auth.data.workspaceId) {
-      return NextResponse.json(
-        { error: '無權對其他 workspace 建立傳票' },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: '無權對其他 workspace 建立傳票' }, { status: 403 })
     }
 
     // audit context（追蹤誰自動產生傳票）

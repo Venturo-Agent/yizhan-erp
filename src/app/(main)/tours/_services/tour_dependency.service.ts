@@ -31,10 +31,8 @@ export async function checkTourDependencies(tourId: string): Promise<TourDepende
 
   const blockers: string[] = []
 
-  if (receipts.count && receipts.count > 0)
-    blockers.push(`${receipts.count} 筆收款單`)
-  if (payments.count && payments.count > 0)
-    blockers.push(`${payments.count} 筆請款單`)
+  if (receipts.count && receipts.count > 0) blockers.push(`${receipts.count} 筆收款單`)
+  if (payments.count && payments.count > 0) blockers.push(`${payments.count} 筆請款單`)
 
   return { blockers, hasBlockers: blockers.length > 0 }
 }
@@ -190,4 +188,3 @@ export async function unlinkTourItineraries(tourId: string): Promise<number> {
 
   return linkedItineraries?.length ?? 0
 }
-

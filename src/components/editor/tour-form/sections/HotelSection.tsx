@@ -332,7 +332,9 @@ export function HotelSection({ data, updateField }: HotelSectionProps) {
                     {isFromSSOT ? (
                       <div className="w-full px-3 py-2 border border-morandi-container/50 rounded-lg bg-morandi-container/10 min-h-[5rem] text-morandi-secondary text-sm whitespace-pre-wrap">
                         {displayDescription || (
-                          <span className="text-morandi-muted italic">{COMPONENT_LABELS.NO_DESCRIPTION}</span>
+                          <span className="text-morandi-muted italic">
+                            {COMPONENT_LABELS.NO_DESCRIPTION}
+                          </span>
                         )}
                       </div>
                     ) : (

@@ -20,6 +20,7 @@ related: [[tours-spec]] [[customers-spec]]
 ## 2. 核心 entity & schema
 
 主要表：`public.orders`
+
 - `id` UUID PK
 - `order_number` TEXT UNIQUE（譬如 `ORD-260311-001`）
 - `customer_id` FK
@@ -30,10 +31,12 @@ related: [[tours-spec]] [[customers-spec]]
 - `workspace_id` FK
 
 子表：
+
 - `order_travelers`（旅客明細）
 - `receipts`（收款、order_id FK）
 
 子模組（tab）：
+
 - `orders.list` / `orders.create` / `orders.edit` / `orders.payments` / `orders.travelers`
 
 ## 3. 不變式（Invariants）
@@ -60,20 +63,20 @@ related: [[tours-spec]] [[customers-spec]]
 
 ## 6. 跨 module 依賴
 
-| 依賴 module | 關係 | 注意 |
-|------------|------|------|
-| tours | order.tour_id | 結團前不能 cancel order |
-| customers | order.customer_id | 客戶刪除前要先處理 order |
-| finance.receipts | receipt.order_id | 收款累計算 payment_status |
-| accounting | 自動產傳票 | order confirmed → 應收帳款 |
+| 依賴 module      | 關係              | 注意                       |
+| ---------------- | ----------------- | -------------------------- |
+| tours            | order.tour_id     | 結團前不能 cancel order    |
+| customers        | order.customer_id | 客戶刪除前要先處理 order   |
+| finance.receipts | receipt.order_id  | 收款累計算 payment_status  |
+| accounting       | 自動產傳票        | order confirmed → 應收帳款 |
 
 ## 7. UI / Route 對應
 
-| Route | Layout |
-|-------|--------|
-| /orders | ListPageLayout |
+| Route          | Layout            |
+| -------------- | ----------------- |
+| /orders        | ListPageLayout    |
 | /orders/[code] | ContentPageLayout |
-| /orders/new | ContentPageLayout |
+| /orders/new    | ContentPageLayout |
 
 ## 8. Capability
 
@@ -83,11 +86,12 @@ related: [[tours-spec]] [[customers-spec]]
 ## 9. Audit log policy
 
 必加 recordApiAuditContext：
+
 - 建 order / cancel order / 改 payment_status
 - 加 / 砍 traveler
 
 ## 10. 變更歷史
 
-| 日期 | 變更 | 對應 |
-|------|------|------|
+| 日期       | 變更                 | 對應      |
+| ---------- | -------------------- | --------- |
 | 2026-05-15 | 初版（QDF Round 10） | this file |

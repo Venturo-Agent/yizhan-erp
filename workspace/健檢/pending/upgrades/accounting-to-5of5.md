@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ❌ | 7 頁全繞 entity hook — vouchers(行79)/accounts(行41)/checks(行161,178)/opening-balances/period-closing + 4財報（balance-sheet/general-ledger/income-statement/trial-balance）全部直接 `supabase.from()` |
-| **資安** | ⚠️ | 紅線 D guard：salary_settlements 有、但 journal_vouchers/receipts/disbursement_orders 待補 |
-| **架構** | ✅ | L1-L6 全過；createEntityHook 基礎建設到位 |
-| **開發品管** | ⚠️ | opening-balances/period-closing 無 e2e；eslint suppress 1515 warnings 中相對多；audit:rls CI 缺 DB secret |
-| **清理** | ⚠️ | `journal-lines.ts` entity 未做；大量 unused exports |
+| 維度         | 現狀 | 具體缺口                                                                                                                                                                                                |
+| ------------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **讀取效能** | ❌   | 7 頁全繞 entity hook — vouchers(行79)/accounts(行41)/checks(行161,178)/opening-balances/period-closing + 4財報（balance-sheet/general-ledger/income-statement/trial-balance）全部直接 `supabase.from()` |
+| **資安**     | ⚠️   | 紅線 D guard：salary_settlements 有、但 journal_vouchers/receipts/disbursement_orders 待補                                                                                                              |
+| **架構**     | ✅   | L1-L6 全過；createEntityHook 基礎建設到位                                                                                                                                                               |
+| **開發品管** | ⚠️   | opening-balances/period-closing 無 e2e；eslint suppress 1515 warnings 中相對多；audit:rls CI 缺 DB secret                                                                                               |
+| **清理**     | ⚠️   | `journal-lines.ts` entity 未做；大量 unused exports                                                                                                                                                     |
 
 ---
 
@@ -23,12 +23,13 @@
 **缺口**：vouchers / accounts / checks + 4 reports 直接 supabase，寫完不打給 UI。
 
 **修法**：
+
 1. **補 `journal-vouchers.ts` entity hook**（如果不存在）→ Rewrite `accounting/vouchers/page.tsx` 走 `useJournalVouchers`
 2. **補 `checks.ts` entity hook**（如果不存在）→ Rewrite `accounting/checks/page.tsx` 走 `useChecks`
 3. **4 個財報頁（balance-sheet/general-ledger/income-statement/trial-balance）**：複雜 OLAP join 不適合 entity hook → 改 `useSWR` + `dedupingInterval: 5min`（Pass 3 P0-3 草稿已寫）
 4. **opening-balances / period-closing**：補 entity hook 或 useSWR
 
-**影響檔**：`src/app/(main)/accounting/vouchers/page.tsx`、`accounting/accounts/page.tsx`、`accounting/checks/page.tsx`、4 個 reports/*
+**影響檔**：`src/app/(main)/accounting/vouchers/page.tsx`、`accounting/accounts/page.tsx`、`accounting/checks/page.tsx`、4 個 reports/\*
 **預估工時**：8-12 小時（journal-vouchers entity 最複雜、跨員工並發）
 **預期難度**：🔴 高（有業務邏輯在裡面，要確保 Realtime 一致性）
 
@@ -39,6 +40,7 @@
 **缺口**：receipts / disbursement_orders / journal_vouchers 缺少「月結後不能改」 guard。
 
 **修法**：在 API route 或 service 層加 `isClosedPeriod()` check。
+
 - `src/app/api/accounting/receipts/[id]/route.ts`
 - `src/app/api/accounting/disbursement-orders/[id]/route.ts`
 - `src/app/api/accounting/vouchers/create/route.ts`
@@ -53,6 +55,7 @@
 **缺口**：opening-balances / period-closing / vouchers / accounts / checks 無任一 e2e 覆蓋。
 
 **修法**：寫 3 個 e2e spec：
+
 - `tests/e2e/accounting-vouchers.spec.ts`：「建立傳票 → 編輯 → 刪除 → 重查列表」
 - `tests/e2e/accounting-reports.spec.ts`：「查詢資產負債表 → 確認數值合理性」
 - `tests/e2e/accounting-period-close.spec.ts`：「月結 → 確認 closed_period guard 擋修改」
@@ -68,6 +71,7 @@
 **缺口**：`journal-lines.ts` entity 是半成品（從未建立）；大量 unused exports。
 
 **修法**：
+
 - `journal-lines.ts` 暫不建（OLAP 查詢不適合 CRUD entity；財報複雜度不值得）
 - knip 跑 `workspace/健檢/reports/` → 確認哪些 accounting 相關 unused files 可刪
 - 清理 `.eslint-suppressions.json` 中 accounting 違規 entry（修完後跑 `npm run lint:swr-prune`）
@@ -104,4 +108,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

@@ -23,10 +23,7 @@ const REQUEST_TIMEOUT_MS = 30_000
 /**
  * 呼叫 Anthropic Claude messages API。
  */
-export async function callAnthropic(
-  req: LLMRequest,
-  apiToken: string
-): Promise<LLMResponse> {
+export async function callAnthropic(req: LLMRequest, apiToken: string): Promise<LLMResponse> {
   const model = req.model ?? DEFAULT_MODEL
 
   if (!apiToken) {

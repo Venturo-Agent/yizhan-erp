@@ -24,6 +24,7 @@
 5. `src/data/entities/customer-document-applications.ts` — applications + history
 
 **每個檔範本**：
+
 ```typescript
 'use client'
 import { createEntityHook } from '../core/createEntityHook'
@@ -47,6 +48,7 @@ export const deleteDocumentType = documentTypeEntity.delete
 ```
 
 **注意**：
+
 - customer_documents.id 是 uuid、但 customer_id 是 text（特例）
 - customer_document_applications 有 status state machine + L4 lock trigger、UI 注意 collected 後不可改重要欄位
 - entity hook **不知道** L4 lock、只負責 CRUD、客戶端跟伺服器端各自處理
@@ -61,17 +63,20 @@ export { useDocumentTypes, useDocumentType, invalidateDocumentTypes, ... } from 
 ### Sub-task R10-3：寫主 page（20 分鐘）
 
 `src/app/(main)/visas/page.tsx` 改成完整功能：
+
 - 申辦進度列表（從 customer_document_applications 撈、狀態分組）
 - 「新增申辦」button + dialog form
 - 表頭篩選：狀態、代辦商、月份
 - 列要顯示：客戶名 / 證件 / 服務 / 代辦商 / 狀態 / 送件日 / 預估取件日
 
 **用既有 components**：
+
 - `ListPageLayout` / `EnhancedTable`（看其他 page 範本）
 - `FormDialog`（必傳 loading prop）
 - 莫蘭迪色系、不用 Tailwind 預設色
 
 **FK type 對照**（types.ts）：
+
 - customer_id: text（指 customers.id）
 - tour_id: text（指 tours.id）
 - order_id: text（指 orders.id）
@@ -81,6 +86,7 @@ export { useDocumentTypes, useDocumentType, invalidateDocumentTypes, ... } from 
 ### Sub-task R10-4：寫核心 API routes（20 分鐘）
 
 最少做這 5 個（CRUD）：
+
 - `src/app/api/customer-document-applications/route.ts`（GET list / POST create）
 - `src/app/api/customer-document-applications/[id]/route.ts`（GET / PATCH / DELETE）
 - `src/app/api/customer-documents/route.ts`（GET list / POST）
@@ -88,6 +94,7 @@ export { useDocumentTypes, useDocumentType, invalidateDocumentTypes, ... } from 
 - `src/app/api/supplier-pricing/route.ts`（GET list / POST）
 
 **用既有 patterns**：
+
 - `requireCapability(...)` 守門（看 src/lib/auth/require-capability.ts）
 - `dbErrorResponse(err)` 翻錯誤
 - `recordApiAuditContext()` audit

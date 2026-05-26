@@ -61,10 +61,7 @@ interface RecordMessageInput {
 /**
  * 寫一筆對話訊息（webhook router 已寫 inbound、本 function 給 bot 回覆 / 真人接管用）
  */
-export async function botRecordMessage(
-  ctx: BotContext,
-  input: RecordMessageInput
-): Promise<void> {
+export async function botRecordMessage(ctx: BotContext, input: RecordMessageInput): Promise<void> {
   assertCanRead(ctx, 'botRecordMessage')
 
   const supabase = getSupabaseAdminClient()

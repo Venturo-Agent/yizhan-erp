@@ -127,9 +127,7 @@ export function EditorToolbar({
           返回
         </button>
         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-          <span style={{ fontSize: 11, opacity: 0.6, letterSpacing: '0.1em' }}>
-            {code}
-          </span>
+          <span style={{ fontSize: 11, opacity: 0.6, letterSpacing: '0.1em' }}>{code}</span>
           <span style={{ fontSize: 14, fontWeight: 500 }}>展示行程編輯器</span>
         </div>
       </div>

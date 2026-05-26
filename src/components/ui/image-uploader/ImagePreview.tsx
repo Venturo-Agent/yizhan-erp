@@ -76,7 +76,11 @@ export function ImagePreview({
           className="p-2 bg-card/90 hover:bg-card rounded-full text-morandi-primary transition-colors"
           title={IMAGE_UPLOADER_LABELS.LABEL_1707}
         >
-          {uploading ? <Loader2 size="1.125em" className="animate-spin" /> : <Upload size="1.125em" />}
+          {uploading ? (
+            <Loader2 size="1.125em" className="animate-spin" />
+          ) : (
+            <Upload size="1.125em" />
+          )}
         </button>
 
         {/* 位置調整 */}

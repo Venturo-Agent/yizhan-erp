@@ -13,7 +13,7 @@ import { AttractionForm } from './attraction-dialog/AttractionForm'
 import { AttractionImageUpload } from './attraction-dialog/AttractionImageUpload'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Trash2} from 'lucide-react'
+import { CheckCircle2, Trash2 } from 'lucide-react'
 import { updateAttraction } from '@/data'
 import { toast } from 'sonner'
 
@@ -300,11 +300,7 @@ export function AttractionsDialog({
           disabled={isVerifying}
           className="h-7 text-xs gap-1.5 text-morandi-gold border-morandi-gold bg-morandi-gold/10 hover:bg-morandi-gold/10"
         >
-          {isVerifying ? (
-            <Spinner size="sm" />
-          ) : (
-            <CheckCircle2 size={14} />
-          )}
+          {isVerifying ? <Spinner size="sm" /> : <CheckCircle2 size={14} />}
           {t('attractionsDialogMarkVerified')}
         </Button>
       )}

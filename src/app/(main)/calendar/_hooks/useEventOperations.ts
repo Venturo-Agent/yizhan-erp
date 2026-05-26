@@ -336,9 +336,7 @@ export function useEventOperations() {
       if (isAllDay) {
         // 全天事件：使用台北時區的日期
         const startDate = formatDateTaipei(newStart)
-        const endDate = newEnd
-          ? formatDateTaipei(newEnd)
-          : startDate
+        const endDate = newEnd ? formatDateTaipei(newEnd) : startDate
 
         startDateTime = `${startDate}T00:00:00${tzOffset}`
         endDateTime = `${endDate}T00:00:00${tzOffset}`

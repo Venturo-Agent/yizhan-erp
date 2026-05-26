@@ -170,7 +170,7 @@ export function ChannelView({ channelId }: Props) {
       //   若不同步推進自己的 last_read_at、離開頻道後會看到自己發的訊息變紅點）
       // fire-and-forget：失敗不影響發送、只動 members（不碰訊息列表 = 不影響根治後的不閃爍）
       const myMember = (members ?? []).find(
-        m => m.channel_id === channelId && m.employee_id === user.id,
+        m => m.channel_id === channelId && m.employee_id === user.id
       )
       if (myMember) {
         void updateChannelMember(myMember.id, {
@@ -225,7 +225,10 @@ export function ChannelView({ channelId }: Props) {
   const senderAvatar = (msg: ChannelMessage): { url: string | null; initial: string } => {
     if (msg.sender_agent_id) {
       const agent = (aiAgents ?? []).find(a => a.id === msg.sender_agent_id)
-      return { url: (agent as { avatar_url?: string })?.avatar_url ?? null, initial: agent?.name?.[0] ?? 'A' }
+      return {
+        url: (agent as { avatar_url?: string })?.avatar_url ?? null,
+        initial: agent?.name?.[0] ?? 'A',
+      }
     }
     if (msg.sender_employee_id) {
       const emp = getEmployee(msg.sender_employee_id)
@@ -301,15 +304,16 @@ export function ChannelView({ channelId }: Props) {
 
           const avatar = senderAvatar(msg)
           return (
-            <div
-              key={msg.id}
-              className={cn('flex gap-3 group', isMine && 'flex-row-reverse')}
-            >
+            <div key={msg.id} className={cn('flex gap-3 group', isMine && 'flex-row-reverse')}>
               {/* 對方 / bot 訊息才有頭像；自己訊息不顯示頭像（自己當然知道是自己） */}
               {!isMine && (
                 <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
                   {avatar.url ? (
-                    <img src={avatar.url} alt={senderName(msg)} className="w-full h-full object-cover" />
+                    <img
+                      src={avatar.url}
+                      alt={senderName(msg)}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <span>{avatar.initial}</span>
                   )}

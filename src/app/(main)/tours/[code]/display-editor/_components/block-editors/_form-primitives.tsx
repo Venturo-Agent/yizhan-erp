@@ -53,7 +53,7 @@ export function TextField({
         type="text"
         value={value}
         placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         style={FIELD_BASE}
       />
     </div>
@@ -79,20 +79,14 @@ export function TextAreaField({
         value={value}
         rows={rows}
         placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         style={{ ...FIELD_BASE, resize: 'vertical', fontFamily: 'inherit' }}
       />
     </div>
   )
 }
 
-export function FormSection({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
+export function FormSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ padding: '16px 18px', borderBottom: '1px solid var(--morandi-container)' }}>
       <div

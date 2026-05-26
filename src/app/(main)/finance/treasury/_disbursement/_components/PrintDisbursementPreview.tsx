@@ -74,11 +74,15 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
 
     // 分離：團體請款、公司請款（都排除成本轉移 pair requests）
     const companyItems = useMemo(
-      () => processedItems.filter(item => item.isCompany && !transferredRequestIds.has(item.requestId)),
+      () =>
+        processedItems.filter(item => item.isCompany && !transferredRequestIds.has(item.requestId)),
       [processedItems, transferredRequestIds]
     )
     const tourItems = useMemo(
-      () => processedItems.filter(item => !item.isCompany && !transferredRequestIds.has(item.requestId)),
+      () =>
+        processedItems.filter(
+          item => !item.isCompany && !transferredRequestIds.has(item.requestId)
+        ),
       [processedItems, transferredRequestIds]
     )
 
@@ -86,7 +90,9 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
     const [transferPairs, orphanPairIds] = useMemo<[TransferPairRow[], string[]]>(() => {
       const pairGroups = new Map<string, PaymentRequest[]>()
       for (const req of paymentRequests) {
-        const pairId = (req as unknown as Record<string, unknown>).transferred_pair_id as string | undefined
+        const pairId = (req as unknown as Record<string, unknown>).transferred_pair_id as
+          | string
+          | undefined
         if (!pairId) continue
         if (!pairGroups.has(pairId)) pairGroups.set(pairId, [])
         pairGroups.get(pairId)!.push(req)
@@ -127,7 +133,10 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
       return [rows, orphans]
     }, [paymentRequests, paymentRequestItems])
 
-    const companyGroups = useMemo(() => splitLargeGroups(groupByPayFor(companyItems), 5), [companyItems])
+    const companyGroups = useMemo(
+      () => splitLargeGroups(groupByPayFor(companyItems), 5),
+      [companyItems]
+    )
     const tourGroups = useMemo(() => splitLargeGroups(groupByPayFor(tourItems), 5), [tourItems])
 
     const companyTotal = companyItems.reduce((sum, item) => sum + item.amount, 0)

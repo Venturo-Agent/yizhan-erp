@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { MapPin, Navigation} from 'lucide-react'
+import { MapPin, Navigation } from 'lucide-react'
 import type { Attraction } from '../_types'
 import type L from 'leaflet'
 import { logger } from '@/lib/utils/logger'

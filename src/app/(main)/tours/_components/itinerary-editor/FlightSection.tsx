@@ -186,9 +186,7 @@ export function FlightSection({
       {/* 去程航班 */}
       <div className="border border-border rounded-lg p-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-morandi-secondary">
-            {t('itineraryOutboundFlight')}
-          </span>
+          <span className="text-xs text-morandi-secondary">{t('itineraryOutboundFlight')}</span>
           {outboundFlight && (
             <button
               type="button"
@@ -263,18 +261,15 @@ export function FlightSection({
                 className="h-8 text-xs w-32"
               />
               {searchEnabled && (
-                <Button variant="soft-gold"
+                <Button
+                  variant="soft-gold"
                   type="button"
                   size="sm"
                   onClick={onSearchOutbound}
                   disabled={searchingOutbound}
                   className="h-8 px-2"
                 >
-                  {searchingOutbound ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <Search size={14} />
-                  )}
+                  {searchingOutbound ? <Spinner size="sm" /> : <Search size={14} />}
                 </Button>
               )}
             </div>
@@ -290,9 +285,7 @@ export function FlightSection({
       {/* 回程航班 */}
       <div className="border border-border rounded-lg p-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-morandi-secondary">
-            {t('itineraryReturnFlight')}
-          </span>
+          <span className="text-xs text-morandi-secondary">{t('itineraryReturnFlight')}</span>
           {returnFlight && (
             <button
               type="button"
@@ -367,18 +360,15 @@ export function FlightSection({
                 className="h-8 text-xs w-32"
               />
               {searchEnabled && (
-                <Button variant="soft-gold"
+                <Button
+                  variant="soft-gold"
                   type="button"
                   size="sm"
                   onClick={onSearchReturn}
                   disabled={searchingReturn}
                   className="h-8 px-2"
                 >
-                  {searchingReturn ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <Search size={14} />
-                  )}
+                  {searchingReturn ? <Spinner size="sm" /> : <Search size={14} />}
                 </Button>
               )}
             </div>

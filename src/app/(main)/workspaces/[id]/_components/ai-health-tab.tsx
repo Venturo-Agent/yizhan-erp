@@ -16,7 +16,15 @@
 
 import useSWR from 'swr'
 import { Card } from '@/components/ui/card'
-import { Activity, MessageSquare, Sparkles, BookOpenCheck, BrainCircuit, AlertCircle, Coins } from 'lucide-react'
+import {
+  Activity,
+  MessageSquare,
+  Sparkles,
+  BookOpenCheck,
+  BrainCircuit,
+  AlertCircle,
+  Coins,
+} from 'lucide-react'
 
 // 簡單 USD → TWD 換算（用近期均匯率 30、不接外部 API、給人粗估用、實際計費另外算）
 const USD_TO_TWD = 30
@@ -113,11 +121,11 @@ export function AiHealthDashboard({
   audience: Audience
   fluid?: boolean
 }) {
-  const { data: resp, error, isLoading } = useSWR<{ data: AiHealthData }>(
-    apiUrl,
-    fetcher,
-    { revalidateOnFocus: false }
-  )
+  const {
+    data: resp,
+    error,
+    isLoading,
+  } = useSWR<{ data: AiHealthData }>(apiUrl, fetcher, { revalidateOnFocus: false })
 
   if (isLoading) {
     return <div className="p-6 text-center text-sm text-morandi-muted">載入中...</div>
@@ -181,9 +189,17 @@ export function AiHealthDashboard({
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
           <Metric label="總數" value={d.memories.total} />
           <Metric label="🟢 主動 / 完整" value={d.memories.tone_active} />
-          <Metric label="🟡 應付" value={d.memories.tone_passive} highlight={d.memories.tone_passive > d.memories.tone_active ? 'warn' : null} />
+          <Metric
+            label="🟡 應付"
+            value={d.memories.tone_passive}
+            highlight={d.memories.tone_passive > d.memories.tone_active ? 'warn' : null}
+          />
           <Metric label="⚪ 未分類" value={d.memories.tone_unknown} />
-          <Metric label="🔴 連續失敗 ≥3" value={d.memories.paused_failures} highlight={d.memories.paused_failures > 0 ? 'danger' : null} />
+          <Metric
+            label="🔴 連續失敗 ≥3"
+            value={d.memories.paused_failures}
+            highlight={d.memories.paused_failures > 0 ? 'danger' : null}
+          />
         </div>
       </Card>
 
@@ -192,20 +208,31 @@ export function AiHealthDashboard({
         <div className="flex items-center gap-2 mb-3">
           <Coins className="w-4 h-4 text-morandi-gold" />
           <h3 className="text-sm font-semibold text-morandi-primary">LLM 用量（近 30 天）</h3>
-          <span className="text-[0.65rem] text-morandi-muted">— 漫途付給 LLM 廠的成本、不含售價 markup</span>
+          <span className="text-[0.65rem] text-morandi-muted">
+            — 漫途付給 LLM 廠的成本、不含售價 markup
+          </span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs mb-4">
           <Metric label="呼叫次數" value={d.llm_usage.last30d_calls} />
-          <Metric label="🔴 失敗次數" value={d.llm_usage.last30d_fail_calls} highlight={d.llm_usage.last30d_fail_calls > 0 ? 'warn' : null} />
+          <Metric
+            label="🔴 失敗次數"
+            value={d.llm_usage.last30d_fail_calls}
+            highlight={d.llm_usage.last30d_fail_calls > 0 ? 'warn' : null}
+          />
           <Metric label="輸入 Token" value={formatTokens(d.llm_usage.last30d_in_tokens)} />
           <Metric label="輸出 Token" value={formatTokens(d.llm_usage.last30d_out_tokens)} />
-          <Metric label={`成本（≈NT$${Math.round(d.llm_usage.last30d_cost_usd * USD_TO_TWD)}）`} value={`$${d.llm_usage.last30d_cost_usd.toFixed(4)}`} />
+          <Metric
+            label={`成本（≈NT$${Math.round(d.llm_usage.last30d_cost_usd * USD_TO_TWD)}）`}
+            value={`$${d.llm_usage.last30d_cost_usd.toFixed(4)}`}
+          />
         </div>
 
         {d.llm_usage.by_provider.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3 border-t border-morandi-muted/10">
             <div>
-              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">按 provider 拆分</p>
+              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">
+                按 provider 拆分
+              </p>
               <ul className="space-y-1">
                 {d.llm_usage.by_provider.map(p => (
                   <li key={p.provider} className="flex items-center justify-between text-xs">
@@ -218,7 +245,9 @@ export function AiHealthDashboard({
               </ul>
             </div>
             <div>
-              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">按功能拆分（哪個 AI 功能用最多）</p>
+              <p className="text-[0.65rem] text-morandi-muted uppercase tracking-wide mb-2">
+                按功能拆分（哪個 AI 功能用最多）
+              </p>
               <ul className="space-y-1">
                 {d.llm_usage.by_caller.slice(0, 6).map(c => (
                   <li key={c.caller} className="flex items-center justify-between text-xs">
@@ -242,7 +271,11 @@ export function AiHealthDashboard({
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
           <Metric label="總次數" value={d.retrospectives.total} />
-          <Metric label="🟠 待 review" value={d.retrospectives.pending} highlight={d.retrospectives.pending > 0 ? 'warn' : null} />
+          <Metric
+            label="🟠 待 review"
+            value={d.retrospectives.pending}
+            highlight={d.retrospectives.pending > 0 ? 'warn' : null}
+          />
           <Metric label="🔵 已看過" value={d.retrospectives.reviewed} />
           <Metric label="🟢 已處理" value={d.retrospectives.actioned} />
           <Metric label="⚫ 已封存" value={d.retrospectives.archived} />
@@ -254,10 +287,13 @@ export function AiHealthDashboard({
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-morandi-gold" />
-            <h3 className="text-sm font-semibold text-morandi-primary">AI 答不出來的問題（Top 5）</h3>
+            <h3 className="text-sm font-semibold text-morandi-primary">
+              AI 答不出來的問題（Top 5）
+            </h3>
           </div>
           <span className="text-xs text-morandi-muted">
-            總 {d.rag_topics.total} 個主題 · 待 {d.rag_topics.pending} · 已補 RAG {d.rag_topics.added_to_rag} · 不採納 {d.rag_topics.declined}
+            總 {d.rag_topics.total} 個主題 · 待 {d.rag_topics.pending} · 已補 RAG{' '}
+            {d.rag_topics.added_to_rag} · 不採納 {d.rag_topics.declined}
           </span>
         </div>
         {d.rag_topics.top_unanswered.length === 0 ? (
@@ -284,9 +320,15 @@ export function AiHealthDashboard({
         <p className="text-xs text-morandi-secondary leading-relaxed">
           <span className="font-medium text-morandi-primary">使用建議</span>：
           {audience === 'tenant-admin' ? (
-            <>進客戶對應 AI Hub 看實際對話、看 AI 答不出來的主題建議客戶優先補哪些知識、速記卡 🔴 失敗多代表 AI 設定可能有問題（prompt / model / token）需要協助調整。</>
+            <>
+              進客戶對應 AI Hub 看實際對話、看 AI 答不出來的主題建議客戶優先補哪些知識、速記卡 🔴
+              失敗多代表 AI 設定可能有問題（prompt / model / token）需要協助調整。
+            </>
           ) : (
-            <>切到「對話管理」看實際對話、「對話復盤」跑 AI 答不出來的主題清單建知識庫、若速記卡有 🔴 表示 AI 連續失敗、聯絡漫途協助調整 prompt / model。</>
+            <>
+              切到「對話管理」看實際對話、「對話復盤」跑 AI 答不出來的主題清單建知識庫、若速記卡有
+              🔴 表示 AI 連續失敗、聯絡漫途協助調整 prompt / model。
+            </>
           )}
         </p>
       </Card>
@@ -308,9 +350,11 @@ function StatCard({
   highlight?: 'warn' | 'danger' | null
 }) {
   const borderColor =
-    highlight === 'danger' ? 'border-status-danger/30 bg-status-danger-bg' :
-    highlight === 'warn' ? 'border-status-warning/30 bg-status-warning-bg' :
-    'border-border bg-card'
+    highlight === 'danger'
+      ? 'border-status-danger/30 bg-status-danger-bg'
+      : highlight === 'warn'
+        ? 'border-status-warning/30 bg-status-warning-bg'
+        : 'border-border bg-card'
   return (
     <Card className={`p-4 ${borderColor}`}>
       <div className="flex items-center gap-1.5 text-morandi-muted mb-1">
@@ -339,9 +383,11 @@ function Metric({
   highlight?: 'warn' | 'danger' | null
 }) {
   const valueColor =
-    highlight === 'danger' ? 'text-status-danger' :
-    highlight === 'warn' ? 'text-status-warning' :
-    'text-morandi-primary'
+    highlight === 'danger'
+      ? 'text-status-danger'
+      : highlight === 'warn'
+        ? 'text-status-warning'
+        : 'text-morandi-primary'
   return (
     <div>
       <p className="text-[0.65rem] text-morandi-muted mb-0.5">{label}</p>

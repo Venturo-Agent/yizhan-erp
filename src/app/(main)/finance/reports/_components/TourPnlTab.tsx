@@ -48,7 +48,7 @@ interface TourRow {
   current_participants: number | null
 }
 
-const DEFAULT_TAX_RATE = 0.05  // 預設 5%、若 tour_bonus_settings 有設則覆寫
+const DEFAULT_TAX_RATE = 0.05 // 預設 5%、若 tour_bonus_settings 有設則覆寫
 
 export function TourPnlTab() {
   const [rows, setRows] = useState<PnlRow[]>([])
@@ -128,7 +128,12 @@ export function TourPnlTab() {
             // 從 settings 加總所有 bonus（排除 tax + administrative）
             const bonusSum = ts.reduce((sum, s) => {
               const t = (s as { setting_type?: string }).setting_type || ''
-              if (t === 'profit_tax' || t === 'administrative_expenses' || t === 'PROFIT_TAX' || t === 'ADMINISTRATIVE_EXPENSES') {
+              if (
+                t === 'profit_tax' ||
+                t === 'administrative_expenses' ||
+                t === 'PROFIT_TAX' ||
+                t === 'ADMINISTRATIVE_EXPENSES'
+              ) {
                 return sum
               }
               const v = Number((s as { value?: number }).value) || 0
@@ -247,7 +252,10 @@ export function TourPnlTab() {
           </thead>
           <tbody>
             {rows.map(row => (
-              <tr key={row.tour_id} className="border-b border-border/40 hover:bg-morandi-container/20">
+              <tr
+                key={row.tour_id}
+                className="border-b border-border/40 hover:bg-morandi-container/20"
+              >
                 <td className="py-2 px-3 font-mono text-xs">{row.tour_code}</td>
                 <td className="py-2 px-3 truncate">{row.tour_name}</td>
                 <td className="py-2 px-3 text-right tabular-nums">{formatMoney(row.revenue)}</td>
@@ -292,13 +300,17 @@ export function TourPnlTab() {
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-border bg-morandi-container/40 font-semibold">
-              <td colSpan={2} className="py-2 px-3">合計（{rows.length} 團）</td>
+              <td colSpan={2} className="py-2 px-3">
+                合計（{rows.length} 團）
+              </td>
               <td className="py-2 px-3 text-right tabular-nums">{formatMoney(totalRevenue)}</td>
               <td className="py-2 px-3 text-right tabular-nums">{formatMoney(totalCost)}</td>
               <td className="py-2 px-3 text-right tabular-nums">{formatMoney(totalProfit)}</td>
               <td className="py-2 px-3 text-right tabular-nums">{formatMoney(totalTax)}</td>
               <td className="py-2 px-3 text-right tabular-nums">{formatMoney(totalBonus)}</td>
-              <td className="py-2 px-3 text-right tabular-nums">{formatMoney(totalCompanyProfit)}</td>
+              <td className="py-2 px-3 text-right tabular-nums">
+                {formatMoney(totalCompanyProfit)}
+              </td>
               <td></td>
             </tr>
           </tfoot>
@@ -306,9 +318,8 @@ export function TourPnlTab() {
       </div>
 
       <div className="mt-4 text-xs text-morandi-muted px-3">
-        ※ 稅金 = 利潤 × tax_rate（已結算用 tour 設定、未結算用預設 5%）
-        ※ 業務獎金 + 公司盈餘 = 僅已結算團顯示、未結算顯示「—」
-        ※ 總支出已含行政費用、不另列
+        ※ 稅金 = 利潤 × tax_rate（已結算用 tour 設定、未結算用預設 5%） ※ 業務獎金 + 公司盈餘 =
+        僅已結算團顯示、未結算顯示「—」 ※ 總支出已含行政費用、不另列
       </div>
     </ContentContainer>
   )

@@ -62,9 +62,10 @@ function extractKeywords(query: string): string[] {
 /**
  * RAG 查 chunks
  */
-async function searchKnowledgeChunks(query: string, limit = 8): Promise<
-  Array<{ content: string; source_file: string; title: string }>
-> {
+async function searchKnowledgeChunks(
+  query: string,
+  limit = 8
+): Promise<Array<{ content: string; source_file: string; title: string }>> {
   const keywords = extractKeywords(query)
   if (keywords.length === 0) return []
 
@@ -89,15 +90,19 @@ async function searchKnowledgeChunks(query: string, limit = 8): Promise<
   return (data ?? []).map(row => ({
     content: row.content,
     source_file:
-      (row as { knowledge_documents?: { source_file?: string } }).knowledge_documents?.source_file ?? 'unknown',
-    title: (row as { knowledge_documents?: { title?: string } }).knowledge_documents?.title ?? 'unknown',
+      (row as { knowledge_documents?: { source_file?: string } }).knowledge_documents
+        ?.source_file ?? 'unknown',
+    title:
+      (row as { knowledge_documents?: { title?: string } }).knowledge_documents?.title ?? 'unknown',
   }))
 }
 
 /**
  * 組 RAG context block
  */
-function formatRagContext(chunks: Array<{ content: string; source_file: string; title: string }>): string {
+function formatRagContext(
+  chunks: Array<{ content: string; source_file: string; title: string }>
+): string {
   if (chunks.length === 0) {
     return '【知識庫無相關資料】\n（員工問題可能超出 HAPPY 目前知識範圍）'
   }
@@ -117,7 +122,8 @@ export async function handleHappyQuery(userText: string): Promise<HappyResult> {
 
   if (!query) {
     return {
-      replyText: '嗨！我是 HAPPY、一棧 ERP 系統助手 🙋\n\n你可以直接問我，譬如：\n• 怎麼新增客戶\n• 怎麼開新團\n• 收款流程怎麼走\n• 月底要做什麼',
+      replyText:
+        '嗨！我是 HAPPY、一棧 ERP 系統助手 🙋\n\n你可以直接問我，譬如：\n• 怎麼新增客戶\n• 怎麼開新團\n• 收款流程怎麼走\n• 月底要做什麼',
       chunksUsed: 0,
       llmUsed: false,
       debugReason: 'empty query',

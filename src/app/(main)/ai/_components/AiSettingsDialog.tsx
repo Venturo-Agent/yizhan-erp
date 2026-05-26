@@ -1,20 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  LayoutDashboard,
-  BookOpenCheck,
-  Plug,
-  Sliders,
-  Bot,
-  type LucideIcon,
-} from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { LayoutDashboard, BookOpenCheck, Plug, Sliders, Bot, type LucideIcon } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { AiSetupTab } from './AiSetupTab'
 import { AiSettingsTab } from './AiSettingsTab'
@@ -99,8 +87,9 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
             <div className="p-8 text-sm text-morandi-secondary">
               <p className="mb-2 font-medium text-morandi-primary">全域 AI Policy（規劃中）</p>
               <p>
-                這裡將放租戶層級的 AI 語氣 / 人格設定、禁字清單、回應 SOP 等。
-                跨所有 bot 共用。對應 schema：<code className="bg-morandi-container/30 px-1 rounded">workspace_ai_agents</code>。
+                這裡將放租戶層級的 AI 語氣 / 人格設定、禁字清單、回應 SOP 等。 跨所有 bot 共用。對應
+                schema：
+                <code className="bg-morandi-container/30 px-1 rounded">workspace_ai_agents</code>。
               </p>
             </div>
           )}

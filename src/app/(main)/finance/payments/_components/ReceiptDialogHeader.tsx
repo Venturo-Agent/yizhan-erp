@@ -182,12 +182,8 @@ export function ReceiptDialogHeader({
       {/* 右邊：標題 */}
       <div className="text-right">
         <DialogTitle className="flex items-center justify-end gap-2">
-          {isEditMode
-            ? t('editReceiptTitle')
-            : t('addReceiptTitle')}
-          {isConfirmed && (
-            <StatusBadge tone="success" label={t('receiptConfirmed')} />
-          )}
+          {isEditMode ? t('editReceiptTitle') : t('addReceiptTitle')}
+          {isConfirmed && <StatusBadge tone="success" label={t('receiptConfirmed')} />}
         </DialogTitle>
       </div>
     </DialogHeader>

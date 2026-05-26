@@ -111,7 +111,7 @@ describe('indexeddb-cache (L2 IDB)', () => {
     })
 
     it('read 不會 throw、最差回 null', async () => {
-      await expect(get_cache(key())).resolves.toSatisfy((v) => v === null || typeof v === 'object')
+      await expect(get_cache(key())).resolves.toSatisfy(v => v === null || typeof v === 'object')
     })
   })
 })

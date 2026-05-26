@@ -18,13 +18,7 @@ import { join, relative } from 'path'
 const ROOT = process.cwd()
 const SCAN_DIR = join(ROOT, 'src')
 
-const EXCLUDED = [
-  /node_modules/,
-  /\.test\./,
-  /\.spec\./,
-  /__tests__/,
-  /\.fixture\./,
-]
+const EXCLUDED = [/node_modules/, /\.test\./, /\.spec\./, /__tests__/, /\.fixture\./]
 
 // UUID v4 pattern
 const UUID_REGEX = /['"`][0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}['"`]/i
@@ -38,12 +32,20 @@ interface Finding {
 
 function walk(dir: string, out: string[] = []): string[] {
   let entries: string[]
-  try { entries = readdirSync(dir) } catch { return out }
+  try {
+    entries = readdirSync(dir)
+  } catch {
+    return out
+  }
   for (const entry of entries) {
     const p = join(dir, entry)
     if (EXCLUDED.some(re => re.test(p))) continue
     let st
-    try { st = statSync(p) } catch { continue }
+    try {
+      st = statSync(p)
+    } catch {
+      continue
+    }
     if (st.isDirectory()) walk(p, out)
     else if (entry.match(/\.(ts|tsx|js|jsx)$/)) out.push(p)
   }

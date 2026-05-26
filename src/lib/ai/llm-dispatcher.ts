@@ -115,10 +115,7 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
   //   - 客戶版人格描述放最前面、caller 角色描述放後面、LLM 兩個都看
   const messagesWithPromptTemplate: typeof req.messages =
     settings.prompt_template && settings.prompt_template.trim().length > 0
-      ? [
-          { role: 'system', content: settings.prompt_template.trim() },
-          ...req.messages,
-        ]
+      ? [{ role: 'system', content: settings.prompt_template.trim() }, ...req.messages]
       : req.messages
 
   const reqWithModel: LLMRequest = {
@@ -137,7 +134,10 @@ export async function dispatchLLM(req: LLMRequest): Promise<LLMResponse> {
       response = await callAnthropic(reqWithModel, apiToken)
       break
     default:
-      logger.warn(`${HANDLER}: unknown provider, fallback platform MiniMax`, { provider: settings.provider, workspaceId })
+      logger.warn(`${HANDLER}: unknown provider, fallback platform MiniMax`, {
+        provider: settings.provider,
+        workspaceId,
+      })
       response = await callPlatformMiniMax(reqWithModel)
   }
 

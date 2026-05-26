@@ -45,9 +45,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   // 撈該 order 的 batches
   const { data: batches, error: batchErr } = await s
     .from('invoice_batches')
-    .select(
-      `id, public_token, token_expires_at, status, notes, created_at`
-    )
+    .select(`id, public_token, token_expires_at, status, notes, created_at`)
     .eq('order_id', orderId)
     .order('created_at', { ascending: false })
 
@@ -73,9 +71,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const batchIds = batchesArr.map(b => b.id)
   const { data: invoices } = await s
     .from('invoices')
-    .select(
-      `id, batch_id, customer_id, member_id, total_amount, paid_amount, status`
-    )
+    .select(`id, batch_id, customer_id, member_id, total_amount, paid_amount, status`)
     .in('batch_id', batchIds)
 
   const invoicesArr = (invoices || []) as Array<{

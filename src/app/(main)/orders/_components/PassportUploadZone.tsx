@@ -103,9 +103,7 @@ export function PassportUploadZone({
         />
       )}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-morandi-primary">
-          {t('ocrBatch')}
-        </h4>
+        <h4 className="text-sm font-medium text-morandi-primary">{t('ocrBatch')}</h4>
         <p className="text-xs text-morandi-muted">{t('ocrUploadDesc')}</p>
         <p className="text-xs text-morandi-gold">{t('ocrBlurHint')}</p>
 
@@ -130,9 +128,7 @@ export function PassportUploadZone({
           />
           <Upload size={24} className="text-morandi-muted mb-2" />
           <span className="text-sm text-morandi-muted">
-            {isProcessing
-              ? t('processing')
-              : t('uploadDropOrClick')}
+            {isProcessing ? t('processing') : t('uploadDropOrClick')}
           </span>
           <span className="text-xs text-morandi-muted mt-1">{t('ocrFormatHint')}</span>
         </label>
@@ -181,11 +177,7 @@ export function PassportUploadZone({
                     alt={pf.originalName}
                     className="w-full h-16 object-cover rounded border border-border cursor-pointer hover:border-morandi-gold transition-colors"
                     onClick={() => !pf.isPdf && handleOpenEditor(index)}
-                    title={
-                      pf.isPdf
-                        ? t('pdfNotSupportEnhance')
-                        : t('imageEnhanceClick')
-                    }
+                    title={pf.isPdf ? t('pdfNotSupportEnhance') : t('imageEnhanceClick')}
                   />
                   {/* 刪除按鈕 */}
                   <button

@@ -96,17 +96,13 @@ export function PnrMatchTable({
               className={cn(
                 'border-t',
                 result.selectedCustomerId && 'bg-morandi-container',
-                !result.selectedCustomerId &&
-                  result.confidence === 'none' &&
-                  'bg-morandi-red/10',
+                !result.selectedCustomerId && result.confidence === 'none' && 'bg-morandi-red/10',
                 !result.selectedCustomerId &&
                   result.confidence === 'partial' &&
                   'bg-morandi-gold/10'
               )}
             >
-              <td className="px-3 py-2 font-mono whitespace-nowrap">
-                {result.pnrPassenger}
-              </td>
+              <td className="px-3 py-2 font-mono whitespace-nowrap">{result.pnrPassenger}</td>
               <td className="px-3 py-2 whitespace-nowrap">
                 {result.selectedCustomerId ? (
                   <span className="flex items-center gap-1 text-morandi-secondary">
@@ -137,9 +133,7 @@ export function PnrMatchTable({
                   value={
                     manualMatches[result.pnrPassenger] === '__NONE__'
                       ? '__NONE__'
-                      : manualMatches[result.pnrPassenger] ||
-                        result.matchedMember?.id ||
-                        ''
+                      : manualMatches[result.pnrPassenger] || result.matchedMember?.id || ''
                   }
                   onChange={e => onManualMatch(result.pnrPassenger, e.target.value)}
                   className="text-xs border rounded px-2 py-1 w-full max-w-[150px]"
@@ -161,8 +155,7 @@ export function PnrMatchTable({
                     onChange={e => onSelectCustomer(result.pnrPassenger, e.target.value)}
                     className={cn(
                       'text-xs border rounded px-2 py-1 w-full max-w-[180px]',
-                      result.selectedCustomerId &&
-                        'border-morandi-secondary bg-morandi-container'
+                      result.selectedCustomerId && 'border-morandi-secondary bg-morandi-container'
                     )}
                     disabled={!!result.matchedMember && !result.selectedCustomerId}
                   >
@@ -174,9 +167,7 @@ export function PnrMatchTable({
                     ))}
                   </select>
                 ) : (
-                  <span className="text-xs text-morandi-muted">
-                    {t('noSuggestion')}
-                  </span>
+                  <span className="text-xs text-morandi-muted">{t('noSuggestion')}</span>
                 )}
               </td>
               {isTourMode && (
@@ -193,8 +184,7 @@ export function PnrMatchTable({
                     <option value="">{t('selectOrderPlaceholder')}</option>
                     {orders.map(o => (
                       <option key={o.id} value={o.id}>
-                        {o.order_number} -{' '}
-                        {o.contact_person || t('noContact')}
+                        {o.order_number} - {o.contact_person || t('noContact')}
                       </option>
                     ))}
                   </select>

@@ -22,7 +22,8 @@ const optionalActivities = [
     price: '1,500-2,000',
     unit: '฿/人',
     duration: '全天',
-    description: '泰國第二大國家公園，由 42 座石灰岩小島組成。以翡翠瀉湖聞名，需划船或爬山才能到達。',
+    description:
+      '泰國第二大國家公園，由 42 座石灰岩小島組成。以翡翠瀉湖聞名，需划船或爬山才能到達。',
     highlights: ['長尾船巡航小島群', '划 Kayak 探索瀉湖', '登頂俯瞰全景', '海灘野餐午餐'],
     recommendation: '必去',
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80',
@@ -113,7 +114,13 @@ const optionalActivities = [
   },
 ]
 
-function ActivityCard({ activity, index }: { activity: typeof optionalActivities[0]; index: number }) {
+function ActivityCard({
+  activity,
+  index,
+}: {
+  activity: (typeof optionalActivities)[0]
+  index: number
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -136,23 +143,29 @@ function ActivityCard({ activity, index }: { activity: typeof optionalActivities
         {/* 標籤 */}
         <div className="absolute top-4 left-4 flex items-center gap-2">
           {activity.recommendation && (
-            <span className="px-3 py-1 rounded-full text-xs font-bold text-white"
-              style={{ backgroundColor: LUXURY.secondary }}>
+            <span
+              className="px-3 py-1 rounded-full text-xs font-bold text-white"
+              style={{ backgroundColor: LUXURY.secondary }}
+            >
               {activity.recommendation}
             </span>
           )}
-          <span className="px-2 py-1 rounded-full text-xs font-medium"
+          <span
+            className="px-2 py-1 rounded-full text-xs font-medium"
             style={{
               backgroundColor: 'rgba(255,255,255,0.9)',
               color: '#2d6a7a',
-            }}>
+            }}
+          >
             自費
           </span>
         </div>
 
         {/* 圖示 */}
-        <div className="absolute bottom-4 left-4 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-md"
-          style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}>
+        <div
+          className="absolute bottom-4 left-4 w-12 h-12 rounded-xl flex items-center justify-center text-2xl backdrop-blur-md"
+          style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}
+        >
           {activity.icon}
         </div>
       </div>
@@ -176,8 +189,17 @@ function ActivityCard({ activity, index }: { activity: typeof optionalActivities
         <div className="space-y-2">
           {activity.highlights.map((h, i) => (
             <div key={i} className="flex items-center gap-2 text-sm">
-              <svg className="w-4 h-4 flex-shrink-0" style={{ color: LUXURY.secondary }} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              <svg
+                className="w-4 h-4 flex-shrink-0"
+                style={{ color: LUXURY.secondary }}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
               </svg>
               <span className="text-xs text-muted-foreground">{h}</span>
             </div>
@@ -207,7 +229,10 @@ export function TourProposalActivities() {
         >
           Activities
         </span>
-        <h2 className="text-4xl md:text-5xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+        <h2
+          className="text-4xl md:text-5xl font-bold"
+          style={{ fontFamily: 'Noto Serif TC, serif' }}
+        >
           自費活動詳細內容
         </h2>
         <p className="text-muted-foreground text-base">Day 4、5 自由活動期間自選參加，費用自理</p>
@@ -224,7 +249,12 @@ export function TourProposalActivities() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <span className="text-sm font-bold tracking-wider" style={{ fontFamily: 'Noto Serif TC, serif' }}>DAY 4</span>
+            <span
+              className="text-sm font-bold tracking-wider"
+              style={{ fontFamily: 'Noto Serif TC, serif' }}
+            >
+              DAY 4
+            </span>
           </motion.div>
           <div className="flex-1 h-px" style={{ backgroundColor: 'rgba(201,170,124,0.3)' }} />
           <span className="text-sm text-muted-foreground">9/1（一）</span>
@@ -248,7 +278,12 @@ export function TourProposalActivities() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <span className="text-sm font-bold tracking-wider" style={{ fontFamily: 'Noto Serif TC, serif' }}>DAY 5</span>
+            <span
+              className="text-sm font-bold tracking-wider"
+              style={{ fontFamily: 'Noto Serif TC, serif' }}
+            >
+              DAY 5
+            </span>
           </motion.div>
           <div className="flex-1 h-px" style={{ backgroundColor: 'rgba(201,170,124,0.3)' }} />
           <span className="text-sm text-muted-foreground">9/2（二）</span>
@@ -274,49 +309,77 @@ export function TourProposalActivities() {
         }}
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: `${LUXURY.secondary}15` }}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: `${LUXURY.secondary}15` }}
+          >
             <span className="text-xl">📋</span>
           </div>
-          <h3 className="text-xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>實用提醒</h3>
+          <h3 className="text-xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+            實用提醒
+          </h3>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: LUXURY.secondary }}>
+            <h4
+              className="text-sm font-bold uppercase tracking-wider"
+              style={{ color: LUXURY.secondary }}
+            >
               預訂建議
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-3">
-                <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                <span
+                  className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                  style={{ backgroundColor: LUXURY.secondary }}
+                />
                 旺季（11月-4月）建議提前 2-4 週預訂
               </li>
               <li className="flex items-start gap-3">
-                <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                <span
+                  className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                  style={{ backgroundColor: LUXURY.secondary }}
+                />
                 可請當地旅行社統一代訂，享團體折扣
               </li>
               <li className="flex items-start gap-3">
-                <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                <span
+                  className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                  style={{ backgroundColor: LUXURY.secondary }}
+                />
                 預訂時告知 14 人團體，部分活動可包場
               </li>
             </ul>
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: LUXURY.secondary }}>
+            <h4
+              className="text-sm font-bold uppercase tracking-wider"
+              style={{ color: LUXURY.secondary }}
+            >
               天氣注意事項
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-3">
-                <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                <span
+                  className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                  style={{ backgroundColor: LUXURY.secondary }}
+                />
                 8月底為雨季尾聲，可能有午後雷陣雨
               </li>
               <li className="flex items-start gap-3">
-                <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                <span
+                  className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                  style={{ backgroundColor: LUXURY.secondary }}
+                />
                 雨天建議改室內活動（Spa、烹飪課、夜店）
               </li>
               <li className="flex items-start gap-3">
-                <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                <span
+                  className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                  style={{ backgroundColor: LUXURY.secondary }}
+                />
                 建議攜帶雨具，並注意防曬
               </li>
             </ul>

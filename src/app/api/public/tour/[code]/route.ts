@@ -21,10 +21,7 @@ export async function OPTIONS(request: NextRequest) {
   return optionsResponse(request)
 }
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   // Rate Limiting
   const rateLimited = await checkRateLimit(request, 'public-tour', 60, 60_000)
   if (rateLimited) return withPublicCors(request, rateLimited)
@@ -35,10 +32,7 @@ export async function GET(
   if (!code) {
     return withPublicCors(
       request,
-      NextResponse.json(
-        { success: false, error: '缺少團號' },
-        { status: 400 }
-      )
+      NextResponse.json({ success: false, error: '缺少團號' }, { status: 400 })
     )
   }
 
@@ -47,7 +41,8 @@ export async function GET(
   // 只查必要欄位，不暴露 internal 資料
   const { data: tour, error } = await supabase
     .from('tours')
-    .select(`
+    .select(
+      `
       id,
       code,
       name,
@@ -57,7 +52,8 @@ export async function GET(
       max_participants,
       current_participants,
       airport_code
-    `)
+    `
+    )
     .eq('code', code)
     .eq('is_active', true)
     .single()
@@ -65,10 +61,7 @@ export async function GET(
   if (error || !tour) {
     return withPublicCors(
       request,
-      NextResponse.json(
-        { success: false, error: '找不到該旅程' },
-        { status: 404 }
-      )
+      NextResponse.json({ success: false, error: '找不到該旅程' }, { status: 404 })
     )
   }
 
@@ -98,13 +91,15 @@ export async function GET(
         currentParticipants: tour.current_participants || 0,
         remainingSlots: (tour.max_participants || 0) - (tour.current_participants || 0),
         airportCode: tour.airport_code,
-        itinerary: itineraryData ? {
-          id: itineraryData.id,
-          title: itineraryData.title,
-          subtitle: itineraryData.subtitle,
-          dailyItinerary: itineraryData.daily_itinerary,
-          hotels: itineraryData.hotels,
-        } : null,
+        itinerary: itineraryData
+          ? {
+              id: itineraryData.id,
+              title: itineraryData.title,
+              subtitle: itineraryData.subtitle,
+              dailyItinerary: itineraryData.daily_itinerary,
+              hotels: itineraryData.hotels,
+            }
+          : null,
       },
     })
   )

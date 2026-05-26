@@ -136,7 +136,9 @@ class PaymentRequestService extends BaseService<PaymentRequest> {
     }
   }
 
-  async create(data: Omit<PaymentRequest, 'id' | 'created_at' | 'updated_at'>): Promise<PaymentRequest> {
+  async create(
+    data: Omit<PaymentRequest, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<PaymentRequest> {
     await this.assertTourIsActive((data as Partial<PaymentRequest>).tour_id)
     return super.create(data)
   }
@@ -169,10 +171,7 @@ class PaymentRequestService extends BaseService<PaymentRequest> {
   }
 
   /** 新增請款項目 */
-  async addItem(
-    requestId: string,
-    itemData: AddItemData
-  ): Promise<PaymentRequestItem> {
+  async addItem(requestId: string, itemData: AddItemData): Promise<PaymentRequestItem> {
     const request = await this.getById(requestId)
     if (!request) throw new Error(`找不到請款單: ${requestId}`)
 
@@ -180,10 +179,7 @@ class PaymentRequestService extends BaseService<PaymentRequest> {
   }
 
   /** 批次新增請款項目（sequential insert，防撞號） */
-  async addItems(
-    requestId: string,
-    itemsData: AddItemData[]
-  ): Promise<PaymentRequestItem[]> {
+  async addItems(requestId: string, itemsData: AddItemData[]): Promise<PaymentRequestItem[]> {
     const request = await this.getById(requestId)
     if (!request) throw new Error(`找不到請款單: ${requestId}`)
 
@@ -199,7 +195,13 @@ class PaymentRequestService extends BaseService<PaymentRequest> {
     const request = await this.getById(requestId)
     if (!request) throw new Error(`找不到請款單: ${requestId}`)
 
-    return itemsUpdateItem(request, itemId, itemData, this.now(), this.updateRequestTotal.bind(this))
+    return itemsUpdateItem(
+      request,
+      itemId,
+      itemData,
+      this.now(),
+      this.updateRequestTotal.bind(this)
+    )
   }
 
   /** 刪除請款項目 */

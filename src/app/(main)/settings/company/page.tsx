@@ -33,7 +33,8 @@ export default function CompanySettingsPage() {
   const [form, setForm] = useState<CompanyFormData>(INITIAL_FORM)
   const [loading, setLoading] = useState(true)
   const [bankAccounts, setBankAccounts] = useState<BankAccountOption[]>([])
-  const [bonusCalculationOrder, setBonusCalculationOrder] = useState<BonusCalculationOrder>('independent')
+  const [bonusCalculationOrder, setBonusCalculationOrder] =
+    useState<BonusCalculationOrder>('independent')
   // 結帳稅率（公司預設、從 workspace_bonus_defaults PROFIT_TAX row 抓）
   const [initialTaxRate, setInitialTaxRate] = useState<number | null>(null)
   const workspaceId = user?.workspace_id
@@ -99,8 +100,7 @@ export default function CompanySettingsPage() {
               : d.transfer_fee_unified_amount != null
                 ? Number(d.transfer_fee_unified_amount)
                 : null,
-          transfer_fee_overflow_account_id:
-            (d.transfer_fee_overflow_account_id as string) ?? null,
+          transfer_fee_overflow_account_id: (d.transfer_fee_overflow_account_id as string) ?? null,
           finance_centralized: Boolean(d.finance_centralized),
           logo_scale:
             typeof d.logo_scale === 'number'
@@ -108,15 +108,11 @@ export default function CompanySettingsPage() {
               : d.logo_scale != null
                 ? Number(d.logo_scale)
                 : 1.0,
-          logo_offset_x:
-            typeof d.logo_offset_x === 'number' ? d.logo_offset_x : 0,
-          logo_offset_y:
-            typeof d.logo_offset_y === 'number' ? d.logo_offset_y : 0,
+          logo_offset_x: typeof d.logo_offset_x === 'number' ? d.logo_offset_x : 0,
+          logo_offset_y: typeof d.logo_offset_y === 'number' ? d.logo_offset_y : 0,
         })
         const ord = d.bonus_calculation_order as string | null
-        setBonusCalculationOrder(
-          ord === 'op_first' || ord === 'sales_first' ? ord : 'independent'
-        )
+        setBonusCalculationOrder(ord === 'op_first' || ord === 'sales_first' ? ord : 'independent')
       }
 
       // 載入結帳稅率（workspace_bonus_defaults PROFIT_TAX row）
@@ -176,10 +172,10 @@ export default function CompanySettingsPage() {
       toast.success(t('companySaveSuccess'))
     },
     {
-      onError: (error) => {
+      onError: error => {
         logger.error(t('companySaveFailed'), error)
         toast.error(t('companySaveFailed'))
-      }
+      },
     }
   )
 
@@ -252,7 +248,8 @@ export default function CompanySettingsPage() {
             <div className="flex-1">
               <p className="text-base font-semibold text-morandi-primary">集團出帳</p>
               <p className="text-sm text-morandi-secondary mt-1">
-                勾選後、會計可看跨分公司的請款 / 出納 / 收據 / 發票（適合總公司集中處理）。關閉則每個分公司只看自己的 finance。
+                勾選後、會計可看跨分公司的請款 / 出納 / 收據 /
+                發票（適合總公司集中處理）。關閉則每個分公司只看自己的 finance。
               </p>
             </div>
             <Switch

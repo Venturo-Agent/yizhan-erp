@@ -46,7 +46,7 @@ function tsStringify(value: unknown, indent = 2, depth = 0): string {
 
   if (Array.isArray(value)) {
     if (value.length === 0) return '[]'
-    const items = value.map((v) => padInner + tsStringify(v, indent, depth + 1))
+    const items = value.map(v => padInner + tsStringify(v, indent, depth + 1))
     return `[\n${items.join(',\n')},\n${pad}]`
   }
 
@@ -64,7 +64,7 @@ function tsStringify(value: unknown, indent = 2, depth = 0): string {
 // features.ts
 
 function genFeaturesTs(): string {
-  const features = ALL_MODULES.flatMap((m) => [
+  const features = ALL_MODULES.flatMap(m => [
     {
       code: m.code,
       name: m.name,
@@ -73,7 +73,7 @@ function genFeaturesTs(): string {
       routes: [...m.routes],
     },
     // sub-features 衍生：module 內部子功能 feature gate（如 channels.happy）
-    ...(m.subFeatures ?? []).map((sf) => ({
+    ...(m.subFeatures ?? []).map(sf => ({
       code: sf.code,
       name: sf.name,
       description: sf.description ?? '',
@@ -158,7 +158,7 @@ export function getAddonFeatures(): FeatureDefinition[] {
 function genModuleTabsTs(): string {
   // 用 deriveModuleTabsEntry helper（過濾 hiddenInHr tab）
   const exposed = getHrExposedModules()
-  const modules = exposed.map((m) => deriveModuleTabsEntry(m))
+  const modules = exposed.map(m => deriveModuleTabsEntry(m))
 
   return `${GENERATED_HEADER}
 
@@ -217,10 +217,7 @@ export function getAllModulesSorted(): ModuleDefinition[] {
  *
  * 規則：caller 用得到、但不屬於任何 module、codegen 保留現有 KEY
  */
-const NON_MODULE_CAPABILITIES = new Set([
-  'cross_branch.read',
-  'cross_branch.write',
-])
+const NON_MODULE_CAPABILITIES = new Set(['cross_branch.read', 'cross_branch.write'])
 
 /**
  * 從現有 capabilities.ts 解析 value → KEY 對應、用於 codegen 保留現有 KEY 名稱
@@ -248,7 +245,10 @@ function autoNameKey(code: string): string {
   return code.toUpperCase().replace(/[.\-]/g, '_')
 }
 
-function genCapabilitiesTs(): { out: string; stats: { derived: number; preserved: number; legacy: number } } {
+function genCapabilitiesTs(): {
+  out: string
+  stats: { derived: number; preserved: number; legacy: number }
+} {
   const capPath = join(REPO_ROOT, 'src/lib/permissions/capabilities.ts')
   const existingKeyMap = parseExistingCapabilityKeys(capPath)
 
@@ -317,9 +317,12 @@ function genCapabilitiesTs(): { out: string; stats: { derived: number; preserved
   for (const e of entries) {
     if (e.group !== lastGroup) {
       lines.push('')
-      if (e.group === 'derived') lines.push('  // ════ module 衍生（從 src/modules/* 自動產出）════')
-      if (e.group === 'non-module') lines.push('  // ════ Non-module（scope / 全域 capability、不屬任何 module）════')
-      if (e.group === 'legacy') lines.push('  // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════')
+      if (e.group === 'derived')
+        lines.push('  // ════ module 衍生（從 src/modules/* 自動產出）════')
+      if (e.group === 'non-module')
+        lines.push('  // ════ Non-module（scope / 全域 capability、不屬任何 module）════')
+      if (e.group === 'legacy')
+        lines.push('  // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════')
       lastGroup = e.group
       lastModulePrefix = null
     }
@@ -377,10 +380,10 @@ function main() {
 
   console.log(`✓ generated src/lib/permissions/features.ts (${ALL_MODULES.length} features)`)
   console.log(
-    `✓ generated src/lib/permissions/module-tabs.ts (${getHrExposedModules().length} HR-exposed modules)`,
+    `✓ generated src/lib/permissions/module-tabs.ts (${getHrExposedModules().length} HR-exposed modules)`
   )
   console.log(
-    `✓ generated src/lib/permissions/capabilities.ts (${stats.derived} derived + ${NON_MODULE_CAPABILITIES.size} non-module + ${stats.legacy} legacy = ${stats.derived + NON_MODULE_CAPABILITIES.size + stats.legacy} total)`,
+    `✓ generated src/lib/permissions/capabilities.ts (${stats.derived} derived + ${NON_MODULE_CAPABILITIES.size} non-module + ${stats.legacy} legacy = ${stats.derived + NON_MODULE_CAPABILITIES.size + stats.legacy} total)`
   )
   console.log('')
   console.log('下一步：跑 npm run type-check + npm run lint 確認')

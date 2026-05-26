@@ -47,9 +47,7 @@ export function PhoneFrame({ children, darkMode = true }: PhoneFrameProps) {
           </div>
         </div>
 
-        <div className="phone-frame-screen">
-          {children}
-        </div>
+        <div className="phone-frame-screen">{children}</div>
 
         <div className="phone-frame-home-indicator" />
       </div>

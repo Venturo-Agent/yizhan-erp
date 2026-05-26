@@ -165,7 +165,7 @@ export function usePassportUpload({
         .order('sort_order', { ascending: false })
         .limit(1)
         .maybeSingle()
-      const baseSortOrder = (maxRow?.sort_order ?? 0)
+      const baseSortOrder = maxRow?.sort_order ?? 0
 
       // 處理每個 OCR 結果
       for (let i = 0; i < result.results.length; i++) {
@@ -248,12 +248,7 @@ export function usePassportUpload({
               | string
               | null,
             birth_date: item.customer.birth_date || null,
-            gender:
-              item.customer.sex === '男'
-                ? 'M'
-                : item.customer.sex === '女'
-                  ? 'F'
-                  : null,
+            gender: item.customer.sex === '男' ? 'M' : item.customer.sex === '女' ? 'F' : null,
             national_id: item.customer.national_id || null,
           }
 
@@ -340,8 +335,7 @@ export function usePassportUpload({
     } catch (error) {
       logger.error(t('batchUploadFailed'), error)
       void alert(
-        t('batchUploadFailed2') +
-          (error instanceof Error ? error.message : t('unknownError')),
+        t('batchUploadFailed2') + (error instanceof Error ? error.message : t('unknownError')),
         'error'
       )
     } finally {

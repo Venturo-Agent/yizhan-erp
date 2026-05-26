@@ -22,7 +22,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
  * 2026-05-14 William 拍板：徹底砍 Google Vision、純 OCR.space + cht 模式
  */
 async function getOcrConfig(
-  workspaceId: string,
+  workspaceId: string
 ): Promise<{ apiKey: string | null; chineseRecognition: boolean }> {
   const cfg = await getIntegrationConfig(workspaceId, 'passport_ocr')
   if (cfg?.ocr_space_api_key) {

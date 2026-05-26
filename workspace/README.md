@@ -7,11 +7,11 @@
 
 ## 三層政治架構（譬喻）
 
-| 層級 | 譬喻 | 實際 |
-|---|---|---|
-| 🏛 全國憲法 | 國家原則、跨所有專案 | `~/.claude/CLAUDE.md` |
-| 📜 地方法律 | 這個專案的法條 + 紅線 | `~/Projects/yizhan-erp/CLAUDE.md` |
-| 🏢 **地方行政院**（本目錄）| 規劃 / 開會 / 執行紀錄 | `workspace/` |
+| 層級                        | 譬喻                   | 實際                              |
+| --------------------------- | ---------------------- | --------------------------------- |
+| 🏛 全國憲法                 | 國家原則、跨所有專案   | `~/.claude/CLAUDE.md`             |
+| 📜 地方法律                 | 這個專案的法條 + 紅線  | `~/Projects/yizhan-erp/CLAUDE.md` |
+| 🏢 **地方行政院**（本目錄） | 規劃 / 開會 / 執行紀錄 | `workspace/`                      |
 
 ---
 
@@ -46,16 +46,16 @@ workspace/
 
 ---
 
-## _meta/architecture/（治國大綱、長青）
+## \_meta/architecture/（治國大綱、長青）
 
 實用 SOP 範本、新功能 / 新租戶照表跑。
 
-| 檔案 | 說明 |
-|------|------|
-| `2026-05-13-建表-SOP.md` | 新表必過 6 層 checklist + migration / API / hook 範本 |
-| `2026-05-14-新租戶-onboarding-seed-SOP.md` | 新租戶 onboarding seed SOP |
+| 檔案                                       | 說明                                                  |
+| ------------------------------------------ | ----------------------------------------------------- |
+| `2026-05-13-建表-SOP.md`                   | 新表必過 6 層 checklist + migration / API / hook 範本 |
+| `2026-05-14-新租戶-onboarding-seed-SOP.md` | 新租戶 onboarding seed SOP                            |
 
-## _meta/modules/（職權說明書、27 份功能模組 spec）
+## \_meta/modules/（職權說明書、27 份功能模組 spec）
 
 各 module 詳細規格：`accounting`, `addon-data-{attractions, hotels, restaurants}`, `calendar`, `channels`, `cis`, `customers`, `dashboard`, `database`, `facebook-bot`, `fee-distribution`, `finance`, `hr`, `hr-salary-settlement`, `instagram-bot`, `leave-severance`, `line-bot`, `messaging-inbox`, `office`, `orders`, `platform-integrations`, `settings`, `todos`, `tour-attributes`, `tours`, `workspaces`。
 

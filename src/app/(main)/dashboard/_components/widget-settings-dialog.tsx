@@ -36,9 +36,7 @@ export function WidgetSettingsDialog({ activeWidgets, onToggleWidget }: WidgetSe
         className="sm:max-w-2xl border-morandi-gold/20 shadow-lg rounded-2xl"
       >
         <DialogHeader>
-          <DialogTitle className="text-xl text-morandi-primary">
-            {t('select1019')}
-          </DialogTitle>
+          <DialogTitle className="text-xl text-morandi-primary">{t('select1019')}</DialogTitle>
           <p className="text-sm text-morandi-muted mt-1">{t('label5024')}</p>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-3 py-4">

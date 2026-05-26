@@ -158,12 +158,14 @@ export async function provisionInstagramBot(input: ProvisionInput): Promise<Prov
     webhook_verified_at: new Date().toISOString(),
     effective_from: formatDateTaipei(new Date()),
   }
-  const igTable = (supabase.from.bind(supabase) as unknown as (table: string) => {
-    upsert: (
-      values: InstagramSettingsUpsert,
-      options: { onConflict: string }
-    ) => Promise<{ error: { message: string } | null }>
-  })('workspace_instagram_settings')
+  const igTable = (
+    supabase.from.bind(supabase) as unknown as (table: string) => {
+      upsert: (
+        values: InstagramSettingsUpsert,
+        options: { onConflict: string }
+      ) => Promise<{ error: { message: string } | null }>
+    }
+  )('workspace_instagram_settings')
   const { error: settingsError } = await igTable.upsert(upsertPayload, {
     onConflict: 'workspace_id',
   })

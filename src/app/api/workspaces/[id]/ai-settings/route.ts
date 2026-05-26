@@ -56,10 +56,7 @@ interface AiSettingsBody {
 /**
  * GET /api/workspaces/[id]/ai-settings
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
 
   const auth = await getServerAuth()
@@ -108,10 +105,7 @@ export async function GET(
  *
  * upsert 整筆。要 workspaces.write capability。
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
 
   const auth = await getServerAuth()
@@ -229,7 +223,10 @@ export async function PUT(
   if (error) {
     logger.error('workspace ai settings upsert error', { error, workspaceId })
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   // 回應遮罩 token 狀態（永遠不送明文）
@@ -289,7 +286,10 @@ export async function DELETE(
   if (error) {
     logger.error('ai settings delete error', { error, workspaceId })
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ ok: true })

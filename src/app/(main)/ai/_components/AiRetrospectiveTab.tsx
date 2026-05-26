@@ -66,7 +66,11 @@ export function AiRetrospectiveTab() {
   const [running, setRunning] = useState(false)
 
   const listUrl = `/api/ai/retrospective/topics?status=${statusFilter}`
-  const { data: resp, isLoading, error } = useSWR<{ data: RagTopic[] }>(listUrl, fetcher, {
+  const {
+    data: resp,
+    isLoading,
+    error,
+  } = useSWR<{ data: RagTopic[] }>(listUrl, fetcher, {
     revalidateOnFocus: false,
   })
   const topics = resp?.data ?? []
@@ -102,15 +106,12 @@ export function AiRetrospectiveTab() {
         <div>
           <h2 className="text-lg font-semibold text-morandi-primary">對話復盤</h2>
           <p className="text-xs text-morandi-secondary mt-1 leading-relaxed">
-            掃全 workspace 速記卡的「AI 答不出來」問題、聚合成主題清單、用來建 RAG 知識庫。<br />
+            掃全 workspace 速記卡的「AI 答不出來」問題、聚合成主題清單、用來建 RAG 知識庫。
+            <br />
             建議每週跑一次、上線初期可隨時跑看累積狀況。
           </p>
         </div>
-        <Button
-          onClick={handleRunRetrospective}
-          disabled={running}
-          className="gap-1.5 shrink-0"
-        >
+        <Button onClick={handleRunRetrospective} disabled={running} className="gap-1.5 shrink-0">
           {running ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -143,12 +144,8 @@ export function AiRetrospectiveTab() {
       </div>
 
       {/* Topic list */}
-      {isLoading && (
-        <div className="text-center text-sm text-morandi-muted py-8">載入中...</div>
-      )}
-      {error && (
-        <div className="text-center text-sm text-status-danger py-8">載入失敗、請刷新</div>
-      )}
+      {isLoading && <div className="text-center text-sm text-morandi-muted py-8">載入中...</div>}
+      {error && <div className="text-center text-sm text-status-danger py-8">載入失敗、請刷新</div>}
       {!isLoading && topics.length === 0 && (
         <div className="text-center text-sm text-morandi-muted py-12 border border-dashed border-morandi-muted/30 rounded-xl">
           {statusFilter === 'pending'
@@ -211,9 +208,11 @@ function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void
         return
       }
       toast.success(
-        status === 'added_to_rag' ? '已標為「已補進 RAG」' :
-        status === 'declined' ? '已標為「不採納」' :
-        '已重置為待 review'
+        status === 'added_to_rag'
+          ? '已標為「已補進 RAG」'
+          : status === 'declined'
+            ? '已標為「不採納」'
+            : '已重置為待 review'
       )
       onChanged()
     } finally {
@@ -246,15 +245,19 @@ function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void
   }
 
   const statusColor =
-    topic.status === 'added_to_rag' ? 'bg-status-success-bg text-status-success border-status-success/30' :
-    topic.status === 'declined' ? 'bg-morandi-muted/20 text-morandi-muted border-morandi-muted/30' :
-    'bg-status-warning-bg text-status-warning border-status-warning/30'
+    topic.status === 'added_to_rag'
+      ? 'bg-status-success-bg text-status-success border-status-success/30'
+      : topic.status === 'declined'
+        ? 'bg-morandi-muted/20 text-morandi-muted border-morandi-muted/30'
+        : 'bg-status-warning-bg text-status-warning border-status-warning/30'
 
   return (
     <>
       <tr className="border-t border-border hover:bg-morandi-container/20 transition-colors">
         <td className="px-3 py-2 align-top">
-          <span className={`inline-block text-[0.65rem] px-2 py-0.5 rounded-full border ${statusColor}`}>
+          <span
+            className={`inline-block text-[0.65rem] px-2 py-0.5 rounded-full border ${statusColor}`}
+          >
             {STATUS_LABELS[topic.status]}
           </span>
         </td>
@@ -267,10 +270,15 @@ function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void
             <span className="leading-snug">{topic.topic_summary}</span>
           </button>
         </td>
-        <td className="px-3 py-2 align-top text-right text-morandi-secondary">{topic.occurrence_count}</td>
+        <td className="px-3 py-2 align-top text-right text-morandi-secondary">
+          {topic.occurrence_count}
+        </td>
         <td className="px-3 py-2 align-top text-xs text-morandi-muted">
           {topic.generated_at
-            ? new Date(topic.generated_at).toLocaleString('zh-TW', { dateStyle: 'short', timeStyle: 'short' })
+            ? new Date(topic.generated_at).toLocaleString('zh-TW', {
+                dateStyle: 'short',
+                timeStyle: 'short',
+              })
             : '—'}
         </td>
         <td className="px-3 py-2 align-top">
@@ -320,10 +328,14 @@ function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void
             {/* 範例原話 */}
             {topic.example_questions.length > 0 && (
               <div>
-                <p className="text-xs text-morandi-muted mb-1">範例原話（{topic.example_questions.length}）</p>
+                <p className="text-xs text-morandi-muted mb-1">
+                  範例原話（{topic.example_questions.length}）
+                </p>
                 <ul className="space-y-1 pl-4 border-l-2 border-morandi-muted/20">
                   {topic.example_questions.map((q, i) => (
-                    <li key={i} className="text-xs text-morandi-primary">「{q}」</li>
+                    <li key={i} className="text-xs text-morandi-primary">
+                      「{q}」
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -343,7 +355,10 @@ function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void
                   )}
                 </p>
                 <button
-                  onClick={() => { setNotesDraft(topic.notes ?? ''); setEditingNotes(true) }}
+                  onClick={() => {
+                    setNotesDraft(topic.notes ?? '')
+                    setEditingNotes(true)
+                  }}
                   className="text-morandi-muted hover:text-morandi-primary shrink-0"
                   title="編輯補充"
                 >
@@ -360,11 +375,26 @@ function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void
                   maxLength={2000}
                 />
                 <div className="flex gap-2 justify-end">
-                  <Button size="sm" variant="outline" onClick={() => setEditingNotes(false)} disabled={busy} className="h-7 text-xs">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingNotes(false)}
+                    disabled={busy}
+                    className="h-7 text-xs"
+                  >
                     取消
                   </Button>
-                  <Button size="sm" onClick={handleSaveNotes} disabled={busy} className="h-7 text-xs gap-1">
-                    {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                  <Button
+                    size="sm"
+                    onClick={handleSaveNotes}
+                    disabled={busy}
+                    className="h-7 text-xs gap-1"
+                  >
+                    {busy ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Check className="w-3 h-3" />
+                    )}
                     儲存
                   </Button>
                 </div>

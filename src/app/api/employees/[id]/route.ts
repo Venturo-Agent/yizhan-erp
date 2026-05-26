@@ -124,7 +124,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (updateErr) {
       logger.error('[employees.PATCH] update employees failed:', updateErr)
       const t = translateDbError(updateErr)
-      return NextResponse.json({ message: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { message: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     // 3. 如果 email 變了 → sync auth.users.email
@@ -221,7 +224,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
       ) {
         return NextResponse.json(
           {
-            message: '員工已有歷史紀錄（訂單 / 出納 / 收款等）、無法刪除、請改用「辦理離職」保留稽核軌跡',
+            message:
+              '員工已有歷史紀錄（訂單 / 出納 / 收款等）、無法刪除、請改用「辦理離職」保留稽核軌跡',
             code: '23503',
             detail: delErr.details,
           },
@@ -259,7 +263,9 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     }
 
     const empName = emp.display_name || emp.chinese_name || emp.employee_number || '員工'
-    logger.log(`[employees.DELETE] permanently deleted: ${empName} (id=${id}, user_id=${emp.user_id})`)
+    logger.log(
+      `[employees.DELETE] permanently deleted: ${empName} (id=${id}, user_id=${emp.user_id})`
+    )
     return NextResponse.json({ success: true, deletedName: empName })
   } catch (error) {
     logger.error('API Error', { path: _req.nextUrl.pathname, error })

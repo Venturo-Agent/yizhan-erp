@@ -34,10 +34,10 @@ const handleDeleteTour = async (tour: ArchivedTour) => {
 
 ### 為什麼是 P0
 
-| 動作 | 影响的 SWR cache | 結果 |
-|---|---|---|
-| `tour_itinerary_items.delete()` | `useTourItineraryItems`（ToursPage/行程編輯器）| 行程編輯器仍顯示已刪項目 |
-| `calendar_events.delete()` | `useCalendarEvents`（calendar/page.tsx）| 日曆視圖仍顯示已刪事件 |
+| 動作                            | 影响的 SWR cache                                | 結果                     |
+| ------------------------------- | ----------------------------------------------- | ------------------------ |
+| `tour_itinerary_items.delete()` | `useTourItineraryItems`（ToursPage/行程編輯器） | 行程編輯器仍顯示已刪項目 |
+| `calendar_events.delete()`      | `useCalendarEvents`（calendar/page.tsx）        | 日曆視圖仍顯示已刪事件   |
 
 其他四個（unlinkQuotes / unlinkItineraries / deleteEmptyOrders / deleteTourEntity）有走 entity 內部 invalidate，所以只有兩個是問題。
 
@@ -86,13 +86,13 @@ grep "export const invalidateTourItineraryItems" src/data/entities/tour-itinerar
 
 ## 影響行數 / 風險 / 回滾
 
-| 項目 | 值 |
-|---|---|
-| **實際改動行數** | +4 行（2 個 import + 2 個 await）|
-| **風險** | 低（止血而已，不動 business logic）|
-| **回滾** | git revert 1 commit、即回歸原狀 |
-| **測試驗證** | 1. 歸檔一個 tour 2. 去 calendar/page.tsx 確認事件消失 3. 去行程編輯器確認項目消失 |
-| **依賴** | 無（invalidate helpers 已存在）|
+| 項目             | 值                                                                                |
+| ---------------- | --------------------------------------------------------------------------------- |
+| **實際改動行數** | +4 行（2 個 import + 2 個 await）                                                 |
+| **風險**         | 低（止血而已，不動 business logic）                                               |
+| **回滾**         | git revert 1 commit、即回歸原狀                                                   |
+| **測試驗證**     | 1. 歸檔一個 tour 2. 去 calendar/page.tsx 確認事件消失 3. 去行程編輯器確認項目消失 |
+| **依賴**         | 無（invalidate helpers 已存在）                                                   |
 
 ---
 
@@ -111,17 +111,17 @@ entity delete 多數是單筆刪除。需要看 entity delete 是否支持 batch
 
 `handleDeleteTour` 整串下來，invalidate 狀況：
 
-| 動作 | method | invalidate？ | 影响的 page |
-|---|---|---|---|
-| `tour_itinerary_items.delete()` | direct supabase | ❌ 無 | ToursPage / 行程編輯器 / ProfitTab |
-| `calendar_events.delete()` | direct supabase | ❌ 無 | calendar/page.tsx / 日曆視圖 |
-| `unlinkTourQuotes()` | service | ✅（有 invalidateQuotes）| quotes list |
-| `unlinkTourItineraries()` | service | ✅（有 invalidateItineraries）| itinerary list |
-| `deleteTourEmptyOrders()` | service | ✅（有 invalidateOrders）| orders list |
-| `deleteTourEntity(tour.id)` | entity hook | ✅（有 invalidateTours）| tours list / dashboard |
+| 動作                            | method          | invalidate？                   | 影响的 page                        |
+| ------------------------------- | --------------- | ------------------------------ | ---------------------------------- |
+| `tour_itinerary_items.delete()` | direct supabase | ❌ 無                          | ToursPage / 行程編輯器 / ProfitTab |
+| `calendar_events.delete()`      | direct supabase | ❌ 無                          | calendar/page.tsx / 日曆視圖       |
+| `unlinkTourQuotes()`            | service         | ✅（有 invalidateQuotes）      | quotes list                        |
+| `unlinkTourItineraries()`       | service         | ✅（有 invalidateItineraries） | itinerary list                     |
+| `deleteTourEmptyOrders()`       | service         | ✅（有 invalidateOrders）      | orders list                        |
+| `deleteTourEntity(tour.id)`     | entity hook     | ✅（有 invalidateTours）       | tours list / dashboard             |
 
 **結論**：只有前兩項缺 invalidate。這次 Option A 只補這兩個，Option B 未來再做。
 
 ---
 
-*Draft by Max — 等待 William review + approve*
+_Draft by Max — 等待 William review + approve_

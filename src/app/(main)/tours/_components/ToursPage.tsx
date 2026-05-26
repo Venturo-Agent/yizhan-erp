@@ -34,7 +34,6 @@ import { toast } from 'sonner'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
 import { logger } from '@/lib/utils/logger'
 
-
 const COMPONENT_LABELS = {
   ORDER_CREATED: '訂單建立成功',
   PROPOSAL_DUPLICATED: '已複製為新提案',
@@ -266,11 +265,18 @@ export const ToursPage: React.FC = () => {
   // 開團（正式團）
   const handleOpenTourDialog = useCallback(async () => {
     // 硬 gate：沒有出帳銀行帳戶不能開團
-    const res = await fetch('/api/setup/status').then(r => r.ok ? r.json() : null).catch(() => null)
+    const res = await fetch('/api/setup/status')
+      .then(r => (r.ok ? r.json() : null))
+      .catch(() => null)
     if (res) {
-      const bankTodo = res.todos?.find((t: { key: string; done: boolean }) => t.key === 'bank_accounts')
+      const bankTodo = res.todos?.find(
+        (t: { key: string; done: boolean }) => t.key === 'bank_accounts'
+      )
       if (bankTodo && !bankTodo.done) {
-        await alert('請先設定至少一個出帳銀行帳戶，才能建立旅遊團。\n\n前往：財務設定 → 銀行帳戶', 'warning')
+        await alert(
+          '請先設定至少一個出帳銀行帳戶，才能建立旅遊團。\n\n前往：財務設定 → 銀行帳戶',
+          'warning'
+        )
         return
       }
     }
@@ -346,7 +352,7 @@ export const ToursPage: React.FC = () => {
         searchQuery={searchQuery}
         onSearchChange={(query: string) => {
           setSearchQuery(query)
-          setCurrentPage(1)  // 搜尋時回第一頁、避免落在空頁
+          setCurrentPage(1) // 搜尋時回第一頁、避免落在空頁
         }}
         activeTab={activeStatusTab}
         onTabChange={(tab: string) => {

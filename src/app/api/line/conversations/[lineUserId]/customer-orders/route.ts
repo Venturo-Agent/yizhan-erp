@@ -127,21 +127,19 @@ export async function GET(
       return NextResponse.json({ error: translateDbError(ordersErr).message }, { status: 500 })
     }
 
-    const orders: CustomerOrderItem[] = (ordersRaw ?? []).map(
-      (o: Record<string, unknown>) => ({
-        id: String(o.id ?? ''),
-        code: (o.order_number as string | null) ?? null, // A1：orders.code 砍、回 order_number 兼容 caller
-        order_number: (o.order_number as string | null) ?? null,
-        tour_name: (o.tour_name as string | null) ?? null,
-        departure_date: (o.departure_date as string | null) ?? null,
-        status: (o.status as string | null) ?? null,
-        payment_status: (o.payment_status as string | null) ?? null,
-        total_amount: (o.total_amount as number | null) ?? null,
-        paid_amount: (o.paid_amount as number | null) ?? null,
-        remaining_amount: (o.remaining_amount as number | null) ?? null,
-        created_at: String(o.created_at ?? ''),
-      })
-    )
+    const orders: CustomerOrderItem[] = (ordersRaw ?? []).map((o: Record<string, unknown>) => ({
+      id: String(o.id ?? ''),
+      code: (o.order_number as string | null) ?? null, // A1：orders.code 砍、回 order_number 兼容 caller
+      order_number: (o.order_number as string | null) ?? null,
+      tour_name: (o.tour_name as string | null) ?? null,
+      departure_date: (o.departure_date as string | null) ?? null,
+      status: (o.status as string | null) ?? null,
+      payment_status: (o.payment_status as string | null) ?? null,
+      total_amount: (o.total_amount as number | null) ?? null,
+      paid_amount: (o.paid_amount as number | null) ?? null,
+      remaining_amount: (o.remaining_amount as number | null) ?? null,
+      created_at: String(o.created_at ?? ''),
+    }))
 
     const response: CustomerOrdersResponse = {
       customer: {

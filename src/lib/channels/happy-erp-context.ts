@@ -45,21 +45,25 @@ export async function buildHappyErpContext(
   const todayIso = new Date().toISOString().slice(0, 10)
 
   // 並行 query 6 個 source（互不依賴、加速）
-  const [
-    toursBlock,
-    hrBlock,
-    customersBlock,
-    suppliersBlock,
-    financeBlock,
-    sharedDataBlock,
-  ] = await Promise.all([
-    dataSources.includes('tours')       ? fetchToursBlock(supabase, workspaceId)       : Promise.resolve(null),
-    dataSources.includes('hr')          ? fetchHrBlock(supabase, workspaceId)          : Promise.resolve(null),
-    dataSources.includes('customers')   ? fetchCustomersBlock(supabase, workspaceId)   : Promise.resolve(null),
-    dataSources.includes('suppliers')   ? fetchSuppliersBlock(supabase, workspaceId)   : Promise.resolve(null),
-    dataSources.includes('finance')     ? fetchFinanceBlock(supabase, workspaceId)     : Promise.resolve(null),
-    dataSources.includes('shared_data') ? fetchSharedDataBlock(supabase, workspaceId)  : Promise.resolve(null),
-  ])
+  const [toursBlock, hrBlock, customersBlock, suppliersBlock, financeBlock, sharedDataBlock] =
+    await Promise.all([
+      dataSources.includes('tours')
+        ? fetchToursBlock(supabase, workspaceId)
+        : Promise.resolve(null),
+      dataSources.includes('hr') ? fetchHrBlock(supabase, workspaceId) : Promise.resolve(null),
+      dataSources.includes('customers')
+        ? fetchCustomersBlock(supabase, workspaceId)
+        : Promise.resolve(null),
+      dataSources.includes('suppliers')
+        ? fetchSuppliersBlock(supabase, workspaceId)
+        : Promise.resolve(null),
+      dataSources.includes('finance')
+        ? fetchFinanceBlock(supabase, workspaceId)
+        : Promise.resolve(null),
+      dataSources.includes('shared_data')
+        ? fetchSharedDataBlock(supabase, workspaceId)
+        : Promise.resolve(null),
+    ])
 
   if (toursBlock) blocks.push(toursBlock)
   if (hrBlock) blocks.push(hrBlock)
@@ -70,10 +74,19 @@ export async function buildHappyErpContext(
 
   // 未實作的 source 加標記、讓 LLM 知道「客戶有勾但還沒接」
   // （目前 6 個 source 全部實作完、此清單保留給未來新加的 source 用）
-  const IMPLEMENTED_SOURCES = new Set(['tours', 'hr', 'customers', 'suppliers', 'finance', 'shared_data'])
+  const IMPLEMENTED_SOURCES = new Set([
+    'tours',
+    'hr',
+    'customers',
+    'suppliers',
+    'finance',
+    'shared_data',
+  ])
   const pendingSources = dataSources.filter(s => !IMPLEMENTED_SOURCES.has(s))
   if (pendingSources.length > 0) {
-    blocks.push(`【尚未接通的資料源】${pendingSources.join('、')}\n（如果員工問到、請說「這部分還在整合中、預計近期會接上」）`)
+    blocks.push(
+      `【尚未接通的資料源】${pendingSources.join('、')}\n（如果員工問到、請說「這部分還在整合中、預計近期會接上」）`
+    )
   }
 
   if (blocks.length === 0) return null
@@ -97,12 +110,17 @@ interface TourRow {
   max_participants: number | null
 }
 
-async function fetchToursBlock(supabase: SupabaseClient, workspaceId: string): Promise<string | null> {
+async function fetchToursBlock(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<string | null> {
   try {
     const today = new Date().toISOString().slice(0, 10)
     const { data, error } = await supabase
       .from('tours')
-      .select('code, name, departure_date, return_date, location, status, price, current_participants, max_participants')
+      .select(
+        'code, name, departure_date, return_date, location, status, price, current_participants, max_participants'
+      )
       .eq('workspace_id', workspaceId)
       .eq('archived', false)
       .gte('departure_date', today) // 只看未來/今日及之後出發的團
@@ -125,7 +143,9 @@ async function fetchToursBlock(supabase: SupabaseClient, workspaceId: string): P
     })
     return `【旅遊團（即將/未來出發、共 ${data.length} 個）】\n${lines.join('\n')}`
   } catch (err) {
-    logger.warn(`${HANDLER}: tours unexpected error`, { err: err instanceof Error ? err.message : String(err) })
+    logger.warn(`${HANDLER}: tours unexpected error`, {
+      err: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }
@@ -170,7 +190,9 @@ async function fetchHrBlock(supabase: SupabaseClient, workspaceId: string): Prom
     })
     return `【員工（在職、共 ${data.length} 人）】\n${lines.join('\n')}`
   } catch (err) {
-    logger.warn(`${HANDLER}: hr unexpected error`, { err: err instanceof Error ? err.message : String(err) })
+    logger.warn(`${HANDLER}: hr unexpected error`, {
+      err: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }
@@ -187,7 +209,10 @@ interface CustomerRow {
   company: string | null
 }
 
-async function fetchCustomersBlock(supabase: SupabaseClient, workspaceId: string): Promise<string | null> {
+async function fetchCustomersBlock(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<string | null> {
   try {
     // 客戶可能很多（361+）、只抓最近建立的 30 個 + 統計總數
     const countQ = filterActive(
@@ -220,7 +245,9 @@ async function fetchCustomersBlock(supabase: SupabaseClient, workspaceId: string
     const total = count ?? data.length
     return `【客戶（最近建立 ${data.length} 筆、總共 ${total} 位）】\n${lines.join('\n')}\n\n（若員工要查某特定客戶細節超過此清單、引導他到 ERP 系統客戶管理頁面查）`
   } catch (err) {
-    logger.warn(`${HANDLER}: customers unexpected error`, { err: err instanceof Error ? err.message : String(err) })
+    logger.warn(`${HANDLER}: customers unexpected error`, {
+      err: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }
@@ -242,12 +269,18 @@ interface SupplierRow {
   city: string | null
 }
 
-async function fetchSuppliersBlock(supabase: SupabaseClient, workspaceId: string): Promise<string | null> {
+async function fetchSuppliersBlock(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<string | null> {
   try {
     // 供應商表沒有 deleted_at、軟刪除走 is_active=false（地方法律 #3）、不能用 filterActive
     const { data, error, count } = await supabase
       .from('suppliers')
-      .select('code, name, short_name, supplier_type_code, contact_person, phone, mobile, email, country, city', { count: 'exact' })
+      .select(
+        'code, name, short_name, supplier_type_code, contact_person, phone, mobile, email, country, city',
+        { count: 'exact' }
+      )
       .eq('workspace_id', workspaceId)
       .eq('is_active', true)
       .order('code', { ascending: true })
@@ -274,7 +307,9 @@ async function fetchSuppliersBlock(supabase: SupabaseClient, workspaceId: string
     const total = count ?? data.length
     return `【供應商（共 ${total} 家、顯示前 ${data.length} 家）】\n${lines.join('\n')}`
   } catch (err) {
-    logger.warn(`${HANDLER}: suppliers unexpected error`, { err: err instanceof Error ? err.message : String(err) })
+    logger.warn(`${HANDLER}: suppliers unexpected error`, {
+      err: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }
@@ -320,7 +355,10 @@ function summarize(
   return { total, count: count ?? list.length }
 }
 
-async function fetchFinanceBlock(supabase: SupabaseClient, workspaceId: string): Promise<string | null> {
+async function fetchFinanceBlock(
+  supabase: SupabaseClient,
+  workspaceId: string
+): Promise<string | null> {
   try {
     const now = new Date()
     const { start: monthStart, end: monthEnd } = monthRange(now)
@@ -376,36 +414,66 @@ async function fetchFinanceBlock(supabase: SupabaseClient, workspaceId: string):
       monthPaidQ,
     ])
 
-    if (arRes.error) logger.warn(`${HANDLER}: finance receipts(pending) failed`, { error: arRes.error.message })
-    if (apRes.error) logger.warn(`${HANDLER}: finance payment_requests(pending) failed`, { error: apRes.error.message })
-    if (monthRecvRes.error) logger.warn(`${HANDLER}: finance receipts(month) failed`, { error: monthRecvRes.error.message })
-    if (monthPaidRes.error) logger.warn(`${HANDLER}: finance disbursement_orders(month) failed`, { error: monthPaidRes.error.message })
+    if (arRes.error)
+      logger.warn(`${HANDLER}: finance receipts(pending) failed`, { error: arRes.error.message })
+    if (apRes.error)
+      logger.warn(`${HANDLER}: finance payment_requests(pending) failed`, {
+        error: apRes.error.message,
+      })
+    if (monthRecvRes.error)
+      logger.warn(`${HANDLER}: finance receipts(month) failed`, {
+        error: monthRecvRes.error.message,
+      })
+    if (monthPaidRes.error)
+      logger.warn(`${HANDLER}: finance disbursement_orders(month) failed`, {
+        error: monthPaidRes.error.message,
+      })
 
     const arUnsettled = arRes.error
       ? null
-      : summarize(arRes.data as Array<Record<string, unknown>> | null, arRes.count, 'receipt_amount')
+      : summarize(
+          arRes.data as Array<Record<string, unknown>> | null,
+          arRes.count,
+          'receipt_amount'
+        )
     const apUnpaid = apRes.error
       ? null
       : summarize(apRes.data as Array<Record<string, unknown>> | null, apRes.count, 'amount')
     const monthReceived = monthRecvRes.error
       ? null
-      : summarize(monthRecvRes.data as Array<Record<string, unknown>> | null, monthRecvRes.count, 'receipt_amount')
+      : summarize(
+          monthRecvRes.data as Array<Record<string, unknown>> | null,
+          monthRecvRes.count,
+          'receipt_amount'
+        )
     const monthPaid = monthPaidRes.error
       ? null
-      : summarize(monthPaidRes.data as Array<Record<string, unknown>> | null, monthPaidRes.count, 'amount')
+      : summarize(
+          monthPaidRes.data as Array<Record<string, unknown>> | null,
+          monthPaidRes.count,
+          'amount'
+        )
 
     const lines: string[] = []
     if (arUnsettled && arUnsettled.count > 0) {
-      lines.push(`- 應收未收：${fmtNT(arUnsettled.total)} / 共 ${arUnsettled.count} 筆（客戶已建單但款項尚未確認入帳）`)
+      lines.push(
+        `- 應收未收：${fmtNT(arUnsettled.total)} / 共 ${arUnsettled.count} 筆（客戶已建單但款項尚未確認入帳）`
+      )
     }
     if (apUnpaid && apUnpaid.count > 0) {
-      lines.push(`- 應付未付：${fmtNT(apUnpaid.total)} / 共 ${apUnpaid.count} 筆（供應商已請款但尚未付款）`)
+      lines.push(
+        `- 應付未付：${fmtNT(apUnpaid.total)} / 共 ${apUnpaid.count} 筆（供應商已請款但尚未付款）`
+      )
     }
     if (monthReceived && monthReceived.count > 0) {
-      lines.push(`- 本月實收（${monthStart} 起）：${fmtNT(monthReceived.total)} / 共 ${monthReceived.count} 筆`)
+      lines.push(
+        `- 本月實收（${monthStart} 起）：${fmtNT(monthReceived.total)} / 共 ${monthReceived.count} 筆`
+      )
     }
     if (monthPaid && monthPaid.count > 0) {
-      lines.push(`- 本月實支（${monthStart} 起）：${fmtNT(monthPaid.total)} / 共 ${monthPaid.count} 筆`)
+      lines.push(
+        `- 本月實支（${monthStart} 起）：${fmtNT(monthPaid.total)} / 共 ${monthPaid.count} 筆`
+      )
     }
 
     if (lines.length === 0) {
@@ -414,7 +482,9 @@ async function fetchFinanceBlock(supabase: SupabaseClient, workspaceId: string):
 
     return `【財務概覽】\n${lines.join('\n')}\n\n（金額僅供概覽；明細請到 ERP 財務管理 → 收款/請款/出納 頁查）`
   } catch (err) {
-    logger.warn(`${HANDLER}: finance unexpected error`, { err: err instanceof Error ? err.message : String(err) })
+    logger.warn(`${HANDLER}: finance unexpected error`, {
+      err: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }
@@ -440,22 +510,19 @@ async function fetchOneSharedSlice(
   try {
     // count + 最近 10 筆並行（共用表 RLS 自己擋、不加 workspace_id filter）
     const countQ = filterActive(
-      supabase
-        .from(table)
-        .select('id', { count: 'exact', head: true })
-        .eq('is_active', true)
+      supabase.from(table).select('id', { count: 'exact', head: true }).eq('is_active', true)
     )
     const dataQ = filterActive(
-      supabase
-        .from(table)
-        .select('name, english_name, country_id, city_id')
-        .eq('is_active', true)
+      supabase.from(table).select('name, english_name, country_id, city_id').eq('is_active', true)
     )
       .order('updated_at', { ascending: false, nullsFirst: false })
       .limit(10)
       .returns<SharedItemRow[]>()
 
-    const [{ count, error: countErr }, { data, error: dataErr }] = await Promise.all([countQ, dataQ])
+    const [{ count, error: countErr }, { data, error: dataErr }] = await Promise.all([
+      countQ,
+      dataQ,
+    ])
     if (countErr) {
       logger.warn(`${HANDLER}: shared_data ${table} count failed`, { error: countErr.message })
       return null
@@ -473,12 +540,17 @@ async function fetchOneSharedSlice(
       .filter(Boolean)
     return { count: count ?? recent.length, recent }
   } catch (err) {
-    logger.warn(`${HANDLER}: shared_data ${table} unexpected error`, { err: err instanceof Error ? err.message : String(err) })
+    logger.warn(`${HANDLER}: shared_data ${table} unexpected error`, {
+      err: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }
 
-async function fetchSharedDataBlock(supabase: SupabaseClient, _workspaceId: string): Promise<string | null> {
+async function fetchSharedDataBlock(
+  supabase: SupabaseClient,
+  _workspaceId: string
+): Promise<string | null> {
   try {
     const [attractions, hotels, restaurants] = await Promise.all([
       fetchOneSharedSlice(supabase, 'attractions'),
@@ -488,22 +560,31 @@ async function fetchSharedDataBlock(supabase: SupabaseClient, _workspaceId: stri
 
     const lines: string[] = []
     if (attractions) {
-      const sample = attractions.recent.length > 0 ? `、最近更新：${attractions.recent.slice(0, 5).join('、')}` : ''
+      const sample =
+        attractions.recent.length > 0
+          ? `、最近更新：${attractions.recent.slice(0, 5).join('、')}`
+          : ''
       lines.push(`- 景點庫共 ${attractions.count} 筆${sample}`)
     }
     if (hotels) {
-      const sample = hotels.recent.length > 0 ? `、最近更新：${hotels.recent.slice(0, 5).join('、')}` : ''
+      const sample =
+        hotels.recent.length > 0 ? `、最近更新：${hotels.recent.slice(0, 5).join('、')}` : ''
       lines.push(`- 飯店庫共 ${hotels.count} 筆${sample}`)
     }
     if (restaurants) {
-      const sample = restaurants.recent.length > 0 ? `、最近更新：${restaurants.recent.slice(0, 5).join('、')}` : ''
+      const sample =
+        restaurants.recent.length > 0
+          ? `、最近更新：${restaurants.recent.slice(0, 5).join('、')}`
+          : ''
       lines.push(`- 餐廳庫共 ${restaurants.count} 筆${sample}`)
     }
 
     if (lines.length === 0) return null
     return `【共用資料（景點 / 飯店 / 餐廳庫）】\n${lines.join('\n')}\n\n（這些是漫途累積的旅遊基礎資料、可在 ERP 資源庫頁面查詳細）`
   } catch (err) {
-    logger.warn(`${HANDLER}: shared_data unexpected error`, { err: err instanceof Error ? err.message : String(err) })
+    logger.warn(`${HANDLER}: shared_data unexpected error`, {
+      err: err instanceof Error ? err.message : String(err),
+    })
     return null
   }
 }

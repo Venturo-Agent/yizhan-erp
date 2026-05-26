@@ -22,9 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (itinerary) {
       // LINE 預覽標題：只顯示團名
       const title = itinerary.title || '行程表'
-      const description =
-        itinerary.description ||
-        `${itinerary.title || '行程'} - 詳細行程資訊`
+      const description = itinerary.description || `${itinerary.title || '行程'} - 詳細行程資訊`
 
       return {
         title,

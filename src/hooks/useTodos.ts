@@ -45,16 +45,18 @@ export function useTodos() {
 
   // 舊 callers update / delete 回 Promise<void>、wrapper 對齊
   const update = useMemo(
-    () => async (id: string, updates: Partial<Todo>): Promise<void> => {
-      await entityUpdateTodo(id, updates)
-    },
+    () =>
+      async (id: string, updates: Partial<Todo>): Promise<void> => {
+        await entityUpdateTodo(id, updates)
+      },
     []
   )
 
   const remove = useMemo(
-    () => async (id: string): Promise<void> => {
-      await entityDeleteTodo(id)
-    },
+    () =>
+      async (id: string): Promise<void> => {
+        await entityDeleteTodo(id)
+      },
     []
   )
 

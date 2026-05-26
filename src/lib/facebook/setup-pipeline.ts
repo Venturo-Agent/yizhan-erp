@@ -55,7 +55,10 @@ export interface ProvisionResult {
 }
 
 function buildWebhookUrl(): string {
-  const base = process.env.FACEBOOK_WEBHOOK_BASE_URL || process.env.LINE_WEBHOOK_BASE_URL || 'https://erp.venturo.tw'
+  const base =
+    process.env.FACEBOOK_WEBHOOK_BASE_URL ||
+    process.env.LINE_WEBHOOK_BASE_URL ||
+    'https://erp.venturo.tw'
   return `${base.replace(/\/$/, '')}/api/facebook/webhook`
 }
 
@@ -165,12 +168,14 @@ export async function provisionFacebookBot(input: ProvisionInput): Promise<Provi
     webhook_verified_at: new Date().toISOString(),
     effective_from: formatDateTaipei(new Date()),
   }
-  const fbTable = (supabase.from.bind(supabase) as unknown as (table: string) => {
-    upsert: (
-      values: FacebookSettingsUpsert,
-      options: { onConflict: string }
-    ) => Promise<{ error: { message: string } | null }>
-  })('workspace_facebook_settings')
+  const fbTable = (
+    supabase.from.bind(supabase) as unknown as (table: string) => {
+      upsert: (
+        values: FacebookSettingsUpsert,
+        options: { onConflict: string }
+      ) => Promise<{ error: { message: string } | null }>
+    }
+  )('workspace_facebook_settings')
   const { error: settingsError } = await fbTable.upsert(upsertPayload, {
     onConflict: 'workspace_id',
   })

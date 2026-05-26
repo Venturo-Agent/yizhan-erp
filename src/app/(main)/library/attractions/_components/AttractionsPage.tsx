@@ -18,7 +18,8 @@ const AttractionsTab = lazy(() => import('./tabs/AttractionsTab'))
 
 // CORNER workspace ID（米其林、頂級體驗專屬）
 // 2026-05-16 QDF R40：走 env、fallback 保留
-const CORNER_WORKSPACE_ID = process.env.NEXT_PUBLIC_PLATFORM_WORKSPACE_ID || '8ef05a74-1f87-48ab-afd3-9bfeb423935d'
+const CORNER_WORKSPACE_ID =
+  process.env.NEXT_PUBLIC_PLATFORM_WORKSPACE_ID || '8ef05a74-1f87-48ab-afd3-9bfeb423935d'
 
 // 有效的 tab 值
 const ALL_TABS = ['regions', 'attractions', 'hotels', 'restaurants'] as const

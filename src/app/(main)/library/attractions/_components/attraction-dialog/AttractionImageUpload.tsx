@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { Upload, X, Pencil} from 'lucide-react'
+import { Upload, X, Pencil } from 'lucide-react'
 import { ImagePosition } from '../../_hooks/useAttractionForm'
 import { ImageEditor, type ImageEditorSettings } from '@/components/ui/image-editor'
 import { logger } from '@/lib/utils/logger'
@@ -227,9 +227,7 @@ export function AttractionImageUpload({
       >
         {isDragOver && (
           <div className="flex items-center justify-center h-[120px]">
-            <div className="text-morandi-gold font-medium">
-              {t('attractionImageUploadDrop')}
-            </div>
+            <div className="text-morandi-gold font-medium">{t('attractionImageUploadDrop')}</div>
           </div>
         )}
         {!isDragOver && uploadedImages.length > 0 ? (

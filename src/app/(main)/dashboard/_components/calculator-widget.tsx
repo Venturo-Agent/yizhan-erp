@@ -288,10 +288,11 @@ export function CalculatorWidget() {
             >
               +
             </Button>
-            <Button variant="soft-gold"
+            <Button
+              variant="soft-gold"
               size="sm"
               onClick={() => handleButtonClick('=')}
- className="h-8 text-xs font-bold transition-all rounded-xl"
+              className="h-8 text-xs font-bold transition-all rounded-xl"
             >
               =
             </Button>

@@ -145,7 +145,8 @@ export function CoordinateSearch({
         <div className="flex items-center gap-2 text-xs text-morandi-secondary">
           <MapPin size={12} className="text-morandi-gold" />
           <span>
-            {COMPONENT_LABELS.CURRENT_PREFIX}{currentLat.toFixed(6)}, {currentLng.toFixed(6)}
+            {COMPONENT_LABELS.CURRENT_PREFIX}
+            {currentLat.toFixed(6)}, {currentLng.toFixed(6)}
           </span>
           <a
             href={`https://www.google.com/maps?q=${currentLat},${currentLng}`}
@@ -234,9 +235,7 @@ export function CoordinateSearch({
       {urlError && <p className="text-xs text-status-danger">{urlError}</p>}
 
       {/* 提示 */}
-      <p className="text-xs text-morandi-muted">
-        {COMPONENT_LABELS.TIP}
-      </p>
+      <p className="text-xs text-morandi-muted">{COMPONENT_LABELS.TIP}</p>
     </div>
   )
 }

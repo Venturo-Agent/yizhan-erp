@@ -189,7 +189,12 @@ export default function IncomeStatementPage() {
           </div>
 
           <div className="mt-4 pt-4 border-t border-border">
-            <QuickDateButtons onSelect={({ start, end }) => { setStartDate(start); setEndDate(end) }} />
+            <QuickDateButtons
+              onSelect={({ start, end }) => {
+                setStartDate(start)
+                setEndDate(end)
+              }}
+            />
           </div>
         </Card>
 
@@ -227,7 +232,9 @@ export default function IncomeStatementPage() {
 
               {/* 成本 */}
               <div>
-                <div className="font-semibold mb-2 text-status-warning">{PAGE_LABELS.OPERATING_COST}</div>
+                <div className="font-semibold mb-2 text-status-warning">
+                  {PAGE_LABELS.OPERATING_COST}
+                </div>
                 {data.cost.map(item => (
                   <div key={item.code} className="flex justify-between py-1 pl-4">
                     <span className="text-sm">
@@ -259,7 +266,9 @@ export default function IncomeStatementPage() {
 
               {/* 費用 */}
               <div>
-                <div className="font-semibold mb-2 text-morandi-secondary">{PAGE_LABELS.OPERATING_EXPENSES}</div>
+                <div className="font-semibold mb-2 text-morandi-secondary">
+                  {PAGE_LABELS.OPERATING_EXPENSES}
+                </div>
                 {data.expense.map(item => (
                   <div key={item.code} className="flex justify-between py-1 pl-4">
                     <span className="text-sm">
@@ -317,7 +326,9 @@ export default function IncomeStatementPage() {
 
         {!data && !isLoading && (
           <Card className="p-8">
-            <div className="text-center text-muted-foreground">{PAGE_LABELS.PLEASE_SELECT_DATE}</div>
+            <div className="text-center text-muted-foreground">
+              {PAGE_LABELS.PLEASE_SELECT_DATE}
+            </div>
           </Card>
         )}
       </div>

@@ -8,16 +8,16 @@
 
 ## 救護車式總覽（會死人嗎）
 
-| 嚴重度 | 項目 | 結論 |
-|---|---|---|
-| 🟡 WARNING | L5/L6 DB 層因 DB 不通 skip | CI Linux 應能跑、可拿到全量 |
-| 🟡 WARNING | 12 個 module route 無 page.tsx | `documents` / `travel_invoice` 等閒置路由 |
-| 🟡 WARNING | 3 capability module 沒在 module-tabs.ts | `facebook_bot` / `instagram_bot` / `line_bot` |
-| 🟡 WARNING | 10 capability 只在 capabilities.ts、不在 modules/ 衍生 | drift 待檢是否故意 |
-| ✅ PASS | L1 Feature Gate — features.ts 27 個跟 modules/ 26 個對齊 | |
-| ✅ PASS | L2 Capability — 148 capability / 22 module | 基本對齊、drift 可解 |
-| ✅ PASS | L6 SSOT — 2 個中央 module 在 / 0 處 inline 編號 / 0 處 raw error | |
-| ✅ PASS | audit:writes — 0 個 trigger × API 雙寫撞車 | 紅線 E 守住 |
+| 嚴重度     | 項目                                                             | 結論                                          |
+| ---------- | ---------------------------------------------------------------- | --------------------------------------------- |
+| 🟡 WARNING | L5/L6 DB 層因 DB 不通 skip                                       | CI Linux 應能跑、可拿到全量                   |
+| 🟡 WARNING | 12 個 module route 無 page.tsx                                   | `documents` / `travel_invoice` 等閒置路由     |
+| 🟡 WARNING | 3 capability module 沒在 module-tabs.ts                          | `facebook_bot` / `instagram_bot` / `line_bot` |
+| 🟡 WARNING | 10 capability 只在 capabilities.ts、不在 modules/ 衍生           | drift 待檢是否故意                            |
+| ✅ PASS    | L1 Feature Gate — features.ts 27 個跟 modules/ 26 個對齊         |                                               |
+| ✅ PASS    | L2 Capability — 148 capability / 22 module                       | 基本對齊、drift 可解                          |
+| ✅ PASS    | L6 SSOT — 2 個中央 module 在 / 0 處 inline 編號 / 0 處 raw error |                                               |
+| ✅ PASS    | audit:writes — 0 個 trigger × API 雙寫撞車                       | 紅線 E 守住                                   |
 
 ---
 
@@ -27,14 +27,15 @@
 
 **audit:rls 結果**：✅ 綠
 
-| 檢核項 | 狀態 | 備註 |
-|---|---|---|
-| features.ts 同步 modules/ | ✅ | 27 feature flag / 26 module |
-| ModuleGuard 守門存在 | ✅ | `src/components/guards/ModuleGuard.tsx` 在 |
-| workspace_features 鉤鉤 | ✅ | audit:rls 有鉤 |
+| 檢核項                    | 狀態 | 備註                                       |
+| ------------------------- | ---- | ------------------------------------------ |
+| features.ts 同步 modules/ | ✅   | 27 feature flag / 26 module                |
+| ModuleGuard 守門存在      | ✅   | `src/components/guards/ModuleGuard.tsx` 在 |
+| workspace_features 鉤鉤   | ✅   | audit:rls 有鉤                             |
 
 **缺口**：
-- `travel_invoice` module 有 7 個 route（/travel-invoice/*）無 page.tsx → 疑似落後功能
+
+- `travel_invoice` module 有 7 個 route（/travel-invoice/\*）無 page.tsx → 疑似落後功能
 
 ---
 
@@ -42,13 +43,14 @@
 
 **audit:rls 結果**：⚠️ 3 個 drift
 
-| 檢核項 | 狀態 | 備註 |
-|---|---|---|
-| capabilities 148 項 / 22 module | ✅ | 基本對齊 |
-| capability modules drift | ⚠️ 3 個 module 沒在 module-tabs.ts | `facebook_bot` / `instagram_bot` / `line_bot` |
-| capabilities.ts 多 10 capability | ⚠️ drift | channels.manage / finance.advance_payment.write / 3 個 bot capability |
+| 檢核項                           | 狀態                               | 備註                                                                  |
+| -------------------------------- | ---------------------------------- | --------------------------------------------------------------------- |
+| capabilities 148 項 / 22 module  | ✅                                 | 基本對齊                                                              |
+| capability modules drift         | ⚠️ 3 個 module 沒在 module-tabs.ts | `facebook_bot` / `instagram_bot` / `line_bot`                         |
+| capabilities.ts 多 10 capability | ⚠️ drift                           | channels.manage / finance.advance_payment.write / 3 個 bot capability |
 
 **drift 清單（capabilities.ts 有 / modules/ 衍生沒）**：
+
 ```
 channels.manage
 facebook_bot.config
@@ -69,15 +71,18 @@ line_bot.write
 **audit:rls 結果**：⚠️ DB 不通 skip
 
 **靜態掃描結果**（migration grep）：
+
 - `branches` 表：有 `workspace_id` + `code` + `name` + `is_hq` 欄位
 - `brands` 表：有 `workspace_id` + `name` + `code`
 - `departments` 表：有 `workspace_id` + `name` + `code`
 - `employee_branches` / `employee_brands` / `employee_departments` join table 存在
 
 **scope_visible() 或類似鉤鉤位置**：
+
 - `src/lib/permissions/scope-visibility.ts` — 預計承擔此責任（需確認實際函數名）
 
 **缺口**（無 DB 無法確認）：
+
 - `employee_branches` join table 是否吃 RLS（需查 `setup_join_table_rls`）
 - scope 在 API route 層是否散刻 `sales_id = me`（紅線 E 風險）
 
@@ -88,6 +93,7 @@ line_bot.write
 **audit:rls 結果**：⚠️ DB 不通 skip
 
 **靜態掃描**（找 `is_row_editable` / `is_editable` / `status` 欄位）：
+
 - `orders` 表：有 `status`（pending / confirmed / cancelled）
 - `receipts` 表：有 `status`（draft / confirmed / void）
 - `payment_requests` 表：有 `status`
@@ -95,6 +101,7 @@ line_bot.write
 - `disbursement_orders` 表：有 `status`
 
 **鉤鉤位置**：
+
 - `src/lib/db-state.ts` 或類似（需確認）
 
 **缺口**：無法斷言每張表的狀態守門覆蓋率
@@ -106,6 +113,7 @@ line_bot.write
 **audit:rls 結果**：⚠️ DB 不通 skip
 
 **靜態掃描**（migration grep `CREATE POLICY`）：
+
 - 已知有 `setup_workspace_scoped_rls` / `setup_join_table_rls` / `setup_inherited_rls` 三个 procedure
 - `workspaces` 表：**NO FORCE**（紅線 A 守住 ✅）
 - RLS policy 數量：需 DB 才能數
@@ -118,14 +126,14 @@ line_bot.write
 
 **audit:rls 結果**：✅ 全綠
 
-| 檢核項 | 狀態 | 備註 |
-|---|---|---|
-| 中央 module (@/lib/codes.ts / db-error-translate.ts) | ✅ | 在 |
-| inline 編號 RPC | ✅ 0 處 | |
-| raw error.message return | ✅ 0 處 | |
-| `|| ''` 空字串 FK | ✅ 0 處 | |
-| `as any` 控制 | ✅ 19 處 | 可接受 |
-| deleted_column 殘留 | ✅ 0 處 | |
+| 檢核項                                               | 狀態     | 備註          |
+| ---------------------------------------------------- | -------- | ------------- | ------- | --- |
+| 中央 module (@/lib/codes.ts / db-error-translate.ts) | ✅       | 在            |
+| inline 編號 RPC                                      | ✅ 0 處  |               |
+| raw error.message return                             | ✅ 0 處  |               |
+| `                                                    |          | ''` 空字串 FK | ✅ 0 處 |     |
+| `as any` 控制                                        | ✅ 19 處 | 可接受        |
+| deleted_column 殘留                                  | ✅ 0 處  |               |
 
 ---
 
@@ -133,18 +141,18 @@ line_bot.write
 
 ### 🟠 HIGH（影響資安或 SSOT）
 
-| # | 層 | 缺口 | 修法 |
-|---|---|---|---|
-| 1 | L2 | `facebook_bot` / `instagram_bot` / `line_bot` 沒在 module-tabs.ts | 補進 module-tabs.ts 或從 capabilities.ts 移除 drift |
-| 2 | L2 | 10 capability drift（見上 drfit 清單）| 確認是故意殘留還是需要補 module |
-| 3 | L3 | 無 DB 無法確認 scope 散刻 | CI 環境補足此層 |
+| #   | 層  | 缺口                                                              | 修法                                                |
+| --- | --- | ----------------------------------------------------------------- | --------------------------------------------------- |
+| 1   | L2  | `facebook_bot` / `instagram_bot` / `line_bot` 沒在 module-tabs.ts | 補進 module-tabs.ts 或從 capabilities.ts 移除 drift |
+| 2   | L2  | 10 capability drift（見上 drfit 清單）                            | 確認是故意殘留還是需要補 module                     |
+| 3   | L3  | 無 DB 無法確認 scope 散刻                                         | CI 環境補足此層                                     |
 
 ### 🟡 MEDIUM（功能完整性）
 
-| # | 層 | 缺口 | 修法 |
-|---|---|---|---|
-| 4 | L1 | `travel_invoice` 7 個 route 無 page.tsx | 補 page 或從 modules/ 移除 |
-| 5 | L3/L4 | DB 不通導致 skip | 確認 CI 有 SUPABASE_DB_URL |
+| #   | 層    | 缺口                                    | 修法                       |
+| --- | ----- | --------------------------------------- | -------------------------- |
+| 4   | L1    | `travel_invoice` 7 個 route 無 page.tsx | 補 page 或從 modules/ 移除 |
+| 5   | L3/L4 | DB 不通導致 skip                        | 確認 CI 有 SUPABASE_DB_URL |
 
 ---
 

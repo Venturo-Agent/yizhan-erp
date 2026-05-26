@@ -15,14 +15,14 @@
 
 ## Round 1-3 累積已確認的真實 P0
 
-| # | finding | 狀態 |
-|---|---|---|
-| 1 | `tour_control_forms.created_by/updated_by` FK 指 auth.users，應指 employees(id) | ✅ 確定違反紅線 B |
-| 2 | LINE bot capability「不能清」 | ✅ 訂正完、無事 |
-| 3 | CIS / departments 殘留 | ✅ 已清乾淨（清 .next/dev） |
-| 4 | tsc error 6 個 | ✅ Round 3 已修 |
-| 5 | `salary_settlements submit` 無 closed period guard | ⏳ 本輪修 |
-| 6 | image_library / file_system / email_system 業務語意需 disambiguation | ⏳ 本輪先 audit、若確定違反就一起修 |
+| #   | finding                                                                         | 狀態                                |
+| --- | ------------------------------------------------------------------------------- | ----------------------------------- |
+| 1   | `tour_control_forms.created_by/updated_by` FK 指 auth.users，應指 employees(id) | ✅ 確定違反紅線 B                   |
+| 2   | LINE bot capability「不能清」                                                   | ✅ 訂正完、無事                     |
+| 3   | CIS / departments 殘留                                                          | ✅ 已清乾淨（清 .next/dev）         |
+| 4   | tsc error 6 個                                                                  | ✅ Round 3 已修                     |
+| 5   | `salary_settlements submit` 無 closed period guard                              | ⏳ 本輪修                           |
+| 6   | image_library / file_system / email_system 業務語意需 disambiguation            | ⏳ 本輪先 audit、若確定違反就一起修 |
 
 ---
 
@@ -33,6 +33,7 @@
 **範圍**：`image_library` / `email_accounts`（在 email_system schema 內）/ `file_system.files` / `file_system.folders` 共 4 個表 / table-group。
 
 **方法**：
+
 1. Grep API caller：`src/app/api/**/*.ts` 看哪些 route 寫入這些表
 2. Grep schema 註解：對應 migration 檔 `COMMENT ON TABLE` 看業務語意
 3. 比較 `tour_control_forms`（已確認是 ERP 業務）跟這 4 個表的使用模式差異
@@ -47,6 +48,7 @@
 **範圍**：對 Sub-task A 確定違反的所有表 + `tour_control_forms`（已確認違反）
 
 **做法**：
+
 1. 在 `supabase/migrations/` 寫新 migration 檔
 2. 檔名：`YYYYMMDDHHMMSS_fix_red_line_b_audit_fk.sql`（時間戳要對、不要撞）
 3. 內含：
@@ -67,6 +69,7 @@
 **範圍**：`src/app/api/hr/salary-settlements/[id]/submit/route.ts`（或對應路徑、自己找）
 
 **做法**：
+
 1. 找 submit route 的 handler
 2. 在 handler 開頭、寫入 DB 之前、加 closed period check：
    - 從 settlement 拿 period_id（看實際 schema）
@@ -84,11 +87,13 @@
 ## 規矩（必守）
 
 ### 紅線 1 — 動 production 的紀律
+
 - ✅ 寫 migration 到 `supabase/migrations/`
 - ❌ **絕對不准跑 MCP supabase apply_migration**（你沒這個工具、CLAUDE.md 只允許 Claude 走）
 - ❌ **絕對不准 git push**（留給 Claude 覆查後 push）
 
 ### 紅線 2 — 改 src code 的紀律
+
 - ❌ 不准 `--no-verify` 跳 hook（這次該通、tsc Round 3 已修）
 - ❌ 不准 `as any` / `: any` 蓋 type error
 - ❌ 不准 mock / fake data
@@ -96,16 +101,19 @@
 - ✅ Commit 前必跑 `npm run type-check`（必過）
 
 ### 紅線 3 — Commit 紀律
+
 - 每個 sub-task **獨立 commit**（不要混 A + B + C 進一個）
 - Commit message 標 Round 4
 - 不准 amend、不准 `git add -A`、用 `git add <specific files>`
 - 不准 push
 
 ### 紅線 4 — 卡住怎麼辦
+
 - 第一次卡 → 停手、寫 `OVERNIGHT-PROGRESS-2026-05-20.md` 註記、跳下個 sub-task
 - 不准連續燒 token 試 A→B→C→D
 
 ### 紅線 5 — 收工
+
 - 寫 Round 4 段進 `OVERNIGHT-LEARNINGS-2026-05-20.md`（用既有檔追加、不寫新檔）
 - 最後 commit 標 `audit(round-4): 修法完成、等 Claude 覆查 + apply + push`
 - 停手
@@ -124,6 +132,7 @@
 ## Claude Opus 收尾流程（你不用管、給你知道）
 
 OPENCLAW 寫完 Sub-task A + B + C、commit 完、stop。然後 Claude Opus：
+
 1. 覆查每個 commit
 2. 走 MCP apply_migration 套用 Sub-task B 的 migration
 3. 跑 `npm run audit:rls` 確認綠

@@ -91,11 +91,7 @@ export async function apiMutate<T = unknown>(
       ? { ...headers }
       : { 'Content-Type': 'application/json', ...headers }
 
-    const fetchBody = isFormData
-      ? formData
-      : body !== undefined
-        ? JSON.stringify(body)
-        : undefined
+    const fetchBody = isFormData ? formData : body !== undefined ? JSON.stringify(body) : undefined
 
     const res = await fetch(url, {
       method,
@@ -106,7 +102,9 @@ export async function apiMutate<T = unknown>(
     // Blob 回應（圖片 / 檔案下載）
     if (returnBlob) {
       if (!res.ok) {
-        for (const o of optimistic) { await globalMutate(o.key) }
+        for (const o of optimistic) {
+          await globalMutate(o.key)
+        }
         return { ok: false, error: `HTTP ${res.status}`, status: res.status }
       }
       const blobData = await res.blob()
@@ -125,10 +123,10 @@ export async function apiMutate<T = unknown>(
     }
 
     // 失敗判斷：HTTP 狀態 + successFlag 模式
-    const isSuccess = res.ok && (
-      !successFlag ||
-      (data && typeof data === 'object' && (data as Record<string, unknown>).success === true)
-    )
+    const isSuccess =
+      res.ok &&
+      (!successFlag ||
+        (data && typeof data === 'object' && (data as Record<string, unknown>).success === true))
 
     if (!isSuccess) {
       // 失敗：rollback optimistic（revalidate 拉真實狀態）

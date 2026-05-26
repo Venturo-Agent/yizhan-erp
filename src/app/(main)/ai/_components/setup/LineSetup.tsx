@@ -180,48 +180,48 @@ export function LineSetup() {
       <StepIndicator steps={LINE_SETUP_STEPS} current={step} />
 
       <Card className="p-6">
-          {step === 'welcome' && <StepWelcome onNext={() => setStep('credentials')} />}
+        {step === 'welcome' && <StepWelcome onNext={() => setStep('credentials')} />}
 
-          {step === 'credentials' && (
-            <StepCredentials
-              credentials={credentials}
-              onChange={updateCred}
-              onBack={() => setStep('welcome')}
-              onValidate={handleValidate}
-              validating={validating}
-              error={error}
-            />
-          )}
+        {step === 'credentials' && (
+          <StepCredentials
+            credentials={credentials}
+            onChange={updateCred}
+            onBack={() => setStep('welcome')}
+            onValidate={handleValidate}
+            validating={validating}
+            error={error}
+          />
+        )}
 
-          {step === 'validate' && botInfo && (
-            <StepValidateConfirm
-              botInfo={botInfo}
-              onBack={() => {
-                setStep('credentials')
-                setError(null)
-              }}
-              onProvision={handleProvision}
-              provisioning={provisioning}
-              error={error}
-            />
-          )}
+        {step === 'validate' && botInfo && (
+          <StepValidateConfirm
+            botInfo={botInfo}
+            onBack={() => {
+              setStep('credentials')
+              setError(null)
+            }}
+            onProvision={handleProvision}
+            provisioning={provisioning}
+            error={error}
+          />
+        )}
 
-          {step === 'provision' && (
-            <div className="text-center py-12 space-y-4">
-              <Loader2 className="w-12 h-12 animate-spin mx-auto text-morandi-gold" />
-              <p className="text-sm font-medium">正在自動建立 BOT 員工、儲存設定...</p>
-              <p className="text-xs text-morandi-secondary">通常 3-5 秒</p>
-            </div>
-          )}
+        {step === 'provision' && (
+          <div className="text-center py-12 space-y-4">
+            <Loader2 className="w-12 h-12 animate-spin mx-auto text-morandi-gold" />
+            <p className="text-sm font-medium">正在自動建立 BOT 員工、儲存設定...</p>
+            <p className="text-xs text-morandi-secondary">通常 3-5 秒</p>
+          </div>
+        )}
 
-          {step === 'done' && provisionResult && (
-            <StepDone
-              webhookUrl={provisionResult.webhookUrl}
-              botDisplayName={provisionResult.botDisplayName}
-              onCopy={handleCopyWebhook}
-            />
-          )}
-        </Card>
+        {step === 'done' && provisionResult && (
+          <StepDone
+            webhookUrl={provisionResult.webhookUrl}
+            botDisplayName={provisionResult.botDisplayName}
+            onCopy={handleCopyWebhook}
+          />
+        )}
+      </Card>
     </SetupWizardLayout>
   )
 }

@@ -18,14 +18,14 @@ related: [[hr-spec]] [[hr-salary-settlement-spec]]
 
 ## Exports
 
-| Function | Purpose |
-|----------|---------|
-| `annualLeaveDaysByTenure(years)` | 年資 → 特休天數（勞基法第 38 條） |
-| `calcYearsOfService(hire, asOf)` | 算年資 |
-| `calcAnnualLeave(hire, asOf, policy)` | 算本期應發特休 |
-| `calcSeverance(hire, term, avgWage, system)` | 算資遣費 |
-| `calcAvgMonthlyWage(last6Months)` | 平均工資（離職前 6 月） |
-| `estimateAvgWageFromSalaryInfo(salaryInfo)` | 沒實際薪資資料時估算 |
+| Function                                     | Purpose                           |
+| -------------------------------------------- | --------------------------------- |
+| `annualLeaveDaysByTenure(years)`             | 年資 → 特休天數（勞基法第 38 條） |
+| `calcYearsOfService(hire, asOf)`             | 算年資                            |
+| `calcAnnualLeave(hire, asOf, policy)`        | 算本期應發特休                    |
+| `calcSeverance(hire, term, avgWage, system)` | 算資遣費                          |
+| `calcAvgMonthlyWage(last6Months)`            | 平均工資（離職前 6 月）           |
+| `estimateAvgWageFromSalaryInfo(salaryInfo)`  | 沒實際薪資資料時估算              |
 
 ## 不變式
 
@@ -53,6 +53,7 @@ import {
 ## 公司設定對應
 
 workspaces 表：
+
 - `leave_policy`: `'calendar_year' | 'hire_anniversary'`
 - `pension_system`: `'old' | 'new' | 'mixed'`
 
@@ -61,6 +62,7 @@ UI：`/workspaces/[id]` OVERVIEW tab HR 政策卡片設定。
 ## UI 整合
 
 `/hr` 員工列表 row action：
+
 - 「資遣試算」按鈕（Calculator icon）
 - 開 `SeveranceCalculatorDialog`
 - 自動從 workspace 抓 leave_policy + pension_system
@@ -69,6 +71,7 @@ UI：`/workspaces/[id]` OVERVIEW tab HR 政策卡片設定。
 ## Test coverage
 
 31 unit tests 涵蓋：
+
 - annualLeaveDaysByTenure：未滿 6 月 / 6 月 / 1 / 2 / 3 / 5 / 10 / 30+ 邊界
 - calcYearsOfService：0 / 0.5 / 1 / 5
 - calcAnnualLeave：週年制 / 年度制（含半年比例計）
@@ -77,7 +80,7 @@ UI：`/workspaces/[id]` OVERVIEW tab HR 政策卡片設定。
 
 ## 變更
 
-| 日期 | 變更 |
-|------|------|
+| 日期       | 變更                                   |
+| ---------- | -------------------------------------- |
 | 2026-05-15 | 初版 service + 31 unit tests（QDF R3） |
-| 2026-05-15 | spec 文檔（QDF R32） |
+| 2026-05-15 | spec 文檔（QDF R32）                   |

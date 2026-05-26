@@ -62,10 +62,7 @@ export async function POST(request: NextRequest) {
     // VENTURO（漫途）平台方 admin 有 workspaces.write、能透過租戶管理頁 reset 任何客戶 admin 密碼
     // 一般客戶 admin（只有 hr.roles.write）只能 reset 自家員工
     if (employee.workspace_id !== auth.data.workspaceId) {
-      const isPlatformAdmin = await hasCapabilityByCode(
-        auth.data.employeeId,
-        'workspaces.write'
-      )
+      const isPlatformAdmin = await hasCapabilityByCode(auth.data.employeeId, 'workspaces.write')
       if (!isPlatformAdmin) {
         logger.error('跨租戶重設密碼嘗試（非平台 admin）', {
           caller_workspace: auth.data.workspaceId,
@@ -87,10 +84,9 @@ export async function POST(request: NextRequest) {
     })
 
     // 2. 更新 Supabase Auth 密碼
-    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(
-      employee.user_id,
-      { password: new_password }
-    )
+    const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(employee.user_id, {
+      password: new_password,
+    })
 
     if (updateError) {
       logger.error('Update password error:', updateError)

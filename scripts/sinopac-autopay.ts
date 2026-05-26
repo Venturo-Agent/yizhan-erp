@@ -3,12 +3,19 @@
  * 跑法：金鑰 source 後、npx tsx scripts/sinopac-autopay.ts
  */
 import { chromium } from '@playwright/test'
-import { createCardOrder, getCardPayUrl, queryOrder } from '@/lib/payment-providers/sinopac/credit-card'
+import {
+  createCardOrder,
+  getCardPayUrl,
+  queryOrder,
+} from '@/lib/payment-providers/sinopac/credit-card'
 import type { SinopacConfig } from '@/lib/payment-providers/sinopac/config'
 
 function reqEnv(n: string): string {
   const v = process.env[n]
-  if (!v) { console.error('缺', n); process.exit(1) }
+  if (!v) {
+    console.error('缺', n)
+    process.exit(1)
+  }
   return v
 }
 
@@ -37,7 +44,10 @@ async function main() {
   })
   const url = getCardPayUrl(order)
   console.log('OrderNo:', orderNo)
-  if (!url) { console.error('沒拿到 CardPayURL'); process.exit(1) }
+  if (!url) {
+    console.error('沒拿到 CardPayURL')
+    process.exit(1)
+  }
 
   const browser = await chromium.launch({ headless: true })
   const page = await browser.newPage()
@@ -61,12 +71,16 @@ async function main() {
   console.log('送出後 URL:', page.url())
   const text = await page.evaluate(() => document.body.innerText.slice(0, 500))
   console.log('送出後文字:\n', text)
-  const inputs2 = await page.$$eval('input', (els) =>
-    els.map((e) => ({ name: e.getAttribute('name'), id: e.id, type: e.type })),
+  const inputs2 = await page.$$eval('input', els =>
+    els.map(e => ({ name: e.getAttribute('name'), id: e.id, type: e.type }))
   )
   console.log('送出後 INPUTS:', JSON.stringify(inputs2))
-  const clicks2 = await page.$$eval('a, button', (els) =>
-    els.slice(0, 15).map((e) => ({ tag: e.tagName, text: (e as HTMLElement).innerText?.trim().slice(0, 20), id: e.id })),
+  const clicks2 = await page.$$eval('a, button', els =>
+    els.slice(0, 15).map(e => ({
+      tag: e.tagName,
+      text: (e as HTMLElement).innerText?.trim().slice(0, 20),
+      id: e.id,
+    }))
   )
   console.log('送出後 CLICKABLES:', JSON.stringify(clicks2))
 
@@ -76,4 +90,7 @@ async function main() {
   console.log('queryOrder → PayStatus:', ol?.[0]?.PayStatus, '/ AuthCode:', ol?.[0]?.AuthCode)
   await browser.close()
 }
-main().catch((e) => { console.error('失敗：', e); process.exit(1) })
+main().catch(e => {
+  console.error('失敗：', e)
+  process.exit(1)
+})

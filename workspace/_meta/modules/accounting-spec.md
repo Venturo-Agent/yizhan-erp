@@ -52,6 +52,6 @@ receipts / payment_requests / disbursement_orders → 都觸發 auto-create-vouc
 
 ## 變更
 
-| 日期 | 變更 |
-|------|------|
+| 日期       | 變更            |
+| ---------- | --------------- |
 | 2026-05-15 | 初版（QDF R14） |

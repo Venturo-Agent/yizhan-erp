@@ -4,14 +4,7 @@ import React from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatePicker } from '@/components/ui/date-picker'
-import {
-  Mail,
-  Phone,
-  Calendar,
-  CreditCard,
-  MapPin,
-  Heart,
-} from 'lucide-react'
+import { Mail, Phone, Calendar, CreditCard, MapPin, Heart } from 'lucide-react'
 
 const LABELS = {
   CHINESE_NAME: '中文姓名',
@@ -132,9 +125,7 @@ export function BasicInfoSection({
           // 個人設定：唯讀，職務由 HR 指派不可自改
           <div className="w-full px-3 py-2 border border-morandi-gold/20 rounded-lg bg-morandi-container/30 text-morandi-primary text-sm">
             {roles.find(r => r.id === formData.role_id)?.name || LABELS.ROLE_NOT_ASSIGNED}
-            <span className="ml-2 text-xs text-morandi-muted">
-              {LABELS.ROLE_NOTE}
-            </span>
+            <span className="ml-2 text-xs text-morandi-muted">{LABELS.ROLE_NOTE}</span>
           </div>
         ) : (
           <select
@@ -171,7 +162,9 @@ export function BasicInfoSection({
                 className="w-full px-3 py-2 border border-morandi-gold/30 rounded-lg focus:border-morandi-gold focus:outline-none bg-card text-morandi-primary"
               >
                 {branches.map(b => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
                 ))}
               </select>
             )}
@@ -216,10 +209,7 @@ export function BasicInfoSection({
           <Label className="text-xs font-semibold text-morandi-primary uppercase flex items-center gap-1">
             <Calendar size={12} /> {LABELS.BIRTHDAY}
           </Label>
-          <DatePicker
-            value={formData.birth_date}
-            onChange={v => onChange({ birth_date: v })}
-          />
+          <DatePicker value={formData.birth_date} onChange={v => onChange({ birth_date: v })} />
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase flex items-center gap-1">

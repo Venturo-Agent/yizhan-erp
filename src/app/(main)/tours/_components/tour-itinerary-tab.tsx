@@ -393,41 +393,41 @@ export function TourItineraryTab({ tour }: TourItineraryTabProps) {
                         </th>
                       </tr>
                     </thead>
-                      {dailySchedule.map((day, idx) => (
-                        <DayRow
-                          key={idx}
-                          day={day}
-                          idx={idx}
-                          isFirst={idx === 0}
-                          isLast={idx === dailySchedule.length - 1}
-                          updateDaySchedule={updateDaySchedule}
-                          removeAttraction={removeAttraction}
-                          reorderAttractions={reorderAttractions}
-                          updateBlocks={(dayIdx, blocks) => {
-                            setDailySchedule(prev => {
-                              const newSchedule = [...prev]
-                              newSchedule[dayIdx] = { ...newSchedule[dayIdx], blocks }
-                              return newSchedule
-                            })
-                          }}
-                          tourLocation={tourDestinationDisplay}
-                          getDateLabel={getDateLabel}
-                          getPreviousAccommodation={getPreviousAccommodation}
-                          disabledAttractionIds={disabledAttractionIds}
-                          onAttractionClick={a => {
-                            setClickedAttraction({ id: a.id, name: a.name, type: 'attraction' })
-                            setAttractionDetailOpen(true)
-                          }}
-                          onHotelClick={h => {
-                            setClickedAttraction({
-                              id: h.id,
-                              name: h.name,
-                              type: 'hotel' as const,
-                            })
-                            setAttractionDetailOpen(true)
-                          }}
-                        />
-                      ))}
+                    {dailySchedule.map((day, idx) => (
+                      <DayRow
+                        key={idx}
+                        day={day}
+                        idx={idx}
+                        isFirst={idx === 0}
+                        isLast={idx === dailySchedule.length - 1}
+                        updateDaySchedule={updateDaySchedule}
+                        removeAttraction={removeAttraction}
+                        reorderAttractions={reorderAttractions}
+                        updateBlocks={(dayIdx, blocks) => {
+                          setDailySchedule(prev => {
+                            const newSchedule = [...prev]
+                            newSchedule[dayIdx] = { ...newSchedule[dayIdx], blocks }
+                            return newSchedule
+                          })
+                        }}
+                        tourLocation={tourDestinationDisplay}
+                        getDateLabel={getDateLabel}
+                        getPreviousAccommodation={getPreviousAccommodation}
+                        disabledAttractionIds={disabledAttractionIds}
+                        onAttractionClick={a => {
+                          setClickedAttraction({ id: a.id, name: a.name, type: 'attraction' })
+                          setAttractionDetailOpen(true)
+                        }}
+                        onHotelClick={h => {
+                          setClickedAttraction({
+                            id: h.id,
+                            name: h.name,
+                            type: 'hotel' as const,
+                          })
+                          setAttractionDetailOpen(true)
+                        }}
+                      />
+                    ))}
                   </table>
                 </div>
               </div>

@@ -14,10 +14,10 @@ import type { OrderStatus } from '@/types/order.types'
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   pending_review: 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200',
-  hk:            'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200',
-  kk:            'bg-green-100 text-green-700 border-green-200 hover:bg-green-200',
-  hl:            'bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200',
-  lk:            'bg-teal-100 text-teal-700 border-teal-200 hover:bg-teal-200',
+  hk: 'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200',
+  kk: 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200',
+  hl: 'bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200',
+  lk: 'bg-teal-100 text-teal-700 border-teal-200 hover:bg-teal-200',
 }
 
 const ALL_STATUSES: OrderStatus[] = ['pending_review', 'hk', 'kk', 'hl', 'lk']

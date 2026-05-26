@@ -67,12 +67,16 @@ export async function sendAgentReply(input: AgentSendInput): Promise<AgentSendRe
   // 反查 inbox_conversations（FB / IG）
   // 注意：supabase.from 要綁 this、不能直接 cast 成 free function（會炸 Cannot read 'rest'）
   const supabaseAny = supabase as unknown as {
-    from: (
-      table: string
-    ) => {
+    from: (table: string) => {
       select: (cols: string) => {
-        eq: (col: string, value: string) => {
-          eq: (col: string, value: string) => {
+        eq: (
+          col: string,
+          value: string
+        ) => {
+          eq: (
+            col: string,
+            value: string
+          ) => {
             maybeSingle: () => Promise<{
               data: ConversationLookupRow | null
               error: { message: string } | null
@@ -200,11 +204,12 @@ async function sendViaFacebook(
   const tableName =
     channel === 'facebook' ? 'workspace_facebook_settings' : 'workspace_instagram_settings'
 
-  const settingsTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const settingsTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
         maybeSingle: () => Promise<{
           data: FbSettingsRow | IgSettingsRow | null
           error: { message: string } | null

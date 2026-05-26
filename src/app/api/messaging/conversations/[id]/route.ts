@@ -37,10 +37,7 @@ const schema = z
   })
   .refine(d => Object.values(d).some(v => v !== undefined), { message: '至少要更新一個欄位' })
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
     if (!guard.ok) return guard.response
@@ -81,9 +78,7 @@ export async function PATCH(
         overrides.paused_until = validation.data.bot_paused_until
       }
 
-      const lineOverrideTable = supabase.from.bind(supabase) as unknown as (
-        table: string
-      ) => {
+      const lineOverrideTable = supabase.from.bind(supabase) as unknown as (table: string) => {
         upsert: (
           values: Record<string, unknown>,
           options: { onConflict: string }
@@ -107,17 +102,22 @@ export async function PATCH(
       updates.bot_paused_until = validation.data.bot_paused_until
     if (validation.data.is_archived !== undefined) updates.is_archived = validation.data.is_archived
     if (validation.data.customer_id !== undefined) updates.customer_id = validation.data.customer_id
-    if (validation.data.display_name !== undefined) updates.display_name = validation.data.display_name
+    if (validation.data.display_name !== undefined)
+      updates.display_name = validation.data.display_name
     if (validation.data.picture_url !== undefined) updates.picture_url = validation.data.picture_url
     // agent 進入對話自動清未讀
     if (validation.data.mark_as_read === true) updates.unread_count = 0
 
-    const convTable = supabase.from.bind(supabase) as unknown as (
-      table: string
-    ) => {
+    const convTable = supabase.from.bind(supabase) as unknown as (table: string) => {
       update: (values: Record<string, unknown>) => {
-        eq: (col: string, value: string) => {
-          eq: (col: string, value: string) => Promise<{
+        eq: (
+          col: string,
+          value: string
+        ) => {
+          eq: (
+            col: string,
+            value: string
+          ) => Promise<{
             error: { message: string } | null
           }>
         }

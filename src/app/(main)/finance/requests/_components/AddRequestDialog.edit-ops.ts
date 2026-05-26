@@ -9,10 +9,7 @@ import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { alert as alertFn } from '@/lib/ui/alert-dialog'
-import {
-  invalidatePaymentRequests,
-  deletePaymentRequest as deletePaymentRequestApi,
-} from '@/data'
+import { invalidatePaymentRequests, deletePaymentRequest as deletePaymentRequestApi } from '@/data'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
 import { paymentRequestService } from '@/app/(main)/finance/payments/_services/payment-request.service'
 import { nextPaymentRequestItemNumbers } from '@/lib/codes'
@@ -102,10 +99,7 @@ export async function saveEditedRequest({
     if (newItems.length > 0) {
       // 批次拿 N 個編號（單一 transaction + advisory lock + 內部遞增）
       // 修原 in-loop 呼叫 single RPC 撞 unique 的 bug（5/21 William 拍板）
-      const itemNumbers = await nextPaymentRequestItemNumbers(
-        currentRequest.id,
-        newItems.length
-      )
+      const itemNumbers = await nextPaymentRequestItemNumbers(currentRequest.id, newItems.length)
       const rows = newItems.map((item, idx) => ({
         request_id: currentRequest.id,
         category: item.category || null,
@@ -151,16 +145,21 @@ export async function saveEditedRequest({
         .update(dbUpdates as never)
         .eq('id', item.id)
       if (itemUpdateError) {
-        logger.error('更新請款項目失敗:', itemUpdateError, 'item_id:', item.id, 'payload:', dbUpdates)
+        logger.error(
+          '更新請款項目失敗:',
+          itemUpdateError,
+          'item_id:',
+          item.id,
+          'payload:',
+          dbUpdates
+        )
         throw itemUpdateError
       }
     }
 
     // 4. Update request total + payment method + order (edit 模式允許改訂單)
     const newTotal = localItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0)
-    const editedOrder = formData.order_id
-      ? orders.find(o => o.id === formData.order_id)
-      : undefined
+    const editedOrder = formData.order_id ? orders.find(o => o.id === formData.order_id) : undefined
     const { error: amountError } = await supabase
       .from('payment_requests')
       .update({

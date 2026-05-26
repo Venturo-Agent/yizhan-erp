@@ -27,7 +27,11 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { verifyMetaSignature } from '@/lib/facebook/verify-signature'
 import { sendTextMessage } from '@/lib/facebook/reply-client'
-import { upsertConversation, recordInboundMessage, recordOutboundMessage } from '@/lib/inbox/inbox-service'
+import {
+  upsertConversation,
+  recordInboundMessage,
+  recordOutboundMessage,
+} from '@/lib/inbox/inbox-service'
 import { generateBotReply } from '@/lib/ai/ai-brain'
 import { buildConversationContext } from '@/lib/ai/context-builder'
 import { ensureContactProfile } from '@/lib/facebook/user-profile'
@@ -60,13 +64,13 @@ interface MessagingEvent {
 }
 
 interface FacebookEntry {
-  id: string  // page_id
+  id: string // page_id
   time?: number
   messaging?: MessagingEvent[]
 }
 
 interface FacebookWebhookBody {
-  object: string  // 'page'
+  object: string // 'page'
   entry: FacebookEntry[]
 }
 
@@ -91,11 +95,12 @@ export async function GET(req: NextRequest) {
   // .bind(supabase) 必要：generated types 沒含 workspace_facebook_settings 表、走 type cast
   // 但 supabase.from 是 method、cast 後直接呼叫會丟 this、Supabase internal 讀 this.rest 噴
   // TypeError。bind 保 this。
-  const fbTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const fbTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
         limit: (n: number) => Promise<{
           data: { workspace_id: string }[] | null
           error: { message: string } | null
@@ -170,11 +175,12 @@ async function handleEntry(args: {
   const supabase = getSupabaseAdminClient()
 
   // 反查 workspace_facebook_settings（.bind 保 this、原因見 GET handler 上方註解）
-  const fbTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const fbTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
         maybeSingle: () => Promise<{
           data: FacebookSettingsRow | null
           error: { message: string } | null
@@ -184,7 +190,9 @@ async function handleEntry(args: {
   }
 
   const { data: settings, error: settingsError } = await fbTable('workspace_facebook_settings')
-    .select('workspace_id, page_id, page_access_token_encrypted, app_secret_encrypted, webhook_verify_token, is_active')
+    .select(
+      'workspace_id, page_id, page_access_token_encrypted, app_secret_encrypted, webhook_verify_token, is_active'
+    )
     .eq('page_id', pageId)
     .maybeSingle()
 

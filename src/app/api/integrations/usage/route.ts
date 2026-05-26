@@ -27,7 +27,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   if (!ctx.ok) {
     return NextResponse.json(
       { error: ctx.status === 401 ? '請先登入' : '無權限查詢' },
-      { status: ctx.status },
+      { status: ctx.status }
     )
   }
 
@@ -49,7 +49,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
     if (!tenantAdmin.ok) {
       return NextResponse.json(
         { error: tenantAdmin.status === 401 ? '請先登入' : '無權限跨租戶查詢用量' },
-        { status: tenantAdmin.status },
+        { status: tenantAdmin.status }
       )
     }
   }
@@ -69,7 +69,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
         entityType: 'integration_usage_log',
         entityId: workspaceId,
         reason: `查詢 workspace ${workspaceId} 的 ${integrationCode} usage log`,
-      },
+      }
     )
     if (!ok) {
       logger.warn('跨 workspace 查 audit 寫入失敗:', auditError)
@@ -83,20 +83,26 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const admin = getSupabaseAdminClient()
   type SelectChain = {
     select: (c: string) => {
-      eq: (k: string, v: string) => {
-        eq: (k: string, v: string) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
+        eq: (
+          k: string,
+          v: string
+        ) => {
           order: (
             c: string,
-            opts: { ascending: boolean },
+            opts: { ascending: boolean }
           ) => { limit: (n: number) => Promise<{ data: RecentLog[] | null }> }
         }
       }
     }
   }
 
-  const { data: recent } = await (
-    admin.from as unknown as (t: string) => SelectChain
-  )('integration_usage_log')
+  const { data: recent } = await (admin.from as unknown as (t: string) => SelectChain)(
+    'integration_usage_log'
+  )
     .select('called_at, success, error_message, metadata')
     .eq('workspace_id', workspaceId)
     .eq('integration_code', integrationCode)

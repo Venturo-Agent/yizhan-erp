@@ -12,13 +12,13 @@
  */
 
 export const YONGCHENG_COLORS = {
-  ink: '#2D1F18',           // 深栗 主色（文字 / 主框）
-  copper: '#C85A38',        // 紅銅 accent（數字 / 標題裝飾）
-  paper: '#F5F0E8',         // 霧米 分區底色
-  gold: '#E8B97D',          // 金色（V2 滿版圖封面用）
-  rule: 'rgba(45,31,24,0.15)',       // 細分隔線
-  ruleStrong: 'rgba(45,31,24,0.4)',  // 粗分隔線
-  muted: 'rgba(45,31,24,0.55)',      // 次要文字
+  ink: '#2D1F18', // 深栗 主色（文字 / 主框）
+  copper: '#C85A38', // 紅銅 accent（數字 / 標題裝飾）
+  paper: '#F5F0E8', // 霧米 分區底色
+  gold: '#E8B97D', // 金色（V2 滿版圖封面用）
+  rule: 'rgba(45,31,24,0.15)', // 細分隔線
+  ruleStrong: 'rgba(45,31,24,0.4)', // 粗分隔線
+  muted: 'rgba(45,31,24,0.55)', // 次要文字
   white: '#FFFFFF',
 } as const
 
@@ -36,16 +36,16 @@ export const YONGCHENG_FONTS = {
  * 來源：規格書 § 5.4
  */
 export const YONGCHENG_TEXT_SIZES = {
-  xs: '12px',   // 注釋 / caption
-  sm: '14px',   // 摘要 / 次要說明
-  md: '16px',   // 正文（預設）
-  lg: '20px',   // 景點標題
-  xl: '28px',   // 封面大標
+  xs: '12px', // 注釋 / caption
+  sm: '14px', // 摘要 / 次要說明
+  md: '16px', // 正文（預設）
+  lg: '20px', // 景點標題
+  xl: '28px', // 封面大標
 } as const
 
 export const YONGCHENG_LINE_HEIGHTS = {
   compact: 1.4,
-  normal: 1.7,  // 預設
+  normal: 1.7, // 預設
   loose: 2.0,
 } as const
 

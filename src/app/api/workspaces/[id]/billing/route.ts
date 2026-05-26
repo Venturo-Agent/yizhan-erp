@@ -42,10 +42,7 @@ interface BillingRecordCreateBody {
  *   records: [...]
  * }
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
 
   const auth = await getServerAuth()
@@ -101,10 +98,7 @@ export async function GET(
  *
  * 新增一筆付款紀錄。要 workspaces.write capability。
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
 
   const auth = await getServerAuth()
@@ -192,7 +186,10 @@ export async function POST(
   if (error) {
     logger.error('workspace billing record insert error', { error, workspaceId })
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data, { status: 201 })

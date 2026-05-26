@@ -56,8 +56,7 @@ export function PnrMatchStats({
         )}
         {stats.selectedCustomers > 0 && (
           <span className="flex items-center gap-1 text-sm text-morandi-secondary">
-            <UserPlus size={14} /> {stats.selectedCustomers}{' '}
-            {t('hasSelectedCustomers')}
+            <UserPlus size={14} /> {stats.selectedCustomers} {t('hasSelectedCustomers')}
           </span>
         )}
       </div>
@@ -80,9 +79,7 @@ export function PnrMatchStats({
       {/* 團體模式：快速設定所有人的訂單 */}
       {isTourMode && stats.withSuggestions > 0 && (
         <div className="flex items-center gap-2 p-2 bg-morandi-container/20 rounded-lg">
-          <span className="text-xs text-morandi-secondary">
-            {t('quickSetAllOrders')}
-          </span>
+          <span className="text-xs text-morandi-secondary">{t('quickSetAllOrders')}</span>
           <select
             onChange={e => onSetAllOrders(e.target.value)}
             className="text-xs border rounded px-2 py-1"

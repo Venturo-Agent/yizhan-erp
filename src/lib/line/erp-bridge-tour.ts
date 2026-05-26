@@ -16,7 +16,15 @@ import type {
   TourSearchFilters,
   TourSummary,
 } from '@/types/line.types'
-import { assertCanRead, assertCanWrite, writeAuditLog, clamp, HANDLER, SAFETY, DEFAULT_TOUR_SEARCH_LIMIT } from '@/lib/line/erp-bridge-internal'
+import {
+  assertCanRead,
+  assertCanWrite,
+  writeAuditLog,
+  clamp,
+  HANDLER,
+  SAFETY,
+  DEFAULT_TOUR_SEARCH_LIMIT,
+} from '@/lib/line/erp-bridge-internal'
 
 // ============================================================================
 // Tour 搜尋（KB Tier 1）
@@ -39,11 +47,7 @@ export async function botSearchTours(
 
   const daysBefore = clamp(filters.daysBefore ?? 7, 0, 14)
   const daysAfter = clamp(filters.daysAfter ?? 7, 0, 14)
-  const limit = clamp(
-    filters.limit ?? DEFAULT_TOUR_SEARCH_LIMIT,
-    1,
-    SAFETY.TOUR_SEARCH_HARD_LIMIT
-  )
+  const limit = clamp(filters.limit ?? DEFAULT_TOUR_SEARCH_LIMIT, 1, SAFETY.TOUR_SEARCH_HARD_LIMIT)
 
   const target = new Date(`${filters.targetDate}T00:00:00Z`)
   if (Number.isNaN(target.getTime())) {
@@ -95,20 +99,13 @@ export async function botSearchTours(
 /**
  * 拿單一 tour 完整 row（給「客戶問航次細節」用）
  */
-export async function botGetTourDetails(
-  ctx: BotContext,
-  tourId: string
-): Promise<TourRow | null> {
+export async function botGetTourDetails(ctx: BotContext, tourId: string): Promise<TourRow | null> {
   assertCanRead(ctx, 'botGetTourDetails')
 
   const supabase = getSupabaseAdminClient()
 
   const { data, error } = await filterActive(
-    supabase
-      .from('tours')
-      .select('*')
-      .eq('workspace_id', ctx.workspaceId)
-      .eq('id', tourId)
+    supabase.from('tours').select('*').eq('workspace_id', ctx.workspaceId).eq('id', tourId)
   ).maybeSingle()
 
   if (error) {

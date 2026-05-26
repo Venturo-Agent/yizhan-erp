@@ -14,9 +14,6 @@ import { IMAGE_UPLOADER_LABELS } from './constants/labels'
 
 // 導出新組件
 
-
-
-
 interface ImageUploaderProps {
   /** 當前圖片 URL */
   value?: string | null

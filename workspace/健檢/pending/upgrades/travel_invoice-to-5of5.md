@@ -11,13 +11,13 @@
 
 ## 如果解凍（假設）
 
-| 維度 | 假設分數 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ❌ | DB 100% + Entity 100% + Module 100%，但 **UI 0%**（7 個 route 全無 page.tsx）；API 0% |
-| **資安** | ✅ | RLS/FK 完整；Phase 1 migration 已做 |
-| **架構** | ✅ | L1-L6 全過；Phase 1 已建立足夠 infrastructure |
-| **開發品管** | ⚠️ | 無 UI 無法測試；eslint suppress 有 |
-| **清理** | ⚠️ | travel_invoice 是半成品；但已凍住、不緊急 |
+| 維度         | 假設分數 | 具體缺口                                                                              |
+| ------------ | -------- | ------------------------------------------------------------------------------------- |
+| **讀取效能** | ❌       | DB 100% + Entity 100% + Module 100%，但 **UI 0%**（7 個 route 全無 page.tsx）；API 0% |
+| **資安**     | ✅       | RLS/FK 完整；Phase 1 migration 已做                                                   |
+| **架構**     | ✅       | L1-L6 全過；Phase 1 已建立足夠 infrastructure                                         |
+| **開發品管** | ⚠️       | 無 UI 無法測試；eslint suppress 有                                                    |
+| **清理**     | ⚠️       | travel_invoice 是半成品；但已凍住、不緊急                                             |
 
 **接續建設（假設解凍）**：需要補 7 個 route 的 page.tsx（UI 層）+ API routes（0%）。
 
@@ -31,6 +31,7 @@
 
 **修法**：
 參考 `workspace/健檢/pending/travel-invoice-investigation.md` 的 Phase 2 建設清單：
+
 1. `travel-invoice/page.tsx` — 列表頁
 2. `travel-invoice/[id]/page.tsx` — 明細頁
 3. `travel-invoice/new/page.tsx` — 新建頁
@@ -48,6 +49,7 @@
 **缺口**：Phase 1 沒做任何 API route（0%）。
 
 **修法**：
+
 - `/api/travel-invoices/` — CRUD API
 - `/api/travel-invoice-configs/` — 設定 API
 - `/api/travel-invoice-voids/` — 作廢 API
@@ -66,6 +68,7 @@
 ## 當前建議
 
 **繼續凍住**。理由：
+
 - 6/1 前全力衝電子發票不可能（37 人天）
 - Option B（凍住、8 月再從凍住基礎建設）是最優解
 - 詳見 `workspace/健檢/pending/travel-invoice-investigation.md`
@@ -78,4 +81,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

@@ -21,10 +21,7 @@ import { logger } from '@/lib/utils/logger'
 import { errorResponse, ErrorCode } from '@/lib/api/response'
 import type { Json } from '@/lib/supabase/types'
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
     if (!guard.ok) return guard.response
@@ -51,10 +48,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
     if (!guard.ok) return guard.response
@@ -91,7 +85,7 @@ export async function PUT(
           status: 'active',
           capabilities: capabilities as Json,
         },
-        { onConflict: 'workspace_id,code', ignoreDuplicates: false },
+        { onConflict: 'workspace_id,code', ignoreDuplicates: false }
       )
       .select('id, capabilities, updated_at')
       .single()

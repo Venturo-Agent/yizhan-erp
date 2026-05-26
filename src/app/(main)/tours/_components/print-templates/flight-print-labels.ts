@@ -1,4 +1,3 @@
-
 /**
  * flight-print-template 專用標籤
  * 所有列印模板使用的中文字串集中管理

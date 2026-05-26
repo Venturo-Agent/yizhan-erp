@@ -27,7 +27,10 @@ export const dimensionRowSchema = z.object({
   is_default: z.boolean().optional(),
   display_order: z.number().int().optional(),
   // 只有 branches 用、8 碼數字（DB CHECK 已建）
-  tax_id: z.string().regex(/^\d{8}$/).optional(),
+  tax_id: z
+    .string()
+    .regex(/^\d{8}$/)
+    .optional(),
 })
 
 export type DimensionRow = z.infer<typeof dimensionRowSchema>
@@ -37,9 +40,10 @@ export async function listDimension(table: DimensionTable) {
   if (!guard.ok) return guard.response
 
   const supabase = getSupabaseAdminClient()
-  const selectCols = table === 'branches'
-    ? 'id, code, name, is_default, is_active, display_order, tax_id, created_at, updated_at'
-    : 'id, code, name, is_default, is_active, display_order, created_at, updated_at'
+  const selectCols =
+    table === 'branches'
+      ? 'id, code, name, is_default, is_active, display_order, tax_id, created_at, updated_at'
+      : 'id, code, name, is_default, is_active, display_order, created_at, updated_at'
   const { data, error } = await supabase
     .from(table)
     .select(selectCols)
@@ -50,7 +54,10 @@ export async function listDimension(table: DimensionTable) {
   if (error) {
     logger.error(`[organization/${table}] list error:`, error)
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
   return NextResponse.json({ data: data ?? [] })
 }
@@ -77,18 +84,12 @@ export async function createDimension(table: DimensionTable, request: NextReques
 
   const parsed = dimensionRowSchema.safeParse(body)
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: '輸入資料格式錯誤、請檢查必填欄位' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: '輸入資料格式錯誤、請檢查必填欄位' }, { status: 400 })
   }
 
   // branches 必須帶 8 碼統編
   if (table === 'branches' && !parsed.data.tax_id) {
-    return NextResponse.json(
-      { error: '新增分公司必須填寫 8 碼統一編號' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: '新增分公司必須填寫 8 碼統一編號' }, { status: 400 })
   }
 
   const supabase = getSupabaseAdminClient()
@@ -108,18 +109,17 @@ export async function createDimension(table: DimensionTable, request: NextReques
           .insert({ ...basePayload, tax_id: parsed.data.tax_id! })
           .select()
           .single()
-      : await supabase
-          .from('brands')
-          .insert(basePayload)
-          .select()
-          .single()
+      : await supabase.from('brands').insert(basePayload).select().single()
 
   const { data, error } = insertResult
 
   if (error) {
     logger.error(`[organization/${table}] create error:`, error)
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ data })
@@ -144,10 +144,7 @@ export async function updateDimension(table: DimensionTable, request: NextReques
 
   const parsed = dimensionRowSchema.safeParse(body)
   if (!parsed.success) {
-    return NextResponse.json(
-      { error: '輸入資料格式錯誤、請檢查必填欄位' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: '輸入資料格式錯誤、請檢查必填欄位' }, { status: 400 })
   }
   if (!parsed.data.id) {
     return NextResponse.json({ error: '缺少 id' }, { status: 400 })
@@ -155,10 +152,7 @@ export async function updateDimension(table: DimensionTable, request: NextReques
 
   // branches 更新時 tax_id 必填（避免 update 把 NOT NULL 欄位漏掉）
   if (table === 'branches' && !parsed.data.tax_id) {
-    return NextResponse.json(
-      { error: '分公司統一編號必填' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: '分公司統一編號必填' }, { status: 400 })
   }
 
   const supabase = getSupabaseAdminClient()
@@ -203,7 +197,10 @@ export async function updateDimension(table: DimensionTable, request: NextReques
   if (error) {
     logger.error(`[organization/${table}] update error:`, error)
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ data })
@@ -237,7 +234,10 @@ export async function deleteDimension(table: DimensionTable, request: NextReques
   if (existErr) {
     logger.error(`[organization/${table}] check before delete error:`, existErr)
     const t = translateDbError(existErr)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
   if (!existing) {
     return NextResponse.json({ error: '找不到資料' }, { status: 404 })
@@ -258,7 +258,10 @@ export async function deleteDimension(table: DimensionTable, request: NextReques
   if (error) {
     logger.error(`[organization/${table}] delete error:`, error)
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ success: true })

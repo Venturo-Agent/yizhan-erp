@@ -16,7 +16,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 
 interface HappyRespondArgs {
   channelId: string
-  workspaceId: string   // 服務端注入、不可偽造
+  workspaceId: string // 服務端注入、不可偽造
   agentId: string
   triggerMessageBody: string
 }

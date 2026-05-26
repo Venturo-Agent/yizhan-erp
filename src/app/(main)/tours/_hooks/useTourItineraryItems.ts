@@ -44,7 +44,12 @@ const ITINERARY_SELECT_FIELDS =
 
 /** 批次查詢景點描述並 merge 進 items */
 async function mergeAttractionData(
-  data: Array<{ resource_type: string | null; resource_id: string | null; description: string | null; [key: string]: unknown }>
+  data: Array<{
+    resource_type: string | null
+    resource_id: string | null
+    description: string | null
+    [key: string]: unknown
+  }>
 ): Promise<TourItineraryItem[]> {
   const attractionIds = data
     .filter(item => item.resource_type === 'attraction' && item.resource_id)
@@ -325,8 +330,8 @@ export function useSyncItineraryToCore() {
           // Accommodation — 續住時解析完整飯店名稱
           if (day.accommodation) {
             // day.accommodation is truthy at this point (checked above)
-          const dayWithAccommodation = { ...day, accommodation: day.accommodation! }
-          const { name: resolvedName, resource_id: resolvedId } = resolveAccommodation(
+            const dayWithAccommodation = { ...day, accommodation: day.accommodation! }
+            const { name: resolvedName, resource_id: resolvedId } = resolveAccommodation(
               dayWithAccommodation,
               day,
               day_index,

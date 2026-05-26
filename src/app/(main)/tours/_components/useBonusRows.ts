@@ -67,7 +67,10 @@ interface Expense {
 interface UseBonusRowsParams {
   open: boolean
   existingSettings: TourBonusSetting[]
-  defaults: Pick<TourBonusSetting, 'type' | 'bonus' | 'bonus_type' | 'employee_id' | 'description'>[]
+  defaults: Pick<
+    TourBonusSetting,
+    'type' | 'bonus' | 'bonus_type' | 'employee_id' | 'description'
+  >[]
   receipts: Receipt[]
   expenses: Expense[]
   memberCount: number

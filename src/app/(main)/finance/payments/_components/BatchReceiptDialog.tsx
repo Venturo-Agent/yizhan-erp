@@ -78,161 +78,160 @@ export function BatchReceiptDialog({
   const formContent = (
     <>
       <div className="space-y-6 py-4">
-          {/* 日期 / 收款方式 / 總金額由 AddReceiptDialog header 渲染、此處不再顯示 */}
+        {/* 日期 / 收款方式 / 總金額由 AddReceiptDialog header 渲染、此處不再顯示 */}
 
-          {/* 訂單分配（rowRender 模式、cell 樣式跟 PaymentItemRow 完全一致） */}
-          <InlineEditTable<OrderAllocationWithNote>
-            title={t('batchReceiptOrderAllocation')}
-            rows={orderAllocations}
-            columns={[
-              { key: 'order', label: t('batchReceiptOrderLabel'), render: () => null },
-              {
-                key: 'tour_name',
-                label: t('batchReceiptTourName'),
-                width: '160px',
-                render: () => null,
-              },
-              {
-                key: 'allocated_amount',
-                label: t('batchReceiptAllocAmount'),
-                width: '140px',
-                align: 'right',
-                render: () => null,
-              },
-              {
-                key: 'notes',
-                label: t('batchReceiptRemarks'),
-                width: '200px',
-                render: () => null,
-              },
-            ]}
-            rowRender={(row, index) => (
-              <tr
-                key={index}
-                className={cn(index > 0 && 'border-t border-border/50', 'bg-card')}
-              >
-                <td className="py-2 px-3 border-b border-border/50">
-                  <Combobox
-                    options={availableOrders
-                      .filter(o => !selectedOrderIds.has(o.id) || o.id === row.order_id)
-                      .map(order => ({
-                        value: order.id,
-                        label: `${order.order_number} - ${order.contact_person || t('receiptNoContact')} (${order.tour_name})`,
-                      }))}
-                    value={row.order_id}
-                    onChange={value => selectOrder(index, value)}
-                    placeholder={t('requestSearchOrder')}
-                  />
-                </td>
-                <td className="py-2 px-3 border-b border-border/50 text-sm text-morandi-secondary">
-                  {row.tour_name || <EmptyValue />}
-                </td>
-                <td className="py-2 px-3 border-b border-border/50 text-right">
-                  <input
-                    type="number"
-                    value={row.allocated_amount || ''}
-                    onChange={e =>
-                      updateOrderAllocation(index, {
-                        allocated_amount: parseFloat(e.target.value) || 0,
-                      })
-                    }
-                    className="input-no-focus w-full bg-transparent text-sm text-right"
-                  />
-                </td>
-                <td className="py-2 px-3 border-b border-border/50">
-                  <input
-                    type="text"
-                    value={row.notes || ''}
-                    onChange={e => updateOrderAllocation(index, { notes: e.target.value })}
-                    className="input-no-focus w-full bg-transparent text-sm"
-                  />
-                </td>
-                <td className="py-2 px-3 border-b border-border/50 text-center w-12">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="iconSm"
-                    onClick={() => removeOrderAllocation(index)}
-                    className="text-morandi-secondary hover:text-morandi-red"
-                    title={t('receiptDelete')}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </td>
-              </tr>
-            )}
-            onAdd={addOrderAllocation}
-            addLabel={t('batchReceiptAddOrder')}
-            emptyMessage={t('batchReceiptEmptyMsg')}
-            headerExtra={
-              <Button
-                size="sm"
-                variant="soft-gold"
-                onClick={distributeEvenly}
-                disabled={
-                  orderAllocations.filter(a => a.order_id).length === 0 || totalAmount === 0
-                }
-              >
-                {t('batchReceiptAverageAlloc')}
-              </Button>
-            }
-            footer={
-              <tr className="bg-morandi-container/20 font-medium">
-                <td className="py-2.5 px-3 text-sm text-morandi-primary">
-                  {t('batchReceiptTotalCount', { count: orderAllocations.filter(a => a.order_id).length })}
-                </td>
-                <td></td>
-                <td className="py-2.5 px-3 text-right">
-                  <CurrencyCell amount={totalAllocatedAmount} className="text-sm" />
-                </td>
-                <td></td>
-                <td></td>
-              </tr>
-            }
-          />
-
-          {/* 未分配提示 */}
-          {totalAmount > 0 && (
-            <UnallocatedAmountWarning
-              amount={unallocatedAmount}
-              underMessage={t('batchReceiptUnallocatedLabel')}
-              overMessage={t('batchReceiptOverAllocation')}
-              labelSuffix="未分配"
-            />
+        {/* 訂單分配（rowRender 模式、cell 樣式跟 PaymentItemRow 完全一致） */}
+        <InlineEditTable<OrderAllocationWithNote>
+          title={t('batchReceiptOrderAllocation')}
+          rows={orderAllocations}
+          columns={[
+            { key: 'order', label: t('batchReceiptOrderLabel'), render: () => null },
+            {
+              key: 'tour_name',
+              label: t('batchReceiptTourName'),
+              width: '160px',
+              render: () => null,
+            },
+            {
+              key: 'allocated_amount',
+              label: t('batchReceiptAllocAmount'),
+              width: '140px',
+              align: 'right',
+              render: () => null,
+            },
+            {
+              key: 'notes',
+              label: t('batchReceiptRemarks'),
+              width: '200px',
+              render: () => null,
+            },
+          ]}
+          rowRender={(row, index) => (
+            <tr key={index} className={cn(index > 0 && 'border-t border-border/50', 'bg-card')}>
+              <td className="py-2 px-3 border-b border-border/50">
+                <Combobox
+                  options={availableOrders
+                    .filter(o => !selectedOrderIds.has(o.id) || o.id === row.order_id)
+                    .map(order => ({
+                      value: order.id,
+                      label: `${order.order_number} - ${order.contact_person || t('receiptNoContact')} (${order.tour_name})`,
+                    }))}
+                  value={row.order_id}
+                  onChange={value => selectOrder(index, value)}
+                  placeholder={t('requestSearchOrder')}
+                />
+              </td>
+              <td className="py-2 px-3 border-b border-border/50 text-sm text-morandi-secondary">
+                {row.tour_name || <EmptyValue />}
+              </td>
+              <td className="py-2 px-3 border-b border-border/50 text-right">
+                <input
+                  type="number"
+                  value={row.allocated_amount || ''}
+                  onChange={e =>
+                    updateOrderAllocation(index, {
+                      allocated_amount: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="input-no-focus w-full bg-transparent text-sm text-right"
+                />
+              </td>
+              <td className="py-2 px-3 border-b border-border/50">
+                <input
+                  type="text"
+                  value={row.notes || ''}
+                  onChange={e => updateOrderAllocation(index, { notes: e.target.value })}
+                  className="input-no-focus w-full bg-transparent text-sm"
+                />
+              </td>
+              <td className="py-2 px-3 border-b border-border/50 text-center w-12">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="iconSm"
+                  onClick={() => removeOrderAllocation(index)}
+                  className="text-morandi-secondary hover:text-morandi-red"
+                  title={t('receiptDelete')}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </td>
+            </tr>
           )}
-        </div>
-
-        {/* 操作按鈕 */}
-        <div className="flex items-center gap-4 pt-4 border-t border-border">
-          <div className="flex items-center text-sm">
-            <span className="text-morandi-secondary">
-              {t('batchReceiptTotalCount', { count: orderAllocations.filter(a => a.order_id).length })}
-            </span>
-            <span className="inline-block min-w-[100px] text-right font-semibold text-morandi-gold ml-2">
-              NT$ {formatMoney(totalAmount)}
-            </span>
-          </div>
-          <div className="flex-1" />
-          <div className="flex space-x-2">
-            <Button variant="soft-gold" className="gap-1" onClick={() => onOpenChange(false)}>
-              <X size={16} />
-              {t('batchReceiptCancel')}
-            </Button>
+          onAdd={addOrderAllocation}
+          addLabel={t('batchReceiptAddOrder')}
+          emptyMessage={t('batchReceiptEmptyMsg')}
+          headerExtra={
             <Button
-              onClick={handleSave}
-              className="gap-1"
-              disabled={
-                isSubmitting ||
-                unallocatedAmount !== 0 ||
-                orderAllocations.filter(a => a.order_id).length === 0 ||
-                totalAmount === 0
-              }
+              size="sm"
+              variant="soft-gold"
+              onClick={distributeEvenly}
+              disabled={orderAllocations.filter(a => a.order_id).length === 0 || totalAmount === 0}
             >
-              <Check size={16} />
-              {t('batchReceiptCreateLabel')}
+              {t('batchReceiptAverageAlloc')}
             </Button>
-          </div>
+          }
+          footer={
+            <tr className="bg-morandi-container/20 font-medium">
+              <td className="py-2.5 px-3 text-sm text-morandi-primary">
+                {t('batchReceiptTotalCount', {
+                  count: orderAllocations.filter(a => a.order_id).length,
+                })}
+              </td>
+              <td></td>
+              <td className="py-2.5 px-3 text-right">
+                <CurrencyCell amount={totalAllocatedAmount} className="text-sm" />
+              </td>
+              <td></td>
+              <td></td>
+            </tr>
+          }
+        />
+
+        {/* 未分配提示 */}
+        {totalAmount > 0 && (
+          <UnallocatedAmountWarning
+            amount={unallocatedAmount}
+            underMessage={t('batchReceiptUnallocatedLabel')}
+            overMessage={t('batchReceiptOverAllocation')}
+            labelSuffix="未分配"
+          />
+        )}
+      </div>
+
+      {/* 操作按鈕 */}
+      <div className="flex items-center gap-4 pt-4 border-t border-border">
+        <div className="flex items-center text-sm">
+          <span className="text-morandi-secondary">
+            {t('batchReceiptTotalCount', {
+              count: orderAllocations.filter(a => a.order_id).length,
+            })}
+          </span>
+          <span className="inline-block min-w-[100px] text-right font-semibold text-morandi-gold ml-2">
+            NT$ {formatMoney(totalAmount)}
+          </span>
         </div>
+        <div className="flex-1" />
+        <div className="flex space-x-2">
+          <Button variant="soft-gold" className="gap-1" onClick={() => onOpenChange(false)}>
+            <X size={16} />
+            {t('batchReceiptCancel')}
+          </Button>
+          <Button
+            onClick={handleSave}
+            className="gap-1"
+            disabled={
+              isSubmitting ||
+              unallocatedAmount !== 0 ||
+              orderAllocations.filter(a => a.order_id).length === 0 ||
+              totalAmount === 0
+            }
+          >
+            <Check size={16} />
+            {t('batchReceiptCreateLabel')}
+          </Button>
+        </div>
+      </div>
     </>
   )
 

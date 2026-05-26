@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ✅ | attractions entity hook 有；library/attractions page 用 entity |
-| **資安** | ✅ | RLS/FK 完整；addon workspace_id guard 有 |
-| **架構** | ✅ | L1-L6 全過；addon 不暴露 HR |
-| **開發品管** | ✅ | addon_data_* 有專屬 entity；lint/type 全過 |
-| **清理** | ⚠️ | addon 是 addon；dead code 待確認（但相對獨立、影響小）|
+| 維度         | 現狀 | 具體缺口                                                       |
+| ------------ | ---- | -------------------------------------------------------------- |
+| **讀取效能** | ✅   | attractions entity hook 有；library/attractions page 用 entity |
+| **資安**     | ✅   | RLS/FK 完整；addon workspace_id guard 有                       |
+| **架構**     | ✅   | L1-L6 全過；addon 不暴露 HR                                    |
+| **開發品管** | ✅   | addon*data*\* 有專屬 entity；lint/type 全過                    |
+| **清理**     | ⚠️   | addon 是 addon；dead code 待確認（但相對獨立、影響小）         |
 
 ---
 
@@ -23,6 +23,7 @@
 **缺口**：addon dead code 待 knip 確認。
 
 **修法**：
+
 1. knip 跑 attractions/library 相關
 2. 確認無 unused files
 
@@ -37,6 +38,7 @@
 
 **修法**：
 `tests/e2e/library-attractions.spec.ts`：
+
 ```
 建立 attraction（景點）→ 確認出現在列表 →
 關聯到 tour → 確認 tour 詳細頁正確顯示 →
@@ -68,4 +70,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

@@ -300,7 +300,11 @@ export async function findActiveOrderConflicts(params: {
       if (currentMemberId && member.id === currentMemberId) continue
 
       // 排除已完成/已取消的訂單
-      const order = member.orders as { order_number?: string; tour_name?: string; status?: string } | null
+      const order = member.orders as {
+        order_number?: string
+        tour_name?: string
+        status?: string
+      } | null
       if (!order || excludedStatuses.includes(order.status || '')) continue
 
       // 比較每個欄位

@@ -10,11 +10,9 @@
 
 // Tours
 export {
-  
   useTours,
   useToursSlim,
   useTour,
-  
   useTourDictionary,
   useToursForCalendar,
   fetchTourIdByCode,
@@ -36,18 +34,7 @@ export {
 } from './orders'
 
 // Members
-export {
-
-  useMembers,
-  useMembersSlim,
-
-
-
-
-
-  deleteMember,
-
-} from './members'
+export { useMembers, useMembersSlim, deleteMember } from './members'
 
 // Order Members (5/19 補、原 125 處散刻 supabase.from('order_members'))
 export {
@@ -99,12 +86,7 @@ export {
 
 // Payment Requests
 export {
-  
   usePaymentRequests,
-  
-  
-  
-  
   createPaymentRequest,
   updatePaymentRequest,
   deletePaymentRequest,
@@ -113,12 +95,7 @@ export {
 
 // Receipts (收款)
 export {
-  
   useReceipts,
-  
-  
-  
-  
   createReceipt,
   updateReceipt,
   deleteReceipt,
@@ -127,13 +104,7 @@ export {
 
 // Disbursement Orders
 export {
-  
   useDisbursementOrders,
-  
-  
-  
-  
-  
   updateDisbursementOrder,
   deleteDisbursementOrder,
   invalidateDisbursementOrders,
@@ -142,7 +113,6 @@ export {
 // Accounting Subjects 已整併至 chart_of_accounts
 
 // Workspace Modules
-
 
 // ============================================
 // 人員管理
@@ -166,12 +136,9 @@ export {
 
 // Suppliers
 export {
-  
   useSuppliers,
   useSuppliersSlim,
   useSuppliersPaginated,
-
-
   createSupplier,
   updateSupplier,
   deleteSupplier,
@@ -179,75 +146,24 @@ export {
 } from './suppliers'
 
 // Airport Images
-export {
-  
-  useAirportImages,
-  
-  
-  
-  
-  createAirportImage,
-  
-  deleteAirportImage,
-  
-} from './airport-images'
+export { useAirportImages, createAirportImage, deleteAirportImage } from './airport-images'
 
 // ============================================
 // 地理資料
 // ============================================
 
 // Countries
-export {
-  
-  useCountries,
-  
-  
-  
-  
-  
-  updateCountry,
-  
-  invalidateCountries,
-} from './countries'
-
+export { useCountries, updateCountry, invalidateCountries } from './countries'
 
 // Regions
-export {
-  
-  useRegions,
-  
-  
-  
-  
-  
-  
-  
-  
-} from './regions'
+export { useRegions } from './regions'
 
 // Cities
-export {
-  
-  useCities,
-  
-  
-  
-  
-  
-  updateCity,
-  
-  
-} from './cities'
-
+export { useCities, updateCity } from './cities'
 
 // Attractions
 export {
-  
   useAttractions,
-  
-  
-  
-  
   createAttraction,
   updateAttraction,
   deleteAttraction,
@@ -255,23 +171,11 @@ export {
 } from './attractions'
 
 // Hotels
-export {
-  
-  useHotels,
-  
-  
-  createHotel,
-  updateHotel,
-  deleteHotel,
-  invalidateHotels,
-} from './hotels'
+export { useHotels, createHotel, updateHotel, deleteHotel, invalidateHotels } from './hotels'
 
 // Restaurants
 export {
-  
   useRestaurants,
-  
-  
   createRestaurant,
   updateRestaurant,
   deleteRestaurant,
@@ -284,12 +188,7 @@ export {
 
 // Calendar Events
 export {
-  
   useCalendarEvents,
-  
-  
-  
-  
   createCalendarEvent,
   updateCalendarEvent,
   deleteCalendarEvent,
@@ -314,13 +213,11 @@ export {
 
 // Cost Templates
 
-
 // ============================================
 // 供應商類別
 // ============================================
 
 // Supplier Categories
-
 
 // ============================================
 // Notes
@@ -363,18 +260,7 @@ export * from './workspaces'
 // ============================================
 
 // Tour Itinerary Items
-export {
-  
-  useTourItineraryItems,
-  
-  
-  
-  
-  
-  
-  
-  invalidateTourItineraryItems,
-} from './tour-itinerary-items'
+export { useTourItineraryItems, invalidateTourItineraryItems } from './tour-itinerary-items'
 
 // Tour Itinerary Days — 已合併進 tour_itinerary_items（category='day_meta' anchor row）
 // 見 migration 20260502120000_merge_tour_itinerary_days_into_items.sql
@@ -441,12 +327,7 @@ export {
 } from './channel-messages'
 
 // AI Agents（HAPPY 等、與 employees 表分離）
-export {
-  useAiAgents,
-  useAiAgentsSlim,
-  useAiAgent,
-  invalidateAiAgents,
-} from './ai-agents'
+export { useAiAgents, useAiAgentsSlim, useAiAgent, invalidateAiAgents } from './ai-agents'
 
 // ============================================
 // 電子收據（Travel Invoice）
@@ -544,10 +425,7 @@ export type { SupplierPricing } from './supplier-pricing'
 // 5/24 純角色 SSOT：移除 employee-eligibilities 系統（旗標已廢、改純角色能力）。
 
 // Role Capabilities（5/24、純角色 SSOT、指派候選池來源）
-export {
-  useRoleCapabilities,
-  invalidateRoleCapabilities,
-} from './role-capabilities'
+export { useRoleCapabilities, invalidateRoleCapabilities } from './role-capabilities'
 export type { RoleCapability } from './role-capabilities'
 
 // Checks（5/24、票據、② 散刻寫入配套）
@@ -620,9 +498,5 @@ export {
 export type { ExpenseCategory } from './expense-categories'
 
 // Contracts（旅遊合約 / 電子簽約）
-export {
-  useContracts,
-  useContract,
-  invalidateContracts,
-} from './contracts'
+export { useContracts, useContract, invalidateContracts } from './contracts'
 export type { Contract } from './contracts'

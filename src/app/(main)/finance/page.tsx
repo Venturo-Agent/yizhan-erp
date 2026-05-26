@@ -133,19 +133,14 @@ export default function FinancePage() {
   }
 
   return (
-    <ContentPageLayout
-      title={t('financeManagementCenter')}
-      contentClassName="flex-1 overflow-auto"
-    >
+    <ContentPageLayout title={t('financeManagementCenter')} contentClassName="flex-1 overflow-auto">
       <div className="space-y-6">
         {/* 財務總覽 - Enhanced UI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="p-4 bg-morandi-green/10 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-morandi-secondary mb-1">
-                  {t('totalIncome')}
-                </p>
+                <p className="text-sm text-morandi-secondary mb-1">{t('totalIncome')}</p>
                 <div className="text-2xl font-bold">
                   <CurrencyCell amount={totalReceivable} variant="income" />
                 </div>
@@ -157,9 +152,7 @@ export default function FinancePage() {
           <Card className="p-4 bg-morandi-red/10 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-morandi-secondary mb-1">
-                  {t('totalExpense')}
-                </p>
+                <p className="text-sm text-morandi-secondary mb-1">{t('totalExpense')}</p>
                 <div className="text-2xl font-bold">
                   <CurrencyCell amount={totalPayable} variant="expense" />
                 </div>
@@ -171,9 +164,7 @@ export default function FinancePage() {
           <Card className="p-4 bg-morandi-primary/10 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-morandi-secondary mb-1">
-                  {t('netProfit')}
-                </p>
+                <p className="text-sm text-morandi-secondary mb-1">{t('netProfit')}</p>
                 <div className="text-2xl font-bold">
                   <CurrencyCell
                     amount={netProfit}
@@ -188,9 +179,7 @@ export default function FinancePage() {
           <Card className="p-4 bg-morandi-gold/10 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-morandi-secondary mb-1">
-                  {t('pendingItems')}
-                </p>
+                <p className="text-sm text-morandi-secondary mb-1">{t('pendingItems')}</p>
                 <div className="text-2xl font-bold text-morandi-gold">
                   <CurrencyCell amount={pendingPayments} />
                 </div>
@@ -226,15 +215,17 @@ export default function FinancePage() {
 
         {/* 交易紀錄 */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-morandi-primary">
-            {t('transactionRecords')}
-          </h3>
+          <h3 className="text-lg font-semibold text-morandi-primary">{t('transactionRecords')}</h3>
           <EnhancedTable columns={transactionColumns as TableColumn[]} data={transactions} />
 
           {/* Pagination Controls */}
           <div className="flex items-center justify-between pt-4">
             <div className="text-sm text-morandi-secondary">
-              {t('paginationSummary', { total: transactionsCount, page: transactionsPage, totalPages })}
+              {t('paginationSummary', {
+                total: transactionsCount,
+                page: transactionsPage,
+                totalPages,
+              })}
             </div>
             <div className="flex gap-2">
               <Button

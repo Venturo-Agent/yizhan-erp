@@ -102,15 +102,12 @@ export async function POST(request: NextRequest) {
 
     // 2. 更新 auth.users 的 metadata（使用 admin）
     // 用員工的真實 workspace_id（SSOT、不信 body 傳的）
-    const { error: metadataError } = await supabaseAdmin.auth.admin.updateUserById(
-      user_id,
-      {
-        user_metadata: {
-          workspace_id: targetEmp.workspace_id,
-          employee_id,
-        },
-      }
-    )
+    const { error: metadataError } = await supabaseAdmin.auth.admin.updateUserById(user_id, {
+      user_metadata: {
+        workspace_id: targetEmp.workspace_id,
+        employee_id,
+      },
+    })
 
     if (metadataError) {
       logger.warn('更新 user_metadata 失敗:', metadataError)

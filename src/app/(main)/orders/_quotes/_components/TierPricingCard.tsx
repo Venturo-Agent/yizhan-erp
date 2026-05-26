@@ -4,12 +4,7 @@ import React from 'react'
 import { Button } from '@/components/ui/button'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import {
-  SellingPrices,
-  IdentityCosts,
-  IdentityProfits,
-  TierPricing,
-} from '../_types'
+import { SellingPrices, IdentityCosts, IdentityProfits, TierPricing } from '../_types'
 import { normalizeNumber } from '../_utils/priceCalculations'
 import { PriceInputRow } from './PriceInputRow'
 import { useTranslations } from 'next-intl'

@@ -46,7 +46,10 @@ async function loadToken(token: string): Promise<{
   const { data: tokenRow } = await (
     admin.from as unknown as (t: string) => {
       select: (c: string) => {
-        eq: (k: string, v: string) => {
+        eq: (
+          k: string,
+          v: string
+        ) => {
           maybeSingle: () => Promise<{ data: SetupTokenRow | null }>
         }
       }
@@ -61,7 +64,10 @@ async function loadToken(token: string): Promise<{
   const { data: wsRow } = await (
     admin.from as unknown as (t: string) => {
       select: (c: string) => {
-        eq: (k: string, v: string) => {
+        eq: (
+          k: string,
+          v: string
+        ) => {
           maybeSingle: () => Promise<{ data: WorkspaceRow | null }>
         }
       }
@@ -80,7 +86,7 @@ async function loadToken(token: string): Promise<{
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ token: string }> },
+  { params }: { params: Promise<{ token: string }> }
 ) {
   const { token } = await params
 
@@ -114,7 +120,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ token: string }> },
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
     return await handlePut(request, await params)
@@ -125,10 +131,7 @@ export async function PUT(
   }
 }
 
-async function handlePut(
-  request: NextRequest,
-  { token }: { token: string },
-) {
+async function handlePut(request: NextRequest, { token }: { token: string }) {
   const body = await request.json()
   const { config } = body as { config?: Record<string, string> }
 
@@ -151,17 +154,14 @@ async function handlePut(
   if (!def) {
     return NextResponse.json(
       { error: `未知 integration_code: ${row.integration_code}` },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
   // 驗證必填
   for (const field of def.fields) {
     if (field.required && !config[field.key]) {
-      return NextResponse.json(
-        { error: `${field.label} 為必填` },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: `${field.label} 為必填` }, { status: 400 })
     }
   }
 
@@ -174,11 +174,14 @@ async function handlePut(
 
   // upsert workspace_integrations
   type UpsertChain = {
-    upsert: (v: Record<string, unknown>, opts: { onConflict: string }) => Promise<{ error: unknown }>
+    upsert: (
+      v: Record<string, unknown>,
+      opts: { onConflict: string }
+    ) => Promise<{ error: unknown }>
   }
-  const { error: upsertError } = await (
-    admin.from as unknown as (t: string) => UpsertChain
-  )('workspace_integrations').upsert(
+  const { error: upsertError } = await (admin.from as unknown as (t: string) => UpsertChain)(
+    'workspace_integrations'
+  ).upsert(
     {
       workspace_id: row.workspace_id,
       integration_code: row.integration_code,
@@ -186,7 +189,7 @@ async function handlePut(
       enabled: true,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: 'workspace_id,integration_code' },
+    { onConflict: 'workspace_id,integration_code' }
   )
 
   if (upsertError) {
@@ -199,8 +202,7 @@ async function handlePut(
       eq: (c: string, v: string) => Promise<{ error: unknown }>
     }
   }
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null
   const ua = request.headers.get('user-agent') ?? null
   await (admin.from as unknown as (t: string) => UpdateChain)('setup_tokens')
     .update({

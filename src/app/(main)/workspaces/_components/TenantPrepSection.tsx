@@ -35,11 +35,7 @@ interface Props {
   optionalFeatures: string[]
 }
 
-export function TenantPrepSection({
-  subscriptionPlan,
-  advancePicks,
-  optionalFeatures,
-}: Props) {
+export function TenantPrepSection({ subscriptionPlan, advancePicks, optionalFeatures }: Props) {
   const enabledFeatures = useMemo(() => {
     const set = new Set(getFeaturesForPlan(subscriptionPlan, advancePicks))
     optionalFeatures.forEach(f => set.add(f))
@@ -65,7 +61,9 @@ export function TenantPrepSection({
               <p className="text-xs font-medium text-morandi-primary">{title}</p>
               <ul className="mt-0.5 space-y-0.5">
                 {items.map(it => (
-                  <li key={it} className="text-[11px] text-morandi-secondary">・{it}</li>
+                  <li key={it} className="text-[11px] text-morandi-secondary">
+                    ・{it}
+                  </li>
                 ))}
               </ul>
             </div>

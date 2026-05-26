@@ -72,10 +72,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       if (error.code === '23505') {
-        return NextResponse.json(
-          { error: '此 postback_data 已存在' },
-          { status: 409 }
-        )
+        return NextResponse.json({ error: '此 postback_data 已存在' }, { status: 409 })
       }
       logger.error('POST postback-templates failed', error)
       return ApiError.internal('建立失敗')

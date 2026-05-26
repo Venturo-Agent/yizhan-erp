@@ -28,7 +28,8 @@ const LABELS = {
   TRANS_NO_PREFIX: '交易序號：',
   SUCCESS_HINT: '感謝您的付款、可以關閉此頁。',
   FAILED: '付款未完成',
-  FAILED_HINT: '這筆付款尚未完成、或連結已失效。若您已刷卡、款項仍在確認中、請稍後回原付款連結查看。',
+  FAILED_HINT:
+    '這筆付款尚未完成、或連結已失效。若您已刷卡、款項仍在確認中、請稍後回原付款連結查看。',
 } as const
 
 function ResultInner() {
@@ -46,7 +47,11 @@ function ResultInner() {
       const res = await fetch(`/api/public/payment-status/${token}`)
       if (!res.ok) return 'retry'
       const json = await res.json()
-      const d = json.data as { status: string; amount: number | null; external_trans_no: string | null }
+      const d = json.data as {
+        status: string
+        amount: number | null
+        external_trans_no: string | null
+      }
       setAmount(d.amount)
       setTransNo(d.external_trans_no)
       if (d.status === 'captured') {

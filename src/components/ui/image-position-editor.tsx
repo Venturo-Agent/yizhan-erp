@@ -59,9 +59,7 @@ export function getImagePositionStyle(
 }
 
 // 解析舊格式字串為新格式
-function parseImagePosition(
-  value?: string | ImagePositionSettings | null
-): ImagePositionSettings {
+function parseImagePosition(value?: string | ImagePositionSettings | null): ImagePositionSettings {
   if (!value) return { ...defaultImagePosition }
 
   if (typeof value === 'object') {
@@ -299,11 +297,7 @@ export function ImagePositionEditor({
                 <Button type="button" variant="soft-gold" onClick={onClose}>
                   {UI_LABELS.CANCEL}
                 </Button>
-                <Button variant="soft-gold"
-                  type="button"
-                  onClick={handleConfirm}
- 
-                >
+                <Button variant="soft-gold" type="button" onClick={handleConfirm}>
                   {UI_LABELS.LABEL_4550}
                 </Button>
               </div>

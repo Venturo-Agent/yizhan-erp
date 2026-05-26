@@ -43,7 +43,13 @@ import { EditorToolbar } from './_components/EditorToolbar'
 import { EditorPanel } from './_components/EditorPanel'
 import { DeleteBlockDialog } from './_components/DeleteBlockDialog'
 import { AiAssistDialog } from './_components/AiAssistDialog'
-import { deleteBlock, findBlock, applyAiPatch, type SelectionKey, type AiPatch } from './_components/canvas-utils'
+import {
+  deleteBlock,
+  findBlock,
+  applyAiPatch,
+  type SelectionKey,
+  type AiPatch,
+} from './_components/canvas-utils'
 import { useCanvasEditor } from './_hooks/useCanvasEditor'
 import {
   fetchDisplayCanvas,
@@ -103,7 +109,7 @@ function useBootstrap(code: string): BootstrapState {
             .eq('code', code)
             .not('is_active', 'is', false)
             .maybeSingle(),
-          fetchDisplayCanvas(code).catch((err) => {
+          fetchDisplayCanvas(code).catch(err => {
             // 5/17 加：API / 表不存在時、給「空殼 response」讓下面走 auto-generate
             // 不 toast 不擋頁面、靜默 log（業務不用知道後端細節）
             logger.warn('display-canvas API unavailable, fallback to auto-generate', {
@@ -126,9 +132,7 @@ function useBootstrap(code: string): BootstrapState {
         if (tourRes.error || !tourRes.data) {
           setState({
             loading: false,
-            error: tourRes.error
-              ? `資料庫錯誤：${tourRes.error.message}`
-              : `查不到團號 ${code}`,
+            error: tourRes.error ? `資料庫錯誤：${tourRes.error.message}` : `查不到團號 ${code}`,
             tour: null,
             initialCanvas: null,
             initialUpdatedAt: null,
@@ -152,9 +156,7 @@ function useBootstrap(code: string): BootstrapState {
 
         const tour: TourData = {
           ...tourRes.data,
-          itinerary: rawItinerary
-            ? { ...rawItinerary, daily_itinerary: enrichedDaily }
-            : null,
+          itinerary: rawItinerary ? { ...rawItinerary, daily_itinerary: enrichedDaily } : null,
         } as TourData
 
         // 2. 載入公司資訊 + hero image（給 auto-generate 用）
@@ -302,7 +304,7 @@ function EditorReady({
   const [publishLoading, setPublishLoading] = React.useState<boolean>(false)
   const [unpublishLoading, setUnpublishLoading] = React.useState<boolean>(false)
   const [selection, setSelection] = React.useState<SelectionKey | null>(
-    initialCanvas.sections.some((s) => s.type === 'cover') ? { kind: 'cover' } : null
+    initialCanvas.sections.some(s => s.type === 'cover') ? { kind: 'cover' } : null
   )
   const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null)
   const [deleteLoading, setDeleteLoading] = React.useState<boolean>(false)
@@ -403,7 +405,7 @@ function EditorReady({
           selection={selection}
           onSelect={setSelection}
           onChange={setCanvas}
-          onRequestDeleteBlock={(id) => setPendingDeleteId(id)}
+          onRequestDeleteBlock={id => setPendingDeleteId(id)}
         />
       </div>
 

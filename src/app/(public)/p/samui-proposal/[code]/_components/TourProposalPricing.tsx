@@ -63,10 +63,30 @@ const groupMeals = {
 }
 
 const optionalActivities = [
-  { name: '安通國家公園', price: '1,500-2,000', unit: '฿/人', description: '含長尾船、划Kayak、登頂看瀉湖，包午餐' },
-  { name: '日落風帆巡航', price: '2,500-3,500', unit: '฿/人', description: '傍晚出海，觀賞蘇梅島夕陽，含飲料' },
-  { name: '叢林騎象', price: '1,200-1,500', unit: '฿/人', description: '象背上逛熱帶雨林，專業教練帶領' },
-  { name: '泰式烹飪課程', price: '800-1,000', unit: '฿/人', description: '學做3-4道泰國菜，含午餐' },
+  {
+    name: '安通國家公園',
+    price: '1,500-2,000',
+    unit: '฿/人',
+    description: '含長尾船、划Kayak、登頂看瀉湖，包午餐',
+  },
+  {
+    name: '日落風帆巡航',
+    price: '2,500-3,500',
+    unit: '฿/人',
+    description: '傍晚出海，觀賞蘇梅島夕陽，含飲料',
+  },
+  {
+    name: '叢林騎象',
+    price: '1,200-1,500',
+    unit: '฿/人',
+    description: '象背上逛熱帶雨林，專業教練帶領',
+  },
+  {
+    name: '泰式烹飪課程',
+    price: '800-1,000',
+    unit: '฿/人',
+    description: '學做3-4道泰國菜，含午餐',
+  },
   { name: 'Spa 套餐', price: '2,500-4,000', unit: '฿/人', description: '半天或一天泰式按摩套餐' },
 ]
 
@@ -165,7 +185,10 @@ export function TourProposalPricing() {
         >
           Pricing
         </span>
-        <h2 className="text-4xl md:text-5xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+        <h2
+          className="text-4xl md:text-5xl font-bold"
+          style={{ fontFamily: 'Noto Serif TC, serif' }}
+        >
           費用說明
         </h2>
         <p className="text-muted-foreground text-base">透明定價，無隱藏費用</p>
@@ -267,17 +290,27 @@ export function TourProposalPricing() {
         }}
       >
         {/* 裝飾背景 */}
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-10"
-          style={{ backgroundColor: '#c9aa7c' }} />
-        <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl opacity-10"
-          style={{ backgroundColor: '#c9aa7c' }} />
+        <div
+          className="absolute top-0 right-0 w-64 h-64 rounded-full blur-3xl opacity-10"
+          style={{ backgroundColor: '#c9aa7c' }}
+        />
+        <div
+          className="absolute bottom-0 left-0 w-48 h-48 rounded-full blur-3xl opacity-10"
+          style={{ backgroundColor: '#c9aa7c' }}
+        />
 
         <div className="relative z-10 flex items-center justify-between">
           <div>
-            <span className="text-sm font-bold tracking-widest uppercase" style={{ color: 'rgba(201,170,124,0.8)' }}>
+            <span
+              className="text-sm font-bold tracking-widest uppercase"
+              style={{ color: 'rgba(201,170,124,0.8)' }}
+            >
               Total
             </span>
-            <h3 className="text-2xl md:text-3xl font-bold text-white mt-1" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+            <h3
+              className="text-2xl md:text-3xl font-bold text-white mt-1"
+              style={{ fontFamily: 'Noto Serif TC, serif' }}
+            >
               基礎費用合計
             </h3>
             <p className="text-white/60 text-sm mt-2">不含第四、五天自由活動自費項目</p>
@@ -303,12 +336,17 @@ export function TourProposalPricing() {
         style={{ borderColor: 'rgba(201,170,124,0.15)' }}
       >
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: `${LUXURY.secondary}15` }}>
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: `${LUXURY.secondary}15` }}
+          >
             <span className="text-2xl">🎯</span>
           </div>
           <div>
-            <span className="text-xs font-bold tracking-widest uppercase" style={{ color: LUXURY.secondary }}>
+            <span
+              className="text-xs font-bold tracking-widest uppercase"
+              style={{ color: LUXURY.secondary }}
+            >
               Optional Activities
             </span>
             <h3 className="text-2xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
@@ -333,8 +371,10 @@ export function TourProposalPricing() {
             >
               <div className="flex items-start justify-between mb-3">
                 <h4 className="text-sm font-bold">{activity.name}</h4>
-                <span className="text-xs px-2 py-0.5 rounded-full"
-                  style={{ backgroundColor: `${LUXURY.secondary}15`, color: LUXURY.secondary }}>
+                <span
+                  className="text-xs px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: `${LUXURY.secondary}15`, color: LUXURY.secondary }}
+                >
                   自費
                 </span>
               </div>
@@ -346,15 +386,27 @@ export function TourProposalPricing() {
           ))}
         </div>
 
-        <div className="mt-6 p-4 rounded-xl"
+        <div
+          className="mt-6 p-4 rounded-xl"
           style={{
             backgroundColor: `${LUXURY.secondary}10`,
             border: `1px solid ${LUXURY.secondary}20`,
-          }}>
+          }}
+        >
           <p className="text-sm">
-            基礎費用約每人 <span className="font-bold" style={{ color: LUXURY.secondary }}>60,857 元</span>，
-            加上自費活動每人約 <span className="font-bold" style={{ color: LUXURY.secondary }}>2,500 - 4,000 泰銖</span>，
-            預估總費用範圍約 <span className="font-bold" style={{ color: LUXURY.secondary }}>64,500 - 65,000 元</span>。
+            基礎費用約每人{' '}
+            <span className="font-bold" style={{ color: LUXURY.secondary }}>
+              60,857 元
+            </span>
+            ， 加上自費活動每人約{' '}
+            <span className="font-bold" style={{ color: LUXURY.secondary }}>
+              2,500 - 4,000 泰銖
+            </span>
+            ， 預估總費用範圍約{' '}
+            <span className="font-bold" style={{ color: LUXURY.secondary }}>
+              64,500 - 65,000 元
+            </span>
+            。
           </p>
         </div>
       </motion.div>
@@ -397,7 +449,10 @@ export function TourProposalPricing() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
-                <h3 className="text-xl font-bold text-white" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                <h3
+                  className="text-xl font-bold text-white"
+                  style={{ fontFamily: 'Noto Serif TC, serif' }}
+                >
                   {hotel.name}
                 </h3>
               </div>
@@ -413,7 +468,9 @@ export function TourProposalPricing() {
               </div>
               <div className="pt-3 border-t" style={{ borderColor: 'rgba(201,170,124,0.15)' }}>
                 <p className="text-sm text-muted-foreground">每晚每間</p>
-                <p className="text-2xl font-bold" style={{ color: LUXURY.secondary }}>{hotel.price}</p>
+                <p className="text-2xl font-bold" style={{ color: LUXURY.secondary }}>
+                  {hotel.price}
+                </p>
               </div>
             </div>
           </motion.div>

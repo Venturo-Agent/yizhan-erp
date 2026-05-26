@@ -8,10 +8,7 @@ import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
 import { generateVoucherNo } from '@/lib/codes'
 
-export async function POST(
-  request: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.ACCOUNTING_VOUCHERS_WRITE)
     if (!guard.ok) return guard.response

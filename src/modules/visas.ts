@@ -36,8 +36,16 @@ export const VisasModule = defineModule({
   tabs: [
     { code: 'applications', name: '申辦進度', description: '送件、取件、退件、歸還客戶' },
     { code: 'documents', name: '客戶證件抽屜', description: '客戶所持證件總覽、含申辦歷史' },
-    { code: 'document_types', name: '證件種類', description: '證件分類字典維護（護照、台胞證、各國簽證等）' },
-    { code: 'service_types', name: '服務種類', description: '代辦服務種類字典（含一般 / 急件區分）' },
+    {
+      code: 'document_types',
+      name: '證件種類',
+      description: '證件分類字典維護（護照、台胞證、各國簽證等）',
+    },
+    {
+      code: 'service_types',
+      name: '服務種類',
+      description: '代辦服務種類字典（含一般 / 急件區分）',
+    },
     { code: 'pricing', name: '代辦商價目', description: '各代辦商對各服務的價目（含版本歷史）' },
   ],
 })

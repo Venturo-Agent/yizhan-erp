@@ -153,12 +153,7 @@ export function usePassportValidation(): UsePassportValidationReturn {
           passport_expiry: customerData.passport_expiry || null,
           birth_date: birthDate,
           id_number: idNumber,
-          gender:
-            customerData.sex === '男'
-              ? 'M'
-              : customerData.sex === '女'
-                ? 'F'
-                : null,
+          gender: customerData.sex === '男' ? 'M' : customerData.sex === '女' ? 'F' : null,
           identity: '大人',
           member_type: 'adult',
           passport_image_url: passportImageUrl,
@@ -239,12 +234,7 @@ export function usePassportValidation(): UsePassportValidationReturn {
               passport_image_url: passportImageUrl || null,
               national_id: idNumber || null,
               birth_date: birthDate || null,
-              gender:
-                customerData.sex === '男'
-                  ? 'M'
-                  : customerData.sex === '女'
-                    ? 'F'
-                    : null,
+              gender: customerData.sex === '男' ? 'M' : customerData.sex === '女' ? 'F' : null,
               phone: '',
               member_type: 'potential', // 護照建立的客戶預設為潛在客戶
               is_vip: false,
@@ -335,12 +325,7 @@ export function usePassportValidation(): UsePassportValidationReturn {
           passport_expiry: customerData.passport_expiry || null,
           birth_date: birthDate,
           id_number: idNumber,
-          gender:
-            customerData.sex === '男'
-              ? 'M'
-              : customerData.sex === '女'
-                ? 'F'
-                : null,
+          gender: customerData.sex === '男' ? 'M' : customerData.sex === '女' ? 'F' : null,
           passport_image_url: passportImageUrl,
         }
 

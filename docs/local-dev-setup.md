@@ -9,6 +9,7 @@
 ## 為什麼要做這個
 
 過去 production-only 開發踩過：
+
 - 5/14 trigger × API 雙寫撞 unique、自此無人能建租戶
 - 4/20 動 workspaces RLS、全員登不進去
 - 動 schema 怕死客戶資料
@@ -68,6 +69,7 @@ code .env.development.local
 ```
 
 必填欄位：
+
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY=`
 - `SUPABASE_SERVICE_ROLE_KEY=`
 
@@ -86,6 +88,7 @@ npm run seed:local
 ```
 
 灌出來：
+
 - workspace `LOCAL_TEST`
 - 1 個假員工 `william@local`（密碼 `localdev`）
 - 1 個假客戶 / 1 個假 tour / 1 個假 order
@@ -127,6 +130,7 @@ npm run seed:local
 ```
 
 `db reset` 會：
+
 - DROP 所有 schema
 - 跑 `supabase/migrations/*.sql` 從頭灌一次
 - 不會動 production
@@ -151,6 +155,7 @@ colima stop      # 停 docker daemon（可選、不停會持續吃 RAM）
 ### Q2: port 衝突
 
 預設 port：
+
 - 54321 — Supabase API
 - 54322 — Postgres
 - 54323 — Studio

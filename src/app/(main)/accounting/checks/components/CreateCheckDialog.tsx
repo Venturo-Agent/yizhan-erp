@@ -102,7 +102,7 @@ export function CreateCheckDialog({ open, onOpenChange, onSuccess }: CreateCheck
   }
 
   const { isSubmitting, execute: handleSubmit } = useAsyncSubmit(doSubmit, {
-    onError: (error) => {
+    onError: error => {
       logger.error('新增票據失敗:', error)
       toast.error(translateDbError(error).message)
     },
@@ -118,72 +118,71 @@ export function CreateCheckDialog({ open, onOpenChange, onSuccess }: CreateCheck
       loading={isSubmitting}
       maxWidth="lg"
     >
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="check_number">{PAGE_LABELS.FIELD_CHECK_NUMBER}</Label>
-              <Input
-                id="check_number"
-                placeholder={PAGE_LABELS.CHECK_NUMBER_PLACEHOLDER}
-                value={formData.check_number}
-                onChange={e => setFormData({ ...formData, check_number: e.target.value })}
-                required
-              />
-            </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="check_number">{PAGE_LABELS.FIELD_CHECK_NUMBER}</Label>
+          <Input
+            id="check_number"
+            placeholder={PAGE_LABELS.CHECK_NUMBER_PLACEHOLDER}
+            value={formData.check_number}
+            onChange={e => setFormData({ ...formData, check_number: e.target.value })}
+            required
+          />
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="amount">{PAGE_LABELS.FIELD_AMOUNT}</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.amount}
-                onChange={e => setFormData({ ...formData, amount: e.target.value })}
-                required
-              />
-            </div>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="amount">{PAGE_LABELS.FIELD_AMOUNT}</Label>
+          <Input
+            id="amount"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            value={formData.amount}
+            onChange={e => setFormData({ ...formData, amount: e.target.value })}
+            required
+          />
+        </div>
+      </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="check_date">{PAGE_LABELS.FIELD_CHECK_DATE}</Label>
-              <DatePicker
-                value={formData.check_date}
-                onChange={v => setFormData({ ...formData, check_date: v })}
-              />
-            </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="check_date">{PAGE_LABELS.FIELD_CHECK_DATE}</Label>
+          <DatePicker
+            value={formData.check_date}
+            onChange={v => setFormData({ ...formData, check_date: v })}
+          />
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="due_date">{PAGE_LABELS.FIELD_DUE_DATE}</Label>
-              <DatePicker
-                value={formData.due_date}
-                onChange={v => setFormData({ ...formData, due_date: v })}
-              />
-            </div>
-          </div>
+        <div className="space-y-2">
+          <Label htmlFor="due_date">{PAGE_LABELS.FIELD_DUE_DATE}</Label>
+          <DatePicker
+            value={formData.due_date}
+            onChange={v => setFormData({ ...formData, due_date: v })}
+          />
+        </div>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="payee_name">{PAGE_LABELS.FIELD_PAYEE}</Label>
-            <Input
-              id="payee_name"
-              placeholder={PAGE_LABELS.PAYEE_PLACEHOLDER}
-              value={formData.payee_name}
-              onChange={e => setFormData({ ...formData, payee_name: e.target.value })}
-              required
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="payee_name">{PAGE_LABELS.FIELD_PAYEE}</Label>
+        <Input
+          id="payee_name"
+          placeholder={PAGE_LABELS.PAYEE_PLACEHOLDER}
+          value={formData.payee_name}
+          onChange={e => setFormData({ ...formData, payee_name: e.target.value })}
+          required
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="memo">{PAGE_LABELS.MEMO_LABEL}</Label>
-            <Textarea
-              id="memo"
-              placeholder={PAGE_LABELS.MEMO_PLACEHOLDER}
-              value={formData.memo}
-              onChange={e => setFormData({ ...formData, memo: e.target.value })}
-              rows={3}
-            />
-          </div>
-
+      <div className="space-y-2">
+        <Label htmlFor="memo">{PAGE_LABELS.MEMO_LABEL}</Label>
+        <Textarea
+          id="memo"
+          placeholder={PAGE_LABELS.MEMO_PLACEHOLDER}
+          value={formData.memo}
+          onChange={e => setFormData({ ...formData, memo: e.target.value })}
+          rows={3}
+        />
+      </div>
     </FormDialog>
   )
 }

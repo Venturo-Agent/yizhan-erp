@@ -11,7 +11,7 @@ export type { Customer } from '@/types/customer.types'
 export type { Supplier } from '@/types/supplier.types'
 
 // 以下從 @/types 統一來源 re-export
-export type {  TierPricing } from '@/types/quote-store.types'
+export type { TierPricing } from '@/types/quote-store.types'
 
 // Store 專用 Quote 型別（與 @/types/quote.types.ts 的 Quote extends BaseEntity 不同）
-export type { Quote, QuickQuoteItem,  QuoteItem } from '@/types/quote-store.types'
+export type { Quote, QuickQuoteItem, QuoteItem } from '@/types/quote-store.types'

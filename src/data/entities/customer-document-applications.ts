@@ -20,16 +20,10 @@ const customerDocumentApplicationEntity = createEntityHook<CustomerDocumentAppli
   }
 )
 
-export const useCustomerDocumentApplications =
-  customerDocumentApplicationEntity.useList
-export const useCustomerDocumentApplication =
-  customerDocumentApplicationEntity.useDetail
-export const invalidateCustomerDocumentApplications =
-  customerDocumentApplicationEntity.invalidate
-export const createCustomerDocumentApplication =
-  customerDocumentApplicationEntity.create
-export const updateCustomerDocumentApplication =
-  customerDocumentApplicationEntity.update
-export const deleteCustomerDocumentApplication =
-  customerDocumentApplicationEntity.delete
+export const useCustomerDocumentApplications = customerDocumentApplicationEntity.useList
+export const useCustomerDocumentApplication = customerDocumentApplicationEntity.useDetail
+export const invalidateCustomerDocumentApplications = customerDocumentApplicationEntity.invalidate
+export const createCustomerDocumentApplication = customerDocumentApplicationEntity.create
+export const updateCustomerDocumentApplication = customerDocumentApplicationEntity.update
+export const deleteCustomerDocumentApplication = customerDocumentApplicationEntity.delete
 export type { CustomerDocumentApplication }

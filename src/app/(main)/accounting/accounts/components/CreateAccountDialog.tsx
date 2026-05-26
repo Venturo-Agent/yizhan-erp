@@ -170,7 +170,7 @@ export function CreateAccountDialog({
   }
 
   const { isSubmitting, execute: handleSubmit } = useAsyncSubmit(doSubmit, {
-    onError: (error) => {
+    onError: error => {
       logger.error('新增科目失敗:', error)
       toast.error(translateDbError(error).message)
     },
@@ -180,100 +180,101 @@ export function CreateAccountDialog({
     <FormDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={parentAccount
-        ? PAGE_LABELS.DIALOG_TITLE_SUB(parentAccount.code, parentAccount.name)
-        : PAGE_LABELS.DIALOG_TITLE_NEW}
+      title={
+        parentAccount
+          ? PAGE_LABELS.DIALOG_TITLE_SUB(parentAccount.code, parentAccount.name)
+          : PAGE_LABELS.DIALOG_TITLE_NEW
+      }
       onSubmit={handleSubmit}
       submitLabel={PAGE_LABELS.SUBMIT_LABEL}
       loading={isSubmitting}
       maxWidth="lg"
     >
-          <div className="space-y-2">
-            <Label htmlFor="code">{PAGE_LABELS.FIELD_CODE}</Label>
-            <Input
-              id="code"
-              placeholder={PAGE_LABELS.CODE_PLACEHOLDER}
-              value={formData.code}
-              onChange={e => setFormData({ ...formData, code: e.target.value })}
-              required
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="code">{PAGE_LABELS.FIELD_CODE}</Label>
+        <Input
+          id="code"
+          placeholder={PAGE_LABELS.CODE_PLACEHOLDER}
+          value={formData.code}
+          onChange={e => setFormData({ ...formData, code: e.target.value })}
+          required
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="name">{PAGE_LABELS.FIELD_NAME}</Label>
-            <Input
-              id="name"
-              placeholder={PAGE_LABELS.NAME_PLACEHOLDER}
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="name">{PAGE_LABELS.FIELD_NAME}</Label>
+        <Input
+          id="name"
+          placeholder={PAGE_LABELS.NAME_PLACEHOLDER}
+          value={formData.name}
+          onChange={e => setFormData({ ...formData, name: e.target.value })}
+          required
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="account_type">{PAGE_LABELS.FIELD_ACCOUNT_TYPE}</Label>
-            <Select
-              value={formData.account_type}
-              onValueChange={value => setFormData({ ...formData, account_type: value })}
-            >
-              <SelectTrigger id="account_type">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {accountTypes.map(type => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="account_type">{PAGE_LABELS.FIELD_ACCOUNT_TYPE}</Label>
+        <Select
+          value={formData.account_type}
+          onValueChange={value => setFormData({ ...formData, account_type: value })}
+        >
+          <SelectTrigger id="account_type">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {accountTypes.map(type => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="parent_id">{PAGE_LABELS.FIELD_PARENT_OPTIONAL}</Label>
-            <Select
-              value={formData.parent_id || 'none'}
-              onValueChange={value =>
-                setFormData({ ...formData, parent_id: value === 'none' ? '' : value })
-              }
-            >
-              <SelectTrigger id="parent_id">
-                <SelectValue placeholder={PAGE_LABELS.PARENT_PLACEHOLDER} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{PAGE_LABELS.PARENT_NONE_OPTION}</SelectItem>
-                {parentAccounts
-                  .filter(p => p.account_type === formData.account_type)
-                  .map(parent => (
-                    <SelectItem key={parent.id} value={parent.id}>
-                      {parent.code} {parent.name}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">{PAGE_LABELS.PARENT_HINT}</p>
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="parent_id">{PAGE_LABELS.FIELD_PARENT_OPTIONAL}</Label>
+        <Select
+          value={formData.parent_id || 'none'}
+          onValueChange={value =>
+            setFormData({ ...formData, parent_id: value === 'none' ? '' : value })
+          }
+        >
+          <SelectTrigger id="parent_id">
+            <SelectValue placeholder={PAGE_LABELS.PARENT_PLACEHOLDER} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{PAGE_LABELS.PARENT_NONE_OPTION}</SelectItem>
+            {parentAccounts
+              .filter(p => p.account_type === formData.account_type)
+              .map(parent => (
+                <SelectItem key={parent.id} value={parent.id}>
+                  {parent.code} {parent.name}
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">{PAGE_LABELS.PARENT_HINT}</p>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">{PAGE_LABELS.DESCRIPTION_LABEL}</Label>
-            <Textarea
-              id="description"
-              placeholder={PAGE_LABELS.DESCRIPTION_PLACEHOLDER}
-              value={formData.description}
-              onChange={e => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="description">{PAGE_LABELS.DESCRIPTION_LABEL}</Label>
+        <Textarea
+          id="description"
+          placeholder={PAGE_LABELS.DESCRIPTION_PLACEHOLDER}
+          value={formData.description}
+          onChange={e => setFormData({ ...formData, description: e.target.value })}
+          rows={3}
+        />
+      </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="is_active">{PAGE_LABELS.ENABLED_STATUS}</Label>
-            <Switch
-              id="is_active"
-              checked={formData.is_active}
-              onCheckedChange={checked => setFormData({ ...formData, is_active: checked })}
-            />
-          </div>
-
+      <div className="flex items-center justify-between">
+        <Label htmlFor="is_active">{PAGE_LABELS.ENABLED_STATUS}</Label>
+        <Switch
+          id="is_active"
+          checked={formData.is_active}
+          onCheckedChange={checked => setFormData({ ...formData, is_active: checked })}
+        />
+      </div>
     </FormDialog>
   )
 }

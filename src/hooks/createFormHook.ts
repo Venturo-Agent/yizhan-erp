@@ -53,7 +53,7 @@ export function createFormHook<TForm extends Record<string, unknown>, TItem = ne
     }, [])
 
     const updateField = useCallback(<K extends keyof TForm>(key: K, value: TForm[K]) => {
-      setFormData((prev) => ({ ...prev, [key]: value }))
+      setFormData(prev => ({ ...prev, [key]: value }))
       setIsDirty(true)
     }, [])
 

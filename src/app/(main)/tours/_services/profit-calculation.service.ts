@@ -172,8 +172,7 @@ function calculateAllBonuses(
 
   const bonusSettings = settings.filter(
     s =>
-      s.type !== BonusSettingType.PROFIT_TAX &&
-      s.type !== BonusSettingType.ADMINISTRATIVE_EXPENSES
+      s.type !== BonusSettingType.PROFIT_TAX && s.type !== BonusSettingType.ADMINISTRATIVE_EXPENSES
   )
 
   if (calculationOrder === 'independent') {
@@ -273,7 +272,12 @@ export function calculateFullProfit(params: {
   const profit_tax = taxResult.tax
   const net_profit = calculateNetProfit(profit_before_tax, profit_tax)
 
-  const { team_bonuses, employee_bonuses } = calculateAllBonuses(net_profit, settings, employeeDict, calculationOrder)
+  const { team_bonuses, employee_bonuses } = calculateAllBonuses(
+    net_profit,
+    settings,
+    employeeDict,
+    calculationOrder
+  )
   const total_team_bonus = team_bonuses.reduce((s, b) => s + b.amount, 0)
   const total_employee_bonus = employee_bonuses.reduce((s, b) => s + b.amount, 0)
   const company_profit =
@@ -308,8 +312,7 @@ export function generateProfitTableData(result: ProfitCalculationResult): {
     result.admin_cost_per_person > 0
       ? `行政費用（${result.admin_cost_per_person}元/人×${result.member_count}人）`
       : '行政費用'
-  const taxLabel =
-    result.tax_rate > 0 ? `營收稅額（${result.tax_rate}%）` : '營收稅額'
+  const taxLabel = result.tax_rate > 0 ? `營收稅額（${result.tax_rate}%）` : '營收稅額'
 
   const left: ProfitTableRow[] = [
     { label: '收款總額（進項）', amount: result.receipt_total },

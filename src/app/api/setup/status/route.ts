@@ -82,7 +82,10 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => ({}))) as { action?: string }
   if (!body.action || !['mark_complete', 'dismiss_banner'].includes(body.action)) {
-    return NextResponse.json({ error: 'action 必填、必須是 mark_complete / dismiss_banner' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'action 必填、必須是 mark_complete / dismiss_banner' },
+      { status: 400 }
+    )
   }
 
   const workspaceId = auth.data.workspaceId

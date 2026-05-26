@@ -152,7 +152,7 @@ export default function BonusSettlementTourDetailPage({
               </tr>
             </thead>
             <tbody>
-              {items.map((it) => {
+              {items.map(it => {
                 const badge = STATUS_BADGE[it.status]
                 return (
                   <tr key={it.id} className="border-t border-morandi-muted/10">

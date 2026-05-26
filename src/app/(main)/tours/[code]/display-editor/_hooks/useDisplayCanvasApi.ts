@@ -66,10 +66,10 @@ async function apiFetch<T>(input: string, init?: RequestInit): Promise<T> {
  *   呼叫端要 fallback 走 buildCanvasFromTour() 從來源資料自動生成。
  */
 export function fetchDisplayCanvas(code: string): Promise<DisplayCanvasResponse> {
-  return apiFetch<DisplayCanvasResponse>(
-    `/api/tours/${encodeURIComponent(code)}/display-canvas`,
-    { method: 'GET', cache: 'no-store' }
-  )
+  return apiFetch<DisplayCanvasResponse>(`/api/tours/${encodeURIComponent(code)}/display-canvas`, {
+    method: 'GET',
+    cache: 'no-store',
+  })
 }
 
 export interface PutDisplayCanvasResponse {
@@ -80,10 +80,7 @@ export interface PutDisplayCanvasResponse {
 /**
  * PUT 草稿 canvas（不影響已發布版本）
  */
-export function putDisplayCanvas(
-  code: string,
-  canvas: Canvas
-): Promise<PutDisplayCanvasResponse> {
+export function putDisplayCanvas(code: string, canvas: Canvas): Promise<PutDisplayCanvasResponse> {
   return apiFetch<PutDisplayCanvasResponse>(
     `/api/tours/${encodeURIComponent(code)}/display-canvas`,
     {

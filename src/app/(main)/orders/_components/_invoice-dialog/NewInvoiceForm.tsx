@@ -144,10 +144,14 @@ export function NewInvoiceForm({
           </div>
           <div></div>
           <div className="text-right text-sm font-semibold text-morandi-expense">
-            {Array.from(selected).reduce((sum, id) => sum + (costs[id] || 0), 0).toLocaleString()}
+            {Array.from(selected)
+              .reduce((sum, id) => sum + (costs[id] || 0), 0)
+              .toLocaleString()}
           </div>
           <div className="text-right text-sm font-semibold text-morandi-income">
-            {Array.from(selected).reduce((sum, id) => sum + (amounts[id] || 0), 0).toLocaleString()}
+            {Array.from(selected)
+              .reduce((sum, id) => sum + (amounts[id] || 0), 0)
+              .toLocaleString()}
           </div>
           {(() => {
             const totalProfit = Array.from(selected).reduce(

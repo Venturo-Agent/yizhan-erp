@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ✅ | SuppliersPage/AiRetrospectiveTab 用 `useCustomers` entity hook |
-| **資安** | ✅ | RLS/FK 完整；紅線 B（customers.created_by → employees）✅ |
-| **架構** | ✅ | L1-L6 全過 |
-| **開發品管** | ⚠️ | customers 無專屬 e2e；eslint suppress 有 |
-| **清理** | ⚠️ | customers entity 有 duplicate exports 3 個（canManageRoles/hasAdminCapability 等）；knip 456 unused exports 中有 customers 相關 |
+| 維度         | 現狀 | 具體缺口                                                                                                                        |
+| ------------ | ---- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **讀取效能** | ✅   | SuppliersPage/AiRetrospectiveTab 用 `useCustomers` entity hook                                                                  |
+| **資安**     | ✅   | RLS/FK 完整；紅線 B（customers.created_by → employees）✅                                                                       |
+| **架構**     | ✅   | L1-L6 全過                                                                                                                      |
+| **開發品管** | ⚠️   | customers 無專屬 e2e；eslint suppress 有                                                                                        |
+| **清理**     | ⚠️   | customers entity 有 duplicate exports 3 個（canManageRoles/hasAdminCapability 等）；knip 456 unused exports 中有 customers 相關 |
 
 ---
 
@@ -24,6 +24,7 @@
 
 **修法**：
 `tests/e2e/customers.spec.ts`：
+
 ```
 建立 customer → 確認出現在列表 →
 建立關聯 supplier / attraction（交叉引用）→
@@ -42,6 +43,7 @@
 **缺口**：duplicate exports 3 個（canManageRoles/hasAdminCapability、formatDateCompact/formatDateCompactPadded、formatDateTW/formatDateDisplay）。
 
 **修法**：
+
 1. 確認哪個 name 是「正確的」（通常第一個）
 2. Deprecated 第二個 name、保留一個（避免同函式兩個 export name）
 3. 更新所有 caller 統一用一個 name
@@ -56,6 +58,7 @@
 **缺口**：knip 抓到 456 unused exports、customers 相關待清理。
 
 **修法**：
+
 1. 跑 knip 確認 customers 相關 unused exports 具體是哪些
 2. 確認是否真的沒人用（而非動態 import）
 3. 漸進清理
@@ -85,4 +88,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

@@ -77,7 +77,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (!ctx.ok) {
     return NextResponse.json(
       { error: ctx.status === 401 ? '請先登入' : '無權限' },
-      { status: ctx.status },
+      { status: ctx.status }
     )
   }
 
@@ -90,7 +90,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (!from_bank_account_id || !payment_request_item_ids?.length) {
     return NextResponse.json(
       { error: '缺少 from_bank_account_id 或 payment_request_item_ids' },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
@@ -99,7 +99,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
   // 1. 拿公司出帳帳戶
   type AdminChain = {
     select: (c: string) => {
-      eq: (k: string, v: string) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
         maybeSingle?: () => Promise<{ data: BankAccountRow | null }>
         in?: (k: string, v: string[]) => Promise<{ data: ItemRow[] | SupplierRow[] | null }>
       }
@@ -109,7 +112,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const { data: fromBank } = await (
     admin.from as unknown as (t: string) => {
       select: (c: string) => {
-        eq: (k: string, v: string) => {
+        eq: (
+          k: string,
+          v: string
+        ) => {
           maybeSingle: () => Promise<{ data: BankAccountRow | null }>
         }
       }
@@ -134,7 +140,9 @@ export const POST = apiHandler(async (request: NextRequest) => {
       }
     }
   )('payment_request_items')
-    .select('id, request_id, description, subtotal, supplier_id, supplier_name, amount, workspace_id')
+    .select(
+      'id, request_id, description, subtotal, supplier_id, supplier_name, amount, workspace_id'
+    )
     .in('id', payment_request_item_ids)
 
   if (!items?.length) {
@@ -142,10 +150,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   }
   const crossWsItem = items.find(i => i.workspace_id !== ctx.workspace_id)
   if (crossWsItem) {
-    return NextResponse.json(
-      { error: '部分請款品項不屬於目前工作空間' },
-      { status: 403 },
-    )
+    return NextResponse.json({ error: '部分請款品項不屬於目前工作空間' }, { status: 403 })
   }
 
   // 3. 拿關聯的 supplier bank_code
@@ -171,8 +176,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     const supplier = item.supplier_id ? supplierMap[item.supplier_id] : null
     const supplierBankCode = supplier?.bank_code ?? null
     // 沒 supplier 或沒 bank_code → 視為跨行（讓 user 填手續費、保守處理）
-    const isCrossBank =
-      !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
+    const isCrossBank = !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
 
     return {
       item_id: item.id,

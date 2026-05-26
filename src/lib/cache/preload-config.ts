@@ -169,15 +169,10 @@ export function staleAfterToMs(s: StaleAfter): number {
  *
  * 這樣 invalidate_cache_pattern('preload:ws_xxx:') 可一鍵清掉某 workspace 的所有 preload。
  */
-export function buildPreloadCacheKey(
-  shape: PreloadShape,
-  ctx: { workspaceId?: string }
-): string {
+export function buildPreloadCacheKey(shape: PreloadShape, ctx: { workspaceId?: string }): string {
   if (shape.filter === 'workspace') {
     if (!ctx.workspaceId) {
-      throw new Error(
-        `[preload-config] shape "${shape.table}" 需 workspaceId、但 ctx 沒給`
-      )
+      throw new Error(`[preload-config] shape "${shape.table}" 需 workspaceId、但 ctx 沒給`)
     }
     return `preload:ws_${ctx.workspaceId}:${shape.table}`
   }

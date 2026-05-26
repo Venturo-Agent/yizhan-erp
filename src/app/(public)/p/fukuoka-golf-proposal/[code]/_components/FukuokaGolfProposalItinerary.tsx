@@ -144,7 +144,10 @@ export function FukuokaGolfProposalItinerary() {
           >
             Daily Itinerary
           </span>
-          <h2 className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+          <h2
+            className="text-5xl lg:text-6xl font-bold"
+            style={{ fontFamily: 'Noto Serif TC, serif' }}
+          >
             嚴選私人行程
           </h2>
           <p className="text-lg mt-4" style={{ color: '#666' }}>
@@ -161,11 +164,15 @@ export function FukuokaGolfProposalItinerary() {
         >
           <div className="flex items-center gap-3">
             <div className="w-1 h-8" style={{ backgroundColor: '#8B7355' }} />
-            <span className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>高球組 · 先生們</span>
+            <span className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+              高球組 · 先生們
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <div className="w-1 h-8" style={{ backgroundColor: '#6B7B8B' }} />
-            <span className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>太太組 · 非打球</span>
+            <span className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+              太太組 · 非打球
+            </span>
           </div>
         </motion.div>
 
@@ -196,27 +203,43 @@ export function FukuokaGolfProposalItinerary() {
                     >
                       Day {day.day}
                     </span>
-                    <p className="text-3xl font-bold mt-1" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                    <p
+                      className="text-3xl font-bold mt-1"
+                      style={{ fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {day.date}
                     </p>
-                    <p className="text-sm" style={{ color: '#666' }}>{day.dayOfWeek}</p>
+                    <p className="text-sm" style={{ color: '#666' }}>
+                      {day.dayOfWeek}
+                    </p>
                   </div>
 
                   {/* 標題 */}
                   <div className="lg:col-span-4">
-                    <h3 className="text-2xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{ fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {day.title}
                     </h3>
-                    <p className="text-base mt-1" style={{ color: '#666' }}>{day.subtitle}</p>
+                    <p className="text-base mt-1" style={{ color: '#666' }}>
+                      {day.subtitle}
+                    </p>
                     <p className="text-sm mt-3 leading-relaxed" style={{ color: '#444' }}>
                       {day.description}
                     </p>
                     {day.flight && (
                       <div className="mt-4 p-3 border" style={{ borderColor: '#E5E5E5' }}>
-                        <span className="text-xs tracking-[0.15em] uppercase block mb-1" style={{ fontFamily: 'system-ui', color: '#8B7355' }}>
+                        <span
+                          className="text-xs tracking-[0.15em] uppercase block mb-1"
+                          style={{ fontFamily: 'system-ui', color: '#8B7355' }}
+                        >
                           Flight
                         </span>
-                        <p className="text-base font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                        <p
+                          className="text-base font-bold"
+                          style={{ fontFamily: 'Noto Serif TC, serif' }}
+                        >
                           {day.flight.code}
                         </p>
                         <p className="text-sm" style={{ color: '#666' }}>
@@ -236,7 +259,9 @@ export function FukuokaGolfProposalItinerary() {
                         >
                           住宿
                         </span>
-                        <p className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>{day.hotel}</p>
+                        <p className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                          {day.hotel}
+                        </p>
                         {day.isHotelSwap && (
                           <span
                             className="inline-block mt-2 text-xs px-3 py-1"
@@ -287,11 +312,18 @@ export function FukuokaGolfProposalItinerary() {
                             Golf Group / 高球組
                           </span>
                         </div>
-                        <h4 className="text-xl font-bold mb-3" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                        <h4
+                          className="text-xl font-bold mb-3"
+                          style={{ fontFamily: 'Noto Serif TC, serif' }}
+                        >
                           {day.golfGroup.title}
                         </h4>
-                        <p className="text-sm mb-2" style={{ color: '#666' }}>{day.golfGroup.location}</p>
-                        <p className="text-sm mb-4" style={{ color: '#666' }}>{day.golfGroup.time}</p>
+                        <p className="text-sm mb-2" style={{ color: '#666' }}>
+                          {day.golfGroup.location}
+                        </p>
+                        <p className="text-sm mb-4" style={{ color: '#666' }}>
+                          {day.golfGroup.time}
+                        </p>
                         <ul className="space-y-2">
                           {day.golfGroup.highlights.map((h, i) => (
                             <li key={i} className="text-sm" style={{ color: '#444' }}>
@@ -312,11 +344,18 @@ export function FukuokaGolfProposalItinerary() {
                             Ladies Group
                           </span>
                         </div>
-                        <h4 className="text-xl font-bold mb-3" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                        <h4
+                          className="text-xl font-bold mb-3"
+                          style={{ fontFamily: 'Noto Serif TC, serif' }}
+                        >
                           {day.nonGolfGroup.title}
                         </h4>
-                        <p className="text-sm mb-2" style={{ color: '#666' }}>{day.nonGolfGroup.location}</p>
-                        <p className="text-sm mb-4" style={{ color: '#666' }}>{day.nonGolfGroup.time}</p>
+                        <p className="text-sm mb-2" style={{ color: '#666' }}>
+                          {day.nonGolfGroup.location}
+                        </p>
+                        <p className="text-sm mb-4" style={{ color: '#666' }}>
+                          {day.nonGolfGroup.time}
+                        </p>
                         <ul className="space-y-2">
                           {day.nonGolfGroup.highlights.map((h, i) => (
                             <li key={i} className="text-sm" style={{ color: '#444' }}>

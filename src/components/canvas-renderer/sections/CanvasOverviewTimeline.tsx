@@ -106,7 +106,7 @@ export function CanvasOverviewTimeline({
           marginTop: 32,
         }}
       >
-        {days.map((day) => (
+        {days.map(day => (
           <div
             key={day.day_index}
             style={{

@@ -31,7 +31,7 @@ const EXCLUDED = [
   /__tests__/,
   /node_modules/,
   /Print[A-Z]/,
-  /labels\.ts$/,  // labels SSOT 可同時定義多個術語
+  /labels\.ts$/, // labels SSOT 可同時定義多個術語
 ]
 
 interface Finding {
@@ -62,12 +62,20 @@ const CONFUSED_PAIRS: Array<{ name: string; terms: string[] }> = [
 
 function walk(dir: string, out: string[] = []): string[] {
   let entries: string[]
-  try { entries = readdirSync(dir) } catch { return out }
+  try {
+    entries = readdirSync(dir)
+  } catch {
+    return out
+  }
   for (const entry of entries) {
     const p = join(dir, entry)
     if (EXCLUDED.some(re => re.test(p))) continue
     let st
-    try { st = statSync(p) } catch { continue }
+    try {
+      st = statSync(p)
+    } catch {
+      continue
+    }
     if (st.isDirectory()) walk(p, out)
     else if (entry.endsWith('.tsx') || entry.endsWith('.ts')) out.push(p)
   }

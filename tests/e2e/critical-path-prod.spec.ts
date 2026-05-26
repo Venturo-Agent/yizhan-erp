@@ -103,12 +103,7 @@ test.describe.serial('Production critical path smoke', () => {
 
   test.skip('3. 用新密碼登入 + 4 個 critical path 頁都載入', async ({ page }) => {
     await loginToDashboard(page)
-    for (const path of [
-      '/tours',
-      '/orders',
-      '/finance/payments',
-      '/finance/requests',
-    ]) {
+    for (const path of ['/tours', '/orders', '/finance/payments', '/finance/requests']) {
       const response = await page.goto(`${PROD_URL}${path}`)
       expect(response?.status(), `頁 ${path} 應該 200`).toBeLessThan(400)
       await expect(page).toHaveURL(new RegExp(path.replace('/', '\\/')))
@@ -131,7 +126,12 @@ test.describe.serial('Production critical path smoke', () => {
 
     // 填團名（dialog 內第一個 Input、TourBasicInfo 第一個欄位）
     // TourBasicInfo 的「團名」是 plain Input 沒 placeholder、用 label 找
-    const nameInput = dialog.locator('label:has-text("團名")').first().locator('..').locator('input').first()
+    const nameInput = dialog
+      .locator('label:has-text("團名")')
+      .first()
+      .locator('..')
+      .locator('input')
+      .first()
     await nameInput.fill(TOUR_NAME)
 
     // 等下拉資料載入完成（國家 / 機場 / 員工）
@@ -151,7 +151,12 @@ test.describe.serial('Production critical path smoke', () => {
     // 填國家（Combobox）— 點 input、選下拉第一個
     // CountryAirportSelector 第一個 Combobox = 國家、第二個 = 機場
     // Combobox 內部是 Input + 下拉、option 是 button
-    const countryCombo = dialog.locator('label:has-text("國家")').first().locator('..').locator('input').first()
+    const countryCombo = dialog
+      .locator('label:has-text("國家")')
+      .first()
+      .locator('..')
+      .locator('input')
+      .first()
     await countryCombo.click()
     await page.waitForTimeout(500)
     // 點下拉第一個（在 Combobox 同 div 內、不是 role=option）
@@ -162,7 +167,12 @@ test.describe.serial('Production critical path smoke', () => {
 
     // 填機場（Combobox）— 同理
     await page.waitForTimeout(500)
-    const airportCombo = dialog.locator('label:has-text("城市")').first().locator('..').locator('input').first()
+    const airportCombo = dialog
+      .locator('label:has-text("城市")')
+      .first()
+      .locator('..')
+      .locator('input')
+      .first()
     await airportCombo.click()
     await page.waitForTimeout(500)
     const airportOption = page.locator('button').filter({ hasText: /NRT/ }).first()
@@ -218,7 +228,9 @@ test.describe.serial('Production critical path smoke', () => {
 
     await loginToDashboard(page)
     await page.goto(`${PROD_URL}/orders`)
-    await expect(page.getByRole('button', { name: '新增訂單' }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: '新增訂單' }).first()).toBeVisible({
+      timeout: 15_000,
+    })
 
     // 開新增 dialog
     await page.getByRole('button', { name: '新增訂單' }).first().click()
@@ -247,7 +259,10 @@ test.describe.serial('Production critical path smoke', () => {
     await salesInput.click()
     await page.waitForTimeout(500)
     // 員工選項 = button 帶員工編號（E001）
-    const salesOption = page.locator('button').filter({ hasText: /\(E\d+\)/ }).first()
+    const salesOption = page
+      .locator('button')
+      .filter({ hasText: /\(E\d+\)/ })
+      .first()
     if (await salesOption.isVisible({ timeout: 3_000 }).catch(() => false)) {
       await salesOption.click()
     } else {
@@ -267,7 +282,9 @@ test.describe.serial('Production critical path smoke', () => {
     const searchInput = page.locator('input[placeholder*="搜尋"]').first()
     await searchInput.fill(TOUR_NAME_PREFIX)
     await page.waitForTimeout(2000)
-    await expect(page.getByText(new RegExp(TOUR_NAME_PREFIX)).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(new RegExp(TOUR_NAME_PREFIX)).first()).toBeVisible({
+      timeout: 15_000,
+    })
 
     // 抓 order ID 給後續 test 用
     if (SERVICE_ROLE_KEY) {
@@ -291,7 +308,9 @@ test.describe.serial('Production critical path smoke', () => {
 
     await loginToDashboard(page)
     await page.goto(`${PROD_URL}/finance/payments`)
-    await expect(page.getByRole('button', { name: '新增收款' }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: '新增收款' }).first()).toBeVisible({
+      timeout: 15_000,
+    })
 
     // 開新增 dialog
     await page.getByRole('button', { name: '新增收款' }).first().click()
@@ -303,7 +322,9 @@ test.describe.serial('Production critical path smoke', () => {
     await page.waitForTimeout(3000)
 
     // 選旅遊團（Combobox 在 header）
-    const tourInput = dialog.locator('input[placeholder*="團體"], input[placeholder*="搜尋"]').first()
+    const tourInput = dialog
+      .locator('input[placeholder*="團體"], input[placeholder*="搜尋"]')
+      .first()
     await tourInput.click()
     await tourInput.fill(TOUR_NAME_PREFIX)
     await page.waitForTimeout(500)
@@ -326,7 +347,10 @@ test.describe.serial('Production critical path smoke', () => {
 
     // 收款方式（InlineEditTable 第一 row 的 Select）— 預設 row 就有一筆
     // shadcn Select trigger 是 button、placeholder「請選擇」
-    const methodTrigger = dialog.locator('button').filter({ hasText: /請選擇|載入中/ }).first()
+    const methodTrigger = dialog
+      .locator('button')
+      .filter({ hasText: /請選擇|載入中/ })
+      .first()
     if (await methodTrigger.isVisible({ timeout: 3_000 }).catch(() => false)) {
       await methodTrigger.click()
       await page.waitForTimeout(500)
@@ -362,7 +386,10 @@ test.describe.serial('Production critical path smoke', () => {
 
     if (!realUiSuccess) {
       // REST seed fallback（保留當作 production bug 的繞道）
-      expect(SERVICE_ROLE_KEY, 'UI submit 失敗、且未設 SUPABASE_SERVICE_ROLE_KEY、無 fallback').toBeTruthy()
+      expect(
+        SERVICE_ROLE_KEY,
+        'UI submit 失敗、且未設 SUPABASE_SERVICE_ROLE_KEY、無 fallback'
+      ).toBeTruthy()
       const cashMethodId = '13fb3c4e-4a04-40c2-98e6-ab2e13a00ab1'
       const receiptRes = await page.request.post(`${SUPABASE_URL}/rest/v1/receipts`, {
         headers: {
@@ -388,7 +415,10 @@ test.describe.serial('Production critical path smoke', () => {
           updated_by: DEMO_EMPLOYEE_ID,
         },
       })
-      expect(receiptRes.ok(), `seed receipt fallback 應該成功、status=${receiptRes.status()}, body=${await receiptRes.text()}`).toBeTruthy()
+      expect(
+        receiptRes.ok(),
+        `seed receipt fallback 應該成功、status=${receiptRes.status()}, body=${await receiptRes.text()}`
+      ).toBeTruthy()
     }
 
     // 列表能看到（reload 後搜 tour 名）
@@ -396,7 +426,9 @@ test.describe.serial('Production critical path smoke', () => {
     const searchInput = page.locator('input[placeholder*="搜尋"]').first()
     await searchInput.fill(TOUR_NAME_PREFIX)
     await page.waitForTimeout(2000)
-    await expect(page.getByText(new RegExp(TOUR_NAME_PREFIX)).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(new RegExp(TOUR_NAME_PREFIX)).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('7. 對該團請款：真實 UI form 填表 submit', async ({ page }) => {
@@ -404,7 +436,9 @@ test.describe.serial('Production critical path smoke', () => {
 
     await loginToDashboard(page)
     await page.goto(`${PROD_URL}/finance/requests`)
-    await expect(page.getByRole('button', { name: '新增請款' }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: '新增請款' }).first()).toBeVisible({
+      timeout: 15_000,
+    })
 
     // 開新增 dialog
     await page.getByRole('button', { name: '新增請款' }).first().click()
@@ -416,7 +450,9 @@ test.describe.serial('Production critical path smoke', () => {
     await page.waitForTimeout(3000)
 
     // 選團（header 上的 Combobox）— placeholder「搜尋團號或團名」
-    const tourInput = dialog.locator('input[placeholder*="團號"], input[placeholder*="搜尋"]').first()
+    const tourInput = dialog
+      .locator('input[placeholder*="團號"], input[placeholder*="搜尋"]')
+      .first()
     await tourInput.click()
     await tourInput.fill(TOUR_NAME_PREFIX)
     await page.waitForTimeout(500)
@@ -427,7 +463,10 @@ test.describe.serial('Production critical path smoke', () => {
 
     // 在第一個 starter row 填欄位
     // category Select、placeholder「類別」
-    const categoryTrigger = dialog.locator('button').filter({ hasText: /^類別$/ }).first()
+    const categoryTrigger = dialog
+      .locator('button')
+      .filter({ hasText: /^類別$/ })
+      .first()
     if (await categoryTrigger.isVisible({ timeout: 3_000 }).catch(() => false)) {
       await categoryTrigger.click()
       await page.waitForTimeout(500)
@@ -439,7 +478,9 @@ test.describe.serial('Production critical path smoke', () => {
 
     // description（DeferredInput） — 找品項名稱欄、放在 description col
     // 用 col 的 input 鎖、第一個沒 placeholder 的 input
-    const descInputs = dialog.locator('input').filter({ has: page.locator(':scope:not([placeholder])') })
+    const descInputs = dialog
+      .locator('input')
+      .filter({ has: page.locator(':scope:not([placeholder])') })
     // 簡化：抓所有 row 內 input、找空的或預設值的
     // RequestItemList description = DeferredInput（內部 input）、沒 placeholder
     // 用「請款項目」row 的 input、簡化用 nth 配對
@@ -465,7 +506,10 @@ test.describe.serial('Production critical path smoke', () => {
     }
 
     if (!realUiSuccess) {
-      expect(SERVICE_ROLE_KEY, 'UI submit 失敗、且未設 SUPABASE_SERVICE_ROLE_KEY、無 fallback').toBeTruthy()
+      expect(
+        SERVICE_ROLE_KEY,
+        'UI submit 失敗、且未設 SUPABASE_SERVICE_ROLE_KEY、無 fallback'
+      ).toBeTruthy()
       const requestRes = await page.request.post(`${SUPABASE_URL}/rest/v1/payment_requests`, {
         headers: {
           apikey: SERVICE_ROLE_KEY,
@@ -489,12 +533,17 @@ test.describe.serial('Production critical path smoke', () => {
           updated_by: DEMO_EMPLOYEE_ID,
         },
       })
-      expect(requestRes.ok(), `seed request fallback 應該成功、status=${requestRes.status()}, body=${await requestRes.text()}`).toBeTruthy()
+      expect(
+        requestRes.ok(),
+        `seed request fallback 應該成功、status=${requestRes.status()}, body=${await requestRes.text()}`
+      ).toBeTruthy()
     }
 
     // 列表能看到
     await page.reload()
     await page.waitForTimeout(2000)
-    await expect(page.getByText(new RegExp(TOUR_NAME_PREFIX)).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText(new RegExp(TOUR_NAME_PREFIX)).first()).toBeVisible({
+      timeout: 15_000,
+    })
   })
 })

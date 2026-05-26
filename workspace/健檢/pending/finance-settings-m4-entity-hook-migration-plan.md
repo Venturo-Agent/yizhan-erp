@@ -16,16 +16,17 @@
 
 ## 動的檔案
 
-| # | 檔案 | 改什麼 | 風險 |
-|---|---|---|---|
-| 1 | `src/app/(main)/finance/settings/page.tsx` | 拿掉 4 個 useState + loadData、改 4 個 entity hook 直接讀 | 中 |
-| 2 | `src/app/(main)/finance/settings/_components/PaymentMethodsSection.tsx` | 拿掉 `paymentMethods / setPaymentMethods / reload / workspaceId` 4 個 prop、自己 call hook | 中 |
-| 3 | `src/app/(main)/finance/settings/_components/BankAccountsSection.tsx` | 同上 pattern | 中 |
-| 4 | `src/app/(main)/finance/settings/_components/CategoriesSection.tsx` | 同上 pattern | 中 |
+| #   | 檔案                                                                    | 改什麼                                                                                     | 風險 |
+| --- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---- |
+| 1   | `src/app/(main)/finance/settings/page.tsx`                              | 拿掉 4 個 useState + loadData、改 4 個 entity hook 直接讀                                  | 中   |
+| 2   | `src/app/(main)/finance/settings/_components/PaymentMethodsSection.tsx` | 拿掉 `paymentMethods / setPaymentMethods / reload / workspaceId` 4 個 prop、自己 call hook | 中   |
+| 3   | `src/app/(main)/finance/settings/_components/BankAccountsSection.tsx`   | 同上 pattern                                                                               | 中   |
+| 4   | `src/app/(main)/finance/settings/_components/CategoriesSection.tsx`     | 同上 pattern                                                                               | 中   |
 
 ## 寫入路徑改動
 
 **前**：
+
 ```ts
 const res = await apiMutate('/api/finance/payment-methods', {
   method: 'POST',
@@ -36,6 +37,7 @@ if (res.ok) await reload()  // ← 手動重 fetch
 ```
 
 **後**：
+
 ```ts
 const res = await apiMutate('/api/finance/payment-methods', {
   method: 'POST',
@@ -51,6 +53,7 @@ if (res.ok) {
 ## 核心 SSOT 矛盾要解決
 
 兩套 cache key 系統並存：
+
 - **A. apiMutate.invalidate** 用「URL 字串」當 key（給 `useSWR(url, fetcher)` 用）
 - **B. createEntityHook** 用「`entity:tableName:list:v{hash}`」當內部 SWR key
 
@@ -78,11 +81,11 @@ if (res.ok) {
 
 ## 風險
 
-| 風險 | 機率 | 影響 | 緩解 |
-|---|---|---|---|
-| SWR key 不對齊、寫入後 UI 不更新 | 中 | 中 | 改完每一個 mutation 都實際點一次驗 |
-| Entity hook realtime 訂閱跟既有 SWR cache 撞 | 低 | 低 | finance/settings 不開 realtime（設定頁不需即時）|
-| Section prop 介面改變、別處 import 編譯失敗 | 低 | 低 | type-check 抓 |
+| 風險                                         | 機率 | 影響 | 緩解                                             |
+| -------------------------------------------- | ---- | ---- | ------------------------------------------------ |
+| SWR key 不對齊、寫入後 UI 不更新             | 中   | 中   | 改完每一個 mutation 都實際點一次驗               |
+| Entity hook realtime 訂閱跟既有 SWR cache 撞 | 低   | 低   | finance/settings 不開 realtime（設定頁不需即時） |
+| Section prop 介面改變、別處 import 編譯失敗  | 低   | 低   | type-check 抓                                    |
 
 ## 不該動的部分
 
@@ -97,4 +100,4 @@ William 點頭、且這輪沒其他高優先工作搶資源。
 
 ---
 
-*建立：2026-05-21、Max 寫、William 拍 A 後留檔*
+_建立：2026-05-21、Max 寫、William 拍 A 後留檔_

@@ -18,7 +18,6 @@ type StatusType =
   | 'invoice'
   | 'tour'
   | 'order'
-
   | 'voucher'
   | 'esim'
   | 'receipt'

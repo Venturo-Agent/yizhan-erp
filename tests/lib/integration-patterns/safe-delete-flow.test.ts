@@ -80,11 +80,13 @@ async function safeDeleteOrder(
 // Mock factory
 // ─────────────────────────────────────────────────────────────────────────────
 
-function createMockSupabase(opts: {
-  beforeData?: Record<string, unknown> | null
-  beforeError?: { message: string } | null
-  updateError?: { message: string } | null
-} = {}) {
+function createMockSupabase(
+  opts: {
+    beforeData?: Record<string, unknown> | null
+    beforeError?: { message: string } | null
+    updateError?: { message: string } | null
+  } = {}
+) {
   const updateError = opts.updateError ?? null
   const beforeError = opts.beforeError ?? null
   const beforeData = opts.beforeData ?? { id: 'O1', total: 100, workspace_id: 'W1' }

@@ -17,7 +17,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { generateQuoteCode } from '@/lib/codes'
-import { FileText, Plus, Star, Receipt, Pencil, Trash2} from 'lucide-react'
+import { FileText, Plus, Star, Receipt, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -319,99 +319,99 @@ export function TourQuoteTab({ tour }: TourQuoteTabProps) {
       {/* 主操作列 — 上方靠父層 main 的 p-4 處理、下方加 mb-6 跟表格留距離 */}
       <div className="flex items-center justify-between gap-2 flex-wrap mb-6">
         <div className="flex items-center gap-1.5 flex-wrap">
-        {/* ⭐ 主報價 */}
-        <button
-          onClick={() => setSelectedVersion('main')}
-          className={cn(
-            'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors',
-            selectedVersion === 'main'
-              ? 'bg-morandi-gold/20 text-morandi-primary font-medium ring-1 ring-morandi-gold/40'
-              : 'hover:bg-morandi-container/30 text-morandi-secondary'
-          )}
-        >
-          <Star
-            size={12}
-            className={
+          {/* ⭐ 主報價 */}
+          <button
+            onClick={() => setSelectedVersion('main')}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors',
               selectedVersion === 'main'
-                ? 'fill-morandi-gold text-morandi-gold'
-                : 'text-morandi-secondary'
-            }
-          />
-          <span>{COMPONENT_LABELS.MAIN_QUOTE}</span>
-        </button>
+                ? 'bg-morandi-gold/20 text-morandi-primary font-medium ring-1 ring-morandi-gold/40'
+                : 'hover:bg-morandi-container/30 text-morandi-secondary'
+            )}
+          >
+            <Star
+              size={12}
+              className={
+                selectedVersion === 'main'
+                  ? 'fill-morandi-gold text-morandi-gold'
+                  : 'text-morandi-secondary'
+              }
+            />
+            <span>{COMPONENT_LABELS.MAIN_QUOTE}</span>
+          </button>
 
-        {/* 快速報價 tabs */}
-        {quickQuotes.map((quote, index) => {
-          const displayName = quote.name || quote.customer_name || `快速報價 ${index + 1}`
-          const isActive = selectedVersion === quote.id
-          const isEditing = editingQuoteId === quote.id
-          return (
-            <div key={quote.id} className="group relative flex items-center">
-              {isEditing ? (
-                <input
-                  autoFocus
-                  type="text"
-                  value={editingName}
-                  onChange={e => setEditingName(e.target.value)}
-                  onBlur={commitRenameQuickQuote}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      commitRenameQuickQuote()
-                    } else if (e.key === 'Escape') {
-                      e.preventDefault()
-                      cancelRenameQuickQuote()
-                    }
-                  }}
-                  placeholder={COMPONENT_LABELS.ENTER_NAME_PLACEHOLDER}
-                  className="px-3 py-1.5 rounded-lg text-sm border border-morandi-gold/60 bg-card text-morandi-primary outline-none w-32"
-                />
-              ) : (
-                <>
-                  <button
-                    onClick={() => setSelectedVersion(quote.id)}
-                    className={cn(
-                      'flex items-center gap-1.5 pl-3 pr-10 py-1.5 rounded-lg text-sm transition-colors',
-                      isActive
-                        ? 'bg-morandi-gold/20 text-morandi-primary font-medium ring-1 ring-morandi-gold/40'
-                        : 'hover:bg-morandi-container/30 text-morandi-secondary'
-                    )}
-                  >
-                    <Receipt size={11} className="shrink-0" />
-                    <span className="max-w-[120px] truncate">{displayName}</span>
-                  </button>
-                  {/* Hover 上的重新命名 / 刪除 */}
-                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* 快速報價 tabs */}
+          {quickQuotes.map((quote, index) => {
+            const displayName = quote.name || quote.customer_name || `快速報價 ${index + 1}`
+            const isActive = selectedVersion === quote.id
+            const isEditing = editingQuoteId === quote.id
+            return (
+              <div key={quote.id} className="group relative flex items-center">
+                {isEditing ? (
+                  <input
+                    autoFocus
+                    type="text"
+                    value={editingName}
+                    onChange={e => setEditingName(e.target.value)}
+                    onBlur={commitRenameQuickQuote}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        commitRenameQuickQuote()
+                      } else if (e.key === 'Escape') {
+                        e.preventDefault()
+                        cancelRenameQuickQuote()
+                      }
+                    }}
+                    placeholder={COMPONENT_LABELS.ENTER_NAME_PLACEHOLDER}
+                    className="px-3 py-1.5 rounded-lg text-sm border border-morandi-gold/60 bg-card text-morandi-primary outline-none w-32"
+                  />
+                ) : (
+                  <>
                     <button
-                      type="button"
-                      onClick={e => {
-                        e.stopPropagation()
-                        startRenameQuickQuote(quote)
-                      }}
-                      className="p-1 text-morandi-secondary hover:text-morandi-gold transition-colors"
-                      title={COMPONENT_LABELS.RENAME}
+                      onClick={() => setSelectedVersion(quote.id)}
+                      className={cn(
+                        'flex items-center gap-1.5 pl-3 pr-10 py-1.5 rounded-lg text-sm transition-colors',
+                        isActive
+                          ? 'bg-morandi-gold/20 text-morandi-primary font-medium ring-1 ring-morandi-gold/40'
+                          : 'hover:bg-morandi-container/30 text-morandi-secondary'
+                      )}
                     >
-                      <Pencil size={11} />
+                      <Receipt size={11} className="shrink-0" />
+                      <span className="max-w-[120px] truncate">{displayName}</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={e => {
-                        e.stopPropagation()
-                        handleDeleteQuickQuote(quote)
-                      }}
-                      className="p-1 text-morandi-secondary hover:text-morandi-red transition-colors"
-                      title={COMPONENT_LABELS.DELETE}
-                    >
-                      <Trash2 size={11} />
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          )
-        })}
+                    {/* Hover 上的重新命名 / 刪除 */}
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation()
+                          startRenameQuickQuote(quote)
+                        }}
+                        className="p-1 text-morandi-secondary hover:text-morandi-gold transition-colors"
+                        title={COMPONENT_LABELS.RENAME}
+                      >
+                        <Pencil size={11} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleDeleteQuickQuote(quote)
+                        }}
+                        className="p-1 text-morandi-secondary hover:text-morandi-red transition-colors"
+                        title={COMPONENT_LABELS.DELETE}
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          })}
 
-        {/* + 新增版本（未來這顆會變 dropdown、提供「快速報價 / Local 報價 / 自訂版本」等選項） */}
+          {/* + 新增版本（未來這顆會變 dropdown、提供「快速報價 / Local 報價 / 自訂版本」等選項） */}
           <Button
             onClick={handleAddQuickQuote}
             disabled={creatingQuick}

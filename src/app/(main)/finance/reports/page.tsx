@@ -19,10 +19,7 @@ import {
   Map,
   Truck,
 } from 'lucide-react'
-import {
-  DateRangeSelector,
-  type DateRange,
-} from './_components/DateRangeSelector'
+import { DateRangeSelector, type DateRange } from './_components/DateRangeSelector'
 import { OverviewTab } from './_components/OverviewTab'
 import { DisbursementTab } from './_components/DisbursementTab'
 import { IncomeTab } from './_components/IncomeTab'
@@ -105,7 +102,7 @@ export default function ReportsPage() {
     []
   )
 
-  if (permLoading) return null  // ModuleGuard 已在外層顯示 loading
+  if (permLoading) return null // ModuleGuard 已在外層顯示 loading
   if (!can(CAPABILITIES.FINANCE_READ_REPORTS)) return <UnauthorizedPage />
 
   // 2026-05-23 William 拍板：toolbar 搬回主標題區（header 右側）

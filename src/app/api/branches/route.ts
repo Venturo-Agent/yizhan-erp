@@ -62,13 +62,19 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       const t = translateDbError(error)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     return NextResponse.json(newBranch, { status: 201 })
   } catch (e) {
     logger.error('POST /api/branches failed', e)
     const t = translateDbError(e)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 }

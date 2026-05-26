@@ -23,7 +23,10 @@ import { COLORS, fmt } from './print-templates/print-closing-shared'
 import { PrintClosingIncomeTable } from './print-templates/PrintClosingIncomeTable'
 import { PrintClosingExpenseTable } from './print-templates/PrintClosingExpenseTable'
 import { PrintClosingProfitTable } from './print-templates/PrintClosingProfitTable'
-import { PrintClosingBonusTable, type BonusDetailRow } from './print-templates/PrintClosingBonusTable'
+import {
+  PrintClosingBonusTable,
+  type BonusDetailRow,
+} from './print-templates/PrintClosingBonusTable'
 
 interface ReceiptRow {
   receipt_number?: string
@@ -65,10 +68,7 @@ const SectionHeader = ({ children }: { children: React.ReactNode }) => (
 )
 
 export const PrintTourClosingPreview = forwardRef<HTMLDivElement, PrintTourClosingPreviewProps>(
-  function PrintTourClosingPreview(
-    { tour, receipts, costs, profitResult, preparedBy },
-    ref
-  ) {
+  function PrintTourClosingPreview({ tour, receipts, costs, profitResult, preparedBy }, ref) {
     const t = useTranslations('tour')
     const ws = useWorkspaceSettings()
     const workspaceName = ws.name || useAuthStore.getState().user?.workspace_name || ''
@@ -161,8 +161,7 @@ export const PrintTourClosingPreview = forwardRef<HTMLDivElement, PrintTourClosi
     for (const b of profitResult.employee_bonuses) {
       if (b.amount === 0) continue
       const v = Number(b.setting.bonus)
-      const sub =
-        b.setting.bonus_type === BonusCalculationType.PERCENT ? `${v}%` : `$${v}`
+      const sub = b.setting.bonus_type === BonusCalculationType.PERCENT ? `${v}%` : `$${v}`
       const employee = b.employee_name ? ` — ${b.employee_name}` : ''
       detailRows.push({
         label: `${BONUS_TYPE_LABELS[b.setting.type as BonusSettingType]}${employee}`,
@@ -173,8 +172,7 @@ export const PrintTourClosingPreview = forwardRef<HTMLDivElement, PrintTourClosi
     for (const b of profitResult.team_bonuses) {
       if (b.amount === 0) continue
       const v = Number(b.setting.bonus)
-      const sub =
-        b.setting.bonus_type === BonusCalculationType.PERCENT ? `${v}%` : `$${v}`
+      const sub = b.setting.bonus_type === BonusCalculationType.PERCENT ? `${v}%` : `$${v}`
       detailRows.push({
         label: BONUS_TYPE_LABELS[BonusSettingType.TEAM_BONUS],
         sub,
@@ -314,10 +312,7 @@ export const PrintTourClosingPreview = forwardRef<HTMLDivElement, PrintTourClosi
         />
 
         {/* === 獎金明細 === */}
-        <PrintClosingBonusTable
-          detailRows={detailRows}
-          SectionHeader={SectionHeader}
-        />
+        <PrintClosingBonusTable detailRows={detailRows} SectionHeader={SectionHeader} />
 
         {/* === 公司盈餘 === */}
         <div
@@ -331,9 +326,7 @@ export const PrintTourClosingPreview = forwardRef<HTMLDivElement, PrintTourClosi
             background: COLORS.lightBrown,
           }}
         >
-          <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.brown }}>
-            公司盈餘
-          </span>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.brown }}>公司盈餘</span>
           <span style={{ fontSize: '15px', fontWeight: 'bold', color: COLORS.brown }}>
             NT$ {fmt(profitResult.company_profit)}
           </span>

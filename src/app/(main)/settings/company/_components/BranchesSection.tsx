@@ -10,13 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Building2,
-  Network,
-  SquarePen,
-  Trash2,
-  Star,
-} from 'lucide-react'
+import { Building2, Network, SquarePen, Trash2, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { confirm } from '@/lib/ui/alert-dialog'
@@ -33,11 +27,11 @@ interface BranchFormState {
 }
 
 export function BranchesSection() {
-  const { data: branches = [], mutate: mutateBranches, isLoading: branchesLoading } = useSWR<DimensionRow[]>(
-    '/api/organization/branches',
-    fetcher,
-    { revalidateOnFocus: false }
-  )
+  const {
+    data: branches = [],
+    mutate: mutateBranches,
+    isLoading: branchesLoading,
+  } = useSWR<DimensionRow[]>('/api/organization/branches', fetcher, { revalidateOnFocus: false })
 
   const [branchForm, setBranchForm] = useState<BranchFormState | null>(null)
 
@@ -206,20 +200,20 @@ export function BranchesSection() {
       ) : (
         <div className="space-y-3">
           {branches.map(branch => (
-            <Card
-              key={branch.id}
-              className="border border-morandi-gold/15 rounded-lg p-4 bg-card"
-            >
+            <Card key={branch.id} className="border border-morandi-gold/15 rounded-lg p-4 bg-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Building2 className="h-5 w-5 text-morandi-gold" />
                   <div>
                     <div className="font-semibold text-morandi-primary">
                       {branch.name}
-                      <span className="ml-2 text-xs font-mono text-morandi-muted">{branch.code}</span>
+                      <span className="ml-2 text-xs font-mono text-morandi-muted">
+                        {branch.code}
+                      </span>
                       {branch.is_default && (
                         <span className="ml-2 inline-flex items-center gap-1 text-xs text-morandi-gold">
-                          <Star className="h-3 w-3 fill-morandi-gold" />主要
+                          <Star className="h-3 w-3 fill-morandi-gold" />
+                          主要
                         </span>
                       )}
                     </div>

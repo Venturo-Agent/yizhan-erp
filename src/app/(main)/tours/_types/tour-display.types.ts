@@ -7,27 +7,10 @@
  */
 
 // 從 tour-form 統一匯出基礎類型
-export type {
-  
-  Feature,
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  CoverStyleType,
-  
-  
-  
-} from '@/components/editor/tour-form/types'
+export type { Feature, CoverStyleType } from '@/components/editor/tour-form/types'
 
 // 從 stores 匯出共用類型
-export type {  HotelInfo } from '@/stores/types/tour.types'
+export type { HotelInfo } from '@/stores/types/tour.types'
 
 import type {
   FlightInfo,

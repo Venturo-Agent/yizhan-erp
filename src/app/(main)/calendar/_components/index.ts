@@ -1,5 +1,3 @@
-
-
 export { CalendarStyles } from './CalendarStyles'
 export { AddEventDialog } from './AddEventDialog'
 export { EditEventDialog } from './EditEventDialog'

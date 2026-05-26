@@ -38,7 +38,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
   const suggestions = React.useMemo(() => analyzeCanvasForAi(canvas), [canvas])
 
   const [selected, setSelected] = React.useState<Set<string>>(
-    () => new Set(suggestions.map((s) => s.id))
+    () => new Set(suggestions.map(s => s.id))
   )
   const [step, setStep] = React.useState<DialogStep>('select')
   const [patches, setPatches] = React.useState<AiPatch[]>([])
@@ -46,7 +46,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
   const [error, setError] = React.useState<string | null>(null)
 
   const toggleSelect = (id: string) =>
-    setSelected((prev) => {
+    setSelected(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
@@ -54,7 +54,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
     })
 
   const toggleAccept = (id: string) =>
-    setAccepted((prev) => {
+    setAccepted(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
@@ -62,7 +62,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
     })
 
   const handleGenerate = async () => {
-    const chosen = suggestions.filter((s) => selected.has(s.id))
+    const chosen = suggestions.filter(s => selected.has(s.id))
     if (!chosen.length) return
 
     setStep('generating')
@@ -74,7 +74,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           canvas_summary: compressCanvasForAi(canvas),
-          requests: chosen.map((s) => ({
+          requests: chosen.map(s => ({
             id: s.id,
             label: s.label,
             instruction: s.instruction,
@@ -91,7 +91,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
       const data = (await res.json()) as { patches: AiPatch[] }
       const result = data.patches ?? []
       setPatches(result)
-      setAccepted(new Set(result.map((p) => p.id)))
+      setAccepted(new Set(result.map(p => p.id)))
       setStep('review')
     } catch (err) {
       setError(err instanceof Error ? err.message : '生成失敗，請稍後再試')
@@ -100,7 +100,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
   }
 
   const handleApply = () => {
-    onApply(patches.filter((p) => accepted.has(p.id)))
+    onApply(patches.filter(p => accepted.has(p.id)))
     onClose()
   }
 
@@ -115,7 +115,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      onClick={(e) => {
+      onClick={e => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
@@ -131,7 +131,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
           flexDirection: 'column',
           boxShadow: '0 24px 64px rgba(0,0,0,0.3)',
         }}
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div
@@ -193,11 +193,7 @@ export function AiAssistDialog({ code, canvas, onApply, onClose }: AiAssistDialo
             flexShrink: 0,
           }}
         >
-          <button
-            type="button"
-            onClick={onClose}
-            style={btnStyle('ghost')}
-          >
+          <button type="button" onClick={onClose} style={btnStyle('ghost')}>
             取消
           </button>
 
@@ -245,7 +241,15 @@ function SelectStep({
 }) {
   if (suggestions.length === 0) {
     return (
-      <div style={{ color: '#888', fontSize: 14, textAlign: 'center', padding: '40px 0', lineHeight: 1.7 }}>
+      <div
+        style={{
+          color: '#888',
+          fontSize: 14,
+          textAlign: 'center',
+          padding: '40px 0',
+          lineHeight: 1.7,
+        }}
+      >
         <Sparkles size={28} color="#ccc" style={{ display: 'block', margin: '0 auto 12px' }} />
         行程內容已相當完整
         <br />
@@ -260,7 +264,7 @@ function SelectStep({
         AI 分析後，找到以下可以補強的地方。勾選想生成的項目，點「開始生成」。
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {suggestions.map((s) => {
+        {suggestions.map(s => {
           const on = selected.has(s.id)
           return (
             <label
@@ -332,7 +336,7 @@ function ReviewStep({
         以下是 AI 生成的內容，確認後點「套用」寫入行程。
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {patches.map((patch) => {
+        {patches.map(patch => {
           const on = accepted.has(patch.id)
           return (
             <div
@@ -384,10 +388,7 @@ function ReviewStep({
 
 // ── Button style helper ───────────────────────────────────────
 
-function btnStyle(
-  variant: 'ghost' | 'primary' | 'success',
-  disabled = false
-): React.CSSProperties {
+function btnStyle(variant: 'ghost' | 'primary' | 'success', disabled = false): React.CSSProperties {
   const base: React.CSSProperties = {
     padding: '8px 18px',
     borderRadius: 6,
@@ -402,7 +403,6 @@ function btnStyle(
   }
   if (variant === 'ghost')
     return { ...base, background: '#fff', border: '1px solid #ccc', color: '#555' }
-  if (variant === 'primary')
-    return { ...base, background: COPPER, border: 'none', color: '#fff' }
+  if (variant === 'primary') return { ...base, background: COPPER, border: 'none', color: '#fff' }
   return { ...base, background: '#2D6A4F', border: 'none', color: '#fff' }
 }

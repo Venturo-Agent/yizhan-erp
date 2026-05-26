@@ -68,7 +68,8 @@ export async function validatePageAccessToken(
       const metaMsg = parsed?.error?.message
       let friendly: string
       if (metaCode === 190) {
-        friendly = 'Page Access Token 無效或已過期（請重新從 Meta Business Suite 產一個 long-lived token）'
+        friendly =
+          'Page Access Token 無效或已過期（請重新從 Meta Business Suite 產一個 long-lived token）'
       } else if (metaCode === 200) {
         friendly = 'token 缺少 pages_messaging 權限（請在 App Review 取得權限後重新產 token）'
       } else if (metaMsg) {

@@ -146,8 +146,7 @@ export async function createEntity<T extends BaseEntity>(
           { revalidate: true }
         )
         globalMutate(
-          (key: unknown) =>
-            typeof key === 'string' && key.startsWith(ctx.cacheKeyPrefix + ':slim'),
+          (key: unknown) => typeof key === 'string' && key.startsWith(ctx.cacheKeyPrefix + ':slim'),
           (current: T[] | undefined) => [...(current || []), createdRow],
           { revalidate: true }
         )
@@ -283,8 +282,7 @@ export async function batchRemoveEntities<T extends BaseEntity>(
     (key: unknown) =>
       typeof key === 'string' &&
       (key === ctx.cacheKeyList || key.startsWith(ctx.cacheKeyList + ':')),
-    (currentItems: T[] | undefined) =>
-      (currentItems || []).filter(item => !ids.includes(item.id)),
+    (currentItems: T[] | undefined) => (currentItems || []).filter(item => !ids.includes(item.id)),
     { revalidate: false }
   )
 

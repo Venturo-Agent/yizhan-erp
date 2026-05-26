@@ -13,11 +13,21 @@ html {
   transition: font-size 0.2s ease;
 }
 /* 2026-05-16 William 拍板：均勻 +2 階距（13/15/17/19/21）、md(預設)=17px */
-html[data-font-scale='xs'] { --font-scale: 0.765; } /* 13px */
-html[data-font-scale='sm'] { --font-scale: 0.882; } /* 15px */
-html[data-font-scale='md'] { --font-scale: 1; }     /* 17px 預設 */
-html[data-font-scale='lg'] { --font-scale: 1.118; } /* 19px */
-html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
+html[data-font-scale='xs'] {
+  --font-scale: 0.765;
+} /* 13px */
+html[data-font-scale='sm'] {
+  --font-scale: 0.882;
+} /* 15px */
+html[data-font-scale='md'] {
+  --font-scale: 1;
+} /* 17px 預設 */
+html[data-font-scale='lg'] {
+  --font-scale: 1.118;
+} /* 19px */
+html[data-font-scale='xl'] {
+  --font-scale: 1.235;
+} /* 21px */
 
 /* 莫蘭迪主題（預設） */
 :root,
@@ -115,7 +125,12 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
 
   /* 背景色 */
   --background: #f6f4f1;
-  --page-bg: linear-gradient(to bottom right, rgba(232, 229, 224, 0.5), #fafafa, rgba(201, 170, 124, 0.1));
+  --page-bg: linear-gradient(
+    to bottom right,
+    rgba(232, 229, 224, 0.5),
+    #fafafa,
+    rgba(201, 170, 124, 0.1)
+  );
   --card: #ffffff;
   --border: #d4c4b0;
   --popover: #ffffff;
@@ -192,7 +207,12 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --gradient-primary-dark: #3a3f46;
 
   --background: #f4f5f7;
-  --page-bg: linear-gradient(to bottom right, rgba(229, 231, 234, 0.5), #fafafa, rgba(93, 102, 112, 0.08));
+  --page-bg: linear-gradient(
+    to bottom right,
+    rgba(229, 231, 234, 0.5),
+    #fafafa,
+    rgba(93, 102, 112, 0.08)
+  );
   --border: #c9ccd1;
   --popover-foreground: #2d3139;
   --accent: #e5e7ea;
@@ -258,7 +278,12 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --gradient-primary-dark: #0f1620;
 
   --background: #ffffff;
-  --page-bg: linear-gradient(to bottom right, rgba(248, 250, 252, 0.6), #ffffff, rgba(27, 97, 201, 0.05));
+  --page-bg: linear-gradient(
+    to bottom right,
+    rgba(248, 250, 252, 0.6),
+    #ffffff,
+    rgba(27, 97, 201, 0.05)
+  );
   --border: #e0e2e6;
   --popover-foreground: #181d26;
   --accent: #f8fafc;
@@ -294,12 +319,12 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   /* 主色系（克萊因藍 Mid、北歐簡約） */
   --morandi-primary: #1a2540;
   --morandi-secondary: #5b6680;
-  --morandi-gold: #2C3E72;
+  --morandi-gold: #2c3e72;
   --morandi-gold-rgb: 44, 62, 114;
   --morandi-gold-hover: #243260;
   --morandi-gold-light: rgba(44, 62, 114, 0.12);
   --morandi-gold-light-end: #e7ecf5;
-  --morandi-green: #5C8765;
+  --morandi-green: #5c8765;
   --morandi-green-rgb: 92, 135, 101;
   --morandi-red: #a86859;
   --morandi-container: #dde3f0;
@@ -309,14 +334,14 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --morandi-cream: #fafbfd;
   --morandi-cream-warm: #f3f5fa;
   --morandi-cream-soft: #f6f8fc;
-  --morandi-cream-shadow: rgba(31, 45, 90, 0.10);
+  --morandi-cream-shadow: rgba(31, 45, 90, 0.1);
   --morandi-cream-shadow-strong: rgba(31, 45, 90, 0.18);
   --morandi-cream-shadow-deep: rgba(31, 45, 90, 0.28);
 
   /* 漸層色（藍系覆寫） */
   --gradient-gold-light: #c8d2e8;
-  --gradient-gold-mid: #2C3E72;
-  --gradient-gold-dark: #1F2D5A;
+  --gradient-gold-mid: #2c3e72;
+  --gradient-gold-dark: #1f2d5a;
 
   /* 行事曆視覺對齊（藍系） */
   --cal-selected-bg: var(--morandi-gold);
@@ -328,7 +353,7 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
 
   /* 語義顏色（藍生態系：success teal-ish、warning sand、danger 北歐鏽紅、info 同色系藍） */
   --status-info: #4a6db8;
-  --status-info-bg: rgba(74, 109, 184, 0.10);
+  --status-info-bg: rgba(74, 109, 184, 0.1);
   --status-success: #4d8259;
   --status-success-bg: rgba(77, 130, 89, 0.18);
   --status-warning: #c4a874;
@@ -336,11 +361,16 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --status-danger: #a86859;
   --status-danger-bg: rgba(168, 104, 89, 0.12);
   --status-neutral: #5b6680;
-  --status-neutral-bg: rgba(91, 102, 128, 0.10);
+  --status-neutral-bg: rgba(91, 102, 128, 0.1);
 
   /* 背景與卡片 */
   --background: #fafafa;
-  --page-bg: linear-gradient(to bottom right, rgba(221, 227, 240, 0.5), #fafafa, rgba(44, 62, 114, 0.06));
+  --page-bg: linear-gradient(
+    to bottom right,
+    rgba(221, 227, 240, 0.5),
+    #fafafa,
+    rgba(44, 62, 114, 0.06)
+  );
   --card: #ffffff;
   --border: #d2d6e0;
   --popover: #ffffff;
@@ -354,11 +384,11 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   /* 表單元素 */
   --input-border: #b8c2db;
   --input-border-hover: #8595c4;
-  --input-border-focus: #2C3E72;
+  --input-border-focus: #2c3e72;
   --input-bg: #ffffff;
 
   /* shadcn 標準變數 */
-  --primary: #2C3E72;
+  --primary: #2c3e72;
   --primary-foreground: #ffffff;
   --secondary: #f3f5fa;
   --secondary-foreground: #1a2540;
@@ -366,12 +396,12 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --destructive-foreground: #ffffff;
   --muted: #f3f5fa;
   --muted-foreground: #5b6680;
-  --ring: #2C3E72;
+  --ring: #2c3e72;
   --input: #b8c2db;
 
   /* Button Primary token */
   --btn-primary-bg: linear-gradient(135deg, #f8faff 0%, #dde3f0 50%, #c8d2e8 100%);
-  --btn-primary-fg: #1F2D5A;
+  --btn-primary-fg: #1f2d5a;
   --btn-primary-border: #e3e8f2;
 }
 
@@ -512,14 +542,14 @@ html[data-font-scale='xl'] { --font-scale: 1.235; } /* 21px */
   --shadow-sm: 0 4px 12px -2px rgba(180, 160, 120, 0.08);
   --shadow-md: 0 8px 16px -4px rgba(180, 160, 120, 0.12);
   --shadow-lg: 0 12px 24px -8px rgba(180, 160, 120, 0.15);
-  --shadow-xl: 0 16px 32px -8px rgba(180, 160, 120, 0.20);
+  --shadow-xl: 0 16px 32px -8px rgba(180, 160, 120, 0.2);
   --shadow-2xl: 0 30px 30px -20px rgba(180, 160, 120, 0.45);
 
   /* Radius tokens */
-  --radius-card: 1.5rem;       /* 24px */
-  --radius-card-sm: 1rem;      /* 16px */
-  --radius-button: 0.75rem;    /* 12px */
-  --radius-input: 0.5rem;      /* 8px */
+  --radius-card: 1.5rem; /* 24px */
+  --radius-card-sm: 1rem; /* 16px */
+  --radius-button: 0.75rem; /* 12px */
+  --radius-input: 0.5rem; /* 8px */
   --radius-badge: 9999px;
 
   --font-sans: var(--font-noto-sans-tc), var(--font-geist-sans);

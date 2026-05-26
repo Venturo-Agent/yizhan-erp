@@ -28,7 +28,7 @@ travel_invoice module 是「7 個 route 註冊但無 page.tsx」的半成品。
    - `travel_allowances` — 同上
    - `workspace_travel_invoice_configs` — 同上
    - 看 supabase/migrations 找 `travel_invoice` 相關 migration、列日期 + 內容
-   - 看 production DB（用 mcp__supabase__list_tables verbose）確認欄位
+   - 看 production DB（用 mcp**supabase**list_tables verbose）確認欄位
 
 2. **Entity hook 層**：
    - `src/data/entities/travel-invoices.ts` 內容、產出哪些 hooks
@@ -50,6 +50,7 @@ travel_invoice module 是「7 個 route 註冊但無 page.tsx」的半成品。
 ### Part 2：業務必要性評估
 
 讀 `docs/`、`CLAUDE.md`、`workspace/_meta/architecture/` 找線索：
+
 - travel_invoice 是「旅行業專用發票」是什麼？跟普通發票（invoices）差異？
 - 第一付費客戶（哪家、什麼樣的旅行社）需要這功能嗎？
 - 6/1 上線「沒這功能會怎樣」？
@@ -57,6 +58,7 @@ travel_invoice module 是「7 個 route 註冊但無 page.tsx」的半成品。
 ### Part 3：補完成本估算
 
 如果要 11 天內補完上線：
+
 - 估算需要的 API route 數量 + 寫法
 - 估算需要的 UI page 數量 + 寫法
 - 估算總工時（人天）
@@ -64,11 +66,11 @@ travel_invoice module 是「7 個 route 註冊但無 page.tsx」的半成品。
 
 ### Part 4：給 William 的三選一建議
 
-| 選項 | 動作 | 6/1 上線結果 |
-|---|---|---|
-| **A. 全補完** | 11 天內把 7 個 page + API 補完 | 第一客戶可開發票 |
-| **B. 凍結** | 從 modules/ 移除註冊、保留 DB + entity | 第一客戶手寫發票或不開 |
-| **C. 部分補完** | 只做最小可用（譬如只開立、不退單） | 第一客戶基本能用 |
+| 選項            | 動作                                   | 6/1 上線結果           |
+| --------------- | -------------------------------------- | ---------------------- |
+| **A. 全補完**   | 11 天內把 7 個 page + API 補完         | 第一客戶可開發票       |
+| **B. 凍結**     | 從 modules/ 移除註冊、保留 DB + entity | 第一客戶手寫發票或不開 |
+| **C. 部分補完** | 只做最小可用（譬如只開立、不退單）     | 第一客戶基本能用       |
 
 每個選項列：成本 / 風險 / 業務影響。**用業務語言**、William 不看 code。
 
@@ -87,7 +89,7 @@ travel_invoice module 是「7 個 route 註冊但無 page.tsx」的半成品。
 - ❌ 不准動 src/ / supabase/migrations/ 真實 code
 - ❌ 不准 push
 - ❌ 不准 apply migration
-- ✅ 可用 mcp__supabase__list_tables 查 production schema 確認
+- ✅ 可用 mcp**supabase**list_tables 查 production schema 確認
 - ✅ 完成 commit：`audit(travel-invoice): 半成品盤點完成 — 2026-05-20`
 
 ---

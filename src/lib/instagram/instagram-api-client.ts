@@ -66,8 +66,10 @@ export async function validateInstagramBusinessAccount(
       const code = parsed?.error?.code
       const msg = parsed?.error?.message
       let friendly: string
-      if (code === 190) friendly = 'Instagram User Access Token 無效或已過期（60 天效期、要 refresh）'
-      else if (code === 200) friendly = '缺 instagram_business_basic / instagram_business_manage_messages 權限'
+      if (code === 190)
+        friendly = 'Instagram User Access Token 無效或已過期（60 天效期、要 refresh）'
+      else if (code === 200)
+        friendly = '缺 instagram_business_basic / instagram_business_manage_messages 權限'
       else if (msg) friendly = `Meta API 錯誤：${msg}`
       else friendly = `Meta API 錯誤（HTTP ${res.status}）`
       return { ok: false, status: res.status, error: friendly }

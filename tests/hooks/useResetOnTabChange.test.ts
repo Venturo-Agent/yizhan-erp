@@ -88,12 +88,9 @@ describe('useResetOnTabChange', () => {
   it('should use the latest reset callback when tab changes', () => {
     const reset1 = vi.fn()
     const reset2 = vi.fn()
-    const { rerender } = renderHook(
-      ({ tab, reset }) => useResetOnTabChange(tab, reset),
-      {
-        initialProps: { tab: 'a', reset: reset1 },
-      }
-    )
+    const { rerender } = renderHook(({ tab, reset }) => useResetOnTabChange(tab, reset), {
+      initialProps: { tab: 'a', reset: reset1 },
+    })
 
     rerender({ tab: 'a', reset: reset2 })
     rerender({ tab: 'b', reset: reset2 })

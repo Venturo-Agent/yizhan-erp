@@ -27,8 +27,7 @@ export const CostItemRow: React.FC<CostItemRowProps> = ({
 }) => {
   const t = useTranslations('orders')
   // 判斷是否為兒童或嬰兒（顯示為灰色）
-  const isChildOrInfantTicket =
-    item.name === '兒童' || item.name === '嬰兒'
+  const isChildOrInfantTicket = item.name === '兒童' || item.name === '嬰兒'
 
   // 判斷是否為 Local 報價（禁止直接編輯單價，只能透過視窗修改）
   const isLocalPricing = item.name?.includes('Local 報價')

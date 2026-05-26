@@ -26,7 +26,9 @@ export default async function Page({ params }: PageProps) {
 
   // contract_data 是 jsonb、TypeScript 型別是 Json union、需 narrow 成物件後才能讀 property
   const contractData =
-    contract.contract_data && typeof contract.contract_data === 'object' && !Array.isArray(contract.contract_data)
+    contract.contract_data &&
+    typeof contract.contract_data === 'object' &&
+    !Array.isArray(contract.contract_data)
       ? (contract.contract_data as Record<string, unknown>)
       : {}
   // member_ids 是 string[] | null、normalize 成 []

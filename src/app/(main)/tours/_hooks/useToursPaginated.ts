@@ -57,9 +57,7 @@ function buildSwrKey(params: UseToursPaginatedParams): string {
 export function useToursPaginated(params: UseToursPaginatedParams): UseToursPaginatedResult {
   const { page, pageSize, status, search, sortOrder = 'desc' } = params
   const defaultSort =
-    status === TOUR_TAB.PROPOSAL || status === TOUR_TAB.TEMPLATE
-      ? 'created_at'
-      : 'departure_date'
+    status === TOUR_TAB.PROPOSAL || status === TOUR_TAB.TEMPLATE ? 'created_at' : 'departure_date'
   const sortBy = params.sortBy || defaultSort
 
   // Auth check - 只用於寫入操作，讀取不需要等待 hydration
@@ -122,14 +120,10 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
           .in('status', [TOUR_STATUS.UPCOMING, TOUR_STATUS.ONGOING])
       } else if (status === TOUR_TAB.RETURNED) {
         // 未結案：status='returned'，已回程但尚未結案
-        query = query
-          .neq('archived', true)
-          .eq('status', TOUR_STATUS.RETURNED)
+        query = query.neq('archived', true).eq('status', TOUR_STATUS.RETURNED)
       } else if (status === TOUR_TAB.CLOSED) {
         // 已結案：只看 status='closed'
-        query = query
-          .neq('archived', true)
-          .eq('status', TOUR_STATUS.CLOSED)
+        query = query.neq('archived', true).eq('status', TOUR_STATUS.CLOSED)
       } else {
         // fallback：排除封存、提案/模板
         query = query

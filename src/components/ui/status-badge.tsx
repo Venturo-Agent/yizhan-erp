@@ -42,10 +42,10 @@ interface StatusBadgePropsLegacy {
 
 // New API：type + status（內部 lookup tone + label）
 interface StatusBadgePropsNew {
-  type: string  // StatusType from status-tone-map.ts、避免 import cycle 用 string
+  type: string // StatusType from status-tone-map.ts、避免 import cycle 用 string
   status: string | null | undefined
-  label?: string  // override default label
-  tone?: StatusTone  // override default tone
+  label?: string // override default label
+  tone?: StatusTone // override default tone
   className?: string
 }
 

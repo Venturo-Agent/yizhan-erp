@@ -57,7 +57,7 @@ export default function MarketingWebsitePage() {
 
   const rows = useMemo<WebsiteTourRow[]>(
     () =>
-      (tours as unknown as WebsiteTourRow[]).map((t) => ({
+      (tours as unknown as WebsiteTourRow[]).map(t => ({
         id: t.id,
         code: t.code,
         name: t.name,
@@ -126,7 +126,7 @@ export default function MarketingWebsitePage() {
         key: 'code',
         label: '團號',
         width: '120px',
-        render: (value) => (
+        render: value => (
           <span className="text-sm font-mono text-morandi-primary">{String(value)}</span>
         ),
       },
@@ -167,7 +167,7 @@ export default function MarketingWebsitePage() {
               <Switch
                 checked={row.is_public_listed}
                 disabled={busy}
-                onCheckedChange={(next) => handleToggleListed(row, next)}
+                onCheckedChange={next => handleToggleListed(row, next)}
               />
               {busy && <Loader2 className="w-3 h-3 animate-spin text-morandi-muted" />}
             </div>
@@ -178,7 +178,7 @@ export default function MarketingWebsitePage() {
         key: 'published_at',
         label: '最近發布',
         width: '140px',
-        render: (value) => (
+        render: value => (
           <span className="text-xs text-morandi-muted">
             {value ? formatDate(value as string) : '尚未發布'}
           </span>
@@ -200,7 +200,7 @@ export default function MarketingWebsitePage() {
       searchPlaceholder="搜尋團號 / 團名"
       searchFields={['code', 'name', 'marketing_title']}
       actionsWidth="160px"
-      renderActions={(row) => (
+      renderActions={row => (
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
@@ -225,12 +225,7 @@ export default function MarketingWebsitePage() {
         </div>
       )}
       headerActions={
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRebuild}
-          disabled={rebuilding}
-        >
+        <Button variant="outline" size="sm" onClick={handleRebuild} disabled={rebuilding}>
           {rebuilding ? (
             <Loader2 className="w-4 h-4 animate-spin mr-2" />
           ) : (

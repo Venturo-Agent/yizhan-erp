@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
         .from('order_members')
         .select('id')
         .eq('order_id', orderId)
-      memberIds = allMembers?.map((m) => m.id) ?? []
+      memberIds = allMembers?.map(m => m.id) ?? []
     }
 
     // 取得第一個團員的資訊（作為簽約人）
@@ -221,7 +221,10 @@ export async function POST(request: NextRequest) {
     if (createError) {
       logger.error('Create contract error:', createError)
       const t = translateDbError(createError)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     // 更新團員的 contract_id
@@ -240,6 +243,9 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     logger.error('Create contract uncaught:', err)
     const t = translateDbError(err)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 }

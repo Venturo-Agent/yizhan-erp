@@ -35,18 +35,21 @@ interface AuthUser {
 
 export interface LayoutContext {
   user: AuthUser | null
-  employee: (Pick<
-    EmployeeRow,
-    'id' | 'employee_number' | 'display_name' | 'english_name' | 'role_id' | 'workspace_id' | 'status'
-  > & { branch_id?: string | null }) | null
+  employee:
+    | (Pick<
+        EmployeeRow,
+        | 'id'
+        | 'employee_number'
+        | 'display_name'
+        | 'english_name'
+        | 'role_id'
+        | 'workspace_id'
+        | 'status'
+      > & { branch_id?: string | null })
+    | null
   workspace: Pick<
     WorkspaceRow,
-    | 'id'
-    | 'code'
-    | 'name'
-    | 'is_active'
-    | 'premium_enabled'
-    | 'default_billing_day_of_week'
+    'id' | 'code' | 'name' | 'is_active' | 'premium_enabled' | 'default_billing_day_of_week'
   > | null
   workspace_id: string | null
   role_id: string | null
@@ -97,7 +100,9 @@ export const getLayoutContext = cache(async (): Promise<LayoutContext> => {
   // 兼容 Pattern A 舊資料：employee.id = auth.uid()
   let employeeQuery = admin
     .from('employees')
-    .select('id, employee_number, display_name, english_name, role_id, workspace_id, status, branch_id')
+    .select(
+      'id, employee_number, display_name, english_name, role_id, workspace_id, status, branch_id'
+    )
     .or(`user_id.eq.${user.id},id.eq.${user.id}`)
 
   // 有 cookie 的 workspace_id 就嚴格篩、避免抓到別的 workspace 的 employee
@@ -138,11 +143,11 @@ export const getLayoutContext = cache(async (): Promise<LayoutContext> => {
   const features = new Set(
     (featuresRes.data ?? [])
       .filter((f): f is { feature_code: string; enabled: boolean } => !!f.enabled)
-      .map((f) => f.feature_code),
+      .map(f => f.feature_code)
   )
 
   const capabilities = new Set(
-    (capsRes.data ?? []).filter((c) => c.enabled).map((c) => c.capability_code),
+    (capsRes.data ?? []).filter(c => c.enabled).map(c => c.capability_code)
   )
 
   return {
@@ -169,7 +174,7 @@ export const getAuthContext = cache(
       workspace_id: ctx.workspace_id,
       employee_id: ctx.employee.id,
     }
-  },
+  }
 )
 
 /**
@@ -177,7 +182,7 @@ export const getAuthContext = cache(
  */
 export const getPageCapabilities = cache(
   async (codes: readonly string[]): Promise<Record<string, boolean>> => {
-    const result: Record<string, boolean> = Object.fromEntries(codes.map((c) => [c, false]))
+    const result: Record<string, boolean> = Object.fromEntries(codes.map(c => [c, false]))
     if (codes.length === 0) return result
 
     const ctx = await getLayoutContext()
@@ -185,5 +190,5 @@ export const getPageCapabilities = cache(
       result[code] = ctx.capabilities.has(code)
     }
     return result
-  },
+  }
 )

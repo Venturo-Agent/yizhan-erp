@@ -93,16 +93,14 @@ export async function POST(
   }
 
   // 寫 line_conversation_messages（agent 發的訊息）
-  const { error: insertError } = await supabase
-    .from('line_conversation_messages')
-    .insert({
-      workspace_id: guard.workspaceId,
-      line_user_id: lineUserId,
-      direction: 'outbound',
-      sender: 'agent',
-      message_type: 'text',
-      content: text,
-    })
+  const { error: insertError } = await supabase.from('line_conversation_messages').insert({
+    workspace_id: guard.workspaceId,
+    line_user_id: lineUserId,
+    direction: 'outbound',
+    sender: 'agent',
+    message_type: 'text',
+    content: text,
+  })
 
   if (insertError) {
     logger.warn('[push] sent ok but insert log failed:', insertError)

@@ -69,13 +69,22 @@ interface AuthState {
 
   // Methods
   setUser: (user: EmployeeFull | null) => void
-  setAuthContext: (ctx: { capabilities: string[]; features: string[]; premium_enabled: boolean }) => void
+  setAuthContext: (ctx: {
+    capabilities: string[]
+    features: string[]
+    premium_enabled: boolean
+  }) => void
   logout: () => void
   validateLogin: (
     email: string,
     password: string,
     code?: string
-  ) => Promise<{ success: boolean; message?: string; needsSetup?: boolean; mustChangePassword?: boolean }>
+  ) => Promise<{
+    success: boolean
+    message?: string
+    needsSetup?: boolean
+    mustChangePassword?: boolean
+  }>
   refreshUserData: () => Promise<void>
   toggleSidebar: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
@@ -93,7 +102,7 @@ export const useAuthStore = create<AuthState>()(
       features: [],
       premium_enabled: false,
 
-      setUser: (user) => {
+      setUser: user => {
         set({ user, isAuthenticated: !!user })
       },
 
@@ -243,7 +252,7 @@ export const useAuthStore = create<AuthState>()(
               features: features ?? [],
               premium_enabled: premium_enabled ?? false,
             },
-            false,
+            false
           )
 
           // 4. 確保 Auth 同步（處理 RLS 所需的 user_id）
@@ -253,13 +262,10 @@ export const useAuthStore = create<AuthState>()(
           })
 
           // 4. 構建 EmployeeFull
-          const user = buildUserFromEmployee(
-            employee,
-            {
-              code: workspace.code,
-              name: workspace.name ?? undefined,
-            }
-          )
+          const user = buildUserFromEmployee(employee, {
+            code: workspace.code,
+            name: workspace.name ?? undefined,
+          })
 
           get().setUser(user)
           logger.log(`✅ 登入成功: ${employee.display_name}`)
@@ -301,13 +307,10 @@ export const useAuthStore = create<AuthState>()(
           }
 
           // 保留現有 workspace 資訊（workspace 本身極少變、登入時已寫入）
-          const updatedUser = buildUserFromEmployee(
-            employeeData,
-            {
-              code: currentUser.workspace_code,
-              name: currentUser.workspace_name,
-            }
-          )
+          const updatedUser = buildUserFromEmployee(employeeData, {
+            code: currentUser.workspace_code,
+            name: currentUser.workspace_name,
+          })
           get().setUser(updatedUser)
         } catch (error) {
           logger.error('💥 Error refreshing user data:', error)

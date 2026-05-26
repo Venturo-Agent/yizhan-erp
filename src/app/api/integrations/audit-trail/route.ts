@@ -27,7 +27,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   if (!ctx.ok) {
     return NextResponse.json(
       { error: ctx.status === 401 ? '請先登入' : '無權限查詢' },
-      { status: ctx.status },
+      { status: ctx.status }
     )
   }
 
@@ -37,9 +37,18 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const admin = getSupabaseAdminClient()
   type SelectChain = {
     select: (c: string) => {
-      eq: (k: string, v: string) => {
-        eq: (k: string, v: string) => {
-          order: (c: string, opts: { ascending: boolean }) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
+        eq: (
+          k: string,
+          v: string
+        ) => {
+          order: (
+            c: string,
+            opts: { ascending: boolean }
+          ) => {
             limit: (n: number) => Promise<{ data: AuditTrailRow[] | null }>
           }
         }
@@ -47,16 +56,16 @@ export const GET = apiHandler(async (request: NextRequest) => {
     }
   }
 
-  const { data } = await (admin.from as unknown as (t: string) => SelectChain)(
-    'audit_logs',
-  )
+  const { data } = await (admin.from as unknown as (t: string) => SelectChain)('audit_logs')
     .select('id, workspace_id, actor_id, action, entity_type, reason, created_at')
     .eq('entity_id', targetWorkspaceId)
     .eq('action', 'cross_workspace_read')
     .order('created_at', { ascending: false })
-    .limit(request.nextUrl.searchParams.get('limit')
-      ? parseInt(request.nextUrl.searchParams.get('limit') as string, 10)
-      : 50)
+    .limit(
+      request.nextUrl.searchParams.get('limit')
+        ? parseInt(request.nextUrl.searchParams.get('limit') as string, 10)
+        : 50
+    )
 
   // 拉 actor 名字（不暴露真實 ID、顯示 employee 名字）
   const actorIds = Array.from(new Set((data ?? []).map(r => r.actor_id)))
@@ -66,15 +75,23 @@ export const GET = apiHandler(async (request: NextRequest) => {
       select: (c: string) => {
         in: (
           k: string,
-          v: string[],
-        ) => Promise<{ data: Array<{ id: string; display_name: string | null; chinese_name: string | null }> | null }>
+          v: string[]
+        ) => Promise<{
+          data: Array<{
+            id: string
+            display_name: string | null
+            chinese_name: string | null
+          }> | null
+        }>
       }
     }
-    const { data: employees } = await (admin.from as unknown as (t: string) => EmployeesChain)('employees')
+    const { data: employees } = await (admin.from as unknown as (t: string) => EmployeesChain)(
+      'employees'
+    )
       .select('id, display_name, chinese_name')
       .in('id', actorIds)
     actorNames = Object.fromEntries(
-      (employees ?? []).map(e => [e.id, e.display_name || e.chinese_name || '漫途員工']),
+      (employees ?? []).map(e => [e.id, e.display_name || e.chinese_name || '漫途員工'])
     )
   }
 

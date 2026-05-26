@@ -26,7 +26,9 @@ export function ContractSuccessStep({
         <div className="w-20 h-20 bg-morandi-green/15 rounded-full flex items-center justify-center mx-auto mb-6">
           <Check className="w-10 h-10 text-morandi-green" />
         </div>
-        <h1 className="text-2xl font-bold text-morandi-primary mb-2">{PAGE_LABELS.SIGN_COMPLETE}</h1>
+        <h1 className="text-2xl font-bold text-morandi-primary mb-2">
+          {PAGE_LABELS.SIGN_COMPLETE}
+        </h1>
         <p className="text-morandi-secondary mb-6">
           您的電子簽名已成功提交。
           <br />
@@ -40,10 +42,7 @@ export function ContractSuccessStep({
 
         {/* 導航按鈕 */}
         <div className="flex flex-col gap-3">
-          <Button
-            size="lg"
-            onClick={onBackToHome}
-          >
+          <Button size="lg" onClick={onBackToHome}>
             {PAGE_LABELS.BACK_TO_HOME}
           </Button>
           <Button size="lg" variant="soft-gold" onClick={onViewContract}>

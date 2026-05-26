@@ -37,15 +37,9 @@ export function IncomeTab({ dateRange }: IncomeTabProps) {
   const stats = useMemo(() => {
     const tourReceipts = filteredReceipts.filter(r => r.tour_id)
     const companyReceipts = filteredReceipts.filter(r => !r.tour_id)
-    const totalAmount = filteredReceipts.reduce(
-      (sum, r) => sum + (r.receipt_amount || 0),
-      0
-    )
+    const totalAmount = filteredReceipts.reduce((sum, r) => sum + (r.receipt_amount || 0), 0)
     const tourAmount = tourReceipts.reduce((sum, r) => sum + (r.receipt_amount || 0), 0)
-    const companyAmount = companyReceipts.reduce(
-      (sum, r) => sum + (r.receipt_amount || 0),
-      0
-    )
+    const companyAmount = companyReceipts.reduce((sum, r) => sum + (r.receipt_amount || 0), 0)
     const byPaymentMethod = filteredReceipts.reduce(
       (acc, r) => {
         const method = r.payment_method || 'other'
@@ -87,7 +81,9 @@ export function IncomeTab({ dateRange }: IncomeTabProps) {
       render: value => {
         const method = String(value || '')
         return (
-          <span className="text-sm">{RECEIPT_PAYMENT_METHOD_LABELS[method] || method || <EmptyValue />}</span>
+          <span className="text-sm">
+            {RECEIPT_PAYMENT_METHOD_LABELS[method] || method || <EmptyValue />}
+          </span>
         )
       },
     },
@@ -145,7 +141,9 @@ export function IncomeTab({ dateRange }: IncomeTabProps) {
                 <p className="text-sm text-morandi-secondary">
                   {RECEIPT_PAYMENT_METHOD_LABELS[method] || method}
                 </p>
-                <p className="text-lg font-semibold text-morandi-primary">{data.count} {COMPONENT_LABELS.COUNT_UNIT}</p>
+                <p className="text-lg font-semibold text-morandi-primary">
+                  {data.count} {COMPONENT_LABELS.COUNT_UNIT}
+                </p>
                 <CurrencyCell amount={data.amount} variant="income" className="text-sm" />
               </div>
             ))}

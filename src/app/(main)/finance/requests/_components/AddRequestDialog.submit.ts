@@ -351,9 +351,15 @@ async function submitBatch({
   }
 
   if (errorCount > 0) {
-    await alert(`建立完成：成功 ${successCount} 筆，失敗 ${errorCount} 筆。請檢查失敗的請款單品項。`, 'warning')
+    await alert(
+      `建立完成：成功 ${successCount} 筆，失敗 ${errorCount} 筆。請檢查失敗的請款單品項。`,
+      'warning'
+    )
   } else {
-    await alert(`成功建立 ${successCount} 筆請款單（批次 ID: ${batchId.slice(0, 8)}...）`, 'success')
+    await alert(
+      `成功建立 ${successCount} 筆請款單（批次 ID: ${batchId.slice(0, 8)}...）`,
+      'success'
+    )
   }
   onCancel()
   onSuccess?.()
@@ -405,9 +411,7 @@ async function submitCompany({
   // 從第一個 item 推導 expense_category_id；fallback：以 category 文字反查 expenseCategories
   const firstItem = validItems[0]
   const inferredCategoryId =
-    firstItem.category_id ||
-    expenseCategories.find(c => c.name === firstItem.category)?.id ||
-    ''
+    firstItem.category_id || expenseCategories.find(c => c.name === firstItem.category)?.id || ''
   for (const [groupDate, groupItems] of groups) {
     await createRequest(
       { ...formData, expense_category_id: inferredCategoryId, request_date: groupDate },

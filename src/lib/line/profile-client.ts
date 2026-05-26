@@ -189,7 +189,9 @@ export async function fetchLineGroupMemberIds(opts: {
 
   try {
     for (let page = 0; page < MAX_PAGES; page++) {
-      const url = new URL(`https://api.line.me/v2/bot/group/${encodeURIComponent(groupId)}/members/ids`)
+      const url = new URL(
+        `https://api.line.me/v2/bot/group/${encodeURIComponent(groupId)}/members/ids`
+      )
       if (cursor) url.searchParams.set('start', cursor)
       const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${channelAccessToken}` },

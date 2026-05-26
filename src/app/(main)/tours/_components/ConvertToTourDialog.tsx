@@ -162,11 +162,7 @@ export function ConvertToTourDialog({
         <X size={16} />
         {TOUR_CONVERT.cancel}
       </Button>
-      <Button
-        onClick={handleSubmit}
-        disabled={isSubmitDisabled}
-        variant="soft-gold"
-      >
+      <Button onClick={handleSubmit} disabled={isSubmitDisabled} variant="soft-gold">
         {submitLabel}
       </Button>
     </div>
@@ -236,8 +232,8 @@ export function ConvertToTourDialog({
               <SelectContent>
                 {controllers.map(emp => (
                   <SelectItem key={emp.id} value={emp.id}>
-                    {emp.display_name || emp.english_name || emp.chinese_name}{' '}
-                    ({emp.employee_number})
+                    {emp.display_name || emp.english_name || emp.chinese_name} (
+                    {emp.employee_number})
                   </SelectItem>
                 ))}
               </SelectContent>

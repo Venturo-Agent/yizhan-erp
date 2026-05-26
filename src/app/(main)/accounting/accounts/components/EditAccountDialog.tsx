@@ -198,75 +198,74 @@ export function EditAccountDialog({
       footer={customFooter}
       maxWidth="lg"
     >
-          {account.is_system_locked && (
-            <div className="p-3 bg-morandi-gold/10 text-morandi-primary rounded-md text-sm">
-              {PAGE_LABELS.SYSTEM_ACCOUNT_NOTICE}
-            </div>
-          )}
+      {account.is_system_locked && (
+        <div className="p-3 bg-morandi-gold/10 text-morandi-primary rounded-md text-sm">
+          {PAGE_LABELS.SYSTEM_ACCOUNT_NOTICE}
+        </div>
+      )}
 
-          <div className="space-y-2">
-            <Label htmlFor="code">{PAGE_LABELS.FIELD_CODE}</Label>
-            <Input
-              id="code"
-              placeholder={PAGE_LABELS.CODE_PLACEHOLDER}
-              value={formData.code}
-              onChange={e => setFormData({ ...formData, code: e.target.value })}
-              disabled={account.is_system_locked}
-              required
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="code">{PAGE_LABELS.FIELD_CODE}</Label>
+        <Input
+          id="code"
+          placeholder={PAGE_LABELS.CODE_PLACEHOLDER}
+          value={formData.code}
+          onChange={e => setFormData({ ...formData, code: e.target.value })}
+          disabled={account.is_system_locked}
+          required
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="name">{PAGE_LABELS.FIELD_NAME}</Label>
-            <Input
-              id="name"
-              placeholder={PAGE_LABELS.NAME_PLACEHOLDER}
-              value={formData.name}
-              onChange={e => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="name">{PAGE_LABELS.FIELD_NAME}</Label>
+        <Input
+          id="name"
+          placeholder={PAGE_LABELS.NAME_PLACEHOLDER}
+          value={formData.name}
+          onChange={e => setFormData({ ...formData, name: e.target.value })}
+          required
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="account_type">{PAGE_LABELS.FIELD_ACCOUNT_TYPE}</Label>
-            <Select
-              value={formData.account_type}
-              onValueChange={value => setFormData({ ...formData, account_type: value })}
-              disabled={account.is_system_locked}
-            >
-              <SelectTrigger id="account_type">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {accountTypes.map(type => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="account_type">{PAGE_LABELS.FIELD_ACCOUNT_TYPE}</Label>
+        <Select
+          value={formData.account_type}
+          onValueChange={value => setFormData({ ...formData, account_type: value })}
+          disabled={account.is_system_locked}
+        >
+          <SelectTrigger id="account_type">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {accountTypes.map(type => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">{PAGE_LABELS.DESCRIPTION_LABEL}</Label>
-            <Textarea
-              id="description"
-              placeholder={PAGE_LABELS.DESCRIPTION_PLACEHOLDER}
-              value={formData.description}
-              onChange={e => setFormData({ ...formData, description: e.target.value })}
-              rows={3}
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="description">{PAGE_LABELS.DESCRIPTION_LABEL}</Label>
+        <Textarea
+          id="description"
+          placeholder={PAGE_LABELS.DESCRIPTION_PLACEHOLDER}
+          value={formData.description}
+          onChange={e => setFormData({ ...formData, description: e.target.value })}
+          rows={3}
+        />
+      </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="is_active">{PAGE_LABELS.ENABLED_STATUS}</Label>
-            <Switch
-              id="is_active"
-              checked={formData.is_active}
-              onCheckedChange={checked => setFormData({ ...formData, is_active: checked })}
-            />
-          </div>
-
+      <div className="flex items-center justify-between">
+        <Label htmlFor="is_active">{PAGE_LABELS.ENABLED_STATUS}</Label>
+        <Switch
+          id="is_active"
+          checked={formData.is_active}
+          onCheckedChange={checked => setFormData({ ...formData, is_active: checked })}
+        />
+      </div>
     </FormDialog>
   )
 }

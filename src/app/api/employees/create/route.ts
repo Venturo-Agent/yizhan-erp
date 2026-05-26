@@ -81,7 +81,11 @@ export async function POST(request: NextRequest) {
 
     if (authError) {
       // 5/15 加詳細 error：原本只回「建立登入帳號失敗」黑箱、user 不知道根因
-      logger.error('Failed to create auth user:', { message: authError.message, status: authError.status, raw: authError })
+      logger.error('Failed to create auth user:', {
+        message: authError.message,
+        status: authError.status,
+        raw: authError,
+      })
       const msg = authError.message ?? ''
       const lower = msg.toLowerCase()
       // 常見：員工被 DELETE 但 auth.users 還留著 orphan、新建撞 email unique

@@ -57,9 +57,7 @@ interface GetApiContextOptions {
  *   2. employees + role_capabilities + workspace_features — 1 個 user round-trip + 1 parallel
  *   3. capability / feature gate（可選）
  */
-export async function getApiContext(
-  options: GetApiContextOptions = {},
-): Promise<ApiContextResult> {
+export async function getApiContext(options: GetApiContextOptions = {}): Promise<ApiContextResult> {
   const { capabilityCode, featureCode } = options
 
   const supabase = await createSupabaseServerClient()
@@ -121,7 +119,7 @@ export async function getApiContext(
       : Promise.resolve({ data: null as { enabled: boolean | null } | null }),
   ])
 
-  const capabilities = new Set((capsRes.data ?? []).map((c) => c.capability_code))
+  const capabilities = new Set((capsRes.data ?? []).map(c => c.capability_code))
 
   // Feature gate
   if (featureCode && !featRes.data?.enabled) {

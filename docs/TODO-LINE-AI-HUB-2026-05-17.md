@@ -6,6 +6,7 @@
 ## ✅ 今天完成（已 push）
 
 ### LINE Bot + AI Hub 主鏈
+
 - [x] LINE webhook channel_id UI 文案 bug 修
 - [x] LINE Bot freestyle 模式（不接 RAG、誰都能亂回）
 - [x] opencc-js 100% 簡→繁（取代自寫 mapping）
@@ -18,6 +19,7 @@
 - [x] line-llm-compose LLM context 20 → 50 條
 
 ### 對話管理 / AI Hub
+
 - [x] sidebar 280px + 兩行緊湊 layout + 頭像 channel 角標
 - [x] 合併「同事 + 私訊」單一 section
 - [x] Bot 自動回覆 toggle 搬 header 右側
@@ -28,6 +30,7 @@
 - [x] 暫時隱藏「AI 控制中心」dashboard tab
 
 ### 租戶管理 LLM Token
+
 - [x] workspace_ai_settings 加 7 欄位 + CHECK constraint
 - [x] LlmTokenSetupDialog 4-step wizard
 - [x] API 擴 PUT + DELETE + status + validate
@@ -36,6 +39,7 @@
 - [x] HAPPY handler（同事跟 HAPPY 聊、共用 token）
 
 ### SWR / Cache / Realtime 架構（Phase 1 + 2.1）
+
 - [x] Realtime publication 34 表全開（從 4 跳到 34）
 - [x] apiMutate helper + 32 個 caller 改造
 - [x] useRealtimeMutate hook
@@ -45,6 +49,7 @@
 - [x] CACHE_VERSION v1 → v2
 
 ### Migrations（已 commit）
+
 - [x] `20260517990000_enable_realtime_for_inbox.sql` 補檔
 - [x] `20260518000100_enable_realtime_for_all_entities.sql` 30 表
 - [x] `20260518100000_add_fk_todos_column_id.sql` 防孤兒
@@ -69,6 +74,7 @@
 ### Phase 2.1 剩餘 ~15 個 caller 跳過（合理）
 
 需要 apiMutate 擴充才能套：
+
 - FormData upload caller（OCR / 護照 / 頭像 / 圖片）— 6 個
 - Auth flow（change-password / personal）— 3 個
 - response.blob() 抓圖片 — 2 個
@@ -93,6 +99,7 @@
 ## ⏳ Phase 2（LINE / AI Hub 本身）功能完整化
 
 ### LINE Bot 完整化
+
 - [ ] **圖片完整下載 + Supabase storage**
   - bucket: `line-media`
   - handler 收 type=image → getMessageContent API → upload storage
@@ -117,6 +124,7 @@
 - [ ] **LLM provider v2**：opencc-js s2twp（含台灣詞組「軟件→軟體」「信息→訊息」「視頻→影片」）
 
 ### AI Hub 完整化
+
 - [ ] **AI 控制中心 dashboard 上線**（等真實數據量）
   - 對話統計、平台連線、AI 回應效能
   - 7 日 trend chart

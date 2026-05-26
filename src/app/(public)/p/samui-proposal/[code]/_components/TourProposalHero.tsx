@@ -72,9 +72,7 @@ export function TourProposalHero() {
 
             {/* 主標題 */}
             <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight mb-6">
-              <span style={{ fontFamily: 'Noto Serif TC, serif' }}>
-                泰國蘇梅島
-              </span>
+              <span style={{ fontFamily: 'Noto Serif TC, serif' }}>泰國蘇梅島</span>
               <br />
               <span style={{ color: '#c9aa7c' }}>6 天 5 夜包島之旅</span>
             </h1>
@@ -85,8 +83,10 @@ export function TourProposalHero() {
                 className="absolute -bottom-1 left-0 w-full h-3 -rotate-1 opacity-30"
                 style={{ backgroundColor: '#c9aa7c' }}
               />
-              <p className="relative text-lg text-white/80 italic"
-                 style={{ fontFamily: 'Noto Serif TC, serif' }}>
+              <p
+                className="relative text-lg text-white/80 italic"
+                style={{ fontFamily: 'Noto Serif TC, serif' }}
+              >
                 Koh Samui Private Island Experience
               </p>
             </div>
@@ -143,9 +143,7 @@ export function TourProposalHero() {
                     <span className="text-lg">🏝️</span>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">
-                      出發日期
-                    </p>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider">出發日期</p>
                     <p className="text-lg font-bold" style={{ color: '#2d6a7a' }}>
                       2026/08/29
                     </p>

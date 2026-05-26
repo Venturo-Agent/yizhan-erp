@@ -25,13 +25,11 @@ interface UseEditModeItemsParams {
   isEditMode: boolean
 }
 
-export function useEditModeItems({
-  open,
-  editingRequest,
-  isEditMode,
-}: UseEditModeItemsParams) {
+export function useEditModeItems({ open, editingRequest, isEditMode }: UseEditModeItemsParams) {
   // DB 層 items（SWR）
-  const { items: dbRequestItems, refresh: refreshRequestItems } = usePaymentRequestItems({ all: true })
+  const { items: dbRequestItems, refresh: refreshRequestItems } = usePaymentRequestItems({
+    all: true,
+  })
 
   // 同批次請款單切換
   const [editBatchRequests, setEditBatchRequests] = useState<PaymentRequest[]>([])

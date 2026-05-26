@@ -124,9 +124,8 @@ const STUB_CACHE_VERSION = 'v0.1.0-stub'
  * @param options   onProgress / skipTables
  */
 export async function runPreload(
-   
   supabase: SupabaseLike,
-   
+
   ctx: PreloadContext,
   options?: PreloadOptions
 ): Promise<PreloadResult> {

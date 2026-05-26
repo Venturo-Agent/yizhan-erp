@@ -6,11 +6,11 @@
 
 ## 兩套測試的責任分工
 
-| 測試套件 | 目的 | 框架 | 跑在哪 |
-|---|---|---|---|
-| `tests/concurrency/*.test.ts` | 壓 RPC 編號函式、確認 advisory lock 真的鎖住 | Vitest | Node + Supabase service_role REST |
-| `tests/e2e/cross-tenant.spec.ts` | 驗 RLS + 應用層雙重擋下跨 workspace 攻擊 | Playwright | 真實 Supabase + Next.js dev server |
-| `tests/e2e/security/cross-workspace.spec.ts`（既有 skeleton） | 同上、更詳細的 entity-by-entity case 列表（保留參考） | Playwright | （目前 `.skip`） |
+| 測試套件                                                      | 目的                                                  | 框架       | 跑在哪                             |
+| ------------------------------------------------------------- | ----------------------------------------------------- | ---------- | ---------------------------------- |
+| `tests/concurrency/*.test.ts`                                 | 壓 RPC 編號函式、確認 advisory lock 真的鎖住          | Vitest     | Node + Supabase service_role REST  |
+| `tests/e2e/cross-tenant.spec.ts`                              | 驗 RLS + 應用層雙重擋下跨 workspace 攻擊              | Playwright | 真實 Supabase + Next.js dev server |
+| `tests/e2e/security/cross-workspace.spec.ts`（既有 skeleton） | 同上、更詳細的 entity-by-entity case 列表（保留參考） | Playwright | （目前 `.skip`）                   |
 
 兩個都是「上線前必跑」、但目前 **不在 CI**、原因見下面 #CI 章節。
 
@@ -20,14 +20,15 @@
 
 ### 涵蓋的 RPC
 
-| RPC | 檔案 | 格式 | scope |
-|---|---|---|---|
-| `generate_employee_number` | `employee-number-race.test.ts` | `E001` (3 位) | per-workspace |
-| `generate_supplier_code` | `supplier-code-race.test.ts` | `S00001` (5 位) | per-workspace |
-| `generate_order_number` | `order-number-race.test.ts` | `{tour_code}-O01` (2 位) | per-tour |
-| `generate_account_child_code` | `account-child-code-race.test.ts` | `{parent}-N` (不補零) | per-(workspace, parent) |
+| RPC                           | 檔案                              | 格式                     | scope                   |
+| ----------------------------- | --------------------------------- | ------------------------ | ----------------------- |
+| `generate_employee_number`    | `employee-number-race.test.ts`    | `E001` (3 位)            | per-workspace           |
+| `generate_supplier_code`      | `supplier-code-race.test.ts`      | `S00001` (5 位)          | per-workspace           |
+| `generate_order_number`       | `order-number-race.test.ts`       | `{tour_code}-O01` (2 位) | per-tour                |
+| `generate_account_child_code` | `account-child-code-race.test.ts` | `{parent}-N` (不補零)    | per-(workspace, parent) |
 
 每個檔案測：
+
 1. **10 並發 call** → 10 個不同編號、連續無跳號
 2. **NULL / 空字串 input** → RPC `RAISE EXCEPTION`
 3. **scope 互不干擾**（適用時）— 不同 workspace / tour / parent 各自獨立計數
@@ -54,6 +55,7 @@ npm run test -- tests/concurrency
 **不會污染 production / demo workspace**。即使測試中斷、殘留 workspace 也容易辨識（code prefix `CONCURRENCY-` / `EMP-RACE-` / `SUP-RACE-` / `ORD-RACE-` / `ACC-RACE-`）、可手動清。
 
 清殘留：
+
 ```sql
 DELETE FROM workspaces WHERE code LIKE 'EMP-RACE-%';
 DELETE FROM workspaces WHERE code LIKE 'SUP-RACE-%';
@@ -74,13 +76,13 @@ DELETE FROM workspaces WHERE code LIKE 'CONCURRENCY-%';
 
 每個 entity 表（customers / suppliers / contracts / tours / orders / payment_requests / receipts / disbursement_orders）測：
 
-| 攻擊 | 預期擋下層 |
-|---|---|
-| A 員工 SELECT WHERE workspace_id = B | RLS |
-| A 員工 LIST 全部 | RLS（leak detection） |
-| A 員工 INSERT workspace_id = B 的 row | RLS WITH CHECK 或 trigger |
-| A 員工 UPDATE B 的 row id | RLS USING |
-| A 員工 DELETE B 的 row id | RLS USING |
+| 攻擊                                              | 預期擋下層                     |
+| ------------------------------------------------- | ------------------------------ |
+| A 員工 SELECT WHERE workspace_id = B              | RLS                            |
+| A 員工 LIST 全部                                  | RLS（leak detection）          |
+| A 員工 INSERT workspace_id = B 的 row             | RLS WITH CHECK 或 trigger      |
+| A 員工 UPDATE B 的 row id                         | RLS USING                      |
+| A 員工 DELETE B 的 row id                         | RLS USING                      |
 | A 員工打 next API `/api/customers?workspace_id=B` | 應用層 `enforceWorkspaceScope` |
 
 ### 怎麼跑
@@ -115,6 +117,7 @@ npx playwright test cross-tenant
 ### 怎麼準備兩個 workspace 帳號
 
 如果 TESTUX / DEMO 還沒有員工帳號：
+
 1. 登入 admin、到 `/hr/employees` 開一個員工、設 email + password
 2. 該員工要有 capability 能讀 customers 等表（用一般 role 即可、不用 admin）
 3. 取得該 workspace 的 UUID：
@@ -150,6 +153,7 @@ npx playwright test cross-tenant
 ### 現階段的補救
 
 **上線前手動跑一次**：
+
 ```bash
 source ~/.config/venturo/secrets.env
 
@@ -162,6 +166,7 @@ npx playwright test cross-tenant
 ```
 
 如果這兩個都過、表示：
+
 - 編號 RPC 真的 lock 住（並發不會撞號）
 - RLS + 應用層真的擋下跨 workspace 攻擊（紅線 A 安全）
 
@@ -169,11 +174,11 @@ npx playwright test cross-tenant
 
 ## 紅線對應
 
-| 鐵律 | 哪個測試守 |
-|---|---|
-| 紅線 A（多租戶隔離） | `cross-tenant.spec.ts` + `cross-workspace.spec.ts` |
-| 編號 SSOT（`@/lib/codes.ts` + RPC） | `tests/concurrency/*` |
-| 紅線 C（admin client per-request） | 沒測（要看 server log、不適合 e2e）— 留人工 audit |
+| 鐵律                                | 哪個測試守                                         |
+| ----------------------------------- | -------------------------------------------------- |
+| 紅線 A（多租戶隔離）                | `cross-tenant.spec.ts` + `cross-workspace.spec.ts` |
+| 編號 SSOT（`@/lib/codes.ts` + RPC） | `tests/concurrency/*`                              |
+| 紅線 C（admin client per-request）  | 沒測（要看 server log、不適合 e2e）— 留人工 audit  |
 
 ## 相關檔案
 

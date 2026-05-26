@@ -65,7 +65,11 @@ function nextResponse(): QueryResult {
 }
 
 // chain builder：每個 operation 結束時都是 thenable
-function makeChain(table: string, method: 'select' | 'insert' | 'update' | 'delete', payload?: unknown) {
+function makeChain(
+  table: string,
+  method: 'select' | 'insert' | 'update' | 'delete',
+  payload?: unknown
+) {
   const op: (typeof mockQueue.ops)[number] = {
     table,
     method,
@@ -98,7 +102,10 @@ function makeChain(table: string, method: 'select' | 'insert' | 'update' | 'dele
     op.or = args[0] as string
   })
   passthrough('order', args => {
-    op.order = { column: args[0] as string, ascending: (args[1] as { ascending: boolean }).ascending }
+    op.order = {
+      column: args[0] as string,
+      ascending: (args[1] as { ascending: boolean }).ascending,
+    }
   })
   passthrough('like', args => {
     op.like = [args[0] as string, args[1] as string]
@@ -165,10 +172,12 @@ function mockMakeChannel(name: string): MockChannel {
     subscribe: vi.fn(),
     unsubscribe: vi.fn(),
   }
-  channel.on.mockImplementation((event: string, filter: unknown, callback: (p: unknown) => void) => {
-    channel.events.push({ event, filter, callback })
-    return channel
-  })
+  channel.on.mockImplementation(
+    (event: string, filter: unknown, callback: (p: unknown) => void) => {
+      channel.events.push({ event, filter, callback })
+      return channel
+    }
+  )
   channel.subscribe.mockImplementation(() => {
     channel.subscribed = true
     return channel
@@ -468,10 +477,9 @@ describe('createEntityHook — usePaginated', () => {
     pushResponse({ data: [{ id: 't1' }, { id: 't2' }], count: 42, error: null })
 
     const hook = createEntityHook<Tour>('tours', { list: { select: '*' } })
-    const { result } = renderHook(
-      () => hook.usePaginated({ page: 2, pageSize: 15 }),
-      { wrapper: makeWrapper() }
-    )
+    const { result } = renderHook(() => hook.usePaginated({ page: 2, pageSize: 15 }), {
+      wrapper: makeWrapper(),
+    })
 
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.totalCount).toBe(42)
@@ -875,7 +883,9 @@ describe('createEntityHook — Realtime sync', () => {
 
     // 三種 Postgres event 都應 handled、不 throw
     expect(() => callback({ eventType: 'INSERT', new: { id: 'r1' } })).not.toThrow()
-    expect(() => callback({ eventType: 'UPDATE', new: { id: 'r2' }, old: { id: 'r2' } })).not.toThrow()
+    expect(() =>
+      callback({ eventType: 'UPDATE', new: { id: 'r2' }, old: { id: 'r2' } })
+    ).not.toThrow()
     expect(() => callback({ eventType: 'DELETE', old: { id: 'r3' } })).not.toThrow()
   })
 
@@ -913,7 +923,9 @@ describe('createEntityHook — Realtime sync', () => {
     expect(mockChannelRegistry.channels.every(c => c.removed)).toBe(true)
     expect(mockChannelRegistry.removeCalls.length).toBe(3)
     // 每個 channel 名字都對（Phase C.2 加 suffix、前綴比對）
-    expect(mockChannelRegistry.channels.every(c => /^realtime:tours:[a-z0-9]{1,8}$/.test(c.name))).toBe(true)
+    expect(
+      mockChannelRegistry.channels.every(c => /^realtime:tours:[a-z0-9]{1,8}$/.test(c.name))
+    ).toBe(true)
   })
 
   it('useListSlim 也會 subscribe 對應 table 的 channel', async () => {

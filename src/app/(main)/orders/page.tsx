@@ -11,10 +11,7 @@ import { generateOrderNumber } from '@/lib/codes'
 import { ShoppingCart, Plus, Users, User } from 'lucide-react'
 import { OrderListView } from './_components/OrderListView'
 import { AddOrderForm } from './_components/add-order-form'
-import {
-  useOrdersListView,
-  type OrdersViewMode,
-} from './_hooks/useOrdersListView'
+import { useOrdersListView, type OrdersViewMode } from './_hooks/useOrdersListView'
 import type { Order } from '@/stores/types'
 import { logger } from '@/lib/utils/logger'
 import { alert as showAlert } from '@/lib/ui/alert-dialog'

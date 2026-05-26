@@ -15,12 +15,7 @@ export const EsimModule = defineModule({
   name: 'eSIM 管理',
   description: '旅遊 eSIM 訂單管理（Worldmove）、產品目錄與 API 設定',
   category: 'basic',
-  routes: [
-    '/esim',
-    '/esim/orders',
-    '/esim/products',
-    '/esim/settings',
-  ],
+  routes: ['/esim', '/esim/orders', '/esim/products', '/esim/settings'],
   exposedToHr: true,
   tabs: [
     { code: 'orders', name: '訂單管理', description: '客戶 eSIM 訂單查詢與管理' },

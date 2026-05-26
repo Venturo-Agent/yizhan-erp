@@ -26,10 +26,7 @@ export const HrSalarySettlementModule = defineModule({
   name: '薪資結算',
   description: 'HR 月度薪資批次結算、產出請款單',
   category: 'basic',
-  routes: [
-    '/hr/salary-settlement',
-    '/hr/salary-settlement/[id]',
-  ],
+  routes: ['/hr/salary-settlement', '/hr/salary-settlement/[id]'],
   exposedToHr: true,
   defaultRoles: ['admin'],
   tabs: [],

@@ -26,10 +26,7 @@ const ALLOWED_MIME: Record<string, string> = {
 
 const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
     if (!guard.ok) return guard.response
@@ -59,7 +56,10 @@ export async function POST(
     const mime = file.type
     const ext = ALLOWED_MIME[mime]
     if (!ext) {
-      return NextResponse.json({ error: '不支援的圖片格式（JPEG / PNG / WebP / GIF）' }, { status: 400 })
+      return NextResponse.json(
+        { error: '不支援的圖片格式（JPEG / PNG / WebP / GIF）' },
+        { status: 400 }
+      )
     }
 
     const bytes = await file.arrayBuffer()

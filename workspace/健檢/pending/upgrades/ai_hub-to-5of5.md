@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ✅ | AiConversationsTab 手刻 `useRealtimeMutate`（合理，跨表聚合）；其他頁面走 entity |
-| **資安** | ✅ | RLS/FK 完整；chat system 無資安漏洞 |
-| **架構** | ✅ | L1-L6 全過；ai_hub 已整合 3 個 bot module |
-| **開發品管** | ⚠️ | ai_hub 無 realtime e2e；但手刻 realtime 是合理設計決策 |
-| **清理** | ⚠️ | 3 個 bot module（line_bot/facebook_bot/instagram_bot）已整合；capabilities drift 7 個待清理 |
+| 維度         | 現狀 | 具體缺口                                                                                    |
+| ------------ | ---- | ------------------------------------------------------------------------------------------- |
+| **讀取效能** | ✅   | AiConversationsTab 手刻 `useRealtimeMutate`（合理，跨表聚合）；其他頁面走 entity            |
+| **資安**     | ✅   | RLS/FK 完整；chat system 無資安漏洞                                                         |
+| **架構**     | ✅   | L1-L6 全過；ai_hub 已整合 3 個 bot module                                                   |
+| **開發品管** | ⚠️   | ai_hub 無 realtime e2e；但手刻 realtime 是合理設計決策                                      |
+| **清理**     | ⚠️   | 3 個 bot module（line_bot/facebook_bot/instagram_bot）已整合；capabilities drift 7 個待清理 |
 
 ---
 
@@ -24,8 +24,9 @@
 
 **修法**：
 `tests/e2e/ai-hub-realtime.spec.ts`：
+
 ```
-建立 AI conversation → 
+建立 AI conversation →
 在兩個分頁開啟同一 conversation →
 在 A 分頁發送 message →
 確認 B 分頁即時看到新 message（useRealtimeMutate 鏈路驗證）
@@ -41,6 +42,7 @@
 **缺口**：`capabilities.ts` 有 7 個 bot capability drift（line_bot.config/write、facebook_bot.config/write、instagram_bot.config/write）。
 
 **修法**：
+
 1. 從 `capabilities.ts` 砍 7 個 bot capability 常數
 2. 等 William 確認 production 無人在用後，寫 migration 刪 role_capabilities DB rows
 
@@ -55,6 +57,7 @@
 
 **修法**：
 `tests/e2e/ai-hub.spec.ts`：
+
 ```
 打開 ai hub → 建立新 conversation →
 傳送訊息 → 確認回覆出現 →
@@ -87,4 +90,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

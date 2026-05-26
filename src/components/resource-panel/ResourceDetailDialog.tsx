@@ -5,11 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import {
-  MapPin,
-  Building2,
-  UtensilsCrossed,
-} from 'lucide-react'
+import { MapPin, Building2, UtensilsCrossed } from 'lucide-react'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import { ResourceOverrideDialog } from './ResourceOverrideDialog'
 import { logger } from '@/lib/utils/logger'
@@ -20,11 +16,18 @@ import { ResourceActionButtons } from './ResourceActionButtons'
 import { buildResourceActions } from './useResourceActions'
 
 const LABELS = {
-  TYPE_ATTRACTION: '景點', TYPE_HOTEL: '酒店', TYPE_RESTAURANT: '餐廳',
-  EDIT_PREFIX: '編輯', INFO_SUFFIX: '資訊', LOADING: '載入中...',
-  NAME: '名稱', NAME_PLACEHOLDER: '輸入名稱',
-  ADDRESS: '地址', ADDRESS_PLACEHOLDER: '輸入地址',
-  DESCRIPTION: '描述', DESCRIPTION_PLACEHOLDER: '輸入描述',
+  TYPE_ATTRACTION: '景點',
+  TYPE_HOTEL: '酒店',
+  TYPE_RESTAURANT: '餐廳',
+  EDIT_PREFIX: '編輯',
+  INFO_SUFFIX: '資訊',
+  LOADING: '載入中...',
+  NAME: '名稱',
+  NAME_PLACEHOLDER: '輸入名稱',
+  ADDRESS: '地址',
+  ADDRESS_PLACEHOLDER: '輸入地址',
+  DESCRIPTION: '描述',
+  DESCRIPTION_PLACEHOLDER: '輸入描述',
 } as const
 
 type ResourceType = 'attraction' | 'hotel' | 'restaurant'
@@ -183,7 +186,8 @@ export function ResourceDetailDialog({
             {iconMap[resource.type]}
             <span>
               {isEditing ? LABELS.EDIT_PREFIX : ''}
-              {typeLabel[resource.type]}{LABELS.INFO_SUFFIX}
+              {typeLabel[resource.type]}
+              {LABELS.INFO_SUFFIX}
             </span>
           </DialogTitle>
         </DialogHeader>

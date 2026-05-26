@@ -7,7 +7,7 @@
  *   新：const t = useTranslations('publish')  →  t('link')
  */
 export const PUBLISH_LABELS = {
-  LABEL_9893: '連結',       // @migration-target: messages/zh-TW.json publish.link
-  LABEL_1245: '分享連結',   // @migration-target: messages/zh-TW.json publish.shareLink
+  LABEL_9893: '連結', // @migration-target: messages/zh-TW.json publish.link
+  LABEL_1245: '分享連結', // @migration-target: messages/zh-TW.json publish.shareLink
   LABEL_7099: '此連結可分享給客戶，無需登入即可查看行程', // @migration-target: messages/zh-TW.json publish.shareLinkDesc
 }

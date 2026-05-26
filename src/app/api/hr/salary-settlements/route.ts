@@ -29,12 +29,12 @@ interface SalaryInfo {
   other_allowances?: number
   allowances?: Array<{ amount?: number }>
   // 2026-05-15 William 拍板：薪資結算用
-  pension_voluntary_rate?: number  // 員工自願提撥率 0-0.06
-  dependents_count?: number  // 健保眷屬總數
-  chargeable_dependents_count?: number  // 計費眷屬（免費眷屬不算、2026-05-22 加）
-  salary_mode?: 'gross' | 'net'  // gross 含勞健保（預設）/ net 實給（公司多承擔）
-  labor_insured_here?: boolean  // 勞保是否在本公司（含勞退）
-  health_insured_here?: boolean  // 健保是否在本公司
+  pension_voluntary_rate?: number // 員工自願提撥率 0-0.06
+  dependents_count?: number // 健保眷屬總數
+  chargeable_dependents_count?: number // 計費眷屬（免費眷屬不算、2026-05-22 加）
+  salary_mode?: 'gross' | 'net' // gross 含勞健保（預設）/ net 實給（公司多承擔）
+  labor_insured_here?: boolean // 勞保是否在本公司（含勞退）
+  health_insured_here?: boolean // 健保是否在本公司
 }
 
 /**
@@ -110,7 +110,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const coverage = checkGradeCoverage(allGrades, period)
   if (!coverage.ok) {
     const kindMap = { labor: '勞保', health: '健保', pension: '勞退' } as const
-    const missing = coverage.missing.map((k) => kindMap[k]).join(' / ')
+    const missing = coverage.missing.map(k => kindMap[k]).join(' / ')
     return NextResponse.json(
       {
         error: `${period} 沒對應的「${missing}」級距、無法結算。請先到「共用資料管理 → 勞健保級距」更新今年的級距表`,
@@ -122,19 +122,19 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const periodFirstDay = `${period}-01`
   const gradesByKind = {
     labor: allGrades.filter(
-      (g) =>
+      g =>
         g.kind === 'labor' &&
         g.effective_from <= periodFirstDay &&
         (g.effective_until === null || g.effective_until >= periodFirstDay)
     ),
     health: allGrades.filter(
-      (g) =>
+      g =>
         g.kind === 'health' &&
         g.effective_from <= periodFirstDay &&
         (g.effective_until === null || g.effective_until >= periodFirstDay)
     ),
     pension: allGrades.filter(
-      (g) =>
+      g =>
         g.kind === 'pension' &&
         g.effective_from <= periodFirstDay &&
         (g.effective_until === null || g.effective_until >= periodFirstDay)
@@ -184,7 +184,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
 
   if (excludedIds.length > 0) {
     // PostgREST .not('id','in', ...) 需要 (id1,id2,id3) 字串格式
-    employeeQuery = employeeQuery.not('id', 'in', `(${excludedIds.map((id) => `"${id}"`).join(',')})`)
+    employeeQuery = employeeQuery.not('id', 'in', `(${excludedIds.map(id => `"${id}"`).join(',')})`)
   }
 
   const { data: employees, error: empError } = await employeeQuery
@@ -218,10 +218,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     const attendance = Number(info.attendance_bonus ?? 0)
     const other = Number(info.other_allowances ?? 0)
     const allowancesArr = Array.isArray(info.allowances) ? info.allowances : []
-    const allowancesSum = allowancesArr.reduce(
-      (sum: number, a) => sum + Number(a?.amount ?? 0),
-      0
-    )
+    const allowancesSum = allowancesArr.reduce((sum: number, a) => sum + Number(a?.amount ?? 0), 0)
 
     // 2026-05-22 Phase 4：用 salary-insurance-calc SSOT 算勞健保 / 勞退
     // 級距自動配對（base_salary lookup ref_insurance_salary_grades）

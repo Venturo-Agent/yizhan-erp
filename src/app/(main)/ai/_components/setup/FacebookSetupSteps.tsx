@@ -50,8 +50,7 @@ export function StepWelcome({ onNext }: { onNext: () => void }) {
         <h3 className="text-sm font-semibold">你需要先準備</h3>
         <ol className="list-decimal list-inside text-sm space-y-2 text-morandi-secondary">
           <li>
-            一個{' '}
-            <strong>FB Business Page</strong>（用於接收訊息）+{' '}
+            一個 <strong>FB Business Page</strong>（用於接收訊息）+{' '}
             <strong>Meta for Developers App</strong>（去
             <a
               href="https://developers.facebook.com/apps/"
@@ -70,7 +69,8 @@ export function StepWelcome({ onNext }: { onNext: () => void }) {
           </li>
           <li>
             App settings → Basic 拿{' '}
-            <code className="px-1 bg-morandi-container/30 rounded">App Secret</code>（驗 webhook 簽章用、可選）
+            <code className="px-1 bg-morandi-container/30 rounded">App Secret</code>（驗 webhook
+            簽章用、可選）
           </li>
           <li>下一步會教你在哪找這些值</li>
         </ol>
@@ -117,8 +117,8 @@ export function StepCredentials({
       <div>
         <h2 className="text-lg font-bold mb-1">填 FB App 資料</h2>
         <p className="text-xs text-morandi-secondary">
-          在 Meta for Developers Console → 你的 App → Messenger → Settings → Access Tokens、
-          選你的 Page、Generate Token（拿到的就是 long-lived Page Access Token）。
+          在 Meta for Developers Console → 你的 App → Messenger → Settings → Access Tokens、 選你的
+          Page、Generate Token（拿到的就是 long-lived Page Access Token）。
         </p>
       </div>
 
@@ -346,8 +346,8 @@ export function StepDone({
       </div>
 
       <div className="rounded-md border border-morandi-muted/30 p-4 text-xs text-morandi-secondary">
-        <strong>怎麼測？</strong> 用個人 FB 帳號傳訊息給你的 Page、看 bot 是否回應。
-        後台 ERP 訂單頁會看到 sales_person = FB Messenger 系統 的新單。
+        <strong>怎麼測？</strong> 用個人 FB 帳號傳訊息給你的 Page、看 bot 是否回應。 後台 ERP
+        訂單頁會看到 sales_person = FB Messenger 系統 的新單。
       </div>
     </div>
   )

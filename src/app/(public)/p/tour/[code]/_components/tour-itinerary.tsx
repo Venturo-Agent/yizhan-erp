@@ -73,18 +73,14 @@ export function TourItinerary({ dailyItinerary }: TourItineraryProps) {
               day.activities.map((activity, actIdx) => (
                 <div key={actIdx} className="group">
                   <div className="flex items-center gap-4 mb-4">
-                    <span className="text-public-secondary">
-                      {getActivityIcon(activity.icon)}
-                    </span>
+                    <span className="text-public-secondary">{getActivityIcon(activity.icon)}</span>
                     <span className="text-sm font-bold tracking-widest text-public-secondary uppercase">
                       {activity.icon || '景點'}
                     </span>
                   </div>
                   <h3 className="text-xl font-bold mb-4">{activity.title}</h3>
                   {activity.description && (
-                    <p className="text-morandi-primary leading-relaxed">
-                      {activity.description}
-                    </p>
+                    <p className="text-morandi-primary leading-relaxed">{activity.description}</p>
                   )}
                 </div>
               ))}

@@ -20,6 +20,7 @@ related: [[bonus-settlement-spec]] [[2026-05-15-出納單完整重構-spec]]
 ## 2. 核心 entity & schema
 
 主要表：`public.tours`
+
 - `id` UUID PK
 - `code` TEXT UNIQUE（譬如 `XIY260311A`）
 - `name` TEXT
@@ -29,6 +30,7 @@ related: [[bonus-settlement-spec]] [[2026-05-15-出納單完整重構-spec]]
 - `workspace_id` FK
 
 子模組（tab）：
+
 - `tours.overview` — 總覽
 - `tours.orders` — 訂單列表
 - `tours.members` — 團員
@@ -62,21 +64,21 @@ related: [[bonus-settlement-spec]] [[2026-05-15-出納單完整重構-spec]]
 
 ## 6. 跨 module 依賴
 
-| 依賴 module | 關係 | 注意 |
-|------------|------|------|
-| orders | 訂單綁團（order.tour_id） | 結團時計算總收入用 |
-| finance.receipts | 收款綁團 | 結團時計算總收入 |
-| finance.requests | 請款綁團 | 結團時計算總支出 |
-| hr_bonus_settlement | 獎金（tour_id PK） | 結團 → 寫 bonus_pending |
-| accounting | 自動產傳票 | 結團觸發 |
-| customers | 團員是客戶 | members tab 用 |
-| database.attractions | 行程引用景點 | itinerary tab 用 |
+| 依賴 module          | 關係                      | 注意                    |
+| -------------------- | ------------------------- | ----------------------- |
+| orders               | 訂單綁團（order.tour_id） | 結團時計算總收入用      |
+| finance.receipts     | 收款綁團                  | 結團時計算總收入        |
+| finance.requests     | 請款綁團                  | 結團時計算總支出        |
+| hr_bonus_settlement  | 獎金（tour_id PK）        | 結團 → 寫 bonus_pending |
+| accounting           | 自動產傳票                | 結團觸發                |
+| customers            | 團員是客戶                | members tab 用          |
+| database.attractions | 行程引用景點              | itinerary tab 用        |
 
 ## 7. UI / Route 對應
 
-| Route | Layout | 主要 component |
-|-------|--------|----------------|
-| /tours | ListPageLayout | ToursPage / TourFormShell |
+| Route         | Layout            | 主要 component                  |
+| ------------- | ----------------- | ------------------------------- |
+| /tours        | ListPageLayout    | ToursPage / TourFormShell       |
 | /tours/[code] | ContentPageLayout | TourClosingSections / ProfitTab |
 
 ## 8. Capability
@@ -88,12 +90,13 @@ related: [[bonus-settlement-spec]] [[2026-05-15-出納單完整重構-spec]]
 ## 9. Audit log policy
 
 必加 recordApiAuditContext：
+
 - 結團（reason: `結團 ${tour.code}`）
 - 重開團（reason: `重開團 ${tour.code}（理由）`）
 - 軟刪除 / 復原（reason: 對應動作）
 
 ## 10. 變更歷史
 
-| 日期 | 變更 | 對應 spec / commit |
-|------|------|-----------------|
-| 2026-05-15 | 初版（QDF Round 9 補） | this file |
+| 日期       | 變更                   | 對應 spec / commit |
+| ---------- | ---------------------- | ------------------ |
+| 2026-05-15 | 初版（QDF Round 9 補） | this file          |

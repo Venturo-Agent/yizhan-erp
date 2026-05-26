@@ -20,7 +20,7 @@
 - [ ] L4 狀態守門：is_row_editable() 或等效鉤鉤存在
 - [ ] L5 RLS：workspaces 表 NO FORCE（非 FORCE）
 - [ ] L5 RLS：所有業務表有 RLS policy
-- [ ] L5 RLS：RLS policy 走 setup_*_rls procedure、不散刻 CREATE POLICY
+- [ ] L5 RLS：RLS policy 走 setup\_\*\_rls procedure、不散刻 CREATE POLICY
 - [ ] L5 RLS：join table 有對應 RLS（setup_join_table_rls）
 - [ ] L6 SSOT：codes.ts 中央編號產生、0 處 inline 編號
 - [ ] L6 SSOT：db-error-translate.ts 中央錯誤翻譯、0 處 raw error.message return
@@ -85,7 +85,7 @@
 - [ ] 頁面 / hook 直接 useSWR 統計 = 0（新犯）
 - [ ] per-user cache key 防污染：0 處污染
 - [ ] realtime 訂閱與 Supabase publication 對齊（無「訂了白訂」）
-- [ ] todos / cis_* 等需要 realtime 的 table 已在 publication
+- [ ] todos / cis\_\* 等需要 realtime 的 table 已在 publication
 
 ### 列表效能
 
@@ -97,7 +97,7 @@
 ### 連線策略
 
 - [ ] Layout context SSOT：useLayoutContext 一次抓所有
-- [ ] Hydration race 防護：_hasHydrated 等到才 redirect/use data
+- [ ] Hydration race 防護：\_hasHydrated 等到才 redirect/use data
 - [ ] 防連點：所有「儲存 / 刪除 / 確認」按鈕有 disabled={loading}
 - [ ] 寫入失敗時 client state 還原 + toast
 

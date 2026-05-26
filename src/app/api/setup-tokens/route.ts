@@ -29,7 +29,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (!ctx.ok) {
     return NextResponse.json(
       { error: ctx.status === 401 ? '請先登入' : '無權限生成 setup link' },
-      { status: ctx.status },
+      { status: ctx.status }
     )
   }
 
@@ -47,17 +47,14 @@ export const POST = apiHandler(async (request: NextRequest) => {
   }
 
   if (!workspace_id || !integration_code) {
-    return NextResponse.json(
-      { error: '缺少 workspace_id 或 integration_code' },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: '缺少 workspace_id 或 integration_code' }, { status: 400 })
   }
 
   const def = getIntegrationByCode(integration_code)
   if (!def) {
     return NextResponse.json(
       { error: `未知的 integration_code: ${integration_code}` },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
@@ -93,10 +90,9 @@ export const POST = apiHandler(async (request: NextRequest) => {
   }
 
   // base URL：production 用 erp.venturo.tw、dev 用 localhost
-  const baseUrl =
-    request.headers.get('x-forwarded-host')
-      ? `https://${request.headers.get('x-forwarded-host')}`
-      : request.nextUrl.origin
+  const baseUrl = request.headers.get('x-forwarded-host')
+    ? `https://${request.headers.get('x-forwarded-host')}`
+    : request.nextUrl.origin
 
   return NextResponse.json({
     token_id: data?.id,

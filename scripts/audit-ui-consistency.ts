@@ -34,11 +34,11 @@ const EXCLUDED = [
 ]
 
 interface Stat {
-  ssotUsage: number      // 使用 SSOT 元件的 file 數
-  rawUsage: number       // 直接用底層 ui 元件的 file 數
+  ssotUsage: number // 使用 SSOT 元件的 file 數
+  rawUsage: number // 直接用底層 ui 元件的 file 數
   total: number
-  ssotFiles: string[]    // 用 SSOT 的檔
-  rawFiles: string[]     // 沒用 SSOT 的檔
+  ssotFiles: string[] // 用 SSOT 的檔
+  rawFiles: string[] // 沒用 SSOT 的檔
 }
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -52,7 +52,11 @@ function walk(dir: string, out: string[] = []): string[] {
     const p = join(dir, entry)
     if (EXCLUDED.some(re => re.test(p))) continue
     let st
-    try { st = statSync(p) } catch { continue }
+    try {
+      st = statSync(p)
+    } catch {
+      continue
+    }
     if (st.isDirectory()) {
       walk(p, out)
     } else if (entry.endsWith('.tsx')) {
@@ -76,8 +80,9 @@ function analyze(): { dialog: Stat; layout: Stat } {
     if (usesAnyDialog) {
       dialog.total++
       const usesSsot = /FormDialog|ConfirmDialog|ManagedDialog/.test(src)
-      const usesRaw = /import.*Dialog.*from\s+['"]@\/components\/ui\/dialog['"]/.test(src) &&
-                      !/import.*Dialog.*from\s+['"]@\/components\/dialog['"]/.test(src)
+      const usesRaw =
+        /import.*Dialog.*from\s+['"]@\/components\/ui\/dialog['"]/.test(src) &&
+        !/import.*Dialog.*from\s+['"]@\/components\/dialog['"]/.test(src)
       if (usesSsot && !usesRaw) {
         dialog.ssotUsage++
         dialog.ssotFiles.push(relative(ROOT, f))
@@ -88,7 +93,8 @@ function analyze(): { dialog: Stat; layout: Stat } {
     }
 
     // Layout detection
-    const usesLayout = /<ListPageLayout|<ContentPageLayout|<MainLayout|export default function.*Page\b/.test(src)
+    const usesLayout =
+      /<ListPageLayout|<ContentPageLayout|<MainLayout|export default function.*Page\b/.test(src)
     const isPage = /\bpage\.tsx$/.test(f)
     if (isPage) {
       layout.total++

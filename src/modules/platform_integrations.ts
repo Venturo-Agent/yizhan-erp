@@ -15,8 +15,7 @@ import { defineModule } from './_define'
 export const PlatformIntegrationsModule = defineModule({
   code: 'platform_integrations',
   name: '平台整合',
-  description:
-    '第三方 SaaS 整合（AiToEarn 內容自動分發等）— iframe / API 接入、workspace 內功能',
+  description: '第三方 SaaS 整合（AiToEarn 內容自動分發等）— iframe / API 接入、workspace 內功能',
   category: 'enterprise',
   routes: ['/platform', '/platform/aitoearn'],
   exposedToHr: false,

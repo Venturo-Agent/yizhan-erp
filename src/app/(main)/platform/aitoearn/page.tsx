@@ -20,8 +20,7 @@
  * - 不要顯示「載入中」/「載入失敗」狀態（瀏覽器自帶、加 overlay 反而像外掛）
  */
 
-const AITOEARN_URL =
-  process.env.NEXT_PUBLIC_AITOEARN_URL || 'https://aitoearn.venturo.tw'
+const AITOEARN_URL = process.env.NEXT_PUBLIC_AITOEARN_URL || 'https://aitoearn.venturo.tw'
 
 export default function AiToEarnPage() {
   return (

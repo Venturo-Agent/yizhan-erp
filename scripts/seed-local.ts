@@ -315,7 +315,12 @@ async function ensurePaymentMethods(workspaceId: string) {
   const methods = [
     { code: 'CASH', name: '現金', kind: 'cash', provider: 'manual' },
     { code: 'BANK_TRANSFER', name: '玉山匯款', kind: 'wire_transfer', provider: 'manual' },
-    { code: 'SINOPAC_COLLECT', name: '永豐豐收款', kind: 'wire_transfer', provider: 'sinopac_collect' },
+    {
+      code: 'SINOPAC_COLLECT',
+      name: '永豐豐收款',
+      kind: 'wire_transfer',
+      provider: 'sinopac_collect',
+    },
     { code: 'SINOPAC_CARD', name: '永豐線上刷卡', kind: 'card', provider: 'sinopac_card' },
     { code: 'CHECK', name: '支票', kind: 'check', provider: 'manual' },
   ]

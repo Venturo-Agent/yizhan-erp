@@ -22,11 +22,7 @@ interface TourBasicInfo {
   selling_price_per_person: number | null
 }
 
-export default function RegisterPage({
-  params,
-}: {
-  params: Promise<{ code: string }>
-}) {
+export default function RegisterPage({ params }: { params: Promise<{ code: string }> }) {
   const t = useTranslations('publicPage')
   const { code } = use(params)
   const searchParams = useSearchParams()
@@ -108,12 +104,11 @@ export default function RegisterPage({
           <div className="text-xs font-bold text-morandi-secondary uppercase tracking-widest mb-2">
             報名行程
           </div>
-          <h1 className="text-2xl font-bold text-morandi-primary mb-2">
-            {tour.name}
-          </h1>
+          <h1 className="text-2xl font-bold text-morandi-primary mb-2">{tour.name}</h1>
           {tour.departure_date && (
             <p className="text-morandi-secondary">
-              出發日期：{new Date(tour.departure_date).toLocaleDateString('zh-TW', {
+              出發日期：
+              {new Date(tour.departure_date).toLocaleDateString('zh-TW', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -142,14 +137,8 @@ export default function RegisterPage({
 
         {/* Registration Form */}
         <div className="bg-card rounded-2xl p-8 shadow-sm border border-border">
-          <h2 className="text-xl font-bold text-morandi-primary mb-6">
-            填寫報名資料
-          </h2>
-          <TourRegistrationForm
-            tourId={tour.id}
-            tourCode={tour.code}
-            salesRef={ref}
-          />
+          <h2 className="text-xl font-bold text-morandi-primary mb-6">填寫報名資料</h2>
+          <TourRegistrationForm tourId={tour.id} tourCode={tour.code} salesRef={ref} />
         </div>
 
         {/* Note */}

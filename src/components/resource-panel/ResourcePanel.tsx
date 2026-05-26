@@ -168,9 +168,15 @@ export function ResourcePanel({
   }, [resolvedCountryId])
 
   // 紅線 F：使用 entity hook 讀取、不自己 useSWR / useState 管 cache
-  const { items: attractionsRaw, loading: attractionsLoading } = useAttractions({ enabled: hookEnabled, filter })
+  const { items: attractionsRaw, loading: attractionsLoading } = useAttractions({
+    enabled: hookEnabled,
+    filter,
+  })
   const { items: hotelsRaw, loading: hotelsLoading } = useHotels({ enabled: hookEnabled, filter })
-  const { items: restaurantsRaw, loading: restaurantsLoading } = useRestaurants({ enabled: hookEnabled, filter })
+  const { items: restaurantsRaw, loading: restaurantsLoading } = useRestaurants({
+    enabled: hookEnabled,
+    filter,
+  })
 
   // 把 entity row 映射成 ResourceItem（hotel star_rating 不在 hotels entity select、簡化掉）
   // 預設只顯示前 20 筆（保持原 UX，避免一次渲染上千張卡）

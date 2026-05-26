@@ -90,9 +90,7 @@ export function extractChineseName(
   const isExcluded = (candidate: string) => EXCLUDE_WORDS.some(word => candidate.includes(word))
 
   // 策略 0: 找 "姓名" 標籤後的中文名
-  const nameBlockMatch = googleVisionText.match(
-    /(?:姓名|姓\s*名|Name)[^\n]*[\n\r]+([一-鿿]{2,4})/i
-  )
+  const nameBlockMatch = googleVisionText.match(/(?:姓名|姓\s*名|Name)[^\n]*[\n\r]+([一-鿿]{2,4})/i)
   if (nameBlockMatch && !isExcluded(nameBlockMatch[1])) {
     chineseName = nameBlockMatch[1]
     confidence = 'high'

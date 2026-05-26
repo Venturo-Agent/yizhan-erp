@@ -1,4 +1,3 @@
-
 // 資源類型
 type CostItemResourceType = 'restaurant' | 'hotel' | 'attraction' | 'supplier'
 

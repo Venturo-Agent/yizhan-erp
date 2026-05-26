@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ⚠️ | `workspaces/page.tsx` 用 `useSWR('workspaces')` 散刻 key；無 entity hook；新增 workspace 後其他用户要等 5 分鐘才看到 |
-| **資安** | ✅ | RLS/FK 完整；紅線 A（workspaces NO FORCE）✅；紅線 G ✅ |
-| **架構** | ✅ | L1-L6 全過；ModuleGuard 有 |
-| **開發品管** | ⚠️ | workspaces 無 e2e；eslint suppress 有 |
-| **清理** | ⚠️ | workspaces 是核心 module；但無 entity hook 是設計缺陷 |
+| 維度         | 現狀 | 具體缺口                                                                                                             |
+| ------------ | ---- | -------------------------------------------------------------------------------------------------------------------- |
+| **讀取效能** | ⚠️   | `workspaces/page.tsx` 用 `useSWR('workspaces')` 散刻 key；無 entity hook；新增 workspace 後其他用户要等 5 分鐘才看到 |
+| **資安**     | ✅   | RLS/FK 完整；紅線 A（workspaces NO FORCE）✅；紅線 G ✅                                                              |
+| **架構**     | ✅   | L1-L6 全過；ModuleGuard 有                                                                                           |
+| **開發品管** | ⚠️   | workspaces 無 e2e；eslint suppress 有                                                                                |
+| **清理**     | ⚠️   | workspaces 是核心 module；但無 entity hook 是設計缺陷                                                                |
 
 ---
 
@@ -23,6 +23,7 @@
 **缺口**：`workspaces/page.tsx` 無 entity hook。
 
 **修法**：
+
 1. 確認 `useWorkspaces` entity hook 是否存在（`src/data/entities/workspaces.ts`）
 2. 如果存在 → rewrite `workspaces/page.tsx` 走 `useWorkspaces`
 3. 如果不存在 → 建立 `workspaces.ts` entity hook（CRUD: list/get/create/update）
@@ -41,6 +42,7 @@
 
 **修法**：
 `tests/e2e/workspaces.spec.ts`：
+
 ```
 建立新 workspace → 確認出現在列表 →
 邀請成員加入 workspace → 確認成員名單更新 →
@@ -57,6 +59,7 @@
 **缺口**：workspaces 是核心 module，清理優先級低。
 
 **修法**：
+
 1. 修完 Action A 後跑 `npm run lint:swr-prune`
 2. 確認 `.eslint-suppressions.json` 中 workspaces entries
 
@@ -85,4 +88,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

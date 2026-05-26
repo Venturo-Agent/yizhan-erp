@@ -190,9 +190,7 @@ export function ContractPreviewStep({
                     )
                     html = html.replace(
                       '<!--SIGNER_PHONE-->',
-                      signerPhone
-                        ? `<span style="${infoStyle}">${escape(signerPhone)}</span>`
-                        : ''
+                      signerPhone ? `<span style="${infoStyle}">${escape(signerPhone)}</span>` : ''
                     )
                     // savedSignature 是 data:image/png;base64,... URL、驗證起頭後才塞
                     if (
@@ -219,7 +217,9 @@ export function ContractPreviewStep({
               {includeMemberList && members.length > 1 && (
                 <div className="border-t-2 border-border p-8">
                   <h3 className="text-base font-semibold text-morandi-primary mb-4">
-                    {PAGE_LABELS.ATTACHMENT_MEMBER_LIST_PREFIX}{members.length}{PAGE_LABELS.ATTACHMENT_MEMBER_LIST_SUFFIX}
+                    {PAGE_LABELS.ATTACHMENT_MEMBER_LIST_PREFIX}
+                    {members.length}
+                    {PAGE_LABELS.ATTACHMENT_MEMBER_LIST_SUFFIX}
                   </h3>
                   <table className="w-full text-sm border-collapse">
                     <thead>
@@ -440,10 +440,7 @@ export function ContractPreviewStep({
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button
-                size="lg"
-                onClick={onProceedToSign}
-              >
+              <Button size="lg" onClick={onProceedToSign}>
                 <FileSignature className="w-5 h-5 mr-2" />
                 {PAGE_LABELS.PROCEED_TO_SIGN}
               </Button>

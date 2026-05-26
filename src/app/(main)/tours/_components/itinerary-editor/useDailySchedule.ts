@@ -136,7 +136,7 @@ export function useDailySchedule(initialDays = 5) {
       if (day.accommodation || day.sameAsPrevious) {
         filledCount++
         accommodations.push(
-          day.sameAsPrevious ? (accommodations[accommodations.length - 1] || '') : day.accommodation
+          day.sameAsPrevious ? accommodations[accommodations.length - 1] || '' : day.accommodation
         )
       } else {
         accommodations.push('')

@@ -58,9 +58,7 @@ export function DailyScheduleEditor({
               <div className="relative">
                 <Input
                   value={
-                    day.hotelBreakfast
-                      ? t('itineraryHotelBreakfast')
-                      : day.meals.breakfast || ''
+                    day.hotelBreakfast ? t('itineraryHotelBreakfast') : day.meals.breakfast || ''
                   }
                   onChange={e => onUpdateDay(idx, 'meals.breakfast', e.target.value)}
                   placeholder={t('itineraryBreakfast')}
@@ -80,9 +78,7 @@ export function DailyScheduleEditor({
               {/* 午餐 */}
               <div className="relative">
                 <Input
-                  value={
-                    day.lunchSelf ? t('itineraryFreeService') : day.meals.lunch || ''
-                  }
+                  value={day.lunchSelf ? t('itineraryFreeService') : day.meals.lunch || ''}
                   onChange={e => onUpdateDay(idx, 'meals.lunch', e.target.value)}
                   placeholder={t('itineraryLunch')}
                   className="h-8 text-xs pl-7"

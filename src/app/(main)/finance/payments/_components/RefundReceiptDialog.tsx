@@ -33,7 +33,8 @@ const COMPONENT_LABELS = {
   REFUND_DATE: '退款日期 *',
   REFUND_REASON: '退款原因',
   REFUND_REASON_PLACEHOLDER: '例：客人退團、行程取消、扣手續費...',
-  REFUND_NOTICE: '退款執行後：原收款狀態改為「已退款」、會計上會自動產生「借收入 / 貸銀行」反向傳票（會計啟用且原傳票存在的情況下）。退款不可復原。',
+  REFUND_NOTICE:
+    '退款執行後：原收款狀態改為「已退款」、會計上會自動產生「借收入 / 貸銀行」反向傳票（會計啟用且原傳票存在的情況下）。退款不可復原。',
   CANCEL: '取消',
   PROCESSING: '處理中...',
   CONFIRM_REFUND: '確認退款',
@@ -57,8 +58,7 @@ export function RefundReceiptDialog({
   const [refundNotes, setRefundNotes] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const actualAmount =
-    Number(receipt?.actual_amount) || Number(receipt?.receipt_amount) || 0
+  const actualAmount = Number(receipt?.actual_amount) || Number(receipt?.receipt_amount) || 0
 
   useEffect(() => {
     if (open && receipt) {
@@ -141,7 +141,8 @@ export function RefundReceiptDialog({
       title={
         <span className="flex items-center gap-2">
           <Undo2 size={18} className="text-morandi-red" />
-          {COMPONENT_LABELS.TITLE_PREFIX}{receipt.receipt_number}
+          {COMPONENT_LABELS.TITLE_PREFIX}
+          {receipt.receipt_number}
         </span>
       }
       maxWidth="md"
@@ -181,7 +182,9 @@ export function RefundReceiptDialog({
           />
           {isPartial && (
             <div className="text-xs text-status-warning">
-              {COMPONENT_LABELS.PARTIAL_REFUND_PREFIX}{(actualAmount - Number(refundAmount)).toLocaleString()}{COMPONENT_LABELS.PARTIAL_REFUND_SUFFIX}
+              {COMPONENT_LABELS.PARTIAL_REFUND_PREFIX}
+              {(actualAmount - Number(refundAmount)).toLocaleString()}
+              {COMPONENT_LABELS.PARTIAL_REFUND_SUFFIX}
             </div>
           )}
         </div>

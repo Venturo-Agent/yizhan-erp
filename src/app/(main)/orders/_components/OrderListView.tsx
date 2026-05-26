@@ -23,7 +23,9 @@ import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 
 const AddRequestDialog = dynamic(
   () =>
-    import('@/app/(main)/finance/requests/_components/AddRequestDialog').then(m => m.AddRequestDialog),
+    import('@/app/(main)/finance/requests/_components/AddRequestDialog').then(
+      m => m.AddRequestDialog
+    ),
   { ssr: false }
 )
 
@@ -55,7 +57,6 @@ export function OrderListView({
   onRequestSuccess,
   serverPagination,
 }: OrderListViewProps) {
-
   // Dialog 狀態（集中管）
   const [receiptOpen, setReceiptOpen] = useState(false)
   const [requestOpen, setRequestOpen] = useState(false)
@@ -86,12 +87,9 @@ export function OrderListView({
     setContractOpen(true)
   }, [])
 
-  const clearIfAllClosed = useCallback(
-    (r: boolean, q: boolean, e: boolean, c: boolean) => {
-      if (!r && !q && !e && !c) setSelectedOrder(null)
-    },
-    []
-  )
+  const clearIfAllClosed = useCallback((r: boolean, q: boolean, e: boolean, c: boolean) => {
+    if (!r && !q && !e && !c) setSelectedOrder(null)
+  }, [])
 
   return (
     <>

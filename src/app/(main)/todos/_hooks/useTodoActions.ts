@@ -19,7 +19,11 @@ interface UseTodoActionsReturn {
   isSubmitting: boolean
   quickAddValue: string
   setQuickAddValue: (v: string) => void
-  handleQuickAdd: (columnId: string, quickAddColumn: string | null, onDone: () => void) => Promise<void>
+  handleQuickAdd: (
+    columnId: string,
+    quickAddColumn: string | null,
+    onDone: () => void
+  ) => Promise<void>
   handleAddTodo: (
     formData: {
       title: string
@@ -157,7 +161,10 @@ export function useTodoActions({
 
   const handleDeleteTodo = useCallback(
     async (todo: Todo) => {
-      const confirmed = await confirm(`確定刪除「${todo.title}」？`, { title: '刪除任務', type: 'warning' })
+      const confirmed = await confirm(`確定刪除「${todo.title}」？`, {
+        title: '刪除任務',
+        type: 'warning',
+      })
       if (!confirmed) return
       try {
         await removeTodo(todo.id)

@@ -149,9 +149,7 @@ function SectionTree({ canvas, selection, onSelect }: TreeProps) {
             >
               {sectionLabel(section)}
             </button>
-            {section.type === 'day'
-              ? renderDayBlocks(section, selection, onSelect)
-              : null}
+            {section.type === 'day' ? renderDayBlocks(section, selection, onSelect) : null}
           </div>
         )
       })}
@@ -166,7 +164,7 @@ function renderDayBlocks(
 ) {
   return (
     <div style={{ paddingLeft: 14, marginTop: 4 }}>
-      {section.blocks.map((b) => {
+      {section.blocks.map(b => {
         const k: SelectionKey = { kind: 'block', blockId: b.id }
         const sel = isSelected(selection, k)
         return (
@@ -209,7 +207,7 @@ function EditorForm({
   onRequestDeleteBlock: (blockId: string) => void
 }) {
   if (selection.kind === 'cover') {
-    const cover = canvas.sections.find((s) => s.type === 'cover')
+    const cover = canvas.sections.find(s => s.type === 'cover')
     if (!cover || cover.type !== 'cover') {
       return <EmptyHint text="找不到封面 section" />
     }
@@ -219,7 +217,7 @@ function EditorForm({
   if (selection.kind === 'block') {
     for (const s of canvas.sections) {
       if (s.type !== 'day') continue
-      const b = s.blocks.find((x) => x.id === selection.blockId)
+      const b = s.blocks.find(x => x.id === selection.blockId)
       if (!b) continue
       switch (b.type) {
         case 'day_header':

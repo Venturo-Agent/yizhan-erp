@@ -64,8 +64,6 @@ export function Money({
   const formatted = formatMoneyWithCurrency(amount, currency, { showSymbol, decimals })
 
   return (
-    <span className={cn('tabular-nums', VARIANT_CLASSES[variant], className)}>
-      {formatted}
-    </span>
+    <span className={cn('tabular-nums', VARIANT_CLASSES[variant], className)}>{formatted}</span>
   )
 }

@@ -119,7 +119,10 @@ export function AmadeusTotpWidget() {
   }
 
   const handleReset = async () => {
-    const confirmed = await confirm(COMPONENT_LABELS.CONFIRM_RESET, { title: '重置確認', type: 'warning' })
+    const confirmed = await confirm(COMPONENT_LABELS.CONFIRM_RESET, {
+      title: '重置確認',
+      type: 'warning',
+    })
     if (!confirmed) return
     try {
       await apiDelete('/api/amadeus-totp')
@@ -237,7 +240,10 @@ export function AmadeusTotpWidget() {
                       <Check size={12} /> {COMPONENT_LABELS.COPIED}
                     </span>
                   ) : (
-                    <span className="text-morandi-muted">{COMPONENT_LABELS.CLICK_NUMBER_COPY_PREFIX}{remaining}s</span>
+                    <span className="text-morandi-muted">
+                      {COMPONENT_LABELS.CLICK_NUMBER_COPY_PREFIX}
+                      {remaining}s
+                    </span>
                   )}
                 </div>
               </button>
@@ -265,40 +271,34 @@ export function AmadeusTotpWidget() {
           {/* 底部 */}
           <div className="flex gap-3 flex-shrink-0">
             {view === 'setup' && (
-              <Button variant="soft-gold"
+              <Button
+                variant="soft-gold"
                 size="sm"
                 disabled={uploading}
                 onClick={() => fileInputRef.current?.click()}
-                className={cn(
-                  'flex-1 rounded-xl transition-all duration-200 font-semibold',
- ''
-                )}
+                className={cn('flex-1 rounded-xl transition-all duration-200 font-semibold', '')}
               >
                 <Upload className="w-4 h-4 mr-1" />
                 {uploading ? COMPONENT_LABELS.PARSING : COMPONENT_LABELS.UPLOAD_QR}
               </Button>
             )}
             {(view === 'idle' || view === 'expired') && (
-              <Button variant="soft-gold"
+              <Button
+                variant="soft-gold"
                 size="sm"
                 onClick={handleReset}
-                className={cn(
-                  'flex-1 rounded-xl transition-all duration-200 font-semibold',
- ''
-                )}
+                className={cn('flex-1 rounded-xl transition-all duration-200 font-semibold', '')}
               >
                 <RefreshCw className="w-4 h-4 mr-1" />
                 {COMPONENT_LABELS.RESET}
               </Button>
             )}
             {view === 'active' && (
-              <Button variant="soft-gold"
+              <Button
+                variant="soft-gold"
                 size="sm"
                 onClick={handleCopy}
-                className={cn(
-                  'flex-1 rounded-xl transition-all duration-200 font-semibold',
- ''
-                )}
+                className={cn('flex-1 rounded-xl transition-all duration-200 font-semibold', '')}
               >
                 <Check className="w-4 h-4 mr-1" />
                 {COMPONENT_LABELS.COPY_CODE}
@@ -369,10 +369,11 @@ function SetupPanel({
       >
         <Upload className="w-6 h-6 mx-auto text-morandi-muted mb-1" />
         <p className="text-xs text-morandi-secondary">{COMPONENT_LABELS.DROP_OR_CLICK}</p>
-        <p className="text-[0.588rem] text-morandi-muted mt-1">{COMPONENT_LABELS.GOOGLE_AUTH_HINT}</p>
+        <p className="text-[0.588rem] text-morandi-muted mt-1">
+          {COMPONENT_LABELS.GOOGLE_AUTH_HINT}
+        </p>
       </div>
       {errorMsg && <p className="text-[0.647rem] text-status-danger mt-2">{errorMsg}</p>}
     </div>
   )
 }
-

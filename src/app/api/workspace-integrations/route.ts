@@ -18,11 +18,12 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
-import { INTEGRATIONS, getIntegrationByCode, getSensitiveFieldKeys } from '@/lib/integrations/registry'
 import {
-  encryptConfigFields,
-  maskConfigFields,
-} from '@/lib/crypto/integration-encryption'
+  INTEGRATIONS,
+  getIntegrationByCode,
+  getSensitiveFieldKeys,
+} from '@/lib/integrations/registry'
+import { encryptConfigFields, maskConfigFields } from '@/lib/crypto/integration-encryption'
 
 // workspace_integrations table type (generated types 還沒含這張表、用 type cast workaround)
 interface WorkspaceIntegrationRow {
@@ -35,7 +36,8 @@ interface WorkspaceIntegrationRow {
 }
 
 async function requireTenantAdmin(): Promise<
-  { ok: true; workspaceId: string; employeeId: string | null } | { ok: false; response: NextResponse }
+  | { ok: true; workspaceId: string; employeeId: string | null }
+  | { ok: false; response: NextResponse }
 > {
   const ctx = await getApiContext({ capabilityCode: 'workspaces.write' })
   if (!ctx.ok) {
@@ -43,7 +45,7 @@ async function requireTenantAdmin(): Promise<
       ok: false,
       response: NextResponse.json(
         { error: ctx.status === 401 ? '請先登入' : '無權限管理 API 整合' },
-        { status: ctx.status },
+        { status: ctx.status }
       ),
     }
   }
@@ -76,14 +78,19 @@ export async function GET(request: NextRequest) {
 
   const admin = getSupabaseAdminClient()
   // type cast：generated types regen 後可拿掉
-  const { data, error } = await (admin.from as unknown as (t: string) => {
-    select: (c: string) => {
-      eq: (col: string, val: string) => Promise<{
-        data: WorkspaceIntegrationRow[] | null
-        error: { message: string } | null
-      }>
+  const { data, error } = await (
+    admin.from as unknown as (t: string) => {
+      select: (c: string) => {
+        eq: (
+          col: string,
+          val: string
+        ) => Promise<{
+          data: WorkspaceIntegrationRow[] | null
+          error: { message: string } | null
+        }>
+      }
     }
-  })('workspace_integrations')
+  )('workspace_integrations')
     .select('integration_code, config, enabled, updated_at')
     .eq('workspace_id', targetWorkspaceId)
 
@@ -156,7 +163,7 @@ async function handlePut(request: NextRequest) {
   if (!def) {
     return NextResponse.json(
       { error: `未知的 integration_code: ${integration_code}` },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
@@ -165,15 +172,23 @@ async function handlePut(request: NextRequest) {
 
   // 撈現有 row 拿原始 config（保留遮罩欄位用）
   const admin = getSupabaseAdminClient()
-  const { data: existing } = await (admin.from as unknown as (t: string) => {
-    select: (c: string) => {
-      eq: (c1: string, v1: string) => {
-        eq: (c2: string, v2: string) => {
-          maybeSingle: () => Promise<{ data: WorkspaceIntegrationRow | null; error: unknown }>
+  const { data: existing } = await (
+    admin.from as unknown as (t: string) => {
+      select: (c: string) => {
+        eq: (
+          c1: string,
+          v1: string
+        ) => {
+          eq: (
+            c2: string,
+            v2: string
+          ) => {
+            maybeSingle: () => Promise<{ data: WorkspaceIntegrationRow | null; error: unknown }>
+          }
         }
       }
     }
-  })('workspace_integrations')
+  )('workspace_integrations')
     .select('config')
     .eq('workspace_id', targetWorkspaceId)
     .eq('integration_code', integration_code)
@@ -211,7 +226,12 @@ async function handlePut(request: NextRequest) {
   const fieldsToEncrypt: string[] = []
   for (const key of sensitiveKeys) {
     const incoming = plainConfig[key]
-    if (incoming !== undefined && incoming !== '••••••••' && typeof incoming === 'string' && incoming.length > 0) {
+    if (
+      incoming !== undefined &&
+      incoming !== '••••••••' &&
+      typeof incoming === 'string' &&
+      incoming.length > 0
+    ) {
       fieldsToEncrypt.push(key)
     }
   }
@@ -220,10 +240,7 @@ async function handlePut(request: NextRequest) {
   // 必填驗證
   for (const field of def.fields) {
     if (field.required && !encryptedConfig[field.key]) {
-      return NextResponse.json(
-        { error: `${def.name}：${field.label} 為必填欄位` },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: `${def.name}：${field.label} 為必填欄位` }, { status: 400 })
     }
   }
 
@@ -235,12 +252,14 @@ async function handlePut(request: NextRequest) {
   })
 
   // upsert
-  const { error } = await (admin.from as unknown as (t: string) => {
-    upsert: (
-      row: WorkspaceIntegrationRow,
-      opts: { onConflict: string },
-    ) => Promise<{ error: { message: string } | null }>
-  })('workspace_integrations').upsert(
+  const { error } = await (
+    admin.from as unknown as (t: string) => {
+      upsert: (
+        row: WorkspaceIntegrationRow,
+        opts: { onConflict: string }
+      ) => Promise<{ error: { message: string } | null }>
+    }
+  )('workspace_integrations').upsert(
     {
       workspace_id: targetWorkspaceId,
       integration_code,
@@ -249,12 +268,15 @@ async function handlePut(request: NextRequest) {
       updated_at: new Date().toISOString(),
       updated_by: gate.employeeId ?? null,
     },
-    { onConflict: 'workspace_id,integration_code' },
+    { onConflict: 'workspace_id,integration_code' }
   )
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ success: true })

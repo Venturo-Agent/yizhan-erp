@@ -65,12 +65,7 @@ export function ArchiveReasonDialog({
 
   const customFooter = (
     <div className="flex justify-end gap-2">
-      <Button
-        variant="soft-gold"
-        onClick={handleClose}
-        disabled={loading}
-        className="gap-2"
-      >
+      <Button variant="soft-gold" onClick={handleClose} disabled={loading} className="gap-2">
         <X size={16} />
         {TOUR_ARCHIVE.cancel}
       </Button>

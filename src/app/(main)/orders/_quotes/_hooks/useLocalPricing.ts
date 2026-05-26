@@ -7,7 +7,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { ParticipantCounts, SellingPrices, CostCategory, CostItem, TierPricing } from '@/app/(main)/orders/_quotes/_types'
+import {
+  ParticipantCounts,
+  SellingPrices,
+  CostCategory,
+  CostItem,
+  TierPricing,
+} from '@/app/(main)/orders/_quotes/_types'
 import type { LocalTier } from '@/app/(main)/orders/_quotes/_components/LocalPricingDialog'
 import {
   calculateTierParticipantCounts,
@@ -54,10 +60,16 @@ export function useLocalPricing({
         item.name.startsWith('Local 報價')
       )
       if (localItems.length > 0) {
-        setLocalTiers(localItems.map(item => {
-          const match = item.name.match(/\((\d+)人\)/)
-          return { id: item.id, participants: match ? parseInt(match[1]) : 0, unitPrice: item.unit_price || 0 }
-        }))
+        setLocalTiers(
+          localItems.map(item => {
+            const match = item.name.match(/\((\d+)人\)/)
+            return {
+              id: item.id,
+              participants: match ? parseInt(match[1]) : 0,
+              unitPrice: item.unit_price || 0,
+            }
+          })
+        )
       }
     }
   }, [categories])
@@ -66,7 +78,13 @@ export function useLocalPricing({
     (tiers: LocalTier[], _matchedTierIndex: number) => {
       setLocalTiers(tiers)
       if (tiers.length > 0 && tiers[0].participants > 0) {
-        setParticipantCounts({ adult: tiers[0].participants, child_with_bed: 0, child_no_bed: 0, single_room: 0, infant: 0 })
+        setParticipantCounts({
+          adult: tiers[0].participants,
+          child_with_bed: 0,
+          child_no_bed: 0,
+          single_room: 0,
+          infant: 0,
+        })
       }
       const sortedTiers = [...tiers].sort((a, b) => a.participants - b.participants)
       let currentTierIdx = 0
@@ -116,7 +134,15 @@ export function useLocalPricing({
       setTierPricings(newTierPricings)
       toast.success(`Local 報價已套用，產生 ${newTierPricings.length} 個檻次`)
     },
-    [totalParticipants, participantCounts, categories, sellingPrices, setParticipantCounts, setCategories, setTierPricings]
+    [
+      totalParticipants,
+      participantCounts,
+      categories,
+      sellingPrices,
+      setParticipantCounts,
+      setCategories,
+      setTierPricings,
+    ]
   )
 
   return {

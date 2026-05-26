@@ -8,14 +8,14 @@
 
 ## 救護車式總覽（會死人嗎）
 
-| # | 嫌疑 | 我以為 | Production 真相 | 嚴重度 |
-|---|---|---|---|---|
-| 1 | line_conversation_messages 雙寫 inbox_messages | 紅線 E 違反、要修 | **5/14 William 拍板的過渡期雙寫、code 註解明寫「過渡期 backfill apply 後可拔舊寫入」、是 intended** | 🟡 過渡未收尾、不是 bug |
-| 2 | ai_agents vs workspace_ai_agents 表名重複 | dead duplication | **Normalized schema**：ai_agents = 全域 AI agent 實體 / workspace_ai_agents = 每 workspace AI 客服人格（channel_type='happy'）| ✅ 不是重複、設計對 |
-| 3 | facebook_bot / instagram_bot 已廢 | capability drift、可清 | **Active feature**：src/app/api/facebook/(setup,webhook) + instagram 同等架構都存在 | ✅ 不是 dead、Round 5 那條訂正寫錯 |
-| 4 | customer_memories 對話記憶污染 | 累積式 INSERT 會污染 | **完全沒污染**：UPDATE 重寫整張 memory_json（不疊加）+ CAS（last_summarized_message_count）+ 3 次失敗自動暫停 + LLM 失敗保留前一版有效資料 | ✅ 設計優秀、無風險 |
-| 5 | line_postback_templates dead | 0 rows = dead | **Active feature**：LINE webhook 用、有 4 個 CRUD route。0 rows 是「沒人設定」不是「程式廢棄」 | ✅ 不是 dead |
-| 6 | knowledge_tags | 預備未來用 | **真 dead code**：0 rows + 0 caller、RAG 系統用 knowledge_documents / chunks、tags 沒接 | ⚠️ 可砍但不急 |
+| #   | 嫌疑                                           | 我以為                 | Production 真相                                                                                                                            | 嚴重度                             |
+| --- | ---------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------- |
+| 1   | line_conversation_messages 雙寫 inbox_messages | 紅線 E 違反、要修      | **5/14 William 拍板的過渡期雙寫、code 註解明寫「過渡期 backfill apply 後可拔舊寫入」、是 intended**                                        | 🟡 過渡未收尾、不是 bug            |
+| 2   | ai_agents vs workspace_ai_agents 表名重複      | dead duplication       | **Normalized schema**：ai_agents = 全域 AI agent 實體 / workspace_ai_agents = 每 workspace AI 客服人格（channel_type='happy'）             | ✅ 不是重複、設計對                |
+| 3   | facebook_bot / instagram_bot 已廢              | capability drift、可清 | **Active feature**：src/app/api/facebook/(setup,webhook) + instagram 同等架構都存在                                                        | ✅ 不是 dead、Round 5 那條訂正寫錯 |
+| 4   | customer_memories 對話記憶污染                 | 累積式 INSERT 會污染   | **完全沒污染**：UPDATE 重寫整張 memory_json（不疊加）+ CAS（last_summarized_message_count）+ 3 次失敗自動暫停 + LLM 失敗保留前一版有效資料 | ✅ 設計優秀、無風險                |
+| 5   | line_postback_templates dead                   | 0 rows = dead          | **Active feature**：LINE webhook 用、有 4 個 CRUD route。0 rows 是「沒人設定」不是「程式廢棄」                                             | ✅ 不是 dead                       |
+| 6   | knowledge_tags                                 | 預備未來用             | **真 dead code**：0 rows + 0 caller、RAG 系統用 knowledge_documents / chunks、tags 沒接                                                    | ⚠️ 可砍但不急                      |
 
 **白話總結**：6 條嫌疑、4 條我（跟前面 OPENCLAW Round 1-5）以為對的其實搞錯了、實際 production 設計都正確。1 條是過渡期未收尾（intended）、1 條真 dead 但低優。**沒有任何「現在炸」的問題**。
 
@@ -34,12 +34,15 @@ await recordInboxMessage(supabase, { workspaceId, channelType: 'line', ... })
 ```
 
 ### Production state
+
 - `line_conversation_messages`：322 rows（保留歷史）
 - `inbox_messages`：461 rows（包含 line + 其他 channel）
 - 兩個表 schema 高度相似（content / direction / message_type / raw_event / workspace_id 都有）
 
 ### 結論
+
 **過渡期還沒收尾**。應該排個工單：
+
 1. Backfill 確認所有 `line_conversation_messages` row 都有對應 `inbox_messages` row（同 `raw_event`）
 2. 拔 `from('line_conversation_messages').insert(...)` 4 個 caller
 3. 改 read caller 走 `inbox_messages` + JSON cast raw_event 拿 LINE 特有欄位
@@ -83,6 +86,7 @@ src/app/api/instagram/webhook
 ### customer_memories（William 主動懷疑、但是放心）
 
 從 `src/lib/ai/memory-summarizer.ts` head comment：
+
 - **「不疊加、避免漂移」** — 重寫整張、不累積
 - **「last_summarized_message_count 做 CAS guard」** — 防並發
 - **「failed_attempts >= 3 → 暫停」** — 防無限燒 LLM
@@ -99,6 +103,7 @@ src/app/api/instagram/webhook
 - knowledge_documents (10 rows) + knowledge_chunks (110 rows) 是 RAG 系統 active 部分、tags 沒接
 
 **可砍**：
+
 ```sql
 -- migration 草稿（不急、未來清理用）
 DROP TABLE IF EXISTS public.knowledge_tags CASCADE;
@@ -112,13 +117,13 @@ DROP TABLE IF EXISTS public.knowledge_tags CASCADE;
 
 每次 audit 都有「以為對 → MCP / grep 證實錯」的訂正：
 
-| Round | OPENCLAW 抓的錯 | 真相 |
-|---|---|---|
-| Round 1 | LINE/FB/IG bot 已廢 | 都是 active |
-| Round 1 | 紅線 B 4 表違反 | image_library 已對、3 表不存在 |
-| Round 2 | CIS 3 個 page 存在 | 5/19 已被砍、只剩 .next 殘留 |
-| Round 4 | tour_control_forms 表存在 | 表不存在於 production |
-| Round 5 | lint:swr-prune 不存在 | 在 package.json、是 npm alias |
+| Round       | OPENCLAW 抓的錯           | 真相                                    |
+| ----------- | ------------------------- | --------------------------------------- |
+| Round 1     | LINE/FB/IG bot 已廢       | 都是 active                             |
+| Round 1     | 紅線 B 4 表違反           | image_library 已對、3 表不存在          |
+| Round 2     | CIS 3 個 page 存在        | 5/19 已被砍、只剩 .next 殘留            |
+| Round 4     | tour_control_forms 表存在 | 表不存在於 production                   |
+| Round 5     | lint:swr-prune 不存在     | 在 package.json、是 npm alias           |
 | **Round 8** | **6 條 LINE/AI Hub 嫌疑** | **4 條是我自己（跟前面 OPENCLAW）誤判** |
 
 **根本紀律**：**不准用 indirect 證據推論（.next / migration 檔 / 舊文件）、必須直接驗證真實 production 狀態（grep src/ + MCP query）**。
@@ -128,15 +133,18 @@ DROP TABLE IF EXISTS public.knowledge_tags CASCADE;
 ## 後續行動清單
 
 ### 不急（背景排程）
+
 1. 過渡期雙寫收尾（line_conversation_messages → inbox_messages 全量搬移）
 2. knowledge_tags 評估砍 OR 接上 tagging 系統
 
 ### 已完成（本輪 audit 直接交付）
+
 - ✅ 訂正 6 條嫌疑的真相、未來 audit 不再連環踩坑
 - ✅ 確認 LINE Bot + AI Hub 整套**沒有現在炸的問題**
 - ✅ customer_memories 設計被驗證為優秀、William 可安心
 
 ### 由 Round 7 處理
+
 - ✅ 紅線 B migration 改成 idempotent + EXISTS 守門（避免未來 db push fail）
 
 ---

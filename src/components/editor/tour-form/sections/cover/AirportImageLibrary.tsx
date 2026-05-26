@@ -311,7 +311,9 @@ export function AirportImageLibrary({
             {/* 或分隔線 */}
             <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-morandi-container" />
-              <span className="text-xs text-morandi-secondary">{COMPONENT_LABELS.OR_FROM_GALLERY}</span>
+              <span className="text-xs text-morandi-secondary">
+                {COMPONENT_LABELS.OR_FROM_GALLERY}
+              </span>
               <div className="flex-1 h-px bg-morandi-container" />
             </div>
 
@@ -375,11 +377,12 @@ export function AirportImageLibrary({
                   >
                     {COMP_EDITOR_LABELS.取消}
                   </Button>
-                  <Button variant="soft-gold"
+                  <Button
+                    variant="soft-gold"
                     type="button"
                     onClick={handleSaveNewImage}
                     disabled={!newImageUrl || isUploading}
- className="flex-1"
+                    className="flex-1"
                   >
                     {isUploading ? (
                       <Loader2 size="0.875em" className="animate-spin" />

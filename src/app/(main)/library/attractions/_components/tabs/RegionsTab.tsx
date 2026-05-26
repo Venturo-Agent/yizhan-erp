@@ -158,7 +158,9 @@ export default function RegionsTab() {
 
   if (countriesLoading) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">{COMPONENT_LABELS.LOADING}</div>
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        {COMPONENT_LABELS.LOADING}
+      </div>
     )
   }
 
@@ -245,7 +247,9 @@ export default function RegionsTab() {
       <Dialog open={isCitiesDialogOpen} onOpenChange={setIsCitiesDialogOpen}>
         <DialogContent level={1} className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{selectedCountry?.name} {t('regionsTabCityList')}</DialogTitle>
+            <DialogTitle>
+              {selectedCountry?.name} {t('regionsTabCityList')}
+            </DialogTitle>
           </DialogHeader>
 
           {countryCities.length === 0 ? (

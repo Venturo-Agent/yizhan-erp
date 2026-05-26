@@ -148,11 +148,7 @@ export function useItinerarySave({
 
         const isFirst = idx === 0
         const isLast = idx === dailySchedule.length - 1
-        const defaultTitle = isFirst
-          ? '抵達目的地'
-          : isLast
-            ? '返回台灣'
-            : `第${day.day} 天行程`
+        const defaultTitle = isFirst ? '抵達目的地' : isLast ? '返回台灣' : `第${day.day} 天行程`
         const dayTitle = day.route?.trim() || defaultTitle
         const breakfast = day.hotelBreakfast ? '飯店早餐' : day.meals.breakfast
         const lunch = day.lunchSelf ? '敬請自理' : day.meals.lunch
@@ -314,7 +310,11 @@ export function useItinerarySave({
                 day_note: day.note || null,
                 day_blocks: (day.blocks as Json) ?? null,
                 is_same_accommodation: day.sameAsPrevious || false,
-                breakfast_preset: day.hotelBreakfast ? 'hotel' : day.breakfastAirline ? 'airline' : null,
+                breakfast_preset: day.hotelBreakfast
+                  ? 'hotel'
+                  : day.breakfastAirline
+                    ? 'airline'
+                    : null,
                 lunch_preset: day.lunchSelf ? 'self' : day.lunchAirline ? 'airline' : null,
                 dinner_preset: day.dinnerSelf ? 'self' : day.dinnerAirline ? 'airline' : null,
                 created_by: currentUser?.id || undefined,

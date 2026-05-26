@@ -176,4 +176,3 @@ export const TABLE_CODE_PREFIX: Record<string, string> = {
   disbursement_orders: 'DO',
   receipt_orders: 'RO',
 }
-

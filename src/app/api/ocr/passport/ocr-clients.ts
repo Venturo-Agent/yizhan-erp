@@ -11,7 +11,7 @@ import { logger } from '@/lib/utils/logger'
 export async function callOcrSpace(
   base64Image: string,
   apiKey: string,
-  options: { chineseRecognition?: boolean } = {},
+  options: { chineseRecognition?: boolean } = {}
 ): Promise<string> {
   const ocrFormData = new FormData()
   ocrFormData.append('base64Image', base64Image)

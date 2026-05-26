@@ -47,7 +47,9 @@ export const TodoCard = React.memo(
 
     const deadline = todo.deadline ? new Date(todo.deadline) : null
     const now = new Date()
-    const diffDays = deadline ? Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)) : null
+    const diffDays = deadline
+      ? Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      : null
     const isOverdue = deadline && diffDays !== null && diffDays < 0
     const isToday = deadline && diffDays === 0
     const isSoon = deadline && diffDays !== null && diffDays > 0 && diffDays <= 3

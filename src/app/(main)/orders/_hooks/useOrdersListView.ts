@@ -63,14 +63,7 @@ function escapeOrValue(value: string): string {
 }
 
 export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersListViewResult {
-  const {
-    page,
-    pageSize,
-    search,
-    viewMode,
-    sortBy = 'departure_date',
-    sortOrder = 'desc',
-  } = params
+  const { page, pageSize, search, viewMode, sortBy = 'departure_date', sortOrder = 'desc' } = params
 
   const user = useAuthStore(state => state.user)
   const isAuthenticated = useAuthStore(state => state.isAuthenticated)
@@ -78,8 +71,7 @@ export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersLis
   const isReady = hasHydrated && isAuthenticated && !!user?.id
 
   // 「只看我的」必須等 user 資料就位、否則 OR 條件拼出來是空的、會抓 0 筆造成誤導
-  const canFetch =
-    isReady && (viewMode === 'all' || (viewMode === 'mine' && !!user?.id))
+  const canFetch = isReady && (viewMode === 'all' || (viewMode === 'mine' && !!user?.id))
 
   const swrKey = canFetch
     ? `orders-list-view:${JSON.stringify({
@@ -100,11 +92,7 @@ export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersLis
       const from = (page - 1) * pageSize
       const to = from + pageSize - 1
 
-      let query = filterActive(
-        supabase
-          .from('orders')
-          .select(LIST_SELECT, { count: 'exact' })
-      )
+      let query = filterActive(supabase.from('orders').select(LIST_SELECT, { count: 'exact' }))
         .order(sortBy, { ascending: sortOrder === 'asc' })
         .range(from, to)
 
@@ -124,9 +112,7 @@ export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersLis
       // server-side search（跟原 page.tsx 行為一致：團號 / 團名 ilike）
       const searchTerm = search?.trim()
       if (searchTerm) {
-        query = query.or(
-          `code.ilike.%${searchTerm}%,tour_name.ilike.%${searchTerm}%`
-        )
+        query = query.or(`code.ilike.%${searchTerm}%,tour_name.ilike.%${searchTerm}%`)
       }
 
       const { data: rows, count, error: queryError } = await query

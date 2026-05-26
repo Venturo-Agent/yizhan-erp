@@ -16,10 +16,7 @@ import { validateBody } from '@/lib/api/validation'
 import { apiHandler } from '@/lib/api/api-handler'
 import { translateDbError } from '@/lib/db-error-translate'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import {
-  sendChannelNotification,
-  NOTIFICATION_SOURCE_TYPES,
-} from '@/lib/channels/send'
+import { sendChannelNotification, NOTIFICATION_SOURCE_TYPES } from '@/lib/channels/send'
 import { dispatchApprovalSideEffect } from '@/lib/approvals/dispatch'
 
 const reviewSchema = z.object({

@@ -76,9 +76,7 @@ export async function GET(
     const sb = supabase as unknown as SupabaseClient
     const { data, error } = await sb
       .from('tour_display_overrides')
-      .select(
-        'canvas, theme, published, published_canvas, published_at, updated_at'
-      )
+      .select('canvas, theme, published, published_canvas, published_at, updated_at')
       .eq('tour_id', tour.id)
       .maybeSingle()
 
@@ -117,10 +115,7 @@ export async function GET(
 // ─────────────────────────────────────────────────────────────────────────────
 // PUT — UPSERT 草稿 canvas（保留 published 狀態）
 // ─────────────────────────────────────────────────────────────────────────────
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ code: string }> }
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.TOURS_DISPLAY_ITINERARY_WRITE)
     if (!guard.ok) return guard.response
@@ -145,9 +140,7 @@ export async function PUT(
       data: { session },
     } = await supabase.auth.getSession()
     const userId = session?.user.id
-    const employeeId = userId
-      ? await resolveEmployeeIdFromUser(supabase, userId)
-      : null
+    const employeeId = userId ? await resolveEmployeeIdFromUser(supabase, userId) : null
 
     const actorId = employeeId ?? guard.employeeId
 
@@ -187,10 +180,7 @@ export async function PUT(
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: '資料格式錯誤', details: error.issues },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: '資料格式錯誤', details: error.issues }, { status: 400 })
     }
     logger.error('PUT display-canvas error', error)
     const t = translateDbError(error)

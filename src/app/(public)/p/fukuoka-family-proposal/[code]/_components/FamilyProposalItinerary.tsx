@@ -150,7 +150,10 @@ export function FamilyProposalItinerary() {
           >
             Daily Itinerary
           </span>
-          <h2 className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+          <h2
+            className="text-5xl lg:text-6xl font-bold"
+            style={{ fontFamily: 'Noto Serif TC, serif' }}
+          >
             家族行程
           </h2>
           <p className="text-lg mt-4" style={{ color: '#666' }}>
@@ -185,18 +188,28 @@ export function FamilyProposalItinerary() {
                     >
                       Day {day.day}
                     </span>
-                    <p className="text-3xl font-bold mt-1" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                    <p
+                      className="text-3xl font-bold mt-1"
+                      style={{ fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {day.date}
                     </p>
-                    <p className="text-sm" style={{ color: '#666' }}>{day.dayOfWeek}</p>
+                    <p className="text-sm" style={{ color: '#666' }}>
+                      {day.dayOfWeek}
+                    </p>
                   </div>
 
                   {/* 標題 */}
                   <div className="lg:col-span-5">
-                    <h3 className="text-2xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{ fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {day.title}
                     </h3>
-                    <p className="text-base mt-1" style={{ color: '#666' }}>{day.subtitle}</p>
+                    <p className="text-base mt-1" style={{ color: '#666' }}>
+                      {day.subtitle}
+                    </p>
                     <p className="text-sm mt-3 leading-relaxed" style={{ color: '#444' }}>
                       {day.description}
                     </p>
@@ -212,7 +225,9 @@ export function FamilyProposalItinerary() {
                         >
                           住宿
                         </span>
-                        <p className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>{day.hotel}</p>
+                        <p className="text-sm" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                          {day.hotel}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -259,11 +274,18 @@ export function FamilyProposalItinerary() {
                             活動
                           </span>
                         </div>
-                        <h4 className="text-xl font-bold mb-3" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                        <h4
+                          className="text-xl font-bold mb-3"
+                          style={{ fontFamily: 'Noto Serif TC, serif' }}
+                        >
                           {day.activity.title}
                         </h4>
-                        <p className="text-sm mb-2" style={{ color: '#666' }}>{day.activity.location}</p>
-                        <p className="text-sm mb-4" style={{ color: '#666' }}>{day.activity.time}</p>
+                        <p className="text-sm mb-2" style={{ color: '#666' }}>
+                          {day.activity.location}
+                        </p>
+                        <p className="text-sm mb-4" style={{ color: '#666' }}>
+                          {day.activity.time}
+                        </p>
                         <ul className="space-y-2">
                           {day.activity.highlights.map((h, i) => (
                             <li key={i} className="text-sm" style={{ color: '#444' }}>

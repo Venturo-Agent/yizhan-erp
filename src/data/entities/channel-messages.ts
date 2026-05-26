@@ -22,7 +22,8 @@ const channelMessageEntity = createEntityHook<ChannelMessage>('channel_messages'
     orderBy: { column: 'created_at', ascending: true },
   },
   slim: {
-    select: 'id,channel_id,sender_employee_id,sender_agent_id,body,message_type,reply_to_id,created_at',
+    select:
+      'id,channel_id,sender_employee_id,sender_agent_id,body,message_type,reply_to_id,created_at',
   },
   detail: { select: '*' },
   cache: CACHE_PRESETS.low,

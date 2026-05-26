@@ -37,7 +37,7 @@ export interface UnbilledItem {
   // 2026-05-21 加：公司請款發員工的對象 ID（給 wizard 算 unique payer 用）
   payee_employee_id?: string | null
   // 統一的「付款對象」+「對方銀行」(代墊優先、否則供應商)
-  payer_label: string  // e.g. "玉山旅行社" or "張小明（代墊）"
+  payer_label: string // e.g. "玉山旅行社" or "張小明（代墊）"
   payer_bank_code: string | null
   payer_bank_name: string | null
 }

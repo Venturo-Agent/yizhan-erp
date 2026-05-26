@@ -20,7 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Printer, X} from 'lucide-react'
+import { Printer, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import {
@@ -133,7 +133,11 @@ export function ClosingReportDialog({
     } catch (err) {
       logger.error('列印並結案失敗', err)
       // caller 已自己 toast（err.handled = true）時、不要再蓋一層通用失敗訊息
-      const handled = typeof err === 'object' && err !== null && 'handled' in err && (err as { handled?: boolean }).handled
+      const handled =
+        typeof err === 'object' &&
+        err !== null &&
+        'handled' in err &&
+        (err as { handled?: boolean }).handled
       if (!handled) {
         toast.error(COMPONENT_LABELS.CLOSE_TOUR_FAILED)
       }

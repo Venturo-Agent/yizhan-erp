@@ -33,7 +33,11 @@ function listSourceFiles(dir: string): string[] {
       if (st.isDirectory()) {
         if (entry === '__tests__') continue
         // 只看一層 sub-dir
-      } else if (entry.endsWith('.ts') && !entry.endsWith('.test.ts') && !entry.endsWith('.spec.ts')) {
+      } else if (
+        entry.endsWith('.ts') &&
+        !entry.endsWith('.test.ts') &&
+        !entry.endsWith('.spec.ts')
+      ) {
         out.push(p)
       }
     }

@@ -150,10 +150,7 @@ test.describe('Cross-tenant 資料隔離（RLS + 應用層雙重 enforcement）'
   // ─────────────────────────────────────────────────────────────────────────
   for (const table of ENTITY_TABLES) {
     test(`LIST /${table} as A user → 不含 B workspace 的 row`, async () => {
-      const { data, error } = await clientA
-        .from(table)
-        .select('id, workspace_id')
-        .limit(100)
+      const { data, error } = await clientA.from(table).select('id, workspace_id').limit(100)
 
       if (error) {
         // table 不存在 / 權限被擋、都算 pass（沒 leak）
@@ -267,11 +264,7 @@ test.describe('Cross-tenant 資料隔離（RLS + 應用層雙重 enforcement）'
 
     const targetId = (bRows[0] as { id: string }).id
 
-    const { data, error } = await clientA
-      .from('customers')
-      .delete()
-      .eq('id', targetId)
-      .select('id')
+    const { data, error } = await clientA.from('customers').delete().eq('id', targetId).select('id')
 
     if (error) {
       expect(error.message).toMatch(/permission|policy|denied|forbidden/i)
@@ -299,15 +292,12 @@ test.describe('Cross-tenant 資料隔離（RLS + 應用層雙重 enforcement）'
     const token = session?.access_token
     expect(token, 'A user session missing access_token').toBeTruthy()
 
-    const res = await fetch(
-      `http://localhost:3000/api/customers?workspace_id=${WS_B.id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    const res = await fetch(`http://localhost:3000/api/customers?workspace_id=${WS_B.id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
 
     // 預期結果：
     //   (a) 403 / 401 / 400（應用層守門擋）

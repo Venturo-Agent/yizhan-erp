@@ -112,7 +112,13 @@ export function codeToReceiptType(code: string | null | undefined): ReceiptType 
   if (!code) return ReceiptType.BANK_TRANSFER
   const upper = code.toUpperCase()
   if (upper === 'CASH' || upper.startsWith('CASH_')) return ReceiptType.CASH
-  if (upper === 'CREDIT_CARD' || upper === 'CARD' || upper.startsWith('CREDIT_') || upper.startsWith('CARD_')) return ReceiptType.CREDIT_CARD
+  if (
+    upper === 'CREDIT_CARD' ||
+    upper === 'CARD' ||
+    upper.startsWith('CREDIT_') ||
+    upper.startsWith('CARD_')
+  )
+    return ReceiptType.CREDIT_CARD
   if (upper === 'CHECK' || upper.startsWith('CHECK_')) return ReceiptType.CHECK
   // 'TRANSFER' / 'TRANSFER_KGI' / 'TRANSFER_TCB' 跟其他全 fallback 到匯款
   return ReceiptType.BANK_TRANSFER
@@ -122,11 +128,15 @@ export function codeToReceiptType(code: string | null | undefined): ReceiptType 
 export function codeToPaymentMethod(code: string | null | undefined): string {
   const t = codeToReceiptType(code)
   switch (t) {
-    case ReceiptType.CASH: return 'cash'
-    case ReceiptType.CREDIT_CARD: return 'card'
-    case ReceiptType.CHECK: return 'check'
+    case ReceiptType.CASH:
+      return 'cash'
+    case ReceiptType.CREDIT_CARD:
+      return 'card'
+    case ReceiptType.CHECK:
+      return 'check'
     case ReceiptType.BANK_TRANSFER:
-    default: return 'transfer'
+    default:
+      return 'transfer'
   }
 }
 

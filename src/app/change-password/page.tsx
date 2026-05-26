@@ -108,7 +108,7 @@ export default function ChangePasswordPage() {
             <input
               type={showNew ? 'text' : 'password'}
               value={next}
-              onChange={(e) => setNext(e.target.value)}
+              onChange={e => setNext(e.target.value)}
               placeholder={LABELS.NEW_PLACEHOLDER}
               required
               minLength={6}
@@ -129,7 +129,7 @@ export default function ChangePasswordPage() {
             <input
               type={showConfirm ? 'text' : 'password'}
               value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
+              onChange={e => setConfirm(e.target.value)}
               placeholder={LABELS.CONFIRM_PLACEHOLDER}
               required
               autoComplete="new-password"
@@ -144,11 +144,7 @@ export default function ChangePasswordPage() {
             </button>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading || !next || !confirm}
-            className="cp-button"
-          >
+          <button type="submit" disabled={loading || !next || !confirm} className="cp-button">
             {loading ? LABELS.PROCESSING : LABELS.SUBMIT}
           </button>
         </form>

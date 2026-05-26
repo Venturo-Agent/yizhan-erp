@@ -23,9 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // 先用 employee_number 查（限定 workspace）
     let { data, error } = await supabase
       .from('employees')
-      .select(
-        'id, employee_number, display_name, english_name, avatar_url, status, workspace_id'
-      )
+      .select('id, employee_number, display_name, english_name, avatar_url, status, workspace_id')
       .eq('workspace_id', workspaceId)
       .eq('employee_number', ref)
       .single()
@@ -34,9 +32,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!data) {
       const result = await supabase
         .from('employees')
-        .select(
-          'id, employee_number, display_name, english_name, avatar_url, status, workspace_id'
-        )
+        .select('id, employee_number, display_name, english_name, avatar_url, status, workspace_id')
         .eq('workspace_id', workspaceId)
         .eq('display_name', ref)
         .single()

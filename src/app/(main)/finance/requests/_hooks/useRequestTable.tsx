@@ -179,4 +179,3 @@ export function useRequestTable(payment_requests: PaymentRequest[]) {
     handleFilter,
   }
 }
-

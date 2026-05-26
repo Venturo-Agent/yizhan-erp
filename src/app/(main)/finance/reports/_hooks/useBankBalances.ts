@@ -52,7 +52,9 @@ export const useBankBalances = createReportHook<BankBalanceRow, BankBalancesStat
 
     if (queryError) throw new Error(queryError.message)
 
-    const accountIds = Array.from(new Set((accounts || []).map(a => a.account_id).filter(Boolean))) as string[]
+    const accountIds = Array.from(
+      new Set((accounts || []).map(a => a.account_id).filter(Boolean))
+    ) as string[]
 
     const [coaRes, linesRes] = await Promise.all([
       accountIds.length > 0
@@ -90,7 +92,7 @@ export const useBankBalances = createReportHook<BankBalanceRow, BankBalancesStat
         account_id: a.account_id,
         account_code: coa?.code || null,
         account_name: coa?.name || null,
-        balance: a.account_id ? (balanceByAccount.get(a.account_id) || 0) : null,
+        balance: a.account_id ? balanceByAccount.get(a.account_id) || 0 : null,
         currency: 'TWD',
       }
     })

@@ -18,7 +18,11 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { verifyMetaSignature } from '@/lib/facebook/verify-signature'
 import { sendTextMessage } from '@/lib/facebook/reply-client'
-import { upsertConversation, recordInboundMessage, recordOutboundMessage } from '@/lib/inbox/inbox-service'
+import {
+  upsertConversation,
+  recordInboundMessage,
+  recordOutboundMessage,
+} from '@/lib/inbox/inbox-service'
 import { generateBotReply } from '@/lib/ai/ai-brain'
 import { buildConversationContext } from '@/lib/ai/context-builder'
 import { logger } from '@/lib/utils/logger'
@@ -35,7 +39,7 @@ interface InstagramSettingsRow {
 }
 
 interface MessagingEvent {
-  sender?: { id?: string }  // IGSID
+  sender?: { id?: string } // IGSID
   recipient?: { id?: string }
   timestamp?: number
   message?: {
@@ -48,13 +52,13 @@ interface MessagingEvent {
 }
 
 interface InstagramEntry {
-  id: string  // ig_business_account_id
+  id: string // ig_business_account_id
   time?: number
   messaging?: MessagingEvent[]
 }
 
 interface InstagramWebhookBody {
-  object: string  // 'instagram'
+  object: string // 'instagram'
   entry: InstagramEntry[]
 }
 
@@ -75,11 +79,12 @@ export async function GET(req: NextRequest) {
   }
 
   const supabase = getSupabaseAdminClient()
-  const igTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const igTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
         limit: (n: number) => Promise<{
           data: { workspace_id: string }[] | null
           error: { message: string } | null
@@ -147,11 +152,12 @@ async function handleEntry(args: {
   const igId = entry.id
 
   const supabase = getSupabaseAdminClient()
-  const igTable = supabase.from.bind(supabase) as unknown as (
-    table: string
-  ) => {
+  const igTable = supabase.from.bind(supabase) as unknown as (table: string) => {
     select: (cols: string) => {
-      eq: (col: string, value: string) => {
+      eq: (
+        col: string,
+        value: string
+      ) => {
         maybeSingle: () => Promise<{
           data: InstagramSettingsRow | null
           error: { message: string } | null
@@ -161,7 +167,9 @@ async function handleEntry(args: {
   }
 
   const { data: settings, error: settingsError } = await igTable('workspace_instagram_settings')
-    .select('workspace_id, ig_business_account_id, page_access_token_encrypted, app_secret_encrypted, webhook_verify_token, is_active')
+    .select(
+      'workspace_id, ig_business_account_id, page_access_token_encrypted, app_secret_encrypted, webhook_verify_token, is_active'
+    )
     .eq('ig_business_account_id', igId)
     .maybeSingle()
 

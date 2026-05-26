@@ -13,12 +13,7 @@
  * 抽到 src/constants/：跨模組共用（settings / 出納單 / 列印頁 / 報表 / 未來 API 整合）
  */
 
-export type PaymentMethodKind =
-  | 'wire_transfer'
-  | 'card'
-  | 'cash'
-  | 'check'
-  | 'other'
+export type PaymentMethodKind = 'wire_transfer' | 'card' | 'cash' | 'check' | 'other'
 
 export const PAYMENT_METHOD_KIND_LABELS: Record<PaymentMethodKind, string> = {
   wire_transfer: '匯款',

@@ -187,7 +187,9 @@ async function main() {
     process.exit(0)
   }
 
-  console.log(`🔴 抓到 ${collisions.length} 張表有「trigger + API 同時 INSERT」、有 SSOT 撞車風險：\n`)
+  console.log(
+    `🔴 抓到 ${collisions.length} 張表有「trigger + API 同時 INSERT」、有 SSOT 撞車風險：\n`
+  )
   for (const c of collisions) {
     console.log(`📌 ${c.table}`)
     console.log('   Trigger 寫入：')

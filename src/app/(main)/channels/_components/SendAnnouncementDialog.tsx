@@ -104,11 +104,7 @@ export function SendAnnouncementDialog({ open, onOpenChange, channelId }: Props)
             排程發送時間（選填、不選即立即發送）
           </label>
           <div className="flex items-center gap-2">
-            <DatePicker
-              value={scheduledDate}
-              onChange={setScheduledDate}
-              className="w-40"
-            />
+            <DatePicker value={scheduledDate} onChange={setScheduledDate} className="w-40" />
             <input
               type="time"
               value={scheduledTime}

@@ -88,7 +88,9 @@ test('診斷：請款 dialog 的單價 / 數量輸入', async ({ authenticatedPa
     return chain
   })
   console.log('[diagnose] 祖先鏈:')
-  ancestorChain.forEach((a, i) => console.log(`  ${i}. ${a.tag} pe=${a.pointerEvents} op=${a.opacity} cls="${a.className}"`))
+  ancestorChain.forEach((a, i) =>
+    console.log(`  ${i}. ${a.tag} pe=${a.pointerEvents} op=${a.opacity} cls="${a.className}"`)
+  )
 
   // 3. 嘗試聚焦 + 輸入
   await first.click({ force: false })

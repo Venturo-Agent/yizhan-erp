@@ -25,9 +25,7 @@ type RequireCapabilityResult =
   | { ok: true; workspaceId: string; employeeId: string }
   | { ok: false; response: NextResponse }
 
-export async function requireCapability(
-  capabilityCode: string
-): Promise<RequireCapabilityResult> {
+export async function requireCapability(capabilityCode: string): Promise<RequireCapabilityResult> {
   const auth = await getServerAuth()
   if (!auth.success) {
     return {
@@ -42,10 +40,7 @@ export async function requireCapability(
   if (!allowed) {
     return {
       ok: false,
-      response: NextResponse.json(
-        { error: `沒有 ${capabilityCode} 權限` },
-        { status: 403 }
-      ),
+      response: NextResponse.json({ error: `沒有 ${capabilityCode} 權限` }, { status: 403 }),
     }
   }
 

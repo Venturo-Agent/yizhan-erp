@@ -129,13 +129,15 @@ export function ChannelMembersDialog({ open, onOpenChange, channelId }: Props) {
                 />
               </div>
               <Button onClick={handleAdd} disabled={submitting || !adding} className="gap-1">
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <UserPlus className="h-4 w-4" />
+                )}
                 加入
               </Button>
             </div>
-            <p className="text-xs text-morandi-muted">
-              邀請後對方直接加入、不會收到通知
-            </p>
+            <p className="text-xs text-morandi-muted">邀請後對方直接加入、不會收到通知</p>
           </div>
         )}
 
@@ -146,7 +148,8 @@ export function ChannelMembersDialog({ open, onOpenChange, channelId }: Props) {
           <ul className="rounded-md border border-border divide-y divide-border">
             {channelMembers.map(m => {
               const emp = getEmployee(m.employee_id)
-              const display = emp?.display_name || emp?.chinese_name || emp?.english_name || m.employee_id
+              const display =
+                emp?.display_name || emp?.chinese_name || emp?.english_name || m.employee_id
               const isMe = m.employee_id === user?.id
               const isOwner = m.role === 'owner'
               return (

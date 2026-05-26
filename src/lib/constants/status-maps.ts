@@ -250,4 +250,3 @@ export function getContractStatusLabel(status: ContractStatusKey | string): stri
 export function getPaymentMethodLabel(method: PaymentMethodKey | string): string {
   return PAYMENT_METHOD_MAP[method as PaymentMethodKey] || method
 }
-

@@ -18,17 +18,16 @@ import { alert } from '@/lib/ui/alert-dialog'
 import { stripHtml } from '@/lib/utils/string-utils'
 import { useSyncItineraryToCore } from '@/app/(main)/tours/_hooks/useTourItineraryItems'
 import { toast } from 'sonner'
-import type {
-  ItineraryEditorContext,
-  ItineraryFormData,
-  PreviewDayData,
-} from './types'
+import type { ItineraryEditorContext, ItineraryFormData, PreviewDayData } from './types'
 import {
   formatDailyItinerary,
   getPreviewDailyData as getPreviewData,
   generatePrintHtml,
 } from './format-itinerary'
-import { buildDailyScheduleFromItinerary, buildEmptyDailySchedule } from './usePackageItinerary.helpers'
+import {
+  buildDailyScheduleFromItinerary,
+  buildEmptyDailySchedule,
+} from './usePackageItinerary.helpers'
 import { submitItinerary, saveAsNewVersion } from './usePackageItinerary.actions'
 import { useDailySchedule } from './useDailySchedule'
 
@@ -256,7 +255,8 @@ export function usePackageItinerary({
 
   // 版本記錄
   const versionRecords = useMemo(() => {
-    return (existingItinerary?.version_records || []) as import('@/stores/types').ItineraryVersionRecord[]
+    return (existingItinerary?.version_records ||
+      []) as import('@/stores/types').ItineraryVersionRecord[]
   }, [existingItinerary])
 
   // 處理版本切換
@@ -285,10 +285,7 @@ export function usePackageItinerary({
       return firstVersion?.note || stripHtml(existingItinerary?.title) || '主版本'
     }
     const record = versionRecords[selectedVersionIndex]
-    return (
-      record?.note ||
-      `版本 ${record?.version || selectedVersionIndex + 1}`
-    )
+    return record?.note || `版本 ${record?.version || selectedVersionIndex + 1}`
   }, [selectedVersionIndex, versionRecords, existingItinerary])
 
   // 產生預覽資料
@@ -342,7 +339,9 @@ export function usePackageItinerary({
         existingItinerary,
         currentUser,
         getPreviousAccommodation,
-        create: create as (data: Omit<Itinerary, 'id' | 'created_at' | 'updated_at'>) => Promise<Itinerary | null>,
+        create: create as (
+          data: Omit<Itinerary, 'id' | 'created_at' | 'updated_at'>
+        ) => Promise<Itinerary | null>,
         syncToCore,
         onItineraryCreated,
         onClose,

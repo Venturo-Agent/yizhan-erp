@@ -158,7 +158,12 @@ export function FAQSection({ data, onChange }: FAQSectionProps) {
           </div>
 
           {/* 新增按鈕 */}
-          <Button type="button" variant="soft-gold" onClick={addFAQ} className="w-full border-dashed">
+          <Button
+            type="button"
+            variant="soft-gold"
+            onClick={addFAQ}
+            className="w-full border-dashed"
+          >
             <Plus className="h-4 w-4 mr-2" />
             {COMP_EDITOR_LABELS.ADD_8197}
           </Button>

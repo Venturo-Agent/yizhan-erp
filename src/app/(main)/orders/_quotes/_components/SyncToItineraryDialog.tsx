@@ -82,9 +82,7 @@ export const SyncToItineraryDialog: React.FC<SyncToItineraryDialogProps> = ({
         )}
 
         {diffs.length === 0 ? (
-          <div className="text-center py-8 text-morandi-secondary">
-            {t('quoteSyncNoChanges')}
-          </div>
+          <div className="text-center py-8 text-morandi-secondary">{t('quoteSyncNoChanges')}</div>
         ) : (
           <>
             <p className="text-sm text-morandi-secondary">
@@ -116,9 +114,7 @@ export const SyncToItineraryDialog: React.FC<SyncToItineraryDialogProps> = ({
                       <td className="py-2 px-3 text-morandi-primary">{diff.typeLabel}</td>
                       <td className="py-2 px-3 text-morandi-secondary">
                         {diff.oldValue || (
-                          <span className="text-morandi-muted">
-                            {t('quoteSyncEmpty')}
-                          </span>
+                          <span className="text-morandi-muted">{t('quoteSyncEmpty')}</span>
                         )}
                       </td>
                       <td className="py-2 px-3 text-center">
@@ -132,11 +128,7 @@ export const SyncToItineraryDialog: React.FC<SyncToItineraryDialogProps> = ({
                               : 'text-morandi-green font-medium'
                           }
                         >
-                          {diff.newValue || (
-                            <span className="text-morandi-muted">
-                              {'（空）'}
-                            </span>
-                          )}
+                          {diff.newValue || <span className="text-morandi-muted">{'（空）'}</span>}
                         </span>
                       </td>
                     </tr>

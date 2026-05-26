@@ -16,7 +16,15 @@ import { useRouter } from 'next/navigation'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { toast } from 'sonner'
 import { COMMON_MESSAGES } from '@/constants/messages'
-import { Building2, Save, Sparkles, LayoutDashboard, Wallet, PackagePlus, Activity } from 'lucide-react'
+import {
+  Building2,
+  Save,
+  Sparkles,
+  LayoutDashboard,
+  Wallet,
+  PackagePlus,
+  Activity,
+} from 'lucide-react'
 import { ModuleLoading } from '@/components/module-loading'
 import { invalidateFeatureCache } from '@/lib/permissions/hooks'
 import { FEATURES } from '@/lib/permissions'
@@ -331,11 +339,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
         />
       )}
 
-      {activeTab === TAB_VALUES.AI_SETTINGS && (
-        <AiSettingsTab
-          workspaceId={id}
-        />
-      )}
+      {activeTab === TAB_VALUES.AI_SETTINGS && <AiSettingsTab workspaceId={id} />}
 
       {activeTab === TAB_VALUES.AI_HEALTH && <AiHealthTab workspaceId={id} />}
 

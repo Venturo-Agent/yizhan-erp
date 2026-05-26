@@ -36,7 +36,9 @@ export async function GET(request: NextRequest) {
     const supabase = await createApiClient()
     let query = supabase
       .from('rag_topic_queue')
-      .select('id, topic_summary, occurrence_count, example_conversation_ids, example_questions, status, notes, generated_run_id, generated_at, created_at, updated_at')
+      .select(
+        'id, topic_summary, occurrence_count, example_conversation_ids, example_questions, status, notes, generated_run_id, generated_at, created_at, updated_at'
+      )
       .eq('workspace_id', workspaceId)
 
     if (status !== 'all') {

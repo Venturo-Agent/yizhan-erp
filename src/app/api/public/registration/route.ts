@@ -64,16 +64,15 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json().catch(() => null)
     if (!body || typeof body !== 'object') {
-      return withPublicCors(
-        request,
-        NextResponse.json({ error: '請求格式錯誤' }, { status: 400 })
-      )
+      return withPublicCors(request, NextResponse.json({ error: '請求格式錯誤' }, { status: 400 }))
     }
 
     // 2. 驗證輸入
     const name = String(body.name ?? '').trim()
     const phone = String(body.phone ?? '').trim()
-    const email = String(body.email ?? '').trim().toLowerCase()
+    const email = String(body.email ?? '')
+      .trim()
+      .toLowerCase()
     const passenger_count = Number(body.passenger_count ?? 0)
     const tourCode = String(body.tourCode ?? '').trim()
     const notes = body.notes ? String(body.notes).trim().slice(0, 500) : null
@@ -96,10 +95,7 @@ export async function POST(request: NextRequest) {
     if (!isValidTaiwanMobile(phone)) {
       return withPublicCors(
         request,
-        NextResponse.json(
-          { error: '電話格式不正確（請填台灣手機 09xxxxxxxx）' },
-          { status: 400 }
-        )
+        NextResponse.json({ error: '電話格式不正確（請填台灣手機 09xxxxxxxx）' }, { status: 400 })
       )
     }
     if (
@@ -109,10 +105,7 @@ export async function POST(request: NextRequest) {
     ) {
       return withPublicCors(
         request,
-        NextResponse.json(
-          { error: `人數需為 1-${MAX_PASSENGERS} 之間的整數` },
-          { status: 400 }
-        )
+        NextResponse.json({ error: `人數需為 1-${MAX_PASSENGERS} 之間的整數` }, { status: 400 })
       )
     }
 
@@ -177,11 +170,7 @@ export async function POST(request: NextRequest) {
     let customerId: string | null = null
     {
       const { data: existing, error: lookErr } = await filterActive(
-        supabase
-          .from('customers')
-          .select('id')
-          .eq('email', email)
-          .eq('workspace_id', workspaceId)
+        supabase.from('customers').select('id').eq('email', email).eq('workspace_id', workspaceId)
       ).maybeSingle()
       if (lookErr) {
         logger.error('public/registration: lookup customer failed', { lookErr })
@@ -241,16 +230,16 @@ export async function POST(request: NextRequest) {
 
     if (!customerId) {
       // 理論上走不到、保險
-      return withPublicCors(
-        request,
-        NextResponse.json({ error: '建立客戶失敗' }, { status: 500 })
-      )
+      return withPublicCors(request, NextResponse.json({ error: '建立客戶失敗' }, { status: 500 }))
     }
 
     // 5. 生 order_number（@/lib/codes、走 DB advisory lock）
     let orderNumber: string
     try {
-      orderNumber = await generateOrderNumber(tour.id, supabase as unknown as Parameters<typeof generateOrderNumber>[1])
+      orderNumber = await generateOrderNumber(
+        tour.id,
+        supabase as unknown as Parameters<typeof generateOrderNumber>[1]
+      )
     } catch (err) {
       logger.error('public/registration: generate order number failed', { err })
       return withPublicCors(request, dbErrorResponse(err))
@@ -291,7 +280,10 @@ export async function POST(request: NextRequest) {
 
     if (orderErr || !order) {
       logger.error('public/registration: create order failed', { orderErr })
-      return withPublicCors(request, dbErrorResponse(orderErr ?? new Error('create order returned no row')))
+      return withPublicCors(
+        request,
+        dbErrorResponse(orderErr ?? new Error('create order returned no row'))
+      )
     }
 
     // 7. INSERT order_members（第一個是聯絡人本人、其餘空名「團員 N」）

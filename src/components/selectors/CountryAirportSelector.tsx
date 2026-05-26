@@ -266,7 +266,11 @@ export function CountryAirportSelector({
             value={airportCode}
             onChange={handleAirportChange}
             options={availableAirports}
-            placeholder={!displayCountryName ? SELECTORS_LABELS.PLEASE_SELECT_COUNTRY_FIRST : SELECTORS_LABELS.SEARCH_CITY_AIRPORT}
+            placeholder={
+              !displayCountryName
+                ? SELECTORS_LABELS.PLEASE_SELECT_COUNTRY_FIRST
+                : SELECTORS_LABELS.SEARCH_CITY_AIRPORT
+            }
             emptyMessage={loading ? '載入中...' : '找不到符合的機場'}
             showSearchIcon
             showClearButton
@@ -289,7 +293,9 @@ export function CountryAirportSelector({
         maxWidth="sm"
       >
         <div>
-          <label className="text-sm font-medium text-morandi-primary mb-2 block">{COMPONENT_LABELS.COUNTRY_NAME}</label>
+          <label className="text-sm font-medium text-morandi-primary mb-2 block">
+            {COMPONENT_LABELS.COUNTRY_NAME}
+          </label>
           <Input
             value={newCountryName}
             onChange={e => setNewCountryName(e.target.value)}
@@ -297,7 +303,9 @@ export function CountryAirportSelector({
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-morandi-primary mb-2 block">{COMPONENT_LABELS.ENGLISH_NAME}</label>
+          <label className="text-sm font-medium text-morandi-primary mb-2 block">
+            {COMPONENT_LABELS.ENGLISH_NAME}
+          </label>
           <Input
             value={newCountryNameEn}
             onChange={e => setNewCountryNameEn(e.target.value)}

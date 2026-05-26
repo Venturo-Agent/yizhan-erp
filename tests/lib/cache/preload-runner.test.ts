@@ -189,11 +189,7 @@ describe('preload-runner (stub 介面)', () => {
 
     it('onProgress callback 介面正確（會被叫到）', async () => {
       const onProgress = vi.fn<(p: PreloadProgress) => void>()
-      await runPreload(
-        makeFakeSupabase(),
-        { workspaceId: 'ws_test' },
-        { onProgress }
-      )
+      await runPreload(makeFakeSupabase(), { workspaceId: 'ws_test' }, { onProgress })
       expect(onProgress).toHaveBeenCalled()
       // callback 的參數結構正確
       const lastCall = onProgress.mock.calls[onProgress.mock.calls.length - 1]

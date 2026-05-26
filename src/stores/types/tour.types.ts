@@ -3,15 +3,9 @@
 // ============================
 
 export type {
-  
-  
   Tour,
   Member,
-  
-  
-  
   LeaderInfo,
-  
   HotelInfo,
   DailyActivity,
   DailyMeals,
@@ -23,13 +17,4 @@ export type {
   Itinerary,
   PriceTier,
   FAQ,
-  
-  
-  
-  
-  
-  
-  
-  
-  
 } from '@/types/tour.types'

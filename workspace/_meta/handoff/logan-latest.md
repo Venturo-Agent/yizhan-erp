@@ -21,6 +21,7 @@
 ## 下層（想深挖再讀）
 
 ### 永豐 QPay API 事實
+
 - sandbox endpoint：`https://apisbx.sinopac.com/funBIZ-Sbx/QPay.WebAPI/api/`（備援 `sandbox.sinopac.com/QPay.WebAPI/api/`）；正式 `api.sinopac.com/funBIZ/QPay.WebAPI/api/`
 - 流程：取 Nonce（POST {ShopNo}→/Nonce）→ HashID → IV → Sign → 加密 Message → POST {ShopNo,APIService,Sign,Nonce,Message,Version:'1.0.0'} → /Order（header X-KeyID=X-Key）→ 回應用 ResNonce 算 ResIV 解密
 - SampleCode：`~/Downloads/QPay.SampleCode`（C#）+ `~/Downloads/QPay.SampleCode-php`（PHP 較好讀）
@@ -30,6 +31,7 @@
 - 線上驗證工具：sandbox.sinopac.com/QPay.ApiClient/Calc/Encrypt（+ /Descrypt）
 
 ### 待寫 code（Phase 2 剩餘）
+
 - `sinopac/config.ts`：從 workspace_integrations 讀+解密憑證（decryptConfigFields）、sandbox/prod endpoint 切換
 - `sinopac/client.ts`：APIService 流程（Nonce→Sign→Encrypt→POST→Decrypt）
 - `sinopac/collect.ts`：OrderCreate 開虛擬帳號 + OrderQuery + OrderMaintain 退款
@@ -38,13 +40,16 @@
 - 串 payment_transactions（現有表、Phase 1 已用）
 
 ### 測試方法學
+
 - 用 `venturo-safe-tenant-test` skill（隔離沙箱、保護真實客戶資料、每步對帳）
 - Sprint A 本機 supabase（commit `0f27222`）；永豐用 sandbox 憑證（不真扣錢）
 
 ### 代轉（藍新、另一條線、暫停中）
+
 - 階段 1 schema 已 apply（travel_invoices 加 medium/紙本字軌/綁團 + travel_invoice_paper_tracks + travel_invoice_items + generate_paper_track_serial RPC）
 - 待做：codes.ts wrapper、開立/作廢/列印 API、紙本代轉 UI
 - spec：`workspace/_meta/architecture/2026-05-23-代轉管理-實作spec.md`（紙本作廢=單張作廢制+試印校準+留痕）
 
 ### 技術債提醒
-- 全庫 54 張表 authenticated 缺 INSERT grant（setup_*_rls procedure 不自動 GRANT 的系統性坑、payment_transactions / travel_invoice 新表已修）—— 值得排一次全面盤點 + audit:rls 加 table-GRANT 檢查
+
+- 全庫 54 張表 authenticated 缺 INSERT grant（setup\_\*\_rls procedure 不自動 GRANT 的系統性坑、payment_transactions / travel_invoice 新表已修）—— 值得排一次全面盤點 + audit:rls 加 table-GRANT 檢查

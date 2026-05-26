@@ -16,10 +16,7 @@ export const HrBonusSettlementModule = defineModule({
   name: '獎金結算',
   description: 'HR 按團勾選結算獎金、產出請款單',
   category: 'basic',
-  routes: [
-    '/hr/bonus-settlement',
-    '/hr/bonus-settlement/[tourId]',
-  ],
+  routes: ['/hr/bonus-settlement', '/hr/bonus-settlement/[tourId]'],
   exposedToHr: true,
   defaultRoles: ['admin'],
   tabs: [],

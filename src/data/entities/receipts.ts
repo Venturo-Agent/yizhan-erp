@@ -19,7 +19,8 @@ const receiptEntity = createEntityHook<Receipt>('receipts', {
     filterSoftDeleted: true,
   },
   slim: {
-    select: 'id,receipt_number,order_id,actual_amount,status,payment_method,created_at,transferred_pair_id',
+    select:
+      'id,receipt_number,order_id,actual_amount,status,payment_method,created_at,transferred_pair_id',
   },
   detail: { select: '*' },
   cache: CACHE_PRESETS.high,

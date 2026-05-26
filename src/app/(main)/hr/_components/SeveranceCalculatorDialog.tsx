@@ -208,12 +208,7 @@ export function SeveranceCalculatorDialog({
             </div>
             <div>
               <label className="text-xs text-morandi-muted block mb-1">到職日（唯讀）</label>
-              <Input
-                type="date"
-                value={employee.job_info?.hire_date ?? ''}
-                readOnly
-                disabled
-              />
+              <Input type="date" value={employee.job_info?.hire_date ?? ''} readOnly disabled />
             </div>
           </div>
 
@@ -231,7 +226,9 @@ export function SeveranceCalculatorDialog({
                 <option value="old">舊制</option>
                 <option value="mixed">跨制</option>
               </select>
-              <p className="text-[0.647rem] text-morandi-muted mt-1">{PENSION_LABEL[pensionSystem]}</p>
+              <p className="text-[0.647rem] text-morandi-muted mt-1">
+                {PENSION_LABEL[pensionSystem]}
+              </p>
             </div>
             <div>
               <label className="text-xs text-morandi-muted block mb-1">特休制度</label>

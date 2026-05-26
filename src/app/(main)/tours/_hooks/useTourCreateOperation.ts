@@ -34,7 +34,11 @@ interface UseTourCreateOperationParams {
   setFormError: (error: string | null) => void
   workspaceId?: string
   onQuoteLinked?: (quoteId: string, tourId: string) => void
-  onCreated?: (tour: { id: string; code: string; order?: { id: string; order_number: string } }) => void
+  onCreated?: (tour: {
+    id: string
+    code: string
+    order?: { id: string; order_number: string }
+  }) => void
 }
 
 export function useTourCreateOperation(params: UseTourCreateOperationParams) {
@@ -151,11 +155,7 @@ export function useTourCreateOperation(params: UseTourCreateOperationParams) {
             return
           }
           const departure_date = new Date(newTour.departure_date)
-          code = await tourService.generateTourCode(
-            cityCode,
-            departure_date,
-            newTour.isSpecial
-          )
+          code = await tourService.generateTourCode(cityCode, departure_date, newTour.isSpecial)
         }
 
         let countryId: string | undefined
@@ -255,7 +255,10 @@ export function useTourCreateOperation(params: UseTourCreateOperationParams) {
                 workspace_id: workspaceId,
               } as Parameters<typeof createOrder>[0])
               if (createdOrder) {
-                orderResult = { id: createdOrder.id, order_number: createdOrder.order_number || order_number }
+                orderResult = {
+                  id: createdOrder.id,
+                  order_number: createdOrder.order_number || order_number,
+                }
               }
             } catch (orderErr) {
               const msg = (orderErr as Error).message
@@ -289,8 +292,7 @@ export function useTourCreateOperation(params: UseTourCreateOperationParams) {
           router.push(`/tours/${code}`)
         }
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : '建立旅遊團失敗'
+        const errorMessage = err instanceof Error ? err.message : '建立旅遊團失敗'
         setFormError(errorMessage)
         logger.error(
           'Failed to create tour:',

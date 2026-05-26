@@ -204,10 +204,26 @@ export async function seedWorkspaceFeatures(
 ): Promise<ReturnType<typeof errorResponse> | null> {
   // All module-level features that exist in the system
   const allModuleFeatures = [
-    'dashboard', 'calendar', 'workspace', 'todos', 'tours', 'orders',
-    'quotes', 'finance', 'database', 'hr', 'hr_bonus_settlement',
-    'hr_salary_settlement', 'settings', 'customers', 'itinerary',
-    'accounting', 'office', 'channels', 'esim', 'documents',
+    'dashboard',
+    'calendar',
+    'workspace',
+    'todos',
+    'tours',
+    'orders',
+    'quotes',
+    'finance',
+    'database',
+    'hr',
+    'hr_bonus_settlement',
+    'hr_salary_settlement',
+    'settings',
+    'customers',
+    'itinerary',
+    'accounting',
+    'office',
+    'channels',
+    'esim',
+    'documents',
   ]
 
   // Determine which features are enabled based on the selected plan
@@ -218,9 +234,21 @@ export async function seedWorkspaceFeatures(
   const ALWAYS_ENABLED = new Set(['workspace', 'quotes', 'itinerary'])
   const planFeatureSet: Set<string> = isCustom
     ? new Set([
-        'dashboard', 'calendar', 'workspace', 'todos', 'tours', 'orders',
-        'quotes', 'finance', 'database', 'hr', 'hr_bonus_settlement',
-        'hr_salary_settlement', 'settings', 'customers', 'itinerary',
+        'dashboard',
+        'calendar',
+        'workspace',
+        'todos',
+        'tours',
+        'orders',
+        'quotes',
+        'finance',
+        'database',
+        'hr',
+        'hr_bonus_settlement',
+        'hr_salary_settlement',
+        'settings',
+        'customers',
+        'itinerary',
         ...(optionalFeatures ?? []),
       ])
     : new Set([
@@ -361,7 +389,7 @@ export async function createDimensions(
     type: idx === 0 ? 'headquarters' : 'branch',
     is_default: idx === 0,
     display_order: idx,
-    tax_id: (br.tax_id?.trim() || (idx === 0 ? workspaceTaxId : '')) || workspaceTaxId,
+    tax_id: br.tax_id?.trim() || (idx === 0 ? workspaceTaxId : '') || workspaceTaxId,
   }))
   const { data: insertedBranches, error: branchError } = await supabaseAdmin
     .from('branches')

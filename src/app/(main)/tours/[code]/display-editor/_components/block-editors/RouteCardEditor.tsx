@@ -8,10 +8,7 @@
  */
 
 import * as React from 'react'
-import type {
-  Canvas,
-  CanvasRouteCardBlock,
-} from '@/components/canvas-renderer/types'
+import type { Canvas, CanvasRouteCardBlock } from '@/components/canvas-renderer/types'
 import { updateRouteCardAttraction } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
@@ -52,24 +49,22 @@ export function RouteCardEditor({
             <TextField
               label="名稱"
               value={attr.name}
-              onChange={(v) =>
+              onChange={v =>
                 onChange(updateRouteCardAttraction(canvas, block.id, attr.id, { name: v }))
               }
             />
             <TextAreaField
               label="描述"
               value={attr.description ?? ''}
-              onChange={(v) =>
-                onChange(
-                  updateRouteCardAttraction(canvas, block.id, attr.id, { description: v })
-                )
+              onChange={v =>
+                onChange(updateRouteCardAttraction(canvas, block.id, attr.id, { description: v }))
               }
               rows={3}
             />
             <TextField
               label="建議停留時間"
               value={attr.suggested_duration ?? ''}
-              onChange={(v) =>
+              onChange={v =>
                 onChange(
                   updateRouteCardAttraction(canvas, block.id, attr.id, {
                     suggested_duration: v,

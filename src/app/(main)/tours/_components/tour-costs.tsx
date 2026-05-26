@@ -331,9 +331,7 @@ export const TourCosts = React.memo(function TourCosts({
           </div>
 
           <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('costsCategory')}
-            </label>
+            <label className="text-sm font-medium text-morandi-primary">{t('costsCategory')}</label>
             <Select
               value={newCost.category}
               onValueChange={value => setNewCost(prev => ({ ...prev, category: value }))}
@@ -352,9 +350,7 @@ export const TourCosts = React.memo(function TourCosts({
           </div>
 
           <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('costsSupplier')}
-            </label>
+            <label className="text-sm font-medium text-morandi-primary">{t('costsSupplier')}</label>
             <Select
               value={newCost.vendor}
               onValueChange={value => setNewCost(prev => ({ ...prev, vendor: value }))}

@@ -98,9 +98,7 @@ export function PreviewPanel({
 
                   {/* 螢幕 */}
                   {/* eslint-disable-next-line venturo/no-forbidden-classes -- iPhone screen requires exact pixel border-radius */}
-                  <div
-                    className="bg-card rounded-[37px] overflow-hidden relative w-[390px] h-[844px]"
-                  >
+                  <div className="bg-card rounded-[37px] overflow-hidden relative w-[390px] h-[844px]">
                     {/* 內容區域 */}
                     <div className="w-full h-full overflow-y-auto">{children(viewMode)}</div>
 
@@ -113,9 +111,7 @@ export function PreviewPanel({
               </div>
             ) : (
               // 電腦版
-              <div
-                className="bg-card shadow-lg rounded-lg overflow-hidden border border-border w-[1200px] h-[800px]"
-              >
+              <div className="bg-card shadow-lg rounded-lg overflow-hidden border border-border w-[1200px] h-[800px]">
                 <div className="w-full h-full overflow-y-auto">{children(viewMode)}</div>
               </div>
             )}

@@ -40,7 +40,9 @@ export function BonusPolicySection({ workspaceId, initialOrder }: BonusPolicySec
     setOrder(value)
     setSaving(true)
     try {
-      await updateWorkspace(workspaceId, { bonus_calculation_order: value } as Partial<Database['public']['Tables']['workspaces']['Update']>)
+      await updateWorkspace(workspaceId, { bonus_calculation_order: value } as Partial<
+        Database['public']['Tables']['workspaces']['Update']
+      >)
     } catch (err) {
       logger.error('儲存獎金計算順序失敗', err)
       toast.error('儲存失敗，請重試')

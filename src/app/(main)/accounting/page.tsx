@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
-import { FileText, BookOpen, BarChart3, TrendingUp, Calendar, AlertTriangle, FileEdit } from 'lucide-react'
+import {
+  FileText,
+  BookOpen,
+  BarChart3,
+  TrendingUp,
+  Calendar,
+  AlertTriangle,
+  FileEdit,
+} from 'lucide-react'
 import Link from 'next/link'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { supabase } from '@/lib/supabase/client'
@@ -131,7 +139,9 @@ export default function AccountingPage() {
           <div className="flex items-start gap-3">
             <AlertTriangle size={20} className="text-status-warning flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <div className="font-semibold text-status-warning mb-1">{PAGE_LABELS.SETUP_INCOMPLETE}</div>
+              <div className="font-semibold text-status-warning mb-1">
+                {PAGE_LABELS.SETUP_INCOMPLETE}
+              </div>
               <div className="text-sm text-morandi-primary space-y-0.5">
                 {gap.paymentMethodsMissing > 0 && (
                   <div>• {gap.paymentMethodsMissing} 個收款方式還沒綁會計科目</div>
@@ -176,7 +186,6 @@ export default function AccountingPage() {
           </Link>
         ))}
       </div>
-
     </ContentPageLayout>
   )
 }

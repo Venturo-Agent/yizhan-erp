@@ -19,7 +19,11 @@ export async function POST(request: NextRequest) {
     const supabase = await createApiClient()
     const { contractId, signedDate } = await request.json()
 
-    await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '紙本簽署合約', requestId: contractId })
+    await recordApiAuditContext(supabase, {
+      actorId: guard.employeeId,
+      reason: '紙本簽署合約',
+      requestId: contractId,
+    })
 
     if (!contractId) {
       return NextResponse.json({ error: '缺少合約 ID' }, { status: 400 })
@@ -41,13 +45,19 @@ export async function POST(request: NextRequest) {
     if (error) {
       logger.error('Paper sign error:', error)
       const t = translateDbError(error)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     return NextResponse.json({ success: true })
   } catch (err) {
     logger.error('Paper sign uncaught:', err)
     const t = translateDbError(err)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 }

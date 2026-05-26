@@ -32,7 +32,7 @@ export const GET = apiHandler(async () => {
         features: [] as string[],
         premium_enabled: false,
       },
-      { status: 200 },
+      { status: 200 }
     )
   }
 

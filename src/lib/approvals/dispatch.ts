@@ -12,10 +12,7 @@
 
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
-import {
-  sendChannelNotification,
-  NOTIFICATION_SOURCE_TYPES,
-} from '@/lib/channels/send'
+import { sendChannelNotification, NOTIFICATION_SOURCE_TYPES } from '@/lib/channels/send'
 
 const HANDLER = 'approvals-dispatch'
 
@@ -44,9 +41,7 @@ interface DispatchResult {
   error?: string
 }
 
-export async function dispatchApprovalSideEffect(
-  args: DispatchArgs
-): Promise<DispatchResult> {
+export async function dispatchApprovalSideEffect(args: DispatchArgs): Promise<DispatchResult> {
   // reject 不做業務動作、單純標狀態
   if (args.action !== 'approve') return { ok: true }
 

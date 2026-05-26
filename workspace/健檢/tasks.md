@@ -63,7 +63,7 @@
 
 - [ ] 3.3 連線策略
   - [ ] Layout context SSOT（一次抓所有）
-  - [ ] Hydration race 防護（_hasHydrated）
+  - [ ] Hydration race 防護（\_hasHydrated）
   - [ ] 防連點（所有寫入按鈕 `disabled={loading}`）
 
 ---

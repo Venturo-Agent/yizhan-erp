@@ -18,10 +18,7 @@ export const POST = apiHandler(async (req: NextRequest) => {
     return ApiError.unauthorized('請先登入')
   }
 
-  const allowed = await hasCapabilityByCode(
-    auth.data.employeeId,
-    'shared_data.banks.write'
-  )
+  const allowed = await hasCapabilityByCode(auth.data.employeeId, 'shared_data.banks.write')
   if (!allowed) {
     return NextResponse.json(
       { error: '您沒有此權限（新增銀行需 shared_data.banks.write capability）' },
@@ -30,7 +27,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
   }
 
   const auditClient = await createApiClient()
-  await recordApiAuditContext(auditClient, { actorId: auth.data.employeeId, reason: '新增/更新銀行資料' })
+  await recordApiAuditContext(auditClient, {
+    actorId: auth.data.employeeId,
+    reason: '新增/更新銀行資料',
+  })
 
   const body = await req.json()
   const { bank_code, bank_name, english_name, swift_code, is_active, display_order } = body
@@ -39,7 +39,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
     return NextResponse.json({ error: '缺少必填欄位（bank_code / bank_name）' }, { status: 400 })
   }
   if (!/^\d{3}$/.test(bank_code)) {
-    return NextResponse.json({ error: '銀行代碼必須為 3 碼數字（中央銀行金融機構代號）' }, { status: 400 })
+    return NextResponse.json(
+      { error: '銀行代碼必須為 3 碼數字（中央銀行金融機構代號）' },
+      { status: 400 }
+    )
   }
 
   // ref_banks 尚未納入生成類型，用 unknown 中轉
@@ -60,7 +63,10 @@ export const POST = apiHandler(async (req: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ bank_code })

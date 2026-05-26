@@ -67,9 +67,7 @@ export function enforceWorkspaceScope<Q extends ChainableQuery>(
         '[enforceWorkspaceScope] includeNullWorkspace 需要 query 支援 .or()、傳入物件不符。'
       )
     }
-    return orQuery.or(
-      `workspace_id.eq.${ctx.workspaceId},workspace_id.is.null`
-    ) as Q
+    return orQuery.or(`workspace_id.eq.${ctx.workspaceId},workspace_id.is.null`) as Q
   }
 
   return query.eq('workspace_id', ctx.workspaceId) as Q

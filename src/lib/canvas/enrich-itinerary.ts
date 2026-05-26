@@ -16,10 +16,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-import type {
-  DailyItinerary,
-  Activity,
-} from '@/app/(public)/p/tour/[code]/_components/tour-types'
+import type { DailyItinerary, Activity } from '@/app/(public)/p/tour/[code]/_components/tour-types'
 
 interface AttractionRow {
   id: string
@@ -119,9 +116,9 @@ export async function enrichDailyItinerary(
 
   // 走訪每一天、把 reference 換成完整資料
   // 注意：不動原本 activity.title（業務可能在 daily_itinerary 改過顯示名）
-  return rawDaily.map((day) => {
+  return rawDaily.map(day => {
     const enrichedActivities: ActivityRaw[] | undefined = Array.isArray(day.activities)
-      ? day.activities.map((a) => {
+      ? day.activities.map(a => {
           if (!a.attraction_id) return a
           const att = attractionMap.get(a.attraction_id)
           if (!att) return a
@@ -138,7 +135,7 @@ export async function enrichDailyItinerary(
     // 沒圖的 activity 留空、auto-generate adapter 會處理（前 N 張塞進 daily.images 對應 layout）
     const collectedImages: string[] = enrichedActivities
       ? enrichedActivities
-          .map((a) => {
+          .map(a => {
             if (!a.attraction_id) return ''
             const att = attractionMap.get(a.attraction_id)
             return att?.images?.[0] ?? ''

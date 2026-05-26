@@ -54,10 +54,7 @@ export async function POST(
 
   // 過期檢查
   if (tx.payment_link_expires_at && new Date(tx.payment_link_expires_at) < new Date()) {
-    await supabase
-      .from('payment_transactions')
-      .update({ status: 'expired' })
-      .eq('id', tx.id)
+    await supabase.from('payment_transactions').update({ status: 'expired' }).eq('id', tx.id)
     return NextResponse.json({ error: '連結已過期、請重新建立' }, { status: 410 })
   }
 
@@ -71,8 +68,12 @@ export async function POST(
   }
 
   // 2. 更新 transaction status → captured
-  const mockTransNo = `MOCK-${Date.now()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`
-  const mockApproveCode = Math.floor(Math.random() * 1000000).toString().padStart(6, '0')
+  const mockTransNo = `MOCK-${Date.now()}-${Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, '0')}`
+  const mockApproveCode = Math.floor(Math.random() * 1000000)
+    .toString()
+    .padStart(6, '0')
 
   const { error: updateTxError } = await supabase
     .from('payment_transactions')

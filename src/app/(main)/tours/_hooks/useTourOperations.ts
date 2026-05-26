@@ -40,7 +40,11 @@ interface UseTourOperationsParams {
   workspaceId?: string
   onQuoteLinked?: (quoteId: string, tourId: string) => void
   /** 建立成功 callback：傳則抑制預設 router.push、由呼叫端決定下一步（給 todo dialog 等嵌套場景用） */
-  onCreated?: (tour: { id: string; code: string; order?: { id: string; order_number: string } }) => void
+  onCreated?: (tour: {
+    id: string
+    code: string
+    order?: { id: string; order_number: string }
+  }) => void
 }
 
 export function useTourOperations(params: UseTourOperationsParams) {
@@ -104,8 +108,7 @@ export function useTourOperations(params: UseTourOperationsParams) {
         logger.info(`已軟刪除旅遊團 ${tour.code}`)
         return { success: true }
       } catch (err) {
-        const errorMsg =
-          err instanceof Error ? err.message : '刪除旅遊團失敗'
+        const errorMsg = err instanceof Error ? err.message : '刪除旅遊團失敗'
         logger.error('刪除旅遊團失敗:', JSON.stringify(err, null, 2))
         return { success: false, error: errorMsg }
       }

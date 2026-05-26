@@ -10,8 +10,7 @@ import type { MealSubCategory } from '../_types/tour-itinerary-item.types'
 import { ITINERARY_ITEM_CATEGORIES, MEAL_SUB_CATEGORIES } from '../_types/tour-itinerary-item.types'
 import type { Database } from '@/lib/supabase/types'
 
-export type TourItineraryItemInsert =
-  Database['public']['Tables']['tour_itinerary_items']['Insert']
+export type TourItineraryItemInsert = Database['public']['Tables']['tour_itinerary_items']['Insert']
 
 // === Activity → 核心表 row 轉換 ===
 export function activityToItem(

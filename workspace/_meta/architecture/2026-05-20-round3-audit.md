@@ -8,20 +8,21 @@
 
 ## 救護車式總覽
 
-| 項目 | Round 2 結論 | Round 3 訂正 | 動作 |
-|---|---|---|---|
-| CIS 模組「3 page 存在 / 3 table 不存在」 | 半成品破洞、需補 DB 或砍前端 | **3 page 早就被砍光了、source 完全不存在** | ✅ 真相訂正、無 code 動 |
-| Pre-existing tsc error 6 個 | 歷史殘留、commit 要 --no-verify | **6 個全是 `.next/dev/types/validator.ts` stale 殘留、清掉 cache 即解** | ✅ 已修（清 cache） |
-| `departments` route 引用 | 沒提（OPENCLAW 認為是真 module）| **跟 CIS 同類、source 不存在、stale cache 殘留** | ✅ 修法同上 |
-| 紅線 B 1+3 處 | 維持 Round 2 結論 | 維持 | ⏳ 等 William 拍板 |
-| Bot module 不能清 | 維持 Round 2 結論 | 維持 | ✅ 不動 |
-| salary_settlements guard | 維持 Round 2 結論 | 維持 | ⏳ 等 William 拍板 |
+| 項目                                     | Round 2 結論                     | Round 3 訂正                                                            | 動作                    |
+| ---------------------------------------- | -------------------------------- | ----------------------------------------------------------------------- | ----------------------- |
+| CIS 模組「3 page 存在 / 3 table 不存在」 | 半成品破洞、需補 DB 或砍前端     | **3 page 早就被砍光了、source 完全不存在**                              | ✅ 真相訂正、無 code 動 |
+| Pre-existing tsc error 6 個              | 歷史殘留、commit 要 --no-verify  | **6 個全是 `.next/dev/types/validator.ts` stale 殘留、清掉 cache 即解** | ✅ 已修（清 cache）     |
+| `departments` route 引用                 | 沒提（OPENCLAW 認為是真 module） | **跟 CIS 同類、source 不存在、stale cache 殘留**                        | ✅ 修法同上             |
+| 紅線 B 1+3 處                            | 維持 Round 2 結論                | 維持                                                                    | ⏳ 等 William 拍板      |
+| Bot module 不能清                        | 維持 Round 2 結論                | 維持                                                                    | ✅ 不動                 |
+| salary_settlements guard                 | 維持 Round 2 結論                | 維持                                                                    | ⏳ 等 William 拍板      |
 
 ---
 
 ## Round 2 抓錯的：CIS / departments 模組「存在」的判斷錯誤
 
 ### Round 2 推論（有錯）
+
 > 「`src/app/(main)/cis/[id]/page.tsx` — validator.ts:233（page 存在）」
 > 「`src/app/(main)/cis/page.tsx` — validator.ts:242（page 存在）」
 
@@ -54,11 +55,13 @@ OPENCLAW Round 2 看到 validator.ts:233 引用 `'../../../src/app/(main)/cis/[i
 ## 修法：清 `.next/dev/types`
 
 ### 動作（已執行）
+
 ```
 rm -rf .next/dev/types
 ```
 
 ### 驗證
+
 ```
 $ npx tsc --noEmit
 （無 error 輸出）
@@ -67,6 +70,7 @@ $ echo $?
 ```
 
 ### 影響
+
 - ✅ TypeScript type-check 完全通過
 - ✅ 未來 commit 不需 `--no-verify`
 - ✅ 不動任何 source code
@@ -77,6 +81,7 @@ $ echo $?
 ## 給 William 的決策清單（早上起床看）
 
 整夜 audit 累積 6 個 P0 候選、其中：
+
 - 1 個已解（tsc error、Round 3 處理掉）
 - 1 個是純訂正（LINE bot 不能清、無事可做）
 - **4 個需要你早上拍板才能動**：
@@ -88,6 +93,7 @@ $ echo $?
 **業務影響**：現在沒有業務影響、未來如果要查「Logan 建過哪些團控表」會查不到。
 
 **修法**：
+
 ```sql
 -- migration 草稿（不要直接跑）
 ALTER TABLE public.tour_control_forms
@@ -108,16 +114,18 @@ ALTER TABLE public.tour_control_forms
 **狀況**：員工薪資結算的 submit API 沒有 check「這個 period 是不是已關帳」、所以員工可能 submit 已關帳的月份。
 
 **業務影響**：
+
 - 自己公司用：不會發生（員工不會故意作弊）
 - 賣給 SaaS 客戶：**這是防作弊賣點**、必須做
 
 **修法**：
+
 ```typescript
 // src/app/api/hr/salary-settlements/[id]/submit/route.ts
 // 大概在 PATCH/POST handler 開頭加
-const period = await getAccountingPeriod(settlement.period_id);
+const period = await getAccountingPeriod(settlement.period_id)
 if (period.is_closed) {
-  return dbErrorResponse({ code: 'PERIOD_CLOSED' }, 409);
+  return dbErrorResponse({ code: 'PERIOD_CLOSED' }, 409)
 }
 ```
 
@@ -172,6 +180,7 @@ if (period.is_closed) {
 ## Ratchet 維護機制（未來怎麼防再犯）
 
 從這一輪起、每次新 audit 開工前必跑：
+
 ```bash
 # Stale .next 清理（防 dev cache 污染 audit）
 rm -rf .next/dev/types

@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ❌ | 行100-101 直接 `supabase.from('calendar_events').delete()` + `tour_itinerary_items.delete()` 後無任何 `invalidateCalendarEvents()` / `invalidateTourItineraryItems()` 呼叫；歸檔操作後馬上打開 calendar 頁面會看到已被刪的行程 |
-| **資安** | ⚠️ | archive_delete 走 service、無 RLS 問題；但紅線 F（invalidate）缺口等於使用者看到 stale UI |
-| **架構** | ✅ | L1 ModuleGuard 有；L2 Capability 有；L6 apiMutate 有 |
-| **開發品管** | ⚠️ | 無專屬 e2e；eslint suppress 有 3 個 entry |
-| **清理** | ⚠️ | archive-management 是 library 子頁（不獨立 module）；但 Pass 2 有討論價值 |
+| 維度         | 現狀 | 具體缺口                                                                                                                                                                                                                       |
+| ------------ | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **讀取效能** | ❌   | 行100-101 直接 `supabase.from('calendar_events').delete()` + `tour_itinerary_items.delete()` 後無任何 `invalidateCalendarEvents()` / `invalidateTourItineraryItems()` 呼叫；歸檔操作後馬上打開 calendar 頁面會看到已被刪的行程 |
+| **資安**     | ⚠️   | archive_delete 走 service、無 RLS 問題；但紅線 F（invalidate）缺口等於使用者看到 stale UI                                                                                                                                      |
+| **架構**     | ✅   | L1 ModuleGuard 有；L2 Capability 有；L6 apiMutate 有                                                                                                                                                                           |
+| **開發品管** | ⚠️   | 無專屬 e2e；eslint suppress 有 3 個 entry                                                                                                                                                                                      |
+| **清理**     | ⚠️   | archive-management 是 library 子頁（不獨立 module）；但 Pass 2 有討論價值                                                                                                                                                      |
 
 ---
 
@@ -23,6 +23,7 @@
 **缺口**：行100-101 的 delete 後完全沒有 SWR invalidate。
 
 **修法**：在 delete 完成後加 2 行：
+
 ```ts
 // 行 102 之後
 void invalidateCalendarEvents()
@@ -42,6 +43,7 @@ void invalidateTourItineraryItems()
 **缺口**：歸檔刪 tour_itinerary_items + calendar_events，但刪除鏈上游的 tour_itinerary_items.service.ts 有無對 tour 做 invalidate？需 William 確認。
 
 **修法**：已寫 `workspace/健檢/pending/proposals/P0-2b-archive-cascade-review.proposal.md`（純分析、無 code），確認：
+
 - Step C: `tour_itinerary_items.service.ts` → `invalidateTours()` ✅ 已有
 - Step D/E: 服務層 cascade → 需 grep 確認
 - Step F: `tour_itinerary_items` entity delete 有 `invalidateTours()` ✅ 已解決
@@ -56,9 +58,10 @@ void invalidateTourItineraryItems()
 **缺口**：無 archive-management 專屬 e2e。
 
 **修法**：在 `tests/e2e/library-archive-management.spec.ts`：
+
 ```
-建立 1 筆 tour → 建立關聯行程 → 歸檔 → 
-確認行程從 calendar 頁面消失 → 
+建立 1 筆 tour → 建立關聯行程 → 歸檔 →
+確認行程從 calendar 頁面消失 →
 確認 tour itinerary 頁面仍顯示歸檔行程（不刪 tour 本體）
 ```
 
@@ -72,6 +75,7 @@ void invalidateTourItineraryItems()
 **缺口**：.eslint-suppressions.json 中 3 個 archive-management entry（修完 Action A 後可清除 2 個）。
 
 **修法**：
+
 1. 修完 Action A 後跑 `npm run lint:swr-prune` 自動清理 suppression
 2. 確認 `src/app/(main)/library/archive-management/page.tsx` 無其他直接 supabase 散刻
 
@@ -107,4 +111,4 @@ void invalidateTourItineraryItems()
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

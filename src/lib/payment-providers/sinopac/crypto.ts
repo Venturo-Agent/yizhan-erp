@@ -65,7 +65,8 @@ function filterEmpty(obj: Record<string, unknown>): Record<string, unknown> {
   for (const [k, v] of Object.entries(obj)) {
     if (v === null || v === undefined || v === '') continue
     if (Array.isArray(v) && v.length === 0) continue
-    if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v as object).length === 0) continue
+    if (typeof v === 'object' && !Array.isArray(v) && Object.keys(v as object).length === 0)
+      continue
     out[k] = v
   }
   return out
@@ -75,20 +76,16 @@ function filterEmpty(obj: Record<string, unknown>): Record<string, unknown> {
  * Sign：第一層 scalar 欄位（排除 null/物件/陣列）按 key 升序組 `k=v&k=v`
  *   + nonce + hashID → SHA256 大寫（對應 SampleCode getSign）
  */
-export function generateSign(
-  data: Record<string, unknown>,
-  nonce: string,
-  hashID: string
-): string {
+export function generateSign(data: Record<string, unknown>, nonce: string, hashID: string): string {
   const keys = Object.keys(data)
-    .filter((k) => {
+    .filter(k => {
       const v = data[k]
       if (v === null || v === undefined || v === '') return false
       if (typeof v === 'object') return false // 只取第一層 scalar（陣列/物件不進 Sign）
       return true
     })
     .sort()
-  const content = keys.map((k) => `${k}=${String(data[k])}`).join('&') + nonce + hashID
+  const content = keys.map(k => `${k}=${String(data[k])}`).join('&') + nonce + hashID
   return sha256Upper(content)
 }
 
@@ -128,11 +125,7 @@ export function encryptMessage(
  * @param hashID 同加密用的 HashID
  * @param iv 用「回應的 ResNonce」算的 IV（getIV(resNonce)）— 注意不是 request 的 IV
  */
-export function decryptMessage<T = unknown>(
-  encryptedHex: string,
-  hashID: string,
-  iv: string
-): T {
+export function decryptMessage<T = unknown>(encryptedHex: string, hashID: string, iv: string): T {
   if (hashID.length !== 32) {
     throw new Error(`decryptMessage: hashID 必須 32 字元（目前 ${hashID.length}）`)
   }

@@ -135,7 +135,9 @@ export default function OpeningBalancesPage() {
         toast.error(res.error || PAGE_LABELS.SAVE_FAILED)
         return
       }
-      toast.success(`${PAGE_LABELS.SAVE_SUCCESS_PREFIX}${res.data?.voucher_no}${PAGE_LABELS.SAVE_SUCCESS_SUFFIX}`)
+      toast.success(
+        `${PAGE_LABELS.SAVE_SUCCESS_PREFIX}${res.data?.voucher_no}${PAGE_LABELS.SAVE_SUCCESS_SUFFIX}`
+      )
       // 重載
       const reloadRes = await fetch('/api/accounting/opening-balances')
       const reload = await reloadRes.json()
@@ -159,9 +161,7 @@ export default function OpeningBalancesPage() {
           step="0.01"
           placeholder="0"
           value={balances[acc.id] || ''}
-          onChange={e =>
-            setBalances(prev => ({ ...prev, [acc.id]: e.target.value }))
-          }
+          onChange={e => setBalances(prev => ({ ...prev, [acc.id]: e.target.value }))}
           className="text-right font-mono"
         />
       </div>
@@ -183,7 +183,8 @@ export default function OpeningBalancesPage() {
             <div className="text-sm text-morandi-primary space-y-1">
               <div className="font-semibold">啟用會計時設定一次、之後通常不再改</div>
               <div className="text-muted-foreground">
-                資產類期初記為借方、負債 + 權益記為貸方、必須借貸平衡。儲存後會產生一張「期初開帳傳票」（鎖定不可改）、覆寫前次設定。
+                資產類期初記為借方、負債 +
+                權益記為貸方、必須借貸平衡。儲存後會產生一張「期初開帳傳票」（鎖定不可改）、覆寫前次設定。
               </div>
             </div>
           </div>
@@ -198,7 +199,8 @@ export default function OpeningBalancesPage() {
             </div>
             {voucher && (
               <div className="text-sm text-muted-foreground pb-2">
-                已有期初傳票：<span className="font-mono">{voucher.voucher_no}</span>（{voucher.voucher_date}）
+                已有期初傳票：<span className="font-mono">{voucher.voucher_no}</span>（
+                {voucher.voucher_date}）
               </div>
             )}
           </div>
@@ -249,11 +251,7 @@ export default function OpeningBalancesPage() {
               </div>
             </div>
             <div className="flex justify-end">
-              <Button
-                onClick={handleSave}
-                disabled={!isBalanced || isSaving}
-                className="gap-2"
-              >
+              <Button onClick={handleSave} disabled={!isBalanced || isSaving} className="gap-2">
                 <Save size={16} />
                 {isSaving ? '儲存中...' : voucher ? '覆寫期初餘額' : '儲存期初餘額'}
               </Button>

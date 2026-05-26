@@ -41,4 +41,3 @@ export const SHARED_DATA_LABELS = {
   PAGE_NEXT: '下一頁',
   PAGE_LAST: '末頁',
 } as const
-

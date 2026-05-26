@@ -27,24 +27,27 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
   const [pendingSubmittedIds, setPendingSubmittedIds] = useState<Set<string>>(new Set())
   const [showForm, setShowForm] = useState(false)
 
-  const fetchData = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true)
-    setErrorMsg(null)
-    try {
-      const res = await fetch(`/api/public/invoices/${token}`)
-      const json = await res.json()
-      if (!res.ok) {
-        setErrorMsg(json.error || '載入失敗')
-        return
+  const fetchData = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true)
+      setErrorMsg(null)
+      try {
+        const res = await fetch(`/api/public/invoices/${token}`)
+        const json = await res.json()
+        if (!res.ok) {
+          setErrorMsg(json.error || '載入失敗')
+          return
+        }
+        setData(json as BatchData)
+        if (!silent) setSelected(new Set())
+      } catch {
+        setErrorMsg(LABELS.ERR_NETWORK)
+      } finally {
+        if (!silent) setLoading(false)
       }
-      setData(json as BatchData)
-      if (!silent) setSelected(new Set())
-    } catch {
-      setErrorMsg(LABELS.ERR_NETWORK)
-    } finally {
-      if (!silent) setLoading(false)
-    }
-  }, [token])
+    },
+    [token]
+  )
 
   useEffect(() => {
     void fetchData()
@@ -144,7 +147,12 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
             <AmountRow label={LABELS.TOTAL_AMOUNT} amount={batch.total_amount} />
             <AmountRow label={LABELS.PAID_AMOUNT} amount={batch.paid_amount} />
             <div className="h-px bg-border my-2" />
-            <AmountRow label={LABELS.REMAINING} amount={batch.remaining} emphasis strikeThrough={isAllPaid} />
+            <AmountRow
+              label={LABELS.REMAINING}
+              amount={batch.remaining}
+              emphasis
+              strikeThrough={isAllPaid}
+            />
             <div className="mt-2 h-2 rounded-full bg-morandi-gold-light overflow-hidden">
               <div
                 className="h-full bg-morandi-gold transition-all"
@@ -174,7 +182,10 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
               />
               <BankRow label={LABELS.BRANCH_LABEL} value={workspace.bank.branch || '-'} />
               <BankRow label={LABELS.ACCOUNT_LABEL} value={workspace.bank.account} mono />
-              <BankRow label={LABELS.ACCOUNT_NAME_LABEL} value={workspace.bank.account_name || '-'} />
+              <BankRow
+                label={LABELS.ACCOUNT_NAME_LABEL}
+                value={workspace.bank.account_name || '-'}
+              />
             </div>
           ) : (
             <div className="flex items-center gap-2 text-sm text-morandi-secondary">

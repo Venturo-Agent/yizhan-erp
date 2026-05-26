@@ -26,10 +26,7 @@ import { usePaymentForm } from '@/app/(main)/finance/payments/_hooks/usePaymentF
 import { useReceiptMutations } from '@/app/(main)/finance/payments/_hooks/useReceiptMutations'
 import { usePaymentMethodsCached } from '@/data/hooks'
 import { PaymentItemRow } from '@/app/(main)/finance/payments/_components/PaymentItemRow'
-import {
-  InlineEditTable,
-  type InlineEditColumn,
-} from '@/components/ui/inline-edit-table'
+import { InlineEditTable, type InlineEditColumn } from '@/components/ui/inline-edit-table'
 import { RequestDateInput } from '@/app/(main)/finance/requests/_components/RequestDateInput'
 import { formatMoney } from '@/lib/utils/format-currency'
 import type { PaymentItem } from '@/app/(main)/finance/payments/_types'
@@ -52,11 +49,7 @@ const receiptColumns: InlineEditColumn<PaymentItem>[] = [
   { key: 'actual', label: '實收金額', width: '120px', align: 'right', render: () => null },
 ]
 
-export function QuickReceipt({
-  onSubmit,
-  defaultTourId,
-  defaultOrderId,
-}: QuickReceiptProps) {
+export function QuickReceipt({ onSubmit, defaultTourId, defaultOrderId }: QuickReceiptProps) {
   const t = useTranslations('todos')
   const { user } = useAuthStore()
   const {
@@ -86,7 +79,6 @@ export function QuickReceipt({
         order_id: defaultOrderId || prev.order_id,
       }))
     }
-     
   }, [defaultTourId, defaultOrderId])
 
   const tourOptions = useTourOptions(tours)
@@ -107,9 +99,7 @@ export function QuickReceipt({
     }
     setIsSubmitting(true)
     try {
-      const tourInfo = tours.find(
-        t => t.id === (selectedOrder?.tour_id || formData.tour_id)
-      )
+      const tourInfo = tours.find(t => t.id === (selectedOrder?.tour_id || formData.tour_id))
       const result = await createReceiptWithItems({
         formData,
         paymentItems,
@@ -121,9 +111,7 @@ export function QuickReceipt({
               tour_name: selectedOrder.tour_name,
             }
           : null,
-        tourInfo: tourInfo
-          ? { id: tourInfo.id, code: tourInfo.code, name: tourInfo.name }
-          : null,
+        tourInfo: tourInfo ? { id: tourInfo.id, code: tourInfo.code, name: tourInfo.name } : null,
         userId: user.id,
         workspaceId: user.workspace_id,
       })
@@ -148,9 +136,7 @@ export function QuickReceipt({
           <Combobox
             options={tourOptions}
             value={formData.tour_id}
-            onChange={value =>
-              setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))
-            }
+            onChange={value => setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))}
             placeholder={t('searchTourPlaceholder')}
             maxHeight="300px"
           />
@@ -214,10 +200,7 @@ export function QuickReceipt({
         <Button
           onClick={handleSubmit}
           disabled={
-            isSubmitting ||
-            !formData.tour_id ||
-            !formData.order_id ||
-            paymentItems.length === 0
+            isSubmitting || !formData.tour_id || !formData.order_id || paymentItems.length === 0
           }
           variant="soft-gold"
           className="gap-2"

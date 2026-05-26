@@ -10,7 +10,7 @@ import { UnauthorizedPage } from '@/components/unauthorized-page'
  */
 export default function AccountingLayout({ children }: { children: React.ReactNode }) {
   const { canReadAnyInModule, loading } = useMyCapabilities()
-  if (loading) return null  // ModuleGuard 已在外層顯示 loading、避免 cascade
+  if (loading) return null // ModuleGuard 已在外層顯示 loading、避免 cascade
   if (!canReadAnyInModule('accounting')) return <UnauthorizedPage />
   return <>{children}</>
 }

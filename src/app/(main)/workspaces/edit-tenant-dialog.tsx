@@ -63,7 +63,7 @@ export function EditTenantDialog({
       onComplete()
     },
     {
-      onError: (error) => {
+      onError: error => {
         logger.error('Failed to update workspace:', error)
         toast.error(t('toastEditFailed'))
       },
@@ -85,41 +85,40 @@ export function EditTenantDialog({
       cancelLabel={t('btnCancel')}
       maxWidth="md"
     >
-        <div className="space-y-4 pt-2">
-          <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('fieldName')}{' '}
-              <span className="text-morandi-red">{t('fieldNameRequired')}</span>
-            </label>
-            <Input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder={t('fieldNamePlaceholder')}
-              className="mt-1"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-morandi-primary">{t('fieldCode')}</label>
-            <Input value={workspace?.code || ''} disabled className="mt-1" />
-            <p className="text-xs text-morandi-secondary mt-1">{t('fieldCodeHint')}</p>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('fieldMaxEmployees')}
-            </label>
-            <Input
-              type="number"
-              min="1"
-              value={maxEmployees}
-              onChange={e => setMaxEmployees(e.target.value)}
-              placeholder={t('fieldMaxEmployeesPlaceholder')}
-              className="mt-1 max-w-[160px]"
-            />
-            <p className="text-xs text-morandi-secondary mt-1">{t('fieldMaxEmployeesHint')}</p>
-          </div>
+      <div className="space-y-4 pt-2">
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">
+            {t('fieldName')} <span className="text-morandi-red">{t('fieldNameRequired')}</span>
+          </label>
+          <Input
+            value={name}
+            onChange={e => setName(e.target.value)}
+            placeholder={t('fieldNamePlaceholder')}
+            className="mt-1"
+          />
         </div>
+
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">{t('fieldCode')}</label>
+          <Input value={workspace?.code || ''} disabled className="mt-1" />
+          <p className="text-xs text-morandi-secondary mt-1">{t('fieldCodeHint')}</p>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">
+            {t('fieldMaxEmployees')}
+          </label>
+          <Input
+            type="number"
+            min="1"
+            value={maxEmployees}
+            onChange={e => setMaxEmployees(e.target.value)}
+            placeholder={t('fieldMaxEmployeesPlaceholder')}
+            className="mt-1 max-w-[160px]"
+          />
+          <p className="text-xs text-morandi-secondary mt-1">{t('fieldMaxEmployeesHint')}</p>
+        </div>
+      </div>
     </EntityFormDialog>
   )
 }

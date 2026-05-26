@@ -170,12 +170,8 @@ export default function SharedDataAirportsPage() {
               <table className="w-full text-sm">
                 <thead className="border-b bg-muted/30">
                   <tr>
-                    <th className="px-4 py-1.5 text-left text-xs font-medium">
-                      {t('colNameZh')}
-                    </th>
-                    <th className="px-4 py-1.5 text-left text-xs font-medium">
-                      {t('colIata')}
-                    </th>
+                    <th className="px-4 py-1.5 text-left text-xs font-medium">{t('colNameZh')}</th>
+                    <th className="px-4 py-1.5 text-left text-xs font-medium">{t('colIata')}</th>
                   </tr>
                 </thead>
                 <tbody>

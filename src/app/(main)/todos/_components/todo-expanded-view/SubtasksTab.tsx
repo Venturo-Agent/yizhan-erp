@@ -59,7 +59,11 @@ interface SubtasksTabProps {
   onAddSubtask: () => void
   onPresetSubtask: (title: string) => void
   onToggleExpand: (id: string) => void
-  onTourCreated: (tour: { id: string; code: string; order?: { id: string; order_number: string } }) => void
+  onTourCreated: (tour: {
+    id: string
+    code: string
+    order?: { id: string; order_number: string }
+  }) => void
   setNewSubtaskTitle: (v: string) => void
 }
 
@@ -130,10 +134,7 @@ export function SubtasksTab({
             const isExpanded = expandedSubtaskIds.has(sub.id)
             const showForm = hasInlineForm(sub.title)
             return (
-              <div
-                key={sub.id}
-                className="bg-card rounded-lg border border-border overflow-hidden"
-              >
+              <div key={sub.id} className="bg-card rounded-lg border border-border overflow-hidden">
                 <div className="flex items-center gap-3 p-3">
                   <button
                     onClick={() => onSubtaskToggle(sub.id)}
@@ -201,7 +202,9 @@ export function SubtasksTab({
                         <QuickDisbursementLazy
                           onSubmit={() => onSubtaskDone(sub.id)}
                           defaultTourId={todo.tour_id || undefined}
-                          defaultOrderId={todo.related_items?.find(r => r.type === 'order')?.id || undefined}
+                          defaultOrderId={
+                            todo.related_items?.find(r => r.type === 'order')?.id || undefined
+                          }
                         />
                       </Suspense>
                     )}
@@ -216,7 +219,9 @@ export function SubtasksTab({
                         <QuickReceiptLazy
                           onSubmit={() => onSubtaskDone(sub.id)}
                           defaultTourId={todo.tour_id || undefined}
-                          defaultOrderId={todo.related_items?.find(r => r.type === 'order')?.id || undefined}
+                          defaultOrderId={
+                            todo.related_items?.find(r => r.type === 'order')?.id || undefined
+                          }
                         />
                       </Suspense>
                     )}

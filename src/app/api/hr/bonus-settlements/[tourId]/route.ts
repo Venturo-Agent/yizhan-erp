@@ -41,7 +41,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     // 撈該 tour 所有獎金
     const { data: items, error } = await supabase
       .from('bonus_pending')
-      .select('id, employee_id, employee_name, amount, bonus_kind, reason, status, settled_at, settled_in_payment_request_id, created_at')
+      .select(
+        'id, employee_id, employee_name, amount, bonus_kind, reason, status, settled_at, settled_in_payment_request_id, created_at'
+      )
       .eq('tour_id', tourId)
       .eq('workspace_id', guard.workspaceId)
       .order('employee_name')

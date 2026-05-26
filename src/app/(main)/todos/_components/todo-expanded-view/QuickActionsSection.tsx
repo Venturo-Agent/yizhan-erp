@@ -30,7 +30,9 @@ const QuickDisbursement = lazy(() =>
   import('../quick-actions/quick-disbursement').then(m => ({ default: m.QuickDisbursement }))
 )
 
-function getTypeMeta(t: ReturnType<typeof useTranslations<'todos'>>): Record<QuickActionType, { label: string; icon: typeof Receipt }> {
+function getTypeMeta(
+  t: ReturnType<typeof useTranslations<'todos'>>
+): Record<QuickActionType, { label: string; icon: typeof Receipt }> {
   return {
     receipt: { label: t('receiptAction'), icon: Receipt },
     invoice: { label: t('invoiceAction'), icon: FileText },
@@ -139,13 +141,7 @@ export function QuickActionInstanceCard({
 /**
  * 共享表單。
  */
-function ShareForm({
-  todo,
-  onUpdate,
-}: {
-  todo: Todo
-  onUpdate: (updates: Partial<Todo>) => void
-}) {
+function ShareForm({ todo, onUpdate }: { todo: Todo; onUpdate: (updates: Partial<Todo>) => void }) {
   const t = useTranslations('todos')
   const { items: employees } = useEmployeesSlim({ all: true })
   const { user: currentUser } = useAuthStore()
@@ -219,9 +215,7 @@ function ShareForm({
         </label>
         <Select
           value={shareData.permission}
-          onValueChange={(v: 'view' | 'edit') =>
-            setShareData(p => ({ ...p, permission: v }))
-          }
+          onValueChange={(v: 'view' | 'edit') => setShareData(p => ({ ...p, permission: v }))}
         >
           <SelectTrigger className="shadow-sm h-9 text-xs">
             <SelectValue />

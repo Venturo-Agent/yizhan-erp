@@ -6,10 +6,7 @@
  */
 
 import * as React from 'react'
-import type {
-  Canvas,
-  CanvasJpNoteBlock,
-} from '@/components/canvas-renderer/types'
+import type { Canvas, CanvasJpNoteBlock } from '@/components/canvas-renderer/types'
 import { updateJpNoteBlock } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
 
@@ -20,12 +17,7 @@ interface JpNoteEditorProps {
   onRequestDelete: () => void
 }
 
-export function JpNoteEditor({
-  block,
-  canvas,
-  onChange,
-  onRequestDelete,
-}: JpNoteEditorProps) {
+export function JpNoteEditor({ block, canvas, onChange, onRequestDelete }: JpNoteEditorProps) {
   const patch = (p: Partial<CanvasJpNoteBlock['data']>) => {
     onChange(updateJpNoteBlock(canvas, block.id, p))
   }
@@ -35,13 +27,13 @@ export function JpNoteEditor({
         <TextField
           label="用語（term）"
           value={block.data.term}
-          onChange={(v) => patch({ term: v })}
+          onChange={v => patch({ term: v })}
           placeholder="例：湯波（ゆば）"
         />
         <TextAreaField
           label="說明"
           value={block.data.description}
-          onChange={(v) => patch({ description: v })}
+          onChange={v => patch({ description: v })}
           rows={4}
         />
       </FormSection>

@@ -69,9 +69,7 @@ export function OrderMembersToolbar({
       className={`flex-shrink-0 flex items-center justify-between px-4 py-2 ${embedded ? 'bg-morandi-gold-header border-b border-morandi-gold/20' : 'bg-morandi-gold-header border-b border-border/60'}`}
     >
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-morandi-primary">
-          {t('memberList')}
-        </span>
+        <span className="text-sm font-medium text-morandi-primary">{t('memberList')}</span>
         <span className="text-sm text-morandi-secondary">
           ({memberCount} {t('personUnit')})
         </span>
@@ -93,11 +91,7 @@ export function OrderMembersToolbar({
           size="sm"
           className={`h-7 px-2 gap-1 text-xs ${isAllEditMode ? 'bg-morandi-gold/10 text-morandi-gold' : 'text-morandi-secondary'}`}
           onClick={onToggleEditMode}
-          title={
-            isAllEditMode
-              ? t('closeAllEditMode')
-              : t('openAllEditMode')
-          }
+          title={isAllEditMode ? t('closeAllEditMode') : t('openAllEditMode')}
         >
           <SquarePen size={12} />
           {isAllEditMode ? t('closeEdit') : t('editAll')}
@@ -121,7 +115,9 @@ export function OrderMembersToolbar({
                 // 5/24：改走 updateTour entity hook（自動失效快取、不散刻直接寫）
                 if (tourId) {
                   const fieldDefs = updated.map(f => ({ id: f.id, name: f.name }))
-                  await updateTour(tourId, { custom_cost_fields: fieldDefs } as Parameters<typeof updateTour>[1])
+                  await updateTour(tourId, { custom_cost_fields: fieldDefs } as Parameters<
+                    typeof updateTour
+                  >[1])
                 }
               }
             }}
@@ -153,15 +149,17 @@ export function OrderMembersToolbar({
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-7 px-2 gap-1 text-xs text-morandi-secondary">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 gap-1 text-xs text-morandi-secondary"
+            >
               <Settings size={12} />
               {t('settings')}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 max-h-[70vh] overflow-y-auto">
-            <DropdownMenuLabel className="text-xs">
-              {t('showColumns')}
-            </DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs">{t('showColumns')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem
               checked={columnVisibility.passport_name}
@@ -262,24 +260,17 @@ export function OrderMembersToolbar({
                 <DropdownMenuSeparator />
                 <DropdownMenuCheckboxItem
                   checked={columnVisibility.room && showRoomColumn}
-                  onCheckedChange={() =>
-                    showRoomColumn && onToggleColumnVisibility('room')
-                  }
+                  onCheckedChange={() => showRoomColumn && onToggleColumnVisibility('room')}
                   className={!showRoomColumn ? 'opacity-50 cursor-not-allowed' : ''}
                 >
                   {columnLabels.room} {!showRoomColumn && t('noData')}
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
                   checked={columnVisibility.vehicle && showVehicleColumn}
-                  onCheckedChange={() =>
-                    showVehicleColumn && onToggleColumnVisibility('vehicle')
-                  }
-                  className={
-                    !showVehicleColumn ? 'opacity-50 cursor-not-allowed' : ''
-                  }
+                  onCheckedChange={() => showVehicleColumn && onToggleColumnVisibility('vehicle')}
+                  className={!showVehicleColumn ? 'opacity-50 cursor-not-allowed' : ''}
                 >
-                  {columnLabels.vehicle}{' '}
-                  {!showVehicleColumn && t('noData')}
+                  {columnLabels.vehicle} {!showVehicleColumn && t('noData')}
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuCheckboxItem

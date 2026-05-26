@@ -17,7 +17,11 @@ interface RoleCapabilityTableProps {
   saving: boolean
   onToggleExpand: (moduleCode: string) => void
   onToggleModuleAll: (module: ModuleDefinition, field: 'can_read' | 'can_write') => void
-  onToggleTabPermission: (moduleCode: string, tabCode: string, field: 'can_read' | 'can_write') => void
+  onToggleTabPermission: (
+    moduleCode: string,
+    tabCode: string,
+    field: 'can_read' | 'can_write'
+  ) => void
   onSavePermissions: () => void
   getPermission: (moduleCode: string, tabCode: string | null) => TabPermission | undefined
   isModuleFullyEnabled: (module: ModuleDefinition, field: 'can_read' | 'can_write') => boolean
@@ -130,7 +134,11 @@ export function RoleCapabilityTable({
                       onToggleTabPermission(module.code, tab.code, 'can_write')
                     }
                     disabled={rolesWriteLocked}
-                    title={rolesWriteLocked ? '系統主管必須保留「職務管理」權限、避免鎖死自己' : undefined}
+                    title={
+                      rolesWriteLocked
+                        ? '系統主管必須保留「職務管理」權限、避免鎖死自己'
+                        : undefined
+                    }
                     className="data-[state=checked]:bg-morandi-gold"
                   />
                 </div>
@@ -186,12 +194,8 @@ export function RoleCapabilityTable({
             {/* 表頭 */}
             <div className="flex items-center bg-card sticky top-0 z-20 border-b border-border shadow-sm">
               <div className="flex-1 p-4 font-semibold text-morandi-primary">功能模組</div>
-              <div className="w-32 p-4 text-center font-semibold text-morandi-primary">
-                可讀取
-              </div>
-              <div className="w-32 p-4 text-center font-semibold text-morandi-primary">
-                可寫入
-              </div>
+              <div className="w-32 p-4 text-center font-semibold text-morandi-primary">可讀取</div>
+              <div className="w-32 p-4 text-center font-semibold text-morandi-primary">可寫入</div>
             </div>
 
             {/* 模組列表（只列出 workspace 已啟用的功能） */}

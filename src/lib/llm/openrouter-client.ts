@@ -69,8 +69,7 @@ export async function callLLM(req: LLMRequest): Promise<LLMResponse> {
   }
 
   // OpenRouter 建議帶 HTTP-Referer + X-Title（給 dashboard 統計）
-  const referer =
-    process.env.NEXT_PUBLIC_APP_URL?.trim() || 'https://erp.venturo.tw'
+  const referer = process.env.NEXT_PUBLIC_APP_URL?.trim() || 'https://erp.venturo.tw'
   const title = `Venturo LINE Bot${req.workspaceId ? ` (ws=${req.workspaceId.slice(0, 8)})` : ''}`
 
   const body: Record<string, unknown> = {

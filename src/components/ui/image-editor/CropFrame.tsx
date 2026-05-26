@@ -39,10 +39,14 @@ function clamp(v: number, min: number, max: number): number {
 function isDefault(c: CornerOffsets): boolean {
   const d = DEFAULT_CORNER_OFFSETS
   return (
-    c.tl.x === d.tl.x && c.tl.y === d.tl.y &&
-    c.tr.x === d.tr.x && c.tr.y === d.tr.y &&
-    c.br.x === d.br.x && c.br.y === d.br.y &&
-    c.bl.x === d.bl.x && c.bl.y === d.bl.y
+    c.tl.x === d.tl.x &&
+    c.tl.y === d.tl.y &&
+    c.tr.x === d.tr.x &&
+    c.tr.y === d.tr.y &&
+    c.br.x === d.br.x &&
+    c.br.y === d.br.y &&
+    c.bl.x === d.bl.x &&
+    c.bl.y === d.bl.y
   )
 }
 
@@ -96,7 +100,12 @@ export function CropFrame({
 }: CropFrameProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [draggingCorner, setDraggingCorner] = useState<CornerKey | null>(null)
-  const dragCornerStartRef = useRef<{ pointerX: number; pointerY: number; cornerX: number; cornerY: number } | null>(null)
+  const dragCornerStartRef = useRef<{
+    pointerX: number
+    pointerY: number
+    cornerX: number
+    cornerY: number
+  } | null>(null)
   // 滑鼠框新框：mousedown 在 viewport 起點（百分比）
   const drawStartRef = useRef<{ x: number; y: number } | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
@@ -201,8 +210,7 @@ export function CropFrame({
   const points = `${cornerOffsets.tl.x},${cornerOffsets.tl.y} ${cornerOffsets.tr.x},${cornerOffsets.tr.y} ${cornerOffsets.br.x},${cornerOffsets.br.y} ${cornerOffsets.bl.x},${cornerOffsets.bl.y}`
 
   // pointer-events：crop 模式 + 還沒框時、整層接 down 等 user drag；其他時候只 4 角接
-  const containerPointerEvents =
-    mode === 'crop' && isDefault(cornerOffsets) ? 'auto' : 'none'
+  const containerPointerEvents = mode === 'crop' && isDefault(cornerOffsets) ? 'auto' : 'none'
 
   return (
     <div
@@ -230,7 +238,14 @@ export function CropFrame({
                 <polygon points={points} fill="black" />
               </mask>
             </defs>
-            <rect x="0" y="0" width="100" height="100" fill="rgba(0,0,0,0.4)" mask="url(#crop-mask)" />
+            <rect
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              fill="rgba(0,0,0,0.4)"
+              mask="url(#crop-mask)"
+            />
             <polygon
               points={points}
               fill="none"
@@ -262,7 +277,9 @@ export function CropFrame({
               >
                 <span
                   className={`block w-full h-full rounded-full border-2 border-white shadow-md transition-transform ${
-                    draggingCorner === key ? 'scale-125 bg-morandi-gold' : 'bg-morandi-gold/90 hover:scale-110'
+                    draggingCorner === key
+                      ? 'scale-125 bg-morandi-gold'
+                      : 'bg-morandi-gold/90 hover:scale-110'
                   }`}
                 />
               </button>

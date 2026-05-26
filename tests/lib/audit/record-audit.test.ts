@@ -78,11 +78,7 @@ describe('recordAudit', () => {
 
     it('requestId 透傳（從 ctx 拿）', async () => {
       const { supabase, insertMock } = createMockSupabase()
-      await recordAudit(
-        supabase,
-        { ...validCtx, requestId: 'req-abc' },
-        validPayload
-      )
+      await recordAudit(supabase, { ...validCtx, requestId: 'req-abc' }, validPayload)
       expect(insertMock).toHaveBeenCalledWith(expect.objectContaining({ request_id: 'req-abc' }))
     })
 

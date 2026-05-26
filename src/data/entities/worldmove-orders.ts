@@ -38,8 +38,7 @@ const worldmoveOrderEntity = createEntityHook<WorldmoveOrder>('worldmove_orders'
     filterSoftDeleted: true,
   },
   slim: {
-    select:
-      'id,workspace_id,customer_name,worldmove_order_id,total_amount,status,created_at',
+    select: 'id,workspace_id,customer_name,worldmove_order_id,total_amount,status,created_at',
   },
   detail: {
     select: '*',

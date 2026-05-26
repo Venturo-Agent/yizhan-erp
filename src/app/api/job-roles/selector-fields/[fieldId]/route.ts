@@ -26,7 +26,11 @@ export async function PUT(
       return NextResponse.json({ error: '未登入或無法取得租戶' }, { status: 401 })
     }
 
-    await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '更新選人欄位', requestId: fieldId })
+    await recordApiAuditContext(supabase, {
+      actorId: guard.employeeId,
+      reason: '更新選人欄位',
+      requestId: fieldId,
+    })
 
     const body = await request.json()
     const { name, level, is_required, role_ids } = body
@@ -50,7 +54,10 @@ export async function PUT(
         return NextResponse.json({ error: '此欄位名稱已存在' }, { status: 409 })
       }
       const t = translateDbError(error)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     // 重建映射（刪除舊的 + 插入新的）
@@ -67,7 +74,10 @@ export async function PUT(
 
         if (mapError) {
           const t = translateDbError(mapError)
-          return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+          return NextResponse.json(
+            { error: t.message, code: t.code, field: t.field },
+            { status: t.httpStatus }
+          )
         }
       }
     }
@@ -98,7 +108,11 @@ export async function DELETE(
       return NextResponse.json({ error: '未登入或無法取得租戶' }, { status: 401 })
     }
 
-    await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '刪除選人欄位', requestId: fieldId })
+    await recordApiAuditContext(supabase, {
+      actorId: guard.employeeId,
+      reason: '刪除選人欄位',
+      requestId: fieldId,
+    })
 
     const { error } = await supabase
       .from('workspace_selector_fields')
@@ -108,7 +122,10 @@ export async function DELETE(
 
     if (error) {
       const t = translateDbError(error)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     return NextResponse.json({ success: true })

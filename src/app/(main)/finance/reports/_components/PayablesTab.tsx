@@ -67,7 +67,9 @@ export function PayablesTab() {
       key: 'tour_code',
       label: COMPONENT_LABELS.COL_TOUR,
       width: '130',
-      render: value => <span className="font-mono text-sm text-morandi-secondary">{String(value || '—')}</span>,
+      render: value => (
+        <span className="font-mono text-sm text-morandi-secondary">{String(value || '—')}</span>
+      ),
     },
     {
       key: 'request_date',
@@ -80,13 +82,17 @@ export function PayablesTab() {
       label: COMPONENT_LABELS.COL_AMOUNT,
       width: '120',
       align: 'right',
-      render: value => <CurrencyCell amount={Number(value) || 0} variant="expense" className="font-semibold" />,
+      render: value => (
+        <CurrencyCell amount={Number(value) || 0} variant="expense" className="font-semibold" />
+      ),
     },
     {
       key: 'status',
       label: COMPONENT_LABELS.COL_STATUS,
       width: '90',
-      render: value => <span className="text-sm">{getStatusLabelFor('payment_request', String(value))}</span>,
+      render: value => (
+        <span className="text-sm">{getStatusLabelFor('payment_request', String(value))}</span>
+      ),
     },
     {
       key: 'days_overdue',

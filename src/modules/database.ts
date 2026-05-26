@@ -13,12 +13,7 @@ export const DatabaseModule = defineModule({
   name: '資料管理',
   description: '客戶、供應商、資源',
   category: 'basic',
-  routes: [
-    '/library',
-    '/library/attractions',
-    '/library/suppliers',
-    '/library/archive-management',
-  ],
+  routes: ['/library', '/library/attractions', '/library/suppliers', '/library/archive-management'],
   exposedToHr: true,
   defaultRoles: ['admin', 'sales', 'manager'],
   tabs: [

@@ -39,9 +39,7 @@ export function TourPrintMemberList({
           {t('printSelectedCount', { selected: selectedMembers.size, total: members.length })}
         </span>
         <Button variant="ghost" size="sm" onClick={toggleAllMembers}>
-          {selectedMembers.size === members.length
-            ? t('printDeselectAll')
-            : t('printSelectAll')}
+          {selectedMembers.size === members.length ? t('printDeselectAll') : t('printSelectAll')}
         </Button>
       </div>
       <div className="max-h-[250px] overflow-y-auto border border-border rounded-lg">

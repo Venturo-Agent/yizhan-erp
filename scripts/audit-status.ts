@@ -56,7 +56,7 @@ function runGrep(pattern: string): string[] {
   try {
     const out = execSync(
       `grep -rEn ${JSON.stringify(pattern)} src/ --include='*.ts' --include='*.tsx'`,
-      { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] },
+      { cwd: REPO_ROOT, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }
     )
     return out.split('\n').filter(Boolean)
   } catch {
@@ -77,7 +77,9 @@ function isWhitelisted(file: string): boolean {
 // ─── D1：自定義 STATUS_LABELS / STATUS_MAP / statusLabels ───
 // 抓宣告：const STATUS_LABELS = / export const statusLabels = / etc
 function detectD1() {
-  const lines = runGrep('^[[:space:]]*(const|export[[:space:]]+const)[[:space:]]+(STATUS_LABELS|STATUS_MAP|statusLabels|statusColors|_STATUS_MAP|_statusMap)\\b')
+  const lines = runGrep(
+    '^[[:space:]]*(const|export[[:space:]]+const)[[:space:]]+(STATUS_LABELS|STATUS_MAP|statusLabels|statusColors|_STATUS_MAP|_statusMap)\\b'
+  )
   for (const raw of lines) {
     const p = parseLine(raw)
     if (!p || isWhitelisted(p.file)) continue
@@ -97,7 +99,9 @@ function detectD1() {
 // 不抓「英文 enum → 英文 enum」(那是正規化、不是翻譯)
 function detectD2() {
   // grep 三元 + 兩個分支都含中文（CJK 範圍）
-  const lines = runGrep("status[[:space:]]*===[[:space:]]*'[a-z_]+'[[:space:]]*\\?[[:space:]]*'[^']*[\\xe4-\\xe9]")
+  const lines = runGrep(
+    "status[[:space:]]*===[[:space:]]*'[a-z_]+'[[:space:]]*\\?[[:space:]]*'[^']*[\\xe4-\\xe9]"
+  )
   for (const raw of lines) {
     const p = parseLine(raw)
     if (!p || isWhitelisted(p.file)) continue
@@ -141,7 +145,9 @@ function detectD3() {
 // ─── D4：中文當業務 status 值 ───
 // status: '已確認' / status: '待確認' / status: '已付款' 等
 function detectD4() {
-  const lines = runGrep("status[[:space:]]*:[[:space:]]*'(已確認|待確認|已付款|未付款|待付款|草稿|已過帳|已沖銷)'")
+  const lines = runGrep(
+    "status[[:space:]]*:[[:space:]]*'(已確認|待確認|已付款|未付款|待付款|草稿|已過帳|已沖銷)'"
+  )
   for (const raw of lines) {
     const p = parseLine(raw)
     if (!p || isWhitelisted(p.file)) continue

@@ -219,7 +219,11 @@ export const ticketStatusPatchSchema = z.object({
 
 export const createWorkspaceSchema = z.object({
   name: z.string().min(1).max(100),
-  code: z.string().min(2).max(20).regex(/^[A-Za-z0-9_-]+$/, 'code 只允許英數 / _ / -'),
+  code: z
+    .string()
+    .min(2)
+    .max(20)
+    .regex(/^[A-Za-z0-9_-]+$/, 'code 只允許英數 / _ / -'),
   type: z.enum(['travel_agency', 'tour_operator', 'other']).optional(),
   adminName: z.string().min(1).max(50).optional(),
   adminEmail: z.string().email().max(255).optional(),

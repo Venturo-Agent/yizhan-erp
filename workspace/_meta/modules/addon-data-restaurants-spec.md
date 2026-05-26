@@ -20,6 +20,6 @@ workspace_features 表 feature_code='addon_data_restaurants' enabled=true
 
 ## 變更
 
-| 日期 | 變更 |
-|------|------|
+| 日期       | 變更            |
+| ---------- | --------------- |
 | 2026-05-15 | 初版（QDF R22） |

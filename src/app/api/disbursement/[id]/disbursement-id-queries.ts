@@ -41,14 +41,17 @@ export async function fetchDisbursementOrder(
   const admin = getSupabaseAdminClient()
   type OrderFetchChain = {
     select: (c: string) => {
-      eq: (k: string, v: string) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
         maybeSingle: () => Promise<{ data: DisbursementOrder | null }>
       }
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => OrderFetchChain
-  )('disbursement_orders')
+  const { data } = await (admin.from as unknown as (t: string) => OrderFetchChain)(
+    'disbursement_orders'
+  )
     .select('id, workspace_id, status, bank_account_id, total_fee')
     .eq('id', disbursementId)
     .maybeSingle()
@@ -62,9 +65,9 @@ export async function fetchExistingDoiItems(disbursementId: string): Promise<Doi
       eq: (k: string, v: string) => Promise<{ data: DoiRow[] | null }>
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => DoiListChain
-  )('disbursement_order_items')
+  const { data } = await (admin.from as unknown as (t: string) => DoiListChain)(
+    'disbursement_order_items'
+  )
     .select('id, payment_request_item_id')
     .eq('disbursement_order_id', disbursementId)
   return data ?? []
@@ -77,9 +80,9 @@ export async function fetchAddedItems(addedItemIds: string[]): Promise<ItemRow[]
       in: (k: string, v: string[]) => Promise<{ data: ItemRow[] | null }>
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => ItemFetchChain
-  )('payment_request_items')
+  const { data } = await (admin.from as unknown as (t: string) => ItemFetchChain)(
+    'payment_request_items'
+  )
     .select('id, request_id, subtotal, supplier_id, workspace_id')
     .in('id', addedItemIds)
   return data ?? null
@@ -91,14 +94,17 @@ export async function fetchOccupiedDoi(
   const admin = getSupabaseAdminClient()
   type DoiCheckChain = {
     select: (c: string) => {
-      in: (k: string, v: string[]) => Promise<{
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{
         data: { payment_request_item_id: string; disbursement_order_id: string }[] | null
       }>
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => DoiCheckChain
-  )('disbursement_order_items')
+  const { data } = await (admin.from as unknown as (t: string) => DoiCheckChain)(
+    'disbursement_order_items'
+  )
     .select('payment_request_item_id, disbursement_order_id')
     .in('payment_request_item_id', addedItemIds)
   return data ?? []
@@ -106,18 +112,15 @@ export async function fetchOccupiedDoi(
 
 export async function fetchFinalItems(finalItemIds: string[]): Promise<ItemRow[]> {
   const admin = getSupabaseAdminClient()
-  const safeIds =
-    finalItemIds.length > 0
-      ? finalItemIds
-      : ['00000000-0000-0000-0000-000000000000']
+  const safeIds = finalItemIds.length > 0 ? finalItemIds : ['00000000-0000-0000-0000-000000000000']
   type FinalItemChain = {
     select: (c: string) => {
       in: (k: string, v: string[]) => Promise<{ data: ItemRow[] | null }>
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => FinalItemChain
-  )('payment_request_items')
+  const { data } = await (admin.from as unknown as (t: string) => FinalItemChain)(
+    'payment_request_items'
+  )
     .select('id, request_id, subtotal, supplier_id, workspace_id')
     .in('id', safeIds)
   return data ?? []
@@ -131,9 +134,7 @@ export async function fetchSuppliers(supplierIds: string[]): Promise<SupplierRow
       in: (k: string, v: string[]) => Promise<{ data: SupplierRow[] | null }>
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => SupChain
-  )('suppliers')
+  const { data } = await (admin.from as unknown as (t: string) => SupChain)('suppliers')
     .select('id, bank_code')
     .in('id', supplierIds)
   return data ?? []
@@ -143,14 +144,15 @@ export async function fetchBankAccount(bankAccountId: string): Promise<BankAccou
   const admin = getSupabaseAdminClient()
   type BankSingleChain = {
     select: (c: string) => {
-      eq: (k: string, v: string) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
         maybeSingle: () => Promise<{ data: BankAccountRow | null }>
       }
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => BankSingleChain
-  )('bank_accounts')
+  const { data } = await (admin.from as unknown as (t: string) => BankSingleChain)('bank_accounts')
     .select('bank_code, workspace_id')
     .eq('id', bankAccountId)
     .maybeSingle()
@@ -164,7 +166,10 @@ export async function deleteRemovedDoiItems(
   const admin = getSupabaseAdminClient()
   type DoiDelChain = {
     delete: () => {
-      eq: (k: string, v: string) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
         in: (k2: string, v2: string[]) => Promise<{ error: { message?: string } | null }>
       }
     }
@@ -182,14 +187,17 @@ export async function fetchAllItemsInRequests(
   const admin = getSupabaseAdminClient()
   type AllItemsChain = {
     select: (c: string) => {
-      in: (k: string, v: string[]) => Promise<{
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{
         data: { id: string; request_id: string }[] | null
       }>
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => AllItemsChain
-  )('payment_request_items')
+  const { data } = await (admin.from as unknown as (t: string) => AllItemsChain)(
+    'payment_request_items'
+  )
     .select('id, request_id')
     .in('request_id', reqIds)
   return data ?? []
@@ -202,15 +210,21 @@ export async function countRemainingDoiForRequest(
   if (itemIdsInReq.length === 0) return 0
   const admin = getSupabaseAdminClient()
   type RemainChain = {
-    select: (c: string, opts: { count: 'exact'; head: true }) => {
-      eq: (k: string, v: string) => {
+    select: (
+      c: string,
+      opts: { count: 'exact'; head: true }
+    ) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
         in: (k2: string, v2: string[]) => Promise<{ count: number | null }>
       }
     }
   }
-  const { count } = await (
-    admin.from as unknown as (t: string) => RemainChain
-  )('disbursement_order_items')
+  const { count } = await (admin.from as unknown as (t: string) => RemainChain)(
+    'disbursement_order_items'
+  )
     .select('id', { count: 'exact', head: true })
     .eq('disbursement_order_id', disbursementId)
     .in('payment_request_item_id', itemIdsInReq)
@@ -277,7 +291,10 @@ export async function updateDoiItemFee(
   const admin = getSupabaseAdminClient()
   type DoiUpdChain = {
     update: (v: Record<string, unknown>) => {
-      eq: (k: string, v: string) => {
+      eq: (
+        k: string,
+        v: string
+      ) => {
         eq: (k2: string, v2: string) => Promise<{ error: { message?: string } | null }>
       }
     }
@@ -311,9 +328,9 @@ export async function fetchDoiFinalAmount(disbursementId: string): Promise<numbe
       eq: (k: string, v: string) => Promise<{ data: { amount: number | null }[] | null }>
     }
   }
-  const { data } = await (
-    admin.from as unknown as (t: string) => SumChain
-  )('disbursement_order_items')
+  const { data } = await (admin.from as unknown as (t: string) => SumChain)(
+    'disbursement_order_items'
+  )
     .select('amount')
     .eq('disbursement_order_id', disbursementId)
   return ((data ?? []) as { amount: number | null }[]).reduce(

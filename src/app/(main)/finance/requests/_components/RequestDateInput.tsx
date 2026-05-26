@@ -15,11 +15,7 @@ interface RequestDateInputProps {
   label?: string
 }
 
-export function RequestDateInput({
-  value,
-  onChange,
-  label,
-}: RequestDateInputProps) {
+export function RequestDateInput({ value, onChange, label }: RequestDateInputProps) {
   const t = useTranslations('finance')
   const resolvedLabel = label ?? t('requestDateLabel')
   // SSOT：workspace.default_billing_day_of_week（admin 在 /settings/company 設定）
@@ -32,8 +28,7 @@ export function RequestDateInput({
     if (!value) {
       const today = getTodayString()
       const isSpecial =
-        defaultBillingDay !== null &&
-        new Date(today + 'T00:00:00').getDay() !== defaultBillingDay
+        defaultBillingDay !== null && new Date(today + 'T00:00:00').getDay() !== defaultBillingDay
       onChange(today, isSpecial)
     }
   }, [defaultBillingDay])
@@ -57,14 +52,13 @@ export function RequestDateInput({
   // 跟 Combobox 同高、不放 label 跟提示文字（避免 header flex row 高度不齊）
   // special billing 用底色提示、滑鼠 hover 看 title 完整文字
   const defaultDayName = defaultBillingDay !== null ? WEEKDAY_NAMES[defaultBillingDay] : null
-  const tooltip =
-    !value
-      ? undefined
-      : defaultBillingDay === null
-        ? '一般請款（未設定預設出帳日、不區分正常/特殊）'
-        : isSpecialBilling
-          ? `特殊出帳：非${defaultDayName}請款`
-          : `正常出帳：${defaultDayName}請款`
+  const tooltip = !value
+    ? undefined
+    : defaultBillingDay === null
+      ? '一般請款（未設定預設出帳日、不區分正常/特殊）'
+      : isSpecialBilling
+        ? `特殊出帳：非${defaultDayName}請款`
+        : `正常出帳：${defaultDayName}請款`
 
   return (
     <div title={tooltip}>

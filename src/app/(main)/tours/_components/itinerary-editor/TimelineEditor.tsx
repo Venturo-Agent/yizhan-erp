@@ -109,11 +109,12 @@ export function TimelineEditor({
             {dateLabel && <span className="text-sm text-morandi-secondary">{dateLabel}</span>}
           </div>
           <div className="flex gap-1.5">
-            <Button variant="soft-gold"
+            <Button
+              variant="soft-gold"
               type="button"
               size="sm"
               onClick={() => setIsAttractionSelectorOpen(true)}
- className="h-7 px-2 text-xs gap-1"
+              className="h-7 px-2 text-xs gap-1"
             >
               <MapPin size={12} />
               {t('dailyScheduleFromAttractionLib')}
@@ -155,9 +156,7 @@ export function TimelineEditor({
               <input
                 type="text"
                 value={
-                  day.hotelBreakfast
-                    ? t('itineraryHotelBreakfast')
-                    : day.meals.breakfast || ''
+                  day.hotelBreakfast ? t('itineraryHotelBreakfast') : day.meals.breakfast || ''
                 }
                 onChange={e => onUpdateDay(idx, 'meals.breakfast', e.target.value)}
                 placeholder={t('itineraryBreakfast')}
@@ -178,9 +177,7 @@ export function TimelineEditor({
             <div className="relative">
               <input
                 type="text"
-                value={
-                  day.lunchSelf ? t('itineraryFreeService') : day.meals.lunch || ''
-                }
+                value={day.lunchSelf ? t('itineraryFreeService') : day.meals.lunch || ''}
                 onChange={e => onUpdateDay(idx, 'meals.lunch', e.target.value)}
                 placeholder={t('itineraryLunch')}
                 disabled={day.lunchSelf}

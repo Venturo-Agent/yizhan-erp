@@ -75,7 +75,9 @@ export function ImportCustomersDialog({ open, onOpenChange }: ImportCustomersDia
                 onDragOver={handleDragOver}
               >
                 <Upload className="mx-auto h-10 w-10 text-morandi-secondary/50 mb-3" />
-                <p className="text-sm text-morandi-primary font-medium">{t('customerImportFileDrop')}</p>
+                <p className="text-sm text-morandi-primary font-medium">
+                  {t('customerImportFileDrop')}
+                </p>
                 <p className="text-xs text-morandi-secondary mt-1">{t('customerImportFileHint')}</p>
                 <input
                   ref={file_input_ref}
@@ -135,7 +137,9 @@ export function ImportCustomersDialog({ open, onOpenChange }: ImportCustomersDia
                 className="gap-2"
               >
                 <Upload size={16} />
-                {is_importing ? t('customerImportBtnImporting') : `${t('customerImportBtnImport')}（${valid_count} 筆）`}
+                {is_importing
+                  ? t('customerImportBtnImporting')
+                  : `${t('customerImportBtnImport')}（${valid_count} 筆）`}
               </Button>
             )}
           </div>

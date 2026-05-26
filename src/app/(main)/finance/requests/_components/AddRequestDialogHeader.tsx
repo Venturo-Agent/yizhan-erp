@@ -105,9 +105,7 @@ export function AddRequestDialogHeader({
                   value={formData.order_id}
                   onChange={onOrderChange}
                   placeholder={
-                    !formData.tour_id
-                      ? t('addRequestSelectTourFirst')
-                      : t('requestSearchOrder')
+                    !formData.tour_id ? t('addRequestSelectTourFirst') : t('requestSearchOrder')
                   }
                   disabled={!formData.tour_id}
                   className="w-[15rem]"
@@ -134,11 +132,9 @@ export function AddRequestDialogHeader({
           <DialogTitle className="flex items-center justify-end gap-2">
             {isEditMode ? (
               <>
-                {COMPONENT_LABELS.REQUEST_PREFIX}{currentRequest?.code}
-                <StatusBadge
-                  type="payment_request"
-                  status={currentRequest?.status || 'pending'}
-                />
+                {COMPONENT_LABELS.REQUEST_PREFIX}
+                {currentRequest?.code}
+                <StatusBadge type="payment_request" status={currentRequest?.status || 'pending'} />
               </>
             ) : (
               t('addRequestTitle')

@@ -22,25 +22,25 @@ VENTURO ERP 的架構複雜度極高，存在多個抽象層（entity hooks、SW
 
 ### 健檢範圍（5 大維度）
 
-| 維度 | 目標 | 現狀缺口 |
-|---|---|---|
-| **架構遵守度** | 每個功能都過 6 層架構、每個 SSOT 都有對應鉤 | 紅線 B（FK）有 migration 待 apply、CIS 半成品未清理 |
-| **資安完整性** | 紅線 A-G 全綠、RLS 100% 覆蓋、 無越權漏洞 | 紅線 B（FK）待 apply、紅線 D（closed period）部分模組缺 guard |
-| **效能健康度** | SWR cache 策略一致、列表無過度讀取 | 151 處散刻寫入待 ratchet、ref_* table 無 entity hook |
-| **開發品管** | pre-commit 全綠、CI 全量跑、無新犯 | `SUPABASE_DB_URL` secret 未設定、audit:rls 只能 code grep |
-| **SSOT 對齊度** | 5 SSOT 全同步、HR UI / capabilities / features / seed / routes 全部對齊 | 3 個已廢 bot module drift 未清理 |
+| 維度            | 目標                                                                    | 現狀缺口                                                      |
+| --------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **架構遵守度**  | 每個功能都過 6 層架構、每個 SSOT 都有對應鉤                             | 紅線 B（FK）有 migration 待 apply、CIS 半成品未清理           |
+| **資安完整性**  | 紅線 A-G 全綠、RLS 100% 覆蓋、 無越權漏洞                               | 紅線 B（FK）待 apply、紅線 D（closed period）部分模組缺 guard |
+| **效能健康度**  | SWR cache 策略一致、列表無過度讀取                                      | 151 處散刻寫入待 ratchet、ref\_\* table 無 entity hook        |
+| **開發品管**    | pre-commit 全綠、CI 全量跑、無新犯                                      | `SUPABASE_DB_URL` secret 未設定、audit:rls 只能 code grep     |
+| **SSOT 對齊度** | 5 SSOT 全同步、HR UI / capabilities / features / seed / routes 全部對齊 | 3 個已廢 bot module drift 未清理                              |
 
 ### 2026-05-25 方向更新（午夜計畫 — 整合攻擊式稽核 + stale-read 全觀洞察）
 
 > 今天用「臨時攻擊式查詢 + Supabase 內建顧問」抓到一批**自製 audit:rls 漏掉的真洞**（跨租戶 API、護照桶 public、11 條寬鬆 RLS、198 缺索引）。證明健檢有盲區。新增/強化維度：
 
-| 新增/強化 | 查什麼 | 為什麼（今天的教訓） |
-|---|---|---|
-| **快取失效覆蓋**（新、最高優先） | 每張表「寫入路徑 ↔ 讀它的 4 種快取」對照、找「寫了沒刷」的 stale-read 缺口 | 「操作完讀到舊資料」是系統性病根、自製 audit 抓不到、**會計模組整片中招(P0-1)** |
-| **RLS 強度**（強化、非只覆蓋率） | policy 不准 `true`/`auth.role()` 當隔離、INSERT `WITH CHECK` 必過 workspace | 「牆有立」≠「牆夠厚」、抓到 11 條寬鬆 policy 已修 |
-| **API 授權** | 每條 route 不信任 client 傳的 workspace_id、有 capability 檢查 | /api/integrations/usage 跨租戶讀洞 |
-| **儲存桶 PII 暴露** | 客戶 PII 桶(護照/證件)不可 public、走 signed URL | passport-images 曾 public、護照可無登入下載 |
-| **Supabase advisor 接進常駐健檢**（關鍵手段） | advisor security + performance 接進 nightly/CI、跟自製 audit 並用 | advisor 抓得到 rls_always_true / security_definer / 公開桶 / 缺索引、**自製 audit 全漏** |
+| 新增/強化                                     | 查什麼                                                                      | 為什麼（今天的教訓）                                                                     |
+| --------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **快取失效覆蓋**（新、最高優先）              | 每張表「寫入路徑 ↔ 讀它的 4 種快取」對照、找「寫了沒刷」的 stale-read 缺口  | 「操作完讀到舊資料」是系統性病根、自製 audit 抓不到、**會計模組整片中招(P0-1)**          |
+| **RLS 強度**（強化、非只覆蓋率）              | policy 不准 `true`/`auth.role()` 當隔離、INSERT `WITH CHECK` 必過 workspace | 「牆有立」≠「牆夠厚」、抓到 11 條寬鬆 policy 已修                                        |
+| **API 授權**                                  | 每條 route 不信任 client 傳的 workspace_id、有 capability 檢查              | /api/integrations/usage 跨租戶讀洞                                                       |
+| **儲存桶 PII 暴露**                           | 客戶 PII 桶(護照/證件)不可 public、走 signed URL                            | passport-images 曾 public、護照可無登入下載                                              |
+| **Supabase advisor 接進常駐健檢**（關鍵手段） | advisor security + performance 接進 nightly/CI、跟自製 audit 並用           | advisor 抓得到 rls_always_true / security_definer / 公開桶 / 缺索引、**自製 audit 全漏** |
 
 → 「資安完整性」目標升級：「RLS 100% 覆蓋」→「**RLS 強度（無寬鬆 policy）+ 無公開 PII 桶 + API 不信 client**」。
 → 「效能健康度」加子項：「**快取失效覆蓋（全站不准 stale-read）**」+「**外鍵全索引**」。
@@ -74,14 +74,17 @@ VENTURO ERP 的架構複雜度極高，存在多個抽象層（entity hooks、SW
 系統 SHALL 提供一套完整的健檢文檔，描述每個維度的檢查點、預期狀態、以及自動化驗證方式。
 
 #### Scenario: 新功能上線前對照健檢清單
+
 - **WHEN** 開發者完成一個新功能
 - **THEN** 能夠對照健檢清單確認所有維度都已通過，不需要猜「這樣可以嗎」
 
 #### Scenario: PR review 有自動化工具輔助
+
 - **WHEN** PR 提交到 main
 - **THEN** CI 自動跑健檢維度的檢查、error 等於擋 merge
 
 #### Scenario: 量化技術債
+
 - **WHEN** 討論技術債優先順序
 - **THEN** 能引用健檢報告中的數據（151 處散刻、3 個 drift 等）量化影響
 

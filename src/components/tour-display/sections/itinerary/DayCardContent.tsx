@@ -82,10 +82,7 @@ export function DayCardContent({
             borderColor: LUXURY.secondary,
           }}
         >
-          <Star
-            className="w-5 h-5 flex-shrink-0 mt-0.5"
-            style={{ color: LUXURY.secondary }}
-          />
+          <Star className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: LUXURY.secondary }} />
           <div>
             <span
               className="text-xs font-bold uppercase tracking-wider block mb-1"
@@ -93,10 +90,7 @@ export function DayCardContent({
             >
               Special Arrangement
             </span>
-            <p
-              className="text-sm font-medium whitespace-pre-line"
-              style={{ color: LUXURY.text }}
-            >
+            <p className="text-sm font-medium whitespace-pre-line" style={{ color: LUXURY.text }}>
               {highlight}
             </p>
           </div>
@@ -121,9 +115,7 @@ export function DayCardContent({
         <div className="mb-6">
           {/* 單張圖片：手機上下排列，桌面左圖右文 */}
           {allImages.length === 1 && (
-            <div
-              className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-6`}
-            >
+            <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-6`}>
               {/* 圖片 */}
               <div
                 className={`relative ${isMobile ? 'h-48' : 'h-56'} overflow-hidden rounded-md cursor-pointer group/img`}
@@ -238,10 +230,7 @@ export function DayCardContent({
                   ))}
                 </div>
                 {activities?.[0]?.description && (
-                  <p
-                    className="text-sm line-clamp-2 mb-2"
-                    style={{ color: LUXURY.muted }}
-                  >
+                  <p className="text-sm line-clamp-2 mb-2" style={{ color: LUXURY.muted }}>
                     {activities[0].description}
                   </p>
                 )}
@@ -274,10 +263,7 @@ export function DayCardContent({
         /* 無圖片時：顯示 Highlight 景點列表 */
         activities &&
         activities.length > 0 && (
-          <div
-            className="p-5 rounded-md mb-4"
-            style={{ backgroundColor: LUXURY.background }}
-          >
+          <div className="p-5 rounded-md mb-4" style={{ backgroundColor: LUXURY.background }}>
             <h4
               className="text-base font-medium mb-3"
               style={{
@@ -300,10 +286,7 @@ export function DayCardContent({
                     })
                   }
                 >
-                  <div
-                    className="flex items-center gap-2 text-sm"
-                    style={{ color: LUXURY.text }}
-                  >
+                  <div className="flex items-center gap-2 text-sm" style={{ color: LUXURY.text }}>
                     <span
                       className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                       style={{ backgroundColor: LUXURY.secondary }}
@@ -311,10 +294,7 @@ export function DayCardContent({
                     <span className="font-medium">{activity.title}</span>
                   </div>
                   {activity.description && (
-                    <p
-                      className="text-xs mt-1 ml-4 line-clamp-2"
-                      style={{ color: LUXURY.muted }}
-                    >
+                    <p className="text-xs mt-1 ml-4 line-clamp-2" style={{ color: LUXURY.muted }}>
                       {activity.description}
                     </p>
                   )}

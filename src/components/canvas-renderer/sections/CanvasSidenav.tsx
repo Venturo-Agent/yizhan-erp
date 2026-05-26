@@ -44,15 +44,17 @@ function buildNav(canvas: Canvas): {
   let counter = 1
   const pad = (n: number) => String(n).padStart(2, '0')
 
-  canvas.sections.forEach((section) => {
+  canvas.sections.forEach(section => {
     if (section.type === 'overview_timeline') {
       prelude.push({ num: pad(counter++), label: '六天總覽', href: '#overview' })
     } else if (section.type === 'day') {
       const day = section as CanvasDaySection
       // 從 day_header block 撈標題、撈不到就 fallback「Day N」
-      const headerBlock = day.blocks.find((b) => b.type === 'day_header')
+      const headerBlock = day.blocks.find(b => b.type === 'day_header')
       const dayTitle =
-        headerBlock && headerBlock.type === 'day_header' ? headerBlock.data.title : `Day ${day.day_index}`
+        headerBlock && headerBlock.type === 'day_header'
+          ? headerBlock.data.title
+          : `Day ${day.day_index}`
       itinerary.push({
         num: pad(counter++),
         label: `Day ${day.day_index}｜${dayTitle}`,
@@ -70,7 +72,7 @@ function buildNav(canvas: Canvas): {
 
 const renderList = (items: NavItem[]) => (
   <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-    {items.map((item) => (
+    {items.map(item => (
       <li key={item.href} style={{ marginBottom: 1 }}>
         {/*
           校對：仙台 HTML .sidenav li a 有 transition: all 0.18s + :hover border-left-color: copper（line 122-126）
@@ -127,7 +129,7 @@ export function CanvasSidenav({ canvas }: CanvasSidenavProps) {
   const { prelude, itinerary, appendix } = buildNav(canvas)
   const brand = canvas.brand
   // 取封面 section 的 destination / departure_date 當副標、否則 brand english_name
-  const coverSection = canvas.sections.find((s) => s.type === 'cover')
+  const coverSection = canvas.sections.find(s => s.type === 'cover')
   const cover = coverSection && coverSection.type === 'cover' ? coverSection.data : null
 
   return (
@@ -170,7 +172,7 @@ export function CanvasSidenav({ canvas }: CanvasSidenavProps) {
           標題裡的 [accent]xxx[/accent] 標記沒解析、客人看到原文。
           現在跟 Cover 用同一支 renderAccentTitle、保證所有 caller 一致。
         */}
-        {cover?.title ? renderAccentTitle(cover.title) : brand?.name ?? '展示行程'}
+        {cover?.title ? renderAccentTitle(cover.title) : (brand?.name ?? '展示行程')}
       </div>
       {/*
         校對：仙台 HTML .sidenav-subtitle 設 12px / Noto Sans / line-height 1.6（line 98-104）

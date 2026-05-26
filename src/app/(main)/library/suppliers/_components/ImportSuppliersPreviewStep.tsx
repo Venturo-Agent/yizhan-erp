@@ -90,14 +90,18 @@ export function ImportSuppliersPreviewStep({
         key: 'english_name',
         label: t('supplierImportColEnglishName'),
         render: (_value: unknown, row: PreviewTableRow) => (
-          <span className="text-xs text-morandi-secondary">{row.english_name || <EmptyValue />}</span>
+          <span className="text-xs text-morandi-secondary">
+            {row.english_name || <EmptyValue />}
+          </span>
         ),
       },
       {
         key: 'contact_person',
         label: t('supplierImportColContactPerson'),
         render: (_value: unknown, row: PreviewTableRow) => (
-          <span className="text-xs text-morandi-primary">{row.contact_person || <EmptyValue />}</span>
+          <span className="text-xs text-morandi-primary">
+            {row.contact_person || <EmptyValue />}
+          </span>
         ),
       },
       {
@@ -133,9 +137,13 @@ export function ImportSuppliersPreviewStep({
     [t]
   )
 
-  const previewSummary = error_count > 0
-    ? t('supplierImportPreviewSummaryError', { total: parsed_rows_count, errorCount: error_count })
-    : t('supplierImportPreviewSummaryOk', { total: parsed_rows_count })
+  const previewSummary =
+    error_count > 0
+      ? t('supplierImportPreviewSummaryError', {
+          total: parsed_rows_count,
+          errorCount: error_count,
+        })
+      : t('supplierImportPreviewSummaryOk', { total: parsed_rows_count })
 
   return (
     <>
@@ -153,9 +161,7 @@ export function ImportSuppliersPreviewStep({
 
       {/* 摘要 */}
       <div className="flex items-center justify-between bg-morandi-container/10 rounded-lg px-4 py-2">
-        <div className="text-sm text-morandi-primary">
-          {previewSummary}
-        </div>
+        <div className="text-sm text-morandi-primary">{previewSummary}</div>
         {selected_file && (
           <span className="text-xs text-morandi-secondary">
             {t('supplierImportFileSelected', { name: selected_file.name })}

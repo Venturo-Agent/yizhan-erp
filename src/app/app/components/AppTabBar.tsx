@@ -1,12 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import {
-  Home,
-  Receipt,
-  CalendarDays,
-  MoreHorizontal,
-} from 'lucide-react'
+import { Home, Receipt, CalendarDays, MoreHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [

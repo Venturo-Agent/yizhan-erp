@@ -50,7 +50,7 @@ export function findBlock(
 ): { block: CanvasDayBlock; daySection: CanvasDaySection } | null {
   for (const s of canvas.sections) {
     if (s.type !== 'day') continue
-    const b = s.blocks.find((x) => x.id === blockId)
+    const b = s.blocks.find(x => x.id === blockId)
     if (b) return { block: b, daySection: s }
   }
   return null
@@ -58,13 +58,10 @@ export function findBlock(
 
 // ============ 改 cover ============
 
-export function updateCoverData(
-  canvas: Canvas,
-  patch: Partial<CanvasCoverData>
-): Canvas {
+export function updateCoverData(canvas: Canvas, patch: Partial<CanvasCoverData>): Canvas {
   return {
     ...canvas,
-    sections: canvas.sections.map((s) =>
+    sections: canvas.sections.map(s =>
       s.type === 'cover' ? { ...s, data: { ...s.data, ...patch } } : s
     ),
   }
@@ -77,7 +74,7 @@ export function updateDayHeaderBlock(
   blockId: string,
   patch: Partial<CanvasDayHeaderBlock['data']>
 ): Canvas {
-  return mapBlock(canvas, blockId, (b) => {
+  return mapBlock(canvas, blockId, b => {
     if (b.type !== 'day_header') return b
     return { ...b, data: { ...b.data, ...patch } }
   })
@@ -90,7 +87,7 @@ export function updateSpotlightBlock(
   blockId: string,
   patch: Partial<CanvasSpotlightBlock['data']>
 ): Canvas {
-  return mapBlock(canvas, blockId, (b) => {
+  return mapBlock(canvas, blockId, b => {
     if (b.type !== 'spotlight') return b
     return { ...b, data: { ...b.data, ...patch } }
   })
@@ -103,7 +100,7 @@ export function updateJpNoteBlock(
   blockId: string,
   patch: Partial<CanvasJpNoteBlock['data']>
 ): Canvas {
-  return mapBlock(canvas, blockId, (b) => {
+  return mapBlock(canvas, blockId, b => {
     if (b.type !== 'jp_note') return b
     return { ...b, data: { ...b.data, ...patch } }
   })
@@ -117,15 +114,13 @@ export function updateRouteCardAttraction(
   attractionId: string,
   patch: Partial<CanvasRouteCardBlock['data']['attractions'][number]>
 ): Canvas {
-  return mapBlock(canvas, blockId, (b) => {
+  return mapBlock(canvas, blockId, b => {
     if (b.type !== 'route_card') return b
     return {
       ...b,
       data: {
         ...b.data,
-        attractions: b.data.attractions.map((a) =>
-          a.id === attractionId ? { ...a, ...patch } : a
-        ),
+        attractions: b.data.attractions.map(a => (a.id === attractionId ? { ...a, ...patch } : a)),
       },
     }
   })
@@ -136,9 +131,9 @@ export function updateRouteCardAttraction(
 export function deleteBlock(canvas: Canvas, blockId: string): Canvas {
   return {
     ...canvas,
-    sections: canvas.sections.map((s) => {
+    sections: canvas.sections.map(s => {
       if (s.type !== 'day') return s
-      const next = s.blocks.filter((b) => b.id !== blockId)
+      const next = s.blocks.filter(b => b.id !== blockId)
       if (next.length === s.blocks.length) return s
       return { ...s, blocks: next }
     }),
@@ -183,11 +178,11 @@ export function analyzeCanvasForAi(canvas: Canvas): AiSuggestion[] {
     }
 
     if (section.type === 'day') {
-      const header = section.blocks.find((b) => b.type === 'day_header')
+      const header = section.blocks.find(b => b.type === 'day_header')
       if (header?.type === 'day_header' && !header.data.summary) {
-        const routes = section.blocks.filter((b) => b.type === 'route_card')
-        const attractions = routes.flatMap((r) =>
-          r.type === 'route_card' ? r.data.attractions.map((a) => a.name) : []
+        const routes = section.blocks.filter(b => b.type === 'route_card')
+        const attractions = routes.flatMap(r =>
+          r.type === 'route_card' ? r.data.attractions.map(a => a.name) : []
         )
         suggestions.push({
           id: `day_${section.day_index}_summary`,
@@ -210,7 +205,8 @@ export function analyzeCanvasForAi(canvas: Canvas): AiSuggestion[] {
           id: 'appendix_inclusions',
           label: '費用包含清單',
           description: '根據行程生成費用包含項目（5-8 項）',
-          instruction: '為精品旅遊包團行程生成費用包含清單，條列式，每項 10-20 字，共 5-8 項，包括：機票、住宿、接送、景點門票等常見項目',
+          instruction:
+            '為精品旅遊包團行程生成費用包含清單，條列式，每項 10-20 字，共 5-8 項，包括：機票、住宿、接送、景點門票等常見項目',
           target: { type: 'appendix', field: 'inclusions' },
         })
       }
@@ -219,7 +215,8 @@ export function analyzeCanvasForAi(canvas: Canvas): AiSuggestion[] {
           id: 'appendix_exclusions',
           label: '費用不含清單',
           description: '根據行程生成費用不含項目（4-6 項）',
-          instruction: '為精品旅遊包團行程生成費用不含清單，條列式，每項 10-20 字，共 4-6 項，包括：護照費、個人消費、旅遊平安險等',
+          instruction:
+            '為精品旅遊包團行程生成費用不含清單，條列式，每項 10-20 字，共 4-6 項，包括：護照費、個人消費、旅遊平安險等',
           target: { type: 'appendix', field: 'exclusions' },
         })
       }
@@ -240,13 +237,14 @@ export function compressCanvasForAi(canvas: Canvas): string {
       )
       if (section.data.departure_date) lines.push(`出發：${section.data.departure_date}`)
     } else if (section.type === 'day') {
-      const header = section.blocks.find((b) => b.type === 'day_header')
-      const routes = section.blocks.filter((b) => b.type === 'route_card')
-      const hotel = section.blocks.find((b) => b.type === 'hotel_card')
-      const attractions = routes.flatMap((r) =>
-        r.type === 'route_card' ? r.data.attractions.map((a) => a.name) : []
+      const header = section.blocks.find(b => b.type === 'day_header')
+      const routes = section.blocks.filter(b => b.type === 'route_card')
+      const hotel = section.blocks.find(b => b.type === 'hotel_card')
+      const attractions = routes.flatMap(r =>
+        r.type === 'route_card' ? r.data.attractions.map(a => a.name) : []
       )
-      const dayTitle = header?.type === 'day_header' ? header.data.title : `Day ${section.day_index}`
+      const dayTitle =
+        header?.type === 'day_header' ? header.data.title : `Day ${section.day_index}`
       let line = `Day ${section.day_index}（${section.date}）${dayTitle}`
       if (attractions.length) line += `：${attractions.join('、')}`
       if (hotel?.type === 'hotel_card') line += `。住：${hotel.data.name}`
@@ -273,11 +271,11 @@ export function applyAiPatch(canvas: Canvas, patch: AiPatch): Canvas {
     // inclusions / exclusions / notices 是 string[]，按行切割
     const arr = generated
       .split('\n')
-      .map((s) => s.replace(/^[-•·\d.]\s*/, '').trim())
+      .map(s => s.replace(/^[-•·\d.]\s*/, '').trim())
       .filter(Boolean)
     return {
       ...canvas,
-      sections: canvas.sections.map((s) =>
+      sections: canvas.sections.map(s =>
         s.type === 'appendix' ? { ...s, data: { ...s.data, [target.field]: arr } } : s
       ),
     }
@@ -295,10 +293,10 @@ function mapBlock(
 ): Canvas {
   return {
     ...canvas,
-    sections: canvas.sections.map((s) => {
+    sections: canvas.sections.map(s => {
       if (s.type !== 'day') return s
       let changed = false
-      const nextBlocks = s.blocks.map((b) => {
+      const nextBlocks = s.blocks.map(b => {
         if (b.id !== blockId) return b
         const updated = fn(b)
         if (updated !== b) changed = true

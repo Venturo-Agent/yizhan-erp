@@ -234,7 +234,9 @@ export function CustomerDialog({
                   }`}
                 >
                   {isVerified ? <Check size={12} /> : '⚠'}
-                  {isVerified ? t('customerDetailStatusVerified') : t('customerDetailStatusUnverified')}
+                  {isVerified
+                    ? t('customerDetailStatusVerified')
+                    : t('customerDetailStatusUnverified')}
                 </div>
                 {/* 編輯按鈕 - 右下角 */}
                 <button
@@ -263,7 +265,10 @@ export function CustomerDialog({
           <div className="w-1/2">
             {/* 基本資料 - 2 欄 */}
             <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-              <FormField label={t('customerDetailLabelName')} labelClassName="text-xs text-morandi-secondary">
+              <FormField
+                label={t('customerDetailLabelName')}
+                labelClassName="text-xs text-morandi-secondary"
+              >
                 <Input
                   value={formData.name}
                   onChange={e => updateField('name', e.target.value)}
@@ -315,7 +320,10 @@ export function CustomerDialog({
                 )}
               </FormField>
 
-              <FormField label={t('customerDetailLabelBirthDate')} labelClassName="text-xs text-morandi-secondary">
+              <FormField
+                label={t('customerDetailLabelBirthDate')}
+                labelClassName="text-xs text-morandi-secondary"
+              >
                 {isEdit ? (
                   <DatePicker
                     value={formData.birth_date}
@@ -373,7 +381,10 @@ export function CustomerDialog({
                 })()}
               </FormField>
 
-              <FormField label={t('customerDetailLabelPhone')} labelClassName="text-xs text-morandi-secondary">
+              <FormField
+                label={t('customerDetailLabelPhone')}
+                labelClassName="text-xs text-morandi-secondary"
+              >
                 <Input
                   value={formData.phone}
                   onChange={e => updateField('phone', e.target.value)}
@@ -382,7 +393,10 @@ export function CustomerDialog({
                 />
               </FormField>
 
-              <FormField label={t('customerDetailLabelEmail')} labelClassName="text-xs text-morandi-secondary">
+              <FormField
+                label={t('customerDetailLabelEmail')}
+                labelClassName="text-xs text-morandi-secondary"
+              >
                 <Input
                   type="email"
                   value={formData.email}
@@ -394,7 +408,10 @@ export function CustomerDialog({
 
               {/* 飲食禁忌 - 佔滿兩格 */}
               <div className="col-span-2">
-                <FormField label={t('customerDetailLabelDietary')} labelClassName="text-xs text-morandi-secondary">
+                <FormField
+                  label={t('customerDetailLabelDietary')}
+                  labelClassName="text-xs text-morandi-secondary"
+                >
                   <Input
                     value={formData.dietary_restrictions}
                     onChange={e => updateField('dietary_restrictions', e.target.value)}
@@ -423,10 +440,11 @@ export function CustomerDialog({
                 <X size={14} />
                 {t('customerDetailBtnCancel')}
               </Button>
-              <Button variant="soft-gold"
+              <Button
+                variant="soft-gold"
                 onClick={handleSave}
                 disabled={saving || !isDirty}
- className="gap-1.5"
+                className="gap-1.5"
               >
                 <Save size={14} />
                 {saving ? t('customerDetailBtnSaving') : t('customerDetailBtnConfirm')}
@@ -438,9 +456,10 @@ export function CustomerDialog({
                 <X size={14} />
                 {t('customerDetailBtnClose')}
               </Button>
-              <Button variant="soft-gold"
+              <Button
+                variant="soft-gold"
                 onClick={() => onModeChange?.('edit')}
- className="gap-1.5"
+                className="gap-1.5"
               >
                 <Edit size={14} />
                 {t('customerDetailBtnEdit')}

@@ -5,7 +5,12 @@ input[type='radio'] {
 }
 
 /* 主題切換過渡 - 只對需要過渡的元素生效 */
-button, a, input, textarea, select, [role="button"] {
+button,
+a,
+input,
+textarea,
+select,
+[role='button'] {
   transition:
     background-color 0.3s ease,
     color 0.3s ease,

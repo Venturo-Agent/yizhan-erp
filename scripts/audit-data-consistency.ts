@@ -12,11 +12,7 @@ import { readFileSync, readdirSync, statSync } from 'fs'
 import { join, relative } from 'path'
 
 const ROOT = process.cwd()
-const SRC_DIRS = [
-  join(ROOT, 'src/app/(main)'),
-  join(ROOT, 'src/components'),
-  join(ROOT, 'src/lib'),
-]
+const SRC_DIRS = [join(ROOT, 'src/app/(main)'), join(ROOT, 'src/components'), join(ROOT, 'src/lib')]
 
 // 排除特定路徑
 const EXCLUDED = [

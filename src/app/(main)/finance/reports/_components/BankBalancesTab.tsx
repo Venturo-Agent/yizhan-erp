@@ -10,7 +10,8 @@ import { ReportSectionTitle } from './ReportSectionTitle'
 
 const COMPONENT_LABELS = {
   TITLE: '銀行餘額',
-  HEADER_NOTICE: '所有啟用中的銀行帳戶 + 即時餘額（從會計傳票分錄聚合計算）。未綁定會計科目的帳戶餘額顯示為「未綁定」。',
+  HEADER_NOTICE:
+    '所有啟用中的銀行帳戶 + 即時餘額（從會計傳票分錄聚合計算）。未綁定會計科目的帳戶餘額顯示為「未綁定」。',
   COL_DEFAULT: '預設',
   COL_CODE: '代號',
   COL_NAME: '帳戶名稱',
@@ -24,7 +25,8 @@ const COMPONENT_LABELS = {
   STAT_UNLINKED: '未綁定科目',
   EMPTY: '沒有啟用中的銀行帳戶、請至「財務設定 → 銀行帳戶」新增',
   UNLINKED_BADGE: '未綁定',
-  FOREIGN_NOTE: '⚠️ 外幣支援：目前所有帳戶一律按 TWD 計算、外幣帳戶需等 schema 加上 currency 欄位後實作。',
+  FOREIGN_NOTE:
+    '⚠️ 外幣支援：目前所有帳戶一律按 TWD 計算、外幣帳戶需等 schema 加上 currency 欄位後實作。',
 } as const
 
 export function BankBalancesTab() {
@@ -36,7 +38,7 @@ export function BankBalancesTab() {
       label: COMPONENT_LABELS.COL_DEFAULT,
       width: '60',
       align: 'center',
-      render: value => value ? <Star className="h-4 w-4 text-morandi-income inline" /> : null,
+      render: value => (value ? <Star className="h-4 w-4 text-morandi-income inline" /> : null),
     },
     {
       key: 'code',
@@ -59,7 +61,9 @@ export function BankBalancesTab() {
       key: 'account_number',
       label: COMPONENT_LABELS.COL_ACCOUNT_NUMBER,
       width: '160',
-      render: value => <span className="font-mono text-sm text-morandi-secondary">{String(value || '—')}</span>,
+      render: value => (
+        <span className="font-mono text-sm text-morandi-secondary">{String(value || '—')}</span>
+      ),
     },
     {
       key: 'account_code',
@@ -72,7 +76,9 @@ export function BankBalancesTab() {
         return (
           <span className="text-sm">
             <span className="font-mono">{String(value)}</span>
-            {row.account_name && <span className="text-morandi-secondary ml-1">{row.account_name}</span>}
+            {row.account_name && (
+              <span className="text-morandi-secondary ml-1">{row.account_name}</span>
+            )}
           </span>
         )
       },
@@ -94,7 +100,13 @@ export function BankBalancesTab() {
           return <span className="text-sm text-morandi-secondary">—</span>
         }
         const n = Number(value)
-        return <CurrencyCell amount={n} variant={n >= 0 ? 'income' : 'expense'} className="font-semibold" />
+        return (
+          <CurrencyCell
+            amount={n}
+            variant={n >= 0 ? 'income' : 'expense'}
+            className="font-semibold"
+          />
+        )
       },
     },
   ]
@@ -111,7 +123,11 @@ export function BankBalancesTab() {
     <div className="space-y-6">
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         <ReportStatCard title={COMPONENT_LABELS.STAT_COUNT} value={stats.count} />
-        <ReportStatCard title={COMPONENT_LABELS.STAT_BALANCE} value={stats.total_balance} isCurrency />
+        <ReportStatCard
+          title={COMPONENT_LABELS.STAT_BALANCE}
+          value={stats.total_balance}
+          isCurrency
+        />
         <ReportStatCard title={COMPONENT_LABELS.STAT_UNLINKED} value={stats.unlinked_count} />
       </div>
 

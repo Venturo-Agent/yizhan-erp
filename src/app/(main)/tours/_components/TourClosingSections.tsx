@@ -13,7 +13,7 @@
 import { useMemo, useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
-import { Unlock, FileDown, Settings2} from 'lucide-react'
+import { Unlock, FileDown, Settings2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -274,11 +274,7 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
             {isClosed ? '檢視結案報告' : '生成結案報告'}
           </Button>
           {isClosed && (
-            <Button
-              variant="outline"
-              onClick={handleToggleClosingStatus}
-              disabled={statusUpdating}
-            >
+            <Button variant="outline" onClick={handleToggleClosingStatus} disabled={statusUpdating}>
               {statusUpdating ? (
                 <Spinner size="md" className="mr-2" />
               ) : (
@@ -290,11 +286,7 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
         </div>
       </div>
 
-      <BonusSettingsDialog
-        open={bonusDialogOpen}
-        onOpenChange={setBonusDialogOpen}
-        tour={tour}
-      />
+      <BonusSettingsDialog open={bonusDialogOpen} onOpenChange={setBonusDialogOpen} tour={tour} />
 
       <ClosingReportDialog
         open={reportDialogOpen}

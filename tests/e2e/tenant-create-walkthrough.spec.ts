@@ -104,11 +104,14 @@ test.describe('租戶 onboarding walkthrough', () => {
     }
 
     // ⑫ 最終斷言
-    await expect(done, [
-      `「建立完成」沒出現，可能命中過去的「建立分公司失敗」bug。`,
-      `API 錯誤: ${apiErrors.join('; ') || '(無)'}`,
-      `Console 錯誤: ${consoleErrors.join('; ') || '(無)'}`,
-    ].join('\n')).toBeVisible({ timeout: 5000 })
+    await expect(
+      done,
+      [
+        `「建立完成」沒出現，可能命中過去的「建立分公司失敗」bug。`,
+        `API 錯誤: ${apiErrors.join('; ') || '(無)'}`,
+        `Console 錯誤: ${consoleErrors.join('; ') || '(無)'}`,
+      ].join('\n')
+    ).toBeVisible({ timeout: 5000 })
 
     // ⑬ 成功的話、確認登入資訊區塊有出現公司代號
     await expect(page.locator(`text=${NEW_TENANT_CODE}`)).toBeVisible()

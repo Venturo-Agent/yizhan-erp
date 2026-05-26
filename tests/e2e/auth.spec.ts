@@ -255,10 +255,9 @@ test.describe('Case D：同帳號多裝置同時登入', () => {
       // 後者登入後、前者 reload 也應仍有效（驗證沒有單 session 強制踢人）
       await pageA.reload()
       await pageA.waitForLoadState('networkidle', { timeout: 15000 })
-      expect(
-        pageA.url(),
-        'B 登入後 A reload 應仍有效（目前設計：不踢舊 session）'
-      ).not.toContain('/login')
+      expect(pageA.url(), 'B 登入後 A reload 應仍有效（目前設計：不踢舊 session）').not.toContain(
+        '/login'
+      )
 
       await ctxA.close()
       await ctxB.close()

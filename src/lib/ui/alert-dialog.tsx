@@ -240,9 +240,7 @@ function AlertDialogComponent() {
           </div>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={() => alert.onClose?.()}>
-            {UI_LABELS.CONFIRM}
-          </Button>
+          <Button onClick={() => alert.onClose?.()}>{UI_LABELS.CONFIRM}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -297,9 +295,7 @@ function ConfirmDialogComponent() {
               {confirm.thirdOptionText}
             </Button>
           )}
-          <Button onClick={() => confirm.onConfirm?.()}>
-            {confirm.confirmText}
-          </Button>
+          <Button onClick={() => confirm.onConfirm?.()}>{confirm.confirmText}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

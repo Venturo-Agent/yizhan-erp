@@ -161,9 +161,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
                   borderLeft: '1px solid var(--border)',
                 }}
               >
-                {item.amount && item.amount !== 0
-                  ? (item.amount || 0).toLocaleString()
-                  : ' '}
+                {item.amount && item.amount !== 0 ? (item.amount || 0).toLocaleString() : ' '}
               </td>
               <td
                 style={{

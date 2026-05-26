@@ -6,12 +6,7 @@
  */
 
 import { logger } from '@/lib/utils/logger'
-import {
-  ParsedPNR,
-  PassengerInfo,
-  SSRCategory,
-  OSICategory,
-} from '../types'
+import { ParsedPNR, PassengerInfo, SSRCategory, OSICategory } from '../types'
 import {
   mergeMultilineEntries,
   parseAmadeusDate,

@@ -154,7 +154,10 @@ export default function ChecksPage() {
   ]
 
   const handleClearCheck = async (check: Check) => {
-    const confirmed = await confirm(`確定標記支票 ${check.check_number} 為已兌現？`, { title: '確認兌現', type: 'warning' })
+    const confirmed = await confirm(`確定標記支票 ${check.check_number} 為已兌現？`, {
+      title: '確認兌現',
+      type: 'warning',
+    })
     if (!confirmed) return
 
     try {
@@ -171,7 +174,10 @@ export default function ChecksPage() {
   }
 
   const handleVoidCheck = async (check: Check) => {
-    const confirmed2 = await confirm(`確定作廢支票 ${check.check_number}？`, { title: '確認作廢', type: 'warning' })
+    const confirmed2 = await confirm(`確定作廢支票 ${check.check_number}？`, {
+      title: '確認作廢',
+      type: 'warning',
+    })
     if (!confirmed2) return
 
     try {

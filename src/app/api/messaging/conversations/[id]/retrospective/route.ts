@@ -34,10 +34,7 @@ interface ConversationRow {
   external_user_id: string
 }
 
-export async function POST(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_WRITE)
     if (!guard.ok) return guard.response
@@ -89,9 +86,13 @@ export async function POST(
       .filter(m => m.content && m.message_type === 'text')
       .map(m => {
         const role =
-          m.direction === 'inbound' ? '客戶' :
-          m.sender_type === 'ai_agent' ? 'AI 助理' :
-          m.sender_type === 'system' ? '系統' : '客服人員'
+          m.direction === 'inbound'
+            ? '客戶'
+            : m.sender_type === 'ai_agent'
+              ? 'AI 助理'
+              : m.sender_type === 'system'
+                ? '系統'
+                : '客服人員'
         return `[${role}] ${m.content}`
       })
       .join('\n')
@@ -105,9 +106,13 @@ export async function POST(
 
     const customerName = conv.display_name || '客戶'
     const channelLabel =
-      conv.channel_type === 'line' ? 'LINE' :
-      conv.channel_type === 'facebook' ? 'Facebook Messenger' :
-      conv.channel_type === 'instagram' ? 'Instagram DM' : conv.channel_type
+      conv.channel_type === 'line'
+        ? 'LINE'
+        : conv.channel_type === 'facebook'
+          ? 'Facebook Messenger'
+          : conv.channel_type === 'instagram'
+            ? 'Instagram DM'
+            : conv.channel_type
 
     const systemPrompt = `你是專業的客服復盤助理。
 請根據以下客服對話紀錄，生成一份簡潔的對話復盤報告（繁體中文）。
@@ -146,7 +151,10 @@ ${transcript}
     })
 
     if (!llmResult.ok || !llmResult.content) {
-      logger.error('retrospective: LLM failed', { error: llmResult.error, workspaceId: guard.workspaceId })
+      logger.error('retrospective: LLM failed', {
+        error: llmResult.error,
+        workspaceId: guard.workspaceId,
+      })
       return NextResponse.json(
         { success: false, error: llmResult.error || 'AI 摘要生成失敗，請稍後再試' },
         { status: 200 }
@@ -156,10 +164,13 @@ ${transcript}
     const summaryText = llmResult.content
 
     // 判定 conversation_type（給 UI 過濾用）
-    const conversationType: 'group' | 'room' | 'customer' =
-      conv.external_user_id.startsWith('group:') ? 'group' :
-      conv.external_user_id.startsWith('room:') ? 'room' :
-      'customer'
+    const conversationType: 'group' | 'room' | 'customer' = conv.external_user_id.startsWith(
+      'group:'
+    )
+      ? 'group'
+      : conv.external_user_id.startsWith('room:')
+        ? 'room'
+        : 'customer'
 
     // 寫進歷史表（每按一次存一筆）
     const { data: inserted, error: insErr } = await supabase

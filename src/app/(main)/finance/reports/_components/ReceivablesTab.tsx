@@ -69,7 +69,11 @@ function StatCard({
         <div>
           <p className="text-xs text-morandi-secondary mb-1">{title}</p>
           {isCurrency ? (
-            <CurrencyCell amount={value} variant={variant} className="text-lg font-bold tabular-nums" />
+            <CurrencyCell
+              amount={value}
+              variant={variant}
+              className="text-lg font-bold tabular-nums"
+            />
           ) : (
             <p className="text-lg font-bold text-morandi-primary tabular-nums">{value}</p>
           )}
@@ -99,7 +103,9 @@ export function ReceivablesTab() {
       key: 'tour_code',
       label: COMPONENT_LABELS.COL_TOUR,
       width: '130',
-      render: value => <span className="font-mono text-sm text-morandi-secondary">{String(value || '—')}</span>,
+      render: value => (
+        <span className="font-mono text-sm text-morandi-secondary">{String(value || '—')}</span>
+      ),
     },
     {
       key: 'created_at',
@@ -126,7 +132,9 @@ export function ReceivablesTab() {
       label: COMPONENT_LABELS.COL_REMAINING,
       width: '120',
       align: 'right',
-      render: value => <CurrencyCell amount={Number(value) || 0} variant="expense" className="font-semibold" />,
+      render: value => (
+        <CurrencyCell amount={Number(value) || 0} variant="expense" className="font-semibold" />
+      ),
     },
     {
       key: 'days_overdue',

@@ -47,10 +47,7 @@ interface MiniMaxResponse {
  * 呼叫 MiniMax chat completions。
  * token 由 caller 從 workspace_ai_settings 解密後傳入。
  */
-export async function callMiniMax(
-  req: LLMRequest,
-  apiToken: string
-): Promise<LLMResponse> {
+export async function callMiniMax(req: LLMRequest, apiToken: string): Promise<LLMResponse> {
   const model = req.model ?? DEFAULT_MODEL
 
   if (!apiToken) {

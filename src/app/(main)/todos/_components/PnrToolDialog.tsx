@@ -118,10 +118,7 @@ export function PnrToolContent({ todo }: { todo: Todo }) {
   const tourRelated = todo.related_items?.find(r => r.type === 'group')
   const orderRelated = todo.related_items?.find(r => r.type === 'order')
 
-  const tour = useMemo(
-    () => tours.find(t => t.id === tourRelated?.id),
-    [tours, tourRelated]
-  )
+  const tour = useMemo(() => tours.find(t => t.id === tourRelated?.id), [tours, tourRelated])
 
   const orderMembers = useMemo(
     () => (allMembers || []).filter(m => m.order_id === orderRelated?.id),
@@ -203,14 +200,20 @@ export function PnrToolContent({ todo }: { todo: Todo }) {
       <div className="bg-card border border-border rounded-lg p-3">
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-xs font-medium text-morandi-primary">
-            {COMPONENT_LABELS.PASSENGER_LIST_PREFIX}{orderMembers.length}{COMPONENT_LABELS.PASSENGER_LIST_SUFFIX}
+            {COMPONENT_LABELS.PASSENGER_LIST_PREFIX}
+            {orderMembers.length}
+            {COMPONENT_LABELS.PASSENGER_LIST_SUFFIX}
             {!orderRelated && (
-              <span className="text-xs text-morandi-muted ml-2">{COMPONENT_LABELS.NEED_ORDER_RELATED}</span>
+              <span className="text-xs text-morandi-muted ml-2">
+                {COMPONENT_LABELS.NEED_ORDER_RELATED}
+              </span>
             )}
           </h4>
           {orderMembers.length > 0 && (
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-morandi-muted">{COMPONENT_LABELS.SELECTED_PREFIX} {selectedIds.size} / {orderMembers.length}</span>
+              <span className="text-morandi-muted">
+                {COMPONENT_LABELS.SELECTED_PREFIX} {selectedIds.size} / {orderMembers.length}
+              </span>
               <button
                 type="button"
                 onClick={selectAll}
@@ -256,7 +259,11 @@ export function PnrToolContent({ todo }: { todo: Todo }) {
                           : 'bg-cat-pink/10 text-cat-pink'
                     )}
                   >
-                    {type === 'adt' ? COMPONENT_LABELS.PAX_ADULT : type === 'chd' ? COMPONENT_LABELS.PAX_CHILD : COMPONENT_LABELS.PAX_INFANT}
+                    {type === 'adt'
+                      ? COMPONENT_LABELS.PAX_ADULT
+                      : type === 'chd'
+                        ? COMPONENT_LABELS.PAX_CHILD
+                        : COMPONENT_LABELS.PAX_INFANT}
                   </span>
                   <span className="text-morandi-primary">
                     {getMemberPnrName(m) || m.chinese_name || COMPONENT_LABELS.NO_NAME}
@@ -295,14 +302,20 @@ export function PnrToolContent({ todo }: { todo: Todo }) {
 
       {/* AN 指令 */}
       <div className="bg-card border border-border rounded-lg p-3">
-        <h4 className="text-xs font-medium text-morandi-primary mb-2">{COMPONENT_LABELS.AN_TITLE}</h4>
+        <h4 className="text-xs font-medium text-morandi-primary mb-2">
+          {COMPONENT_LABELS.AN_TITLE}
+        </h4>
         <div className="grid grid-cols-3 gap-2 mb-3">
           <div>
-            <label className="text-xs text-morandi-primary mb-1 block">{COMPONENT_LABELS.DEPART_DATE}</label>
+            <label className="text-xs text-morandi-primary mb-1 block">
+              {COMPONENT_LABELS.DEPART_DATE}
+            </label>
             <DatePicker value={anDate} onChange={setAnDate} className="h-8 text-xs" />
           </div>
           <div>
-            <label className="text-xs text-morandi-primary mb-1 block">{COMPONENT_LABELS.DEPART_AIRPORT}</label>
+            <label className="text-xs text-morandi-primary mb-1 block">
+              {COMPONENT_LABELS.DEPART_AIRPORT}
+            </label>
             <Input
               value={anFrom}
               onChange={e => setAnFrom(e.target.value.toUpperCase())}
@@ -312,7 +325,9 @@ export function PnrToolContent({ todo }: { todo: Todo }) {
             />
           </div>
           <div>
-            <label className="text-xs text-morandi-primary mb-1 block">{COMPONENT_LABELS.ARRIVAL_AIRPORT}</label>
+            <label className="text-xs text-morandi-primary mb-1 block">
+              {COMPONENT_LABELS.ARRIVAL_AIRPORT}
+            </label>
             <Input
               value={anTo}
               onChange={e => setAnTo(e.target.value.toUpperCase())}
@@ -323,7 +338,9 @@ export function PnrToolContent({ todo }: { todo: Todo }) {
           </div>
         </div>
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-morandi-secondary">{COMPONENT_LABELS.GENERATED_COMMAND}</span>
+          <span className="text-xs text-morandi-secondary">
+            {COMPONENT_LABELS.GENERATED_COMMAND}
+          </span>
           <Button
             variant="soft-gold"
             size="sm"

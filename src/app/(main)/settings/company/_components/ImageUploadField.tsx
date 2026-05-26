@@ -7,7 +7,13 @@ import type { ComponentType } from 'react'
 import { Upload, X, Loader2, Crop as CropIcon } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { logger } from '@/lib/utils/logger'
@@ -359,7 +365,10 @@ function CropDialog({ open, imageSrc, onConfirm, onCancel }: CropDialogProps) {
         <DialogHeader>
           <DialogTitle>裁切印章範圍</DialogTitle>
         </DialogHeader>
-        <div className="relative w-full bg-muted/30 border border-border rounded-lg" style={{ height: 420 }}>
+        <div
+          className="relative w-full bg-muted/30 border border-border rounded-lg"
+          style={{ height: 420 }}
+        >
           {imageSrc && (
             <Cropper
               image={imageSrc}

@@ -295,7 +295,10 @@ export default function RolesPage() {
       return
     }
 
-    const confirmed = await confirm(`確定要刪除「${role.name}」角色嗎？`, { title: '刪除職務', type: 'warning' })
+    const confirmed = await confirm(`確定要刪除「${role.name}」角色嗎？`, {
+      title: '刪除職務',
+      type: 'warning',
+    })
     if (!confirmed) return
 
     try {

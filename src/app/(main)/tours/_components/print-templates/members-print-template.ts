@@ -1,5 +1,8 @@
 import type { Tour } from '@/stores/types'
-import type { OrderMember, ExportColumnsConfig } from '@/app/(main)/orders/_types/order-member.types'
+import type {
+  OrderMember,
+  ExportColumnsConfig,
+} from '@/app/(main)/orders/_types/order-member.types'
 import { COLUMN_LABELS } from '../tour-print-constants'
 
 const COMPONENT_LABELS = {

@@ -15,7 +15,7 @@ test('employee edit dialog should scroll', async ({ page }) => {
   await page.getByPlaceholder('Email').fill('smoke@venturo.tw')
   await page.getByPlaceholder('密碼').fill('smoke-test-12345')
   await page.getByRole('button', { name: /登入/ }).click()
-  await page.waitForURL((u) => !u.pathname.includes('/login'), { timeout: 30_000 })
+  await page.waitForURL(u => !u.pathname.includes('/login'), { timeout: 30_000 })
 
   // 進 /hr
   await page.goto(`${BASE}/hr`)
@@ -28,7 +28,7 @@ test('employee edit dialog should scroll', async ({ page }) => {
 
   // 找到 form、scroll 看能不能動
   const form = page.locator('form').first()
-  const scrollableInfo = await form.evaluate((el) => ({
+  const scrollableInfo = await form.evaluate(el => ({
     scrollHeight: el.scrollHeight,
     clientHeight: el.clientHeight,
     isScrollable: el.scrollHeight > el.clientHeight,
@@ -39,11 +39,16 @@ test('employee edit dialog should scroll', async ({ page }) => {
   expect(scrollableInfo.overflowY).toMatch(/auto|scroll/)
 
   // 試 scroll 到底
-  await form.evaluate((el) => { el.scrollTo({ top: el.scrollHeight }) })
+  await form.evaluate(el => {
+    el.scrollTo({ top: el.scrollHeight })
+  })
   await page.waitForTimeout(500)
-  await page.screenshot({ path: '/tmp/smoke-screens/_hr_employee_dialog_scrolled.png', fullPage: true })
+  await page.screenshot({
+    path: '/tmp/smoke-screens/_hr_employee_dialog_scrolled.png',
+    fullPage: true,
+  })
 
-  const after = await form.evaluate((el) => el.scrollTop)
+  const after = await form.evaluate(el => el.scrollTop)
   console.log('scrollTop after scroll-to-bottom:', after)
   expect(after).toBeGreaterThan(0)
 })

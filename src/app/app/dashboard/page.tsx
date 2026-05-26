@@ -3,15 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
 import { useRequireAppAuth } from '../_hooks/useRequireAppAuth'
-import {
-  Bell,
-  FileText,
-  Calendar,
-  Settings,
-  Monitor,
-  ChevronRight,
-  LogOut,
-} from 'lucide-react'
+import { Bell, FileText, Calendar, Settings, Monitor, ChevronRight, LogOut } from 'lucide-react'
 
 export default function AppDashboard() {
   useRequireAppAuth()
@@ -64,7 +56,7 @@ export default function AppDashboard() {
         <section className="dash-section">
           <h2 className="dash-section-title">快捷功能</h2>
           <div className="dash-grid">
-            {quickActions.map((item) => {
+            {quickActions.map(item => {
               const Icon = item.icon
               return (
                 <button
@@ -89,7 +81,7 @@ export default function AppDashboard() {
         <section className="dash-section">
           <h2 className="dash-section-title">工具</h2>
           <div className="dash-tools">
-            {tools.map((item) => {
+            {tools.map(item => {
               const Icon = item.icon
               return (
                 <button

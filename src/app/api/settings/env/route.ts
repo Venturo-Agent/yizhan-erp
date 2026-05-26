@@ -53,7 +53,6 @@ async function getGeminiUsage(): Promise<string | undefined> {
   return getApiUsage('gemini', 1500) // 每分鐘 60 次，保守估算每日 50 次 × 30 天
 }
 
-
 export async function GET() {
   // 🔒 安全檢查：要有 settings.env.write capability（系統環境變數管理）
   const guard = await requireCapability(CAPABILITIES.MANAGE_ENV_SETTINGS)

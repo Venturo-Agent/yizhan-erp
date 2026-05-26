@@ -27,21 +27,15 @@ export default function GlobalError({
             <div className="mb-6 text-6xl">⚠️</div>
 
             {/* 標題 */}
-            <h1 className="text-3xl font-bold mb-2">
-              系統發生嚴重錯誤
-            </h1>
+            <h1 className="text-3xl font-bold mb-2">系統發生嚴重錯誤</h1>
 
             {/* 描述 */}
-            <p className="text-slate-400 mb-8">
-              很抱歉，應用程式遇到了無法恢復的錯誤
-            </p>
+            <p className="text-slate-400 mb-8">很抱歉，應用程式遇到了無法恢復的錯誤</p>
 
             {/* 錯誤訊息（開發模式） */}
             {process.env.NODE_ENV === 'development' && (
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-6 text-left">
-                <p className="text-sm font-mono text-red-500 break-words">
-                  {error.message}
-                </p>
+                <p className="text-sm font-mono text-red-500 break-words">{error.message}</p>
               </div>
             )}
 

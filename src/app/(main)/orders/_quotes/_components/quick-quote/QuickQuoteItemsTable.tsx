@@ -7,11 +7,7 @@ import { Plus, Trash2, GripVertical } from 'lucide-react'
 import { QuickQuoteItem } from '@/stores/types'
 import { evaluateExpression } from '@/components/widgets/calculator/calculatorUtils'
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useDefaultDndSensors, getDragStyle } from '@/lib/dnd'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
@@ -414,14 +410,10 @@ export const QuickQuoteItemsTable: React.FC<QuickQuoteItemsTableProps> = ({
               {isEditing && <th className={headerCellCls}></th>}
               <th className={headerCellCls}>{t('quickQuoteItemsItemDesc')}</th>
               <th className={headerCellCls}>{t('quickQuoteItemsQuantity')}</th>
-              {isEditing && (
-                <th className={headerCellCls}>{t('quickQuoteItemsCost')}</th>
-              )}
+              {isEditing && <th className={headerCellCls}>{t('quickQuoteItemsCost')}</th>}
               <th className={headerCellCls}>{t('quickQuoteItemsUnitPrice')}</th>
               <th className={headerCellCls}>{t('quickQuoteItemsAmount')}</th>
-              {isEditing && (
-                <th className={headerCellCls}>{t('quickQuoteItemsProfit')}</th>
-              )}
+              {isEditing && <th className={headerCellCls}>{t('quickQuoteItemsProfit')}</th>}
               <th className={isEditing ? headerCellCls : headerLastCellCls}>
                 {t('quickQuoteItemsRemarks')}
               </th>
@@ -480,12 +472,7 @@ export const QuickQuoteItemsTable: React.FC<QuickQuoteItemsTableProps> = ({
       {/* 編輯但沒項目時、額外底部一個明顯的「新增」按鈕 */}
       {isEditing && items.length === 0 && (
         <div className="flex items-center justify-center py-2 border-t border-border/40">
-          <Button
-            onClick={onAddItem}
-            size="sm"
-            variant="ghost"
-            className="gap-1 text-xs"
-          >
+          <Button onClick={onAddItem} size="sm" variant="ghost" className="gap-1 text-xs">
             <Plus className="h-3.5 w-3.5" />
             {t('quickQuoteItemsAddItem')}
           </Button>

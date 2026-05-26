@@ -50,20 +50,56 @@ const CONTRACT_PRINT_STYLES = `
 `
 
 const DOMPUR_ALLOWED_TAGS = [
-  'html', 'head', 'body', 'style', 'title',
-  'div', 'span', 'p', 'br', 'hr',
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'ul', 'ol', 'li',
-  'strong', 'em', 'b', 'i', 'u',
-  'a', 'img',
-  'header', 'footer', 'section', 'article',
+  'html',
+  'head',
+  'body',
+  'style',
+  'title',
+  'div',
+  'span',
+  'p',
+  'br',
+  'hr',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'table',
+  'thead',
+  'tbody',
+  'tr',
+  'th',
+  'td',
+  'ul',
+  'ol',
+  'li',
+  'strong',
+  'em',
+  'b',
+  'i',
+  'u',
+  'a',
+  'img',
+  'header',
+  'footer',
+  'section',
+  'article',
 ]
 
 const DOMPUR_ALLOWED_ATTR = [
-  'class', 'id', 'style',
-  'src', 'alt', 'href', 'target',
-  'colspan', 'rowspan', 'width', 'height',
+  'class',
+  'id',
+  'style',
+  'src',
+  'alt',
+  'href',
+  'target',
+  'colspan',
+  'rowspan',
+  'width',
+  'height',
 ]
 
 interface LoadContractTemplateParams {
@@ -108,12 +144,9 @@ export async function loadContractTemplate({
   })
 
   // 在「訂約人」區塊的「甲方：」後面插入簽約人名字
-  const signerBaseName =
-    signerType === 'company' ? companyName || signerName : signerName
+  const signerBaseName = signerType === 'company' ? companyName || signerName : signerName
   const signerDisplay =
-    memberIds?.length > 1
-      ? `${signerBaseName} 等 ${memberIds.length} 人`
-      : signerBaseName
+    memberIds?.length > 1 ? `${signerBaseName} 等 ${memberIds.length} 人` : signerBaseName
   if (signerDisplay) {
     // 在最後一個「甲方：」後面插入名字 + 簽名佔位符
     const lastIndex = template.lastIndexOf('甲方：')

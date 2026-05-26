@@ -14,11 +14,7 @@ export function TourOrderSection({ newOrder, setNewOrder }: TourOrderSectionProp
     <div>
       <h3 className="text-lg font-medium text-morandi-primary mb-4">{TOUR_ORDER_SECTION.title}</h3>
 
-      <AddOrderForm
-        tourId="embedded"
-        value={newOrder}
-        onChange={setNewOrder}
-      />
+      <AddOrderForm tourId="embedded" value={newOrder} onChange={setNewOrder} />
 
       <div className="bg-morandi-container/20 p-3 rounded-lg mt-4">
         <p className="text-xs text-morandi-secondary">{TOUR_ORDER_SECTION.hint}</p>

@@ -19,14 +19,12 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 
-type RequireFeatureResult =
-  | { ok: true }
-  | { ok: false; response: NextResponse }
+type RequireFeatureResult = { ok: true } | { ok: false; response: NextResponse }
 
 export async function requireWorkspaceFeature(
   workspaceId: string,
   featureCode: string,
-  featureName?: string,
+  featureName?: string
 ): Promise<RequireFeatureResult> {
   const admin = getSupabaseAdminClient()
   const { data } = await admin
@@ -41,7 +39,7 @@ export async function requireWorkspaceFeature(
       ok: false,
       response: NextResponse.json(
         { error: `此 workspace 尚未開通 ${featureName ?? featureCode} 功能（請聯絡平台管理員）` },
-        { status: 403 },
+        { status: 403 }
       ),
     }
   }

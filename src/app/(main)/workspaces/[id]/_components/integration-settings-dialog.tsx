@@ -165,11 +165,7 @@ export function IntegrationSettingsDialog({
 
             <div className="flex items-center justify-between p-3 rounded-md bg-morandi-container/30 border border-morandi-muted/15">
               <Label className="text-sm text-morandi-primary">啟用此整合</Label>
-              <Switch
-                checked={draftEnabled}
-                onCheckedChange={setDraftEnabled}
-                disabled={saving}
-              />
+              <Switch checked={draftEnabled} onCheckedChange={setDraftEnabled} disabled={saving} />
             </div>
 
             <div className="grid grid-cols-1 gap-3">
@@ -184,9 +180,7 @@ export function IntegrationSettingsDialog({
                       <div className="flex items-center gap-2">
                         <Switch
                           checked={isChecked}
-                          onCheckedChange={v =>
-                            updateField(field.key, v ? 'true' : 'false')
-                          }
+                          onCheckedChange={v => updateField(field.key, v ? 'true' : 'false')}
                           disabled={saving}
                         />
                         <Label
@@ -253,7 +247,11 @@ export function IntegrationSettingsDialog({
             disabled={saving || loading || !integration}
             className="gap-1"
           >
-            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {saving ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             儲存
           </Button>
         </DialogFooter>

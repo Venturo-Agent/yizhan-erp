@@ -19,7 +19,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { useReferenceData } from '@/lib/pnr'
 import type { Tour } from '@/stores/types'
-import type { OrderMember, ExportColumnsConfig } from '@/app/(main)/orders/_types/order-member.types'
+import type {
+  OrderMember,
+  ExportColumnsConfig,
+} from '@/app/(main)/orders/_types/order-member.types'
 type PNR = unknown
 import { COLUMN_LABELS, DEFAULT_COLUMNS } from './tour-print-constants'
 import { toast } from 'sonner'
@@ -281,13 +284,9 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
           {/* 成員名單 Tab */}
           <TabsContent value="members" className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-morandi-secondary">
-                {t('printSelectColumns')}
-              </span>
+              <span className="text-sm text-morandi-secondary">{t('printSelectColumns')}</span>
               <Button variant="ghost" size="sm" onClick={toggleAllColumns}>
-                {Object.values(columns).every(v => v)
-                  ? t('printDeselectAll')
-                  : t('printSelectAll')}
+                {Object.values(columns).every(v => v) ? t('printDeselectAll') : t('printSelectAll')}
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto">

@@ -143,16 +143,12 @@ export function OrderStatusChangeDialog({
                   <AlertCircle size={14} className="text-amber-500" />
                 )}
                 <span>待收金額</span>
-                <span className="ml-auto tabular-nums">
-                  NT$ {remaining.toLocaleString()}
-                </span>
+                <span className="ml-auto tabular-nums">NT$ {remaining.toLocaleString()}</span>
               </div>
             </div>
           )}
 
-          <p className="text-xs text-muted-foreground">
-            以上資訊僅供確認，未完成收款仍可儲存。
-          </p>
+          <p className="text-xs text-muted-foreground">以上資訊僅供確認，未完成收款仍可儲存。</p>
         </div>
 
         <DialogFooter>

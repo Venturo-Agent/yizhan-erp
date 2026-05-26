@@ -34,7 +34,27 @@ import { formatDateTaipei } from '@/lib/utils/format-date'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
-import { MessageCircle, Facebook, Instagram, Bot, Send, Loader2, Users, Pencil, Check, X, Camera, ChevronUp, ChevronDown, FileText, PanelRight, Pause, Tag, Sparkles, RefreshCw } from 'lucide-react'
+import {
+  MessageCircle,
+  Facebook,
+  Instagram,
+  Bot,
+  Send,
+  Loader2,
+  Users,
+  Pencil,
+  Check,
+  X,
+  Camera,
+  ChevronUp,
+  ChevronDown,
+  FileText,
+  PanelRight,
+  Pause,
+  Tag,
+  Sparkles,
+  RefreshCw,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 
@@ -160,7 +180,7 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
     const channelName = `workspace:${workspaceId}:inbox`
     const channel = supabase
       .channel(channelName)
-      .on('broadcast', { event: 'new-message' }, (msg) => {
+      .on('broadcast', { event: 'new-message' }, msg => {
         // 對話列表 mutate（無論哪個 conversation 動了、列表都要重撈最新 last_message_*）
         void globalMutate(listUrl)
         // 該 conversation 的訊息流 mutate（只有當下選的對話才重撈）
@@ -200,7 +220,11 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
 
   // Phase C.4：拿掉 refreshInterval polling（既有 broadcast 主路徑 + postgres_changes 兜底、
   // 不再雙路兜底、避免每 5/10 秒一次全 workspace inbox SELECT 的 Supabase egress 浪費）。
-  const { data: listResp, error: listError, isLoading: listLoading } = useSWR<{
+  const {
+    data: listResp,
+    error: listError,
+    isLoading: listLoading,
+  } = useSWR<{
     data: ConversationItem[]
   }>(listUrl, fetcher, { revalidateOnFocus: false })
 
@@ -209,16 +233,14 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
   const { data: msgResp, isLoading: msgLoading } = useSWR<{
     data: MessageItem[]
     sender_avatars?: Record<string, string>
-  }>(
-    selectedId ? `/api/messaging/conversations/${selectedId}/messages` : null,
-    fetcher,
-    { revalidateOnFocus: false }
-  )
+  }>(selectedId ? `/api/messaging/conversations/${selectedId}/messages` : null, fetcher, {
+    revalidateOnFocus: false,
+  })
 
   const messages = useMemo(() => msgResp?.data ?? [], [msgResp])
   const senderAvatars = useMemo(() => msgResp?.sender_avatars ?? {}, [msgResp])
   const selectedConv = useMemo(
-    () => conversations.find((c) => c.id === selectedId) ?? null,
+    () => conversations.find(c => c.id === selectedId) ?? null,
     [conversations, selectedId]
   )
 
@@ -252,150 +274,153 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
           v3.4（5/22 William）：BusinessPanel 透過 portal 送到 layout 層 #ai-hub-business-panel-mount、
           變成獨立卡片、不再被外卡包住 */}
       <div className="flex-1 flex overflow-hidden min-w-0">
-      {/* 左側：對話列表（Hub 模式、不分 channel） */}
-      {!hideList && (
-      <div className="w-[280px] flex flex-col flex-shrink-0 h-full border-r border-border">
-        {/* List */}
-        <div className="flex-1 overflow-y-auto">
-          {listLoading && (
-            <div className="p-6 text-center text-sm text-morandi-muted">載入中...</div>
-          )}
-          {listError && (
-            <div className="p-6 text-center text-sm text-status-danger">載入失敗、請刷新頁面</div>
-          )}
-          {!listLoading && conversations.length === 0 && (
-            <div className="p-6 text-center text-sm text-morandi-muted space-y-2">
-              <Bot className="w-10 h-10 mx-auto text-morandi-muted/50" />
-              <p>還沒有對話進來</p>
-              <p className="text-xs">
-                到{' '}
-                <a href="/bot/facebook-setup" className="text-morandi-gold underline">
-                  FB 設定
-                </a>{' '}
-                /{' '}
-                <a href="/bot/instagram-setup" className="text-morandi-gold underline">
-                  IG 設定
-                </a>{' '}
-                跑嚮導開通
-              </p>
-            </div>
-          )}
-          {conversations.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setSelectedId(c.id)}
-              className={`w-full px-3 py-2.5 border-b border-morandi-muted/20 text-left hover:bg-morandi-gold/5 transition-colors ${
-                selectedId === c.id ? 'bg-morandi-gold/10' : ''
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                {/* 頭像（含 channel icon overlay） */}
-                <div className="relative shrink-0">
-                  {c.picture_url ? (
-                    <img
-                      src={c.picture_url}
-                      alt=""
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : c.external_user_id.startsWith('group:') ||
-                    c.external_user_id.startsWith('room:') ? (
-                    // 群組 / 多人聊天室、用 Users icon 視覺區分
-                    <div className="w-10 h-10 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold">
-                      <Users className="w-5 h-5" />
-                    </div>
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-morandi-gold/20 flex items-center justify-center text-sm font-medium text-morandi-gold">
-                      {(c.display_name || c.external_user_id).slice(0, 1)}
-                    </div>
-                  )}
-                  {/* channel 角標（右下角小圓圈） */}
-                  <div
-                    className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${CHANNEL_COLORS[c.channel_type]}`}
-                  >
-                    <ChannelIcon channel={c.channel_type} />
-                  </div>
+        {/* 左側：對話列表（Hub 模式、不分 channel） */}
+        {!hideList && (
+          <div className="w-[280px] flex flex-col flex-shrink-0 h-full border-r border-border">
+            {/* List */}
+            <div className="flex-1 overflow-y-auto">
+              {listLoading && (
+                <div className="p-6 text-center text-sm text-morandi-muted">載入中...</div>
+              )}
+              {listError && (
+                <div className="p-6 text-center text-sm text-status-danger">
+                  載入失敗、請刷新頁面
                 </div>
-
-                {/* 中間：名字 + 預覽（兩行） */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium truncate flex items-center gap-1">
-                      {listToneEmoji(c) && (
-                        <span className="text-[0.7rem] shrink-0" title="AI 速記卡信心">
-                          {listToneEmoji(c)}
-                        </span>
+              )}
+              {!listLoading && conversations.length === 0 && (
+                <div className="p-6 text-center text-sm text-morandi-muted space-y-2">
+                  <Bot className="w-10 h-10 mx-auto text-morandi-muted/50" />
+                  <p>還沒有對話進來</p>
+                  <p className="text-xs">
+                    到{' '}
+                    <a href="/bot/facebook-setup" className="text-morandi-gold underline">
+                      FB 設定
+                    </a>{' '}
+                    /{' '}
+                    <a href="/bot/instagram-setup" className="text-morandi-gold underline">
+                      IG 設定
+                    </a>{' '}
+                    跑嚮導開通
+                  </p>
+                </div>
+              )}
+              {conversations.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => setSelectedId(c.id)}
+                  className={`w-full px-3 py-2.5 border-b border-morandi-muted/20 text-left hover:bg-morandi-gold/5 transition-colors ${
+                    selectedId === c.id ? 'bg-morandi-gold/10' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    {/* 頭像（含 channel icon overlay） */}
+                    <div className="relative shrink-0">
+                      {c.picture_url ? (
+                        <img
+                          src={c.picture_url}
+                          alt=""
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : c.external_user_id.startsWith('group:') ||
+                        c.external_user_id.startsWith('room:') ? (
+                        // 群組 / 多人聊天室、用 Users icon 視覺區分
+                        <div className="w-10 h-10 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold">
+                          <Users className="w-5 h-5" />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-morandi-gold/20 flex items-center justify-center text-sm font-medium text-morandi-gold">
+                          {(c.display_name || c.external_user_id).slice(0, 1)}
+                        </div>
                       )}
-                      <span className="truncate">{c.display_name || '（未取得名稱）'}</span>
-                    </span>
-                    <span className="text-[0.65rem] text-morandi-muted shrink-0">
-                      {formatRelative(c.last_message_at)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-morandi-secondary truncate">
-                      {c.last_message_direction === 'outbound' ? '你: ' : ''}
-                      {c.last_message_preview || '（無訊息）'}
-                    </span>
-                    {c.unread_count > 0 && (
-                      <span className="bg-status-danger-bg0 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold shrink-0">
-                        {c.unread_count}
-                      </span>
-                    )}
-                    {c.bot_paused && (
-                      <Pause className="w-3 h-3 text-orange-500 shrink-0" />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-      )}
+                      {/* channel 角標（右下角小圓圈） */}
+                      <div
+                        className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center ${CHANNEL_COLORS[c.channel_type]}`}
+                      >
+                        <ChannelIcon channel={c.channel_type} />
+                      </div>
+                    </div>
 
-      {/* 中間：對話 thread（同 Card 內、不另設 border）*/}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {!selectedConv && (
-          <div className="flex-1 flex items-center justify-center text-sm text-morandi-muted">
-            選一個對話看訊息
+                    {/* 中間：名字 + 預覽（兩行） */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium truncate flex items-center gap-1">
+                          {listToneEmoji(c) && (
+                            <span className="text-[0.7rem] shrink-0" title="AI 速記卡信心">
+                              {listToneEmoji(c)}
+                            </span>
+                          )}
+                          <span className="truncate">{c.display_name || '（未取得名稱）'}</span>
+                        </span>
+                        <span className="text-[0.65rem] text-morandi-muted shrink-0">
+                          {formatRelative(c.last_message_at)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs text-morandi-secondary truncate">
+                          {c.last_message_direction === 'outbound' ? '你: ' : ''}
+                          {c.last_message_preview || '（無訊息）'}
+                        </span>
+                        {c.unread_count > 0 && (
+                          <span className="bg-status-danger-bg0 text-white text-[0.588rem] rounded-full px-1.5 py-0.5 font-bold shrink-0">
+                            {c.unread_count}
+                          </span>
+                        )}
+                        {c.bot_paused && <Pause className="w-3 h-3 text-orange-500 shrink-0" />}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        {selectedConv && (
-          <>
-            <ConversationHeader
-              conv={selectedConv}
-              listUrl={listUrl}
-              panelOpen={panelOpen}
-              onTogglePanel={() => setPanelOpen(v => !v)}
-            />
-            <MessagesList
-              messages={messages}
-              senderAvatars={senderAvatars}
-              loading={msgLoading}
-              conversationId={selectedConv.id}
-              isGroup={
-                selectedConv.external_user_id.startsWith('group:') ||
-                selectedConv.external_user_id.startsWith('room:')
-              }
-              conversationDisplayName={selectedConv.display_name}
-              conversationPictureUrl={selectedConv.picture_url}
-            />
-            <ReplyComposer conversationId={selectedConv.id} listUrl={listUrl} />
-          </>
-        )}
-      </div>
+        {/* 中間：對話 thread（同 Card 內、不另設 border）*/}
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          {!selectedConv && (
+            <div className="flex-1 flex items-center justify-center text-sm text-morandi-muted">
+              選一個對話看訊息
+            </div>
+          )}
+
+          {selectedConv && (
+            <>
+              <ConversationHeader
+                conv={selectedConv}
+                listUrl={listUrl}
+                panelOpen={panelOpen}
+                onTogglePanel={() => setPanelOpen(v => !v)}
+              />
+              <MessagesList
+                messages={messages}
+                senderAvatars={senderAvatars}
+                loading={msgLoading}
+                conversationId={selectedConv.id}
+                isGroup={
+                  selectedConv.external_user_id.startsWith('group:') ||
+                  selectedConv.external_user_id.startsWith('room:')
+                }
+                conversationDisplayName={selectedConv.display_name}
+                conversationPictureUrl={selectedConv.picture_url}
+              />
+              <ReplyComposer conversationId={selectedConv.id} listUrl={listUrl} />
+            </>
+          )}
+        </div>
       </div>
 
       {/* 右側業務面板（透過 portal 送到 layout 層、變成獨立卡片）*/}
-      {selectedConv && panelOpen && panelMount && createPortal(
-        <BusinessPanel
-          conv={selectedConv}
-          listUrl={listUrl}
-          onClose={() => setPanelOpen(false)}
-        />,
-        panelMount
-      )}
+      {selectedConv &&
+        panelOpen &&
+        panelMount &&
+        createPortal(
+          <BusinessPanel
+            conv={selectedConv}
+            listUrl={listUrl}
+            onClose={() => setPanelOpen(false)}
+          />,
+          panelMount
+        )}
     </div>
   )
 }
@@ -439,9 +464,7 @@ function MessagesList({
     const isConversationSwitch = lastConversationIdRef.current !== conversationId
     const isInitialLoad = lastMessageCountRef.current === 0 && messages.length > 0
     const isNewMessage =
-      messages.length > lastMessageCountRef.current &&
-      !isConversationSwitch &&
-      !isInitialLoad
+      messages.length > lastMessageCountRef.current && !isConversationSwitch && !isInitialLoad
 
     if (isConversationSwitch || isInitialLoad) {
       // Instant jump：切對話 / 初次載入、直接到底、不要動畫
@@ -461,15 +484,11 @@ function MessagesList({
         ref={containerRef}
         className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-morandi-container/10"
       >
-        {loading && (
-          <div className="text-center text-sm text-morandi-muted">載入中...</div>
-        )}
+        {loading && <div className="text-center text-sm text-morandi-muted">載入中...</div>}
         {!loading && messages.length === 0 && (
-          <div className="text-center text-sm text-morandi-muted py-12">
-            這個對話還沒有訊息
-          </div>
+          <div className="text-center text-sm text-morandi-muted py-12">這個對話還沒有訊息</div>
         )}
-        {messages.map((m) => (
+        {messages.map(m => (
           <MessageBubble
             key={m.id}
             msg={m}
@@ -481,10 +500,11 @@ function MessagesList({
           />
         ))}
       </div>
-      {lightboxUrl && createPortal(
-        <ImageLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />,
-        document.body
-      )}
+      {lightboxUrl &&
+        createPortal(
+          <ImageLightbox url={lightboxUrl} onClose={() => setLightboxUrl(null)} />,
+          document.body
+        )}
     </>
   )
 }
@@ -515,7 +535,10 @@ function ConversationHeader({
     setRefreshingProfile(true)
     try {
       const res = await fetch('/api/line/admin/refresh-group-profiles', { method: 'POST' })
-      const json = await res.json() as { data?: { updated: number; totalGroups: number }; error?: string }
+      const json = (await res.json()) as {
+        data?: { updated: number; totalGroups: number }
+        error?: string
+      }
       if (!res.ok) {
         toast.error(json.error || '重抓失敗')
         return
@@ -542,7 +565,7 @@ function ConversationHeader({
         method: 'POST',
         body: fd,
       })
-      const uploadJson = await uploadRes.json() as { url?: string; error?: string }
+      const uploadJson = (await uploadRes.json()) as { url?: string; error?: string }
       if (!uploadRes.ok || !uploadJson.url) {
         toast.error(uploadJson.error || '頭像上傳失敗')
         return
@@ -565,7 +588,10 @@ function ConversationHeader({
 
   const handleSaveName = async () => {
     const trimmed = nameInput.trim()
-    if (!trimmed || trimmed === conv.display_name) { setEditingName(false); return }
+    if (!trimmed || trimmed === conv.display_name) {
+      setEditingName(false)
+      return
+    }
     const res = await apiMutate<{ success: boolean; error?: string }>(
       `/api/messaging/conversations/${conv.id}`,
       { method: 'PATCH', body: { display_name: trimmed }, invalidate: [listUrl] }
@@ -596,7 +622,11 @@ function ConversationHeader({
               <img src={conv.picture_url} alt="" className="w-9 h-9 rounded-full object-cover" />
             ) : (
               <div className="w-9 h-9 rounded-full bg-morandi-gold/20 flex items-center justify-center text-morandi-gold">
-                {avatarUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Users className="w-4.5 h-4.5" />}
+                {avatarUploading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Users className="w-4.5 h-4.5" />
+                )}
               </div>
             )}
             {!avatarUploading && (
@@ -613,7 +643,9 @@ function ConversationHeader({
           {(conv.display_name || conv.external_user_id).slice(0, 1)}
         </div>
       )}
-      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${CHANNEL_COLORS[conv.channel_type]}`}>
+      <span
+        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[0.65rem] font-semibold ${CHANNEL_COLORS[conv.channel_type]}`}
+      >
         <ChannelIcon channel={conv.channel_type} />
         {CHANNEL_LABELS[conv.channel_type]}
       </span>
@@ -623,20 +655,38 @@ function ConversationHeader({
             <Input
               value={nameInput}
               onChange={e => setNameInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false) }}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleSaveName()
+                if (e.key === 'Escape') setEditingName(false)
+              }}
               className="h-7 text-sm py-0 px-2"
               autoFocus
             />
-            <button onClick={handleSaveName} className="text-status-success hover:text-status-success"><Check className="w-4 h-4" /></button>
-            <button onClick={() => setEditingName(false)} className="text-morandi-muted hover:text-morandi-primary"><X className="w-4 h-4" /></button>
+            <button
+              onClick={handleSaveName}
+              className="text-status-success hover:text-status-success"
+            >
+              <Check className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setEditingName(false)}
+              className="text-morandi-muted hover:text-morandi-primary"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </>
         ) : (
           <>
-            <h3 className="font-semibold text-sm truncate">{conv.display_name || '（未取得名稱）'}</h3>
+            <h3 className="font-semibold text-sm truncate">
+              {conv.display_name || '（未取得名稱）'}
+            </h3>
             {isGroup && (
               <>
                 <button
-                  onClick={() => { setNameInput(conv.display_name || ''); setEditingName(true) }}
+                  onClick={() => {
+                    setNameInput(conv.display_name || '')
+                    setEditingName(true)
+                  }}
                   className="text-morandi-muted hover:text-morandi-primary shrink-0"
                   title="改名"
                 >
@@ -661,7 +711,12 @@ function ConversationHeader({
       </div>
 
       {/* 復盤 */}
-      <Button variant="outline" size="sm" onClick={() => setShowRetro(true)} className="gap-1.5 h-8 text-xs shrink-0">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setShowRetro(true)}
+        className="gap-1.5 h-8 text-xs shrink-0"
+      >
         <FileText className="w-3.5 h-3.5" />
         復盤
       </Button>
@@ -687,13 +742,7 @@ function ConversationHeader({
   )
 }
 
-function ReplyComposer({
-  conversationId,
-  listUrl,
-}: {
-  conversationId: string
-  listUrl: string
-}) {
+function ReplyComposer({ conversationId, listUrl }: { conversationId: string; listUrl: string }) {
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
 
@@ -708,10 +757,7 @@ function ReplyComposer({
         {
           method: 'POST',
           body: { text: trimmed },
-          invalidate: [
-            `/api/messaging/conversations/${conversationId}/messages`,
-            listUrl,
-          ],
+          invalidate: [`/api/messaging/conversations/${conversationId}/messages`, listUrl],
         }
       )
       if (!res.ok || !res.data?.success) {
@@ -738,7 +784,7 @@ function ReplyComposer({
     <div className="border-t border-border px-4 py-3 bg-card flex items-end gap-2">
       <textarea
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={e => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="輸入回覆內容（Enter 送出、Shift+Enter 換行）"
         rows={1}
@@ -791,7 +837,11 @@ function RetrospectiveModal({
   onClose: () => void
 }) {
   const historyUrl = `/api/messaging/conversations/${conversationId}/retrospectives`
-  const { data: histResp, mutate: refetchHistory, isLoading: historyLoading } = useSWR<{
+  const {
+    data: histResp,
+    mutate: refetchHistory,
+    isLoading: historyLoading,
+  } = useSWR<{
     data: RetrospectiveRow[]
   }>(historyUrl, fetcher, { revalidateOnFocus: false })
 
@@ -825,13 +875,17 @@ function RetrospectiveModal({
   const modal = (
     <div
       className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      onClick={e => {
+        if (e.target === e.currentTarget) onClose()
+      }}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-morandi-muted/20">
           <div>
             <h3 className="font-semibold text-morandi-primary">對話復盤</h3>
-            <p className="text-xs text-morandi-muted">{customerName} · 共 {history.length} 筆歷史</p>
+            <p className="text-xs text-morandi-muted">
+              {customerName} · 共 {history.length} 筆歷史
+            </p>
           </div>
           <button onClick={onClose} className="text-morandi-muted hover:text-morandi-primary">
             <X className="w-5 h-5" />
@@ -858,9 +912,7 @@ function RetrospectiveModal({
               </>
             )}
           </Button>
-          {generateError && (
-            <p className="text-xs text-status-danger mt-2">⚠️ {generateError}</p>
-          )}
+          {generateError && <p className="text-xs text-status-danger mt-2">⚠️ {generateError}</p>}
         </div>
 
         {/* 歷史列表 */}
@@ -980,11 +1032,15 @@ function RetrospectiveEntry({
         >
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
-        <span className={`text-[0.65rem] px-1.5 py-0.5 rounded-full border ${RETRO_STATUS_COLOR[retro.status]}`}>
+        <span
+          className={`text-[0.65rem] px-1.5 py-0.5 rounded-full border ${RETRO_STATUS_COLOR[retro.status]}`}
+        >
           {RETRO_STATUS_LABEL[retro.status]}
         </span>
         <span className="text-xs text-morandi-muted">{createdLabel}</span>
-        <span className="text-[0.65rem] text-morandi-muted">· {retro.message_count_at_generation} 則訊息</span>
+        <span className="text-[0.65rem] text-morandi-muted">
+          · {retro.message_count_at_generation} 則訊息
+        </span>
         <div className="flex-1" />
         <button
           onClick={handleDelete}
@@ -1019,7 +1075,10 @@ function RetrospectiveEntry({
                   )}
                 </p>
                 <button
-                  onClick={() => { setNotesDraft(retro.notes ?? ''); setEditingNotes(true) }}
+                  onClick={() => {
+                    setNotesDraft(retro.notes ?? '')
+                    setEditingNotes(true)
+                  }}
                   className="text-morandi-muted hover:text-morandi-primary shrink-0"
                   title="編輯補充"
                 >
@@ -1036,11 +1095,26 @@ function RetrospectiveEntry({
                   maxLength={4000}
                 />
                 <div className="flex gap-2 justify-end">
-                  <Button size="sm" variant="outline" onClick={() => setEditingNotes(false)} disabled={busy} className="h-7 text-xs">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setEditingNotes(false)}
+                    disabled={busy}
+                    className="h-7 text-xs"
+                  >
                     取消
                   </Button>
-                  <Button size="sm" onClick={handleSaveNotes} disabled={busy} className="h-7 text-xs gap-1">
-                    {busy ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+                  <Button
+                    size="sm"
+                    onClick={handleSaveNotes}
+                    disabled={busy}
+                    className="h-7 text-xs gap-1"
+                  >
+                    {busy ? (
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                    ) : (
+                      <Check className="w-3 h-3" />
+                    )}
                     儲存
                   </Button>
                 </div>
@@ -1110,9 +1184,13 @@ function BusinessPanel({
       <div className="flex-1 overflow-y-auto divide-y divide-morandi-muted/10">
         {/* 自動回覆 toggle */}
         <div className="px-3 py-3">
-          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide mb-2">自動回覆</p>
+          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide mb-2">
+            自動回覆
+          </p>
           <div className="flex items-center justify-between">
-            <span className={`text-xs ${!paused ? 'text-status-success font-medium' : 'text-morandi-muted'}`}>
+            <span
+              className={`text-xs ${!paused ? 'text-status-success font-medium' : 'text-morandi-muted'}`}
+            >
               {!paused ? '回覆中' : '已暫停'}
             </span>
             <Switch checked={!paused} onCheckedChange={handleToggle} />
@@ -1126,7 +1204,9 @@ function BusinessPanel({
 
         {/* 業務紀錄 */}
         <div className="px-3 py-3 flex flex-col gap-2">
-          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">業務紀錄</p>
+          <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide">
+            業務紀錄
+          </p>
           <ConversationNotes conversationId={conv.id} />
         </div>
       </div>
@@ -1229,7 +1309,9 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
     <>
       <div className="flex items-center gap-1.5 mb-2">
         <Sparkles className="w-3 h-3 text-morandi-muted" />
-        <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide flex-1">速記卡</p>
+        <p className="text-[0.65rem] font-semibold text-morandi-secondary uppercase tracking-wide flex-1">
+          速記卡
+        </p>
         {memory?.failed_attempts ? (
           <span className="text-[0.6rem] text-status-danger">失敗 {memory.failed_attempts}/3</span>
         ) : null}
@@ -1239,9 +1321,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
         <p className="text-xs text-morandi-muted">載入中...</p>
       ) : !m ? (
         <div className="flex flex-col gap-2">
-          <p className="text-xs text-morandi-muted">
-            尚未生成（對話累積 50 則訊息會自動建立）
-          </p>
+          <p className="text-xs text-morandi-muted">尚未生成（對話累積 50 則訊息會自動建立）</p>
           <Button
             size="sm"
             variant="outline"
@@ -1249,7 +1329,11 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
             onClick={handleRegenerate}
             className="h-7 text-xs gap-1"
           >
-            {regenLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+            {regenLoading ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Sparkles className="w-3 h-3" />
+            )}
             立刻生成
           </Button>
         </div>
@@ -1259,9 +1343,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
           <div className="bg-morandi-container/30 rounded-md px-2 py-1.5">
             <div className="flex items-start gap-1.5">
               <span className="shrink-0">{toneEmoji(m.persona?.tone)}</span>
-              <p className="text-morandi-primary leading-snug">
-                {m.summary_text ?? '（無摘要）'}
-              </p>
+              <p className="text-morandi-primary leading-snug">{m.summary_text ?? '（無摘要）'}</p>
             </div>
           </div>
 
@@ -1272,7 +1354,10 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
                 <div className="flex flex-wrap gap-1 items-center">
                   <span className="text-[0.6rem] text-morandi-muted shrink-0">避忌：</span>
                   {m.preferences.avoid.map((x, i) => (
-                    <span key={i} className="text-[0.65rem] bg-status-danger-bg text-status-danger px-1.5 py-0.5 rounded">
+                    <span
+                      key={i}
+                      className="text-[0.65rem] bg-status-danger-bg text-status-danger px-1.5 py-0.5 rounded"
+                    >
                       {x}
                     </span>
                   ))}
@@ -1287,13 +1372,17 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
               {m.preferences.destinations && m.preferences.destinations.length > 0 && (
                 <p className="text-[0.65rem]">
                   <span className="text-morandi-muted">想去：</span>
-                  <span className="text-morandi-primary">{m.preferences.destinations.join('、')}</span>
+                  <span className="text-morandi-primary">
+                    {m.preferences.destinations.join('、')}
+                  </span>
                 </p>
               )}
               {m.preferences.special_needs && m.preferences.special_needs.length > 0 && (
                 <p className="text-[0.65rem]">
                   <span className="text-morandi-muted">特殊：</span>
-                  <span className="text-morandi-primary">{m.preferences.special_needs.join('、')}</span>
+                  <span className="text-morandi-primary">
+                    {m.preferences.special_needs.join('、')}
+                  </span>
                 </p>
               )}
             </div>
@@ -1335,9 +1424,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
 
           {/* 失敗錯誤訊息 */}
           {memory?.last_error && (
-            <p className="text-[0.6rem] text-status-danger line-clamp-2">
-              ⚠️ {memory.last_error}
-            </p>
+            <p className="text-[0.6rem] text-status-danger line-clamp-2">⚠️ {memory.last_error}</p>
           )}
 
           {/* 上次更新時間 + 操作按鈕 */}
@@ -1354,7 +1441,11 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
                 title="重生"
                 className="p-1 text-morandi-muted hover:text-morandi-gold disabled:opacity-50"
               >
-                {regenLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                {regenLoading ? (
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3 h-3" />
+                )}
               </button>
               <button
                 onClick={() => setShowEditor(true)}
@@ -1436,7 +1527,10 @@ function SpeedCardEditor({
   }
 
   const modal = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+      onClick={onClose}
+    >
       <div
         className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col"
         onClick={e => e.stopPropagation()}
@@ -1449,21 +1543,31 @@ function SpeedCardEditor({
         </div>
         <div className="p-5 flex-1 overflow-auto">
           <p className="text-xs text-morandi-muted mb-2">
-            手動編輯速記卡 JSON（persona / preferences / history / unanswered_questions / summary_text）。
-            存檔後 AI 下次回覆會用這版。下次累積 20 則訊息會 AI 重生覆蓋、想保留就鎖住 ✋。
+            手動編輯速記卡 JSON（persona / preferences / history / unanswered_questions /
+            summary_text）。 存檔後 AI 下次回覆會用這版。下次累積 20 則訊息會 AI
+            重生覆蓋、想保留就鎖住 ✋。
           </p>
           <textarea
             value={text}
-            onChange={e => { setText(e.target.value); setParseErr(null) }}
+            onChange={e => {
+              setText(e.target.value)
+              setParseErr(null)
+            }}
             className="w-full h-96 text-xs font-mono px-3 py-2 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
             spellCheck={false}
           />
           {parseErr && <p className="text-xs text-status-danger mt-2">⚠️ {parseErr}</p>}
         </div>
         <div className="px-5 py-3 border-t border-morandi-muted/20 flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>取消</Button>
+          <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>
+            取消
+          </Button>
           <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1">
-            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+            {saving ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Check className="w-3.5 h-3.5" />
+            )}
             儲存
           </Button>
         </div>
@@ -1545,9 +1649,17 @@ function ConversationNotes({ conversationId }: { conversationId: string }) {
         <div className="flex flex-col gap-1.5 mt-1">
           {notes.map(n => (
             <div key={n.id} className="rounded-lg bg-morandi-container/20 px-2 py-1.5">
-              <p className="text-xs text-morandi-primary whitespace-pre-wrap break-words">{n.content}</p>
+              <p className="text-xs text-morandi-primary whitespace-pre-wrap break-words">
+                {n.content}
+              </p>
               <p className="text-[0.588rem] text-morandi-muted mt-0.5">
-                {n.employees?.display_name ?? '員工'} ・ {new Date(n.created_at).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                {n.employees?.display_name ?? '員工'} ・{' '}
+                {new Date(n.created_at).toLocaleString('zh-TW', {
+                  month: 'numeric',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
               </p>
             </div>
           ))}
@@ -1592,10 +1704,7 @@ function QuickReplyDrawer({
         {
           method: 'POST',
           body: { text: template.response_text },
-          invalidate: [
-            `/api/messaging/conversations/${conversationId}/messages`,
-            listUrl,
-          ],
+          invalidate: [`/api/messaging/conversations/${conversationId}/messages`, listUrl],
         }
       )
       if (!res.ok || !res.data?.success) {
@@ -1619,13 +1728,13 @@ function QuickReplyDrawer({
       </button>
       {open && (
         <div className="px-4 pb-3">
-          {isLoading && (
-            <div className="text-xs text-morandi-muted py-2">載入中...</div>
-          )}
+          {isLoading && <div className="text-xs text-morandi-muted py-2">載入中...</div>}
           {!isLoading && templates.length === 0 && (
             <div className="text-xs text-morandi-muted py-2">
               尚未設定快捷回覆模板，
-              <a href="/bot/line-setup" className="text-morandi-gold underline">前往 LINE 設定</a>
+              <a href="/bot/line-setup" className="text-morandi-gold underline">
+                前往 LINE 設定
+              </a>
               建立
             </div>
           )}
@@ -1639,9 +1748,7 @@ function QuickReplyDrawer({
                   className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-morandi-muted/30 text-xs bg-white hover:bg-morandi-gold/10 hover:border-morandi-gold/50 transition-colors disabled:opacity-50"
                   title={t.response_text}
                 >
-                  {sending === t.id ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : null}
+                  {sending === t.id ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
                   {t.label}
                 </button>
               ))}
@@ -1687,9 +1794,7 @@ function MessageBubble({
   // - 1-對-1 訊息：用 conversation 的 display_name + picture_url（同一個發訊者）
   // - 系統 / 出站訊息：不顯示頭像
   const senderNameForDisplay =
-    groupSenderName ??
-    (isInbound ? conversationDisplayName : null) ??
-    null
+    groupSenderName ?? (isInbound ? conversationDisplayName : null) ?? null
 
   const avatarUrl = groupSenderName
     ? (senderAvatars[groupSenderName] ?? null)
@@ -1714,7 +1819,11 @@ function MessageBubble({
       {showAvatar && (
         <div className="shrink-0 w-8 h-8 rounded-full bg-morandi-gold/20 overflow-hidden flex items-center justify-center text-xs font-medium text-morandi-gold">
           {avatarUrl ? (
-            <img src={avatarUrl} alt={senderNameForDisplay ?? ''} className="w-full h-full object-cover" />
+            <img
+              src={avatarUrl}
+              alt={senderNameForDisplay ?? ''}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <span>{avatarInitial}</span>
           )}
@@ -1740,11 +1849,7 @@ function MessageBubble({
           }`}
         >
           {isImage ? (
-            <button
-              type="button"
-              onClick={() => onImageClick(msg.media_url!)}
-              className="block"
-            >
+            <button type="button" onClick={() => onImageClick(msg.media_url!)} className="block">
               <img
                 src={msg.media_url!}
                 alt="客戶傳送的圖片"
@@ -1752,7 +1857,9 @@ function MessageBubble({
               />
             </button>
           ) : (
-            <p className="text-sm whitespace-pre-wrap break-words">{displayContent || '(無內容)'}</p>
+            <p className="text-sm whitespace-pre-wrap break-words">
+              {displayContent || '(無內容)'}
+            </p>
           )}
         </div>
         <p
@@ -1769,7 +1876,9 @@ function MessageBubble({
 
 function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [onClose])

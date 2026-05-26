@@ -33,10 +33,7 @@ type EmployeeRow = {
 
 // ─── GET ──────────────────────────────────────────────────────────────────────
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: workspaceId } = await params
 
@@ -54,18 +51,27 @@ export async function GET(
     const supabase = getSupabaseAdminClient()
 
     // 查配額紀錄（新表 cast 繞過 typegen）
-    const { data: rawLogs, error } = (await (supabase as unknown as {
-      from: (t: string) => {
-        select: (s: string) => {
-          eq: (col: string, val: string) => {
-            order: (col: string, opts: { ascending: boolean }) => Promise<{ data: QuotaLogRow[] | null; error: { message: string } | null }>
+    const { data: rawLogs, error } = await (
+      supabase as unknown as {
+        from: (t: string) => {
+          select: (s: string) => {
+            eq: (
+              col: string,
+              val: string
+            ) => {
+              order: (
+                col: string,
+                opts: { ascending: boolean }
+              ) => Promise<{ data: QuotaLogRow[] | null; error: { message: string } | null }>
+            }
           }
         }
       }
-    }).from('workspace_employee_quota_logs')
+    )
+      .from('workspace_employee_quota_logs')
       .select('id, old_quota, new_quota, reason, created_at, changed_by')
       .eq('workspace_id', workspaceId)
-      .order('created_at', { ascending: false }))
+      .order('created_at', { ascending: false })
 
     if (error) {
       const t = translateDbError(error as Parameters<typeof translateDbError>[0])
@@ -107,10 +113,7 @@ export async function GET(
 
 // ─── PATCH ────────────────────────────────────────────────────────────────────
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: workspaceId } = await params
 
@@ -141,7 +144,8 @@ export async function PATCH(
       return NextResponse.json({ error: '找不到租戶' }, { status: 404 })
     }
 
-    const oldQuota: number | null = (current as { max_employees: number | null }).max_employees ?? null
+    const oldQuota: number | null =
+      (current as { max_employees: number | null }).max_employees ?? null
 
     // 更新 workspaces.max_employees
     const { error: updateError } = await (supabase
@@ -156,11 +160,14 @@ export async function PATCH(
 
     // 有變動才寫 log
     if (oldQuota !== newQuota) {
-      const { error: logError } = await (supabase as unknown as {
-        from: (t: string) => {
-          insert: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>
+      const { error: logError } = await (
+        supabase as unknown as {
+          from: (t: string) => {
+            insert: (row: Record<string, unknown>) => Promise<{ error: { message: string } | null }>
+          }
         }
-      }).from('workspace_employee_quota_logs')
+      )
+        .from('workspace_employee_quota_logs')
         .insert({
           workspace_id: workspaceId,
           changed_by: auth.data.employeeId,

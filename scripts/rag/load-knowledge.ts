@@ -20,23 +20,37 @@ import path from 'node:path'
 const DEFAULT_WORKSPACE = 'a89335d4-85f1-492b-83c7-2476ab7c5d81' // 漫途 CORNER
 
 const FIELD_MAP: Record<string, { target: 'document' | 'chunk'; key: string }> = {
-  '地區名稱':           { target: 'document', key: 'title' },
-  '地區定位標語':       { target: 'document', key: 'positioning' },
-  '適合什麼風格的客人': { target: 'chunk', key: 'audience_fit' },
-  '不適合什麼客人':     { target: 'chunk', key: 'audience_unfit' },
-  '核心體驗項目':       { target: 'chunk', key: 'core_experience' },
-  '親子族群注意事項':   { target: 'chunk', key: 'family_kids' },
-  '銀髮族群注意事項':   { target: 'chunk', key: 'family_senior' },
-  '網美打卡族群亮點':   { target: 'chunk', key: 'instagram' },
-  '美食特色':           { target: 'chunk', key: 'food' },
-  '建議天數':           { target: 'chunk', key: 'duration' },
-  '建議搭配地區':       { target: 'chunk', key: 'pairing' },
-  '季節建議與避開時段': { target: 'chunk', key: 'season' },
-  '獨特文化背景':       { target: 'chunk', key: 'culture' },
+  地區名稱: { target: 'document', key: 'title' },
+  地區定位標語: { target: 'document', key: 'positioning' },
+  適合什麼風格的客人: { target: 'chunk', key: 'audience_fit' },
+  不適合什麼客人: { target: 'chunk', key: 'audience_unfit' },
+  核心體驗項目: { target: 'chunk', key: 'core_experience' },
+  親子族群注意事項: { target: 'chunk', key: 'family_kids' },
+  銀髮族群注意事項: { target: 'chunk', key: 'family_senior' },
+  網美打卡族群亮點: { target: 'chunk', key: 'instagram' },
+  美食特色: { target: 'chunk', key: 'food' },
+  建議天數: { target: 'chunk', key: 'duration' },
+  建議搭配地區: { target: 'chunk', key: 'pairing' },
+  季節建議與避開時段: { target: 'chunk', key: 'season' },
+  獨特文化背景: { target: 'chunk', key: 'culture' },
 }
 
-const JAPAN_REGIONS = ['金澤', '沖繩', '北海道', '名古屋', '大阪', '東京', '四國',
-                       'Kanazawa', 'Okinawa', 'Hokkaido', 'Nagoya', 'Osaka', 'Tokyo', 'Shikoku']
+const JAPAN_REGIONS = [
+  '金澤',
+  '沖繩',
+  '北海道',
+  '名古屋',
+  '大阪',
+  '東京',
+  '四國',
+  'Kanazawa',
+  'Okinawa',
+  'Hokkaido',
+  'Nagoya',
+  'Osaka',
+  'Tokyo',
+  'Shikoku',
+]
 const THAI_REGIONS = ['曼谷', '蘇美島', '清邁', 'Bangkok', 'Samui', 'Chiang Mai']
 
 function detectCountry(sheetName: string): string {
@@ -52,20 +66,20 @@ function parseRegionName(title: string): { region: string; regionEn: string | nu
 }
 
 const AUDIENCE_KEYWORDS: Record<string, string[]> = {
-  family_kids:   ['親子', '兒童', '幼童', '小孩', '帶小孩', '寶寶', '主題樂園'],
+  family_kids: ['親子', '兒童', '幼童', '小孩', '帶小孩', '寶寶', '主題樂園'],
   family_senior: ['銀髮', '長輩', '老人', '高齡', '行動不便', '醫療'],
-  couples:       ['情侶', '蜜月', '浪漫', '夜景', '兩人'],
-  friends:       ['閨蜜', '朋友', '姐妹', '青年'],
-  solo:          ['獨旅', '一個人', '單人'],
+  couples: ['情侶', '蜜月', '浪漫', '夜景', '兩人'],
+  friends: ['閨蜜', '朋友', '姐妹', '青年'],
+  solo: ['獨旅', '一個人', '單人'],
 }
 const STYLE_KEYWORDS: Record<string, string[]> = {
   leisurely: ['慢活', '悠閒', '靜謐', '療癒', '緩慢'],
-  food:      ['美食', '海鮮丼', '料理', '必吃', '名物', '餐廳'],
-  culture:   ['文化', '傳統', '歷史', '神社', '寺廟', '工藝', '茶道'],
-  nature:    ['自然', '森林', '山', '海', '湖', '溫泉', '花海'],
-  shopping:  ['購物', '百貨', '免稅', 'outlet', 'Outlet'],
-  island:    ['海島', '潛水', '海灘', '碧海'],
-  urban:     ['都會', '繁華', '夜生活', '酒吧'],
+  food: ['美食', '海鮮丼', '料理', '必吃', '名物', '餐廳'],
+  culture: ['文化', '傳統', '歷史', '神社', '寺廟', '工藝', '茶道'],
+  nature: ['自然', '森林', '山', '海', '湖', '溫泉', '花海'],
+  shopping: ['購物', '百貨', '免稅', 'outlet', 'Outlet'],
+  island: ['海島', '潛水', '海灘', '碧海'],
+  urban: ['都會', '繁華', '夜生活', '酒吧'],
 }
 const SEASON_KEYWORDS: Record<string, string[]> = {
   spring: ['春', '櫻花', '4月', '5月'],
@@ -75,7 +89,9 @@ const SEASON_KEYWORDS: Record<string, string[]> = {
 }
 
 function detectTags(content: string, kwMap: Record<string, string[]>): string[] {
-  return Object.entries(kwMap).filter(([_, kws]) => kws.some(k => content.includes(k))).map(([t]) => t)
+  return Object.entries(kwMap)
+    .filter(([_, kws]) => kws.some(k => content.includes(k)))
+    .map(([t]) => t)
 }
 
 function buildMetadata(chunkType: string, content: string): Record<string, string[]> {
@@ -181,7 +197,13 @@ async function main() {
           metadata: buildMetadata(chunkType, content),
         }
       })
-      .filter(Boolean) as Array<{ document_id: string; workspace_id: string; chunk_type: string; content: string; metadata: Record<string, string[]> }>
+      .filter(Boolean) as Array<{
+      document_id: string
+      workspace_id: string
+      chunk_type: string
+      content: string
+      metadata: Record<string, string[]>
+    }>
 
     if (chunkRows.length > 0) {
       const { error: chunkErr } = await supabase

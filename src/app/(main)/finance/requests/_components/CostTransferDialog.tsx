@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
-import { ArrowRightLeft, X} from 'lucide-react'
+import { ArrowRightLeft, X } from 'lucide-react'
 
 const COMPONENT_LABELS = {
   PH_SEARCH_TOUR: '搜尋團號或團名...',
@@ -325,9 +325,7 @@ export function CostTransferDialog({
     <div className="flex items-center justify-between w-full">
       <div className="text-sm text-morandi-secondary">
         {COMPONENT_LABELS.SELECTED_PREFIX} {selectedItems.size} {COMPONENT_LABELS.SELECTED_SUFFIX}{' '}
-        <span className="font-semibold text-morandi-primary">
-          {formatCurrency(selectedTotal)}
-        </span>
+        <span className="font-semibold text-morandi-primary">{formatCurrency(selectedTotal)}</span>
       </div>
       <div className="flex gap-2">
         <Button variant="soft-gold" onClick={() => onOpenChange(false)}>
@@ -340,11 +338,7 @@ export function CostTransferDialog({
           disabled={transferring || selectedItems.size === 0 || !targetTourId}
           className="gap-2"
         >
-          {transferring ? (
-            <Spinner size="sm" />
-          ) : (
-            <ArrowRightLeft size={14} />
-          )}
+          {transferring ? <Spinner size="sm" /> : <ArrowRightLeft size={14} />}
           {COMPONENT_LABELS.CONFIRM_TRANSFER}
         </Button>
       </div>
@@ -370,7 +364,8 @@ export function CostTransferDialog({
     >
       {/* 來源資訊 */}
       <div className="text-sm text-morandi-secondary mb-2">
-        {COMPONENT_LABELS.FROM} <span className="font-medium text-morandi-primary">{sourceRequest.tourCode}</span>{' '}
+        {COMPONENT_LABELS.FROM}{' '}
+        <span className="font-medium text-morandi-primary">{sourceRequest.tourCode}</span>{' '}
         {sourceRequest.tourName} {COMPONENT_LABELS.TRANSFER_TO_OTHER_TOUR}
       </div>
 
@@ -393,7 +388,9 @@ export function CostTransferDialog({
       {/* 項目列表 */}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-morandi-primary">{COMPONENT_LABELS.SELECT_TRANSFER_ITEMS}</label>
+          <label className="text-sm font-medium text-morandi-primary">
+            {COMPONENT_LABELS.SELECT_TRANSFER_ITEMS}
+          </label>
           <Button
             type="button"
             variant="link"

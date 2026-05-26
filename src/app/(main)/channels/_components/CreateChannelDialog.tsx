@@ -54,7 +54,9 @@ export function CreateChannelDialog({ open, onOpenChange }: Props) {
   // project 限自己當 controller 的 tour
   const myTours = useMemo(() => {
     if (!user?.id) return []
-    return (tours ?? []).filter(t => (t as { controller_id?: string | null }).controller_id === user.id)
+    return (tours ?? []).filter(
+      t => (t as { controller_id?: string | null }).controller_id === user.id
+    )
   }, [tours, user?.id])
 
   const tourOptions = useTourOptions(myTours)
@@ -138,7 +140,7 @@ export function CreateChannelDialog({ open, onOpenChange }: Props) {
       router.push(`/channels/${newChannel.id}`)
     },
     {
-      onError: (err) => {
+      onError: err => {
         logger.error('建頻道失敗', err)
         toast.error('建頻道失敗、請再試一次')
       },
@@ -166,7 +168,9 @@ export function CreateChannelDialog({ open, onOpenChange }: Props) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="blank">空白群組（自由協作）</SelectItem>
-              <SelectItem value="project">團專案頻道（綁某團、自己當 controller 才能建）</SelectItem>
+              <SelectItem value="project">
+                團專案頻道（綁某團、自己當 controller 才能建）
+              </SelectItem>
               <SelectItem value="dm">私訊（員工 1on1）</SelectItem>
             </SelectContent>
           </Select>
@@ -188,12 +192,16 @@ export function CreateChannelDialog({ open, onOpenChange }: Props) {
 
         {type === 'project' && (
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-morandi-primary">綁哪個團（限自己當 controller）</label>
+            <label className="text-sm font-medium text-morandi-primary">
+              綁哪個團（限自己當 controller）
+            </label>
             <Combobox
               options={tourOptions}
               value={tourId}
               onChange={setTourId}
-              placeholder={tourOptions.length === 0 ? '沒有可選的團（你還沒被指派為團控）' : '選團...'}
+              placeholder={
+                tourOptions.length === 0 ? '沒有可選的團（你還沒被指派為團控）' : '選團...'
+              }
             />
           </div>
         )}

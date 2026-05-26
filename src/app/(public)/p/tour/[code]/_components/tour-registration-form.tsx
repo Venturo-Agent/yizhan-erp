@@ -100,13 +100,11 @@ export function TourRegistrationForm({
     }
   }
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    setFormData(prev => ({ ...prev, [name]: value }))
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }))
+      setErrors(prev => ({ ...prev, [name]: '' }))
     }
   }
 
@@ -116,12 +114,8 @@ export function TourRegistrationForm({
         <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <Check className="w-6 h-6 text-green-600" />
         </div>
-        <h3 className="text-lg font-semibold text-green-800 mb-2">
-          報名成功！
-        </h3>
-        <p className="text-sm text-green-600">
-          我們將盡快與您聯繫，感謝您的報名！
-        </p>
+        <h3 className="text-lg font-semibold text-green-800 mb-2">報名成功！</h3>
+        <p className="text-sm text-green-600">我們將盡快與您聯繫，感謝您的報名！</p>
       </div>
     )
   }
@@ -208,11 +202,7 @@ export function TourRegistrationForm({
         />
       </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loading}
-      >
+      <Button type="submit" className="w-full" disabled={loading}>
         {loading ? (
           <>
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />

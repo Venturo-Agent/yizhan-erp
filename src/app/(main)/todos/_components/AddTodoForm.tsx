@@ -72,7 +72,9 @@ export function AddTodoForm({ onSubmit, onCancel, isSubmitting }: AddTodoFormPro
         </label>
         <Select
           value={String(formData.priority)}
-          onValueChange={v => setFormData({ ...formData, priority: Number(v) as 1 | 2 | 3 | 4 | 5 })}
+          onValueChange={v =>
+            setFormData({ ...formData, priority: Number(v) as 1 | 2 | 3 | 4 | 5 })
+          }
         >
           <SelectTrigger className="w-full">
             <SelectValue />
@@ -80,7 +82,8 @@ export function AddTodoForm({ onSubmit, onCancel, isSubmitting }: AddTodoFormPro
           <SelectContent>
             <SelectItem value="5">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500" />緊急
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                緊急
               </span>
             </SelectItem>
             <SelectItem value="4">
@@ -100,7 +103,8 @@ export function AddTodoForm({ onSubmit, onCancel, isSubmitting }: AddTodoFormPro
             </SelectItem>
             <SelectItem value="1">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-slate-300" />很低
+                <span className="w-2 h-2 rounded-full bg-slate-300" />
+                很低
               </span>
             </SelectItem>
           </SelectContent>
@@ -130,9 +134,7 @@ export function AddTodoForm({ onSubmit, onCancel, isSubmitting }: AddTodoFormPro
           disabled={isLoadingUsers}
         >
           <SelectTrigger className="w-full">
-            <SelectValue
-              placeholder={isLoadingUsers ? t('loadingEmployees') : t('noAssign')}
-            />
+            <SelectValue placeholder={isLoadingUsers ? t('loadingEmployees') : t('noAssign')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="__none__">{t('noAssign')}</SelectItem>
@@ -147,12 +149,7 @@ export function AddTodoForm({ onSubmit, onCancel, isSubmitting }: AddTodoFormPro
       </div>
 
       <div className="flex gap-2 pt-4">
-        <Button
-          variant="soft-gold"
-          type="submit"
-          disabled={isSubmitting}
-          className="flex-1 gap-2"
-        >
+        <Button variant="soft-gold" type="submit" disabled={isSubmitting} className="flex-1 gap-2">
           <Plus size={16} />
           {t('createTask')}
         </Button>

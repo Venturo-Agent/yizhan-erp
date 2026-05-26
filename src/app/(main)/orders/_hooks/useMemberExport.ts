@@ -97,12 +97,7 @@ export function useMemberExport(members: OrderMember[]) {
                   .map(col => {
                     let value = ''
                     if (col === 'gender') {
-                      value =
-                        member.gender === 'M'
-                          ? '男'
-                          : member.gender === 'F'
-                            ? '女'
-                            : '-'
+                      value = member.gender === 'M' ? '男' : member.gender === 'F' ? '女' : '-'
                     } else if (col === 'balance') {
                       value = (
                         (member.total_payable || 0) - (member.deposit_amount || 0)
@@ -169,12 +164,7 @@ export function useMemberExport(members: OrderMember[]) {
       selectedCols.forEach(col => {
         const label = EXPORT_COLUMN_LABELS[col]
         if (col === 'gender') {
-          row[label] =
-            member.gender === 'M'
-              ? '男'
-              : member.gender === 'F'
-                ? '女'
-                : ''
+          row[label] = member.gender === 'M' ? '男' : member.gender === 'F' ? '女' : ''
         } else if (col === 'balance') {
           row[label] = (member.total_payable || 0) - (member.deposit_amount || 0)
         } else if (col === 'total_payable' || col === 'deposit_amount') {

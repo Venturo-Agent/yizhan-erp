@@ -73,8 +73,8 @@ export default function MarketingWebsiteEditPage({
   // 用 useWebsiteTours list、從中找 detail（避免再加 useWebsiteTour 一個 SWR key、5/19 健檢的建議）
   // 量大時可改用 useWebsiteTourDetail（已 export）、但目前 list 已含全部欄位、複用即可
   const { items: tours, loading: isLoading } = useWebsiteTours()
-  const tour = (tours as unknown as WebsiteTourDetail[]).find((t) => t.code === code)
-  const user = useAuthStore((s) => s.user)
+  const tour = (tours as unknown as WebsiteTourDetail[]).find(t => t.code === code)
+  const user = useAuthStore(s => s.user)
   const workspaceId = user?.workspace_id
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
@@ -168,7 +168,7 @@ export default function MarketingWebsiteEditPage({
           toast.error('上傳成功但拿不到圖片 URL')
           return
         }
-        setForm((prev) => ({ ...prev, hero_image_url: publicUrl }))
+        setForm(prev => ({ ...prev, hero_image_url: publicUrl }))
         toast.success('封面圖上傳成功、記得按「儲存」')
       } catch (err) {
         logger.error('upload hero image failed', err)
@@ -212,7 +212,11 @@ export default function MarketingWebsiteEditPage({
       >
         <Card className="p-12 text-center text-morandi-secondary">
           <p className="text-sm">找不到團號 {code}、可能已被刪除或不在此 workspace</p>
-          <Button variant="outline" className="mt-4" onClick={() => router.push('/marketing/website')}>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => router.push('/marketing/website')}
+          >
             回列表
           </Button>
         </Card>
@@ -243,9 +247,7 @@ export default function MarketingWebsiteEditPage({
             <Input
               id="marketing_title"
               value={form.marketing_title}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, marketing_title: e.target.value }))
-              }
+              onChange={e => setForm(p => ({ ...p, marketing_title: e.target.value }))}
               placeholder="例如：京都春櫻 7 日（不用內部團名）"
               maxLength={120}
             />
@@ -256,9 +258,7 @@ export default function MarketingWebsiteEditPage({
             <Input
               id="marketing_subtitle"
               value={form.marketing_subtitle}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, marketing_subtitle: e.target.value }))
-              }
+              onChange={e => setForm(p => ({ ...p, marketing_subtitle: e.target.value }))}
               placeholder="例如：跟著當地人吃京懷石、賞夜櫻"
               maxLength={160}
             />
@@ -269,9 +269,7 @@ export default function MarketingWebsiteEditPage({
             <Textarea
               id="marketing_body"
               value={form.marketing_body}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, marketing_body: e.target.value }))
-              }
+              onChange={e => setForm(p => ({ ...p, marketing_body: e.target.value }))}
               rows={10}
               placeholder="可用 markdown：### 第一天\n抵達關西機場..."
             />
@@ -285,9 +283,7 @@ export default function MarketingWebsiteEditPage({
               <Input
                 id="seo_title"
                 value={form.seo_title}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, seo_title: e.target.value }))
-                }
+                onChange={e => setForm(p => ({ ...p, seo_title: e.target.value }))}
                 placeholder="留空 = 用官網標題"
                 maxLength={70}
               />
@@ -298,9 +294,7 @@ export default function MarketingWebsiteEditPage({
               <Textarea
                 id="seo_description"
                 value={form.seo_description}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, seo_description: e.target.value }))
-                }
+                onChange={e => setForm(p => ({ ...p, seo_description: e.target.value }))}
                 rows={3}
                 placeholder="留空 = 用副標"
                 maxLength={200}
@@ -332,7 +326,7 @@ export default function MarketingWebsiteEditPage({
               type="file"
               accept="image/png,image/jpeg,image/webp,image/avif"
               className="hidden"
-              onChange={(e) => {
+              onChange={e => {
                 const file = e.target.files?.[0]
                 if (file) handleUpload(file)
               }}
@@ -363,9 +357,7 @@ export default function MarketingWebsiteEditPage({
               <span className="text-morandi-muted">官網上架狀態</span>
               <span
                 className={
-                  tour.is_public_listed
-                    ? 'text-morandi-gold font-medium'
-                    : 'text-morandi-muted'
+                  tour.is_public_listed ? 'text-morandi-gold font-medium' : 'text-morandi-muted'
                 }
               >
                 {tour.is_public_listed ? '上架中' : '未上架'}
@@ -380,26 +372,19 @@ export default function MarketingWebsiteEditPage({
           </Card>
 
           <div className="flex flex-col gap-2">
-            <Button
-              variant="outline"
-              onClick={() => handleSave(false)}
-              disabled={saving !== null}
-            >
+            <Button variant="outline" onClick={() => handleSave(false)} disabled={saving !== null}>
               {saving === 'save' && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               {saving !== 'save' && <Save className="w-4 h-4 mr-2" />}
               儲存
             </Button>
-            <Button
-              onClick={() => handleSave(true)}
-              disabled={saving !== null}
-            >
+            <Button onClick={() => handleSave(true)} disabled={saving !== null}>
               {saving === 'publish' && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
               {saving !== 'publish' && <Rocket className="w-4 h-4 mr-2" />}
               儲存並上架
             </Button>
             <p className="text-[0.687rem] text-morandi-muted leading-relaxed mt-1">
-              「儲存並上架」會自動把 is_public_listed 設成 true、
-              記錄發布時間 + 發布人、回到列表頁。
+              「儲存並上架」會自動把 is_public_listed 設成 true、 記錄發布時間 +
+              發布人、回到列表頁。
               <br />
               真正觸發官網 rebuild 在列表頁按「重新發布官網」。
             </p>

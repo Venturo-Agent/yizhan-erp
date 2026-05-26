@@ -128,7 +128,6 @@ export interface AsyncState<T> {
 // 付款方式
 export type PaymentMethod = 'cash' | 'transfer' | 'card' | 'check'
 
-
 // 待辦事項類型
 export type TodoTaskType =
   | 'accommodation' // 訂房

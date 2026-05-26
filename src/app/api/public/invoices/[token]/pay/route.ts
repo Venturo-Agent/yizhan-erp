@@ -38,10 +38,7 @@ const paySchema = z.object({
   amount: z.number().int().positive().optional(),
 })
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ token: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
 
   const rateLimited = await checkRateLimit(request, 'public-invoice-pay', 5, 60_000)
@@ -60,7 +57,14 @@ export async function POST(
     )
   }
 
-  const { selected_invoice_ids, payment_method_id, identifier, payment_date, notes, amount: requestedAmount } = parsed.data
+  const {
+    selected_invoice_ids,
+    payment_method_id,
+    identifier,
+    payment_date,
+    notes,
+    amount: requestedAmount,
+  } = parsed.data
 
   // 匯款日不能未來
   const today = new Date()

@@ -12,6 +12,7 @@
 Round 5 OPENCLAW 結論：「`lint:swr-prune` 不存在」。
 
 實際：
+
 ```
 $ grep "lint:swr-prune" package.json
 "lint:swr-prune": "eslint --suppressions-location .eslint-suppressions.json --prune-suppressions ."
@@ -30,6 +31,7 @@ $ grep "lint:swr-prune" package.json
 **目標**：從 `.eslint-suppressions.json` 拔掉 5 個檔的 entry、baseline count 從 ~151 降到 ~145。
 
 **做法**：
+
 1. 讀 `.eslint-suppressions.json`、看當前 baseline
 2. **挑選 5 個檔**、優先順序：
    - **`venturo/no-direct-supabase-writes` count=1 的小型檔**（單一 supabase write、改 1 處就完）
@@ -50,6 +52,7 @@ $ grep "lint:swr-prune" package.json
    - **單一 commit**：`fix(swr): ratchet 清 5 個 baseline 檔 — Round 6`
 
 ### 卡住的處理
+
 - 某個檔改不動（需要新建 entity hook、跨表 join 複雜）→ **跳過該檔換下一個**、不要強改
 - 連續跳過 3 個 → 寫進 Round 6 audit「baseline 剩餘多是難改的、需要先擴 entity hook infra」
 
@@ -68,6 +71,7 @@ $ grep "lint:swr-prune" package.json
 ## 四、收工
 
 寫 Round 6 段進 `OVERNIGHT-LEARNINGS-2026-05-20.md`：
+
 - 修了哪 5 個檔（檔名 + 簡述改了什麼）
 - baseline 從多少降到多少
 - 哪些檔嘗試但放棄、原因

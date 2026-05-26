@@ -225,10 +225,11 @@ export function CustomerAddDialog({
             </FormField>
           </div>
 
-          <Button variant="soft-gold"
+          <Button
+            variant="soft-gold"
             onClick={handleAddManually}
             disabled={!newCustomer.name.trim() || !newCustomer.phone.trim()}
- className="w-full gap-2"
+            className="w-full gap-2"
           >
             <Plus size={16} />
             {t('customerAddBtnManual')}
@@ -237,150 +238,156 @@ export function CustomerAddDialog({
 
         {/* 右邊：上傳護照 OCR 辨識（沒設 passport_ocr integration 時整個藏掉） */}
         {passportOcrEnabled && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 text-morandi-primary font-medium">
-            <Upload size={18} />
-            <span>{t('customerAddSectionOcr')}</span>
-          </div>
-          <p className="text-sm text-morandi-secondary">{t('customerAddSectionOcrDesc')}</p>
-
-          {/* 上傳區域 - 固定在上方 */}
-          <label
-            htmlFor="passport-upload"
-            className={`flex flex-col items-center justify-center w-full h-28 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
-              passportUpload.isDragging
-                ? 'border-morandi-gold bg-morandi-gold/20 scale-105'
-                : 'border-morandi-secondary/30 bg-morandi-container/20 hover:bg-morandi-container/40'
-            }`}
-            onDragOver={passportUpload.handleDragOver}
-            onDragLeave={passportUpload.handleDragLeave}
-            onDrop={passportUpload.handleDrop}
-          >
-            <div className="flex flex-col items-center justify-center py-4">
-              <Upload className="w-6 h-6 mb-2 text-morandi-secondary" />
-              <p className="text-sm text-morandi-primary">
-                <span className="font-semibold">{t('customerAddUploadClick')}</span> {t('customerAddUploadDrag')}
-              </p>
-              <p className="text-xs text-morandi-secondary">{t('customerAddUploadFormats')}</p>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-morandi-primary font-medium">
+              <Upload size={18} />
+              <span>{t('customerAddSectionOcr')}</span>
             </div>
-            <input
-              id="passport-upload"
-              type="file"
-              className="hidden"
-              accept="image/*,.pdf,application/pdf"
-              multiple
-              onChange={passportUpload.handleFileChange}
-              disabled={passportUpload.isUploading}
-            />
-          </label>
+            <p className="text-sm text-morandi-secondary">{t('customerAddSectionOcrDesc')}</p>
 
-          {/* 辨識按鈕 - 固定在檔案列表上方 */}
-          {passportUpload.files.length > 0 && (
-            <Button variant="soft-gold"
-              onClick={passportUpload.processFiles}
-              disabled={passportUpload.isUploading}
- className="w-full gap-2"
+            {/* 上傳區域 - 固定在上方 */}
+            <label
+              htmlFor="passport-upload"
+              className={`flex flex-col items-center justify-center w-full h-28 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
+                passportUpload.isDragging
+                  ? 'border-morandi-gold bg-morandi-gold/20 scale-105'
+                  : 'border-morandi-secondary/30 bg-morandi-container/20 hover:bg-morandi-container/40'
+              }`}
+              onDragOver={passportUpload.handleDragOver}
+              onDragLeave={passportUpload.handleDragLeave}
+              onDrop={passportUpload.handleDrop}
             >
-              <Upload size={16} />
-              {passportUpload.isUploading
-                ? t('customerAddOcrProcessing')
-                : t('customerAddOcrProcessBtn', { count: passportUpload.files.length })}
-            </Button>
-          )}
-
-          {/* 已選檔案列表 */}
-          {passportUpload.files.length > 0 && (
-            <div className="space-y-2">
-              <div className="text-xs text-morandi-secondary">
-                {t('customerAddFilesSelected', { count: passportUpload.files.length })}
+              <div className="flex flex-col items-center justify-center py-4">
+                <Upload className="w-6 h-6 mb-2 text-morandi-secondary" />
+                <p className="text-sm text-morandi-primary">
+                  <span className="font-semibold">{t('customerAddUploadClick')}</span>{' '}
+                  {t('customerAddUploadDrag')}
+                </p>
+                <p className="text-xs text-morandi-secondary">{t('customerAddUploadFormats')}</p>
               </div>
-              <div className="max-h-40 overflow-y-auto space-y-2">
-                {passportUpload.files.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2 bg-morandi-container/20 rounded"
-                  >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <FileImage size={14} className="text-morandi-gold flex-shrink-0" />
-                      <span className="text-xs text-morandi-primary truncate">{file.name}</span>
-                      <span className="text-xs text-morandi-secondary flex-shrink-0">
-                        ({(file.size / 1024).toFixed(1)} KB)
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={e => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        passportUpload.removeFile(index)
-                      }}
-                      className="h-6 w-6 p-0 flex items-center justify-center hover:bg-status-danger-bg rounded transition-colors"
-                      disabled={passportUpload.isUploading}
+              <input
+                id="passport-upload"
+                type="file"
+                className="hidden"
+                accept="image/*,.pdf,application/pdf"
+                multiple
+                onChange={passportUpload.handleFileChange}
+                disabled={passportUpload.isUploading}
+              />
+            </label>
+
+            {/* 辨識按鈕 - 固定在檔案列表上方 */}
+            {passportUpload.files.length > 0 && (
+              <Button
+                variant="soft-gold"
+                onClick={passportUpload.processFiles}
+                disabled={passportUpload.isUploading}
+                className="w-full gap-2"
+              >
+                <Upload size={16} />
+                {passportUpload.isUploading
+                  ? t('customerAddOcrProcessing')
+                  : t('customerAddOcrProcessBtn', { count: passportUpload.files.length })}
+              </Button>
+            )}
+
+            {/* 已選檔案列表 */}
+            {passportUpload.files.length > 0 && (
+              <div className="space-y-2">
+                <div className="text-xs text-morandi-secondary">
+                  {t('customerAddFilesSelected', { count: passportUpload.files.length })}
+                </div>
+                <div className="max-h-40 overflow-y-auto space-y-2">
+                  {passportUpload.files.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 bg-morandi-container/20 rounded"
                     >
-                      <Trash2 size={12} className="text-status-danger" />
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <FileImage size={14} className="text-morandi-gold flex-shrink-0" />
+                        <span className="text-xs text-morandi-primary truncate">{file.name}</span>
+                        <span className="text-xs text-morandi-secondary flex-shrink-0">
+                          ({(file.size / 1024).toFixed(1)} KB)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          passportUpload.removeFile(index)
+                        }}
+                        className="h-6 w-6 p-0 flex items-center justify-center hover:bg-status-danger-bg rounded transition-colors"
+                        disabled={passportUpload.isUploading}
+                      >
+                        <Trash2 size={12} className="text-status-danger" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
+            )}
+
+            {/* 重要提醒 - 可展開 */}
+            <div className="border border-status-info/30 rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowReminder(!showReminder)}
+                className="w-full flex items-center justify-between p-2 bg-status-info-bg hover:bg-status-info-bg/80 transition-colors"
+              >
+                <span className="text-xs font-medium text-morandi-primary">
+                  {t('customerAddSectionReminder')}
+                </span>
+                {showReminder ? (
+                  <ChevronDown size={14} className="text-morandi-secondary" />
+                ) : (
+                  <ChevronRight size={14} className="text-morandi-secondary" />
+                )}
+              </button>
+              {showReminder && (
+                <ul className="text-xs text-morandi-secondary space-y-1 p-3 pt-2">
+                  <li>
+                    {t('customerAddReminder1')}
+                    <strong>{t('customerAddReminder1Strong')}</strong>
+                  </li>
+                  <li>
+                    {t('customerAddReminder2Prefix')}
+                    <strong>{t('customerAddReminder2Strong')}</strong>
+                  </li>
+                  <li>{t('customerAddReminder3')}</li>
+                </ul>
+              )}
             </div>
-          )}
 
-          {/* 重要提醒 - 可展開 */}
-          <div className="border border-status-info/30 rounded-lg overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setShowReminder(!showReminder)}
-              className="w-full flex items-center justify-between p-2 bg-status-info-bg hover:bg-status-info-bg/80 transition-colors"
-            >
-              <span className="text-xs font-medium text-morandi-primary">{t('customerAddSectionReminder')}</span>
-              {showReminder ? (
-                <ChevronDown size={14} className="text-morandi-secondary" />
-              ) : (
-                <ChevronRight size={14} className="text-morandi-secondary" />
+            {/* 拍攝建議 - 可展開 */}
+            <div className="border border-status-warning/30 rounded-lg overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setShowTips(!showTips)}
+                className="w-full flex items-center justify-between p-2 bg-status-warning-bg hover:bg-status-warning-bg/80 transition-colors"
+              >
+                <span className="text-xs font-medium text-morandi-primary">
+                  {t('customerAddSectionTips')}
+                </span>
+                {showTips ? (
+                  <ChevronDown size={14} className="text-morandi-secondary" />
+                ) : (
+                  <ChevronRight size={14} className="text-morandi-secondary" />
+                )}
+              </button>
+              {showTips && (
+                <ul className="text-xs text-morandi-secondary space-y-1 p-3 pt-2">
+                  <li>
+                    {t('customerAddTip1Prefix')}
+                    <strong>{t('customerAddTip1Strong')}</strong>
+                    {t('customerAddTip1Suffix')}
+                  </li>
+                  <li>{t('customerAddTip2')}</li>
+                  <li>{t('customerAddTip3')}</li>
+                </ul>
               )}
-            </button>
-            {showReminder && (
-              <ul className="text-xs text-morandi-secondary space-y-1 p-3 pt-2">
-                <li>
-                  {t('customerAddReminder1')}
-                  <strong>{t('customerAddReminder1Strong')}</strong>
-                </li>
-                <li>
-                  {t('customerAddReminder2Prefix')}
-                  <strong>{t('customerAddReminder2Strong')}</strong>
-                </li>
-                <li>{t('customerAddReminder3')}</li>
-              </ul>
-            )}
+            </div>
           </div>
-
-          {/* 拍攝建議 - 可展開 */}
-          <div className="border border-status-warning/30 rounded-lg overflow-hidden">
-            <button
-              type="button"
-              onClick={() => setShowTips(!showTips)}
-              className="w-full flex items-center justify-between p-2 bg-status-warning-bg hover:bg-status-warning-bg/80 transition-colors"
-            >
-              <span className="text-xs font-medium text-morandi-primary">{t('customerAddSectionTips')}</span>
-              {showTips ? (
-                <ChevronDown size={14} className="text-morandi-secondary" />
-              ) : (
-                <ChevronRight size={14} className="text-morandi-secondary" />
-              )}
-            </button>
-            {showTips && (
-              <ul className="text-xs text-morandi-secondary space-y-1 p-3 pt-2">
-                <li>
-                  {t('customerAddTip1Prefix')}
-                  <strong>{t('customerAddTip1Strong')}</strong>
-                  {t('customerAddTip1Suffix')}
-                </li>
-                <li>{t('customerAddTip2')}</li>
-                <li>{t('customerAddTip3')}</li>
-              </ul>
-            )}
-          </div>
-        </div>
         )}
       </div>
 

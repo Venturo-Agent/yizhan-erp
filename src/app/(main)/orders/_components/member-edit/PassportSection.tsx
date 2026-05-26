@@ -40,11 +40,14 @@ export function PassportSection({
   const [isDragging, setIsDragging] = useState(false)
   const displayUrl = usePassportImageUrl(editingMember?.passport_image_url)
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (onDropFile) setIsDragging(true)
-  }, [onDropFile])
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (onDropFile) setIsDragging(true)
+    },
+    [onDropFile]
+  )
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -169,7 +172,9 @@ export function PassportSection({
             {/* 拖曳提示覆蓋層 */}
             {isDragging && (
               <div className="absolute inset-0 bg-morandi-gold/20 border-2 border-dashed border-morandi-gold rounded-lg flex items-center justify-center z-10">
-                <span className="text-morandi-gold text-sm font-medium">{t('passport.dropHere')}</span>
+                <span className="text-morandi-gold text-sm font-medium">
+                  {t('passport.dropHere')}
+                </span>
               </div>
             )}
             {/* 重新上傳按鈕 */}

@@ -72,10 +72,15 @@ export function TourProposalDining() {
         >
           Dining
         </span>
-        <h2 className="text-4xl md:text-5xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+        <h2
+          className="text-4xl md:text-5xl font-bold"
+          style={{ fontFamily: 'Noto Serif TC, serif' }}
+        >
           團體晚餐推薦
         </h2>
-        <p className="text-muted-foreground text-base">已含在基礎費用中，Day 4、5 自由活動各自負擔</p>
+        <p className="text-muted-foreground text-base">
+          已含在基礎費用中，Day 4、5 自由活動各自負擔
+        </p>
       </motion.div>
 
       {/* 晚餐卡片 */}
@@ -100,16 +105,24 @@ export function TourProposalDining() {
                   background: `linear-gradient(135deg, #1a4a5e 0%, #2d6a7a 100%)`,
                 }}
               >
-                <span className="text-xs font-bold tracking-widest" style={{ color: 'rgba(201,170,124,0.8)' }}>
+                <span
+                  className="text-xs font-bold tracking-widest"
+                  style={{ color: 'rgba(201,170,124,0.8)' }}
+                >
                   {dinner.dayLabel}
                 </span>
-                <span className="text-xl font-bold text-white mt-1" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                <span
+                  className="text-xl font-bold text-white mt-1"
+                  style={{ fontFamily: 'Noto Serif TC, serif' }}
+                >
                   {dinner.date}
                 </span>
-                <span className={`
+                <span
+                  className={`
                   mt-3 text-xs px-3 py-1 rounded-full
                   ${dinner.type === '飯店內' ? 'bg-white/20 text-white' : 'bg-[#c9aa7c] text-[#1a1a1a]'}
-                `}>
+                `}
+                >
                   {dinner.type}
                 </span>
               </div>
@@ -128,7 +141,10 @@ export function TourProposalDining() {
               <div className="lg:col-span-7 p-6 flex flex-col justify-center">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-xl font-bold mb-1" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                    <h3
+                      className="text-xl font-bold mb-1"
+                      style={{ fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {dinner.restaurant}
                     </h3>
                     <p className="text-sm text-muted-foreground mb-1">{dinner.venue}</p>
@@ -177,7 +193,9 @@ export function TourProposalDining() {
           <p className="text-2xl font-bold" style={{ color: LUXURY.secondary }}>
             {totalBudget.toLocaleString()} ฿
           </p>
-          <p className="text-sm text-muted-foreground">每人攤提 {totalPerPerson.toLocaleString()} ฿</p>
+          <p className="text-sm text-muted-foreground">
+            每人攤提 {totalPerPerson.toLocaleString()} ฿
+          </p>
         </div>
       </motion.div>
 
@@ -194,8 +212,10 @@ export function TourProposalDining() {
         }}
       >
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: `${LUXURY.secondary}15` }}>
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: `${LUXURY.secondary}15` }}
+          >
             <span className="text-xl">🍜</span>
           </div>
           <h3 className="text-xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
@@ -205,7 +225,10 @@ export function TourProposalDining() {
 
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: LUXURY.secondary }}>
+            <h4
+              className="text-sm font-bold uppercase tracking-wider"
+              style={{ color: LUXURY.secondary }}
+            >
               蘇梅島平價美食推薦
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -213,13 +236,18 @@ export function TourProposalDining() {
                 { name: 'Khun Jeed Yung', desc: '泰南菜', price: '~600-900฿' },
                 { name: 'Shun Bla Bla', desc: '海鮮合菜', price: '~500-800฿' },
                 { name: "Coco Tam's", desc: '網紅沙灘餐廳', price: '~600-1,000฿' },
-              ].map((r) => (
+              ].map(r => (
                 <li key={r.name} className="flex items-start gap-3">
-                  <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                  <span
+                    className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                    style={{ backgroundColor: LUXURY.secondary }}
+                  />
                   <div>
                     <span className="font-medium">{r.name}</span>
                     <span className="text-muted-foreground">（{r.desc}）</span>
-                    <span className="ml-1" style={{ color: LUXURY.secondary }}>{r.price}</span>
+                    <span className="ml-1" style={{ color: LUXURY.secondary }}>
+                      {r.price}
+                    </span>
                   </div>
                 </li>
               ))}
@@ -227,7 +255,10 @@ export function TourProposalDining() {
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: LUXURY.secondary }}>
+            <h4
+              className="text-sm font-bold uppercase tracking-wider"
+              style={{ color: LUXURY.secondary }}
+            >
               蘇梅島中高價餐廳
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -235,9 +266,12 @@ export function TourProposalDining() {
                 { name: 'The Cliff Bar & Grill', desc: '懸崖海景' },
                 { name: 'Prego', desc: '義式，Sheraton 對面' },
                 { name: 'Buddha Asian', desc: '亞洲 Fusion' },
-              ].map((r) => (
+              ].map(r => (
                 <li key={r.name} className="flex items-start gap-3">
-                  <span className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: LUXURY.secondary }} />
+                  <span
+                    className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                    style={{ backgroundColor: LUXURY.secondary }}
+                  />
                   <div>
                     <span className="font-medium">{r.name}</span>
                     <span className="ml-1 text-muted-foreground">（{r.desc}）</span>

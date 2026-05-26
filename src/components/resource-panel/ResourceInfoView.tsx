@@ -31,9 +31,7 @@ export function ResourceInfoView({
     <>
       {/* 名稱 */}
       <div>
-        <h3 className="text-lg font-semibold">
-          {String(fullData?.name || resourceName)}
-        </h3>
+        <h3 className="text-lg font-semibold">{String(fullData?.name || resourceName)}</h3>
         {resourceCategory && (
           <Badge variant="secondary" className="mt-1">
             {resourceCategory}
@@ -42,7 +40,7 @@ export function ResourceInfoView({
       </div>
 
       {/* 地址 */}
-      {(fullData?.address) ? (
+      {fullData?.address ? (
         <div className="flex items-start gap-2 text-sm text-muted-foreground">
           <MapPin size="0.875em" className="mt-0.5 flex-shrink-0" />
           <span>{String(fullData.address)}</span>
@@ -96,7 +94,10 @@ export function ResourceInfoView({
         {fullData.duration_minutes ? (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Timer size="0.875em" className="shrink-0" />
-            <span>{LABELS.SUGGESTED_DURATION_PREFIX} {String(fullData.duration_minutes)} {LABELS.SUGGESTED_DURATION_SUFFIX}</span>
+            <span>
+              {LABELS.SUGGESTED_DURATION_PREFIX} {String(fullData.duration_minutes)}{' '}
+              {LABELS.SUGGESTED_DURATION_SUFFIX}
+            </span>
           </div>
         ) : null}
         {/* 票價 */}
@@ -119,8 +120,7 @@ export function ResourceInfoView({
       {hasCoordinates && (
         <div className="flex items-center gap-2 pt-2 border-t">
           <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <MapPin size="0.75em" /> {resourceLatitude?.toFixed(4)},{' '}
-            {resourceLongitude?.toFixed(4)}
+            <MapPin size="0.75em" /> {resourceLatitude?.toFixed(4)}, {resourceLongitude?.toFixed(4)}
           </span>
           {googleMapsUrl && (
             <a

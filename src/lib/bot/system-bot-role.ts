@@ -33,7 +33,9 @@ export async function getOrCreateSystemBotRole(workspaceId: string): Promise<str
     .single()
 
   if (error || !created) {
-    throw new Error(`Failed to create system bot role for workspace ${workspaceId}: ${error?.message}`)
+    throw new Error(
+      `Failed to create system bot role for workspace ${workspaceId}: ${error?.message}`
+    )
   }
 
   return created.id

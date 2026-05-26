@@ -80,10 +80,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
             {LABELS.HIRE_DATE}
           </Label>
-          <DatePicker
-            value={formData.hire_date || ''}
-            onChange={v => onChange({ hire_date: v })}
-          />
+          <DatePicker value={formData.hire_date || ''} onChange={v => onChange({ hire_date: v })} />
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
@@ -156,9 +153,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               placeholder="0"
             />
           </div>
-          <p className="text-[0.588rem] text-morandi-muted">
-            {LABELS.ATTENDANCE_BONUS_NOTE}
-          </p>
+          <p className="text-[0.588rem] text-morandi-muted">{LABELS.ATTENDANCE_BONUS_NOTE}</p>
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
@@ -174,9 +169,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               placeholder="0"
             />
           </div>
-          <p className="text-[0.588rem] text-morandi-muted">
-            {LABELS.OTHER_ALLOWANCES_NOTE}
-          </p>
+          <p className="text-[0.588rem] text-morandi-muted">{LABELS.OTHER_ALLOWANCES_NOTE}</p>
         </div>
       </div>
 
@@ -199,9 +192,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               placeholder={LABELS.INSURED_SALARY_PLACEHOLDER}
             />
           </div>
-          <p className="text-[0.588rem] text-morandi-muted">
-            {LABELS.INSURED_SALARY_NOTE}
-          </p>
+          <p className="text-[0.588rem] text-morandi-muted">{LABELS.INSURED_SALARY_NOTE}</p>
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
@@ -227,17 +218,13 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               ({(formData.pension_voluntary_rate * 100).toFixed(1)}%)
             </span>
           </div>
-          <p className="text-[0.588rem] text-morandi-muted">
-            {LABELS.PENSION_RATE_NOTE}
-          </p>
+          <p className="text-[0.588rem] text-morandi-muted">{LABELS.PENSION_RATE_NOTE}</p>
         </div>
       </div>
 
       {/* 勞健保投保設定（2026-05-15 William 拍板加） */}
       <div className="pt-4 border-t border-border">
-        <h4 className="text-sm font-semibold text-morandi-primary mb-3">
-          勞健保投保設定
-        </h4>
+        <h4 className="text-sm font-semibold text-morandi-primary mb-3">勞健保投保設定</h4>
         <div className="grid grid-cols-2 gap-4">
           {/* 健保眷屬數 */}
           <div className="space-y-1.5">
@@ -268,9 +255,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
                 onChange={e => onChange({ labor_insured_here: e.target.checked })}
                 className="w-4 h-4"
               />
-              <span className="text-morandi-primary">
-                勞保在本公司投保
-              </span>
+              <span className="text-morandi-primary">勞保在本公司投保</span>
               <span className="text-xs text-morandi-muted">
                 （未勾選 = 員工在他處投保、譬如公會 / 兼職）
               </span>
@@ -283,12 +268,8 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
                 onChange={e => onChange({ health_insured_here: e.target.checked })}
                 className="w-4 h-4"
               />
-              <span className="text-morandi-primary">
-                健保在本公司投保
-              </span>
-              <span className="text-xs text-morandi-muted">
-                （未勾選 = 員工健保在他處）
-              </span>
+              <span className="text-morandi-primary">健保在本公司投保</span>
+              <span className="text-xs text-morandi-muted">（未勾選 = 員工健保在他處）</span>
             </label>
           </div>
         </div>
@@ -374,13 +355,10 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
             <tbody className="divide-y divide-border">
               {salaryHistory && salaryHistory.length > 0 ? (
                 salaryHistory.map((record, idx, arr) => {
-                  const prevSalary =
-                    idx < arr.length - 1 ? arr[idx + 1].base_salary : null
+                  const prevSalary = idx < arr.length - 1 ? arr[idx + 1].base_salary : null
                   return (
                     <tr key={idx} className="hover:bg-morandi-container/30">
-                      <td className="px-4 py-3 text-morandi-primary">
-                        {record.effective_date}
-                      </td>
+                      <td className="px-4 py-3 text-morandi-primary">{record.effective_date}</td>
                       <td className="px-4 py-3 text-right text-morandi-secondary">
                         {prevSalary ? <Money amount={prevSalary} /> : <EmptyValue />}
                       </td>
@@ -398,11 +376,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
                             )}
                           >
                             {record.base_salary > prevSalary ? '+' : ''}
-                            {(
-                              ((record.base_salary - prevSalary) / prevSalary) *
-                              100
-                            ).toFixed(1)}
-                            %
+                            {(((record.base_salary - prevSalary) / prevSalary) * 100).toFixed(1)}%
                           </span>
                         )}
                       </td>
@@ -414,10 +388,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
                 })
               ) : (
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-8 text-center text-morandi-secondary"
-                  >
+                  <td colSpan={5} className="px-4 py-8 text-center text-morandi-secondary">
                     {LABELS.NO_SALARY_HISTORY}
                   </td>
                 </tr>

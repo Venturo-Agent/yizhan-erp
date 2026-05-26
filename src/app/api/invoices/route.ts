@@ -32,7 +32,11 @@ const splitSchema = z.object({
   member_id: z.string().uuid().optional().nullable(),
   customer_id: z.string().min(1),
   total_amount: z.number().positive(),
-  due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().nullable(),
+  due_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional()
+    .nullable(),
   notes: z.string().max(500).optional().nullable(),
 })
 
@@ -68,10 +72,7 @@ export async function POST(req: Request) {
 
     if (!employeeId || !UUID_REGEX.test(employeeId)) {
       logger.error('[/api/invoices POST] invalid employeeId:', employeeId)
-      return NextResponse.json(
-        { error: '找不到員工身分、請重新登入', employeeId },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: '找不到員工身分、請重新登入', employeeId }, { status: 401 })
     }
 
     const auditClient = await createApiClient()
@@ -89,10 +90,7 @@ export async function POST(req: Request) {
 
     if (orderError) return dbErrorResponse(orderError)
     if (!order || order.workspace_id !== workspaceId) {
-      return NextResponse.json(
-        { error: '找不到訂單或無權限' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: '找不到訂單或無權限' }, { status: 404 })
     }
 
     // Step 1: 建 batch
@@ -141,10 +139,7 @@ export async function POST(req: Request) {
       // 補救：rollback 已建的 batch、避免孤兒
       await supabase.from('invoice_batches').delete().eq('id', batch.id)
       const insertT = translateDbError(insertError)
-      return NextResponse.json(
-        { error: insertT.message },
-        { status: insertT.httpStatus }
-      )
+      return NextResponse.json({ error: insertT.message }, { status: insertT.httpStatus })
     }
 
     return NextResponse.json(

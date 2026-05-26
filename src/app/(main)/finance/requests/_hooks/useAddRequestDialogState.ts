@@ -76,15 +76,18 @@ export function useAddRequestDialogState() {
     )
   }, [])
 
-  const selectTour = useCallback((index: number, tourId: string, tours: Tour[]) => {
-    const tour = tours.find(t => t.id === tourId)
-    if (!tour) return
-    updateTourAllocation(index, {
-      tour_id: tour.id,
-      tour_code: tour.code || '',
-      tour_name: tour.name || '',
-    })
-  }, [updateTourAllocation])
+  const selectTour = useCallback(
+    (index: number, tourId: string, tours: Tour[]) => {
+      const tour = tours.find(t => t.id === tourId)
+      if (!tour) return
+      updateTourAllocation(index, {
+        tour_id: tour.id,
+        tour_code: tour.code || '',
+        tour_name: tour.name || '',
+      })
+    },
+    [updateTourAllocation]
+  )
 
   // === 供應商對話框 ===
   const handleCreateSupplier = useCallback(async (name: string): Promise<string | null> => {

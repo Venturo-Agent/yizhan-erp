@@ -4,12 +4,7 @@
  */
 
 import { NextRequest } from 'next/server'
-import {
-  listDimension,
-  createDimension,
-  updateDimension,
-  deleteDimension,
-} from '../_helpers'
+import { listDimension, createDimension, updateDimension, deleteDimension } from '../_helpers'
 import { apiHandler } from '@/lib/api/api-handler'
 
 export const GET = apiHandler(() => listDimension('branches'))

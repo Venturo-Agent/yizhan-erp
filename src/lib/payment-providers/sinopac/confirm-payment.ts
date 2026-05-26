@@ -75,10 +75,15 @@ function isPaidFromQuery(q: OrderQueryResult): { paid: boolean; transNo: string 
 /** 反查永豐 + 確認 + 更新（共用核心） */
 async function confirmCore(
   supabase: ReturnType<typeof getSupabaseAdminClient>,
-  tx: TxRow,
+  tx: TxRow
 ): Promise<ConfirmResult> {
   if (tx.status === 'captured') {
-    return { status: 'captured', alreadyCaptured: true, externalTransNo: tx.external_trans_no, amount: Number(tx.amount) }
+    return {
+      status: 'captured',
+      alreadyCaptured: true,
+      externalTransNo: tx.external_trans_no,
+      amount: Number(tx.amount),
+    }
   }
   if (tx.status === 'failed' || tx.status === 'refunded') {
     return { status: 'failed' }
@@ -131,7 +136,12 @@ async function confirmCore(
     })
   }
 
-  return { status: 'captured', alreadyCaptured: false, externalTransNo: transNo, amount: Number(tx.amount) }
+  return {
+    status: 'captured',
+    alreadyCaptured: false,
+    externalTransNo: transNo,
+    amount: Number(tx.amount),
+  }
 }
 
 /** 落地頁用：以 payment_link_token 反查確認 */

@@ -162,7 +162,9 @@ export function PnrMatchDialog({
     }
 
     if (parsed.fareData && parsed.sourceFormat === 'ticket_order_detail') {
-      toast.success(`${t('parsedTicketAmount')}${parsed.fareData.totalFare.toLocaleString()}${t('amountPerPerson')}`)
+      toast.success(
+        `${t('parsedTicketAmount')}${parsed.fareData.totalFare.toLocaleString()}${t('amountPerPerson')}`
+      )
     } else if (parsed.sourceFormat === 'ticket_order_detail' && !parsed.fareData) {
       toast.warning(t('ticketAmountWarning'))
     }
@@ -216,9 +218,14 @@ export function PnrMatchDialog({
 
   // 團體模式：全部設為同一個訂單
   const handleSetAllOrders = (selectedOrderId: string) => {
-    if (!selectedOrderId) { setSelectedOrderIds({}); return }
+    if (!selectedOrderId) {
+      setSelectedOrderIds({})
+      return
+    }
     const newIds: Record<string, string> = {}
-    matchResults.forEach(r => { newIds[r.pnrPassenger] = selectedOrderId })
+    matchResults.forEach(r => {
+      newIds[r.pnrPassenger] = selectedOrderId
+    })
     setSelectedOrderIds(newIds)
   }
 
@@ -245,8 +252,12 @@ export function PnrMatchDialog({
     const exact = finalResults.filter(r => r.confidence === 'exact').length
     const partial = finalResults.filter(r => r.confidence === 'partial').length
     const none = finalResults.filter(r => r.confidence === 'none').length
-    const withSuggestions = finalResults.filter(r => r.suggestedCustomers.length > 0 && !r.matchedMember).length
-    const selectedCustomers = finalResults.filter(r => r.selectedCustomerId && !r.matchedMember).length
+    const withSuggestions = finalResults.filter(
+      r => r.suggestedCustomers.length > 0 && !r.matchedMember
+    ).length
+    const selectedCustomers = finalResults.filter(
+      r => r.selectedCustomerId && !r.matchedMember
+    ).length
     return { exact, partial, none, withSuggestions, selectedCustomers, total: finalResults.length }
   }, [finalResults])
 
@@ -287,9 +298,7 @@ export function PnrMatchDialog({
         <div className="flex-1 overflow-auto space-y-4">
           {/* 輸入區域 */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('pastePnr')}
-            </label>
+            <label className="text-sm font-medium text-morandi-primary">{t('pastePnr')}</label>
             <Textarea
               value={rawPnr}
               onChange={e => setRawPnr(e.target.value)}
@@ -322,11 +331,12 @@ export function PnrMatchDialog({
                   )}
                   maxLength={8}
                 />
-                <PnrSourceBadge source={parsedPnr.recordLocatorSource} valid={isValidRecordLocator(manualPnr)} />
+                <PnrSourceBadge
+                  source={parsedPnr.recordLocatorSource}
+                  valid={isValidRecordLocator(manualPnr)}
+                />
                 {!isValidRecordLocator(manualPnr) && (
-                  <span className="text-xs text-status-danger">
-                    格式不對（需 5-8 字、純英數）
-                  </span>
+                  <span className="text-xs text-status-danger">格式不對（需 5-8 字、純英數）</span>
                 )}
               </div>
             )}
@@ -375,14 +385,9 @@ export function PnrMatchDialog({
             <X size={16} />
             {t('cancel')}
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!parsedPnr || savableCount === 0 || isSaving}
-          >
+          <Button onClick={handleSave} disabled={!parsedPnr || savableCount === 0 || isSaving}>
             <Save size={16} className="mr-1" />
-            {isSaving
-              ? t('saving')
-              : `${t('savePairs')} (${savableCount} ${t('personUnit')})`}
+            {isSaving ? t('saving') : `${t('savePairs')} (${savableCount} ${t('personUnit')})`}
           </Button>
         </DialogFooter>
       </DialogContent>

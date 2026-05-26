@@ -157,7 +157,7 @@ export function CreateSupplierDialog({
       }
     },
     {
-      onError: (error) => {
+      onError: error => {
         logger.error('Create supplier failed:', error)
         void alert(COMPONENT_LABELS.ALERT_CREATE_FAILED, 'error')
       },

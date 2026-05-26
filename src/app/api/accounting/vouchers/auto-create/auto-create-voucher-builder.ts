@@ -95,9 +95,8 @@ export async function createVoucherFromReceipt(workspaceId: string, receiptId: s
   //   actual_amount  = 實收（借方 = 銀行存款進帳）= receipt_amount - fees
   const receiptAmount = Number(receipt.receipt_amount) || 0
   const fees = Number(receipt.fees) || 0
-  const actualAmount = Number(receipt.actual_amount) > 0
-    ? Number(receipt.actual_amount)
-    : receiptAmount - fees
+  const actualAmount =
+    Number(receipt.actual_amount) > 0 ? Number(receipt.actual_amount) : receiptAmount - fees
 
   if (receiptAmount <= 0) {
     throw new Error('收款金額為 0、無法產生傳票')
@@ -194,7 +193,10 @@ export async function createVoucherFromReceipt(workspaceId: string, receiptId: s
  * 從請款單產生傳票
  * 使用「請款類別」的借方/貸方科目
  */
-export async function createVoucherFromPaymentRequest(workspaceId: string, paymentRequestId: string) {
+export async function createVoucherFromPaymentRequest(
+  workspaceId: string,
+  paymentRequestId: string
+) {
   const db = getSupabase()
 
   // 1. 查詢請款單（限定 workspace）
@@ -296,7 +298,12 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
   // 借方分錄（每個項目一筆）
   // 2026-05-21 Phase 2：優先用 category_id 反查、fallback category 文字（舊資料）
   for (const item of request.items || []) {
-    const itemExt = item as { category?: string | null; category_id?: string | null; subtotal?: number | null; description?: string | null }
+    const itemExt = item as {
+      category?: string | null
+      category_id?: string | null
+      subtotal?: number | null
+      description?: string | null
+    }
     const catMapping =
       (itemExt.category_id && categoryById.get(itemExt.category_id)) ||
       categoryByName.get(itemExt.category || '其他')
@@ -321,7 +328,10 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
     // 累計貸方金額（可能多個項目用同一個貸方科目）
     if (catMapping.credit_account) {
       const creditId = catMapping.credit_account.id
-      creditAccountIds.set(creditId, (creditAccountIds.get(creditId) || 0) + (itemExt.subtotal || 0))
+      creditAccountIds.set(
+        creditId,
+        (creditAccountIds.get(creditId) || 0) + (itemExt.subtotal || 0)
+      )
     }
   }
 
@@ -351,4 +361,3 @@ export async function createVoucherFromPaymentRequest(workspaceId: string, payme
 
   return voucher
 }
-

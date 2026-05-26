@@ -1,4 +1,3 @@
-
 // TODO: can be removed — all consumers migrated to useTranslations('settingsPage') in messages/zh-TW.json
 
 export const LABELS = {
@@ -261,4 +260,3 @@ export const COMPANY_LABELS = {
   UNSUPPORTED_FORMAT: '只支援 JPG、PNG、WebP 格式',
   UPLOAD_FAILED: '上傳失敗',
 }
-

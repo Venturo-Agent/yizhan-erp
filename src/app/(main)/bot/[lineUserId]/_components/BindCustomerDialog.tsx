@@ -78,11 +78,7 @@ export function BindCustomerDialog({
       <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
         取消
       </Button>
-      <Button
-        variant="soft-gold"
-        onClick={handleSubmit}
-        disabled={submitting || !selectedId}
-      >
+      <Button variant="soft-gold" onClick={handleSubmit} disabled={submitting || !selectedId}>
         {submitting ? '綁定中...' : '綁定'}
       </Button>
     </div>

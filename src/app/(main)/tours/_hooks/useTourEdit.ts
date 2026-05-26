@@ -99,9 +99,7 @@ export function useTourEdit(params: UseTourEditParams) {
     // 先用 tour 內已有資料填、不等 countries / airports
     const countryId = tour.country_id || ''
     const countryName =
-      countryId && countries.length > 0
-        ? countries.find(c => c.id === countryId)?.name || ''
-        : ''
+      countryId && countries.length > 0 ? countries.find(c => c.id === countryId)?.name || '' : ''
     const airportCityName =
       tour.airport_code && airports.length > 0
         ? airports.find(a => a.iata_code === tour.airport_code)?.city_name_zh || ''
@@ -132,7 +130,7 @@ export function useTourEdit(params: UseTourEditParams) {
     if (tour.airport_code && airports.length > 0) {
       const cityName = airports.find(a => a.iata_code === tour.airport_code)?.city_name_zh || ''
       setFormData(prev =>
-        prev.airportCityName !== cityName ? { ...prev, airportCityName: cityName } : prev,
+        prev.airportCityName !== cityName ? { ...prev, airportCityName: cityName } : prev
       )
     }
   }, [countries, airports, tour])

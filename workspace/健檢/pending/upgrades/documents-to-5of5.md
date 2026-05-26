@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ⚠️ | DocumentsModule 有 2 個 page（page.tsx + [id]/page.tsx）；實體在 library/document-center；`customer-documents.ts` entity 是牛步 |
-| **資安** | ✅ | RLS/FK 完整；workspace_id guard 有 |
-| **架構** | ✅ | L1-L6 全過；FeatureGate 有 |
-| **開發品管** | ⚠️ | documents 無專屬 e2e；`document-types.ts` entity 已建立（Pass 1 補做）|
-| **清理** | ⚠️ | `customer-documents.ts` entity 是牛步（Pass 1 supplement 有記錄）；待確認實際狀態 |
+| 維度         | 現狀 | 具體缺口                                                                                                                        |
+| ------------ | ---- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **讀取效能** | ⚠️   | DocumentsModule 有 2 個 page（page.tsx + [id]/page.tsx）；實體在 library/document-center；`customer-documents.ts` entity 是牛步 |
+| **資安**     | ✅   | RLS/FK 完整；workspace_id guard 有                                                                                              |
+| **架構**     | ✅   | L1-L6 全過；FeatureGate 有                                                                                                      |
+| **開發品管** | ⚠️   | documents 無專屬 e2e；`document-types.ts` entity 已建立（Pass 1 補做）                                                          |
+| **清理**     | ⚠️   | `customer-documents.ts` entity 是牛步（Pass 1 supplement 有記錄）；待確認實際狀態                                               |
 
 ---
 
@@ -23,6 +23,7 @@
 **缺口**：`documents/page.tsx` 和 `documents/[id]/page.tsx` 是否走 entity hook。
 
 **修法**：
+
 1. 確認 `useDocuments` 或等效 entity hook 存在
 2. 如果不存在 → 建立 `documents.ts` entity hook
 3. `customer-documents.ts` 是另一個 entity（證件上傳），需確認 `src/app/(main)/documents/` 是否有用到
@@ -39,8 +40,9 @@
 
 **修法**：
 `tests/e2e/documents.spec.ts`：
+
 ```
-上傳 1 個文件 → 確認出現在列表 → 
+上傳 1 個文件 → 確認出現在列表 →
 下載文件 → 刪除文件 → 確認消失
 ```
 
@@ -54,6 +56,7 @@
 **缺口**：`customer-documents.ts` entity 是牛步（Pass 1 有記錄）。
 
 **修法**：
+
 1. 確認 `src/data/entities/customer-documents.ts` 實際狀態（是否存在、是否完整）
 2. 如果存在且完整 → 從「牛步」移至「已完成」
 3. knip 確認 documents 相關 unused files
@@ -83,4 +86,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

@@ -52,9 +52,7 @@ export function useLinkedPaymentRequests(): UseLinkedPaymentRequestsResult {
     swrKey,
     async () => {
       const { data: rows, error: queryError } = await filterActive(
-        supabase
-          .from('payment_requests')
-          .select('id,disbursement_order_id,tour_id,status')
+        supabase.from('payment_requests').select('id,disbursement_order_id,tour_id,status')
       ).not('disbursement_order_id', 'is', null)
 
       if (queryError) {

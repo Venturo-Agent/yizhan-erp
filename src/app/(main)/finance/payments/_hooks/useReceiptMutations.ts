@@ -245,8 +245,7 @@ export function useReceiptMutations() {
       // receipt_date / payment_date：優先 formData.receipt_date（dialog header）
       // fallback 到 row 內 transaction_date（兼容兩處編輯日期的 UI）
       // user 改 row 內 transaction_date 優先（dialog header 沒收款日期 input、靠 row 內）
-      const receiptDate =
-        firstItem?.transaction_date || formData.receipt_date || undefined
+      const receiptDate = firstItem?.transaction_date || formData.receipt_date || undefined
       await onUpdate(receipt.id, {
         tour_id: formData.tour_id || null,
         order_id: formData.order_id || null,

@@ -115,7 +115,10 @@ export function FukuokaGolfProposalDining() {
           >
             Dining & Experience
           </span>
-          <h2 className="text-5xl lg:text-6xl font-bold" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+          <h2
+            className="text-5xl lg:text-6xl font-bold"
+            style={{ fontFamily: 'Noto Serif TC, serif' }}
+          >
             深度餐食與體驗
           </h2>
           <p className="text-lg mt-4" style={{ color: '#666' }}>
@@ -161,17 +164,25 @@ export function FukuokaGolfProposalDining() {
                     >
                       {restaurant.type}
                     </span>
-                    <h4 className="text-xl font-bold mt-2 mb-1" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                    <h4
+                      className="text-xl font-bold mt-2 mb-1"
+                      style={{ fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {restaurant.name}
                     </h4>
-                    <p className="text-sm mb-4" style={{ color: '#666' }}>{restaurant.location}</p>
+                    <p className="text-sm mb-4" style={{ color: '#666' }}>
+                      {restaurant.location}
+                    </p>
                     <p className="text-sm leading-relaxed mb-4" style={{ color: '#444' }}>
                       {restaurant.description}
                     </p>
                     <p className="text-sm mb-2" style={{ color: '#8B7355' }}>
                       {restaurant.highlight}
                     </p>
-                    <p className="text-base font-bold" style={{ color: '#8B7355', fontFamily: 'Noto Serif TC, serif' }}>
+                    <p
+                      className="text-base font-bold"
+                      style={{ color: '#8B7355', fontFamily: 'Noto Serif TC, serif' }}
+                    >
                       {restaurant.priceRange}
                     </p>
                   </div>
@@ -218,7 +229,10 @@ export function FukuokaGolfProposalDining() {
                 </div>
 
                 <div className="p-8">
-                  <h4 className="text-lg font-bold mb-2" style={{ fontFamily: 'Noto Serif TC, serif' }}>
+                  <h4
+                    className="text-lg font-bold mb-2"
+                    style={{ fontFamily: 'Noto Serif TC, serif' }}
+                  >
                     {exp.name}
                   </h4>
                   <p className="text-xs mb-4" style={{ color: '#999', fontFamily: 'system-ui' }}>
@@ -262,7 +276,10 @@ export function FukuokaGolfProposalDining() {
               'Day 4 先生在飯店享設施、太太自由探索（各自定義假期的樣子）',
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3 text-base" style={{ color: '#444' }}>
-                <span className="flex-shrink-0 w-1 h-1 mt-2" style={{ backgroundColor: '#8B7355' }} />
+                <span
+                  className="flex-shrink-0 w-1 h-1 mt-2"
+                  style={{ backgroundColor: '#8B7355' }}
+                />
                 {item}
               </li>
             ))}

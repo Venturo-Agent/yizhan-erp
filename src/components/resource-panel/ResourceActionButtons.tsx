@@ -58,11 +58,7 @@ export function ResourceActionButtons({
           {/* 左側：驗證 + 刪除 */}
           <div className="flex gap-2">
             {/* 驗證/取消驗證 */}
-            <Button
-              variant="soft-gold"
-              size="sm"
-              onClick={onToggleVerify}
-            >
+            <Button variant="soft-gold" size="sm" onClick={onToggleVerify}>
               <CheckCircle2 size="0.875em" className="mr-1" />
               {dataVerified ? LABELS.CANCEL_VERIFY : LABELS.VERIFY}
             </Button>
@@ -80,11 +76,7 @@ export function ResourceActionButtons({
           </div>
           {/* 右側：取消 + 儲存 */}
           <div className="flex gap-2">
-            <Button
-              variant="soft-gold"
-              size="sm"
-              onClick={onCancelEdit}
-            >
+            <Button variant="soft-gold" size="sm" onClick={onCancelEdit}>
               <X size="0.875em" className="mr-1" />
               {LABELS.CANCEL}
             </Button>
@@ -99,11 +91,7 @@ export function ResourceActionButtons({
           <div className="flex gap-2 ml-auto">
             {/* 編輯本團按鈕 */}
             {tourItineraryItemId && (
-              <Button
-                variant="soft-gold"
-                size="sm"
-                onClick={onOpenOverride}
-              >
+              <Button variant="soft-gold" size="sm" onClick={onOpenOverride}>
                 <FileEdit size="0.875em" className="mr-1" />
                 {LABELS.EDIT_THIS_TOUR}
               </Button>

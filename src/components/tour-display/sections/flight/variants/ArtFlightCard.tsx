@@ -8,13 +8,7 @@ import { motion } from 'framer-motion'
 import { Plane } from 'lucide-react'
 import { type FlightCardVariantProps } from './flight-card-utils'
 
-export function ArtFlightCard({
-  flight,
-  type,
-  theme,
-  isMobile,
-  dateInfo,
-}: FlightCardVariantProps) {
+export function ArtFlightCard({ flight, type, theme, isMobile, dateInfo }: FlightCardVariantProps) {
   // 取得機場代碼（用於浮水印）
   const airportCode =
     flight.departureAirport?.match(/\(([A-Z]{3})\)/)?.[1] ||

@@ -8,13 +8,13 @@
 
 ## 5 維度狀態（修正後）
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ✅ | banks/countries/airports 三頁散刻 useSWR 是設計決策（全域 master table 無 workspace_id 是正確的）；⚠️ 但三頁各自獨立散刻、缺乏統一 entity hook 抽象 |
-| **資安** | ✅ | 全域 master table 無跨租戶污染風險（已確認）|
-| **架構** | ✅ | L1-L6 全過；FeatureGate 有 |
-| **開發品管** | ✅ | shared_data_management 有專屬 audit；lint/type 全過 |
-| **清理** | ⚠️ | shared-data 是近唯讀；dead code 待確認 |
+| 維度         | 現狀 | 具體缺口                                                                                                                                            |
+| ------------ | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **讀取效能** | ✅   | banks/countries/airports 三頁散刻 useSWR 是設計決策（全域 master table 無 workspace_id 是正確的）；⚠️ 但三頁各自獨立散刻、缺乏統一 entity hook 抽象 |
+| **資安**     | ✅   | 全域 master table 無跨租戶污染風險（已確認）                                                                                                        |
+| **架構**     | ✅   | L1-L6 全過；FeatureGate 有                                                                                                                          |
+| **開發品管** | ✅   | shared_data_management 有專屬 audit；lint/type 全過                                                                                                 |
+| **清理**     | ⚠️   | shared-data 是近唯讀；dead code 待確認                                                                                                              |
 
 ---
 
@@ -25,6 +25,7 @@
 **缺口**：banks / countries / airports 三頁各自散刻 useSWR、缺統一抽象。
 
 **修法**：
+
 1. 評估是否值得建 `ref-banks.ts` / `ref-countries.ts` / `ref-airports.ts` 三個 lightweight entity hook（近唯讀、無 realtime 需要）
 2. 或者保持現狀（近唯讀、全域資料，三頁各自 useSWR 不影響 user 體驗）
 3. **結論**：這是低優先級、如果 William 不堅持、可以保留現狀
@@ -40,6 +41,7 @@
 **缺口**：shared-data 是近唯讀，清理優先級低。
 
 **修法**：
+
 1. knip 確認 shared-data 相關 unused files（預期不多）
 2. 確認 `src/app/(main)/shared-data/` 下無死路由
 
@@ -70,6 +72,7 @@
 ## 重要備註（給 William）
 
 **矩陣評分需修正**：
+
 - 現矩陣：3/5（讀取⚠️ 資安⚠️ 架構✅ 品管✅ 清理⚠️）
 - **真實分數：4/5（讀取✅ 資安✅ 架構✅ 品管✅ 清理⚠️）**
 - SWR key workspace_id 是 false positive，Pass 2 複盤已排除
@@ -78,4 +81,4 @@
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

@@ -9,6 +9,7 @@
 ## 為什麼補做
 
 第一輪 Claude Opus 複盤抓出：
+
 1. 你宣稱掃 38 頁、實際全 codebase 有 67 個 `(main)/**/page.tsx`、覆蓋率僅 57%
 2. 你把 CIS 模組寫進報告（cis/page.tsx / cis/[id]/page.tsx / cis/pricing/page.tsx）— **這 3 頁實際不存在、是幻覺**（CIS 5/19 已清乾淨）
 3. smoking gun #1（ChannelView invalidate 對象錯）你誤判 — 只看 line 78 沒看 line 199 的 handleSend
@@ -23,6 +24,7 @@
 下列頁面**全部要按 Pass 1 的 5 欄格式**（路徑 / 頁面名 / 讀 / 寫 / Realtime / 備註）盤點清楚：
 
 ### A. bot 模組（5 頁、Round 11 才迭代完）
+
 - `src/app/(main)/bot/page.tsx`
 - `src/app/(main)/bot/setup/page.tsx`
 - `src/app/(main)/bot/[lineUserId]/page.tsx`
@@ -30,13 +32,16 @@
 - `src/app/(main)/bot/instagram-setup/page.tsx`
 
 ### B. calendar（1 頁、跟 archive-management 連動）
+
 - `src/app/(main)/calendar/page.tsx`
 - 重點：怎麼讀 `calendar_events` 表？有無 invalidate？
 
 ### C. documents
+
 - `src/app/(main)/documents/page.tsx`
 
 ### D. finance 補完（4 頁）
+
 - `src/app/(main)/finance/page.tsx`
 - `src/app/(main)/finance/requests/page.tsx`
 - `src/app/(main)/finance/settings/page.tsx`
@@ -44,13 +49,16 @@
 - `src/app/(main)/finance/treasury/disbursement/page.tsx`
 
 ### E. marketing/website（剛 pull 的新 module、2 頁）
+
 - `src/app/(main)/marketing/website/page.tsx`
 - `src/app/(main)/marketing/website/[code]/page.tsx`
 
 ### F. messaging
+
 - `src/app/(main)/messaging/page.tsx`
 
 ### G. accounting 補完（5 頁）
+
 - `src/app/(main)/accounting/page.tsx`
 - `src/app/(main)/accounting/opening-balances/page.tsx`
 - `src/app/(main)/accounting/period-closing/page.tsx`
@@ -61,31 +69,38 @@
 - `src/app/(main)/accounting/reports/trial-balance/page.tsx`
 
 ### H. settings（3 頁）
+
 - `src/app/(main)/settings/page.tsx`
 - `src/app/(main)/settings/company/page.tsx`
 - `src/app/(main)/settings/personal/page.tsx`
 
 ### I. platform（2 頁）
+
 - `src/app/(main)/platform/page.tsx`
 - `src/app/(main)/platform/aitoearn/page.tsx`
 
 ### J. workspaces（2 頁）
+
 - `src/app/(main)/workspaces/page.tsx`
 - `src/app/(main)/workspaces/[id]/page.tsx`
 
 ### K. shared-data 補完（2 頁）
+
 - `src/app/(main)/shared-data/page.tsx`
 - `src/app/(main)/shared-data/attractions/page.tsx`
 - `src/app/(main)/shared-data/insurance-grades/page.tsx`
 
 ### L. tours 細節（1 頁）
+
 - `src/app/(main)/tours/[code]/display-editor/page.tsx`
 
 ### M. library/customers 詳情 + hr/bonus-settlement 詳情
+
 - `src/app/(main)/library/customers/[id]/page.tsx`
 - `src/app/(main)/hr/bonus-settlement/[tourId]/page.tsx`
 
 ### N. 你第一輪標「待掃」沒補的 6 頁
+
 - `src/app/(main)/library/suppliers/page.tsx` + 完整 delegate 鏈
 - `src/app/(main)/library/attractions/page.tsx` + 完整 delegate 鏈
 - `src/app/(main)/hr/salary-settlement/[id]/page.tsx`
@@ -94,6 +109,7 @@
 - `src/app/(main)/shared-data/airports/page.tsx`
 
 ### O. CIS 三頁 — 不存在、別再寫進報告
+
 你之前報告寫的 `cis/page.tsx` / `cis/[id]/page.tsx` / `cis/pricing/page.tsx` 全部已經不存在、是 5/19 清掉的殘留。把 Pass 1 報告裡這 3 列**刪掉**。
 
 ---
@@ -101,6 +117,7 @@
 ## 二、產出位置
 
 直接在原 Pass 1 報告 **追加** 模組分區（14-25 章節編號順排）：
+
 - 檔案：`workspace/_meta/architecture/2026-05-20-swr-realtime-page-audit-pass1.md`
 - **同時刪掉**該檔的第 13 章「cis」（不存在的模組）
 - **更新**該檔的「Pass 1 統計」表格、加入新模組

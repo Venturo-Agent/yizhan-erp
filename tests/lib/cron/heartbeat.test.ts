@@ -126,10 +126,9 @@ describe('withCronHeartbeat', () => {
       await promise
 
       expect(fromMock).toHaveBeenCalledWith('cron_heartbeats')
-      expect(upsertMock).toHaveBeenCalledWith(
-        expect.objectContaining({ job_name: 'job-D' }),
-        { onConflict: 'job_name' }
-      )
+      expect(upsertMock).toHaveBeenCalledWith(expect.objectContaining({ job_name: 'job-D' }), {
+        onConflict: 'job_name',
+      })
     })
 
     it('duration_ms 是 finished - started、≥ 0', async () => {

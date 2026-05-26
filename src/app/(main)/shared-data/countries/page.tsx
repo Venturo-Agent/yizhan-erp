@@ -49,51 +49,51 @@ export default function SharedDataCountriesPage() {
 
   return (
     <ContentPageLayout title={t('moduleCountries')}>
-      <div className='space-y-4'>
-        <div className='flex items-center justify-between gap-4'>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={t('searchPlaceholderCountries')}
-            className='max-w-sm'
+            className="max-w-sm"
           />
-          <span className='text-sm text-muted-foreground'>
+          <span className="text-sm text-muted-foreground">
             {t('totalRows', { n: filtered.length })}
           </span>
         </div>
 
-        <div className='rounded-md border'>
-          <table className='w-full text-sm'>
-            <thead className='border-b bg-muted/50'>
+        <div className="rounded-md border">
+          <table className="w-full text-sm">
+            <thead className="border-b bg-muted/50">
               <tr>
-                <th className='px-4 py-2 text-left'>{t('colCode')}</th>
-                <th className='px-4 py-2 text-left'>{t('colNameZh')}</th>
-                <th className='px-4 py-2 text-left'>{t('colContinent')}</th>
-                <th className='px-4 py-2 text-left'>{t('colSubRegion')}</th>
-                <th className='px-4 py-2 text-center'>{t('colEnabled')}</th>
+                <th className="px-4 py-2 text-left">{t('colCode')}</th>
+                <th className="px-4 py-2 text-left">{t('colNameZh')}</th>
+                <th className="px-4 py-2 text-left">{t('colContinent')}</th>
+                <th className="px-4 py-2 text-left">{t('colSubRegion')}</th>
+                <th className="px-4 py-2 text-center">{t('colEnabled')}</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className='px-4 py-8 text-center text-muted-foreground'>
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                     {t('loading')}
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className='px-4 py-8 text-center text-muted-foreground'>
+                  <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                     {t('noData')}
                   </td>
                 </tr>
               ) : (
                 filtered.map(c => (
-                  <tr key={c.code} className='border-b last:border-0 hover:bg-muted/30'>
-                    <td className='px-4 py-2 font-mono'>{c.code}</td>
-                    <td className='px-4 py-2'>{c.name_zh}</td>
-                    <td className='px-4 py-2 text-muted-foreground'>{c.continent ?? '—'}</td>
-                    <td className='px-4 py-2 text-muted-foreground'>{c.sub_region ?? '—'}</td>
-                    <td className='px-4 py-2 text-center'>{c.is_active ? '✓' : '—'}</td>
+                  <tr key={c.code} className="border-b last:border-0 hover:bg-muted/30">
+                    <td className="px-4 py-2 font-mono">{c.code}</td>
+                    <td className="px-4 py-2">{c.name_zh}</td>
+                    <td className="px-4 py-2 text-muted-foreground">{c.continent ?? '—'}</td>
+                    <td className="px-4 py-2 text-muted-foreground">{c.sub_region ?? '—'}</td>
+                    <td className="px-4 py-2 text-center">{c.is_active ? '✓' : '—'}</td>
                   </tr>
                 ))
               )}

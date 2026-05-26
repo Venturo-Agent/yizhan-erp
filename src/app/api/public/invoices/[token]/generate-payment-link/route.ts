@@ -17,7 +17,10 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/utils/logger'
 import { isGatewayProvider } from '@/constants/payment-provider'
-import { createSinopacCardTransaction, SINOPAC_ERR } from '@/lib/payment-providers/sinopac/create-transaction'
+import {
+  createSinopacCardTransaction,
+  SINOPAC_ERR,
+} from '@/lib/payment-providers/sinopac/create-transaction'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -28,10 +31,7 @@ const schema = z.object({
   customer_name: z.string().max(100).optional().nullable(),
 })
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ token: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
 
   const rateLimited = await checkRateLimit(request, 'public-invoice-gen-link', 5, 60_000)
@@ -87,10 +87,7 @@ export async function POST(
     return NextResponse.json({ error: '付款方式不可用' }, { status: 400 })
   }
   if (!isGatewayProvider(method.provider)) {
-    return NextResponse.json(
-      { error: '此付款方式非永豐金流、請改用既有匯款流程' },
-      { status: 400 }
-    )
+    return NextResponse.json({ error: '此付款方式非永豐金流、請改用既有匯款流程' }, { status: 400 })
   }
 
   // 3. 撈 selected invoices、算總金額（server 端、不收 client）

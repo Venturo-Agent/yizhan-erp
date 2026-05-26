@@ -86,12 +86,7 @@ export function ChatInput({
   }
 
   return (
-    <div
-      className={cn(
-        'border-t border-border px-4 py-3 bg-card flex items-end gap-2',
-        className
-      )}
-    >
+    <div className={cn('border-t border-border px-4 py-3 bg-card flex items-end gap-2', className)}>
       <textarea
         value={value}
         onChange={e => setValue(e.target.value)}
@@ -101,13 +96,7 @@ export function ChatInput({
         rows={1}
         className="flex-1 resize-none rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:opacity-50"
       />
-      <Button
-        type="button"
-        size="sm"
-        onClick={handleSend}
-        disabled={!canSend}
-        className="shrink-0"
-      >
+      <Button type="button" size="sm" onClick={handleSend} disabled={!canSend} className="shrink-0">
         {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
       </Button>
     </div>

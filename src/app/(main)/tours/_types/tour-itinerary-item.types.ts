@@ -144,13 +144,8 @@ export interface TourItineraryItem {
 }
 
 // === 建立/更新用的 Partial 型別 ===
-type _TourItineraryItemCreate = Omit<
-  TourItineraryItem,
-  'id' | 'created_at' | 'updated_at'
-> & {
+type _TourItineraryItemCreate = Omit<TourItineraryItem, 'id' | 'created_at' | 'updated_at'> & {
   id?: string
 }
 
-type _TourItineraryItemUpdate = Partial<
-  Omit<TourItineraryItem, 'id' | 'created_at' | 'updated_at'>
->
+type _TourItineraryItemUpdate = Partial<Omit<TourItineraryItem, 'id' | 'created_at' | 'updated_at'>>

@@ -63,7 +63,7 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>(
           'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-morandi-container/50 text-morandi-primary select-none',
           sizing.box,
           onClick && 'cursor-pointer',
-          className,
+          className
         )}
         {...props}
       >
@@ -80,11 +80,14 @@ export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>(
             {initial}
           </span>
         ) : (
-          <User className={cn('text-morandi-secondary', sizing.icon)} aria-label={alt ?? 'avatar'} />
+          <User
+            className={cn('text-morandi-secondary', sizing.icon)}
+            aria-label={alt ?? 'avatar'}
+          />
         )}
       </span>
     )
-  },
+  }
 )
 Avatar.displayName = 'Avatar'
 
@@ -95,7 +98,7 @@ export interface EmployeeAvatarProps extends Omit<AvatarProps, 'fallback'> {
 export const EmployeeAvatar = React.forwardRef<HTMLSpanElement, EmployeeAvatarProps>(
   ({ name, alt, ...rest }, ref) => (
     <Avatar ref={ref} alt={alt ?? name ?? ''} fallback={name ?? undefined} {...rest} />
-  ),
+  )
 )
 EmployeeAvatar.displayName = 'EmployeeAvatar'
 
@@ -106,6 +109,6 @@ export interface CustomerAvatarProps extends Omit<AvatarProps, 'fallback'> {
 export const CustomerAvatar = React.forwardRef<HTMLSpanElement, CustomerAvatarProps>(
   ({ name, alt, ...rest }, ref) => (
     <Avatar ref={ref} alt={alt ?? name ?? ''} fallback={name ?? undefined} {...rest} />
-  ),
+  )
 )
 CustomerAvatar.displayName = 'CustomerAvatar'

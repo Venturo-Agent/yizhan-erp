@@ -37,8 +37,7 @@ export function TenantAdminSection({ form, setForm }: Props) {
 
         <div>
           <label className="text-sm font-medium text-morandi-primary mb-1.5 block">
-            {t('fieldEmail')}{' '}
-            <span className="text-morandi-red">{t('fieldEmailRequired')}</span>
+            {t('fieldEmail')} <span className="text-morandi-red">{t('fieldEmailRequired')}</span>
           </label>
           <Input
             type="email"

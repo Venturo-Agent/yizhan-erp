@@ -20,10 +20,7 @@ const validateSchema = z.object({
   api_token: z.string().min(10).max(500),
 })
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: _workspaceId } = await params
 
   const auth = await getServerAuth()

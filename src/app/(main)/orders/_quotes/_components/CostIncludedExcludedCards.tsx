@@ -52,9 +52,7 @@ export function CostIncludedExcludedCards({
 
   // 全形→半形 + 只留數字
   const normalizeDigits = (v: string) =>
-    v
-      .replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xfee0))
-      .replace(/\D/g, '')
+    v.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)).replace(/\D/g, '')
 
   return (
     <>
@@ -90,10 +88,7 @@ export function CostIncludedExcludedCards({
             <span className="text-xs">{LABELS.ACCIDENT_MEDICAL}</span>
           </div>
           {includedToggleItems.map(item => (
-            <label
-              key={item}
-              className="flex items-center gap-2 cursor-pointer text-morandi-green"
-            >
+            <label key={item} className="flex items-center gap-2 cursor-pointer text-morandi-green">
               <span>•</span>
               <span>{item}</span>
               {!isReadOnly && (

@@ -10,13 +10,13 @@
 
 ### 結論矩陣
 
-| 表 | created_by/updated_by 指向 | 結論 | 原因 |
-|---|---|---|---|
-| `tour_control_forms` | → `auth.users(id)` | **違反紅線 B**：團控表是 ERP 業務資料、created_by 應指 employees | COMMENT `團控表資料`、非個人上傳物件 |
-| `image_library` | → `auth.users(id)` | **違反紅線 B**：圖庫是 workspace 等級共享素材、由員工上傳、管理者管理 | COMMENT `圖庫資料表` + `workspace_id` + `category`/`attraction_id` 商業欄位 |
-| `file_system.folders` | → `auth.users(id)` | **違反紅線 B**：workspace 樹狀資料夾、員工建立組織檔、應指 employees | COMMENT `虛擬資料夾結構，支援樹狀目錄` + workspace scope |
-| `file_system.files` | → `auth.users(id)` | **違反紅線 B**：workspace 等級檔案、員工上傳業務文件、應指 employees | COMMENT `檔案記錄，關聯團/客戶/供應商` + workspace scope |
-| `email_accounts` | `owner_id` → `employees(id)`（已正確） | **無需修改**：個人郵件帳戶綁定員工、owner_id 本來就指向 employees | `account_type IN ('shared','personal')` + `owner_id` 已是 employees |
+| 表                    | created_by/updated_by 指向             | 結論                                                                  | 原因                                                                        |
+| --------------------- | -------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `tour_control_forms`  | → `auth.users(id)`                     | **違反紅線 B**：團控表是 ERP 業務資料、created_by 應指 employees      | COMMENT `團控表資料`、非個人上傳物件                                        |
+| `image_library`       | → `auth.users(id)`                     | **違反紅線 B**：圖庫是 workspace 等級共享素材、由員工上傳、管理者管理 | COMMENT `圖庫資料表` + `workspace_id` + `category`/`attraction_id` 商業欄位 |
+| `file_system.folders` | → `auth.users(id)`                     | **違反紅線 B**：workspace 樹狀資料夾、員工建立組織檔、應指 employees  | COMMENT `虛擬資料夾結構，支援樹狀目錄` + workspace scope                    |
+| `file_system.files`   | → `auth.users(id)`                     | **違反紅線 B**：workspace 等級檔案、員工上傳業務文件、應指 employees  | COMMENT `檔案記錄，關聯團/客戶/供應商` + workspace scope                    |
+| `email_accounts`      | `owner_id` → `employees(id)`（已正確） | **無需修改**：個人郵件帳戶綁定員工、owner_id 本來就指向 employees     | `account_type IN ('shared','personal')` + `owner_id` 已是 employees         |
 
 ### image_library / file_system 判定邏輯
 
@@ -31,6 +31,7 @@
 檔名：`20260520070000_fix_red_line_b_audit_fk.sql`
 
 影響範圍：
+
 - `tour_control_forms.created_by / updated_by`
 - `image_library.created_by`
 - `file_system.folders.created_by`
@@ -45,6 +46,7 @@ email_accounts 不需要（owner_id 已正確）。
 ### 發現
 
 submit route (`POST /api/hr/salary-settlements/[id]/submit`) 的保護：
+
 - ✅ 有 `status='draft'` check（防重 submit）
 - ✅ 有 `workspace_id` check（防跨 workspace）
 - ❌ **無 accounting period is_closed check**

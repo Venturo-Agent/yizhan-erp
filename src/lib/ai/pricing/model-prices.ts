@@ -64,7 +64,7 @@ const PRICES: Record<string, ModelPrice> = {
   // ════ MiniMax（中國家、自查官方）════
   // https://platform.minimaxi.com/document/Price
   'minimax/MiniMax-M2': {
-    input_cost_per_token: 0.0000003,   // 暫估、待 William 給確切價
+    input_cost_per_token: 0.0000003, // 暫估、待 William 給確切價
     output_cost_per_token: 0.0000012,
     display_name: 'MiniMax M2',
   },
@@ -81,12 +81,12 @@ const PRICES: Record<string, ModelPrice> = {
 
   // ════ OpenAI Embeddings（給 RAG 用、5/19 William 拍板開動）════
   'openai/text-embedding-3-small': {
-    input_cost_per_token: 0.00000002,  // $0.02 / 1M tokens
-    output_cost_per_token: 0,           // embedding 無 output
+    input_cost_per_token: 0.00000002, // $0.02 / 1M tokens
+    output_cost_per_token: 0, // embedding 無 output
     display_name: 'OpenAI Embedding 3 Small',
   },
   'openai/text-embedding-3-large': {
-    input_cost_per_token: 0.00000013,  // $0.13 / 1M tokens
+    input_cost_per_token: 0.00000013, // $0.13 / 1M tokens
     output_cost_per_token: 0,
     display_name: 'OpenAI Embedding 3 Large',
   },

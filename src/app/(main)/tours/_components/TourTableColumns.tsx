@@ -109,7 +109,9 @@ export function useTemplateTableColumns({ onConvert: _onConvert }: UseTemplateTa
         render: (_value, row) => {
           const tour = row as Tour
           const { displayString } = resolveDisplay(tour)
-          return <span className="text-sm text-morandi-primary">{displayString || <EmptyValue />}</span>
+          return (
+            <span className="text-sm text-morandi-primary">{displayString || <EmptyValue />}</span>
+          )
         },
       },
       {

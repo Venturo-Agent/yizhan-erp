@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
       } else {
         features = (featuresRes.data ?? [])
           .filter((f): f is { feature_code: string; enabled: boolean } => !!f.enabled)
-          .map((f) => f.feature_code)
+          .map(f => f.feature_code)
       }
 
       if ('error' in capsRes && capsRes.error) {
@@ -165,13 +165,12 @@ export async function POST(request: NextRequest) {
           role_id: employee.role_id,
         })
       } else {
-        capabilities = (capsRes.data ?? [])
-          .filter((c) => c.enabled)
-          .map((c) => c.capability_code)
+        capabilities = (capsRes.data ?? []).filter(c => c.enabled).map(c => c.capability_code)
       }
     } catch (capsErr) {
       logger.error('Capabilities/features fetch failed (non-fatal):', {
-        error: capsErr instanceof Error ? { message: capsErr.message, stack: capsErr.stack } : capsErr,
+        error:
+          capsErr instanceof Error ? { message: capsErr.message, stack: capsErr.stack } : capsErr,
         workspace_id: employee.workspace_id,
         role_id: employee.role_id,
       })
@@ -210,9 +209,10 @@ export async function POST(request: NextRequest) {
     return response
   } catch (error) {
     logger.error('Validate login error:', {
-      error: error instanceof Error
-        ? { message: error.message, stack: error.stack, name: error.name }
-        : error,
+      error:
+        error instanceof Error
+          ? { message: error.message, stack: error.stack, name: error.name }
+          : error,
     })
     captureException(error, { module: 'auth.validate-login' })
     return ApiError.internal('系統錯誤')

@@ -124,7 +124,9 @@ export function PexelsPicker({ onSelectImage }: PexelsPickerProps) {
         <div className="w-16 h-16 mb-4 rounded-full bg-morandi-container flex items-center justify-center">
           <ExternalLink size="1.5em" className="text-morandi-secondary" />
         </div>
-        <h3 className="font-medium text-morandi-primary mb-2">{COMPONENT_LABELS.PEXELS_NOT_CONFIGURED}</h3>
+        <h3 className="font-medium text-morandi-primary mb-2">
+          {COMPONENT_LABELS.PEXELS_NOT_CONFIGURED}
+        </h3>
         <p className="text-sm text-morandi-secondary mb-4">{DESIGNER_LABELS.SETTINGS_9925}</p>
         <a
           href="https://www.pexels.com/api/"
@@ -190,7 +192,9 @@ export function PexelsPicker({ onSelectImage }: PexelsPickerProps) {
       {/* 快速關鍵字 */}
       {!hasSearched && (
         <div className="p-2 border-b border-border">
-          <p className="text-[0.625rem] text-morandi-secondary mb-1.5">{DESIGNER_LABELS.SEARCH_6536}</p>
+          <p className="text-[0.625rem] text-morandi-secondary mb-1.5">
+            {DESIGNER_LABELS.SEARCH_6536}
+          </p>
           <div className="flex flex-wrap gap-1">
             {PEXELS_TRAVEL_KEYWORDS.en.slice(0, 10).map((keyword, i) => (
               <button

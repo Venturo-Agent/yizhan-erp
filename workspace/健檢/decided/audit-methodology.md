@@ -16,36 +16,43 @@
 ## 二、Per-route audit 範本（每張 page 必過）
 
 ### 格式
+
 ```markdown
 ## 🔥/⚠️/🐛/🧱 [#] [問題簡述]（[嚴重度]）
 
 **現象**：[user-facing impact、業務白話]
 
 **證據**：
+
 - 檔案 `path/to/file.tsx:行號`
 - 「具體 code 片段或 grep 結果」
 - DB query 如果需要：`SELECT ... WHERE ...`
 
 **期望結果（紅線怎說）**：
+
 - [對應紅線 #、規範文字]
 
 **現況（grep 證據）**：
+
 - [實際 code 走法、跟期望不一致的地方]
 
 **對方該怎麼問**：
+
 - [一句話 challenge、幫對方對齊]
 
 **對照參考**：
+
 - [Good pattern]：譬如 `payment_methods` 同表用 `workspace_id` 對齊
 ```
 
 ### 嚴重度標籤
-| 標籤 | 意義 | 對應動作 |
-|---|---|---|
-| 🔥 P0 critical | 資安洞、跨租戶污染、user 抱怨直接相關 | 立刻修 |
-| ⚠️ P0 medium | 紅線違反、設計缺陷、會擴大 | 24h 內修 |
-| 🐛 bug | 功能壞、user 體感、可能誤判 | 看 Network response 找 root cause |
-| 🧱 quality | 紅線 F 違反 / 效能 / UX 不對齊規範 | 漸進清 |
+
+| 標籤           | 意義                                  | 對應動作                          |
+| -------------- | ------------------------------------- | --------------------------------- |
+| 🔥 P0 critical | 資安洞、跨租戶污染、user 抱怨直接相關 | 立刻修                            |
+| ⚠️ P0 medium   | 紅線違反、設計缺陷、會擴大            | 24h 內修                          |
+| 🐛 bug         | 功能壞、user 體感、可能誤判           | 看 Network response 找 root cause |
+| 🧱 quality     | 紅線 F 違反 / 效能 / UX 不對齊規範    | 漸進清                            |
 
 ---
 
@@ -56,44 +63,53 @@
 ### A. 資安類（3 項）
 
 **A1. RLS 守 workspace_id**（紅線 H）
+
 - 該 table 的 RLS using = `workspace_id = get_current_user_workspace()`？
 - 還是粗略 `auth.role() = 'authenticated'`？
 - INSERT policy with check = workspace_id？還是 = true？
 
 **A2. API 走 session、不信 client**
+
 - workspace_id 從 `getCurrentWorkspaceId()` 取？還是 `searchParams.get('workspace_id')`？
 - body 帶來的 workspace_id 不能信、要用 session 覆寫
 
 **A3. 無 SQL injection / 字串拼接**
+
 - `.eq.${value}` 字串拼接 → 看 value 來源（session OK、client 不 OK）
 - `.or(\`x.eq.${y}\`)` 同上、能用 parameterized 就用
 
 ### B. 資料一致性（2 項）
 
 **B1. schema SSOT — 無冗餘欄位**
+
 - 同一張表是否兩個語意相同欄位並存？（譬如 user_id + workspace_id）
 - 寫一個欄位、篩另一個？
 
 **B2. Migration 真有跑進去**
+
 - 看 schema_migrations 紀錄 statements 是否空陣列
 - 系統預設 row 該 INSERT 的有 INSERT？
 
 ### C. 抽象層（紅線 F、2 項）
 
 **C1. 走 entity hook、不散刻 useSWR**
+
 - page 用 useState + fetch 自己管？還是 entity hook？
 - 對應紅線 F、看 ESLint baseline 有沒有 grandfather
 
 **C2. 寫入後 cache 失效**
+
 - 用 apiMutate？還是只 setState？
 - invalidate 對的 cache key？
 
 ### D. 效能 + UX（2 項）
 
 **D1. 多個 fetch 用 Promise.all 並行**
+
 - 4 個獨立 fetch 不應該 await 串、用 Promise.all
 
 **D2. 載入失敗有 toast**
+
 - 不能 catch 後只 logger.error 靜默吃掉
 - user 看到空白頁要有提示
 
@@ -129,6 +145,7 @@ fi
 ### 🗓 週日 matrix 加深度 audit（只跑改動 module）
 
 在 `~/.local/bin/yizhan-erp-weekly-matrix.sh` 智能 diff 後加：
+
 - 對 changed modules 做「per-route 9 項深度 audit」
 - 派 openclaw、用本文件當 spec
 - 產出 `~/Desktop/yizhan-erp-weekly-deep-audit-{date}.md`
@@ -145,6 +162,7 @@ fi
 對每個 route、按 audit-methodology.md 第 3 章 9 項查、產出格式對齊第 2 章範本。
 
 紅線：
+
 - ❌ 不准動 code / migration / push
 - ✅ MCP SELECT-only OK
 - ✅ 每 route 產 5-10 條清單、不少
@@ -158,15 +176,15 @@ fi
 
 ## 六、本方法論的歷史
 
-| 日期 | 事件 |
-|---|---|
+| 日期       | 事件                                                                  |
+| ---------- | --------------------------------------------------------------------- |
 | 2026-05-21 | 對方（另一 AI session）首次用此方法掃 finance/settings、找出 9 項問題 |
-| 2026-05-21 | William 拍板：方法論變健檢規範 |
-| 2026-05-21 | Claude Opus 修完 6 項、剩 3 項追蹤 |
-| 2026-05-21 | 派 openclaw 全盤路由掃描（首次跑） |
-| 未來 | 每週日 matrix 跑深度 audit、catch grandfather 漏網 |
+| 2026-05-21 | William 拍板：方法論變健檢規範                                        |
+| 2026-05-21 | Claude Opus 修完 6 項、剩 3 項追蹤                                    |
+| 2026-05-21 | 派 openclaw 全盤路由掃描（首次跑）                                    |
+| 未來       | 每週日 matrix 跑深度 audit、catch grandfather 漏網                    |
 
 ---
 
-*建立：2026-05-21 by Claude Opus*
-*基礎：finance/settings 9 項清單（對方產的）+ William 拍板*
+_建立：2026-05-21 by Claude Opus_
+_基礎：finance/settings 9 項清單（對方產的）+ William 拍板_

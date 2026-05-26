@@ -19,7 +19,7 @@ import { ALL_MODULES } from '../src/modules/_registry'
 import { deriveCapabilityCodes } from '../src/modules/_define'
 
 const argv = process.argv.slice(2)
-const moduleFilter = argv.find((a) => a.startsWith('--module='))?.split('=')[1]
+const moduleFilter = argv.find(a => a.startsWith('--module='))?.split('=')[1]
 
 const HEADER = `-- ─────────────────────────────────────────────────────────────────────────────
 -- Seed migration template — 從 src/modules/* 自動衍生
@@ -48,7 +48,11 @@ WHERE deleted_at IS NULL
 ON CONFLICT (workspace_id, feature_code) DO UPDATE SET enabled = true;`
 }
 
-function genRoleCapabilitiesInserts(moduleCode: string, defaultRoles: readonly string[], capCodes: string[]): string {
+function genRoleCapabilitiesInserts(
+  moduleCode: string,
+  defaultRoles: readonly string[],
+  capCodes: string[]
+): string {
   if (defaultRoles.length === 0 || capCodes.length === 0) {
     return `-- ${moduleCode}: 無 defaultRoles 或無 capability、跳過 role_capabilities seed`
   }
@@ -56,12 +60,12 @@ function genRoleCapabilitiesInserts(moduleCode: string, defaultRoles: readonly s
   const lines: string[] = [`-- 給 default roles grant ${moduleCode} 所有 capability`]
   for (const role of defaultRoles) {
     lines.push(`-- role: ${role}`)
-    const valueRows = capCodes.map((c) => `  (r.id, '${c}')`).join(',\n')
+    const valueRows = capCodes.map(c => `  (r.id, '${c}')`).join(',\n')
     lines.push(`INSERT INTO role_capabilities (role_id, capability_code)
 SELECT r.id, cap
 FROM workspace_roles r
 CROSS JOIN (VALUES
-${capCodes.map((c) => `  ('${c}')`).join(',\n')}
+${capCodes.map(c => `  ('${c}')`).join(',\n')}
 ) AS caps(cap)
 WHERE r.code = '${role}'
 ON CONFLICT (role_id, capability_code) DO NOTHING;`)
@@ -88,10 +92,10 @@ function genModuleSeed(m: (typeof ALL_MODULES)[number]): string {
 }
 
 function main() {
-  const modules = moduleFilter ? ALL_MODULES.filter((m) => m.code === moduleFilter) : ALL_MODULES
+  const modules = moduleFilter ? ALL_MODULES.filter(m => m.code === moduleFilter) : ALL_MODULES
   if (modules.length === 0) {
     console.error(`❌ 找不到 module: ${moduleFilter}`)
-    console.error(`可用 module: ${ALL_MODULES.map((m) => m.code).join(', ')}`)
+    console.error(`可用 module: ${ALL_MODULES.map(m => m.code).join(', ')}`)
     process.exit(1)
   }
 

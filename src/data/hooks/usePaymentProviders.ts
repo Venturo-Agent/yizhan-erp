@@ -13,11 +13,9 @@ const fetcher = async (url: string): Promise<PlatformPaymentProvider[]> => {
  * （比照 useRoles：src/data/hooks 內 wrap REST endpoint、避開「頁面禁直接 useSWR」紅線 F）
  */
 export function usePaymentProviders() {
-  const { data } = useSWR<PlatformPaymentProvider[]>(
-    '/api/finance/payment-providers',
-    fetcher,
-    { revalidateOnFocus: false }
-  )
+  const { data } = useSWR<PlatformPaymentProvider[]>('/api/finance/payment-providers', fetcher, {
+    revalidateOnFocus: false,
+  })
 
   return { providers: data ?? [] }
 }

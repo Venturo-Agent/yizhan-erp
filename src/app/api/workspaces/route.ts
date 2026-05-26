@@ -36,7 +36,10 @@ export const GET = apiHandler(async () => {
   if (featureError) {
     logger.error('[/api/workspaces GET] feature lookup error:', featureError)
     const t = translateDbError(featureError)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
   if (!feature) {
     return NextResponse.json({ error: '無權限（此 workspace 未啟用租戶管理）' }, { status: 403 })
@@ -50,7 +53,10 @@ export const GET = apiHandler(async () => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   // 取得所有擁有管理員資格的職務 id

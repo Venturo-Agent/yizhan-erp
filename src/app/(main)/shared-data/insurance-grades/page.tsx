@@ -87,7 +87,7 @@ export default function InsuranceGradesPage() {
   }, [loadList])
 
   const filtered = useMemo(
-    () => list.filter((r) => r.kind === activeTab).sort((a, b) => a.grade_number - b.grade_number),
+    () => list.filter(r => r.kind === activeTab).sort((a, b) => a.grade_number - b.grade_number),
     [list, activeTab]
   )
 
@@ -103,7 +103,7 @@ export default function InsuranceGradesPage() {
         { value: 'pension', label: '勞退' },
       ]}
       activeTab={activeTab}
-      onTabChange={(v) => setActiveTab(v as Tab)}
+      onTabChange={v => setActiveTab(v as Tab)}
       breadcrumb={[
         { label: '共用資料管理', href: '/shared-data' },
         { label: '勞健保級距', href: '/shared-data/insurance-grades' },
@@ -153,7 +153,7 @@ export default function InsuranceGradesPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((row) => (
+                {filtered.map(row => (
                   <tr key={row.id} className="border-t border-morandi-muted/10">
                     <td className="px-4 py-3 font-mono text-morandi-primary">{row.grade_number}</td>
                     <td className="px-4 py-3 text-right tabular-nums font-semibold">
@@ -185,13 +185,15 @@ export default function InsuranceGradesPage() {
         </Card>
       )}
 
-      {canEdit && filtered.length > 0 && filtered.length < (activeTab === 'health' ? 58 : activeTab === 'pension' ? 65 : 11) && (
-        <p className="text-xs text-orange-600 mt-3">
-          ⚠ {tabConfig.title} 級距不完整、目前 {filtered.length} 筆、官方應有
-          {activeTab === 'health' ? 58 : activeTab === 'pension' ? 65 : 11} 級。
-          請從官方網站補完整資料（編輯 UI 之後上、目前可請 dev 用 SQL 補）。
-        </p>
-      )}
+      {canEdit &&
+        filtered.length > 0 &&
+        filtered.length < (activeTab === 'health' ? 58 : activeTab === 'pension' ? 65 : 11) && (
+          <p className="text-xs text-orange-600 mt-3">
+            ⚠ {tabConfig.title} 級距不完整、目前 {filtered.length} 筆、官方應有
+            {activeTab === 'health' ? 58 : activeTab === 'pension' ? 65 : 11} 級。
+            請從官方網站補完整資料（編輯 UI 之後上、目前可請 dev 用 SQL 補）。
+          </p>
+        )}
     </ContentPageLayout>
   )
 }

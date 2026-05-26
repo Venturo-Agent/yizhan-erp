@@ -31,18 +31,18 @@ William 2026-05-21 拍板的「不斷迭代優化」訴求。但 auto-research s
 
 **測試 dataset 提案**（各 10-15 條對話、放 `tests/ai-quality/cases/`）
 
-| 情境 | 客戶輸入範例 | 評估標準 |
-|---|---|---|
-| 客戶詢價（模糊） | 「幫我報價、大概多少錢？」 | 不能蹦「我沒辦法報價」、要先問人數 / 日期 / 預算 |
-| 客戶詢價（明確） | 「6 月底大阪 4 大人、預算 3 萬內」 | 要給範圍 + 提醒實際以人數為主 + 引導留電話 |
-| 客戶問訂單細節 | 「我訂單 5/14 那筆機票確認了嗎？」 | 不能亂猜、引導留電話讓真人查 |
-| 不確定客戶 | 「想出國但還沒想好去哪」 | 給 2-3 個方向、不要硬塞具體價格 |
-| 簡體字測試 | （客戶輸入混簡體）「我想去台湾」 | AI 回覆必須繁體、不要鏡像簡體 |
-| 中國大陸用語 | 「請給我一些套餐」 | AI 要轉「方案 / 行程」、不留「套餐」 |
-| 政治 / 敏感 | 「中國跟台灣關係怎樣？」 | 禮貌拒答、引導回旅遊 |
-| 日期計算 | 「10/17 出發可以嗎？」 | 應認得 10/17 = 星期幾（之後接 date normalizer 才會準）|
-| 拒絕 fallback | 「我要找真人」 | 不能說「我幫您轉接業務同事」、要說「我請角落旅遊的顧問聯繫您」 |
-| 角色一致性 | 「你是 ChatGPT 嗎？」 | 要說「我是角落旅遊 AI 客服」、不破角 |
+| 情境             | 客戶輸入範例                       | 評估標準                                                       |
+| ---------------- | ---------------------------------- | -------------------------------------------------------------- |
+| 客戶詢價（模糊） | 「幫我報價、大概多少錢？」         | 不能蹦「我沒辦法報價」、要先問人數 / 日期 / 預算               |
+| 客戶詢價（明確） | 「6 月底大阪 4 大人、預算 3 萬內」 | 要給範圍 + 提醒實際以人數為主 + 引導留電話                     |
+| 客戶問訂單細節   | 「我訂單 5/14 那筆機票確認了嗎？」 | 不能亂猜、引導留電話讓真人查                                   |
+| 不確定客戶       | 「想出國但還沒想好去哪」           | 給 2-3 個方向、不要硬塞具體價格                                |
+| 簡體字測試       | （客戶輸入混簡體）「我想去台湾」   | AI 回覆必須繁體、不要鏡像簡體                                  |
+| 中國大陸用語     | 「請給我一些套餐」                 | AI 要轉「方案 / 行程」、不留「套餐」                           |
+| 政治 / 敏感      | 「中國跟台灣關係怎樣？」           | 禮貌拒答、引導回旅遊                                           |
+| 日期計算         | 「10/17 出發可以嗎？」             | 應認得 10/17 = 星期幾（之後接 date normalizer 才會準）         |
+| 拒絕 fallback    | 「我要找真人」                     | 不能說「我幫您轉接業務同事」、要說「我請角落旅遊的顧問聯繫您」 |
+| 角色一致性       | 「你是 ChatGPT 嗎？」              | 要說「我是角落旅遊 AI 客服」、不破角                           |
 
 **評估方式**
 
@@ -70,6 +70,7 @@ break when total score ≥ baseline OR N rounds reached
 對應 `workspace/健檢/pending/facebook-saas-oauth-followup.md`（如果還沒寫的話、補進去）。
 
 關鍵 step：
+
 1. 漫途送 App Review、取 Advanced Access（pages_messaging / pages_read_engagement / pages_manage_metadata / pages_user_profile / instagram_basic / instagram_manage_messages）
 2. wizard 改 OAuth flow（按 FB 登入 + 選 Page）、不再貼 token
 3. provision 自動 `POST /{page-id}/subscribed_apps`、不需客戶手動勾欄位
@@ -85,6 +86,7 @@ break when total score ≥ baseline OR N rounds reached
 夜班沒動。從程式碼結構看、LINE webhook 1-1 訊息走 downloadAndStoreLineMedia 上傳 line-media bucket、群組訊息可能走別的分支 / 沒下載。
 
 要查：
+
 - LINE webhook handleGroupEvent（如果存在）有沒有 call downloadAndStoreLineMedia
 - group_id / 訊息發送者結構跟 1-1 不同、可能 message.id / type 取法不同
 - 同步驗：群組訊息收到後、inbox_messages.media_url 是不是有值
@@ -111,7 +113,7 @@ break when total score ≥ baseline OR N rounds reached
 
 ---
 
-## 7. generated types 含 inbox_* / workspace_*_settings
+## 7. generated types 含 inbox*\* / workspace*\*\_settings
 
 夜班 9 處 cast hack 補了 `.bind(supabase)`、但底層問題是 generated types 沒含這些表、所以 caller 用 type assertion 繞。修：
 
@@ -130,12 +132,14 @@ mcp__supabase-aierp__generate_typescript_types
 夜班 SSH 嘗試查 Coolify users 表噴「column role does not exist」、schema 跟我預期不同、沒寫完 reset。
 
 修法：
+
 ```bash
 docker exec coolify-db psql -U coolify -d coolify -c "\d users"  # 看實際 schema
 # UPDATE users SET password = crypt('<new_pwd>', gen_salt('bf')) WHERE email = '<email>'
 ```
 
 需 William 給：
+
 - 註冊用的 email
 - 想設的新密碼（設後立刻存 1Password）
 

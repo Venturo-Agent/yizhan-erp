@@ -16,24 +16,25 @@
 
 已落地的檔案（2026-05-21）：
 
-| 動作 | 檔案 | 變更 |
-|---|---|---|
-| 改 | `src/lib/constants/layout.ts` | `CUSTOM_LAYOUT_PAGES` 加回 `/ai` |
-| 重寫 | `src/app/(main)/ai/layout.tsx` | 改成 `<aside AiSidebar /> + <main>{children}</main>` 沉浸式殼 |
-| 新建 | `src/app/(main)/ai/_components/AiSidebar.tsx` | 兩 section（概覽 / AI 機器人）+ 三 icon header（新增 / 收側欄 / 設定齒輪）+ 收起狀態 icon 列 |
-| 新建 | `src/app/(main)/ai/_components/AiSettingsDialog.tsx` | 滿版設定 dialog、tabs：通道設定（沿用 AiSetupTab）/ 全域 policy / 對話復盤入口 |
-| 改寫 | `src/app/(main)/ai/page.tsx` | 拿掉 ContentPageLayout + tabs、改讀 `?view=xxx` 切內容 |
+| 動作 | 檔案                                                 | 變更                                                                                         |
+| ---- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 改   | `src/lib/constants/layout.ts`                        | `CUSTOM_LAYOUT_PAGES` 加回 `/ai`                                                             |
+| 重寫 | `src/app/(main)/ai/layout.tsx`                       | 改成 `<aside AiSidebar /> + <main>{children}</main>` 沉浸式殼                                |
+| 新建 | `src/app/(main)/ai/_components/AiSidebar.tsx`        | 兩 section（概覽 / AI 機器人）+ 三 icon header（新增 / 收側欄 / 設定齒輪）+ 收起狀態 icon 列 |
+| 新建 | `src/app/(main)/ai/_components/AiSettingsDialog.tsx` | 滿版設定 dialog、tabs：通道設定（沿用 AiSetupTab）/ 全域 policy / 對話復盤入口               |
+| 改寫 | `src/app/(main)/ai/page.tsx`                         | 拿掉 ContentPageLayout + tabs、改讀 `?view=xxx` 切內容                                       |
 
 ---
 
 ## Phase 2：每個 bot 的個別設定 dialog（**本 charter 寫的同時已完成殼、內容待填**）
 
-| 動作 | 檔案 | 變更 |
-|---|---|---|
+| 動作 | 檔案                                                | 變更                                                                                                                                        |
+| ---- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | 新建 | `src/app/(main)/ai/_components/BotConfigDialog.tsx` | 滿版 dialog、依 botView 顯示對應 bot 的設定。Phase 2 第一版只放殼 + 提示文案、HAPPY 標「不可修改」、LINE Bot 標「Phase 3 接 prompt 編輯器」 |
-| 改 | `AiSidebar.tsx` | 每個 bot row hover 顯示小齒輪、點開 BotConfigDialog |
+| 改   | `AiSidebar.tsx`                                     | 每個 bot row hover 顯示小齒輪、點開 BotConfigDialog                                                                                         |
 
 **待 Phase 3 內容**：
+
 - LINE Bot 的 prompt 編輯器、shortcut 模板列表（移現有 `PostbackTemplatesSection`）、few-shot 範例
 - 接到 `ai_agents.capabilities` jsonb 上（**等 Phase 0 落地**）
 
@@ -90,26 +91,26 @@
 
 ### Ripple — API / lib 改寫清單
 
-| 檔案 | 改動 |
-|---|---|
-| `src/lib/line/setup-pipeline.ts` | `provisionLineBot()` 改建 ai_agents row（line 73-114 整段重寫）、`workspace_line_settings.bot_employee_id` → `bot_agent_id` |
-| `src/app/api/line/setup/provision/route.ts` | 回傳 `botAgentId` 取代 `botEmployeeId` |
-| `src/app/api/line/setup/status/route.ts` | select / output 用 `bot_agent_id` |
-| `src/app/api/line/webhook/route.ts` | `settings.bot_employee_id` → `bot_agent_id`、handler context 改用 agent_id |
-| `src/app/api/cron/line-flush/route.ts` | 同 webhook |
-| `src/lib/line/erp-bridge-internal.ts` | audit 寫入用 `created_by_agent_id` 而非 `created_by` |
-| `src/lib/line/handler.ts` | 同 |
-| `src/app/api/facebook/setup/provision/route.ts` | FB 對應改寫 |
-| `src/types/line.types.ts` | type 註解 + 欄位名稱對齊 |
-| `src/lib/supabase/types.ts` | 重新 generate（apply migration 後跑 `mcp__supabase-aierp__generate_typescript_types`） |
+| 檔案                                            | 改動                                                                                                                        |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `src/lib/line/setup-pipeline.ts`                | `provisionLineBot()` 改建 ai_agents row（line 73-114 整段重寫）、`workspace_line_settings.bot_employee_id` → `bot_agent_id` |
+| `src/app/api/line/setup/provision/route.ts`     | 回傳 `botAgentId` 取代 `botEmployeeId`                                                                                      |
+| `src/app/api/line/setup/status/route.ts`        | select / output 用 `bot_agent_id`                                                                                           |
+| `src/app/api/line/webhook/route.ts`             | `settings.bot_employee_id` → `bot_agent_id`、handler context 改用 agent_id                                                  |
+| `src/app/api/cron/line-flush/route.ts`          | 同 webhook                                                                                                                  |
+| `src/lib/line/erp-bridge-internal.ts`           | audit 寫入用 `created_by_agent_id` 而非 `created_by`                                                                        |
+| `src/lib/line/handler.ts`                       | 同                                                                                                                          |
+| `src/app/api/facebook/setup/provision/route.ts` | FB 對應改寫                                                                                                                 |
+| `src/types/line.types.ts`                       | type 註解 + 欄位名稱對齊                                                                                                    |
+| `src/lib/supabase/types.ts`                     | 重新 generate（apply migration 後跑 `mcp__supabase-aierp__generate_typescript_types`）                                      |
 
 ### UI 連帶清理（Phase 0 落地後）
 
-| 檔案 | 改動 |
-|---|---|
+| 檔案                                                      | 改動                                                                                                           |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | `src/app/(main)/channels/_components/ChannelsSidebar.tsx` | line 90-93 的 `employee_type !== 'bot'/'system_bot'/'integration'` filter 全部可拿掉（employees 表只剩 human） |
-| `src/data/entities/employees.ts` | slim select 的 `employee_type` 可拿掉（不再需要） |
-| 角落 Workspace / 員工列表 / HR 頁 / 私訊 | 自動乾淨、不必各自加 filter |
+| `src/data/entities/employees.ts`                          | slim select 的 `employee_type` 可拿掉（不再需要）                                                              |
+| 角落 Workspace / 員工列表 / HR 頁 / 私訊                  | 自動乾淨、不必各自加 filter                                                                                    |
 
 ### 風險點 / William 要拍板的事
 

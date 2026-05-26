@@ -33,7 +33,12 @@ interface ReceivablesStats {
   overdue_amount: number
 }
 
-const DEFAULT_STATS: ReceivablesStats = { count: 0, total_receivable: 0, overdue_count: 0, overdue_amount: 0 }
+const DEFAULT_STATS: ReceivablesStats = {
+  count: 0,
+  total_receivable: 0,
+  overdue_count: 0,
+  overdue_amount: 0,
+}
 
 export const useReceivables = createReportHook<ReceivableRow, ReceivablesStats>({
   key: 'receivables-report',
@@ -41,7 +46,9 @@ export const useReceivables = createReportHook<ReceivableRow, ReceivablesStats>(
   fetcher: async () => {
     const { data: orders, error: queryError } = await supabase
       .from('orders')
-      .select('id, order_number, customer_id, tour_id, total_amount, paid_amount, remaining_amount, created_at')
+      .select(
+        'id, order_number, customer_id, tour_id, total_amount, paid_amount, remaining_amount, created_at'
+      )
       .gt('remaining_amount', 0)
       .neq('status', 'cancelled')
       .order('created_at', { ascending: true })
@@ -49,8 +56,12 @@ export const useReceivables = createReportHook<ReceivableRow, ReceivablesStats>(
 
     if (queryError) throw new Error(queryError.message)
 
-    const customerIds = Array.from(new Set((orders || []).map(o => o.customer_id).filter(Boolean))) as string[]
-    const tourIds = Array.from(new Set((orders || []).map(o => o.tour_id).filter(Boolean))) as string[]
+    const customerIds = Array.from(
+      new Set((orders || []).map(o => o.customer_id).filter(Boolean))
+    ) as string[]
+    const tourIds = Array.from(
+      new Set((orders || []).map(o => o.tour_id).filter(Boolean))
+    ) as string[]
 
     const [customersRes, toursRes] = await Promise.all([
       customerIds.length > 0
@@ -82,7 +93,7 @@ export const useReceivables = createReportHook<ReceivableRow, ReceivablesStats>(
         order_code: o.order_number,
         customer_id: o.customer_id,
         customer_name: o.customer_id
-          ? (customerName.get(o.customer_id) || '(無客戶資料)')
+          ? customerName.get(o.customer_id) || '(無客戶資料)'
           : '(散客 / 無 FK)',
         tour_id: o.tour_id,
         tour_code: o.tour_id ? tourCode.get(o.tour_id) || null : null,

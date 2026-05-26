@@ -16,10 +16,7 @@ import { logger } from '@/lib/utils/logger'
  *
  * 2026-05-15 William 拍板：HR 政策是公司級設定、不分員工。
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
 
   const auth = await getServerAuth()
@@ -45,13 +42,19 @@ export async function PATCH(
   const update: Record<string, string> = {}
   if (body.leave_policy !== undefined) {
     if (!['calendar_year', 'hire_anniversary'].includes(body.leave_policy)) {
-      return NextResponse.json({ error: 'leave_policy 必須是 calendar_year / hire_anniversary' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'leave_policy 必須是 calendar_year / hire_anniversary' },
+        { status: 400 }
+      )
     }
     update.leave_policy = body.leave_policy
   }
   if (body.pension_system !== undefined) {
     if (!['old', 'new', 'mixed'].includes(body.pension_system)) {
-      return NextResponse.json({ error: 'pension_system 必須是 old / new / mixed' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'pension_system 必須是 old / new / mixed' },
+        { status: 400 }
+      )
     }
     update.pension_system = body.pension_system
   }

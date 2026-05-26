@@ -160,10 +160,7 @@ export function BatchTabContent({
               width: '120px',
               render: () => (
                 // batch state、所有 row 共用、任一 row 改即 sync 全 row
-                <Select
-                  value={batchCategoryId}
-                  onValueChange={value => onCategoryChange(value)}
-                >
+                <Select value={batchCategoryId} onValueChange={value => onCategoryChange(value)}>
                   <SelectTrigger className="input-no-focus h-10 border-0 shadow-none bg-transparent text-sm px-2">
                     <SelectValue placeholder={COMPONENT_LABELS.PLACEHOLDER_CATEGORY} />
                   </SelectTrigger>

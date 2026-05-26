@@ -186,22 +186,19 @@ export function LlmTokenSetupDialog({
     }
     setSaving(true)
     // apiMutate：儲存後立即 invalidate ai-settings + status、UI 立刻看到「✅ 已設定」
-    const res = await apiMutate<{ error?: string }>(
-      `/api/workspaces/${workspaceId}/ai-settings`,
-      {
-        method: 'PUT',
-        body: {
-          provider,
-          model,
-          api_token: apiToken.trim(),
-          is_active: true,
-        },
-        invalidate: [
-          `/api/workspaces/${workspaceId}/ai-settings`,
-          `/api/workspaces/${workspaceId}/ai-settings/status`,
-        ],
-      }
-    )
+    const res = await apiMutate<{ error?: string }>(`/api/workspaces/${workspaceId}/ai-settings`, {
+      method: 'PUT',
+      body: {
+        provider,
+        model,
+        api_token: apiToken.trim(),
+        is_active: true,
+      },
+      invalidate: [
+        `/api/workspaces/${workspaceId}/ai-settings`,
+        `/api/workspaces/${workspaceId}/ai-settings/status`,
+      ],
+    })
     setSaving(false)
     if (!res.ok) {
       toast.error('儲存失敗', {
@@ -300,7 +297,8 @@ export function LlmTokenSetupDialog({
                 className="font-mono text-sm"
               />
               <p className="text-xs text-morandi-secondary">
-                可手動輸入任何 {providerInfo.label} 支援的 model id。下方是常用選項、點按鈕快速填入：
+                可手動輸入任何 {providerInfo.label} 支援的 model
+                id。下方是常用選項、點按鈕快速填入：
               </p>
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {providerInfo.models.map(([modelId, desc]) => (
@@ -320,7 +318,9 @@ export function LlmTokenSetupDialog({
                 ))}
               </div>
               <p className="text-xs text-morandi-secondary mt-2">
-                ⚠️ 注意：每個 token plan 能用的 model 不同、便宜方案通常只能用便宜版（例如 MiniMax 免費 plan 只支援 abab 系列、不支援 MiniMax-Text-01）。如果驗證失敗訊息提到「your current token plan not support model」、換便宜版的 model。
+                ⚠️ 注意：每個 token plan 能用的 model 不同、便宜方案通常只能用便宜版（例如 MiniMax
+                免費 plan 只支援 abab 系列、不支援 MiniMax-Text-01）。如果驗證失敗訊息提到「your
+                current token plan not support model」、換便宜版的 model。
               </p>
             </div>
           </div>
@@ -332,9 +332,15 @@ export function LlmTokenSetupDialog({
             <div className="rounded-lg border p-4 space-y-2 bg-morandi-cream-soft">
               <div className="text-sm font-medium">即將驗證的設定</div>
               <div className="text-xs space-y-1">
-                <div>Provider：<span className="font-mono">{providerInfo.label}</span></div>
-                <div>Model：<span className="font-mono">{model}</span></div>
-                <div>Token：<span className="font-mono">••••••••（{apiToken.length} 字元）</span></div>
+                <div>
+                  Provider：<span className="font-mono">{providerInfo.label}</span>
+                </div>
+                <div>
+                  Model：<span className="font-mono">{model}</span>
+                </div>
+                <div>
+                  Token：<span className="font-mono">••••••••（{apiToken.length} 字元）</span>
+                </div>
               </div>
             </div>
 
@@ -404,13 +410,17 @@ export function LlmTokenSetupDialog({
         <DialogFooter className="gap-2">
           {step === 1 && (
             <>
-              <Button variant="outline" onClick={handleClose}>取消</Button>
+              <Button variant="outline" onClick={handleClose}>
+                取消
+              </Button>
               <Button onClick={() => setStep(2)}>下一步</Button>
             </>
           )}
           {step === 2 && (
             <>
-              <Button variant="outline" onClick={() => setStep(1)}>上一步</Button>
+              <Button variant="outline" onClick={() => setStep(1)}>
+                上一步
+              </Button>
               <Button onClick={() => setStep(3)} disabled={!apiToken.trim()}>
                 下一步
               </Button>
@@ -418,7 +428,9 @@ export function LlmTokenSetupDialog({
           )}
           {step === 3 && (
             <>
-              <Button variant="outline" onClick={() => setStep(2)}>上一步</Button>
+              <Button variant="outline" onClick={() => setStep(2)}>
+                上一步
+              </Button>
               <Button
                 onClick={handleSave}
                 disabled={!validationResult?.ok || saving}
@@ -442,7 +454,9 @@ export function LlmTokenSetupDialog({
             </>
           )}
           {step === 4 && (
-            <Button onClick={handleClose} className="w-full">完成</Button>
+            <Button onClick={handleClose} className="w-full">
+              完成
+            </Button>
           )}
         </DialogFooter>
       </DialogContent>

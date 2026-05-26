@@ -40,7 +40,13 @@ function isBlockedHostname(hostname: string): boolean {
     if (a === 192 && b === 168) return true
   }
   // IPv6
-  if (lower === '::1' || lower.startsWith('fc') || lower.startsWith('fd') || lower.startsWith('fe80:')) return true
+  if (
+    lower === '::1' ||
+    lower.startsWith('fc') ||
+    lower.startsWith('fd') ||
+    lower.startsWith('fe80:')
+  )
+    return true
   return false
 }
 

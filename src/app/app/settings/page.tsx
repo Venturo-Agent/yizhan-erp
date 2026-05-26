@@ -42,9 +42,7 @@ export default function AppSettingsPage() {
       >
         <Settings size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
         <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>即將推出</h2>
-        <p style={{ fontSize: 14, opacity: 0.7 }}>
-          通知設定、隱私安全、幫助中心將於下個版本提供。
-        </p>
+        <p style={{ fontSize: 14, opacity: 0.7 }}>通知設定、隱私安全、幫助中心將於下個版本提供。</p>
       </div>
     </>
   )

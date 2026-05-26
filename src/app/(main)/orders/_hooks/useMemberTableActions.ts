@@ -115,7 +115,9 @@ export function useMemberTableActions({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, memberIndex: number, fieldName: string) => {
       if (isComposing) return
-      const currentFieldIndex = EDITABLE_FIELDS.indexOf(fieldName as typeof EDITABLE_FIELDS[number])
+      const currentFieldIndex = EDITABLE_FIELDS.indexOf(
+        fieldName as (typeof EDITABLE_FIELDS)[number]
+      )
       if (currentFieldIndex === -1) return
 
       let nextMemberIndex = memberIndex

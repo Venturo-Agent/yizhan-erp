@@ -17,12 +17,7 @@ const STORAGE_KEY = 'venturo-theme'
 const DEFAULT_THEME: ThemeType = 'morandi'
 
 function isValidTheme(value: string | null): value is ThemeType {
-  return (
-    value === 'morandi' ||
-    value === 'iron' ||
-    value === 'airtable' ||
-    value === 'klein-blue'
-  )
+  return value === 'morandi' || value === 'iron' || value === 'airtable' || value === 'klein-blue'
 }
 
 interface ThemeState {

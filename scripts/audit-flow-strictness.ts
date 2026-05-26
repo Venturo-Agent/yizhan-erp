@@ -58,7 +58,8 @@ const CHECKS: Check[] = [
   },
   {
     name: 'compensation_rollback',
-    pattern: /\.delete\(\)\.eq.*pr\.id|payment_request_items.*delete|order.*delete.*compensation|補償砍/,
+    pattern:
+      /\.delete\(\)\.eq.*pr\.id|payment_request_items.*delete|order.*delete.*compensation|補償砍/,
     required: 'should',
     hint: '多 step insert / update 任一失敗、要砍掉前面建的（補償回滾）',
   },
@@ -121,9 +122,7 @@ function checkFile(filePath: string): Finding[] {
   const findings: Finding[] = []
 
   for (const method of HTTP_MUTATION_METHODS) {
-    const exportRegex = new RegExp(
-      `export\\s+(async\\s+function|const)\\s+${method}\\b`,
-    )
+    const exportRegex = new RegExp(`export\\s+(async\\s+function|const)\\s+${method}\\b`)
     if (!exportRegex.test(src)) continue
 
     const missing: { check: string; required: string; hint: string }[] = []

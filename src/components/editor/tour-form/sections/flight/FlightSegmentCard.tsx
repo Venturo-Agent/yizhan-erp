@@ -68,7 +68,11 @@ export function FlightSegmentCard({
                 disabled={isLoading || !flightData.flightNumber}
                 className="h-7 text-xs gap-1"
               >
-                {isLoading ? <Loader2 size="0.75em" className="animate-spin" /> : <Search size="0.75em" />}
+                {isLoading ? (
+                  <Loader2 size="0.75em" className="animate-spin" />
+                ) : (
+                  <Search size="0.75em" />
+                )}
                 查詢航班
               </Button>
               <Button

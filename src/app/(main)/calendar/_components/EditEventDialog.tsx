@@ -86,125 +86,116 @@ export function EditEventDialog({
       open={dialog.open}
       onOpenChange={open => !open && onClose()}
       title={t('editDialogTitle')}
-      onSubmit={() => { if (dialog.title.trim()) onSubmit() }}
+      onSubmit={() => {
+        if (dialog.title.trim()) onSubmit()
+      }}
       submitLabel={t('saveChanges')}
       onCancel={onClose}
       submitDisabled={!dialog.title.trim()}
       loading={loading}
       maxWidth="md"
     >
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-morandi-primary">
-                {t('startDate')}
-              </label>
-              <DatePicker
-                value={dialog.startDate}
-                onChange={date => onDialogChange({ ...dialog, startDate: date })}
-                placeholder={t('placeholderSelectDate')}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-morandi-primary">
-                {t('endDateOptional2')}
-              </label>
-              <DatePicker
-                value={dialog.endDate}
-                onChange={date => onDialogChange({ ...dialog, endDate: date })}
-                placeholder={t('placeholderSelectDate')}
-                className="mt-1"
-              />
-            </div>
-          </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">{t('startDate')}</label>
+          <DatePicker
+            value={dialog.startDate}
+            onChange={date => onDialogChange({ ...dialog, startDate: date })}
+            placeholder={t('placeholderSelectDate')}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">
+            {t('endDateOptional2')}
+          </label>
+          <DatePicker
+            value={dialog.endDate}
+            onChange={date => onDialogChange({ ...dialog, endDate: date })}
+            placeholder={t('placeholderSelectDate')}
+            className="mt-1"
+          />
+        </div>
+      </div>
 
-          <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('titleLabel')}
-            </label>
-            <Input
-              value={dialog.title}
-              onChange={e => onDialogChange({ ...dialog, title: e.target.value })}
-              placeholder={t('placeholderEnterTitle')}
-              className="mt-1"
-            />
-          </div>
+      <div>
+        <label className="text-sm font-medium text-morandi-primary">{t('titleLabel')}</label>
+        <Input
+          value={dialog.title}
+          onChange={e => onDialogChange({ ...dialog, title: e.target.value })}
+          placeholder={t('placeholderEnterTitle')}
+          className="mt-1"
+        />
+      </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-morandi-primary">
-                {t('eventType')}
-              </label>
-              <Select
-                value={dialog.visibility}
-                onValueChange={(value: 'personal' | 'company') =>
-                  onDialogChange({
-                    ...dialog,
-                    visibility: value,
-                  })
-                }
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder={t('placeholderSelectEventType')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="personal">{t('personalCalendar')}</SelectItem>
-                  <SelectItem value="company">{t('companyCalendar')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">{t('eventType')}</label>
+          <Select
+            value={dialog.visibility}
+            onValueChange={(value: 'personal' | 'company') =>
+              onDialogChange({
+                ...dialog,
+                visibility: value,
+              })
+            }
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue placeholder={t('placeholderSelectEventType')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="personal">{t('personalCalendar')}</SelectItem>
+              <SelectItem value="company">{t('companyCalendar')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-            <div>
-              <label className="text-sm font-medium text-morandi-primary">
-                {t('startTimeOptional2')}
-              </label>
-              <Input
-                value={dialog.startTime}
-                onChange={e => onDialogChange({ ...dialog, startTime: e.target.value })}
-                onBlur={e => {
-                  const { start, end } = parseTimeRange(e.target.value)
-                  onDialogChange({
-                    ...dialog,
-                    startTime: start,
-                    endTime: end || dialog.endTime,
-                  })
-                }}
-                placeholder={t('placeholderTimeRange')}
-                className="mt-1"
-              />
-            </div>
-          </div>
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">
+            {t('startTimeOptional2')}
+          </label>
+          <Input
+            value={dialog.startTime}
+            onChange={e => onDialogChange({ ...dialog, startTime: e.target.value })}
+            onBlur={e => {
+              const { start, end } = parseTimeRange(e.target.value)
+              onDialogChange({
+                ...dialog,
+                startTime: start,
+                endTime: end || dialog.endTime,
+              })
+            }}
+            placeholder={t('placeholderTimeRange')}
+            className="mt-1"
+          />
+        </div>
+      </div>
 
-          {/* 結束時間 - 有開始時間才顯示 */}
-          {dialog.startTime && (
-            <div>
-              <label className="text-sm font-medium text-morandi-primary">
-                {t('endTimeOptional')}
-              </label>
-              <Input
-                value={dialog.endTime}
-                onChange={e => onDialogChange({ ...dialog, endTime: e.target.value })}
-                onBlur={e =>
-                  onDialogChange({ ...dialog, endTime: formatSingleTime(e.target.value) })
-                }
-                placeholder={t('placeholderEndTime')}
-                className="mt-1"
-              />
-            </div>
-          )}
+      {/* 結束時間 - 有開始時間才顯示 */}
+      {dialog.startTime && (
+        <div>
+          <label className="text-sm font-medium text-morandi-primary">{t('endTimeOptional')}</label>
+          <Input
+            value={dialog.endTime}
+            onChange={e => onDialogChange({ ...dialog, endTime: e.target.value })}
+            onBlur={e => onDialogChange({ ...dialog, endTime: formatSingleTime(e.target.value) })}
+            placeholder={t('placeholderEndTime')}
+            className="mt-1"
+          />
+        </div>
+      )}
 
-          <div>
-            <label className="text-sm font-medium text-morandi-primary">
-              {t('descriptionOptional2')}
-            </label>
-            <Input
-              value={dialog.description}
-              onChange={e => onDialogChange({ ...dialog, description: e.target.value })}
-              placeholder={t('placeholderEnterDescription')}
-              className="mt-1"
-            />
-          </div>
-
+      <div>
+        <label className="text-sm font-medium text-morandi-primary">
+          {t('descriptionOptional2')}
+        </label>
+        <Input
+          value={dialog.description}
+          onChange={e => onDialogChange({ ...dialog, description: e.target.value })}
+          placeholder={t('placeholderEnterDescription')}
+          className="mt-1"
+        />
+      </div>
     </FormDialog>
   )
 }

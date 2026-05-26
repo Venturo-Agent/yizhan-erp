@@ -32,10 +32,7 @@ interface MessageRow {
   created_at: string
 }
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const guard = await requireCapability(CAPABILITIES.AI_HUB_READ)
     if (!guard.ok) return guard.response
@@ -81,7 +78,10 @@ export async function GET(
 
     const { data: profiles } = await profileQuery
     const sender_avatars: Record<string, string> = {}
-    for (const p of (profiles ?? []) as { display_name: string | null; picture_url: string | null }[]) {
+    for (const p of (profiles ?? []) as {
+      display_name: string | null
+      picture_url: string | null
+    }[]) {
       if (p.display_name && p.picture_url) {
         sender_avatars[p.display_name] = p.picture_url
       }

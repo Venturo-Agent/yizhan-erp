@@ -42,10 +42,7 @@ const PLAN_INCREMENTAL: Record<
   },
   standard: {
     base: '輕量版',
-    features: [
-      { name: '顧客管理' },
-      { name: '護照辨識', note: '需設定 API' },
-    ],
+    features: [{ name: '顧客管理' }, { name: '護照辨識', note: '需設定 API' }],
   },
   advance: {
     base: '標準版',
@@ -67,10 +64,10 @@ const PLAN_META: Record<
   Exclude<PlanId, 'custom'>,
   { name: string; tagline: string; tagColor: string }
 > = {
-  lite:     { name: '輕量版', tagline: 'Lite',     tagColor: 'text-morandi-secondary/70' },
-  standard: { name: '標準版', tagline: 'Standard', tagColor: 'text-morandi-primary/50'   },
-  advance:  { name: '進階版', tagline: 'Advance',  tagColor: 'text-morandi-gold/80'       },
-  premium:  { name: '旗艦版', tagline: 'Premium',  tagColor: 'text-morandi-gold'          },
+  lite: { name: '輕量版', tagline: 'Lite', tagColor: 'text-morandi-secondary/70' },
+  standard: { name: '標準版', tagline: 'Standard', tagColor: 'text-morandi-primary/50' },
+  advance: { name: '進階版', tagline: 'Advance', tagColor: 'text-morandi-gold/80' },
+  premium: { name: '旗艦版', tagline: 'Premium', tagColor: 'text-morandi-gold' },
 }
 
 const PLAN_ORDER: Exclude<PlanId, 'custom'>[] = ['lite', 'standard', 'advance', 'premium']
@@ -109,8 +106,12 @@ export function TenantPlanSection({
   return (
     <section className="space-y-3">
       <div>
-        <p className="text-sm font-medium text-morandi-primary">訂閱方案 <span className="text-morandi-red">*</span></p>
-        <p className="text-xs text-morandi-secondary mt-0.5">選擇後自動配置對應功能，建立後可在租戶詳情調整</p>
+        <p className="text-sm font-medium text-morandi-primary">
+          訂閱方案 <span className="text-morandi-red">*</span>
+        </p>
+        <p className="text-xs text-morandi-secondary mt-0.5">
+          選擇後自動配置對應功能，建立後可在租戶詳情調整
+        </p>
       </div>
 
       {/* 4 張方案卡片 */}
@@ -152,12 +153,18 @@ export function TenantPlanSection({
                 {/* 進階版：顯示 3選2 選項 */}
                 {def.isPickTwo && (
                   <>
-                    {(Object.values(ADVANCE_PICK_OPTIONS) as { name: string; icon: string }[]).map(opt => (
-                      <div key={opt.name} className="flex items-center gap-1.5">
-                        <span className="text-[9px] font-bold text-morandi-gold leading-none w-3 text-center">2/3</span>
-                        <span className="text-[11px] text-morandi-gold leading-tight">{opt.name}</span>
-                      </div>
-                    ))}
+                    {(Object.values(ADVANCE_PICK_OPTIONS) as { name: string; icon: string }[]).map(
+                      opt => (
+                        <div key={opt.name} className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-bold text-morandi-gold leading-none w-3 text-center">
+                            2/3
+                          </span>
+                          <span className="text-[11px] text-morandi-gold leading-tight">
+                            {opt.name}
+                          </span>
+                        </div>
+                      )
+                    )}
                     <p className="text-[10px] text-morandi-secondary mt-0.5">從下方選擇 2 個</p>
                   </>
                 )}
@@ -203,11 +210,8 @@ export function TenantPlanSection({
                     : 'bg-morandi-container/20 text-morandi-secondary hover:bg-morandi-container/40'
                 }`}
               >
-                {checked && (
-                  inPlan
-                    ? <Lock className="h-2.5 w-2.5" />
-                    : <Check className="h-2.5 w-2.5" />
-                )}
+                {checked &&
+                  (inPlan ? <Lock className="h-2.5 w-2.5" /> : <Check className="h-2.5 w-2.5" />)}
                 {name}
               </button>
             )
@@ -220,47 +224,53 @@ export function TenantPlanSection({
         // eslint-disable-next-line venturo/no-forbidden-classes
         <div className="p-3.5 rounded-[14px] border border-morandi-gold/30 bg-morandi-gold/5">
           <div className="flex items-center justify-between mb-2.5">
-            <span className="text-sm font-semibold text-morandi-primary">進階版 — 選擇 2 個模組</span>
+            <span className="text-sm font-semibold text-morandi-primary">
+              進階版 — 選擇 2 個模組
+            </span>
             {advancePicks.length !== 2 && (
               <span className="text-xs text-morandi-red font-medium">請選擇 2 個</span>
             )}
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {(Object.entries(ADVANCE_PICK_OPTIONS) as [AdvancePickId, { name: string; icon: string }][]).map(
-              ([pickId, option]) => {
-                const isChecked = advancePicks.includes(pickId)
-                const isDisabled = !isChecked && advancePicks.length >= 2
-                return (
-                  // eslint-disable-next-line venturo/no-forbidden-classes
-                  <button
-                    key={pickId}
-                    type="button"
-                    disabled={isDisabled}
-                    onClick={() => {
-                      if (isChecked) {
-                        onAdvancePicksChange(advancePicks.filter(p => p !== pickId))
-                      } else if (advancePicks.length < 2) {
-                        onAdvancePicksChange([...advancePicks, pickId])
-                      }
-                    }}
-                    className={`flex items-center gap-2 px-3 py-2.5 rounded-[10px] border transition-all text-left ${
-                      isChecked
-                        ? 'border-morandi-gold/60 bg-morandi-gold/15'
-                        : isDisabled
+            {(
+              Object.entries(ADVANCE_PICK_OPTIONS) as [
+                AdvancePickId,
+                { name: string; icon: string },
+              ][]
+            ).map(([pickId, option]) => {
+              const isChecked = advancePicks.includes(pickId)
+              const isDisabled = !isChecked && advancePicks.length >= 2
+              return (
+                // eslint-disable-next-line venturo/no-forbidden-classes
+                <button
+                  key={pickId}
+                  type="button"
+                  disabled={isDisabled}
+                  onClick={() => {
+                    if (isChecked) {
+                      onAdvancePicksChange(advancePicks.filter(p => p !== pickId))
+                    } else if (advancePicks.length < 2) {
+                      onAdvancePicksChange([...advancePicks, pickId])
+                    }
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-[10px] border transition-all text-left ${
+                    isChecked
+                      ? 'border-morandi-gold/60 bg-morandi-gold/15'
+                      : isDisabled
                         ? 'border-morandi-border/30 bg-morandi-container/10 opacity-40 cursor-not-allowed'
                         : 'border-morandi-border/40 bg-white hover:border-morandi-gold/40 hover:bg-morandi-gold/5'
-                    }`}
-                  >
-                    <span className="text-xs font-medium text-morandi-primary">{option.name}</span>
-                    {isChecked && <Check className="ml-auto h-3.5 w-3.5 text-morandi-gold flex-shrink-0" />}
-                  </button>
-                )
-              }
-            )}
+                  }`}
+                >
+                  <span className="text-xs font-medium text-morandi-primary">{option.name}</span>
+                  {isChecked && (
+                    <Check className="ml-auto h-3.5 w-3.5 text-morandi-gold flex-shrink-0" />
+                  )}
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
-
     </section>
   )
 }

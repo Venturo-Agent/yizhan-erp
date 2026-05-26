@@ -38,9 +38,11 @@ export async function POST(_request: NextRequest) {
           success: false,
           reason: result.reason,
           error:
-            result.reason === 'no_memories' ? '尚無速記卡可分析（對話累積 20 則才會自動建立）' :
-            result.reason === 'no_unanswered' ? '所有速記卡都沒抓到「答不出來」的問題（AI 表現太好？）' :
-            result.error ?? '聚合失敗、請稍後再試',
+            result.reason === 'no_memories'
+              ? '尚無速記卡可分析（對話累積 20 則才會自動建立）'
+              : result.reason === 'no_unanswered'
+                ? '所有速記卡都沒抓到「答不出來」的問題（AI 表現太好？）'
+                : (result.error ?? '聚合失敗、請稍後再試'),
         },
         { status: 200 }
       )

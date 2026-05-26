@@ -72,9 +72,7 @@ export function SortableMethodRow({
       {/* 借/貸方科目 — 僅開通會計功能顯示 */}
       {showAccounting && (
         <td className="px-4 py-3 text-sm text-morandi-muted">
-          {method.debit_account
-            ? `${method.debit_account.code} ${method.debit_account.name}`
-            : '-'}
+          {method.debit_account ? `${method.debit_account.code} ${method.debit_account.name}` : '-'}
         </td>
       )}
       {showAccounting && (

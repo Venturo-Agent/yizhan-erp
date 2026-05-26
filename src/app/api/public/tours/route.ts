@@ -54,18 +54,12 @@ export async function GET(request: NextRequest) {
       logger.error('public/tours: lookup workspace failed', { wsErr })
       return withPublicCors(
         request,
-        NextResponse.json(
-          { success: false, error: '系統暫時無法取得行程列表' },
-          { status: 500 }
-        )
+        NextResponse.json({ success: false, error: '系統暫時無法取得行程列表' }, { status: 500 })
       )
     }
     if (!ws) {
       // workspace 不存在 → 視同沒上架的團、回空列表（不是 500、官網才不會掛掉）
-      return withPublicCors(
-        request,
-        NextResponse.json({ tours: [] })
-      )
+      return withPublicCors(request, NextResponse.json({ tours: [] }))
     }
 
     // 2. 列出上架中的團
@@ -85,10 +79,7 @@ export async function GET(request: NextRequest) {
       logger.error('public/tours: list failed', { toursErr })
       return withPublicCors(
         request,
-        NextResponse.json(
-          { success: false, error: '系統暫時無法取得行程列表' },
-          { status: 500 }
-        )
+        NextResponse.json({ success: false, error: '系統暫時無法取得行程列表' }, { status: 500 })
       )
     }
 
@@ -97,10 +88,7 @@ export async function GET(request: NextRequest) {
     logger.error('public/tours: unexpected', { err })
     return withPublicCors(
       request,
-      NextResponse.json(
-        { success: false, error: '系統暫時無法取得行程列表' },
-        { status: 500 }
-      )
+      NextResponse.json({ success: false, error: '系統暫時無法取得行程列表' }, { status: 500 })
     )
   }
 }

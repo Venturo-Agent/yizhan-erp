@@ -73,9 +73,7 @@ function resolveScope(
   return 'tour'
 }
 
-export function useReceiptsListView(
-  params: UseReceiptsListViewParams
-): UseReceiptsListViewResult {
+export function useReceiptsListView(params: UseReceiptsListViewParams): UseReceiptsListViewResult {
   const {
     page,
     pageSize,

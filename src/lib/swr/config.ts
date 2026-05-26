@@ -63,7 +63,7 @@ export function clearAllSwrCacheKeys(): void {
         keysToRemove.push(key)
       }
     }
-    keysToRemove.forEach((k) => localStorage.removeItem(k))
+    keysToRemove.forEach(k => localStorage.removeItem(k))
   } catch {
     // ignore（無痕視窗 / 容量滿等）
   }

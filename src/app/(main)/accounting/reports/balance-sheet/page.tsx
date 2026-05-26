@@ -282,7 +282,9 @@ export default function BalanceSheetPage() {
 
                 {/* 負債 */}
                 <div>
-                  <div className="font-semibold mb-2 text-morandi-red">{PAGE_LABELS.LIABILITIES}</div>
+                  <div className="font-semibold mb-2 text-morandi-red">
+                    {PAGE_LABELS.LIABILITIES}
+                  </div>
                   {data.liabilities.map(item => (
                     <div key={item.code} className="flex justify-between py-1 pl-4">
                       <span className="text-sm">
@@ -292,7 +294,9 @@ export default function BalanceSheetPage() {
                     </div>
                   ))}
                   {data.liabilities.length === 0 && (
-                    <div className="text-sm text-muted-foreground pl-4">無{t('liabilities')}記錄</div>
+                    <div className="text-sm text-muted-foreground pl-4">
+                      無{t('liabilities')}記錄
+                    </div>
                   )}
                   <div className="flex justify-between py-2 border-t border-border mt-2 font-semibold">
                     <span>{PAGE_LABELS.LIABILITIES_TOTAL}</span>
@@ -358,7 +362,9 @@ export default function BalanceSheetPage() {
                   : 'text-morandi-red'
               }`}
             >
-              <div className="font-semibold mb-2">{PAGE_LABELS.ACCOUNTING_EQUATION_VERIFICATION}</div>
+              <div className="font-semibold mb-2">
+                {PAGE_LABELS.ACCOUNTING_EQUATION_VERIFICATION}
+              </div>
               <div className="space-y-1">
                 <div>資產 = ${data.totalAssets.toLocaleString()}</div>
                 <div>
@@ -376,7 +382,9 @@ export default function BalanceSheetPage() {
 
         {!data && !isLoading && (
           <Card className="p-8">
-            <div className="text-center text-muted-foreground">{PAGE_LABELS.PLEASE_SELECT_DATE}</div>
+            <div className="text-center text-muted-foreground">
+              {PAGE_LABELS.PLEASE_SELECT_DATE}
+            </div>
           </Card>
         )}
       </div>

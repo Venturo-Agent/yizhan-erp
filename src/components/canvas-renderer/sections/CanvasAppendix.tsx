@@ -138,7 +138,9 @@ export function CanvasAppendix({ section, brand }: CanvasAppendixProps) {
             }}
           >
             {brand?.name ? (
-              <span style={{ fontFamily: YONGCHENG_FONTS.serif, marginRight: 10 }}>{brand.name}</span>
+              <span style={{ fontFamily: YONGCHENG_FONTS.serif, marginRight: 10 }}>
+                {brand.name}
+              </span>
             ) : null}
             {brand?.english_name ?? null}
           </div>

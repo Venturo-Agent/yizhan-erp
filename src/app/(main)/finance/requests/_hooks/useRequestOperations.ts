@@ -3,10 +3,7 @@ import { usePayments } from '@/app/(main)/finance/payments/_hooks/usePayments'
 import { useWorkspaceId } from '@/lib/workspace-context'
 import { useExpenseCategories } from '@/data/entities'
 import { RequestFormData, BatchRequestFormData, RequestItem } from '../_types'
-import {
-  generateRequestNo,
-  generateCompanyPaymentRequestCode,
-} from '@/lib/codes'
+import { generateRequestNo, generateCompanyPaymentRequestCode } from '@/lib/codes'
 import { CompanyExpenseType } from '@/stores/types/finance.types'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
 import { useTranslations } from 'next-intl'
@@ -78,9 +75,10 @@ export function useRequestOperations() {
         ...new Set(items.map(i => i.supplier_id).filter((v): v is string => !!v)),
       ]
       const reqSupplierId = uniqueSupplierIds.length === 1 ? uniqueSupplierIds[0] : null
-      const reqSupplierName = uniqueSupplierIds.length === 1
-        ? items.find(i => i.supplier_id === reqSupplierId)?.supplierName ?? null
-        : null
+      const reqSupplierName =
+        uniqueSupplierIds.length === 1
+          ? (items.find(i => i.supplier_id === reqSupplierId)?.supplierName ?? null)
+          : null
 
       // 根據請款類別決定編號和類型
       const isCompanyRequest = formData.request_category === 'company'
@@ -97,9 +95,7 @@ export function useRequestOperations() {
         // 編號 prefix：直接讀 expense_categories.code（Phase 3 SSOT）
         // fallback 'ETC' 給萬一 cat 沒設 code 的情況（系統預設都有設、user 自加可能漏）
         const expenseType: CompanyExpenseType =
-          formData.expense_type ||
-          ((pickedCat as unknown as { code?: string })?.code) ||
-          'ETC'
+          formData.expense_type || (pickedCat as unknown as { code?: string })?.code || 'ETC'
         const requestCode =
           codeOverride || (await generateCompanyRequestCode(expenseType, formData.request_date))
 
@@ -140,7 +136,8 @@ export function useRequestOperations() {
               notes: '',
               sort_order: i + 1,
               // 2026-05-14：item.tour_id 帶 parent 或 client 各自選；代墊人走 supplier_id
-              tour_id: (item as unknown as { tour_id?: string }).tour_id || formData.tour_id || null,
+              tour_id:
+                (item as unknown as { tour_id?: string }).tour_id || formData.tour_id || null,
               payment_method_id: item.payment_method_id || formData.payment_method_id || null,
               advanced_by: item.advanced_by || null,
               advanced_by_name: item.advanced_by_name || null,
@@ -200,7 +197,8 @@ export function useRequestOperations() {
               notes: '',
               sort_order: i + 1,
               // 2026-05-14：item.tour_id 帶 parent 或 client 各自選；代墊人走 supplier_id
-              tour_id: (item as unknown as { tour_id?: string }).tour_id || formData.tour_id || null,
+              tour_id:
+                (item as unknown as { tour_id?: string }).tour_id || formData.tour_id || null,
               payment_method_id: item.payment_method_id || formData.payment_method_id || null,
               advanced_by: item.advanced_by || null,
               advanced_by_name: item.advanced_by_name || null,

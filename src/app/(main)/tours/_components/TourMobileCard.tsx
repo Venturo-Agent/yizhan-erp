@@ -112,7 +112,6 @@ export function TourMobileCard({ tour: tourProp, onClick, getStatusColor }: Tour
           </div>
         ) : null}
       </div>
-
     </div>
   )
 }

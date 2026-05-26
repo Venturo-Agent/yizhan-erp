@@ -5,7 +5,7 @@
  */
 
 import { useTranslations } from 'next-intl'
-import { FileText, Save, AlertCircle, Eye, FilePlus, Clock} from 'lucide-react'
+import { FileText, Save, AlertCircle, Eye, FilePlus, Clock } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { Button } from '@/components/ui/button'
@@ -76,9 +76,7 @@ export function PackageItineraryDialog({
                 <DialogHeader className="mb-4">
                   <DialogTitle className="flex items-center gap-2">
                     <FileText className="w-5 h-5 text-morandi-gold" />
-                    {hook.isEditMode
-                      ? t('packageDialogEditTitle')
-                      : t('packageDialogCreateTitle')}
+                    {hook.isEditMode ? t('packageDialogEditTitle') : t('packageDialogCreateTitle')}
                     <span className="text-sm font-normal text-morandi-secondary">
                       {ctx.version_name} - {ctx.title}
                     </span>
@@ -221,20 +219,15 @@ export function PackageItineraryDialog({
                           {t('packageDialogSaveAsNew')}
                         </Button>
                       )}
-                      <Button variant="soft-gold"
+                      <Button
+                        variant="soft-gold"
                         size="sm"
                         onClick={hook.handleSubmit}
                         disabled={hook.isCreating || !hook.formData.title.trim()}
- className="h-7 px-2 text-[0.647rem] gap-1"
+                        className="h-7 px-2 text-[0.647rem] gap-1"
                       >
-                        {hook.isCreating ? (
-                          <Spinner size="sm" />
-                        ) : (
-                          <Save className="w-3 h-3" />
-                        )}
-                        {hook.isEditMode
-                          ? t('packageDialogUpdate')
-                          : t('packageDialogCreate')}
+                        {hook.isCreating ? <Spinner size="sm" /> : <Save className="w-3 h-3" />}
+                        {hook.isEditMode ? t('packageDialogUpdate') : t('packageDialogCreate')}
                       </Button>
                     </div>
                   </div>

@@ -61,7 +61,7 @@ export function TourAttributesSection({ workspaceId }: { workspaceId: string }) 
 
   // 所有可用的團類型 — 從 SSOT 衍生（src/lib/constants/tour-service-types.ts）
   // 加新類型只改 SSOT、本檔不用動
-  const tourCategories = TOUR_SERVICE_TYPES.map((t) => ({
+  const tourCategories = TOUR_SERVICE_TYPES.map(t => ({
     id: t.id,
     label: t.label,
     description: t.description,
@@ -103,10 +103,12 @@ export function TourAttributesSection({ workspaceId }: { workspaceId: string }) 
         .eq('id', workspaceId)
       if (error) throw error
       setSelectedCategories(cleaned)
-      toast.success(`${PAGE_LABELS.SAVE_SUCCESS_PREFIX}${cleaned.length}${PAGE_LABELS.SAVE_SUCCESS_SUFFIX}`)
+      toast.success(
+        `${PAGE_LABELS.SAVE_SUCCESS_PREFIX}${cleaned.length}${PAGE_LABELS.SAVE_SUCCESS_SUFFIX}`
+      )
     },
     {
-      onError: (error) => {
+      onError: error => {
         logger.error('儲存團類型設定失敗:', error)
         toast.error(PAGE_LABELS.SAVE_FAILED)
       },
@@ -118,7 +120,9 @@ export function TourAttributesSection({ workspaceId }: { workspaceId: string }) 
   return (
     <Card className="p-6 space-y-4">
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-morandi-primary">{PAGE_LABELS.TOUR_FEATURES_TITLE}</h3>
+        <h3 className="text-lg font-semibold text-morandi-primary">
+          {PAGE_LABELS.TOUR_FEATURES_TITLE}
+        </h3>
         <p className="text-sm text-morandi-secondary">
           選擇可用的團類型，開團時會顯示對應的選擇欄位
         </p>
@@ -181,9 +185,7 @@ export function TourAttributesSection({ workspaceId }: { workspaceId: string }) 
             const validCount = selectedCategories.filter(id =>
               tourCategories.some(c => c.id === id)
             ).length
-            const ghosts = selectedCategories.filter(
-              id => !tourCategories.some(c => c.id === id)
-            )
+            const ghosts = selectedCategories.filter(id => !tourCategories.some(c => c.id === id))
             if (validCount === 0) return null
             return (
               <div className="flex items-start gap-2 p-3 bg-morandi-gold/10 border border-morandi-gold/20 rounded-md">
@@ -192,7 +194,8 @@ export function TourAttributesSection({ workspaceId }: { workspaceId: string }) 
                   <p>開團時，可從已選擇的 {validCount} 種團類型中選擇一種</p>
                   {ghosts.length > 0 && (
                     <p className="text-xs text-morandi-muted">
-                      （DB 內另有 {ghosts.length} 個未啟用的舊類型 id：{ghosts.join('、')}、儲存時會清除）
+                      （DB 內另有 {ghosts.length} 個未啟用的舊類型 id：{ghosts.join('、')}
+                      、儲存時會清除）
                     </p>
                   )}
                 </div>
@@ -203,10 +206,7 @@ export function TourAttributesSection({ workspaceId }: { workspaceId: string }) 
       </div>
 
       {/* 儲存按鈕 */}
-      <Button
-        onClick={handleSave}
-        disabled={saving}
-      >
+      <Button onClick={handleSave} disabled={saving}>
         {saving ? (
           <span className="flex items-center">
             <span className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />

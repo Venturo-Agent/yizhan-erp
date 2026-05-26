@@ -52,13 +52,12 @@ export function ContractSignStep({
       {/* 頂部 */}
       <div className="bg-card border-b border-border px-4 py-4">
         <div className="max-w-md mx-auto flex items-center">
-          <button
-            onClick={onBack}
-            className="text-morandi-muted hover:text-morandi-primary mr-4"
-          >
+          <button onClick={onBack} className="text-morandi-muted hover:text-morandi-primary mr-4">
             {PAGE_LABELS.BACK_TO_CONTRACT}
           </button>
-          <h1 className="text-lg font-semibold text-morandi-primary">{PAGE_LABELS.ELECTRONIC_SIGN_TITLE}</h1>
+          <h1 className="text-lg font-semibold text-morandi-primary">
+            {PAGE_LABELS.ELECTRONIC_SIGN_TITLE}
+          </h1>
         </div>
       </div>
 
@@ -67,9 +66,7 @@ export function ContractSignStep({
         <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-md">
           {/* 合約摘要 */}
           <div className="mb-6 pb-6 border-b border-border">
-            <div className="text-sm text-morandi-muted mb-1">
-              {templateLabel}
-            </div>
+            <div className="text-sm text-morandi-muted mb-1">{templateLabel}</div>
             <div className="font-semibold text-morandi-primary">{tourName}</div>
             <div className="text-sm text-morandi-secondary mt-1">
               簽約人：
@@ -87,7 +84,9 @@ export function ContractSignStep({
           ) : signaturePreview ? (
             // 簽名預覽
             <div className="space-y-4">
-              <div className="text-sm text-morandi-secondary text-center">{PAGE_LABELS.CONFIRM_YOUR_SIGNATURE}</div>
+              <div className="text-sm text-morandi-secondary text-center">
+                {PAGE_LABELS.CONFIRM_YOUR_SIGNATURE}
+              </div>
               <div className="border-2 border-status-warning/30 rounded-lg p-4 bg-status-warning-bg">
                 <img
                   src={signaturePreview}
@@ -97,19 +96,10 @@ export function ContractSignStep({
                 />
               </div>
               <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="soft-gold"
-                  className="flex-1"
-                  onClick={onRetrySign}
-                >
+                <Button type="button" variant="soft-gold" className="flex-1" onClick={onRetrySign}>
                   {PAGE_LABELS.RETRY_SIGN}
                 </Button>
-                <Button
-                  type="button"
-                  className="flex-1"
-                  onClick={onConfirmSign}
-                >
+                <Button type="button" className="flex-1" onClick={onConfirmSign}>
                   <Check className="w-4 h-4 mr-1" />
                   {PAGE_LABELS.CONFIRM_SUBMIT}
                 </Button>

@@ -27,7 +27,10 @@ import {
 } from '@/data'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
-import { calculateFullProfit, type BonusCalculationOrder } from '../_services/profit-calculation.service'
+import {
+  calculateFullProfit,
+  type BonusCalculationOrder,
+} from '../_services/profit-calculation.service'
 import {
   BONUS_TYPE_LABELS,
   BONUS_TYPE_BADGE_VARIANTS,
@@ -98,7 +101,11 @@ function TwoColumnProfit({
   // 營收稅額放右欄、夾在「營收總額（未扣稅）」跟「利潤總額（已扣稅）」中間、會計上的扣稅階段更直觀
   const left: TwoColumnRow[] = [
     { label: '收款總額', sub: '進項', amount: receiptTotal },
-    { label: '行政費用', sub: adminPerPerson > 0 ? `${adminPerPerson} 元/人` : '', amount: adminCost },
+    {
+      label: '行政費用',
+      sub: adminPerPerson > 0 ? `${adminPerPerson} 元/人` : '',
+      amount: adminCost,
+    },
     { label: '業務獎金', sub: sumSub(saleBonusCount), amount: saleBonusTotal },
     { label: 'OP 獎金', sub: sumSub(opBonusCount), amount: opBonusTotal },
     { label: '團隊獎金', sub: sumSub(teamBonusCount), amount: teamBonusTotal },
@@ -132,9 +139,7 @@ function TwoColumnProfit({
         )}
       >
         {row.label}
-        {row.sub && (
-          <span className="ml-1 text-xs text-morandi-secondary/70">（{row.sub}）</span>
-        )}
+        {row.sub && <span className="ml-1 text-xs text-morandi-secondary/70">（{row.sub}）</span>}
       </span>
       <span
         className={cn(
@@ -195,7 +200,10 @@ export function ProfitTab({ tour }: ProfitTabProps) {
         .select('bonus_calculation_order')
         .eq('id', workspaceId!)
         .single()
-      return (data as { bonus_calculation_order?: string } | null)?.bonus_calculation_order ?? 'independent'
+      return (
+        (data as { bonus_calculation_order?: string } | null)?.bonus_calculation_order ??
+        'independent'
+      )
     },
     { revalidateOnFocus: false }
   )
@@ -233,10 +241,7 @@ export function ProfitTab({ tour }: ProfitTabProps) {
   )
   const { get: getEmployee } = useEmployeeDictionary()
 
-  const orderIds = useMemo(
-    () => new Set((orders ?? []).map(o => o.id)),
-    [orders]
-  )
+  const orderIds = useMemo(() => new Set((orders ?? []).map(o => o.id)), [orders])
 
   const memberCount = useMemo(() => {
     if (!allMembers) return 0
@@ -336,8 +341,7 @@ export function ProfitTab({ tour }: ProfitTabProps) {
       badgeClass: BONUS_TYPE_BADGE_VARIANTS[b.setting.type as BonusSettingType],
       badgeText: '獎金',
       setting: b.setting,
-      payeeName:
-        b.employee_name || BONUS_TYPE_LABELS[b.setting.type as BonusSettingType],
+      payeeName: b.employee_name || BONUS_TYPE_LABELS[b.setting.type as BonusSettingType],
     })
   }
   for (const b of profitResult.team_bonuses) {
@@ -477,7 +481,8 @@ export function ProfitTab({ tour }: ProfitTabProps) {
                       ) : issuedRequestId ? (
                         <span className="inline-flex items-center gap-1.5 text-xs text-morandi-green">
                           <FileCheck className="h-3.5 w-3.5" />
-                          {t('profitBonusIssued')} {issuedCode || `(${issuedRequestId.slice(0, 8)})`}
+                          {t('profitBonusIssued')}{' '}
+                          {issuedCode || `(${issuedRequestId.slice(0, 8)})`}
                         </span>
                       ) : (
                         <span className="text-xs text-morandi-secondary/60">

@@ -29,8 +29,7 @@ export function CustomerMatchDialog({
   onSelect,
 }: CustomerMatchDialogProps) {
   const t = useTranslations('orders')
-  const matchTypeLabel =
-    matchType === 'name' ? t('matchTypeName') : t('matchTypeIdNumber')
+  const matchTypeLabel = matchType === 'name' ? t('matchTypeName') : t('matchTypeIdNumber')
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -84,9 +83,7 @@ export function CustomerMatchDialog({
                       )}
                       {customer.national_id && (
                         <div>
-                          <span className="text-xs text-morandi-muted">
-                            {t('idNumberLabel')}
-                          </span>
+                          <span className="text-xs text-morandi-muted">{t('idNumberLabel')}</span>
                           {customer.national_id}
                         </div>
                       )}
@@ -100,25 +97,19 @@ export function CustomerMatchDialog({
                       )}
                       {customer.birth_date && (
                         <div>
-                          <span className="text-xs text-morandi-muted">
-                            {t('birthDateLabel')}
-                          </span>
+                          <span className="text-xs text-morandi-muted">{t('birthDateLabel')}</span>
                           {customer.birth_date}
                         </div>
                       )}
                       {customer.phone && (
                         <div>
-                          <span className="text-xs text-morandi-muted">
-                            {t('phoneLabel')}
-                          </span>
+                          <span className="text-xs text-morandi-muted">{t('phoneLabel')}</span>
                           {customer.phone}
                         </div>
                       )}
                       {customer.gender && (
                         <div>
-                          <span className="text-xs text-morandi-muted">
-                            {t('genderLabel')}
-                          </span>
+                          <span className="text-xs text-morandi-muted">{t('genderLabel')}</span>
                           {customer.gender === 'M'
                             ? t('male')
                             : customer.gender === 'F'

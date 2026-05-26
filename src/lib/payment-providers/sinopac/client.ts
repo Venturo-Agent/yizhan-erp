@@ -15,13 +15,7 @@
  * 加解密細節全在 crypto.ts（已照 SampleCode 實作、6 測試過）、本檔只負責「編排 + 連線」。
  */
 
-import {
-  generateHashID,
-  getIV,
-  generateSign,
-  encryptMessage,
-  decryptMessage,
-} from './crypto'
+import { generateHashID, getIV, generateSign, encryptMessage, decryptMessage } from './crypto'
 import type { SinopacConfig } from './config'
 
 /** QPay request body 固定版本號（見 SampleCode API class $Version） */
@@ -65,7 +59,7 @@ async function getNonce(config: SinopacConfig): Promise<string> {
   const data = await postJson<NonceResponse>(
     config.baseUrl + 'Nonce',
     { ShopNo: config.shopNo },
-    config.xKey,
+    config.xKey
   )
   if (!data?.Nonce) {
     throw new Error('永豐取 Nonce 失敗（回應無 Nonce、檢查 ShopNo / X-Key 是否正確）')
@@ -84,7 +78,7 @@ async function getNonce(config: SinopacConfig): Promise<string> {
 export async function callApiService<TRes = Record<string, unknown>>(
   config: SinopacConfig,
   apiService: string,
-  payload: Record<string, unknown>,
+  payload: Record<string, unknown>
 ): Promise<TRes> {
   const nonce = await getNonce(config)
   const hashID = generateHashID(config.hash)
@@ -102,7 +96,7 @@ export async function callApiService<TRes = Record<string, unknown>>(
       Nonce: nonce,
       Message: message,
     },
-    config.xKey,
+    config.xKey
   )
 
   if (!res?.Message || !res?.Nonce) {

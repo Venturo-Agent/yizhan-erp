@@ -49,9 +49,9 @@ function getWeekdayOf(year: number, month: number, day: number): string | null {
  * 再用 Date.UTC 算星期、確保不受 host timezone 影響。
  */
 export function getTaipeiToday(): {
-  isoDate: string         // '2026-05-19'
-  weekday: string         // '日'/'一'/.../'六'
-  formatted: string       // '2026-05-19（星期一）'
+  isoDate: string // '2026-05-19'
+  weekday: string // '日'/'一'/.../'六'
+  formatted: string // '2026-05-19（星期一）'
 } {
   const now = new Date()
   const isoDate = new Intl.DateTimeFormat('en-CA', {

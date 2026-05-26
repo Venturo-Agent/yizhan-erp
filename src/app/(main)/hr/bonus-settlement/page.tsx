@@ -70,7 +70,7 @@ export default function BonusSettlementListPage() {
   }, [loadList])
 
   const toggleOne = (tourId: string) => {
-    setSelected((prev) => {
+    setSelected(prev => {
       const next = new Set(prev)
       if (next.has(tourId)) next.delete(tourId)
       else next.add(tourId)
@@ -80,11 +80,11 @@ export default function BonusSettlementListPage() {
 
   const toggleAll = () => {
     if (selected.size === list.length) setSelected(new Set())
-    else setSelected(new Set(list.map((r) => r.tour_id)))
+    else setSelected(new Set(list.map(r => r.tour_id)))
   }
 
   const selectedAmount = list
-    .filter((r) => selected.has(r.tour_id))
+    .filter(r => selected.has(r.tour_id))
     .reduce((sum, r) => sum + r.total_amount, 0)
 
   const handleSettle = async () => {
@@ -136,7 +136,7 @@ export default function BonusSettlementListPage() {
       label: '結案日',
       sortable: true,
       width: '110px',
-      render: (v) =>
+      render: v =>
         v ? (
           <span className="text-xs text-morandi-secondary">{String(v).slice(0, 10)}</span>
         ) : (
@@ -148,22 +148,24 @@ export default function BonusSettlementListPage() {
       label: '員工',
       sortable: true,
       width: '70px',
-      render: (v) => <span className="text-morandi-secondary">{Number(v) || 0} 位</span>,
+      render: v => <span className="text-morandi-secondary">{Number(v) || 0} 位</span>,
     },
     {
       key: 'bonus_count',
       label: '獎金筆數',
       sortable: true,
       width: '90px',
-      render: (v) => <span className="text-morandi-secondary">{Number(v) || 0} 筆</span>,
+      render: v => <span className="text-morandi-secondary">{Number(v) || 0} 筆</span>,
     },
     {
       key: 'total_amount',
       label: '總獎金',
       sortable: true,
       width: '130px',
-      render: (v) => (
-        <span className="font-semibold text-morandi-gold tabular-nums">{formatNT(Number(v) || 0)}</span>
+      render: v => (
+        <span className="font-semibold text-morandi-gold tabular-nums">
+          {formatNT(Number(v) || 0)}
+        </span>
       ),
     },
   ]
@@ -173,7 +175,7 @@ export default function BonusSettlementListPage() {
       variant="ghost"
       size="sm"
       title="看員工明細"
-      onClick={(e) => {
+      onClick={e => {
         e.stopPropagation()
         router.push(`/hr/bonus-settlement/${row.tour_id}`)
       }}
@@ -199,7 +201,7 @@ export default function BonusSettlementListPage() {
         renderActions={renderActions}
         searchFields={['tour_code', 'tour_name']}
         searchPlaceholder="搜尋團號 / 團名"
-        onRowClick={(row) => router.push(`/hr/bonus-settlement/${row.tour_id}`)}
+        onRowClick={row => router.push(`/hr/bonus-settlement/${row.tour_id}`)}
         initialPageSize={15}
         primaryAction={{
           label: '新增獎金結算',
@@ -214,7 +216,7 @@ export default function BonusSettlementListPage() {
       />
 
       {/* 結算 wizard dialog（William 2026-05-22 拍板：勾選 + 設請款日 + 確認） */}
-      <Dialog open={wizardOpen} onOpenChange={(o) => !settling && setWizardOpen(o)}>
+      <Dialog open={wizardOpen} onOpenChange={o => !settling && setWizardOpen(o)}>
         <DialogContent className="!max-w-4xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -254,10 +256,12 @@ export default function BonusSettlementListPage() {
               </div>
 
               {list.length === 0 ? (
-                <div className="p-12 text-center text-morandi-secondary text-sm">目前無待結算獎金</div>
+                <div className="p-12 text-center text-morandi-secondary text-sm">
+                  目前無待結算獎金
+                </div>
               ) : (
                 <div className="divide-y divide-morandi-muted/10 max-h-[40vh] overflow-y-auto">
-                  {list.map((row) => {
+                  {list.map(row => {
                     const isSelected = selected.has(row.tour_id)
                     return (
                       <div
@@ -270,7 +274,7 @@ export default function BonusSettlementListPage() {
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleOne(row.tour_id)}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={e => e.stopPropagation()}
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">

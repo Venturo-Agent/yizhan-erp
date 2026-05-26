@@ -32,10 +32,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
     (await hasCapabilityByCode(auth.data.employeeId, CAPABILITIES.FINANCE_READ_PAYMENTS)) ||
     (await hasCapabilityByCode(auth.data.employeeId, CAPABILITIES.FINANCE_READ_REQUESTS))
   if (!allowed) {
-    return NextResponse.json(
-      { error: '沒有財務讀取權限' },
-      { status: 403 }
-    )
+    return NextResponse.json({ error: '沒有財務讀取權限' }, { status: 403 })
   }
   const supabase = await createApiClient()
   const searchParams = request.nextUrl.searchParams
@@ -73,7 +70,10 @@ export const GET = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -107,7 +107,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -127,7 +130,11 @@ export const PUT = apiHandler(async (request: NextRequest) => {
   if (!validation.success) return validation.error
   const { id, ...updates } = validation.data
 
-  await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '更新付款方式', requestId: id })
+  await recordApiAuditContext(supabase, {
+    actorId: guard.employeeId,
+    reason: '更新付款方式',
+    requestId: id,
+  })
 
   // RLS 會確保只能更新自己租戶的資料；workspace_id 不在 schema 裡、無法被改
   const { data, error } = await supabase
@@ -139,7 +146,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
 
   if (error) {
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json(data)
@@ -165,7 +175,11 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     return NextResponse.json({ error: 'id is required' }, { status: 400 })
   }
 
-  await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '刪除付款方式', requestId: id })
+  await recordApiAuditContext(supabase, {
+    actorId: guard.employeeId,
+    reason: '刪除付款方式',
+    requestId: id,
+  })
 
   const { error } = await supabase.from('payment_methods').delete().eq('id', id)
 
@@ -178,7 +192,10 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
       )
     }
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ success: true })

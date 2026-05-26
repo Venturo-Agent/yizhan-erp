@@ -27,19 +27,20 @@ export const ToursModule = defineModule({
   name: '旅遊團管理',
   category: 'basic',
   routes: ['/tours', '/tours/[code]'],
-  exposedToHr: true,           // 列在 HR /hr/roles UI 給 admin 勾權限
-  defaultRoles: ['admin', 'sales'],   // seed migration 預設給這些 role
-  moduleLevelCapabilities: ['read', 'write'],   // tours.read / tours.write
+  exposedToHr: true, // 列在 HR /hr/roles UI 給 admin 勾權限
+  defaultRoles: ['admin', 'sales'], // seed migration 預設給這些 role
+  moduleLevelCapabilities: ['read', 'write'], // tours.read / tours.write
   tabs: [
     { code: 'overview', name: '總覽' },
     { code: 'itinerary', name: '行程' },
     { code: 'contract', name: '合約', category: 'premium' },
-    { code: 'template', name: '模板', capabilities: ['write'] },  // 只衍生 .write
+    { code: 'template', name: '模板', capabilities: ['write'] }, // 只衍生 .write
   ],
 })
 ```
 
 衍生規則（`_define.ts` 內 `deriveCapabilityCodes()`）：
+
 - `tours.read` + `tours.write`（module-level）
 - `tours.overview.read` + `tours.overview.write`（tab、預設）
 - `tours.contract.read` + `tours.contract.write`（tab + premium 是 workspace_features 用、不影響 capability）
@@ -68,11 +69,11 @@ export const ToursModule = defineModule({
 
 ## 跟其他抽象層的對齊
 
-| 重複場景 | 抽象層 | 一個地方寫一次 |
-|---|---|---|
-| 編號生成 | `@/lib/codes.ts` | 11 種 RPC、全站 caller 走它 |
-| 錯誤翻譯 | `@/lib/db-error-translate.ts` | PG 錯誤碼翻中文業務語言 |
-| RLS pattern | `setup_*_rls` procedure × 3 | 1 行 CALL 取代 16 條 CREATE POLICY |
-| **Module 定義** | **`src/modules/<code>.ts`** | **本檔、1 個檔取代 5 SSOT** |
+| 重複場景        | 抽象層                        | 一個地方寫一次                     |
+| --------------- | ----------------------------- | ---------------------------------- |
+| 編號生成        | `@/lib/codes.ts`              | 11 種 RPC、全站 caller 走它        |
+| 錯誤翻譯        | `@/lib/db-error-translate.ts` | PG 錯誤碼翻中文業務語言            |
+| RLS pattern     | `setup_*_rls` procedure × 3   | 1 行 CALL 取代 16 條 CREATE POLICY |
+| **Module 定義** | **`src/modules/<code>.ts`**   | **本檔、1 個檔取代 5 SSOT**        |
 
 威廉常說：**寫一個 root helper、跨頁 bug 一次清**。modules/ 就是那個 root helper。

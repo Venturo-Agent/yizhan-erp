@@ -158,7 +158,10 @@ export function CoverInfoForm({
                   {data.departureDate || COMP_EDITOR_LABELS.選擇日期}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto border-0 bg-transparent p-0 shadow-none" align="start">
+              <PopoverContent
+                className="w-auto border-0 bg-transparent p-0 shadow-none"
+                align="start"
+              >
                 <Calendar
                   mode="single"
                   selected={
@@ -227,7 +230,9 @@ export function CoverInfoForm({
               <SelectContent>
                 <SelectItem value={COMP_EDITOR_LABELS.人}>{COMPONENT_LABELS.PER_PERSON}</SelectItem>
                 <SelectItem value={COMP_EDITOR_LABELS.起}>{COMPONENT_LABELS.STARTING}</SelectItem>
-                <SelectItem value={COMP_EDITOR_LABELS.人起}>{COMPONENT_LABELS.PER_PERSON_STARTING}</SelectItem>
+                <SelectItem value={COMP_EDITOR_LABELS.人起}>
+                  {COMPONENT_LABELS.PER_PERSON_STARTING}
+                </SelectItem>
                 <SelectItem value="__hidden__">{COMPONENT_LABELS.HIDDEN}</SelectItem>
               </SelectContent>
             </Select>
@@ -237,4 +242,3 @@ export function CoverInfoForm({
     </div>
   )
 }
-

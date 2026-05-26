@@ -104,7 +104,7 @@ export function useOrderMemberActions({
         .order('sort_order', { ascending: false })
         .limit(1)
         .maybeSingle()
-      const baseSortOrder = (maxRow?.sort_order ?? 0)
+      const baseSortOrder = maxRow?.sort_order ?? 0
 
       const newMembers = Array.from({ length: count }, (_, i) => ({
         order_id: targetOrderId,

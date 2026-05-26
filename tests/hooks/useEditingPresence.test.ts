@@ -125,9 +125,7 @@ afterEach(() => {
 
 describe('useEditingPresence — subscribe / track', () => {
   it('mount 時：建立 channel、註冊 presence sync、subscribe + track 自己', async () => {
-    renderHook(() =>
-      useEditingPresence({ resourceType: 'itinerary', resourceId: 'I001' }),
-    )
+    renderHook(() => useEditingPresence({ resourceType: 'itinerary', resourceId: 'I001' }))
 
     await waitFor(() => expect(channels.length).toBe(1))
     const ch = channels[0]!
@@ -139,14 +137,14 @@ describe('useEditingPresence — subscribe / track', () => {
         config: expect.objectContaining({
           presence: expect.objectContaining({ key: 'E001' }),
         }),
-      }),
+      })
     )
 
     // 註冊了 'presence' 'sync' 事件
     expect(ch.on).toHaveBeenCalledWith(
       'presence',
       expect.objectContaining({ event: 'sync' }),
-      expect.any(Function),
+      expect.any(Function)
     )
     expect(ch.presenceCallbacks.length).toBe(1)
 
@@ -160,7 +158,7 @@ describe('useEditingPresence — subscribe / track', () => {
 
   it('enabled=false 時不建 channel', async () => {
     renderHook(() =>
-      useEditingPresence({ resourceType: 'itinerary', resourceId: 'I001', enabled: false }),
+      useEditingPresence({ resourceType: 'itinerary', resourceId: 'I001', enabled: false })
     )
     // 等一個 tick、確保沒非同步 setup
     await new Promise(r => setTimeout(r, 30))
@@ -184,7 +182,7 @@ describe('useEditingPresence — subscribe / track', () => {
 describe('useEditingPresence — presence sync state 更新', () => {
   it('收到 sync 時、把 presenceState 轉成 currentEditors / otherEditors', async () => {
     const { result } = renderHook(() =>
-      useEditingPresence({ resourceType: 'itinerary', resourceId: 'I001' }),
+      useEditingPresence({ resourceType: 'itinerary', resourceId: 'I001' })
     )
 
     await waitFor(() => expect(channels.length).toBe(1))
@@ -212,7 +210,7 @@ describe('useEditingPresence — presence sync state 更新', () => {
 
   it('只有自己在編輯時、otherEditors 為空、isOtherEditing=false', async () => {
     const { result } = renderHook(() =>
-      useEditingPresence({ resourceType: 'order', resourceId: 'O1' }),
+      useEditingPresence({ resourceType: 'order', resourceId: 'O1' })
     )
 
     await waitFor(() => expect(channels.length).toBe(1))
@@ -232,7 +230,7 @@ describe('useEditingPresence — presence sync state 更新', () => {
 
   it('presence entry 沒 name 時用「未知用戶」', async () => {
     const { result } = renderHook(() =>
-      useEditingPresence({ resourceType: 'order', resourceId: 'O1' }),
+      useEditingPresence({ resourceType: 'order', resourceId: 'O1' })
     )
 
     await waitFor(() => expect(channels.length).toBe(1))
@@ -251,7 +249,7 @@ describe('useEditingPresence — presence sync state 更新', () => {
 
   it('空 presence array 會被忽略（不算編輯者）', async () => {
     const { result } = renderHook(() =>
-      useEditingPresence({ resourceType: 'order', resourceId: 'O1' }),
+      useEditingPresence({ resourceType: 'order', resourceId: 'O1' })
     )
 
     await waitFor(() => expect(channels.length).toBe(1))
@@ -273,7 +271,7 @@ describe('useEditingPresence — presence sync state 更新', () => {
 describe('useEditingPresence — cleanup', () => {
   it('unmount 時呼 untrack + removeChannel', async () => {
     const { unmount } = renderHook(() =>
-      useEditingPresence({ resourceType: 'order', resourceId: 'O1' }),
+      useEditingPresence({ resourceType: 'order', resourceId: 'O1' })
     )
 
     await waitFor(() => expect(channels.length).toBe(1))
@@ -291,7 +289,7 @@ describe('useEditingPresence — cleanup', () => {
   it('多次 mount/unmount 不漏 cleanup（沒 leak channel）', async () => {
     for (let i = 0; i < 3; i++) {
       const { unmount } = renderHook(() =>
-        useEditingPresence({ resourceType: 'order', resourceId: `O${i}` }),
+        useEditingPresence({ resourceType: 'order', resourceId: `O${i}` })
       )
       // 等 channel 建好
       await waitFor(() => expect(channels.length).toBe(i + 1))
@@ -308,9 +306,8 @@ describe('useEditingPresence — cleanup', () => {
 
   it('resourceId 變更時：舊 channel 清掉、新 channel 建起', async () => {
     const { rerender } = renderHook(
-      ({ id }: { id: string }) =>
-        useEditingPresence({ resourceType: 'order', resourceId: id }),
-      { initialProps: { id: 'O1' } },
+      ({ id }: { id: string }) => useEditingPresence({ resourceType: 'order', resourceId: id }),
+      { initialProps: { id: 'O1' } }
     )
 
     await waitFor(() => expect(channels.length).toBe(1))
@@ -325,9 +322,6 @@ describe('useEditingPresence — cleanup', () => {
     expect(removeChannelMock).toHaveBeenCalledWith(first)
 
     // 第二個 channel name 應帶新 resourceId
-    expect(channelFactoryMock).toHaveBeenLastCalledWith(
-      'editing:order:O2',
-      expect.any(Object),
-    )
+    expect(channelFactoryMock).toHaveBeenLastCalledWith('editing:order:O2', expect.any(Object))
   })
 })

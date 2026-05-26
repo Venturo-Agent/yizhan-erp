@@ -27,7 +27,7 @@ export function useTourPageState() {
     isOpen: false,
     tour: null,
   })
-  const pageSize = 15  // 地方法律：列表分頁固定 15 筆、不給每頁筆數選擇器
+  const pageSize = 15 // 地方法律：列表分頁固定 15 筆、不給每頁筆數選擇器
 
   // UI state
   const [activeTabs, setActiveTabs] = useState<Record<string, string>>({})

@@ -13,10 +13,32 @@
 
 // 字母對應的 2 位數（A=10、B=11、... Z=33）
 const LETTER_VALUE: Record<string, number> = {
-  A: 10, B: 11, C: 12, D: 13, E: 14, F: 15, G: 16, H: 17,
-  J: 18, K: 19, L: 20, M: 21, N: 22, P: 23, Q: 24, R: 25,
-  S: 26, T: 27, U: 28, V: 29, X: 30, Y: 31, W: 32, Z: 33,
-  I: 34, O: 35,
+  A: 10,
+  B: 11,
+  C: 12,
+  D: 13,
+  E: 14,
+  F: 15,
+  G: 16,
+  H: 17,
+  J: 18,
+  K: 19,
+  L: 20,
+  M: 21,
+  N: 22,
+  P: 23,
+  Q: 24,
+  R: 25,
+  S: 26,
+  T: 27,
+  U: 28,
+  V: 29,
+  X: 30,
+  Y: 31,
+  W: 32,
+  Z: 33,
+  I: 34,
+  O: 35,
 }
 
 const WEIGHTS = [1, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1] // 11 個權重 (letter 拆 2 位 + 9 數字)
@@ -77,9 +99,7 @@ export function validateNationalId(rawValue: string | null | undefined): Nationa
     return {
       kind: 'arcNew',
       checksumOk: ok,
-      message: ok
-        ? '統一證號（在台外籍居留）'
-        : '⚠ 統一證號 checksum 不符、請確認',
+      message: ok ? '統一證號（在台外籍居留）' : '⚠ 統一證號 checksum 不符、請確認',
     }
   }
 

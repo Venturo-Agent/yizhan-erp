@@ -63,7 +63,10 @@ export async function GET(request: NextRequest) {
 
   for (const row of pending) {
     if (!row.accumulated_text?.trim()) {
-      await markDebounceSent(supabase, { workspaceId: row.workspace_id, lineUserId: row.line_user_id })
+      await markDebounceSent(supabase, {
+        workspaceId: row.workspace_id,
+        lineUserId: row.line_user_id,
+      })
       continue
     }
 
@@ -75,7 +78,10 @@ export async function GET(request: NextRequest) {
       .maybeSingle()
 
     if (!settings?.is_active || !settings.channel_access_token_encrypted) {
-      await markDebounceSent(supabase, { workspaceId: row.workspace_id, lineUserId: row.line_user_id })
+      await markDebounceSent(supabase, {
+        workspaceId: row.workspace_id,
+        lineUserId: row.line_user_id,
+      })
       continue
     }
 
@@ -99,7 +105,10 @@ export async function GET(request: NextRequest) {
     try {
       // PUSH 模式：replyToken = null → handler 走 PUSH API
       await processIncomingTextMessage(ctx, row.accumulated_text, null)
-      await markDebounceSent(supabase, { workspaceId: row.workspace_id, lineUserId: row.line_user_id })
+      await markDebounceSent(supabase, {
+        workspaceId: row.workspace_id,
+        lineUserId: row.line_user_id,
+      })
       flushed++
     } catch (err) {
       logger.error('[line-flush] processIncomingTextMessage failed', err, {

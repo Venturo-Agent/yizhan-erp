@@ -56,9 +56,7 @@ export function TourSidebar({
           </div>
 
           <div className="space-y-3">
-            <Link
-              href={`/p/tour/${code}/register${refParam ? `?ref=${refParam}` : ''}`}
-            >
+            <Link href={`/p/tour/${code}/register${refParam ? `?ref=${refParam}` : ''}`}>
               <Button className="w-full bg-gradient-to-r from-public-primary to-public-accent text-white py-4 rounded-xl font-bold hover:shadow-lg transition-all">
                 立即預約
               </Button>
@@ -92,7 +90,9 @@ export function TourSidebar({
             {daysCount > 0 && (
               <div className="flex items-center gap-3 text-sm text-morandi-primary">
                 <Clock className="w-4 h-4 text-morandi-green" />
-                <span>行程天數：{daysCount} 天 {nightsCount} 夜</span>
+                <span>
+                  行程天數：{daysCount} 天 {nightsCount} 夜
+                </span>
               </div>
             )}
           </div>

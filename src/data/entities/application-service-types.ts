@@ -10,7 +10,8 @@ const applicationServiceTypeEntity = createEntityHook<ApplicationServiceType>(
   'application_service_types',
   {
     list: {
-      select: 'id,code,label,document_type_id,estimated_business_days,is_urgent,sort_order,is_active',
+      select:
+        'id,code,label,document_type_id,estimated_business_days,is_urgent,sort_order,is_active',
       orderBy: { column: 'sort_order', ascending: true },
     },
     slim: { select: 'id,code,label,document_type_id' },

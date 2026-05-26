@@ -21,8 +21,7 @@ export function UnmatchedMembersSection({ unmatchedMembers }: UnmatchedMembersSe
   return (
     <div className="p-3 bg-morandi-gold/10 rounded-lg">
       <p className="text-sm font-medium text-morandi-gold mb-2">
-        {t('notInPnr')} ({unmatchedMembers.length}{' '}
-        {t('personUnit')})：
+        {t('notInPnr')} ({unmatchedMembers.length} {t('personUnit')})：
       </p>
       <div className="flex flex-wrap gap-2">
         {unmatchedMembers.map(m => (
@@ -48,9 +47,7 @@ export function FlightInfoSection({ parsedPnr }: FlightInfoSectionProps) {
   if (!parsedPnr.segments || parsedPnr.segments.length === 0) return null
   return (
     <div className="p-3 bg-status-info/10 rounded-lg">
-      <p className="text-sm font-medium text-status-info mb-2">
-        {t('flightInfo')}
-      </p>
+      <p className="text-sm font-medium text-status-info mb-2">{t('flightInfo')}</p>
       <div className="space-y-1">
         {parsedPnr.segments.map((seg, i) => (
           <div key={i} className="text-xs font-mono text-status-info">
@@ -62,9 +59,7 @@ export function FlightInfoSection({ parsedPnr }: FlightInfoSectionProps) {
             {seg.via && seg.via.length > 0 && (
               <span className="ml-2 text-status-warning bg-status-warning/10 px-1.5 py-0.5 rounded">
                 {t('stopover')}{' '}
-                {seg.via
-                  .map(v => `${v.city}${v.duration ? ` (${v.duration})` : ''}`)
-                  .join(', ')}
+                {seg.via.map(v => `${v.city}${v.duration ? ` (${v.duration})` : ''}`).join(', ')}
               </span>
             )}
           </div>

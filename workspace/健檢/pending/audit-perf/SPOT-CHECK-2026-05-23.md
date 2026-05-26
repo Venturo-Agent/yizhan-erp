@@ -8,15 +8,15 @@
 
 ## ✅ 確實成立（可直接信、可採用）
 
-| 來源 | Claim | 驗證 | 結果 |
-|---|---|---|---|
-| Task 7 | `pdf-lib`（24MB）是殭屍依賴、code 內 0 import | `grep -rn "from 'pdf-lib'" src` → 0 hit | **TRUE** — 可砍 |
-| Task 7 | Sentry client `replaysSessionSampleRate: 0.1`、`replaysOnErrorSampleRate: 1.0` | 真 `sentry.client.config.ts` line 16, 20 | **TRUE** — 配額洩血是真的 |
-| Task 7 | production `tracesSampleRate: 0.05`（5%） | line 11 | **TRUE** |
-| Task 4 | `@supabase/auth-js` 已內建 `getClaims()`（無需升版） | `node_modules/.../GoTrueClient.js:2732` | **TRUE** — JWT 本地驗的前置條件成立 |
-| Task 4 | `auth.getUser()` 在 lib/auth 多處重複 call | grep 找到 5 個 callsite（server-auth.ts 2 次 / get-layout-context.ts / get-api-context.ts / supabase/api-client.ts） | **TRUE** — 確有重複 |
-| Task 4 | `getApiContext` 只 5.7% route 採用（9/159） | `grep -rl 'getApiContext' src/app/api` → 9 | **TRUE** |
-| Task 2 | yizhan-erp 67 個 page.tsx 沒 SSR data fetch、0 個 actions.ts | `find` + grep | **TRUE** — 整盤 fetching 全推給 client、跟「全站慢」相符 |
+| 來源   | Claim                                                                          | 驗證                                                                                                                 | 結果                                                     |
+| ------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Task 7 | `pdf-lib`（24MB）是殭屍依賴、code 內 0 import                                  | `grep -rn "from 'pdf-lib'" src` → 0 hit                                                                              | **TRUE** — 可砍                                          |
+| Task 7 | Sentry client `replaysSessionSampleRate: 0.1`、`replaysOnErrorSampleRate: 1.0` | 真 `sentry.client.config.ts` line 16, 20                                                                             | **TRUE** — 配額洩血是真的                                |
+| Task 7 | production `tracesSampleRate: 0.05`（5%）                                      | line 11                                                                                                              | **TRUE**                                                 |
+| Task 4 | `@supabase/auth-js` 已內建 `getClaims()`（無需升版）                           | `node_modules/.../GoTrueClient.js:2732`                                                                              | **TRUE** — JWT 本地驗的前置條件成立                      |
+| Task 4 | `auth.getUser()` 在 lib/auth 多處重複 call                                     | grep 找到 5 個 callsite（server-auth.ts 2 次 / get-layout-context.ts / get-api-context.ts / supabase/api-client.ts） | **TRUE** — 確有重複                                      |
+| Task 4 | `getApiContext` 只 5.7% route 採用（9/159）                                    | `grep -rl 'getApiContext' src/app/api` → 9                                                                           | **TRUE**                                                 |
+| Task 2 | yizhan-erp 67 個 page.tsx 沒 SSR data fetch、0 個 actions.ts                   | `find` + grep                                                                                                        | **TRUE** — 整盤 fetching 全推給 client、跟「全站慢」相符 |
 
 ---
 
@@ -90,5 +90,6 @@
 5. **getApiContext 已寫好但只 5.7% 採用** — 修法 = 把舊 chain 全改吃 `getApiContext`、低風險（Task 4 對）
 
 **不寫進 summary（hallucination 已剔除）**：
+
 - jspdf-autotable 殭屍 — 假的、不寫
 - `/tours/[code]` egress 殺手 — 假的、改寫成「5 個 component 各撈 1 次同 filter、第一次 mount 5 次 round-trip」

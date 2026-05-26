@@ -171,7 +171,6 @@ export type QuoteItemType =
   | 'tickets' // 門票
   | 'insurance' // 保險
   | 'guide' // 導遊
-
   | 'shopping' // 購物
   | 'activity' // 活動
   | 'other' // 其他

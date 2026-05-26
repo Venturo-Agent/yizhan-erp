@@ -77,7 +77,16 @@ export function useResourceSearch({
         // Step 2: 精確搜沒結果 → 用 bigram 模糊搜尋
         if (!error && (!data || data.length === 0) && trimmed.length > 2) {
           const commonWords = [
-            '飯店', '餐廳', '酒店', '旅館', '景點', '公園', '神社', '寺廟', '美術', '博物',
+            '飯店',
+            '餐廳',
+            '酒店',
+            '旅館',
+            '景點',
+            '公園',
+            '神社',
+            '寺廟',
+            '美術',
+            '博物',
           ]
           const bigrams: string[] = []
           for (let i = 0; i <= trimmed.length - 2; i++) {

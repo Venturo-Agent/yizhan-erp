@@ -59,10 +59,7 @@ import {
   updateDisbursementOrder,
 } from './disbursement-id-queries'
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ctx = await getApiContext({ capabilityCode: 'finance.disbursement.write' })
   if (!ctx.ok) {
     return NextResponse.json({ error: ctx.error }, { status: ctx.status })
@@ -134,7 +131,7 @@ export async function PATCH(
 
   // 取 supplier bank_code（算 cross-bank）
   const supplierIds = Array.from(
-    new Set(finalItems.map((i: ItemRow) => i.supplier_id).filter(Boolean) as string[]),
+    new Set(finalItems.map((i: ItemRow) => i.supplier_id).filter(Boolean) as string[])
   )
   const supplierRows = await fetchSuppliers(supplierIds)
   const supplierMap = new Map(supplierRows.map(s => [s.id, s.bank_code]))
@@ -180,7 +177,7 @@ export async function PATCH(
   // ─── 新增：fork partial + INSERT disbursement_order_items + 設舊 link ───
   if (addedItemIds.length > 0) {
     const addedReqIds = Array.from(
-      new Set(addedItemIds.map(id => finalItemsMap.get(id)!.request_id)),
+      new Set(addedItemIds.map(id => finalItemsMap.get(id)!.request_id))
     )
 
     const allItemsInReqs = await fetchAllItemsInRequests(addedReqIds)
@@ -193,16 +190,16 @@ export async function PATCH(
 
     // fork partial
     for (const reqId of addedReqIds) {
-      const selectedInReq = addedItemIds.filter(
-        id => finalItemsMap.get(id)?.request_id === reqId,
-      )
+      const selectedInReq = addedItemIds.filter(id => finalItemsMap.get(id)?.request_id === reqId)
       const allInReq = itemsByReq.get(reqId) ?? []
       const isPartial = selectedInReq.length > 0 && selectedInReq.length < allInReq.length
 
       if (!isPartial) continue
 
       const { newReqId, error: forkErr } = await forkPaymentRequest(
-        reqId, selectedInReq, employeeId
+        reqId,
+        selectedInReq,
+        employeeId
       )
       if (forkErr || !newReqId) {
         const t = translateDbError(forkErr)
@@ -218,7 +215,7 @@ export async function PATCH(
     // 算分攤（整張單級、kept + added 一起算）
     const buildFeeItem = (id: string): FeeAllocationItem => {
       const item = finalItemsMap.get(id)!
-      const supplierBankCode = item.supplier_id ? supplierMap.get(item.supplier_id) ?? null : null
+      const supplierBankCode = item.supplier_id ? (supplierMap.get(item.supplier_id) ?? null) : null
       const isCross = !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
       return {
         id: item.id,
@@ -229,10 +226,7 @@ export async function PATCH(
       }
     }
 
-    const allItemsForFee = [
-      ...keptItemIds.map(buildFeeItem),
-      ...addedItemIds.map(buildFeeItem),
-    ]
+    const allItemsForFee = [...keptItemIds.map(buildFeeItem), ...addedItemIds.map(buildFeeItem)]
 
     const totalFee = body.total_fee ?? order.total_fee ?? 0
     const feeDistribution = body.fee_distribution ?? 'proportional'
@@ -254,23 +248,22 @@ export async function PATCH(
       const { error: insErr } = await insertDoiItems(insertRows)
       if (insErr) {
         const t2 = translateDbError(insErr)
-      return NextResponse.json({ error: `新增品項失敗：${t2.message}` }, { status: t2.httpStatus })
+        return NextResponse.json(
+          { error: `新增品項失敗：${t2.message}` },
+          { status: t2.httpStatus }
+        )
       }
     }
 
     // UPDATE kept items 的 fee_amount + has_cross_bank_fee（user 可能改 total_fee）
     const keptItemsForFee = keptItemIds.map(buildFeeItem)
     for (const d of keptItemsForFee) {
-      await updateDoiItemFee(
-        disbursementId, d.id,
-        feeShares.get(d.id) ?? 0,
-        d.is_cross_bank
-      )
+      await updateDoiItemFee(disbursementId, d.id, feeShares.get(d.id) ?? 0, d.is_cross_bank)
     }
 
     // 把 added items 的 payment_requests link 到本 disbursement（含 fork 後新 id）
     const finalAddedReqIds = Array.from(
-      new Set(addedItemIds.map(id => finalItemsMap.get(id)!.request_id)),
+      new Set(addedItemIds.map(id => finalItemsMap.get(id)!.request_id))
     )
     await linkPaymentRequestsToDisbursement(finalAddedReqIds, disbursementId)
   }
@@ -281,7 +274,8 @@ export async function PATCH(
   const orderUpdate: Record<string, unknown> = { amount: finalAmount }
   if (body.disbursement_date !== undefined) orderUpdate.disbursement_date = body.disbursement_date
   if (body.payment_method_id !== undefined) orderUpdate.payment_method_id = body.payment_method_id
-  if (body.from_bank_account_id !== undefined) orderUpdate.bank_account_id = body.from_bank_account_id
+  if (body.from_bank_account_id !== undefined)
+    orderUpdate.bank_account_id = body.from_bank_account_id
   if (body.total_fee !== undefined) orderUpdate.total_fee = body.total_fee
 
   // ── 紅線 D guard：檢查 disbursement_date 所屬區間是否已關帳 ──
@@ -307,7 +301,7 @@ export async function PATCH(
   const { error: ordErr } = await updateDisbursementOrder(disbursementId, orderUpdate)
   if (ordErr) {
     const t3 = translateDbError(ordErr)
-  return NextResponse.json({ error: `更新出納單失敗：${t3.message}` }, { status: t3.httpStatus })
+    return NextResponse.json({ error: `更新出納單失敗：${t3.message}` }, { status: t3.httpStatus })
   }
 
   return NextResponse.json({

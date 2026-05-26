@@ -190,7 +190,12 @@ export default function GeneralLedgerPage() {
           </div>
 
           <div className="mt-4 pt-4 border-t border-border">
-            <QuickDateButtons onSelect={({ start, end }) => { setStartDate(start); setEndDate(end) }} />
+            <QuickDateButtons
+              onSelect={({ start, end }) => {
+                setStartDate(start)
+                setEndDate(end)
+              }}
+            />
           </div>
         </Card>
 
@@ -212,12 +217,24 @@ export default function GeneralLedgerPage() {
             <table className="w-full">
               <thead className="bg-morandi-container border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">{PAGE_LABELS.COL_DATE}</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">{PAGE_LABELS.COL_VOUCHER_NO}</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold">{PAGE_LABELS.COL_SUMMARY}</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold">{PAGE_LABELS.COL_DEBIT}</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold">{PAGE_LABELS.COL_CREDIT}</th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold">{PAGE_LABELS.COL_BALANCE}</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    {PAGE_LABELS.COL_DATE}
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    {PAGE_LABELS.COL_VOUCHER_NO}
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    {PAGE_LABELS.COL_SUMMARY}
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold">
+                    {PAGE_LABELS.COL_DEBIT}
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold">
+                    {PAGE_LABELS.COL_CREDIT}
+                  </th>
+                  <th className="px-4 py-3 text-right text-sm font-semibold">
+                    {PAGE_LABELS.COL_BALANCE}
+                  </th>
                 </tr>
               </thead>
               <tbody>

@@ -85,12 +85,7 @@ export interface Member extends BaseEntity {
  * hl = Have Waitlisted，候補中（預留）
  * lk = Waitlist Link，候補成功未處理（預留）
  */
-export type OrderStatus =
-  | 'pending_review'
-  | 'hk'
-  | 'kk'
-  | 'hl'
-  | 'lk'
+export type OrderStatus = 'pending_review' | 'hk' | 'kk' | 'hl' | 'lk'
 
 /**
  * PaymentStatus - 付款狀態

@@ -52,9 +52,7 @@ export function processItems(
     const request = requestMap.get(item.request_id)
     const isCompany = request?.request_category === 'company'
     // 公司請款顯示費用類型，團體請款顯示團名
-    const tourName = isCompany
-      ? request?.request_type || '公司'
-      : request?.tour_name || '-'
+    const tourName = isCompany ? request?.request_type || '公司' : request?.tour_name || '-'
 
     // 付款對象優先順序（2026-05-21 William 拍板）：
     // 1. 公司請款 + payee_employee（譬如獎金發給員工）→ 顯示員工名
@@ -63,7 +61,10 @@ export function processItems(
     const itemExt = item as unknown as {
       advanced_by_name?: string | null
       payee_employee_id?: string | null
-      payee_employee?: { chinese_name?: string | null; display_name?: string | null } | { chinese_name?: string | null; display_name?: string | null }[] | null
+      payee_employee?:
+        | { chinese_name?: string | null; display_name?: string | null }
+        | { chinese_name?: string | null; display_name?: string | null }[]
+        | null
     }
     const advancedBy = itemExt.advanced_by_name || undefined
     // payee_employee 從 PostgREST join 可能是 object 或 array、取第一個

@@ -114,112 +114,112 @@ export function ItinerarySyncDialog({ open, syncInfo, onSync, onClose }: Itinera
       level={2}
       maxWidth="lg"
     >
-        <div className="py-4 space-y-4">
-          {/* Summary info */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t('itinerarySyncItineraryName')}</span>
-              <span className="font-medium">
-                {syncInfo.itinerary.title ||
-                  syncInfo.itinerary.name ||
-                  t('itinerarySyncUnnamed')}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t('itinerarySyncCurrentDays')}</span>
-              <span className="font-medium">
-                {syncInfo.currentDays} {t('itinerarySyncDayUnit')}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{t('itinerarySyncNewDays')}</span>
-              <span className="font-medium text-primary">
-                {syncInfo.newDays} {t('itinerarySyncDayUnit')}
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-sm pt-2 border-t">
-              <span className="text-muted-foreground">{t('itinerarySyncChange')}</span>
-              <span
-                className={`font-medium flex items-center gap-1 ${
-                  syncInfo.action === 'increase' ? 'text-morandi-green' : 'text-status-warning'
-                }`}
-              >
-                {syncInfo.action === 'increase' ? (
-                  <>
-                    <Plus className="h-4 w-4" />
-                    {t('itinerarySyncIncreasePrefix')} {syncInfo.newDays - syncInfo.currentDays}{' '}
-                    {t('itinerarySyncDayUnit')}
-                  </>
-                ) : (
-                  <>
-                    <Minus className="h-4 w-4" />
-                    {t('itinerarySyncDecreasePrefix')} {syncInfo.currentDays - syncInfo.newDays}{' '}
-                    {t('itinerarySyncDayUnit')}
-                  </>
-                )}
-              </span>
-            </div>
+      <div className="py-4 space-y-4">
+        {/* Summary info */}
+        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">{t('itinerarySyncItineraryName')}</span>
+            <span className="font-medium">
+              {syncInfo.itinerary.title || syncInfo.itinerary.name || t('itinerarySyncUnnamed')}
+            </span>
           </div>
-
-          {/* Day selection for decrease */}
-          {syncInfo.action === 'decrease' && (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                {t('itinerarySyncSelectDaysToRemove')}{' '}
-                <span className="font-medium text-foreground">{daysToRemoveCount}</span>{' '}
-                {t('itinerarySyncDayColon')}
-              </p>
-              <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
-                {dailyItinerary.map((day, idx) => (
-                  <label
-                    key={idx}
-                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                      selectedDays.includes(idx)
-                        ? 'bg-destructive/10 border-destructive/50'
-                        : 'bg-background hover:bg-muted/50'
-                    }`}
-                  >
-                    <Checkbox
-                      checked={selectedDays.includes(idx)}
-                      onCheckedChange={() => toggleDay(idx)}
-                      className="mt-0.5"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <span className="font-medium">{day.dayLabel}</span>
-                        <span className="text-muted-foreground text-sm">{day.date}</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1 truncate">
-                        {day.title || t('itinerarySyncSetTitle')}
-                      </p>
-                    </div>
-                  </label>
-                ))}
-              </div>
-              {selectedDays.length !== daysToRemoveCount && (
-                <p className="text-sm text-status-warning">
-                  {t('itinerarySyncSelectExactDays', { required: daysToRemoveCount, selected: selectedDays.length })}
-                </p>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">{t('itinerarySyncCurrentDays')}</span>
+            <span className="font-medium">
+              {syncInfo.currentDays} {t('itinerarySyncDayUnit')}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">{t('itinerarySyncNewDays')}</span>
+            <span className="font-medium text-primary">
+              {syncInfo.newDays} {t('itinerarySyncDayUnit')}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm pt-2 border-t">
+            <span className="text-muted-foreground">{t('itinerarySyncChange')}</span>
+            <span
+              className={`font-medium flex items-center gap-1 ${
+                syncInfo.action === 'increase' ? 'text-morandi-green' : 'text-status-warning'
+              }`}
+            >
+              {syncInfo.action === 'increase' ? (
+                <>
+                  <Plus className="h-4 w-4" />
+                  {t('itinerarySyncIncreasePrefix')} {syncInfo.newDays - syncInfo.currentDays}{' '}
+                  {t('itinerarySyncDayUnit')}
+                </>
+              ) : (
+                <>
+                  <Minus className="h-4 w-4" />
+                  {t('itinerarySyncDecreasePrefix')} {syncInfo.currentDays - syncInfo.newDays}{' '}
+                  {t('itinerarySyncDayUnit')}
+                </>
               )}
-            </div>
-          )}
-
-          {/* Message for increase */}
-          {syncInfo.action === 'increase' && (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                {t('itinerarySyncAppendBlankDays')}{' '}
-                <span className="font-medium text-foreground">
-                  {syncInfo.newDays - syncInfo.currentDays}
-                </span>{' '}
-                {t('itinerarySyncBlankDays')}
-              </p>
-              <p className="text-sm text-muted-foreground">{t('itinerarySyncAddNote')}</p>
-            </div>
-          )}
+            </span>
+          </div>
         </div>
 
+        {/* Day selection for decrease */}
+        {syncInfo.action === 'decrease' && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {t('itinerarySyncSelectDaysToRemove')}{' '}
+              <span className="font-medium text-foreground">{daysToRemoveCount}</span>{' '}
+              {t('itinerarySyncDayColon')}
+            </p>
+            <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
+              {dailyItinerary.map((day, idx) => (
+                <label
+                  key={idx}
+                  className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                    selectedDays.includes(idx)
+                      ? 'bg-destructive/10 border-destructive/50'
+                      : 'bg-background hover:bg-muted/50'
+                  }`}
+                >
+                  <Checkbox
+                    checked={selectedDays.includes(idx)}
+                    onCheckedChange={() => toggleDay(idx)}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="font-medium">{day.dayLabel}</span>
+                      <span className="text-muted-foreground text-sm">{day.date}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1 truncate">
+                      {day.title || t('itinerarySyncSetTitle')}
+                    </p>
+                  </div>
+                </label>
+              ))}
+            </div>
+            {selectedDays.length !== daysToRemoveCount && (
+              <p className="text-sm text-status-warning">
+                {t('itinerarySyncSelectExactDays', {
+                  required: daysToRemoveCount,
+                  selected: selectedDays.length,
+                })}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Message for increase */}
+        {syncInfo.action === 'increase' && (
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              {t('itinerarySyncAppendBlankDays')}{' '}
+              <span className="font-medium text-foreground">
+                {syncInfo.newDays - syncInfo.currentDays}
+              </span>{' '}
+              {t('itinerarySyncBlankDays')}
+            </p>
+            <p className="text-sm text-muted-foreground">{t('itinerarySyncAddNote')}</p>
+          </div>
+        )}
+      </div>
     </FormDialog>
   )
 }

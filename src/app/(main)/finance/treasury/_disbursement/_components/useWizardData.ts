@@ -88,14 +88,16 @@ export function useWizardData({
               .order('is_default', { ascending: false }),
             supabase
               .from('payment_request_items')
-              .select(`
+              .select(
+                `
                 id, request_id, description, subtotal, supplier_id, supplier_name, tour_id,
                 advanced_by, advanced_by_name, payee_employee_id,
                 payment_requests:request_id(code, tour_name, status, disbursement_order_id, request_date, created_by_name),
                 suppliers:supplier_id(bank_code, bank_name),
                 advanced_by_employee:employees!payment_request_items_advanced_by_fkey(chinese_name, display_name, bank_code, bank_name),
                 payee_employee:employees!payment_request_items_payee_employee_id_fkey(chinese_name, display_name, bank_code, bank_name)
-              `)
+              `
+              )
               .eq('workspace_id', workspaceId),
             // 全 workspace 的 disbursement_order_items（決定哪些 item 被佔用）
             dynamicFrom('disbursement_order_items')
@@ -107,8 +109,8 @@ export function useWizardData({
         // editing：本單 link 的 item ids（要預勾）
         const inCurrentLinked = new Set(
           ((linkedDoiRows ?? []) as { payment_request_item_id: string }[]).map(
-            r => r.payment_request_item_id,
-          ),
+            r => r.payment_request_item_id
+          )
         )
         // 被其他 DOI 佔用的 item ids（不能勾）
         const lockedInOtherDoi = new Set(
@@ -119,7 +121,7 @@ export function useWizardData({
             }[]
           )
             .filter(r => !editingOrder || r.disbursement_order_id !== editingOrder.id)
-            .map(r => r.payment_request_item_id),
+            .map(r => r.payment_request_item_id)
         )
 
         // typegen 還沒含 is_disbursement_eligible、cast 經 unknown 繞過
@@ -177,18 +179,14 @@ export function useWizardData({
         setUnbilledItems(
           filtered.map(it => {
             const advEmpName =
-              it.advanced_by_employee?.display_name ??
-              it.advanced_by_employee?.chinese_name ??
-              null
+              it.advanced_by_employee?.display_name ?? it.advanced_by_employee?.chinese_name ?? null
             const advName = advEmpName ?? it.advanced_by_name
             const advBankCode = it.advanced_by_employee?.bank_code ?? null
             const advBankName = it.advanced_by_employee?.bank_name ?? null
             const hasAdvanced = Boolean(it.advanced_by)
 
             const payeeEmpName =
-              it.payee_employee?.display_name ??
-              it.payee_employee?.chinese_name ??
-              null
+              it.payee_employee?.display_name ?? it.payee_employee?.chinese_name ?? null
             const payeeBankCode = it.payee_employee?.bank_code ?? null
             const payeeBankName = it.payee_employee?.bank_name ?? null
             const hasPayeeEmployee = Boolean(it.payee_employee_id)
@@ -241,7 +239,7 @@ export function useWizardData({
               payer_bank_code: payerBankCode,
               payer_bank_name: payerBankName,
             }
-          }),
+          })
         )
 
         // editing 模式：回填現有出納單資料

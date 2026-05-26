@@ -83,9 +83,7 @@ export function getBaggageForSegment(pnr: PNR | undefined, segmentIndex: number)
 
   // Try OSI baggage (Trip.com style)
   const osiBaggage = pnr.other_info?.filter(
-    (osi: EnhancedOSI) =>
-      osi.message.includes('託運行李') ||
-      osi.message.includes('手提行李')
+    (osi: EnhancedOSI) => osi.message.includes('託運行李') || osi.message.includes('手提行李')
   )
   if (osiBaggage && osiBaggage.length > 0) {
     return osiBaggage.map((o: EnhancedOSI) => o.message).join(' / ')

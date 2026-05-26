@@ -217,9 +217,7 @@ export function ItineraryFlightEditor({
             placeholder={direction === 'outbound' ? '成田機場' : '桃園機場'}
             onChange={e =>
               setFlights(prev =>
-                prev.map((f, i) =>
-                  i === index ? { ...f, arrivalAirportName: e.target.value } : f
-                )
+                prev.map((f, i) => (i === index ? { ...f, arrivalAirportName: e.target.value } : f))
               )
             }
             className={inputCls}
@@ -313,9 +311,7 @@ export function ItineraryFlightEditor({
         <FlightColgroup />
         {tableHeader}
         <tbody>
-          {outboundFlights.map((f, i) =>
-            renderFlightRow(f, i, 'outbound', outboundFlights.length)
-          )}
+          {outboundFlights.map((f, i) => renderFlightRow(f, i, 'outbound', outboundFlights.length))}
         </tbody>
       </table>
       {outboundSegments.length > 0 && (

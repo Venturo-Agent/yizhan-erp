@@ -76,7 +76,10 @@ export async function POST(
     if (customerErr) {
       logger.error('[bind-customer] customer lookup error:', customerErr)
       const t = translateDbError(customerErr)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
     if (!customer) {
       return NextResponse.json(
@@ -100,7 +103,10 @@ export async function POST(
   if (error) {
     logger.error('[bind-customer] upsert error:', error)
     const t = translateDbError(error)
-    return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+    return NextResponse.json(
+      { error: t.message, code: t.code, field: t.field },
+      { status: t.httpStatus }
+    )
   }
 
   return NextResponse.json({ ok: true, customer_id: customerId })

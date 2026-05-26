@@ -133,7 +133,9 @@ async function main() {
   for (const o of orphans) {
     let confirm = 'y'
     if (!skipConfirm) {
-      const ans = await rl.question(`刪 ${o.email ?? o.id}（${ageDescription(o.created_at)}）？[y/N] `)
+      const ans = await rl.question(
+        `刪 ${o.email ?? o.id}（${ageDescription(o.created_at)}）？[y/N] `
+      )
       confirm = ans.trim().toLowerCase()
     }
     if (confirm === 'y' || confirm === 'yes') {

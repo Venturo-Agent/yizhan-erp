@@ -18,7 +18,13 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Receipt, History, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -119,7 +125,9 @@ export function CreateInvoicesDialog({
     let append = '機票'
     try {
       const { data: flights } = await dynamicFrom('member_flights')
-        .select('airline, flight_number, departure_date, departure_time, arrival_time, origin, destination')
+        .select(
+          'airline, flight_number, departure_date, departure_time, arrival_time, origin, destination'
+        )
         .eq('member_id', member.id)
         .order('segment_index', { ascending: true })
 
@@ -189,19 +197,27 @@ export function CreateInvoicesDialog({
         return
       }
 
-      const res = await apiMutate<{ batch: CreatedBatch; error?: string; details?: string; hint?: string; code?: string }>(
-        '/api/invoices',
-        {
-          method: 'POST',
-          body: { order_id: orderId, splits: validSplits },
-          invalidate: [`/api/invoice-batches?order_id=${encodeURIComponent(orderId)}`],
-        }
-      )
+      const res = await apiMutate<{
+        batch: CreatedBatch
+        error?: string
+        details?: string
+        hint?: string
+        code?: string
+      }>('/api/invoices', {
+        method: 'POST',
+        body: { order_id: orderId, splits: validSplits },
+        invalidate: [`/api/invoice-batches?order_id=${encodeURIComponent(orderId)}`],
+      })
 
       if (!res.ok || !res.data) {
         logger.error('[/api/invoices POST] failed:', res.status, res.data)
         throw new Error(
-          res.data?.error || res.data?.details || res.data?.hint || res.data?.code || res.error || `建帳單失敗 (HTTP ${res.status})`
+          res.data?.error ||
+            res.data?.details ||
+            res.data?.hint ||
+            res.data?.code ||
+            res.error ||
+            `建帳單失敗 (HTTP ${res.status})`
         )
       }
 
@@ -328,10 +344,7 @@ export function CreateInvoicesDialog({
             <Button variant="outline" onClick={handleClose} disabled={submitting}>
               取消
             </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={submitting || selected.size === 0}
-            >
+            <Button onClick={handleSubmit} disabled={submitting || selected.size === 0}>
               {submitting ? '建立中…' : `開帳單 (${selected.size} 人)`}
             </Button>
           </DialogFooter>

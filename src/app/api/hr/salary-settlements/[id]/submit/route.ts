@@ -82,10 +82,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     }
     // ── END 紅線 D guard ───────────────────────────────────────────
     if (settlement.employee_count === 0) {
-      return NextResponse.json(
-        { error: '此 batch 無員工項目、不能確認' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: '此 batch 無員工項目、不能確認' }, { status: 400 })
     }
 
     // 2. 拿 items
@@ -123,10 +120,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     if (prError || !paymentRequest) {
       logger.error('Salary settlement submit: failed to create payment_request', prError)
       const t = translateDbError(prError)
-      return NextResponse.json(
-        { error: '建立請款單失敗：' + t.message },
-        { status: t.httpStatus }
-      )
+      return NextResponse.json({ error: '建立請款單失敗：' + t.message }, { status: t.httpStatus })
     }
 
     // 4. 建 payment_request_items（每員工一筆）
@@ -151,9 +145,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       currency: 'TWD',
     }))
 
-    const { error: prItemsError } = await supabase
-      .from('payment_request_items')
-      .insert(prItems)
+    const { error: prItemsError } = await supabase.from('payment_request_items').insert(prItems)
 
     if (prItemsError) {
       logger.error('Salary settlement submit: failed to create payment_request_items', prItemsError)
@@ -186,10 +178,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       // 補償：砍剛建的 payment_request + items
       await supabase.from('payment_request_items').delete().eq('request_id', paymentRequest.id)
       await supabase.from('payment_requests').delete().eq('id', paymentRequest.id)
-      return NextResponse.json(
-        { error: '結算已被其他操作改動、請重新整理' },
-        { status: 409 }
-      )
+      return NextResponse.json({ error: '結算已被其他操作改動、請重新整理' }, { status: 409 })
     }
 
     return NextResponse.json({

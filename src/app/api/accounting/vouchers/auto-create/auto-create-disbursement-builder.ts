@@ -121,7 +121,7 @@ export async function createVoucherFromDisbursement(workspaceId: string, disburs
 
   for (const pr of linkedRequests) {
     if (pr.supplier_name) supplierNames.push(pr.supplier_name)
-    for (const item of (pr.items || [])) {
+    for (const item of pr.items || []) {
       const itemExt = item as { category?: string; category_id?: string | null; subtotal?: number }
       const subtotal = Number(itemExt.subtotal) || 0
       // 優先 category_id 反查；fallback category 文字（舊資料）

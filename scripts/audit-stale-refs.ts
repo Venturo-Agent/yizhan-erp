@@ -21,15 +21,18 @@ const ROOT = path.resolve(__dirname, '..')
 const VALIDATOR_PATH = path.join(ROOT, '.next/dev/types/validator.ts')
 
 interface StaleRef {
-  importedPath: string   // 相對引用路徑 like '../../../src/app/(main)/cis/page.js'
-  absolutePath: string   // 轉換後的絕對路徑
+  importedPath: string // 相對引用路徑 like '../../../src/app/(main)/cis/page.js'
+  absolutePath: string // 轉換後的絕對路徑
   line: number
 }
 
 function resolveValidatorImport(base: string, rel: string): string | null {
   // 移除前面的 ../../
   const depth = (rel.match(/\.\.\//g) || []).length
-  const file = rel.replace(/^\.\.\//, '').replace(/\.js$/, '.tsx').replace(/\.ts$/, '.tsx')
+  const file = rel
+    .replace(/^\.\.\//, '')
+    .replace(/\.js$/, '.tsx')
+    .replace(/\.ts$/, '.tsx')
 
   // 從 base 目錄往上 depth 層、再找 src/...
   const baseDir = path.dirname(base)

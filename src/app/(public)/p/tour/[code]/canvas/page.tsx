@@ -25,17 +25,9 @@ import { CanvasRenderer } from '@/components/canvas-renderer'
 import type { Canvas } from '@/components/canvas-renderer'
 import { buildCanvasFromTour } from '@/lib/canvas/canvas-from-tour'
 import { enrichDailyItinerary } from '@/lib/canvas/enrich-itinerary'
-import type {
-  TourData,
-  EmployeeInfo,
-  CompanyInfo,
-} from '../_components/tour-types'
+import type { TourData, EmployeeInfo, CompanyInfo } from '../_components/tour-types'
 
-export default function PublicTourCanvasPage({
-  params,
-}: {
-  params: Promise<{ code: string }>
-}) {
+export default function PublicTourCanvasPage({ params }: { params: Promise<{ code: string }> }) {
   const t = useTranslations('publicPage')
   const { code } = use(params)
   const searchParams = useSearchParams()
@@ -67,12 +59,12 @@ export default function PublicTourCanvasPage({
       // 平行打公開 canvas API、不阻塞 tour 主流程
       // 結果分開存、render 時再決定用 published_canvas 還是 auto-generate
       fetch(`/api/public/tour/${code}/display-canvas`)
-        .then(async (res) => {
+        .then(async res => {
           if (!res.ok) return null
           const json = (await res.json()) as { canvas: Canvas | null }
           return json.canvas
         })
-        .then((canvas) => {
+        .then(canvas => {
           if (canvas) setPublishedCanvas(canvas)
         })
         .catch(() => {
@@ -113,9 +105,7 @@ export default function PublicTourCanvasPage({
 
       setTour({
         ...tourData,
-        itinerary: rawItinerary
-          ? { ...rawItinerary, daily_itinerary: enrichedDaily }
-          : null,
+        itinerary: rawItinerary ? { ...rawItinerary, daily_itinerary: enrichedDaily } : null,
       } as TourData)
 
       // 公司資訊
@@ -192,9 +182,7 @@ export default function PublicTourCanvasPage({
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-morandi-primary mb-4">
-            {t('tourNotFound')}
-          </h1>
+          <h1 className="text-4xl font-bold text-morandi-primary mb-4">{t('tourNotFound')}</h1>
           <p className="text-morandi-secondary mb-8">{t('tourNotFoundDesc')}</p>
           <Link href="/">
             <Button>{t('backToHome')}</Button>

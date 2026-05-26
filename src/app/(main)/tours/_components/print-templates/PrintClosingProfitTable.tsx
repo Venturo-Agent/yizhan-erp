@@ -58,11 +58,7 @@ export function PrintClosingProfitTable({
             fontSize: '11px',
             textAlign: 'right',
             // 2026-05-22 William 拍板：砍 monospace、跟 Income/Expense 表字體對齊
-            color: row.highlight
-              ? COLORS.gold
-              : row.amount < 0
-                ? COLORS.red
-                : COLORS.brown,
+            color: row.highlight ? COLORS.gold : row.amount < 0 ? COLORS.red : COLORS.brown,
             fontWeight: row.highlight ? 700 : 600,
           }}
         >

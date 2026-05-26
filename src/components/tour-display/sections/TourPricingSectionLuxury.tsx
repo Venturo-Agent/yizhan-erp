@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Check, X, Info, ChevronDown } from 'lucide-react'
 import type { TourPageData } from '@/app/(main)/tours/_types/tour-display.types'
-import type {  } from '@/stores/types/tour.types'
+import type {} from '@/stores/types/tour.types'
 import { TOURS_LABELS } from './constants/labels'
 
 import { LUXURY } from './utils/luxuryTokens'

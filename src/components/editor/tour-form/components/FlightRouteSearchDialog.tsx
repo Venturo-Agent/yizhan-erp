@@ -21,10 +21,7 @@ const COMPONENT_LABELS = {
 } as const
 import { DatePicker } from '@/components/ui/date-picker'
 import { Search, Loader2, Plane, Clock, MapPin } from 'lucide-react'
-import {
-  searchAirportDeparturesAction,
-  AirportFlightItem,
-} from '@/lib/actions/flight-actions'
+import { searchAirportDeparturesAction, AirportFlightItem } from '@/lib/actions/flight-actions'
 import { alert } from '@/lib/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 import { COMP_EDITOR_LABELS } from '../../constants/labels'
@@ -196,13 +193,18 @@ export function FlightRouteSearchDialog({
                 />
               </div>
               <div className="flex items-end">
-                <Button variant="soft-gold"
+                <Button
+                  variant="soft-gold"
                   type="button"
                   onClick={handleSearch}
                   disabled={loading || !origin}
- className="w-full h-9 gap-1"
+                  className="w-full h-9 gap-1"
                 >
-                  {loading ? <Loader2 size="0.875em" className="animate-spin" /> : <Search size="0.875em" />}
+                  {loading ? (
+                    <Loader2 size="0.875em" className="animate-spin" />
+                  ) : (
+                    <Search size="0.875em" />
+                  )}
                   查詢
                 </Button>
               </div>

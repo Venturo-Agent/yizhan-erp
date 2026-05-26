@@ -36,9 +36,7 @@ export interface SystemNotifyInput {
   topic?: string
 }
 
-export type SystemNotifyResult =
-  | { ok: true; message_id: string }
-  | { ok: false; error: string }
+export type SystemNotifyResult = { ok: true; message_id: string } | { ok: false; error: string }
 
 /**
  * 發送系統通知到該 workspace 的 system_notice channel。
@@ -68,7 +66,10 @@ export async function notifySystem(input: SystemNotifyInput): Promise<SystemNoti
       .maybeSingle()
 
     if (channelErr) {
-      logger.error('notifySystem: 撈 system_notice channel 失敗', { workspace_id, error: channelErr })
+      logger.error('notifySystem: 撈 system_notice channel 失敗', {
+        workspace_id,
+        error: channelErr,
+      })
       return { ok: false, error: `撈頻道失敗：${channelErr.message}` }
     }
 
@@ -80,9 +81,7 @@ export async function notifySystem(input: SystemNotifyInput): Promise<SystemNoti
     // 2. 寫進 channel_messages
     // 合併 topic 進 payload 方便未來 filter（不另外加 column）
     const mergedPayload: Record<string, unknown> | null =
-      topic || payload
-        ? { ...(payload ?? {}), ...(topic ? { topic } : {}) }
-        : null
+      topic || payload ? { ...(payload ?? {}), ...(topic ? { topic } : {}) } : null
 
     const { data: message, error: insertErr } = await client
       .from('channel_messages')

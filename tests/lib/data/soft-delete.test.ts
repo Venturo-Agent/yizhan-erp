@@ -152,7 +152,7 @@ describe('softDelete', () => {
       expect(r.ok).toBe(false)
       expect(r.error).toBe('permission denied')
       // audit_logs 不該被 call
-      const auditCalls = fromMock.mock.calls.filter((c) => c[0] === 'audit_logs')
+      const auditCalls = fromMock.mock.calls.filter(c => c[0] === 'audit_logs')
       expect(auditCalls.length).toBe(0)
     })
   })

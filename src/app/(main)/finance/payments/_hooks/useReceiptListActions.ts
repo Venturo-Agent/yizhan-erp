@@ -54,9 +54,7 @@ export function useReceiptListActions(
   const receipts = useMemo(
     () =>
       rawReceipts.map(r =>
-        optimisticStatus[r.id]
-          ? ({ ...r, status: optimisticStatus[r.id] as typeof r.status })
-          : r
+        optimisticStatus[r.id] ? { ...r, status: optimisticStatus[r.id] as typeof r.status } : r
       ),
     [rawReceipts, optimisticStatus]
   )
@@ -86,8 +84,7 @@ export function useReceiptListActions(
         let calcActual = Number(receipt?.receipt_amount || 0)
         let calcFees: number | null = null
         const methodId =
-          (receipt as unknown as { payment_method_id?: string | null })?.payment_method_id ||
-          null
+          (receipt as unknown as { payment_method_id?: string | null })?.payment_method_id || null
         if (methodId) {
           const { supabase } = await import('@/lib/supabase/client')
           const { data: method } = await supabase

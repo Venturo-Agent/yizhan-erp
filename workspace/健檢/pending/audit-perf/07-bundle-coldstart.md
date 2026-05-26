@@ -26,25 +26,25 @@
 
 ## 大型 library 矩陣
 
-| 名稱 | node_modules size | dynamic import？ | 入口 / 主消費者 | 該改？ |
-|---|---|---|---|---|
-| `jspdf` (^4.0.0) | 29M | ✅ dynamic | `src/lib/pdf/disbursement-pdf.ts:181` `await import('jspdf')`；`pdf-fonts.ts` 只是 `import type`（type-only、不打 bundle） | OK |
-| `jspdf-autotable` (^5.0.2) | 244K | ❌ 沒人 import（package.json 有、grep 0 hit） | — | **砍**（殭屍） |
-| `pdf-lib` (^1.17.1) | 24M | ❌ 沒人 import（grep 0 hit、含 `await import`） | — | **砍**（殭屍 24M） |
-| `pdfjs-dist` (^4.10.38) | 37M | ✅ dynamic | `usePassportFiles.ts:40`、`MemberEditDialog.tsx:178`、`passportFileProcessing.ts:19` `await import('pdfjs-dist')` | OK |
-| `xlsx` (0.20.3) | 7.8M | ✅ dynamic | `useMemberExport.ts:164`、`TourPrintDialog.tsx:195` `await import('xlsx')` | OK |
-| `html2canvas` (隱性) | 112K | ❌ 沒人 import（grep 0 hit、為 jspdf transitive dep）| — | OK（transitive） |
-| `@fullcalendar/*` (^6.1.19+) | 4M | ✅ dynamic（plugin static 進 `CalendarGrid`、`CalendarGrid` 在 page 走 `next/dynamic({ssr:false})`） | `calendar/page.tsx:21-32`（dynamic wrap） | OK |
-| `framer-motion` (^12.38.0) | 5.5M | ❌ static 28 處 | `(public)/p/samui-proposal/_components/*`（5 處）、`tour-display/sections/*`（17 處）、`components/ui/*`（3 處）、`components/editor/RelatedImagesPreviewer.tsx` | **半改**：tour-display sections 可 lazy（只在預覽 modal 出現時）、samui-proposal 公開頁可拆 split |
-| `@tiptap/*` (^3.13.0+) | 7M | ❌ static | `components/ui/rich-text-input.tsx`（star import 7 個 extension）→ `CoverInfoForm.tsx`（行程編輯器） | **改**：`rich-text-input.tsx` 整個 dynamic、只在行程編輯 modal 用、平常不該 ship |
-| `leaflet` (^1.9.4) | 3.8M | ✅ dynamic | `AttractionsMap.tsx:105/265` `await import('leaflet')`（只剩 `import type L` static） | OK |
-| `@hello-pangea/dnd` (^18.0.1) | 3.1M | ❌ static 假設 | （未細查具體 import 點、6 處 grep hit、`todos/page.tsx` 等） | 待查 |
-| `opencc-js` (^1.3.1) | 5.6M | ❌ static | `lib/text/simplified-to-traditional.ts:13` → `lib/ai/llm-dispatcher.ts` | server-only 路徑 OK；確認沒被 client component 引到 |
-| `@anthropic-ai/sdk` (^0.95.2) | 7.6M | ❌ static | `lib/ai/attraction-polish.ts`、`lib/ai/providers/anthropic-client.ts` | server-only API route 用、OK |
-| `browser-image-compression` (^2.0.2) | 856K | ❌ static | `components/ui/image-uploader/useImageUploader.ts:4` → `image-uploader/index.tsx` → `AirportImageLibrary.tsx`、`SortableActivityItem.tsx` | **半改**：圖片壓縮只在 user 真的上傳才用、可改 `await import` |
-| `date-fns` (^4.1.0) | 38M | n/a（next config 有 `optimizePackageImports`） | 7 處 `from 'date-fns'`、5 處 `from 'date-fns/locale'` | OK |
-| `lucide-react` (^0.544.0) | 43M | n/a（個別 import + `optimizePackageImports`） | 377 file | OK |
-| `pdfmake` / `exceljs` / `@react-pdf` / `recharts` / `chart.js` / `@mui` / `ag-grid-community` | — | n/a | **未安裝**（package.json 無、node_modules 無） | OK |
+| 名稱                                                                                          | node_modules size | dynamic import？                                                                                     | 入口 / 主消費者                                                                                                                                                  | 該改？                                                                                            |
+| --------------------------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `jspdf` (^4.0.0)                                                                              | 29M               | ✅ dynamic                                                                                           | `src/lib/pdf/disbursement-pdf.ts:181` `await import('jspdf')`；`pdf-fonts.ts` 只是 `import type`（type-only、不打 bundle）                                       | OK                                                                                                |
+| `jspdf-autotable` (^5.0.2)                                                                    | 244K              | ❌ 沒人 import（package.json 有、grep 0 hit）                                                        | —                                                                                                                                                                | **砍**（殭屍）                                                                                    |
+| `pdf-lib` (^1.17.1)                                                                           | 24M               | ❌ 沒人 import（grep 0 hit、含 `await import`）                                                      | —                                                                                                                                                                | **砍**（殭屍 24M）                                                                                |
+| `pdfjs-dist` (^4.10.38)                                                                       | 37M               | ✅ dynamic                                                                                           | `usePassportFiles.ts:40`、`MemberEditDialog.tsx:178`、`passportFileProcessing.ts:19` `await import('pdfjs-dist')`                                                | OK                                                                                                |
+| `xlsx` (0.20.3)                                                                               | 7.8M              | ✅ dynamic                                                                                           | `useMemberExport.ts:164`、`TourPrintDialog.tsx:195` `await import('xlsx')`                                                                                       | OK                                                                                                |
+| `html2canvas` (隱性)                                                                          | 112K              | ❌ 沒人 import（grep 0 hit、為 jspdf transitive dep）                                                | —                                                                                                                                                                | OK（transitive）                                                                                  |
+| `@fullcalendar/*` (^6.1.19+)                                                                  | 4M                | ✅ dynamic（plugin static 進 `CalendarGrid`、`CalendarGrid` 在 page 走 `next/dynamic({ssr:false})`） | `calendar/page.tsx:21-32`（dynamic wrap）                                                                                                                        | OK                                                                                                |
+| `framer-motion` (^12.38.0)                                                                    | 5.5M              | ❌ static 28 處                                                                                      | `(public)/p/samui-proposal/_components/*`（5 處）、`tour-display/sections/*`（17 處）、`components/ui/*`（3 處）、`components/editor/RelatedImagesPreviewer.tsx` | **半改**：tour-display sections 可 lazy（只在預覽 modal 出現時）、samui-proposal 公開頁可拆 split |
+| `@tiptap/*` (^3.13.0+)                                                                        | 7M                | ❌ static                                                                                            | `components/ui/rich-text-input.tsx`（star import 7 個 extension）→ `CoverInfoForm.tsx`（行程編輯器）                                                             | **改**：`rich-text-input.tsx` 整個 dynamic、只在行程編輯 modal 用、平常不該 ship                  |
+| `leaflet` (^1.9.4)                                                                            | 3.8M              | ✅ dynamic                                                                                           | `AttractionsMap.tsx:105/265` `await import('leaflet')`（只剩 `import type L` static）                                                                            | OK                                                                                                |
+| `@hello-pangea/dnd` (^18.0.1)                                                                 | 3.1M              | ❌ static 假設                                                                                       | （未細查具體 import 點、6 處 grep hit、`todos/page.tsx` 等）                                                                                                     | 待查                                                                                              |
+| `opencc-js` (^1.3.1)                                                                          | 5.6M              | ❌ static                                                                                            | `lib/text/simplified-to-traditional.ts:13` → `lib/ai/llm-dispatcher.ts`                                                                                          | server-only 路徑 OK；確認沒被 client component 引到                                               |
+| `@anthropic-ai/sdk` (^0.95.2)                                                                 | 7.6M              | ❌ static                                                                                            | `lib/ai/attraction-polish.ts`、`lib/ai/providers/anthropic-client.ts`                                                                                            | server-only API route 用、OK                                                                      |
+| `browser-image-compression` (^2.0.2)                                                          | 856K              | ❌ static                                                                                            | `components/ui/image-uploader/useImageUploader.ts:4` → `image-uploader/index.tsx` → `AirportImageLibrary.tsx`、`SortableActivityItem.tsx`                        | **半改**：圖片壓縮只在 user 真的上傳才用、可改 `await import`                                     |
+| `date-fns` (^4.1.0)                                                                           | 38M               | n/a（next config 有 `optimizePackageImports`）                                                       | 7 處 `from 'date-fns'`、5 處 `from 'date-fns/locale'`                                                                                                            | OK                                                                                                |
+| `lucide-react` (^0.544.0)                                                                     | 43M               | n/a（個別 import + `optimizePackageImports`）                                                        | 377 file                                                                                                                                                         | OK                                                                                                |
+| `pdfmake` / `exceljs` / `@react-pdf` / `recharts` / `chart.js` / `@mui` / `ag-grid-community` | —                 | n/a                                                                                                  | **未安裝**（package.json 無、node_modules 無）                                                                                                                   | OK                                                                                                |
 
 ---
 
@@ -52,24 +52,24 @@
 
 掃 90 個 `page.tsx`、其中 **11 個沒 `'use client'`**：
 
-| page | 內容性質 | 該 client？ |
-|---|---|---|
-| `src/app/page.tsx` | `redirect('/dashboard')` | server 正確 |
-| `src/app/landing/page.tsx` | 純 marketing JSX、無 useState | server 正確（SEO + 不需 hydration cost） |
-| `src/app/(main)/page.tsx` | `<DashboardClient />` wrapper | server 正確（client 子件自帶 directive） |
-| `src/app/(main)/dashboard/page.tsx` | 同上 | server 正確 |
-| `src/app/(main)/documents/page.tsx` | 同上 | server 正確 |
-| `src/app/(main)/library/attractions/page.tsx` | `export { default } from './_components/AttractionsPage'` | server 正確 |
-| `src/app/(main)/tours/page.tsx` | `export default ToursPage` | server 正確 |
-| `src/app/(main)/messaging/page.tsx` | `redirect('/ai?tab=conversations')` | server 正確 |
-| `src/app/(main)/bot/*/page.tsx`（5 個）| `redirect(...)` | server 正確 |
-| `src/app/(main)/platform/page.tsx` | `redirect(...)` | server 正確 |
-| `src/app/(main)/websites/page.tsx` | `redirect(...)` | server 正確 |
-| `src/app/(main)/settings/page.tsx` | `redirect(...)` | server 正確 |
-| `src/app/(public)/p/canvas-demo/page.tsx` | 純 fixture render、無 interactive state | server 正確 |
+| page                                                | 內容性質                                                                | 該 client？                                     |
+| --------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------- |
+| `src/app/page.tsx`                                  | `redirect('/dashboard')`                                                | server 正確                                     |
+| `src/app/landing/page.tsx`                          | 純 marketing JSX、無 useState                                           | server 正確（SEO + 不需 hydration cost）        |
+| `src/app/(main)/page.tsx`                           | `<DashboardClient />` wrapper                                           | server 正確（client 子件自帶 directive）        |
+| `src/app/(main)/dashboard/page.tsx`                 | 同上                                                                    | server 正確                                     |
+| `src/app/(main)/documents/page.tsx`                 | 同上                                                                    | server 正確                                     |
+| `src/app/(main)/library/attractions/page.tsx`       | `export { default } from './_components/AttractionsPage'`               | server 正確                                     |
+| `src/app/(main)/tours/page.tsx`                     | `export default ToursPage`                                              | server 正確                                     |
+| `src/app/(main)/messaging/page.tsx`                 | `redirect('/ai?tab=conversations')`                                     | server 正確                                     |
+| `src/app/(main)/bot/*/page.tsx`（5 個）             | `redirect(...)`                                                         | server 正確                                     |
+| `src/app/(main)/platform/page.tsx`                  | `redirect(...)`                                                         | server 正確                                     |
+| `src/app/(main)/websites/page.tsx`                  | `redirect(...)`                                                         | server 正確                                     |
+| `src/app/(main)/settings/page.tsx`                  | `redirect(...)`                                                         | server 正確                                     |
+| `src/app/(public)/p/canvas-demo/page.tsx`           | 純 fixture render、無 interactive state                                 | server 正確                                     |
 | `src/app/(public)/p/samui-proposal/[code]/page.tsx` | server wrapper、子 `_components/*` 各自 `'use client'` 帶 framer-motion | server 正確（但 5 個子件吃 framer、見下方紅旗） |
-| `src/app/public/contract/sign/[code]/page.tsx` | async server 抓 DB、render `<ContractSignPage>` | server 正確 |
-| `src/app/view/[id]/page.tsx` | `generateMetadata` + 抓 DB | server 正確 |
+| `src/app/public/contract/sign/[code]/page.tsx`      | async server 抓 DB、render `<ContractSignPage>`                         | server 正確                                     |
+| `src/app/view/[id]/page.tsx`                        | `generateMetadata` + 抓 DB                                              | server 正確                                     |
 
 **結論**：**0 個 page 誤分類**。Next.js 「server-by-default」紀律守得不錯、互動部分都用 wrapper pattern 把 client component 隔離出去。
 
@@ -77,32 +77,35 @@
 
 ## Sentry 配置
 
-| config 檔 | tracesSampleRate | replaysSampleRate | replayOnError | production OK？ |
-|---|---|---|---|---|
+| config 檔                 | tracesSampleRate       | replaysSampleRate | replayOnError      | production OK？                   |
+| ------------------------- | ---------------------- | ----------------- | ------------------ | --------------------------------- |
 | `sentry.client.config.ts` | prod 0.05 / dev 1.0 ✅ | **0.1（10%）** ⚠️ | **1.0（100%）** ⚠️ | **半 OK**（replay 流量 / 配額大） |
-| `sentry.server.config.ts` | prod 0.05 / dev 1.0 ✅ | — | — | OK |
-| `sentry.edge.config.ts` | prod 0.05 / dev 1.0 ✅ | — | — | OK |
+| `sentry.server.config.ts` | prod 0.05 / dev 1.0 ✅ | —                 | —                  | OK                                |
+| `sentry.edge.config.ts`   | prod 0.05 / dev 1.0 ✅ | —                 | —                  | OK                                |
 
 **Replay 評估**：
+
 - 10% session replay × 漫途 + 未來客戶（假設 200 員工 × 每天 50 個 session）= 1000 session/天 × 10% = **100 個完整錄影上傳**、每段假設 1MB = 100MB/天 = **3GB/月** 上傳量
 - `replaysOnErrorSampleRate: 1.0` = 出錯時 100% 上傳整段 session、有 PII 風險
 - `maskAllText: true` + `blockAllMedia: true` ✅（已 mask、隱私 OK）
 
 **建議**：
+
 - production 把 `replaysSessionSampleRate` 從 0.1 降到 0.01（1%）、節省 90% replay 流量
 - 或維持 `replaysOnErrorSampleRate: 1.0`（出錯才上傳）、`replaysSessionSampleRate: 0`（平常不錄）
 
 **`next.config.ts` Sentry 設定**：
+
 - `silent: true`、`hideSourceMaps: true` ✅（不洩漏 source map 給瀏覽器）
 
 ---
 
 ## icon import pattern
 
-| file:line | pattern | 該改？ |
-|---|---|---|
-| — | `import * as Icons from 'lucide-react'` | **0 處** ✅ |
-| 377 處 | `import { IconName } from 'lucide-react'`（個別 named import）| OK |
+| file:line | pattern                                                        | 該改？      |
+| --------- | -------------------------------------------------------------- | ----------- |
+| —         | `import * as Icons from 'lucide-react'`                        | **0 處** ✅ |
+| 377 處    | `import { IconName } from 'lucide-react'`（個別 named import） | OK          |
 
 **`next.config.ts` `optimizePackageImports`** 已包 `lucide-react` ✅ — Next.js 會自動 tree-shake。
 
@@ -110,34 +113,35 @@
 
 ## node_modules top 20 size
 
-| package | size |
-|---|---|
-| `next` | 170M |
-| `@next` | 117M |
-| `@sentry` | 63M |
-| `lucide-react` | 43M |
-| `date-fns` | 38M |
-| `pdfjs-dist` | 37M |
-| `jspdf` | 29M |
-| `@opentelemetry` | 27M（Sentry transitive） |
-| `@napi-rs` | 25M |
-| `pdf-lib` | 24M（**疑似殭屍**） |
-| `typescript` | 23M（dev） |
-| `@swc` | 22M（Next transitive） |
-| `@img` | 16M |
-| `core-js` | 15M |
-| `@babel` | 11M |
-| `@esbuild` | 10M |
-| `playwright-core` | 8.6M（dev） |
-| `prettier` | 8.3M（dev） |
-| `webpack` | 7.9M |
-| `xlsx` | 7.8M |
-| `@anthropic-ai` | 7.6M |
-| `react-dom` | 7.1M |
-| `@tiptap` | 7M |
-| `@sentry-internal` | 6.5M |
+| package            | size                     |
+| ------------------ | ------------------------ |
+| `next`             | 170M                     |
+| `@next`            | 117M                     |
+| `@sentry`          | 63M                      |
+| `lucide-react`     | 43M                      |
+| `date-fns`         | 38M                      |
+| `pdfjs-dist`       | 37M                      |
+| `jspdf`            | 29M                      |
+| `@opentelemetry`   | 27M（Sentry transitive） |
+| `@napi-rs`         | 25M                      |
+| `pdf-lib`          | 24M（**疑似殭屍**）      |
+| `typescript`       | 23M（dev）               |
+| `@swc`             | 22M（Next transitive）   |
+| `@img`             | 16M                      |
+| `core-js`          | 15M                      |
+| `@babel`           | 11M                      |
+| `@esbuild`         | 10M                      |
+| `playwright-core`  | 8.6M（dev）              |
+| `prettier`         | 8.3M（dev）              |
+| `webpack`          | 7.9M                     |
+| `xlsx`             | 7.8M                     |
+| `@anthropic-ai`    | 7.6M                     |
+| `react-dom`        | 7.1M                     |
+| `@tiptap`          | 7M                       |
+| `@sentry-internal` | 6.5M                     |
 
 **裝了沒 import 的**：
+
 - `pdf-lib` 24M — `package.json` 列為 dep、`src/**` grep 0 hit
 - `jspdf-autotable` 244K — `package.json` 列為 dep、`src/**` grep 0 hit
 - `html2canvas` 112K — transitive of jspdf、自己 src 沒用、OK
@@ -148,11 +152,13 @@
 
 **現況**：只有 `.next/dev/`（2.3G）、是 Turbopack dev cache、不是 production build。
 **無 production build artifact** → 無法量化：
+
 - client first-load JS（target < 200KB gzipped）
 - 各 route chunk 大小
 - standalone bundle 大小（影響 Docker image / Coolify cold start）
 
 **待補**：
+
 ```bash
 ANALYZE=true npm run build   # 跑完開 webpack-bundle-analyzer html
 du -sh .next/standalone .next/static

@@ -174,14 +174,16 @@ export async function GET(_request: NextRequest) {
       .select('provider, caller, prompt_tokens, completion_tokens, cost_usd, success')
       .eq('workspace_id', workspaceId)
       .gte('created_at', thirtyDaysAgo)
-      .returns<Array<{
-        provider: string
-        caller: string | null
-        prompt_tokens: number
-        completion_tokens: number
-        cost_usd: number
-        success: boolean
-      }>>()
+      .returns<
+        Array<{
+          provider: string
+          caller: string | null
+          prompt_tokens: number
+          completion_tokens: number
+          cost_usd: number
+          success: boolean
+        }>
+      >()
 
     const usageInit = {
       last30d_calls: 0,

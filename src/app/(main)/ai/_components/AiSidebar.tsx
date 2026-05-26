@@ -159,7 +159,11 @@ export function AiSidebar() {
                   )}
                 >
                   {c.picture_url ? (
-                    <img src={c.picture_url} alt="" className="w-full h-full rounded-full object-cover" />
+                    <img
+                      src={c.picture_url}
+                      alt=""
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   ) : c.external_user_id.startsWith('group:') ||
                     c.external_user_id.startsWith('room:') ? (
                     <Users className="w-4 h-4" />
@@ -213,14 +217,10 @@ export function AiSidebar() {
 
         {/* 對話列表 */}
         <div className="flex-1 overflow-y-auto">
-          {isLoading && (
-            <div className="px-4 py-4 text-xs text-morandi-muted">載入中…</div>
-          )}
+          {isLoading && <div className="px-4 py-4 text-xs text-morandi-muted">載入中…</div>}
 
           {!isLoading && conversations.length === 0 && (
-            <p className="px-4 py-2 text-xs text-morandi-muted">
-              尚無對話、客戶傳訊息進來會列在這
-            </p>
+            <p className="px-4 py-2 text-xs text-morandi-muted">尚無對話、客戶傳訊息進來會列在這</p>
           )}
 
           {conversations.map(c => {
@@ -273,9 +273,7 @@ export function AiSidebar() {
                             {tone}
                           </span>
                         )}
-                        <span className="truncate">
-                          {c.display_name || '（未取得名稱）'}
-                        </span>
+                        <span className="truncate">{c.display_name || '（未取得名稱）'}</span>
                       </span>
                       <span className="text-[0.65rem] text-morandi-muted shrink-0">
                         {formatRelative(c.last_message_at)}
@@ -291,9 +289,7 @@ export function AiSidebar() {
                           {c.unread_count}
                         </span>
                       )}
-                      {c.bot_paused && (
-                        <Pause className="w-3 h-3 text-orange-500 shrink-0" />
-                      )}
+                      {c.bot_paused && <Pause className="w-3 h-3 text-orange-500 shrink-0" />}
                     </div>
                   </div>
                 </div>

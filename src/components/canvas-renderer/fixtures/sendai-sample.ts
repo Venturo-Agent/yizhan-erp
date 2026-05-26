@@ -65,7 +65,8 @@ export const sendaiSampleCanvas: Canvas = {
             day_index: 1,
             date: '2026.06.12（星期五）',
             title: '抵達東京、直奔銀座、晚餐文華東方。',
-            summary: '中華航空 CI100 桃園直飛、下午抵達成田。專車接機直送銀座、入住東京文華東方酒店。',
+            summary:
+              '中華航空 CI100 桃園直飛、下午抵達成田。專車接機直送銀座、入住東京文華東方酒店。',
           },
         },
         {
@@ -165,8 +166,7 @@ export const sendaiSampleCanvas: Canvas = {
           data: {
             tag: '— LUNCH · 元祖日光ゆば料理 惠比壽家',
             title: '日光的午餐、[accent]一頓湯波懷石。[/accent]',
-            lead:
-              '日光名物「湯波（ゆば）」是豆乳煮沸後表面凝結的薄膜、層次細膩、清淡卻甘鮮。\n惠比壽家是日光湯波料理的元祖店、創業逾百年、堅持手工挽湯波。中午一道道送上：刺身湯波、煮物、揚湯波、湯波蕎麥——是日光行程中安靜但有分量的一餐。',
+            lead: '日光名物「湯波（ゆば）」是豆乳煮沸後表面凝結的薄膜、層次細膩、清淡卻甘鮮。\n惠比壽家是日光湯波料理的元祖店、創業逾百年、堅持手工挽湯波。中午一道道送上：刺身湯波、煮物、揚湯波、湯波蕎麥——是日光行程中安靜但有分量的一餐。',
             image: {
               url: 'https://images.unsplash.com/photo-1564843071607-69f1c7c2df56?w=1600&q=80',
             },
@@ -187,8 +187,7 @@ export const sendaiSampleCanvas: Canvas = {
           data: {
             tag: '— STAY · 日光金谷ホテル',
             title: '日本最古老的洋風旅館、[accent]第一晚住進歷史。[/accent]',
-            lead:
-              '1873 年創業、明治政府開國後第一批面向洋客的西式 resort hotel。\n大谷川旁、東照宮鳥居外、紅瓦白壁洋館。150 年來愛因斯坦、海倫凱勒都住過這。\n第一晚不是泡湯、不是看海、是把客人放進一段日本近代史。',
+            lead: '1873 年創業、明治政府開國後第一批面向洋客的西式 resort hotel。\n大谷川旁、東照宮鳥居外、紅瓦白壁洋館。150 年來愛因斯坦、海倫凱勒都住過這。\n第一晚不是泡湯、不是看海、是把客人放進一段日本近代史。',
             image: {
               url: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&q=80',
             },
@@ -232,7 +231,8 @@ export const sendaiSampleCanvas: Canvas = {
                 id: 'a4',
                 name: '大內宿',
                 subtitle: '會津西街道・茅葺宿場町',
-                description: '江戶時代會津若松⇄日光的驛站、現存 40 餘戶茅葺民家、整條街時間停在 1640 年。',
+                description:
+                  '江戶時代會津若松⇄日光的驛站、現存 40 餘戶茅葺民家、整條街時間停在 1640 年。',
                 image: {
                   url: 'https://images.unsplash.com/photo-1545569310-fd9a86c9bb1a?w=1600&q=80',
                 },
@@ -297,7 +297,8 @@ export const sendaiSampleCanvas: Canvas = {
                 id: 's1',
                 time: '09:00',
                 title: '出發前往松島',
-                description: '從會津若松出發、磐越自動車道接東北自動車道、約 2.5 小時抵達松島海岸。',
+                description:
+                  '從會津若松出發、磐越自動車道接東北自動車道、約 2.5 小時抵達松島海岸。',
               },
               {
                 id: 's2',
@@ -368,7 +369,8 @@ export const sendaiSampleCanvas: Canvas = {
                 id: 'a6',
                 name: '仙台城跡',
                 subtitle: '青葉山・伊達政宗藩邸',
-                description: '本丸跡看仙台市區全景、伊達政宗銅像 1935 年立、戰爭時被熔、1964 年重鑄。',
+                description:
+                  '本丸跡看仙台市區全景、伊達政宗銅像 1935 年立、戰爭時被熔、1964 年重鑄。',
                 image: {
                   url: 'https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=1200&q=80',
                 },

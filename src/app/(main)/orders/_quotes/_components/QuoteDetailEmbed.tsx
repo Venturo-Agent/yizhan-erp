@@ -12,7 +12,12 @@
 
 import React, { useEffect, useCallback, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { ParticipantCounts, SellingPrices, CostCategory, CostItem } from '@/app/(main)/orders/_quotes/_types'
+import {
+  ParticipantCounts,
+  SellingPrices,
+  CostCategory,
+  CostItem,
+} from '@/app/(main)/orders/_quotes/_types'
 import type { Tour } from '@/types/tour.types'
 import { useQuotes } from '@/app/(main)/orders/_quotes/_hooks/useQuotes'
 import { useQuote as useQuoteDetail, useTour } from '@/data'
@@ -47,7 +52,11 @@ interface QuoteDetailEmbedProps {
   actionsContainer?: HTMLElement | null
 }
 
-export function QuoteDetailEmbed({ quoteId, showHeader = true, actionsContainer }: QuoteDetailEmbedProps) {
+export function QuoteDetailEmbed({
+  quoteId,
+  showHeader = true,
+  actionsContainer,
+}: QuoteDetailEmbedProps) {
   const t = useTranslations('orders')
   const router = useRouter()
   const { updateQuote } = useQuotes()
@@ -87,20 +96,30 @@ export function QuoteDetailEmbed({ quoteId, showHeader = true, actionsContainer 
   const [categories, setCategories] = useState<CostCategory[]>([])
   const [accommodationDays, setAccommodationDays] = useState(0)
   const [participantCounts, setParticipantCounts] = useState<ParticipantCounts>({
-    adult: 0, child_with_bed: 0, child_no_bed: 0, single_room: 0, infant: 0,
+    adult: 0,
+    child_with_bed: 0,
+    child_no_bed: 0,
+    single_room: 0,
+    infant: 0,
   })
   const [quoteName, setQuoteName] = useState('')
   const [_saveSuccess, setSaveSuccess] = useState(false)
   const [sellingPrices, setSellingPrices] = useState<SellingPrices>({
-    adult: 0, child_with_bed: 0, child_no_bed: 0, single_room: 0, infant: 0,
+    adult: 0,
+    child_with_bed: 0,
+    child_no_bed: 0,
+    single_room: 0,
+    infant: 0,
   })
   const [tierPricings, setTierPricings] = useState<TierPricing[]>([])
   // 保險金額 SSOT 在 tours 表（單位：萬元），docs/QUOTES_SSOT.md
   const [liabilityInsurance, setLiabilityInsurance] = useState<number | null>(null)
   const [medicalInsurance, setMedicalInsurance] = useState<number | null>(null)
   const insuranceText = useMemo(
-    () => liabilityInsurance != null && medicalInsurance != null
-      ? `${liabilityInsurance}萬旅責險+${medicalInsurance}萬意外醫療` : '',
+    () =>
+      liabilityInsurance != null && medicalInsurance != null
+        ? `${liabilityInsurance}萬旅責險+${medicalInsurance}萬意外醫療`
+        : '',
     [liabilityInsurance, medicalInsurance]
   )
   const handleInsuranceChange = useCallback((text: string) => {
@@ -117,21 +136,35 @@ export function QuoteDetailEmbed({ quoteId, showHeader = true, actionsContainer 
       if (coreItems.length > 0) {
         setCategories(coreItemsToCostCategories(coreItems))
       } else if (quote.categories && quote.categories.length > 0) {
-        setCategories(quote.categories.map(cat => ({
-          ...cat,
-          total: cat.items.reduce((sum: number, item: CostItem) => sum + (item.total || 0), 0),
-        })))
+        setCategories(
+          quote.categories.map(cat => ({
+            ...cat,
+            total: cat.items.reduce((sum: number, item: CostItem) => sum + (item.total || 0), 0),
+          }))
+        )
       } else {
         setCategories(costCategories)
       }
       setAccommodationDays(quote.accommodation_days ?? 0)
-      setParticipantCounts((quote.participant_counts as ParticipantCounts) || {
-        adult: quote.group_size || 20, child_with_bed: 0, child_no_bed: 0, single_room: 0, infant: 0,
-      })
+      setParticipantCounts(
+        (quote.participant_counts as ParticipantCounts) || {
+          adult: quote.group_size || 20,
+          child_with_bed: 0,
+          child_no_bed: 0,
+          single_room: 0,
+          infant: 0,
+        }
+      )
       setQuoteName(quote.name || '')
-      setSellingPrices((quote.selling_prices as SellingPrices) || {
-        adult: 0, child_with_bed: 0, child_no_bed: 0, single_room: 0, infant: 0,
-      })
+      setSellingPrices(
+        (quote.selling_prices as SellingPrices) || {
+          adult: 0,
+          child_with_bed: 0,
+          child_no_bed: 0,
+          single_room: 0,
+          infant: 0,
+        }
+      )
       setTierPricings((quote.tier_pricings ?? []) as TierPricing[])
       // 保險金額從 tour 讀（null = 未設定）
       setLiabilityInsurance(
@@ -146,25 +179,47 @@ export function QuoteDetailEmbed({ quoteId, showHeader = true, actionsContainer 
     }
   }, [quote, hasLoaded, fullTour, coreItems, coreItemsLoading])
 
-  const groupSize = useMemo(() =>
-    (participantCounts.adult || 0) + (participantCounts.child_with_bed || 0) +
-    (participantCounts.child_no_bed || 0) + (participantCounts.single_room || 0),
+  const groupSize = useMemo(
+    () =>
+      (participantCounts.adult || 0) +
+      (participantCounts.child_with_bed || 0) +
+      (participantCounts.child_no_bed || 0) +
+      (participantCounts.single_room || 0),
     [participantCounts]
   )
-  const groupSizeForGuide = useMemo(() => groupSize + (participantCounts.infant || 0), [groupSize, participantCounts.infant])
+  const groupSizeForGuide = useMemo(
+    () => groupSize + (participantCounts.infant || 0),
+    [groupSize, participantCounts.infant]
+  )
   const totalParticipants = groupSize
 
   // Category operations hook
   const categoryOps = useCategoryOperations({
-    categories, setCategories, accommodationDays, setAccommodationDays, groupSize, groupSizeForGuide,
+    categories,
+    setCategories,
+    accommodationDays,
+    setAccommodationDays,
+    groupSize,
+    groupSizeForGuide,
   })
 
   // 切換項目在報價單/需求單的顯示狀態
-  const { handleToggleVisibility } = useQuoteVisibility({ categories, setCategories, refreshCoreItems })
+  const { handleToggleVisibility } = useQuoteVisibility({
+    categories,
+    setCategories,
+    refreshCoreItems,
+  })
 
   // Calculations hook
   const calculations = useQuoteCalculations({ categories, participantCounts, sellingPrices })
-  const { accommodationSummary, accommodationTotal, updatedCategories, identityCosts, identityProfits, total_cost } = calculations
+  const {
+    accommodationSummary,
+    accommodationTotal,
+    updatedCategories,
+    identityCosts,
+    identityProfits,
+    total_cost,
+  } = calculations
 
   // Actions hook
   const actions = useQuoteActions({
@@ -210,7 +265,11 @@ export function QuoteDetailEmbed({ quoteId, showHeader = true, actionsContainer 
   // 對話框狀態
   const [showLinkTourDialog, setShowLinkTourDialog] = useState(false)
   const [excludedItems, setExcludedItems] = useState<string[]>([
-    '個人護照費用', '行程外之自費行程', '個人消費及小費', '行李超重費用', '單人房差價',
+    '個人護照費用',
+    '行程外之自費行程',
+    '個人消費及小費',
+    '行李超重費用',
+    '單人房差價',
   ])
 
   // Local 報價（檻次管理 + 還原 + 對話框）
@@ -268,7 +327,10 @@ export function QuoteDetailEmbed({ quoteId, showHeader = true, actionsContainer 
           sellingPrices={sellingPrices}
           tierPricings={tierPricings}
           onAddTierPricing={tier => setTierPricings(prev => [...prev, tier])}
-          onSave={() => { handleSave(); toast.success('已儲存') }}
+          onSave={() => {
+            handleSave()
+            toast.success('已儲存')
+          }}
           onGenerateQuotation={handleGenerateQuotation}
         />
       )}

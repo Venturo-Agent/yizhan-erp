@@ -14,12 +14,7 @@
 import * as React from 'react'
 
 import { YONGCHENG_COLORS, YONGCHENG_FONTS, YONGCHENG_TEXT_STYLE } from './tokens'
-import type {
-  Canvas,
-  CanvasDayBlock,
-  CanvasDaySection,
-  CanvasSection,
-} from './types'
+import type { Canvas, CanvasDayBlock, CanvasDaySection, CanvasSection } from './types'
 import { CanvasLayout } from './CanvasLayout'
 import { CanvasAppendix } from './sections/CanvasAppendix'
 import { CanvasCover } from './sections/CanvasCover'
@@ -128,7 +123,7 @@ function renderDayBlock(block: CanvasDayBlock): React.ReactNode {
             gap: 20,
           }}
         >
-          {block.data.items.map((item) => (
+          {block.data.items.map(item => (
             <div
               key={item.id}
               style={{
@@ -214,7 +209,7 @@ function renderDaySection(section: CanvasDaySection, eyebrowNum: string, isBleed
         </span>
         DAY {section.day_index} · {section.date}
       </div>
-      {section.blocks.map((b) => renderDayBlock(b))}
+      {section.blocks.map(b => renderDayBlock(b))}
     </section>
   )
 }
@@ -231,13 +226,7 @@ function renderSection(
     case 'cover':
       return <CanvasCover key="cover" data={section.data} brand={brand} />
     case 'overview_timeline':
-      return (
-        <CanvasOverviewTimeline
-          key="overview"
-          days={section.data.days}
-          eyebrow={eyebrowNum}
-        />
-      )
+      return <CanvasOverviewTimeline key="overview" days={section.data.days} eyebrow={eyebrowNum} />
     case 'day':
       return renderDaySection(section, eyebrowNum, isBleed)
     case 'stays':

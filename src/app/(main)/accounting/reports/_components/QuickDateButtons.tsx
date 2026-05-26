@@ -89,7 +89,11 @@ export function QuickDateButtons({ onSelect, onlyEnd = false }: QuickDateButtons
     ? [
         { label: LABELS.AS_OF_TODAY, start: fmt(today()), end: fmt(today()) },
         { label: LABELS.AS_OF_MONTH_END, start: fmt(monthEnd()), end: fmt(monthEnd()) },
-        { label: LABELS.AS_OF_LAST_MONTH_END, start: fmt(lastMonthEnd()), end: fmt(lastMonthEnd()) },
+        {
+          label: LABELS.AS_OF_LAST_MONTH_END,
+          start: fmt(lastMonthEnd()),
+          end: fmt(lastMonthEnd()),
+        },
         { label: LABELS.AS_OF_QUARTER_END, start: fmt(quarterEnd()), end: fmt(quarterEnd()) },
         { label: LABELS.AS_OF_YEAR_END, start: fmt(yearEnd()), end: fmt(yearEnd()) },
       ]

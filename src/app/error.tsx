@@ -35,9 +35,7 @@ export default function Error({
           <div className="rounded-lg bg-card border border-border p-4 text-left">
             <p className="text-sm font-mono text-destructive break-words">{error.message}</p>
             {error.digest && (
-              <p className="text-xs text-muted-foreground mt-2">
-                錯誤 ID: {error.digest}
-              </p>
+              <p className="text-xs text-muted-foreground mt-2">錯誤 ID: {error.digest}</p>
             )}
           </div>
         )}
@@ -47,7 +45,11 @@ export default function Error({
             <RefreshCw className="h-4 w-4" />
             重試
           </Button>
-          <Button variant="soft-gold" onClick={() => (window.location.href = '/')} className="gap-2">
+          <Button
+            variant="soft-gold"
+            onClick={() => (window.location.href = '/')}
+            className="gap-2"
+          >
             <Home className="h-4 w-4" />
             返回首頁
           </Button>

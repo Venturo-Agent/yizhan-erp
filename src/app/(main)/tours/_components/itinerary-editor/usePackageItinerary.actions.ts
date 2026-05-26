@@ -40,8 +40,13 @@ interface SubmitParams {
   currentUser: { display_name?: string; chinese_name?: string; workspace_id?: string } | null
   getPreviousAccommodation: (index: number) => string
   create: (data: Omit<Itinerary, 'id' | 'created_at' | 'updated_at'>) => Promise<Itinerary | null>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  syncToCore: (params: { itinerary_id: string; tour_id: string | null; daily_itinerary: any }) => Promise<any>
+  syncToCore: (params: {
+    itinerary_id: string
+    tour_id: string | null
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    daily_itinerary: any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }) => Promise<any>
   onItineraryCreated?: (id?: string) => void
   onClose: () => void
 }
@@ -134,7 +139,9 @@ export async function submitItinerary(params: SubmitParams): Promise<SubmitResul
         features: [],
         focus_cards: [],
         workspace_id: workspaceId,
-        outbound_flight: formData.outboundFlight ? buildFlightPayload(formData.outboundFlight) : null,
+        outbound_flight: formData.outboundFlight
+          ? buildFlightPayload(formData.outboundFlight)
+          : null,
         return_flight: formData.returnFlight ? buildFlightPayload(formData.returnFlight) : null,
       }
 
@@ -192,8 +199,14 @@ interface SaveVersionParams {
 }
 
 export async function saveAsNewVersion(params: SaveVersionParams): Promise<SaveVersionResult> {
-  const { existingItinerary, dailySchedule, versionRecords, ctx, getPreviousAccommodation, onItineraryCreated } =
-    params
+  const {
+    existingItinerary,
+    dailySchedule,
+    versionRecords,
+    ctx,
+    getPreviousAccommodation,
+    onItineraryCreated,
+  } = params
 
   try {
     const formattedDailyItinerary = formatDailyItinerary({

@@ -47,7 +47,7 @@ const REPORT_SWR_CONFIG = {
  * TParams hook 接受的參數型別（預設 void = 無參數）
  */
 export function createReportHook<TRow, TStats, TParams = void>(config: {
-  key: TParams extends void ? string : ((params: TParams) => string | null)
+  key: TParams extends void ? string : (params: TParams) => string | null
   fetcher: (params: TParams) => Promise<{ rows: TRow[]; stats: TStats }>
   defaultStats: TStats
   swrOptions?: { revalidateOnFocus?: boolean; dedupingInterval?: number }
@@ -84,7 +84,9 @@ export function createReportHook<TRow, TStats, TParams = void>(config: {
       loading: isLoading,
       error: error instanceof Error ? error.message : error ? String(error) : null,
       stats: data?.stats ?? config.defaultStats,
-      refresh: async () => { await mutate() },
+      refresh: async () => {
+        await mutate()
+      },
     }
   }
 

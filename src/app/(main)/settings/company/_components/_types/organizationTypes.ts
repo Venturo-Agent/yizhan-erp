@@ -21,6 +21,6 @@ export const fetcher = async (url: string): Promise<DimensionRow[]> => {
     const j = await res.json().catch(() => ({}))
     throw new Error((j as { error?: string }).error || '載入失敗')
   }
-  const json = await res.json() as { data?: DimensionRow[] }
+  const json = (await res.json()) as { data?: DimensionRow[] }
   return json.data ?? []
 }

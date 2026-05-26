@@ -24,10 +24,7 @@ interface AiSettingsRow {
   last_used_at: string | null
 }
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
 
   const auth = await getServerAuth()

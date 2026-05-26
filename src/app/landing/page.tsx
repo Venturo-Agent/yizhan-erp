@@ -224,7 +224,14 @@ function PricingSection() {
             name="Pro"
             price="NT$1,990"
             period="/人/月"
-            features={['無限團數', 'OCR 護照辨識', '收款管理', '供應商管理', '客製報價模板', '優先客服']}
+            features={[
+              '無限團數',
+              'OCR 護照辨識',
+              '收款管理',
+              '供應商管理',
+              '客製報價模板',
+              '優先客服',
+            ]}
             popular
           />
           <PlanCard
@@ -248,18 +255,14 @@ function Footer() {
           <div>
             <div className="flex items-center gap-2">
               <Sparkles size="1.25em" className="text-status-warning" />
-              <span className="text-lg font-bold text-morandi-primary">
-                Venturo
-              </span>
+              <span className="text-lg font-bold text-morandi-primary">Venturo</span>
             </div>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-morandi-secondary">
               專為台灣旅行社打造的營運管理系統。從報價到收款，讓繁瑣的日常作業變得簡單。
             </p>
           </div>
           <div className="sm:text-right">
-            <h4 className="text-sm font-semibold text-morandi-primary">
-              聯繫我們
-            </h4>
+            <h4 className="text-sm font-semibold text-morandi-primary">聯繫我們</h4>
             <a
               href="mailto:hello@venturo.app"
               className="mt-2 inline-flex items-center gap-1.5 text-sm text-morandi-secondary hover:text-status-warning transition-colors"

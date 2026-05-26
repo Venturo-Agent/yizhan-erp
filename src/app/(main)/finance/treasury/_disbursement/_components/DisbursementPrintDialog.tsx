@@ -11,7 +11,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Printer} from 'lucide-react'
+import { Printer } from 'lucide-react'
 import type { DisbursementOrder, PaymentRequest, PaymentRequestItem } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
 import { PrintDisbursementPreview } from './PrintDisbursementPreview'
@@ -96,7 +96,8 @@ export function DisbursementPrintDialog({
           .eq('disbursement_order_id', order.id)
         const feeMap = new Map<string, number>()
         for (const doi of doiData || []) {
-          const itemId = (doi as { payment_request_item_id?: string | null }).payment_request_item_id
+          const itemId = (doi as { payment_request_item_id?: string | null })
+            .payment_request_item_id
           const fee = Number((doi as { fee_amount?: number | null }).fee_amount || 0)
           if (itemId && fee > 0) feeMap.set(itemId, fee)
         }
@@ -246,9 +247,7 @@ export function DisbursementPrintDialog({
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <Spinner size="lg" className="text-morandi-secondary" />
-              <span className="ml-2 text-morandi-secondary">
-                {t('disbursementLoading')}
-              </span>
+              <span className="ml-2 text-morandi-secondary">{t('disbursementLoading')}</span>
             </div>
           ) : (
             <div
@@ -275,4 +274,3 @@ export function DisbursementPrintDialog({
     </Dialog>
   )
 }
-

@@ -255,7 +255,11 @@ export function DateInput({
             </svg>
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto border-0 bg-transparent p-0 shadow-none" align="end" sideOffset={4}>
+        <PopoverContent
+          className="w-auto border-0 bg-transparent p-0 shadow-none"
+          align="end"
+          sideOffset={4}
+        >
           <Calendar
             mode="single"
             selected={dateValue && isValid(dateValue) ? dateValue : undefined}

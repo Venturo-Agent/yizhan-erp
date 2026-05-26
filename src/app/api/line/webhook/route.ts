@@ -32,7 +32,13 @@ import type { Json } from '@/lib/supabase/types'
 import { verifyLineSignature } from '@/lib/line/verify-signature'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { processIncomingTextMessage } from '@/lib/line/handler'
-import { fetchLineProfile, fetchLineGroupMemberProfile, fetchLineRoomMemberProfile, fetchLineGroupSummary, fetchLineGroupMemberIds } from '@/lib/line/profile-client'
+import {
+  fetchLineProfile,
+  fetchLineGroupMemberProfile,
+  fetchLineRoomMemberProfile,
+  fetchLineGroupSummary,
+  fetchLineGroupMemberIds,
+} from '@/lib/line/profile-client'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
 import { downloadAndStoreLineMedia } from '@/lib/line/media-client'
 import { upsertDebounceAccumulate } from '@/lib/line/debounce'
@@ -103,7 +109,9 @@ export async function POST(req: NextRequest) {
   const supabase = getSupabaseAdminClient()
   const { data: settings, error: settingsError } = await supabase
     .from('workspace_line_settings')
-    .select('workspace_id, channel_secret, channel_access_token, channel_secret_encrypted, channel_access_token_encrypted, is_active, bot_employee_id')
+    .select(
+      'workspace_id, channel_secret, channel_access_token, channel_secret_encrypted, channel_access_token_encrypted, is_active, bot_employee_id'
+    )
     .eq('channel_id', destination)
     .maybeSingle<WorkspaceLineSettingsRow>()
 
@@ -227,8 +235,7 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
         ? (event.postback?.data ?? '')
         : describeNonTextMessage(event)
 
-  const inboundType =
-    event.type === 'postback' ? 'postback' : (event.message?.type ?? event.type)
+  const inboundType = event.type === 'postback' ? 'postback' : (event.message?.type ?? event.type)
 
   const { error: insertErr } = await supabase.from('line_conversation_messages').insert({
     workspace_id: workspaceId,
@@ -396,7 +403,7 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
   //   void IIFE 是純 Node.js、event loop 有 setTimeout 就不釋放、Coolify 也跑得完。
   void (async () => {
     try {
-      await new Promise((r) => setTimeout(r, 10_000))
+      await new Promise(r => setTimeout(r, 10_000))
 
       const supabaseInner = getSupabaseAdminClient() as unknown as SupabaseClient
 
@@ -513,7 +520,8 @@ async function recordGroupOrRoomMessage(
   // 是否要設 display_name：沒對話、或之前是預設格式（「群組 #xxxx」、「LINE 群組」）
   // 重點：之前是「群組 #末4碼」格式的、也算「沒設過真名」、應該升級成 API 抓到的真名
   const existingName = existingGroupConv?.display_name
-  const isDefaultName = !existingName || /^群組 #[0-9a-f]{4}$/i.test(existingName) || existingName === 'LINE 群組'
+  const isDefaultName =
+    !existingName || /^群組 #[0-9a-f]{4}$/i.test(existingName) || existingName === 'LINE 群組'
   const shouldSetDisplayName = isDefaultName
 
   // picture_url 缺也要去抓（5/22 William 抓出：display_name 被設過 → 永遠不 fetch → picture_url 永遠 NULL）
@@ -559,8 +567,7 @@ async function recordGroupOrRoomMessage(
   // 訊息 content 內 prefix 真名（不是末 6 碼）
   const taggedContent = `[${senderName}] ${rawContent}`
 
-  const inboundType =
-    event.type === 'postback' ? 'postback' : (event.message?.type ?? event.type)
+  const inboundType = event.type === 'postback' ? 'postback' : (event.message?.type ?? event.type)
 
   const supabase = getSupabaseAdminClient()
 
@@ -669,11 +676,20 @@ async function backfillGroupMembers(args: {
 }
 
 const SECRETARY_PREFIXES = [
-  '待辦：', '待辦:', '待辦 ',
-  '任務：', '任務:', '任務 ',
-  '#待辦', '#任務', '#todo',
-  'todo:', 'TODO:', 'Todo:',
-  '@秘書 ', '@secretary ',
+  '待辦：',
+  '待辦:',
+  '待辦 ',
+  '任務：',
+  '任務:',
+  '任務 ',
+  '#待辦',
+  '#任務',
+  '#todo',
+  'todo:',
+  'TODO:',
+  'Todo:',
+  '@秘書 ',
+  '@secretary ',
 ]
 
 async function maybeCreateGroupTodo(args: {
@@ -734,13 +750,20 @@ function describeNonTextMessage(event: LineEvent): string {
   if (event.type === 'message') {
     const t = event.message?.type
     switch (t) {
-      case 'image': return '📷 [客戶傳了一張圖片、暫未實作預覽]'
-      case 'video': return '🎬 [客戶傳了一段影片]'
-      case 'audio': return '🔊 [客戶傳了一段語音]'
-      case 'file': return '📎 [客戶傳了一個檔案]'
-      case 'sticker': return '😀 [客戶傳了一個貼圖]'
-      case 'location': return '📍 [客戶傳了位置資訊]'
-      default: return `[訊息類型：${t ?? '未知'}]`
+      case 'image':
+        return '📷 [客戶傳了一張圖片、暫未實作預覽]'
+      case 'video':
+        return '🎬 [客戶傳了一段影片]'
+      case 'audio':
+        return '🔊 [客戶傳了一段語音]'
+      case 'file':
+        return '📎 [客戶傳了一個檔案]'
+      case 'sticker':
+        return '😀 [客戶傳了一個貼圖]'
+      case 'location':
+        return '📍 [客戶傳了位置資訊]'
+      default:
+        return `[訊息類型：${t ?? '未知'}]`
     }
   }
   if (event.type === 'follow') return '👋 [客戶加為好友]'
@@ -798,7 +821,11 @@ async function handlePostbackAutoReply(args: PostbackAutoReplyArgs): Promise<voi
     sender: 'bot',
     message_type: 'text',
     content: template.response_text,
-    raw_event: { sent_via: 'postback_template', postback_data: postbackData, template_id: template.id },
+    raw_event: {
+      sent_via: 'postback_template',
+      postback_data: postbackData,
+      template_id: template.id,
+    },
   })
 
   // 寫 outbound 到 inbox_messages

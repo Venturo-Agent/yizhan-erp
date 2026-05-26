@@ -167,8 +167,7 @@ export async function addItems(
     advanced_by:
       ((itemData as Record<string, unknown>).advanced_by as string | null | undefined) || null,
     advanced_by_name:
-      ((itemData as Record<string, unknown>).advanced_by_name as string | null | undefined) ||
-      null,
+      ((itemData as Record<string, unknown>).advanced_by_name as string | null | undefined) || null,
     created_at: now,
     updated_at: now,
   }))

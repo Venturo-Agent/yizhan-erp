@@ -33,9 +33,7 @@ function parseCode(code: string): {
  * 把 (module, tab, action) 三元組組成 capability_code
  */
 function toCode(p: TabPermission, action: 'read' | 'write'): string {
-  return p.tab_code
-    ? `${p.module_code}.${p.tab_code}.${action}`
-    : `${p.module_code}.${action}`
+  return p.tab_code ? `${p.module_code}.${p.tab_code}.${action}` : `${p.module_code}.${action}`
 }
 
 /**
@@ -111,7 +109,11 @@ export async function PUT(
     const { roleId } = await params
     const supabase = await createApiClient()
 
-    await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '更新職務權限', requestId: roleId })
+    await recordApiAuditContext(supabase, {
+      actorId: guard.employeeId,
+      reason: '更新職務權限',
+      requestId: roleId,
+    })
 
     const body = await request.json()
     const { permissions } = body as { permissions: TabPermission[] }
@@ -136,7 +138,10 @@ export async function PUT(
 
     if (readErr) {
       const t = translateDbError(readErr)
-      return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+      return NextResponse.json(
+        { error: t.message, code: t.code, field: t.field },
+        { status: t.httpStatus }
+      )
     }
 
     const existingNonPlatform = (existing ?? [])
@@ -153,7 +158,10 @@ export async function PUT(
         .in('capability_code', toDelete)
       if (error) {
         const t = translateDbError(error)
-        return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+        return NextResponse.json(
+          { error: t.message, code: t.code, field: t.field },
+          { status: t.httpStatus }
+        )
       }
     }
 
@@ -169,7 +177,10 @@ export async function PUT(
         .upsert(rowsToUpsert, { onConflict: 'role_id,capability_code' })
       if (error) {
         const t = translateDbError(error)
-        return NextResponse.json({ error: t.message, code: t.code, field: t.field }, { status: t.httpStatus })
+        return NextResponse.json(
+          { error: t.message, code: t.code, field: t.field },
+          { status: t.httpStatus }
+        )
       }
     }
 

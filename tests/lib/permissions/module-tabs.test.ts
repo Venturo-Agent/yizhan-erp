@@ -152,8 +152,7 @@ describe('MODULES 資料完整性', () => {
 
   it('tours 有 premium 級 tab（contract / display-itinerary）', () => {
     const tours = getModuleByCode('tours')
-    const premiumCodes =
-      tours?.tabs.filter(t => t.category === 'premium').map(t => t.code) ?? []
+    const premiumCodes = tours?.tabs.filter(t => t.category === 'premium').map(t => t.code) ?? []
     expect(premiumCodes).toContain('contract')
     expect(premiumCodes).toContain('display-itinerary')
   })

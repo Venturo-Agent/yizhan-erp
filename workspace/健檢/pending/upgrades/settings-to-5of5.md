@@ -6,13 +6,13 @@
 
 ## 5 維度狀態
 
-| 維度 | 現狀 | 具體缺口 |
-|---|---|---|
-| **讀取效能** | ❌ | `settings/company/page.tsx` 行168 直接 `supabase.from('workspaces').update()`；寫完後其他打開公司設定的使用者看到舊資料（stale UI）|
-| **資安** | ✅ | RLS/FK 完整；紅線 C（admin client per-request）✅ |
-| **架構** | ✅ | L1 ModuleGuard 有；L6 apiMutate 有 |
-| **開發品管** | ⚠️ | settings/company 無 e2e；eslint suppress 有 |
-| **清理** | ⚠️ | settings/company 是半成品（direct supabase 寫入）|
+| 維度         | 現狀 | 具體缺口                                                                                                                            |
+| ------------ | ---- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **讀取效能** | ❌   | `settings/company/page.tsx` 行168 直接 `supabase.from('workspaces').update()`；寫完後其他打開公司設定的使用者看到舊資料（stale UI） |
+| **資安**     | ✅   | RLS/FK 完整；紅線 C（admin client per-request）✅                                                                                   |
+| **架構**     | ✅   | L1 ModuleGuard 有；L6 apiMutate 有                                                                                                  |
+| **開發品管** | ⚠️   | settings/company 無 e2e；eslint suppress 有                                                                                         |
+| **清理**     | ⚠️   | settings/company 是半成品（direct supabase 寫入）                                                                                   |
 
 ---
 
@@ -23,6 +23,7 @@
 **缺口**：`settings/company/page.tsx` 行168 直接 `supabase.from('workspaces').update()`，寫完不 invalidates SWR cache。
 
 **修法**：
+
 1. `useWorkspaces` entity hook 是否存在？檢查 `src/data/entities/workspaces.ts`
 2. 如果存在 → rewrite 行168 改用 `useWorkspaces` 的 update function + invalidate
 3. 如果不存在 → 建立 `useWorkspaces` entity hook（Pass 3 有草稿）
@@ -41,6 +42,7 @@
 
 **修法**：
 `tests/e2e/settings-company.spec.ts`：
+
 ```
 打開公司設定 → 修改公司抬頭 → 儲存 →
 確認其他分頁（新開 page）看到新資料 →
@@ -57,6 +59,7 @@
 **缺口**：settings/company direct supabase 是半成品。
 
 **修法**：
+
 1. 修完 Action A 後跑 `npm run lint:swr-prune` 清理 suppression
 2. 確認 settings/personal 和 settings/page.tsx 無類似問題
 
@@ -91,4 +94,4 @@ settings 是少數「讀取效能唯一缺口」的 module（資安/架構都✅
 
 ---
 
-*Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push*
+_Max — 2026-05-20 — 紅線：❌ 未動 src/ ❌ 未 push_

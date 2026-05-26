@@ -167,25 +167,25 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
       >
         <div>
           {workspace.logo_url && (
-            <img
-              src={workspace.logo_url}
-              alt="logo"
-              style={getLogoStyle('print')}
-            />
+            <img src={workspace.logo_url} alt="logo" style={getLogoStyle('print')} />
           )}
           <div style={{ marginTop: '6px', fontSize: '14px', fontWeight: 600 }}>
             {workspace.legal_name || workspace.name}
           </div>
           {workspace.tax_id && (
             <div style={{ fontSize: '11px', color: COLORS.gray }}>
-              {COMPONENT_LABELS.TAX_ID_PREFIX}{workspace.tax_id}
+              {COMPONENT_LABELS.TAX_ID_PREFIX}
+              {workspace.tax_id}
             </div>
           )}
           {workspace.address && (
             <div style={{ fontSize: '11px', color: COLORS.gray }}>{workspace.address}</div>
           )}
           {workspace.phone && (
-            <div style={{ fontSize: '11px', color: COLORS.gray }}>{COMPONENT_LABELS.PHONE_PREFIX}{workspace.phone}</div>
+            <div style={{ fontSize: '11px', color: COLORS.gray }}>
+              {COMPONENT_LABELS.PHONE_PREFIX}
+              {workspace.phone}
+            </div>
           )}
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -200,9 +200,13 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
             {isRefund ? COMPONENT_LABELS.TITLE_REFUND : COMPONENT_LABELS.TITLE_RECEIPT}
           </div>
           <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
-            {COMPONENT_LABELS.CODE_PREFIX}{receipt.receipt_number}
+            {COMPONENT_LABELS.CODE_PREFIX}
+            {receipt.receipt_number}
           </div>
-          <div style={{ fontSize: '11px', color: COLORS.gray }}>{COMPONENT_LABELS.DATE_PREFIX}{date || '-'}</div>
+          <div style={{ fontSize: '11px', color: COLORS.gray }}>
+            {COMPONENT_LABELS.DATE_PREFIX}
+            {date || '-'}
+          </div>
         </div>
       </div>
 
@@ -215,7 +219,9 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
           borderLeft: `3px solid ${COLORS.gold}`,
         }}
       >
-        <span style={{ color: COLORS.gray, marginRight: '12px' }}>{COMPONENT_LABELS.PAYER_LABEL}</span>
+        <span style={{ color: COLORS.gray, marginRight: '12px' }}>
+          {COMPONENT_LABELS.PAYER_LABEL}
+        </span>
         <span style={{ fontWeight: 600 }}>{receipt.customer_name || '-'}</span>
       </div>
 
@@ -230,13 +236,31 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
       >
         <thead>
           <tr style={{ background: COLORS.lightBrown }}>
-            <th style={{ padding: '10px', textAlign: 'left', borderBottom: `1px solid ${COLORS.lightGray}` }}>
+            <th
+              style={{
+                padding: '10px',
+                textAlign: 'left',
+                borderBottom: `1px solid ${COLORS.lightGray}`,
+              }}
+            >
               {COMPONENT_LABELS.COL_ITEM}
             </th>
-            <th style={{ padding: '10px', textAlign: 'left', borderBottom: `1px solid ${COLORS.lightGray}` }}>
+            <th
+              style={{
+                padding: '10px',
+                textAlign: 'left',
+                borderBottom: `1px solid ${COLORS.lightGray}`,
+              }}
+            >
               {COMPONENT_LABELS.COL_DESCRIPTION}
             </th>
-            <th style={{ padding: '10px', textAlign: 'right', borderBottom: `1px solid ${COLORS.lightGray}` }}>
+            <th
+              style={{
+                padding: '10px',
+                textAlign: 'right',
+                borderBottom: `1px solid ${COLORS.lightGray}`,
+              }}
+            >
               {COMPONENT_LABELS.COL_AMOUNT}
             </th>
           </tr>
@@ -254,7 +278,14 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
                 </div>
               )}
             </td>
-            <td style={{ padding: '10px', textAlign: 'right', fontFamily: 'monospace', borderBottom: `1px solid ${COLORS.lightGray}` }}>
+            <td
+              style={{
+                padding: '10px',
+                textAlign: 'right',
+                fontFamily: 'monospace',
+                borderBottom: `1px solid ${COLORS.lightGray}`,
+              }}
+            >
               <Money amount={amount} />
             </td>
           </tr>
@@ -264,7 +295,15 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
             <td colSpan={2} style={{ padding: '10px', textAlign: 'right', fontWeight: 600 }}>
               {COMPONENT_LABELS.TOTAL}
             </td>
-            <td style={{ padding: '10px', textAlign: 'right', fontFamily: 'monospace', fontWeight: 700, fontSize: '15px' }}>
+            <td
+              style={{
+                padding: '10px',
+                textAlign: 'right',
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                fontSize: '15px',
+              }}
+            >
               <Money amount={amount} />
             </td>
           </tr>
@@ -278,7 +317,9 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
           <span style={{ fontWeight: 600, fontSize: '14px' }}>{numberToChinese(amount)}</span>
         </div>
         <div>
-          <span style={{ color: COLORS.gray }}>{isRefund ? COMPONENT_LABELS.REFUND_METHOD : COMPONENT_LABELS.RECEIPT_METHOD}：</span>
+          <span style={{ color: COLORS.gray }}>
+            {isRefund ? COMPONENT_LABELS.REFUND_METHOD : COMPONENT_LABELS.RECEIPT_METHOD}：
+          </span>
           <span>{methodName}</span>
         </div>
       </div>
@@ -286,7 +327,11 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
       {/* 收款帳戶（如果有 transfer） */}
       {receipt.receipt_account && (
         <div style={{ marginBottom: '16px', fontSize: '12px', color: COLORS.gray }}>
-          {isRefund ? COMPONENT_LABELS.REFUND_ACCOUNT_PREFIX : COMPONENT_LABELS.RECEIPT_ACCOUNT_PREFIX}{COMPONENT_LABELS.ACCOUNT_SUFFIX}{receipt.receipt_account}
+          {isRefund
+            ? COMPONENT_LABELS.REFUND_ACCOUNT_PREFIX
+            : COMPONENT_LABELS.RECEIPT_ACCOUNT_PREFIX}
+          {COMPONENT_LABELS.ACCOUNT_SUFFIX}
+          {receipt.receipt_account}
         </div>
       )}
 
@@ -301,7 +346,9 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
       >
         <div style={{ width: '40%' }}>
           <div style={{ borderBottom: `1px solid ${COLORS.gray}`, height: '36px' }} />
-          <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>{COMPONENT_LABELS.HANDLER}</div>
+          <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
+            {COMPONENT_LABELS.HANDLER}
+          </div>
         </div>
         <div
           style={{
@@ -311,26 +358,24 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
             minHeight: '80px',
           }}
         >
-          <SealImage
-            url={workspace.invoice_seal_image_url}
-            size={110}
-            rotate={-6}
-            opacity={0.85}
-          />
+          <SealImage url={workspace.invoice_seal_image_url} size={110} rotate={-6} opacity={0.85} />
           <div
             style={{
               borderBottom: `1px solid ${COLORS.gray}`,
               marginTop: '8px',
             }}
           />
-          <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>{COMPONENT_LABELS.COMPANY_SEAL}</div>
+          <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
+            {COMPONENT_LABELS.COMPANY_SEAL}
+          </div>
         </div>
       </div>
 
       {/* 備註 */}
       {receipt.notes && !isRefund && (
         <div style={{ marginTop: '24px', fontSize: '11px', color: COLORS.gray }}>
-          {COMPONENT_LABELS.NOTES_PREFIX}{receipt.notes}
+          {COMPONENT_LABELS.NOTES_PREFIX}
+          {receipt.notes}
         </div>
       )}
     </div>
@@ -393,7 +438,10 @@ export function ReceiptPrintDialog({ receipt, open, onOpenChange }: ReceiptPrint
         <DialogHeader className="flex-shrink-0 px-6 py-4 border-b bg-morandi-background">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg">
-              {receipt.status === 'refunded' ? COMPONENT_LABELS.DIALOG_TITLE_REFUND : COMPONENT_LABELS.DIALOG_TITLE_RECEIPT} — {receipt.receipt_number}
+              {receipt.status === 'refunded'
+                ? COMPONENT_LABELS.DIALOG_TITLE_REFUND
+                : COMPONENT_LABELS.DIALOG_TITLE_RECEIPT}{' '}
+              — {receipt.receipt_number}
             </DialogTitle>
             <Button variant="soft-gold" size="sm" onClick={handlePrint} className="gap-2">
               <Printer size={16} />

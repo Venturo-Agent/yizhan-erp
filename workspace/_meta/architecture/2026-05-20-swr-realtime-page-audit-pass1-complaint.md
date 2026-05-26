@@ -8,13 +8,13 @@
 
 ## 救護車式總覽
 
-| 項目 | openclaw 宣稱 | 實際 |
-|---|---|---|
-| 頁面覆蓋 | 38 頁 / "13 模組" | **67 個 page.tsx**（覆蓋率 ~57%、漏 29 頁） |
-| smoking gun #1（ChannelView invalidate 錯）| 真的有問題 | **❌ 誤判** — ChannelView 在 send 流程實際有 invalidate messages |
-| smoking gun #2（archive-management 無 invalidate）| 真的有問題 | **🟡 部分對** — 確實有直接 delete、但結尾有 entity delete trigger invalidate |
-| smoking gun #3（accounting 3 頁無 realtime）| 真的有問題 | **✅ 確認** |
-| LEARNINGS 紀律 | 寫了 ✅ | OK |
+| 項目                                               | openclaw 宣稱     | 實際                                                                         |
+| -------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------- |
+| 頁面覆蓋                                           | 38 頁 / "13 模組" | **67 個 page.tsx**（覆蓋率 ~57%、漏 29 頁）                                  |
+| smoking gun #1（ChannelView invalidate 錯）        | 真的有問題        | **❌ 誤判** — ChannelView 在 send 流程實際有 invalidate messages             |
+| smoking gun #2（archive-management 無 invalidate） | 真的有問題        | **🟡 部分對** — 確實有直接 delete、但結尾有 entity delete trigger invalidate |
+| smoking gun #3（accounting 3 頁無 realtime）       | 真的有問題        | **✅ 確認**                                                                  |
+| LEARNINGS 紀律                                     | 寫了 ✅           | OK                                                                           |
 
 **白話**：smoking gun #1 是水中撈月、smoking gun #2 半真半假、smoking gun #3 是真的。覆蓋率不到六成。
 
@@ -23,17 +23,18 @@
 ## A. openclaw 誤判：smoking gun #1（ChannelView）
 
 ### openclaw 的指控
+
 > 「`ChannelView.tsx:78` 發訊息後 invalidate 的是 members 不是 messages → 訊息列表 cache 沒被叫醒」
 
 ### 真相
 
 我親自讀 `ChannelView.tsx`：
 
-| 行 | 流程 | invalidate 對象 | 對不對 |
-|---|---|---|---|
-| 78 | **「標已讀」effect**（進頻道時更新 last_read_at） | invalidateChannelMembers | ✅ 對 — last_read_at 是 member 欄位 |
-| 199 | **「發訊息」handler**（actually send） | `void invalidateChannelMessages()` | ✅ 對 |
-| 214 | **「撤回訊息」handler** | `await invalidateChannelMessages()` | ✅ 對 |
+| 行  | 流程                                              | invalidate 對象                     | 對不對                              |
+| --- | ------------------------------------------------- | ----------------------------------- | ----------------------------------- |
+| 78  | **「標已讀」effect**（進頻道時更新 last_read_at） | invalidateChannelMembers            | ✅ 對 — last_read_at 是 member 欄位 |
+| 199 | **「發訊息」handler**（actually send）            | `void invalidateChannelMessages()`  | ✅ 對                               |
+| 214 | **「撤回訊息」handler**                           | `await invalidateChannelMessages()` | ✅ 對                               |
 
 **openclaw 看到 line 78 就斷定發訊息用錯 invalidate、但他沒看 handleSend 的 line 199**。
 
@@ -42,6 +43,7 @@
 ### 額外發現（ChannelView 其實寫得非常用心）
 
 讀 line 164-200 的註解：
+
 ```
 樂觀更新 v6（5/20、解耦 sending 跟 invalidate、不再閃爍）：
   1. 立刻清 draft + 設 pendingBody
@@ -57,11 +59,13 @@
 ### 那 William 感受到的「新訊息不即時」哪來？
 
 懷疑點轉向：
+
 1. **跨 tab / 跨 user 場景**：A 在 tab1 發、B 在 tab2 看、B 沒收到（subscription 沒推到 B）
 2. **Realtime subscription 沒 mount 上去**：`useChannelMessages` 的 useRealtimeSync 對 messages publication 沒訂閱
 3. **某個非 ChannelView 的訊息寫入路徑**：譬如 cron / webhook / 別的 component 寫了 channel_messages 但繞過 invalidate
 
 **Pass 2 必查**：
+
 - `audit:realtime` 確認 `channel_messages` table 真的在 publication 裡
 - grep `from('channel_messages').insert` 看有沒有 ChannelView 以外的寫入路徑
 - grep `useChannelMessages` 確認 entity hook 真的有 useRealtimeSync
@@ -71,6 +75,7 @@
 ## B. openclaw 半對：smoking gun #2（archive-management）
 
 ### openclaw 的指控
+
 > 「直接 supabase.delete + 無 invalidate = 刪除後 UI 不更新」
 
 ### 真相
@@ -78,16 +83,17 @@
 讀 `archive-management/page.tsx:71-105`：
 
 ```ts
-await supabase.from('tour_itinerary_items').delete().eq('tour_id', tour.id)   // L100
+await supabase.from('tour_itinerary_items').delete().eq('tour_id', tour.id) // L100
 await supabase.from('calendar_events').delete().eq('related_tour_id', tour.id) // L101
-await deleteTourEmptyOrders(tour.id)                                            // L104
-await deleteTourEntity(tour.id)                                                 // L105 ← 有 invalidate
+await deleteTourEmptyOrders(tour.id) // L104
+await deleteTourEntity(tour.id) // L105 ← 有 invalidate
 ```
 
 - `deleteTourEntity` 是 entity 函式 → 會 trigger invalidate tours cache ✅
 - 但 `tour_itinerary_items` 跟 `calendar_events` 的直接 delete **沒對應的 invalidate**
 
 **影響範圍**（要看誰讀那兩個表）：
+
 - `tour_itinerary_items` → 行程編輯頁、行程顯示頁如果讀這個表會 stale
 - `calendar_events` → calendar/page.tsx 會 stale（這頁 openclaw 漏掉沒掃）
 
@@ -98,19 +104,21 @@ await deleteTourEntity(tour.id)                                                 
 ## C. openclaw 確認：smoking gun #3（accounting）
 
 ### 我親自抽樣
+
 ```bash
 grep "supabase.from" src/app/(main)/accounting/{vouchers,accounts,checks}/page.tsx
 ```
 
-| 頁面 | 讀 | 寫 | Realtime |
-|---|---|---|---|
-| vouchers | 直接 supabase.from('journal_vouchers') | apiMutate | ❌ |
-| accounts | 直接 supabase.from('chart_of_accounts') | updateChartOfAccount (entity) | ❌ |
-| checks | 直接 supabase.from('checks') | 直接 supabase.update('checks') | ❌ |
+| 頁面     | 讀                                      | 寫                             | Realtime |
+| -------- | --------------------------------------- | ------------------------------ | -------- |
+| vouchers | 直接 supabase.from('journal_vouchers')  | apiMutate                      | ❌       |
+| accounts | 直接 supabase.from('chart_of_accounts') | updateChartOfAccount (entity)  | ❌       |
+| checks   | 直接 supabase.from('checks')            | 直接 supabase.update('checks') | ❌       |
 
 **確認**：3 頁全部繞過 entity hook、無 realtime。
 
 **影響**：
+
 - 你打傳票進去、UI 不會即時更新（無 realtime + 無 invalidate）
 - 你建會計科目、要 F5 才看到
 - 支票狀態變更、其他人看不到
@@ -123,35 +131,37 @@ grep "supabase.from" src/app/(main)/accounting/{vouchers,accounts,checks}/page.t
 
 ### 完全沒掃的模組
 
-| 模組 | 漏掉的頁 |
-|---|---|
-| **bot**（LINE/AI Hub） | bot/page.tsx、bot/setup、bot/[lineUserId]、bot/facebook-setup、bot/instagram-setup |
-| **calendar** | calendar/page.tsx ← 跟 smoking gun #2 直接相關 |
-| **documents** | documents/page.tsx |
-| **finance**（部分） | finance/page.tsx、finance/requests、finance/settings、finance/treasury、finance/treasury/disbursement |
-| **marketing/website**（剛拉下來的新 module） | marketing/website/page.tsx、marketing/website/[code] |
-| **messaging** | messaging/page.tsx |
-| **accounting**（剩餘） | accounting/page.tsx、accounting/opening-balances、accounting/period-closing、accounting/reports/page、accounting/reports/{balance-sheet,general-ledger,income-statement,trial-balance} |
-| **settings** | settings/page、settings/company、settings/personal |
-| **platform** | platform/page、platform/aitoearn |
-| **workspaces** | workspaces/page、workspaces/[id] |
-| **shared-data**（部分） | shared-data/attractions、shared-data/insurance-grades、shared-data/page |
-| **tours**（細節） | tours/[code]/display-editor |
-| **library/customers** | library/customers/[id] |
-| **hr/bonus-settlement** | hr/bonus-settlement/[tourId] |
+| 模組                                         | 漏掉的頁                                                                                                                                                                               |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **bot**（LINE/AI Hub）                       | bot/page.tsx、bot/setup、bot/[lineUserId]、bot/facebook-setup、bot/instagram-setup                                                                                                     |
+| **calendar**                                 | calendar/page.tsx ← 跟 smoking gun #2 直接相關                                                                                                                                         |
+| **documents**                                | documents/page.tsx                                                                                                                                                                     |
+| **finance**（部分）                          | finance/page.tsx、finance/requests、finance/settings、finance/treasury、finance/treasury/disbursement                                                                                  |
+| **marketing/website**（剛拉下來的新 module） | marketing/website/page.tsx、marketing/website/[code]                                                                                                                                   |
+| **messaging**                                | messaging/page.tsx                                                                                                                                                                     |
+| **accounting**（剩餘）                       | accounting/page.tsx、accounting/opening-balances、accounting/period-closing、accounting/reports/page、accounting/reports/{balance-sheet,general-ledger,income-statement,trial-balance} |
+| **settings**                                 | settings/page、settings/company、settings/personal                                                                                                                                     |
+| **platform**                                 | platform/page、platform/aitoearn                                                                                                                                                       |
+| **workspaces**                               | workspaces/page、workspaces/[id]                                                                                                                                                       |
+| **shared-data**（部分）                      | shared-data/attractions、shared-data/insurance-grades、shared-data/page                                                                                                                |
+| **tours**（細節）                            | tours/[code]/display-editor                                                                                                                                                            |
+| **library/customers**                        | library/customers/[id]                                                                                                                                                                 |
+| **hr/bonus-settlement**                      | hr/bonus-settlement/[tourId]                                                                                                                                                           |
 
 **最痛幾個**：
+
 - 🔴 **calendar/page.tsx** — 跟 archive-management 的 `calendar_events` 直接 delete 連動
 - 🔴 **marketing/website** — 剛 pull 的新 module、沒被審
-- 🔴 **bot/*** — LINE/AI Hub 整套（昨晚 Round 11 才迭代完的）
-- 🔴 **accounting/reports/*** — 財報相關 4 個頁、全部沒掃
+- 🔴 **bot/\*** — LINE/AI Hub 整套（昨晚 Round 11 才迭代完的）
+- 🔴 **accounting/reports/\*** — 財報相關 4 個頁、全部沒掃
 - 🟠 **finance/requests / finance/treasury** — 請款 / 出納（每天用）
 
 ### openclaw 的「待掃」（6 個）他自己也標了
+
 - library/suppliers
-- library/attractions  
+- library/attractions
 - hr/salary-settlement/[id]
-- ai/_components/AiRetrospectiveTab
+- ai/\_components/AiRetrospectiveTab
 - shared-data/countries
 - shared-data/airports
 
@@ -161,12 +171,12 @@ grep "supabase.from" src/app/(main)/accounting/{vouchers,accounts,checks}/page.t
 
 我抽 4 個他標 ✅entity 的：
 
-| 他標 | 我看 | 結論 |
-|---|---|---|
-| channels/page.tsx ✅ | `useChannels({ all: true })` 確實 entity | ✅ 正確 |
-| tours/page.tsx ✅ | 確實走 useQuotesSlim / useOrdersSlim 都 entity | ✅ 正確 |
-| todos/page.tsx ✅ | useTodos 確實 entity | ✅ 正確 |
-| visas/page.tsx ✅ | useCustomerDocumentApplications 確實 entity | ✅ 正確 |
+| 他標                 | 我看                                           | 結論    |
+| -------------------- | ---------------------------------------------- | ------- |
+| channels/page.tsx ✅ | `useChannels({ all: true })` 確實 entity       | ✅ 正確 |
+| tours/page.tsx ✅    | 確實走 useQuotesSlim / useOrdersSlim 都 entity | ✅ 正確 |
+| todos/page.tsx ✅    | useTodos 確實 entity                           | ✅ 正確 |
+| visas/page.tsx ✅    | useCustomerDocumentApplications 確實 entity    | ✅ 正確 |
 
 **抽樣 4 個全對**。他標「乾淨」的標記 quality 應該可信。
 
@@ -204,4 +214,4 @@ Step 3：依 Pass 2 結果排修法優先級
 
 ---
 
-*Pass 1 複盤完成。等 William 拍板 Step 1。*
+_Pass 1 複盤完成。等 William 拍板 Step 1。_

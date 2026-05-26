@@ -23,9 +23,7 @@ export const useDraftTourIds = createReportHook<string, Record<string, never>>({
   fetcher: async () => {
     const ids: string[] = []
     for (let from = 0; ; from += PAGE) {
-      const { data, error } = await filterActive(
-        supabase.from('tours').select('id')
-      )
+      const { data, error } = await filterActive(supabase.from('tours').select('id'))
         .in('status', DRAFT_TOUR_STATUSES as readonly string[] as string[])
         .range(from, from + PAGE - 1)
 

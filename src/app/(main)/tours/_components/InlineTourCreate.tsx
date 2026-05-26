@@ -45,16 +45,16 @@ interface InlineTourCreateProps {
   /** 預填 tour 名稱（從 todo title 帶入） */
   defaultTourName?: string
   /** 建立成功 callback */
-  onCreated?: (tour: { id: string; code: string; order?: { id: string; order_number: string } }) => void
+  onCreated?: (tour: {
+    id: string
+    code: string
+    order?: { id: string; order_number: string }
+  }) => void
   /** 取消 callback */
   onCancel?: () => void
 }
 
-export function InlineTourCreate({
-  defaultTourName,
-  onCreated,
-  onCancel,
-}: InlineTourCreateProps) {
+export function InlineTourCreate({ defaultTourName, onCreated, onCancel }: InlineTourCreateProps) {
   const t = useTranslations('tour')
   const { user } = useAuthStore()
   const [newTour, setNewTour] = useState<NewTourData>({
@@ -127,9 +127,7 @@ export function InlineTourCreate({
               </label>
               <Input
                 value={newTour.description || ''}
-                onChange={e =>
-                  setNewTour(prev => ({ ...prev, description: e.target.value }))
-                }
+                onChange={e => setNewTour(prev => ({ ...prev, description: e.target.value }))}
                 placeholder={COMPONENT_LABELS.REMARKS_PLACEHOLDER}
                 className="mt-1"
               />

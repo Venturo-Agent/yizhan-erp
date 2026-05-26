@@ -14,16 +14,17 @@
  */
 
 import { useCallback, useMemo, useState } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DatePicker } from '@/components/ui/date-picker'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
 import { Check, X } from 'lucide-react'
 import { apiPost, apiPatch } from '@/lib/api/client'
@@ -65,7 +66,9 @@ export function CreateDisbursementWizardDialog({
   const [pickedItemIds, setPickedItemIds] = useState<string[]>([])
   const [currentFee, setCurrentFee] = useState(0)
   const [feeDistribution, setFeeDistribution] = useState<'equal' | 'proportional'>('proportional')
-  const [stagedBatches, setStagedBatches] = useState<import('./disbursement-wizard-types').StagedBatch[]>([])
+  const [stagedBatches, setStagedBatches] = useState<
+    import('./disbursement-wizard-types').StagedBatch[]
+  >([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // ─── reset ───
@@ -84,7 +87,7 @@ export function CreateDisbursementWizardDialog({
       if (!isOpen) resetAll()
       onOpenChange(isOpen)
     },
-    [onOpenChange, resetAll],
+    [onOpenChange, resetAll]
   )
 
   // ─── 資料載入（拆至 useWizardData）───
@@ -143,76 +146,77 @@ export function CreateDisbursementWizardDialog({
   }, [availableItems, pickedItemIds])
 
   // ─── step transitions ───
-  const handleSelectBank = useCallback((bankId: string) => {
-    if (pickedItemIds.length === 0) {
-      void alert('請先勾選要從這個帳戶付款的請款品項', 'warning')
-      return
-    }
-    const bank = bankAccounts.find(b => b.id === bankId)
-    if (!bank) return
+  const handleSelectBank = useCallback(
+    (bankId: string) => {
+      if (pickedItemIds.length === 0) {
+        void alert('請先勾選要從這個帳戶付款的請款品項', 'warning')
+        return
+      }
+      const bank = bankAccounts.find(b => b.id === bankId)
+      if (!bank) return
 
-    if (editingOrder) {
-      setCurrentBank(bank)
-      return
-    }
+      if (editingOrder) {
+        setCurrentBank(bank)
+        return
+      }
 
-    // 新增模式：吸入勾選 items 進 stagedBatches、清勾選
-    // 2026-05-22 William 拍板：購物車合併 — 同帳戶 batch 已存在 → 追加 items、不建新 batch
-    const pickedItemsNow = pickedItems
-    const crossBankFee = Number(bank.cross_bank_fee || 0)
+      // 新增模式：吸入勾選 items 進 stagedBatches、清勾選
+      // 2026-05-22 William 拍板：購物車合併 — 同帳戶 batch 已存在 → 追加 items、不建新 batch
+      const pickedItemsNow = pickedItems
+      const crossBankFee = Number(bank.cross_bank_fee || 0)
 
-    const payerKeyOf = (it: typeof pickedItemsNow[0]): string =>
-      it.advanced_by
-        ? `e:${it.advanced_by}`
-        : it.payee_employee_id
-          ? `e:${it.payee_employee_id}`
-          : it.supplier_id
-            ? `s:${it.supplier_id}`
-            : `i:${it.id}`
+      const payerKeyOf = (it: (typeof pickedItemsNow)[0]): string =>
+        it.advanced_by
+          ? `e:${it.advanced_by}`
+          : it.payee_employee_id
+            ? `e:${it.payee_employee_id}`
+            : it.supplier_id
+              ? `s:${it.supplier_id}`
+              : `i:${it.id}`
 
-    setStagedBatches(prev => {
-      const existing = prev.find(b => b.from_bank_account_id === bank.id)
-      if (existing) {
-        // 合併：追加 items 進原 batch、重算 estimatedFee
-        const mergedItems = [...existing.items, ...pickedItemsNow]
-        const mergedItemIds = [...existing.item_ids, ...pickedItemIds]
-        let newFee = 0
+      setStagedBatches(prev => {
+        const existing = prev.find(b => b.from_bank_account_id === bank.id)
+        if (existing) {
+          // 合併：追加 items 進原 batch、重算 estimatedFee
+          const mergedItems = [...existing.items, ...pickedItemsNow]
+          const mergedItemIds = [...existing.item_ids, ...pickedItemIds]
+          let newFee = 0
+          if (crossBankFee > 0) {
+            const uniquePayers = new Set<string>()
+            for (const it of mergedItems) uniquePayers.add(payerKeyOf(it))
+            newFee = uniquePayers.size * crossBankFee
+          }
+          return prev.map(b =>
+            b.batch_id === existing.batch_id
+              ? { ...b, items: mergedItems, item_ids: mergedItemIds, total_fee: newFee }
+              : b
+          )
+        }
+        let estimatedFee = 0
         if (crossBankFee > 0) {
           const uniquePayers = new Set<string>()
-          for (const it of mergedItems) uniquePayers.add(payerKeyOf(it))
-          newFee = uniquePayers.size * crossBankFee
+          for (const it of pickedItemsNow) uniquePayers.add(payerKeyOf(it))
+          estimatedFee = uniquePayers.size * crossBankFee
         }
-        return prev.map(b =>
-          b.batch_id === existing.batch_id
-            ? { ...b, items: mergedItems, item_ids: mergedItemIds, total_fee: newFee }
-            : b,
-        )
-      }
-      let estimatedFee = 0
-      if (crossBankFee > 0) {
-        const uniquePayers = new Set<string>()
-        for (const it of pickedItemsNow) uniquePayers.add(payerKeyOf(it))
-        estimatedFee = uniquePayers.size * crossBankFee
-      }
-      const batch: import('./disbursement-wizard-types').StagedBatch = {
-        batch_id: crypto.randomUUID(),
-        from_bank_account_id: bank.id,
-        from_bank_label: bank.name + (bank.bank_name ? `(${bank.bank_name})` : ''),
-        from_bank_code: bank.bank_code,
-        item_ids: [...pickedItemIds],
-        items: [...pickedItemsNow],
-        total_fee: estimatedFee,
-        fee_distribution: 'equal',
-      }
-      return [...prev, batch]
-    })
-    setPickedItemIds([])
-  }, [bankAccounts, pickedItemIds, pickedItems, editingOrder])
+        const batch: import('./disbursement-wizard-types').StagedBatch = {
+          batch_id: crypto.randomUUID(),
+          from_bank_account_id: bank.id,
+          from_bank_label: bank.name + (bank.bank_name ? `(${bank.bank_name})` : ''),
+          from_bank_code: bank.bank_code,
+          item_ids: [...pickedItemIds],
+          items: [...pickedItemsNow],
+          total_fee: estimatedFee,
+          fee_distribution: 'equal',
+        }
+        return [...prev, batch]
+      })
+      setPickedItemIds([])
+    },
+    [bankAccounts, pickedItemIds, pickedItems, editingOrder]
+  )
 
   const handleUpdateStagedFee = useCallback((batchId: string, fee: number) => {
-    setStagedBatches(prev =>
-      prev.map(b => (b.batch_id === batchId ? { ...b, total_fee: fee } : b)),
-    )
+    setStagedBatches(prev => prev.map(b => (b.batch_id === batchId ? { ...b, total_fee: fee } : b)))
   }, [])
 
   const handleRemoveStaged = useCallback((batchId: string) => {
@@ -277,15 +281,15 @@ export function CreateDisbursementWizardDialog({
     }
     setIsSubmitting(true)
     try {
-      const res = await apiPost<{ batch_uuid: string; created: { order_number: string; bank_group_count: number; item_count: number }[] }>(
-        '/api/disbursement/batch-create',
-        { batches: derivedBatches },
-      )
+      const res = await apiPost<{
+        batch_uuid: string
+        created: { order_number: string; bank_group_count: number; item_count: number }[]
+      }>('/api/disbursement/batch-create', { batches: derivedBatches })
       await Promise.all([invalidateDisbursementOrders(), invalidatePaymentRequests()])
       const created = res.created[0]
       await alert(
         `已建立出納單 ${created?.order_number ?? ''}（${created?.bank_group_count ?? derivedBatches.length} 個銀行帳戶、共 ${created?.item_count ?? 0} 筆品項）`,
-        'success',
+        'success'
       )
       resetAll()
       onSuccess()
@@ -297,22 +301,31 @@ export function CreateDisbursementWizardDialog({
       setIsSubmitting(false)
     }
   }, [
-    editingOrder, disbursementDate,
-    currentBank, pickedItemIds, currentFee, feeDistribution,
+    editingOrder,
+    disbursementDate,
+    currentBank,
+    pickedItemIds,
+    currentFee,
+    feeDistribution,
     stagedBatches,
-    resetAll, onSuccess,
+    resetAll,
+    onSuccess,
   ])
 
   // ─── 顯示 ───
   const stepLabels: Record<WizardStep, string> = {
-    'main': '',
+    main: '',
     'fill-fee': '填寫該批手續費',
     'preview-all': '預覽 & 確認儲存',
   }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent level={1} size="full" className="!max-w-[98vw] h-[94vh] overflow-hidden flex flex-col">
+      <DialogContent
+        level={1}
+        size="full"
+        className="!max-w-[98vw] h-[94vh] overflow-hidden flex flex-col"
+      >
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <DialogTitle className="text-xl flex items-center gap-3">
@@ -320,9 +333,7 @@ export function CreateDisbursementWizardDialog({
                 ? `編輯出納單 ${editingOrder.order_number || editingOrder.code || ''}`
                 : '新增出納單(品項級)'}
               {!editingOrder && (
-                <span className="text-sm font-normal text-morandi-gold">
-                  {stepLabels[step]}
-                </span>
+                <span className="text-sm font-normal text-morandi-gold">{stepLabels[step]}</span>
               )}
               {!editingOrder && stagedBatches.length > 0 && (
                 <span className="text-sm font-normal text-morandi-secondary">
@@ -331,8 +342,14 @@ export function CreateDisbursementWizardDialog({
               )}
             </DialogTitle>
             <div className="flex items-center gap-2 flex-wrap">
-              <Label htmlFor="disb-date" className="text-sm">出帳日期</Label>
-              <DatePicker value={disbursementDate} onChange={setDisbursementDate} className="w-40" />
+              <Label htmlFor="disb-date" className="text-sm">
+                出帳日期
+              </Label>
+              <DatePicker
+                value={disbursementDate}
+                onChange={setDisbursementDate}
+                className="w-40"
+              />
               {/* 編輯模式：帳戶按鈕（active 高亮）+ 手續費 input + 分攤 + 取消 / 儲存變更 */}
               {editingOrder && (
                 <>
@@ -362,14 +379,17 @@ export function CreateDisbursementWizardDialog({
                     value={feeDistribution}
                     onValueChange={v => setFeeDistribution(v as 'equal' | 'proportional')}
                   >
-                    <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="proportional">按金額比例</SelectItem>
                       <SelectItem value="equal">平均分攤</SelectItem>
                     </SelectContent>
                   </Select>
                   <Button variant="soft-gold" size="sm" onClick={() => handleClose(false)}>
-                    <X size={14} className="mr-1" />取消
+                    <X size={14} className="mr-1" />
+                    取消
                   </Button>
                   <Button
                     variant="soft-gold"
@@ -401,7 +421,8 @@ export function CreateDisbursementWizardDialog({
                   ))}
                   <div className="w-px h-6 bg-morandi-border mx-2" />
                   <Button variant="soft-gold" size="sm" onClick={() => handleClose(false)}>
-                    <X size={14} className="mr-1" />取消
+                    <X size={14} className="mr-1" />
+                    取消
                   </Button>
                   <Button
                     variant="soft-gold"

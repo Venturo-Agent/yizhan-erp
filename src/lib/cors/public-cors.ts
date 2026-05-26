@@ -43,10 +43,7 @@ const MAX_AGE_SECONDS = '600' // 10 分鐘、瀏覽器快取 preflight、減少 
  * 接受 Response 或 NextResponse（dbErrorResponse / checkRateLimit 回 Response、
  * NextResponse.json 回 NextResponse、都要支援）。
  */
-export function withPublicCors<T extends Response>(
-  request: NextRequest,
-  response: T
-): T {
+export function withPublicCors<T extends Response>(request: NextRequest, response: T): T {
   const origin = request.headers.get('origin')
   if (origin && PUBLIC_API_ALLOWED_ORIGINS.has(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin)

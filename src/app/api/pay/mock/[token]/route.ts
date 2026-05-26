@@ -21,7 +21,8 @@ export async function GET(
   const supabase = getSupabaseAdminClient()
   const { data: tx, error } = await supabase
     .from('payment_transactions')
-    .select(`
+    .select(
+      `
       id,
       provider,
       amount,
@@ -34,7 +35,8 @@ export async function GET(
       external_approve_code,
       provider_info:platform_payment_providers!provider(provider_name, provider_kind),
       workspace:workspaces!workspace_id(name)
-    `)
+    `
+    )
     .eq('payment_link_token', token)
     .maybeSingle()
 

@@ -221,8 +221,7 @@ function buildRouteCardBlock(
 ): CanvasDayBlock {
   // 規格 § 4.2：景點數 → 版型
   const count = activities.length
-  const layout =
-    count === 0 ? 'transit' : count === 1 ? '1up' : count === 2 ? '2up' : '3up'
+  const layout = count === 0 ? 'transit' : count === 1 ? '1up' : count === 2 ? '2up' : '3up'
 
   // 取前 3（3up 超過 3 個會截斷）
   const take = layout === '3up' ? 3 : count
@@ -248,9 +247,10 @@ function buildRouteCardBlock(
 function buildStayItem(hotel: HotelInfo, index: number): CanvasStayItem {
   // nights_label：根據 nights 推 Night 編號
   // 簡單版：用 index + 1 當 Night N、未來業務在 override 改
-  const nightsLabel = hotel.nights && hotel.nights > 1
-    ? `Night ${index + 1} – ${index + hotel.nights}`
-    : `Night ${index + 1}`
+  const nightsLabel =
+    hotel.nights && hotel.nights > 1
+      ? `Night ${index + 1} – ${index + hotel.nights}`
+      : `Night ${index + 1}`
 
   return {
     id: `stay-${index}`,

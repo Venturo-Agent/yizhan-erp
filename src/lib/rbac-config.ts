@@ -6,10 +6,4 @@
  */
 
 /** employees.roles 欄位用的型別 */
-export type UserRole =
-  | 'admin'
-  | 'sales'
-  | 'accountant'
-  | 'assistant'
-  | 'staff'
-  | 'bot'
+export type UserRole = 'admin' | 'sales' | 'accountant' | 'assistant' | 'staff' | 'bot'

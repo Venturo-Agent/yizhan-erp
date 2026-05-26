@@ -17,15 +17,19 @@ interface TourHeaderProps {
   activeDay: number
 }
 
-export function TourHeader({ code, ref: refParam, companyName, dailyItinerary, activeDay }: TourHeaderProps) {
+export function TourHeader({
+  code,
+  ref: refParam,
+  companyName,
+  dailyItinerary,
+  activeDay,
+}: TourHeaderProps) {
   return (
     <>
       {/* Top Header */}
       <header className="bg-card/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <div className="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
-          <div className="text-xl font-bold tracking-tight text-public-primary">
-            {companyName}
-          </div>
+          <div className="text-xl font-bold tracking-tight text-public-primary">{companyName}</div>
           <nav className="hidden md:flex gap-8 items-center">
             {dailyItinerary.map((_, index) => (
               <a

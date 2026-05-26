@@ -25,13 +25,7 @@ interface CanvasRouteCardProps {
 
 // ============ 共用：景點卡內容 ============
 
-function AttractionCard({
-  attraction,
-  index,
-}: {
-  attraction: CanvasAttraction
-  index: number
-}) {
+function AttractionCard({ attraction, index }: { attraction: CanvasAttraction; index: number }) {
   const tagText = attraction.category ?? `SPOT ${String(index + 1).padStart(2, '0')}`
   return (
     <div

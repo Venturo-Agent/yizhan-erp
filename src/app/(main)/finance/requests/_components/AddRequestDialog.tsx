@@ -6,10 +6,7 @@ import { EditableRequestItemList } from './RequestItemList'
 import { CreateSupplierDialog } from './CreateSupplierDialog'
 import { CostTransferDialog } from './CostTransferDialog'
 import { BatchTabContent } from './AddRequestDialog.batch-tab'
-import {
-  RequestMode,
-  AddRequestDialogProps,
-} from './AddRequestDialog.types'
+import { RequestMode, AddRequestDialogProps } from './AddRequestDialog.types'
 import {
   saveEditedRequest,
   deleteEditedRequest,
@@ -81,12 +78,17 @@ export function AddRequestDialog({
 
   // === 批量/供應商 state 集中管理 ===
   const {
-    batchDate, setBatchDate,
-    batchCategoryId, setBatchCategoryId,
-    batchSupplierId, setBatchSupplierId,
-    batchPaymentMethodId, setBatchPaymentMethodId,
+    batchDate,
+    setBatchDate,
+    batchCategoryId,
+    setBatchCategoryId,
+    batchSupplierId,
+    setBatchSupplierId,
+    batchPaymentMethodId,
+    setBatchPaymentMethodId,
     tourAllocations,
-    isSubmitting, setIsSubmitting,
+    isSubmitting,
+    setIsSubmitting,
     importFromRequests,
     selectedRequestItems,
     selectedRequestTotal,
@@ -198,13 +200,27 @@ export function AddRequestDialog({
       await Promise.all([invalidateTours(), invalidateOrders()])
       if (defaultTourId) {
         setActiveTab('tour')
-        setFormData(prev => ({ ...prev, request_category: 'tour', tour_id: defaultTourId, order_id: defaultOrderId || '' }))
+        setFormData(prev => ({
+          ...prev,
+          request_category: 'tour',
+          tour_id: defaultTourId,
+          order_id: defaultOrderId || '',
+        }))
       } else {
         resetForm()
       }
     }
     initialize().catch(err => logger.error('[initialize]', err))
-  }, [open, defaultTourId, defaultOrderId, resetForm, setFormData, isEditMode, editingRequest, resetBatchState])
+  }, [
+    open,
+    defaultTourId,
+    defaultOrderId,
+    resetForm,
+    setFormData,
+    isEditMode,
+    editingRequest,
+    resetBatchState,
+  ])
 
   // 自動帶入訂單
   useEffect(() => {
@@ -217,23 +233,47 @@ export function AddRequestDialog({
   const handleSave = async () => {
     if (!currentRequest || isSubmitting) return
     await saveEditedRequest({
-      currentRequest, localItems, deletedItemIds, newItemIds, suppliers,
-      localPaymentMethodId, formData, orders, refreshRequestItems,
-      onSuccess: onSuccess ?? (() => {}), onOpenChange,
-      setIsDirty, setDeletedItemIds, setNewItemIds, setIsSubmitting,
+      currentRequest,
+      localItems,
+      deletedItemIds,
+      newItemIds,
+      suppliers,
+      localPaymentMethodId,
+      formData,
+      orders,
+      refreshRequestItems,
+      onSuccess: onSuccess ?? (() => {}),
+      onOpenChange,
+      setIsDirty,
+      setDeletedItemIds,
+      setNewItemIds,
+      setIsSubmitting,
     })
   }
 
   const handleDelete = async () => {
     if (!currentRequest || isSubmitting) return
     await deleteEditedRequest({
-      currentRequest, isEditBatch, editBatchRequests, setEditBatchRequests,
-      setSelectedRequestId, onOpenChange, setIsSubmitting,
+      currentRequest,
+      isEditBatch,
+      editBatchRequests,
+      setEditBatchRequests,
+      setSelectedRequestId,
+      onOpenChange,
+      setIsSubmitting,
     })
   }
 
   const handleDialogOpenChange = async (newOpen: boolean) => {
-    await handleEditOpenChange(newOpen, isDirty, isEditMode, setIsDirty, setDeletedItemIds, setNewItemIds, onOpenChange)
+    await handleEditOpenChange(
+      newOpen,
+      isDirty,
+      isEditMode,
+      setIsDirty,
+      setDeletedItemIds,
+      setNewItemIds,
+      onOpenChange
+    )
   }
 
   // === 新增：handleCancel / handleSubmit ===
@@ -247,14 +287,32 @@ export function AddRequestDialog({
   const handleSubmit = async () => {
     if (isSubmitting) return
     await submitNewRequest({
-      activeTab, workspaceId, formData, requestItems, tourAllocations,
-      totalAllocatedAmount, batchCategoryId, batchSupplierId, batchSupplierName,
-      batchPaymentMethodId, batchDate, importFromRequests, selectedRequestCount,
-      selectedRequestItems, tourRequestItems, tours, orders,
+      activeTab,
+      workspaceId,
+      formData,
+      requestItems,
+      tourAllocations,
+      totalAllocatedAmount,
+      batchCategoryId,
+      batchSupplierId,
+      batchSupplierName,
+      batchPaymentMethodId,
+      batchDate,
+      importFromRequests,
+      selectedRequestCount,
+      selectedRequestItems,
+      tourRequestItems,
+      tours,
+      orders,
       expenseCategories: allExpenseCats ?? [],
       currentUserName: currentUser?.display_name || currentUser?.chinese_name || '',
-      createPaymentRequest: createPaymentRequest as unknown as (data: Record<string, unknown>) => Promise<{ id: string }>,
-      addPaymentItem: addPaymentItem as unknown as (requestId: string, data: Record<string, unknown>) => Promise<void>,
+      createPaymentRequest: createPaymentRequest as unknown as (
+        data: Record<string, unknown>
+      ) => Promise<{ id: string }>,
+      addPaymentItem: addPaymentItem as unknown as (
+        requestId: string,
+        data: Record<string, unknown>
+      ) => Promise<void>,
       createRequest: createRequest as unknown as (
         formData: Record<string, unknown>,
         items: RequestItem[],
@@ -274,7 +332,10 @@ export function AddRequestDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={isEditMode ? handleDialogOpenChange : onOpenChange}>
-        <DialogContent level={level} className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col overflow-hidden">
+        <DialogContent
+          level={level}
+          className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col overflow-hidden"
+        >
           <Tabs
             value={activeTab}
             onValueChange={
@@ -283,7 +344,10 @@ export function AddRequestDialog({
                 : v => {
                     const mode = v as RequestMode
                     setActiveTab(mode)
-                    setFormData(prev => ({ ...prev, request_category: mode === 'company' ? 'company' : 'tour' }))
+                    setFormData(prev => ({
+                      ...prev,
+                      request_category: mode === 'company' ? 'company' : 'tour',
+                    }))
                   }
             }
             className="flex-1 flex flex-col overflow-hidden"
@@ -302,16 +366,24 @@ export function AddRequestDialog({
               orderOptions={orderOptions}
               onTabChange={mode => {
                 setActiveTab(mode)
-                setFormData(prev => ({ ...prev, request_category: mode === 'company' ? 'company' : 'tour' }))
+                setFormData(prev => ({
+                  ...prev,
+                  request_category: mode === 'company' ? 'company' : 'tour',
+                }))
               }}
-              onTourChange={value => setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))}
+              onTourChange={value =>
+                setFormData(prev => ({ ...prev, tour_id: value, order_id: '' }))
+              }
               onOrderChange={value => setFormData(prev => ({ ...prev, order_id: value }))}
               onBatchDateChange={date => setBatchDate(date)}
               onSelectRequestId={id => setSelectedRequestId(id)}
             />
 
             {/* 團體請款 */}
-            <TabsContent value="tour" className="flex-1 overflow-y-auto pt-4 border-t border-morandi-container/30 space-y-6">
+            <TabsContent
+              value="tour"
+              className="flex-1 overflow-y-auto pt-4 border-t border-morandi-container/30 space-y-6"
+            >
               <EditableRequestItemList
                 items={isEditMode ? localItems : requestItems}
                 suppliers={suppliers}
@@ -323,7 +395,11 @@ export function AddRequestDialog({
                 disabled={isEditMode && !canEdit}
                 paymentMethods={paymentMethods}
                 hideDateColumn={isEditMode}
-                onTransfer={isEditMode && !canEdit && currentRequest ? () => setCostTransferOpen(true) : undefined}
+                onTransfer={
+                  isEditMode && !canEdit && currentRequest
+                    ? () => setCostTransferOpen(true)
+                    : undefined
+                }
               />
             </TabsContent>
 
@@ -350,7 +426,10 @@ export function AddRequestDialog({
 
             {/* 公司請款 */}
             {canCreateCompanyPayment && (
-              <TabsContent value="company" className="flex-1 overflow-y-auto pt-4 border-t border-morandi-container/30 space-y-6">
+              <TabsContent
+                value="company"
+                className="flex-1 overflow-y-auto pt-4 border-t border-morandi-container/30 space-y-6"
+              >
                 <EditableRequestItemList
                   items={isEditMode ? localItems : requestItems}
                   suppliers={suppliers}
@@ -363,7 +442,9 @@ export function AddRequestDialog({
                   paymentMethods={paymentMethods}
                   hideDateColumn={isEditMode}
                   expenseTypeMode
-                  payeeIsEmployee={formData.expense_type === 'BNS' || formData.expense_type === 'SAL'}
+                  payeeIsEmployee={
+                    formData.expense_type === 'BNS' || formData.expense_type === 'SAL'
+                  }
                 />
               </TabsContent>
             )}

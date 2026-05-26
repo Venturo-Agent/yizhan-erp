@@ -11,7 +11,8 @@ import type { TransferPairRow } from '../_utils/printHelpers'
 const COMPONENT_LABELS = {
   TRANSFER_SUBTOTAL: '轉移小計',
   ORPHAN_WARNING_PREFIX: '⚠ 偵測到',
-  ORPHAN_WARNING_BODY: '組異常的成本轉移配對（找不到對手方）、未列入下方明細。請確認 PR 是否被誤刪或狀態異常（pair_id：',
+  ORPHAN_WARNING_BODY:
+    '組異常的成本轉移配對（找不到對手方）、未列入下方明細。請確認 PR 是否被誤刪或狀態異常（pair_id：',
   COST_TRANSFER_TITLE: '成本轉移 COST TRANSFER',
   COL_TOUR: '團',
   COL_SUPPLIER: '供應商',
@@ -52,7 +53,8 @@ export function PrintCostTransfer({ transferPairs, orphanPairIds }: PrintCostTra
             color: COLORS.red,
           }}
         >
-          {COMPONENT_LABELS.ORPHAN_WARNING_PREFIX} {orphanPairIds.length} {COMPONENT_LABELS.ORPHAN_WARNING_BODY}
+          {COMPONENT_LABELS.ORPHAN_WARNING_PREFIX} {orphanPairIds.length}{' '}
+          {COMPONENT_LABELS.ORPHAN_WARNING_BODY}
           {orphanPairIds.map(id => id.slice(0, 8)).join('、')}）。
         </div>
       )}
@@ -138,11 +140,10 @@ export function PrintCostTransfer({ transferPairs, orphanPairIds }: PrintCostTra
                       <td style={{ padding: '5px 8px', color: COLORS.gray }}>
                         {pair.fromTourCode}
                       </td>
+                      <td style={{ padding: '5px 8px', color: COLORS.gray }}>{primary.supplier}</td>
                       <td style={{ padding: '5px 8px', color: COLORS.gray }}>
-                        {primary.supplier}
-                      </td>
-                      <td style={{ padding: '5px 8px', color: COLORS.gray }}>
-                        {COMPONENT_LABELS.TRANSFER_OUT_PREFIX}{primary.description}
+                        {COMPONENT_LABELS.TRANSFER_OUT_PREFIX}
+                        {primary.description}
                       </td>
                       <td style={{ padding: '5px 8px', textAlign: 'right', color: COLORS.red }}>
                         {(-pair.amount).toLocaleString()}
@@ -150,14 +151,11 @@ export function PrintCostTransfer({ transferPairs, orphanPairIds }: PrintCostTra
                     </tr>
                     {/* 新團（入）— 正金額 */}
                     <tr style={{ borderBottom: `1px solid #e5e5e5` }}>
+                      <td style={{ padding: '5px 8px', color: COLORS.gray }}>{pair.toTourCode}</td>
+                      <td style={{ padding: '5px 8px', color: COLORS.gray }}>{primary.supplier}</td>
                       <td style={{ padding: '5px 8px', color: COLORS.gray }}>
-                        {pair.toTourCode}
-                      </td>
-                      <td style={{ padding: '5px 8px', color: COLORS.gray }}>
-                        {primary.supplier}
-                      </td>
-                      <td style={{ padding: '5px 8px', color: COLORS.gray }}>
-                        {COMPONENT_LABELS.TRANSFER_IN_PREFIX}{primary.description}
+                        {COMPONENT_LABELS.TRANSFER_IN_PREFIX}
+                        {primary.description}
                       </td>
                       <td style={{ padding: '5px 8px', textAlign: 'right', color: COLORS.gray }}>
                         {pair.amount.toLocaleString()}
@@ -178,7 +176,9 @@ export function PrintCostTransfer({ transferPairs, orphanPairIds }: PrintCostTra
               fontSize: '12px',
             }}
           >
-            <span style={{ color: COLORS.lightGray, marginRight: '16px' }}>{COMPONENT_LABELS.TRANSFER_SUBTOTAL}</span>
+            <span style={{ color: COLORS.lightGray, marginRight: '16px' }}>
+              {COMPONENT_LABELS.TRANSFER_SUBTOTAL}
+            </span>
             <span style={{ fontWeight: 600, color: COLORS.gray }}>NT$ 0</span>
           </div>
         </div>

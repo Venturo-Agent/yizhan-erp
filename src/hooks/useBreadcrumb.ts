@@ -2,10 +2,7 @@
 
 import { useMemo } from 'react'
 import { usePathname } from 'next/navigation'
-import {
-  getBreadcrumbConfig,
-  resolvePath,
-} from '@/lib/navigation/breadcrumb-config'
+import { getBreadcrumbConfig, resolvePath } from '@/lib/navigation/breadcrumb-config'
 
 /**
  * Breadcrumb 項目
@@ -199,4 +196,3 @@ function _getParentPath(pathname: string): string | undefined {
 }
 
 // 匯出類型
-
