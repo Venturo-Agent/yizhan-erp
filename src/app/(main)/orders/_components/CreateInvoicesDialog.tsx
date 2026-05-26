@@ -28,6 +28,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Receipt, History, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { confirm } from '@/lib/ui/alert-dialog'
 import { dynamicFrom } from '@/lib/supabase/typed-client'
 import { logger } from '@/lib/utils/logger'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -78,6 +79,7 @@ export function CreateInvoicesDialog({
   // 歷史 batches
   const [history, setHistory] = useState<HistoryBatch[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
+  const [canceling, setCanceling] = useState<string | null>(null)
 
   const fetchHistory = useCallback(async () => {
     if (!orderId) return
@@ -246,6 +248,30 @@ export function CreateInvoicesDialog({
     }
   }
 
+  const handleCancelBatch = async (batchId: string) => {
+    if (canceling) return
+    const ok = await confirm('確定要作廢這筆帳單嗎？作廢後客戶付款連結會失效。', {
+      title: '作廢帳單',
+      type: 'warning',
+    })
+    if (!ok) return
+    setCanceling(batchId)
+    try {
+      const res = await apiMutate(`/api/invoice-batches/${batchId}/cancel`, {
+        method: 'POST',
+        invalidate: [`/api/invoice-batches?order_id=${encodeURIComponent(orderId)}`],
+      })
+      if (!res.ok) {
+        toast.error(res.error || '作廢失敗')
+        return
+      }
+      toast.success('帳單已作廢')
+      void fetchHistory()
+    } finally {
+      setCanceling(null)
+    }
+  }
+
   const handleClose = () => {
     setSelected(new Set())
     setCreatedBatch(null)
@@ -332,6 +358,8 @@ export function CreateInvoicesDialog({
                     link={buildLink(b.public_token)}
                     copied={copied === b.public_token}
                     onCopy={() => handleCopy(b.public_token)}
+                    onCancel={() => handleCancelBatch(b.id)}
+                    canceling={canceling === b.id}
                   />
                 ))}
               </div>

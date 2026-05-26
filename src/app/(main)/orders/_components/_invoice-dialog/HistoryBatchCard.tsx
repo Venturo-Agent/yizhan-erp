@@ -6,7 +6,7 @@
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, Ban, Loader2 } from 'lucide-react'
 import type { HistoryBatch } from './invoice-dialog.types'
 
 interface HistoryBatchCardProps {
@@ -14,9 +14,19 @@ interface HistoryBatchCardProps {
   link: string
   copied: boolean
   onCopy: () => void
+  /** 作廢 handler（紅線 D：有收款的 parent 仍會傳、靠下方條件 + API 雙重擋）2026-05-26 */
+  onCancel?: () => void
+  canceling?: boolean
 }
 
-export function HistoryBatchCard({ batch, link, copied, onCopy }: HistoryBatchCardProps) {
+export function HistoryBatchCard({
+  batch,
+  link,
+  copied,
+  onCopy,
+  onCancel,
+  canceling,
+}: HistoryBatchCardProps) {
   const isExpired = new Date(batch.token_expires_at) < new Date()
   const remaining = batch.total_amount - batch.paid_amount
 
@@ -104,6 +114,25 @@ export function HistoryBatchCard({ batch, link, copied, onCopy }: HistoryBatchCa
           {batch.notes}
         </div>
       )}
+
+      {/* 作廢：只在「沒收款 + 非已付清 + 非已作廢」顯示（紅線 D：有收款要先退款、API 再擋一層）*/}
+      {onCancel &&
+        batch.paid_amount === 0 &&
+        batch.status !== 'cancelled' &&
+        batch.status !== 'paid' && (
+          <div className="mt-2 pt-1.5 border-t border-border/50 flex justify-end">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onCancel}
+              disabled={canceling}
+              className="h-7 px-2 text-[0.7rem] text-status-danger hover:text-status-danger/80 hover:bg-status-danger-bg"
+            >
+              {canceling ? <Loader2 size={12} className="animate-spin" /> : <Ban size={12} />}
+              <span className="ml-1">作廢</span>
+            </Button>
+          </div>
+        )}
     </div>
   )
 }
