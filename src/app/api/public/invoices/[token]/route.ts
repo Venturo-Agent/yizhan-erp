@@ -94,6 +94,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
           .eq('workspace_id', batch.workspace_id)
           .eq('type', 'receipt')
           .eq('is_active', true)
+          // 只列「對客戶開放」的方式、內部用的（甲存/現金/支票）不漏給客人（2026-05-26）
+          .eq('is_customer_visible', true)
           .order('sort_order', { ascending: true }),
       ])
 

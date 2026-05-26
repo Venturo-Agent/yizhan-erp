@@ -64,6 +64,8 @@ export function MethodDialog({
   const [kind, setKind] = useState<PaymentMethodKind | ''>('')
   // provider（B 方案 2026-05-22）：誰處理金流
   const [provider, setProvider] = useState<string>('manual')
+  // 對客戶開放（僅收款方式有意義）2026-05-26
+  const [isCustomerVisible, setIsCustomerVisible] = useState(false)
 
   const { providers: allProviders } = usePaymentProviders()
 
@@ -99,6 +101,7 @@ export function MethodDialog({
       setFeeAccountId(method?.fee_account_id || '')
       setKind((method?.kind as PaymentMethodKind | null) ?? '')
       setProvider(method?.provider ?? 'manual')
+      setIsCustomerVisible(method?.is_customer_visible ?? false)
       // 新增時自動取下一個排序數字
       if (method) {
         setSortOrder(method.sort_order || 0)
@@ -142,6 +145,7 @@ export function MethodDialog({
       kind: kind || null,
       sort_order: sortOrder,
       provider,
+      is_customer_visible: isCustomerVisible,
     })
   }
 
@@ -231,6 +235,25 @@ export function MethodDialog({
             <p className="text-xs text-morandi-muted">
               💡 收款時「付款資訊」欄位會顯示這段提示文字
             </p>
+          </div>
+        )}
+
+        {/* 對客戶開放：僅收款方式（客戶自助付款頁）有意義、比照銀行帳戶「可出帳」開關 */}
+        {type === 'receipt' && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isCustomerVisible"
+              checked={isCustomerVisible}
+              onChange={e => setIsCustomerVisible(e.target.checked)}
+              className="h-4 w-4 rounded border-morandi-muted"
+            />
+            <Label htmlFor="isCustomerVisible">
+              開放客戶自助付款頁選用
+              <span className="ml-2 text-xs text-morandi-muted">
+                （取消勾選 = 只供內部後台開收款單、客戶看不到。譬如甲存 / 現金 / 支票）
+              </span>
+            </Label>
           </div>
         )}
 

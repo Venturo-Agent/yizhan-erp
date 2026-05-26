@@ -53,8 +53,26 @@ export function SortableMethodRow({
           <GripVertical className="h-4 w-4 text-morandi-secondary" />
         </button>
       </td>
-      {/* 名稱 */}
-      <td className="px-4 py-3 text-sm font-medium">{method.name}</td>
+      {/* 名稱（收款方式額外標「對外/內部」） */}
+      <td className="px-4 py-3 text-sm font-medium">
+        {method.name}
+        {method.type === 'receipt' && (
+          <span
+            className={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-medium ${
+              method.is_customer_visible
+                ? 'bg-status-success-bg text-status-success'
+                : 'bg-morandi-container text-morandi-muted'
+            }`}
+            title={
+              method.is_customer_visible
+                ? '客戶自助付款頁可選此方式'
+                : '只供內部後台開收款單、客戶看不到'
+            }
+          >
+            {method.is_customer_visible ? '對外' : '內部'}
+          </span>
+        )}
+      </td>
       {/* 金流商（B 方案 provider）*/}
       <td className="px-4 py-3 text-sm">
         {isGatewayProvider(method.provider) ? (

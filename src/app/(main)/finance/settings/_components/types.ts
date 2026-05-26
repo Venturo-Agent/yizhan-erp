@@ -31,6 +31,8 @@ export interface PaymentMethod {
    * - sinopac_card / sinopac_collect / sinopac_apple_pay / sinopac_google_pay / sinopac_samsung_pay
    */
   provider: string
+  /** 對客戶開放：客戶自助付款頁是否可選此方式（2026-05-26 William 拍板、比照 bank is_disbursement_eligible）*/
+  is_customer_visible?: boolean
 }
 
 export interface PlatformPaymentProvider {

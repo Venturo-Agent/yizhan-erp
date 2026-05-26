@@ -45,7 +45,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
     .from('payment_methods')
     .select(
       `id, name, code, type, description, placeholder, is_active, is_system, sort_order,
-       workspace_id, created_at, updated_at,
+       workspace_id, created_at, updated_at, is_customer_visible,
        debit_account_id, credit_account_id,
        fee_percent, fee_fixed, fee_account_id, kind, provider,
        debit_account:chart_of_accounts!debit_account_id(id, code, name),

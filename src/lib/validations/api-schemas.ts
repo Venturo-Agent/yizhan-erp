@@ -288,6 +288,8 @@ export const createPaymentMethodSchema = z.object({
   kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
   // provider（B 方案）：誰處理金流。manual / sinopac_* / 未來其他銀行
   provider: z.string().min(1).max(50).optional(),
+  // 對客戶開放（客戶自助付款頁可選）2026-05-26
+  is_customer_visible: z.boolean().optional(),
 })
 
 export const updatePaymentMethodSchema = z.object({
@@ -310,6 +312,8 @@ export const updatePaymentMethodSchema = z.object({
   kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
   // provider（B 方案）
   provider: z.string().min(1).max(50).optional(),
+  // 對客戶開放（客戶自助付款頁可選）2026-05-26
+  is_customer_visible: z.boolean().optional(),
 })
 
 export const upsertBankAccountSchema = z.object({

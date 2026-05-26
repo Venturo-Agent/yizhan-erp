@@ -5995,6 +5995,7 @@ export type Database = {
           fee_percent: number | null
           id: string
           is_active: boolean | null
+          is_customer_visible: boolean
           is_system: boolean | null
           kind: string | null
           name: string
@@ -6016,6 +6017,7 @@ export type Database = {
           fee_percent?: number | null
           id?: string
           is_active?: boolean | null
+          is_customer_visible?: boolean
           is_system?: boolean | null
           kind?: string | null
           name: string
@@ -6037,6 +6039,7 @@ export type Database = {
           fee_percent?: number | null
           id?: string
           is_active?: boolean | null
+          is_customer_visible?: boolean
           is_system?: boolean | null
           kind?: string | null
           name?: string
@@ -6277,6 +6280,8 @@ export type Database = {
           expense_type: string | null
           id: string
           is_special_billing: boolean | null
+          list_sort_group: number | null
+          list_sort_key: number | null
           notes: string | null
           order_id: string | null
           order_number: string | null
@@ -6322,6 +6327,8 @@ export type Database = {
           expense_type?: string | null
           id?: string
           is_special_billing?: boolean | null
+          list_sort_group?: number | null
+          list_sort_key?: number | null
           notes?: string | null
           order_id?: string | null
           order_number?: string | null
@@ -6367,6 +6374,8 @@ export type Database = {
           expense_type?: string | null
           id?: string
           is_special_billing?: boolean | null
+          list_sort_group?: number | null
+          list_sort_key?: number | null
           notes?: string | null
           order_id?: string | null
           order_number?: string | null
@@ -6438,6 +6447,7 @@ export type Database = {
           payment_link: string | null
           payment_link_expires_at: string | null
           payment_link_token: string | null
+          payment_method_id: string | null
           provider: string
           raw_webhook_payload: Json | null
           receipt_id: string | null
@@ -6460,6 +6470,7 @@ export type Database = {
           payment_link?: string | null
           payment_link_expires_at?: string | null
           payment_link_token?: string | null
+          payment_method_id?: string | null
           provider: string
           raw_webhook_payload?: Json | null
           receipt_id?: string | null
@@ -6482,6 +6493,7 @@ export type Database = {
           payment_link?: string | null
           payment_link_expires_at?: string | null
           payment_link_token?: string | null
+          payment_method_id?: string | null
           provider?: string
           raw_webhook_payload?: Json | null
           receipt_id?: string | null
@@ -6495,6 +6507,13 @@ export type Database = {
             columns: ['created_by']
             isOneToOne: false
             referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'payment_transactions_payment_method_id_fkey'
+            columns: ['payment_method_id']
+            isOneToOne: false
+            referencedRelation: 'payment_methods'
             referencedColumns: ['id']
           },
           {
@@ -7056,6 +7075,8 @@ export type Database = {
           id: string
           invoice_id: string | null
           is_active: boolean
+          list_sort_group: number | null
+          list_sort_key: number | null
           notes: string | null
           order_id: string | null
           order_number: string | null
@@ -7102,6 +7123,8 @@ export type Database = {
           id?: string
           invoice_id?: string | null
           is_active?: boolean
+          list_sort_group?: number | null
+          list_sort_key?: number | null
           notes?: string | null
           order_id?: string | null
           order_number?: string | null
@@ -7148,6 +7171,8 @@ export type Database = {
           id?: string
           invoice_id?: string | null
           is_active?: boolean
+          list_sort_group?: number | null
+          list_sort_key?: number | null
           notes?: string | null
           order_id?: string | null
           order_number?: string | null
