@@ -54,7 +54,8 @@ export default function RequestsPage() {
   const [activeTab, setActiveTab] = useState<RequestScopeTab>('all')
   const [statusFilter, setStatusFilter] = useState<RequestStatusFilter>('all')
   const [sortBy, setSortBy] = useState('request_date')
-  // 預設請款日期「舊的在前」（先處理舊帳）— 還原 5/24 前的規則。未付款優先分群在 useRequestsListView。
+  // 預設排序（未付舊在上/已付新在上 + 狀態分群）由 useRequestsListView 的 list_sort_group/list_sort_key 決定。
+  // sortBy==='request_date' 時走那組生成欄；sortOrder 只在使用者點「其他欄位」排序時才生效。
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
   // 讀取 URL 參數（從快速請款按鈕傳入）

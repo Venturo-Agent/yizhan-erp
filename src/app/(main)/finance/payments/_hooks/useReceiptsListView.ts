@@ -110,15 +110,24 @@ export function useReceiptsListView(params: UseReceiptsListViewParams): UseRecei
       const from = (page - 1) * pageSize
       const to = from + pageSize - 1
 
-      // 排序（還原改 server 分頁前的兩層規則、修「亂掉」）：
-      // 1. 待確認優先：confirmed_at 為 null（pending/pending_verify = 待確認）排前面、已確認在後
-      // 2. 使用者選的欄位（預設收款日期 receipt_date）
-      // 3. id 做穩定 tiebreak —— 同一天多筆不再隨機亂跳
-      let query = filterActive(supabase.from('receipts').select(LIST_SELECT, { count: 'exact' }))
-        .order('confirmed_at', { ascending: true, nullsFirst: true })
-        .order(sortBy, { ascending: sortOrder === 'asc' })
-        .order('id', { ascending: true })
-        .range(from, to)
+      // 排序（William 2026-05-26 拍板：分群改吃「狀態」生成欄、修狀態穿插）：
+      // 1. list_sort_group：待確認(pending/pending_verify)=0 在上、已確認(confirmed)=1、已退回/取消/退款=2 沉底
+      //    —— 不再靠 confirmed_at 的 nullsFirst 分群（confirmed_at 空值會穿插）
+      // 2. 群內：
+      //    - 預設（收款日 receipt_date）走 list_sort_key —— 待確認「舊在上」(很早收錢卻還沒核銷的浮頂)、已確認/終態「新在上」
+      //    - 使用者點其他欄位排序時，群內改用該欄位（方向照使用者選的）
+      // 3. id 做穩定 tiebreak —— 同一鍵多筆不再隨機亂跳
+      // ⚠️ list_sort_group / list_sort_key 是 DB 生成欄（見 migration finance_list_sort_keys、需先 apply）
+      let query = filterActive(
+        supabase.from('receipts').select(LIST_SELECT, { count: 'exact' })
+      ).order('list_sort_group', { ascending: true })
+
+      query =
+        sortBy === 'receipt_date'
+          ? query.order('list_sort_key', { ascending: true })
+          : query.order(sortBy, { ascending: sortOrder === 'asc' })
+
+      query = query.order('id', { ascending: true }).range(from, to)
 
       // tab 範圍：團體 = 有綁團或綁單；公司 = 都沒綁
       const scope = resolveScope(tab, canTour, canCompany)

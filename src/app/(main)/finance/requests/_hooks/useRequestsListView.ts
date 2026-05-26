@@ -120,17 +120,24 @@ export function useRequestsListView(params: UseRequestsListViewParams): UseReque
       const from = (page - 1) * pageSize
       const to = from + pageSize - 1
 
-      // 排序（還原 5/24 改 server 分頁前的兩層規則、修「亂掉」）：
-      // 1. 未付款優先：paid_at 為 null（pending/confirmed = 未付）排前面、已付款（paid_at 有值）在後
-      // 2. 使用者選的欄位（預設請款日期 request_date）
-      // 3. id 做穩定 tiebreak —— 同一天多筆不再隨機亂跳
+      // 排序（William 2026-05-26 拍板：分群改吃「狀態」生成欄、修狀態穿插）：
+      // 1. list_sort_group：未付(pending/confirmed)=0 在上、已付(paid)=1 在下
+      //    —— 不再靠 paid_at 的 nullsFirst 分群（status='paid' 但 paid_at 空值會穿插進未付那群）
+      // 2. 群內：
+      //    - 預設（請款日 request_date）走 list_sort_key —— 未付「舊在上」(逾期/卡很久的浮頂)、已付「新在上」(看最近付掉的)
+      //    - 使用者點其他欄位排序時，群內改用該欄位（方向照使用者選的）
+      // 3. id 做穩定 tiebreak —— 同一鍵多筆不再隨機亂跳
+      // ⚠️ list_sort_group / list_sort_key 是 DB 生成欄（見 migration finance_list_sort_keys、需先 apply）
       let query = filterActive(
         supabase.from('payment_requests').select(LIST_SELECT, { count: 'exact' })
-      )
-        .order('paid_at', { ascending: true, nullsFirst: true })
-        .order(sortBy, { ascending: sortOrder === 'asc' })
-        .order('id', { ascending: true })
-        .range(from, to)
+      ).order('list_sort_group', { ascending: true })
+
+      query =
+        sortBy === 'request_date'
+          ? query.order('list_sort_key', { ascending: true })
+          : query.order(sortBy, { ascending: sortOrder === 'asc' })
+
+      query = query.order('id', { ascending: true }).range(from, to)
 
       // tab 範圍：用 request_category 過濾。全 3 類都能看（且 tab=all）→ 不加範圍篩選、看全部。
       const cats = resolveCategories(tab, canTour, canCompany, canSalary)

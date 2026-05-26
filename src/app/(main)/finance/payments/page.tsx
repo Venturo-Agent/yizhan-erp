@@ -22,7 +22,6 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
-import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
@@ -34,7 +33,7 @@ import { TableColumn } from '@/components/ui/enhanced-table'
 import { Plus, Edit2, CheckSquare, Undo2, Printer, XCircle } from 'lucide-react'
 import { confirm, prompt } from '@/lib/ui/alert-dialog'
 import { toast } from 'sonner'
-import { DateCell, StatusCell, CurrencyCell } from '@/components/table-cells'
+import { DateCell, StatusCell, CurrencyCell, ActionCell } from '@/components/table-cells'
 
 type ReceiptTabValue = 'all' | 'tour' | 'company'
 type ReceiptStatusFilter = 'all' | 'unpaid'
@@ -87,7 +86,8 @@ export default function PaymentsPage() {
   const [activeTab, setActiveTab] = useState<ReceiptTabValue>('all')
   const [statusFilter, setStatusFilter] = useState<ReceiptStatusFilter>('all')
   const [sortBy, setSortBy] = useState('receipt_date')
-  // 預設收款日期「舊的在前」（還原 server 分頁前規則）。待確認優先分群在 useReceiptsListView。
+  // 預設排序（待確認舊在上/已確認新在上 + 狀態分群）由 useReceiptsListView 的 list_sort_group/list_sort_key 決定。
+  // sortBy==='receipt_date' 時走那組生成欄；sortOrder 只在使用者點「其他欄位」排序時才生效。
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
   // UI 狀態（對話框）
@@ -295,100 +295,72 @@ export default function PaymentsPage() {
     },
   ]
 
-  // 操作欄固定三槽：[主操作] [退款/退回] [鉛筆]
-  // 中間槽用 spacer 佔位、讓鉛筆永遠在同一欄
   const renderReceiptActions = (row: Receipt) => {
     const isPending = row.status === 'pending' || row.status === 'pending_verify'
     const isCompleted = row.status === 'confirmed' || row.status === 'refunded'
     const canRefund = row.status === 'confirmed' && !row.refunded_at
 
     return (
-      <div className="flex items-center gap-1 whitespace-nowrap">
-        {/* 槽 1: 主操作 */}
-        {isPending && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async e => {
-              e.stopPropagation()
-              if (row.status === 'pending_verify') {
-                await handleVerifyPayment(row.id)
-              } else {
-                // handleConfirmReceipt 內部已 fire-and-forget + 樂觀更新 + refresh
-                // 不要 await（會等不到、本來就 sync return）也不要再 refresh（重複）
-                handleConfirmReceipt(row.id)
-              }
-            }}
-            className="h-7 px-2 text-xs text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10"
-          >
-            <CheckSquare size={14} className="mr-1" />
-            核准
-          </Button>
-        )}
-        {isCompleted && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={e => {
-              e.stopPropagation()
-              setPrintingReceipt(row)
-              setIsPrintDialogOpen(true)
-            }}
-            className="h-7 px-2 text-xs text-morandi-secondary hover:text-morandi-primary"
-          >
-            <Printer size={14} className="mr-1" />
-            收據
-          </Button>
-        )}
-
-        {/* 槽 2: 退回 / 退款，或 spacer 佔位 */}
-        {row.status === 'pending_verify' && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={e => {
-              e.stopPropagation()
-              void handleRejectPayment(row.id)
-            }}
-            className="h-7 px-2 text-xs text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10"
-          >
-            <XCircle size={14} className="mr-1" />
-            {t('rejectPayment')}
-          </Button>
-        )}
-        {canRefund && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={e => {
-              e.stopPropagation()
-              setRefundingReceipt(row)
-              setIsRefundDialogOpen(true)
-            }}
-            className="h-7 px-2 text-xs text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10"
-          >
-            <Undo2 size={14} className="mr-1" />
-            退款
-          </Button>
-        )}
-        {!row.status.startsWith('pending') && !canRefund && (
-          <div className="h-7 w-[52px] shrink-0" />
-        )}
-
-        {/* 槽 3: 鉛筆永遠在最後 */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={e => {
-            e.stopPropagation()
-            loadReceiptForEdit(row)
-          }}
-          className="h-7 px-2 text-xs text-morandi-secondary hover:text-morandi-primary"
-        >
-          <Edit2 size={14} className="mr-1" />
-          {isCompleted ? t('viewLabel') : t('editLabel')}
-        </Button>
-      </div>
+      <ActionCell
+        actions={[
+          ...(isPending
+            ? [
+                {
+                  icon: CheckSquare,
+                  label: '核准',
+                  onClick: () => {
+                    if (row.status === 'pending_verify') {
+                      void handleVerifyPayment(row.id)
+                    } else {
+                      handleConfirmReceipt(row.id)
+                    }
+                  },
+                  variant: 'success' as const,
+                },
+              ]
+            : []),
+          ...(isCompleted
+            ? [
+                {
+                  icon: Printer,
+                  label: '收據',
+                  onClick: () => {
+                    setPrintingReceipt(row)
+                    setIsPrintDialogOpen(true)
+                  },
+                },
+              ]
+            : []),
+          ...(row.status === 'pending_verify'
+            ? [
+                {
+                  icon: XCircle,
+                  label: t('rejectPayment'),
+                  onClick: () => void handleRejectPayment(row.id),
+                  variant: 'danger' as const,
+                },
+              ]
+            : []),
+          ...(canRefund
+            ? [
+                {
+                  icon: Undo2,
+                  label: '退款',
+                  onClick: () => {
+                    setRefundingReceipt(row)
+                    setIsRefundDialogOpen(true)
+                  },
+                  variant: 'danger' as const,
+                },
+              ]
+            : []),
+          {
+            icon: Edit2,
+            label: isCompleted ? t('viewLabel') : t('editLabel'),
+            onClick: () => loadReceiptForEdit(row),
+          },
+        ]}
+      />
     )
   }
 
