@@ -217,7 +217,7 @@ export async function seedWorkspaceFeatures(
     'hr_bonus_settlement',
     'hr_salary_settlement',
     'settings',
-    'customers',
+    // 2026-05-26 移除孤兒 'customers' feature：客戶收回 database module、客戶頁由 database feature 涵蓋
     'itinerary',
     'accounting',
     'office',
@@ -247,7 +247,7 @@ export async function seedWorkspaceFeatures(
         'hr_bonus_settlement',
         'hr_salary_settlement',
         'settings',
-        'customers',
+        // 2026-05-26 移除孤兒 'customers' feature（同上、客戶頁由 database feature 涵蓋）
         'itinerary',
         ...(optionalFeatures ?? []),
       ])
