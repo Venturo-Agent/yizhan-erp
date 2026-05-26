@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { COMP_LAYOUT_LABELS } from './constants/labels'
 import { ALL_MODULES } from '@/modules/_registry'
 import { SIDEBAR_ORDER, SIDEBAR_META, DEFAULT_SIDEBAR_ICON } from './sidebar-config'
+import { PersonalSettingsDialog } from './PersonalSettingsDialog'
 
 interface MenuItem {
   href: string
@@ -81,8 +82,9 @@ export function Sidebar() {
       window.location.href = '/login'
     }
   }
-  const { canReadAnyInModule, loading: capsLoading } = useMyCapabilities()
+  const { canReadAnyInModule, has, loading: capsLoading } = useMyCapabilities()
   const [mounted, setMounted] = useState(false)
+  const [personalSettingsOpen, setPersonalSettingsOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false) // 點擊固定展開
   const [isHovered, setIsHovered] = useState(false) // 滑鼠懸停暫時展開
   const [expandedMenus, setExpandedMenus] = useState<string[]>([])
@@ -195,7 +197,7 @@ export function Sidebar() {
               active border 用 absolute、不佔 3px 寬、避免 icon 偏離水平中心 */}
           <div
             className={cn(
-              'relative w-full flex items-center h-11 text-sm text-morandi-secondary cursor-pointer',
+              'relative w-full flex items-center h-11 text-sm text-sidebar-fg cursor-pointer',
               'hover:bg-morandi-gold/5 hover:text-morandi-gold',
               active && 'bg-morandi-gold/10 text-morandi-gold'
             )}
@@ -248,7 +250,7 @@ export function Sidebar() {
           prefetch={false}
           onClick={closeSidebar}
           className={cn(
-            'relative w-full flex items-center h-11 text-morandi-secondary',
+            'relative w-full flex items-center h-11 text-sidebar-fg',
             isChild ? 'text-xs' : 'text-sm',
             'hover:bg-morandi-gold/5 hover:text-morandi-gold',
             active && 'bg-morandi-gold/10 text-morandi-gold'
@@ -317,12 +319,13 @@ export function Sidebar() {
               {visibleMenuItems.map(item => renderMenuItem(item))}
               {visiblePersonalToolItems.map(item => renderMenuItem(item))}
 
-              {/* 設定 */}
-              {renderMenuItem({
-                href: '/settings',
-                label: COMP_LAYOUT_LABELS.設定,
-                icon: Wrench,
-              })}
+              {/* 設定（只有有公司設定權限的人看得到；個人項目改走側邊欄底部「扳手」）*/}
+              {has('settings.company.read') &&
+                renderMenuItem({
+                  href: '/settings',
+                  label: COMP_LAYOUT_LABELS.設定,
+                  icon: Wrench,
+                })}
             </>
           )}
         </ul>
@@ -333,7 +336,7 @@ export function Sidebar() {
         <div className="shrink-0 border-t border-border">
           <div className="h-14 flex items-center">
             <div className="w-16 flex justify-center shrink-0">
-              <User size="1.375em" strokeWidth={1.5} className="text-morandi-secondary" />
+              <User size="1.375em" strokeWidth={1.5} className="text-sidebar-fg" />
             </div>
             {showExpanded && (
               <>
@@ -342,9 +345,17 @@ export function Sidebar() {
                 </div>
                 <button
                   type="button"
+                  onClick={() => setPersonalSettingsOpen(true)}
+                  title={COMP_LAYOUT_LABELS.個人偏好}
+                  className="px-2 py-2 text-sidebar-fg hover:text-morandi-gold transition-colors"
+                >
+                  <Wrench size="1em" />
+                </button>
+                <button
+                  type="button"
                   onClick={handleLogout}
                   title={COMP_LAYOUT_LABELS?.LOGOUT || '登出'}
-                  className="px-3 py-2 text-morandi-secondary hover:text-morandi-red transition-colors"
+                  className="px-3 py-2 text-sidebar-fg hover:text-morandi-red transition-colors"
                 >
                   <LogOut size="1em" />
                 </button>
@@ -353,6 +364,8 @@ export function Sidebar() {
           </div>
         </div>
       )}
+
+      <PersonalSettingsDialog open={personalSettingsOpen} onOpenChange={setPersonalSettingsOpen} />
     </div>
   )
 }

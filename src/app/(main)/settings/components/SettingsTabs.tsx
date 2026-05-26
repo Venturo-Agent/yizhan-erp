@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
 import { useWorkspaceFeatures } from '@/lib/permissions'
 
@@ -14,12 +14,11 @@ interface TabConfig {
 }
 
 const ALL_TABS: TabConfig[] = [
-  { value: 'personal', label: '個人設定', href: '/settings/personal' },
+  // 5/26：個人設定改走側邊欄底部「扳手」dialog、settings 區只剩公司設定
   { value: 'company', label: '公司設定', href: '/settings/company', adminOnly: true },
 ]
 
 export function SettingsTabs() {
-  const pathname = usePathname()
   const router = useRouter()
   const { has } = useMyCapabilities()
   const { isFeatureEnabled } = useWorkspaceFeatures()
@@ -33,13 +32,7 @@ export function SettingsTabs() {
     return true
   })
 
-  const getActiveTab = () => {
-    if (pathname === '/settings/company') return 'company'
-    if (pathname === '/settings/personal') return 'personal'
-    return 'personal'
-  }
-
-  const activeTab = getActiveTab()
+  const activeTab = 'company'
 
   return (
     <div className="flex items-center gap-1">
