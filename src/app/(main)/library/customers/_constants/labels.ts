@@ -191,7 +191,7 @@ export const COMPANY_LABELS = {
   section_payment: '付款資訊',
   label_payment_method: '付款方式',
   label_payment_terms: '付款期限',
-  label_credit_limit: '信用額度 (NT$)',
+  label_credit_limit: '信用額度',
   section_invoice: '發票資訊',
   label_invoice_title: '發票抬頭',
   placeholder_invoice_title: '請輸入發票抬頭',

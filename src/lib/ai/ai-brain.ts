@@ -230,7 +230,7 @@ export async function generateBotReply(input: GenerateReplyInput): Promise<Gener
           const absoluteLink = result.payment_link // 永豐刷卡頁絕對網址、直接用
           toolAppendix +=
             (toolAppendix ? '\n\n' : '\n\n') +
-            `💳 付款連結（NT$ ${result.amount.toLocaleString()}、有效 ${Math.ceil(
+            `💳 付款連結（${result.amount.toLocaleString()}、有效 ${Math.ceil(
               (new Date(result.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
             )} 天）：\n${absoluteLink}`
         } else {

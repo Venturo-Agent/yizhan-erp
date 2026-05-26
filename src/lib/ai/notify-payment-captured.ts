@@ -37,7 +37,7 @@ export async function notifyPaymentCapturedToConversation(args: NotifyArgs): Pro
     workspaceId: args.workspaceId,
     channelType: 'system_notice',
     text:
-      `💳 收到客戶付款 NT$ ${args.amount.toLocaleString()}` +
+      `💳 收到客戶付款 ${args.amount.toLocaleString()}` +
       (args.externalTransNo ? `（交易序號 ${args.externalTransNo}）` : '') +
       (createdByAi ? `（AI 自動發連結）` : ''),
     sourceType: NOTIFICATION_SOURCE_TYPES.PAYMENT_CAPTURED,
@@ -59,7 +59,7 @@ export async function notifyPaymentCapturedToConversation(args: NotifyArgs): Pro
   // 寫入 inbox_messages、direction=outbound、sender_type=system
   // 讓 AI 下次組 context 時能看到、但不會被當成 ai_agent 學習對話風格
   const text =
-    `💳 客戶已完成付款 NT$ ${args.amount.toLocaleString()}` +
+    `💳 客戶已完成付款 ${args.amount.toLocaleString()}` +
     (args.externalTransNo ? `（交易序號 ${args.externalTransNo}）` : '')
 
   const { error } = await supabase.from('inbox_messages').insert({

@@ -51,8 +51,9 @@ interface PayslipRow {
 }
 
 function formatTWD(n: number): string {
-  if (!Number.isFinite(n)) return 'NT$ 0'
-  return `NT$ ${Math.round(n).toLocaleString()}`
+  // 2026-05-26 台幣不顯示符號（William 拍板）
+  if (!Number.isFinite(n)) return '0'
+  return `${Math.round(n).toLocaleString()}`
 }
 
 function todayISO(): string {

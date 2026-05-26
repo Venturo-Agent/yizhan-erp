@@ -213,7 +213,6 @@ export function PriceTiersSection({ data, onChange, quoteTierPricings }: PriceTi
                 <div>
                   <Label className="text-xs text-morandi-primary">{COMP_EDITOR_LABELS.價格}</Label>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-sm text-morandi-secondary">NT$</span>
                     <Input
                       value={tier.price}
                       onChange={e => {

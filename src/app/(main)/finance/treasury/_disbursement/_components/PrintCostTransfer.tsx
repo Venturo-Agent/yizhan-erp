@@ -179,7 +179,7 @@ export function PrintCostTransfer({ transferPairs, orphanPairIds }: PrintCostTra
             <span style={{ color: COLORS.lightGray, marginRight: '16px' }}>
               {COMPONENT_LABELS.TRANSFER_SUBTOTAL}
             </span>
-            <span style={{ fontWeight: 600, color: COLORS.gray }}>NT$ 0</span>
+            <span style={{ fontWeight: 600, color: COLORS.gray }}>0</span>
           </div>
         </div>
       )}

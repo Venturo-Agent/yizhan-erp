@@ -441,7 +441,7 @@ export function CompanyInfoCard({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 pl-3 border-l-2 border-morandi-gold/40">
                 <div>
                   <Label className="text-sm font-medium text-morandi-primary">
-                    每筆固定收取金額（NT$）
+                    每筆固定收取金額
                   </Label>
                   <Input
                     type="number"

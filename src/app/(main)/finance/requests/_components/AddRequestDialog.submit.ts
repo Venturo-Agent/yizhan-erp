@@ -117,7 +117,7 @@ export async function confirmMissingPaymentMethod(missing: MissingItem[]): Promi
   if (missing.length === 0) return true
   const preview = missing
     .slice(0, 5)
-    .map(m => `• ${m.description}（NT$ ${m.subtotal.toLocaleString()}）`)
+    .map(m => `• ${m.description}（${m.subtotal.toLocaleString()}）`)
     .join('\n')
   const more = missing.length > 5 ? `\n…另 ${missing.length - 5} 筆` : ''
   const result = await confirm(

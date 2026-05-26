@@ -256,7 +256,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
                   color: 'var(--morandi-primary)',
                 }}
               >
-                NT$ {totalAmount.toLocaleString()}
+                {totalAmount.toLocaleString()}
               </span>
             </div>
             <div className="summary-item flex items-center gap-2">
@@ -274,7 +274,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
                   color: 'var(--morandi-primary)',
                 }}
               >
-                NT$ {(quote.received_amount || 0).toLocaleString()}
+                {(quote.received_amount || 0).toLocaleString()}
               </span>
             </div>
             <div className="summary-item flex items-center gap-2">
@@ -292,7 +292,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
                   color: balanceAmount > 0 ? '#DC2626' : '#059669',
                 }}
               >
-                NT$ {balanceAmount.toLocaleString()}
+                {balanceAmount.toLocaleString()}
               </span>
             </div>
           </>
@@ -308,7 +308,7 @@ export const PrintableQuickQuoteCostTable: React.FC<PrintableQuickQuoteCostTable
               className="summary-value"
               style={{ fontSize: '18px', fontWeight: 'bold', color: 'var(--morandi-primary)' }}
             >
-              NT$ {totalAmount.toLocaleString()}
+              {totalAmount.toLocaleString()}
             </span>
           </>
         )}

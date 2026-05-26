@@ -123,9 +123,6 @@ export function TourPriceTiersSectionLuxury({ data, viewMode }: TourPriceTiersSe
                 {/* 價格內容 */}
                 <div className="p-8 flex-grow flex flex-col items-center justify-center space-y-4">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-sm font-medium" style={{ color: LUXURY.muted }}>
-                      NT$
-                    </span>
                     <span
                       className={`font-bold ${isMobile ? 'text-4xl' : 'text-5xl'}`}
                       style={{

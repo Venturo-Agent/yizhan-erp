@@ -239,7 +239,7 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
           >
             {selected.size === 0
               ? LABELS.ERR_NO_SELECTION
-              : `${LABELS.PAY_BUTTON_PREFIX} ${selected.size} ${LABELS.PAY_BUTTON_SUFFIX}（共 NT$ ${selectedTotal.toLocaleString()}）`}
+              : `${LABELS.PAY_BUTTON_PREFIX} ${selected.size} ${LABELS.PAY_BUTTON_SUFFIX}（共 ${selectedTotal.toLocaleString()}）`}
           </button>
         )}
       </div>

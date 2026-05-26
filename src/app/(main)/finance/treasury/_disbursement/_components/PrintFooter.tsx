@@ -73,7 +73,7 @@ export function PrintFooter({
                 marginLeft: '8px',
               }}
             >
-              （含 NT$ {bankFee.toLocaleString()} 手續費）
+              （含 {bankFee.toLocaleString()} 手續費）
             </span>
           )}
         </span>
@@ -84,7 +84,7 @@ export function PrintFooter({
             color: COLORS.gold,
           }}
         >
-          NT$ {grandTotal.toLocaleString()}
+          {grandTotal.toLocaleString()}
         </span>
       </div>
 

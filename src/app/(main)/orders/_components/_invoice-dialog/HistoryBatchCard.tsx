@@ -67,7 +67,7 @@ export function HistoryBatchCard({
 
       <div className="text-sm mb-1.5 tabular-nums">
         <span className="text-morandi-primary font-medium">
-          NT$ {batch.paid_amount.toLocaleString()}
+          {batch.paid_amount.toLocaleString()}
         </span>
         <span className="text-morandi-secondary"> / {batch.total_amount.toLocaleString()}</span>
         {remaining > 0 && (

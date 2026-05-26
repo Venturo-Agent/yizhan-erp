@@ -232,7 +232,7 @@ export function PrintItemsTable({
                     {(item.amount + item.feeAmount).toLocaleString()}
                     {item.feeAmount > 0 && (
                       <div style={{ fontSize: '8px', color: COLORS.gray, marginTop: '1px' }}>
-                        （含 NT$ {Math.round(item.feeAmount).toLocaleString()} 手續費）
+                        （含 {Math.round(item.feeAmount).toLocaleString()} 手續費）
                       </div>
                     )}
                   </td>
@@ -274,7 +274,7 @@ export function PrintItemsTable({
           {subtotalLabel}
         </span>
         <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.brown }}>
-          NT$ {subtotalAmount.toLocaleString()}
+          {subtotalAmount.toLocaleString()}
         </span>
       </div>
     </>

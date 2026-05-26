@@ -61,7 +61,7 @@ export function OnePageView({
                     = 0 時顯示警告引導 user 去設定 */}
                 {b.total_fee > 0 ? (
                   <span className="text-morandi-secondary">
-                    手續費 NT$ {b.total_fee.toLocaleString()}
+                    手續費 {b.total_fee.toLocaleString()}
                   </span>
                 ) : (
                   <span

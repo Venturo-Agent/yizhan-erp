@@ -125,7 +125,6 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
             {LABELS.BASE_SALARY}
           </Label>
           <div className="flex items-center gap-2">
-            <span className="text-morandi-secondary">NT$</span>
             <Input
               type="number"
               value={formData.base_salary}
@@ -144,7 +143,6 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
             {LABELS.ATTENDANCE_BONUS}
           </Label>
           <div className="flex items-center gap-2">
-            <span className="text-morandi-secondary">NT$</span>
             <Input
               type="number"
               value={formData.attendance_bonus}
@@ -160,7 +158,6 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
             {LABELS.OTHER_ALLOWANCES}
           </Label>
           <div className="flex items-center gap-2">
-            <span className="text-morandi-secondary">NT$</span>
             <Input
               type="number"
               value={formData.other_allowances}
@@ -179,7 +176,6 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
             {LABELS.INSURED_SALARY}
           </Label>
           <div className="flex items-center gap-2">
-            <span className="text-morandi-secondary">NT$</span>
             <Input
               type="number"
               value={formData.insured_salary ?? ''}

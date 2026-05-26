@@ -106,7 +106,7 @@ export const QuotationPricingTable: React.FC<QuotationPricingTableProps> = ({
                     color: MORANDI_COLORS.brown,
                   }}
                 >
-                  NT$ {item.value.toLocaleString()}
+                  {item.value.toLocaleString()}
                 </td>
                 {tierPricings.map(tier => (
                   <td
@@ -118,7 +118,7 @@ export const QuotationPricingTable: React.FC<QuotationPricingTableProps> = ({
                       color: MORANDI_COLORS.brown,
                     }}
                   >
-                    NT$ {tier.selling_prices[item.key as keyof SellingPrices].toLocaleString()}
+                    {tier.selling_prices[item.key as keyof SellingPrices].toLocaleString()}
                   </td>
                 ))}
               </tr>

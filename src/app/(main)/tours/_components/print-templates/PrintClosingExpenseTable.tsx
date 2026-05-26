@@ -75,7 +75,7 @@ export function PrintClosingExpenseTable({
                 <td style={tdStyle}>{c.code || c.request_number || '-'}</td>
                 <td style={tdStyle}>{c.supplier_name || '-'}</td>
                 <td style={tdStyle}>{c.request_type || '-'}</td>
-                <td style={{ ...tdStyle, textAlign: 'right' }}>NT$ {fmt(c.amount || 0)}</td>
+                <td style={{ ...tdStyle, textAlign: 'right' }}>{fmt(c.amount || 0)}</td>
               </tr>
             ))
           )}
@@ -93,7 +93,7 @@ export function PrintClosingExpenseTable({
                 fontSize: '11px',
               }}
             >
-              NT$ {fmt(expenseTotal)}
+              {fmt(expenseTotal)}
             </td>
           </tr>
         </tbody>

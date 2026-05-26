@@ -222,7 +222,7 @@ export function AiHealthDashboard({
           <Metric label="輸入 Token" value={formatTokens(d.llm_usage.last30d_in_tokens)} />
           <Metric label="輸出 Token" value={formatTokens(d.llm_usage.last30d_out_tokens)} />
           <Metric
-            label={`成本（≈NT$${Math.round(d.llm_usage.last30d_cost_usd * USD_TO_TWD)}）`}
+            label={`成本（≈${Math.round(d.llm_usage.last30d_cost_usd * USD_TO_TWD)}）`}
             value={`$${d.llm_usage.last30d_cost_usd.toFixed(4)}`}
           />
         </div>

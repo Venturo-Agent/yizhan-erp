@@ -62,7 +62,7 @@ export function PrintClosingProfitTable({
             fontWeight: row.highlight ? 700 : 600,
           }}
         >
-          NT$ {fmt(row.amount)}
+          {fmt(row.amount)}
         </span>
       </div>
     )

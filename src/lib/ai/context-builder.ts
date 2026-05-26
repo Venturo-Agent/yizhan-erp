@@ -132,7 +132,7 @@ export async function buildConversationContext(
         const dateRange =
           t.departure_date && t.return_date ? `${t.departure_date}~${t.return_date}` : '日期待定'
         const priceTxt =
-          t.price && t.price > 0 ? `NT$${Math.round(t.price).toLocaleString()}` : '價格洽詢'
+          t.price && t.price > 0 ? `${Math.round(t.price).toLocaleString()}` : '價格洽詢'
         return `- ${t.code || ''} ${t.name || ''}（${t.location || ''}、${dateRange}、${priceTxt}）`
       })
       parts.push(`可推薦的旅遊團（最近 5 個）：\n${lines.join('\n')}`)
@@ -187,7 +187,7 @@ export async function buildConversationContext(
           const orderLines = (orders as unknown as OrderRow[]).map(o => {
             const amt =
               o.total_amount && o.total_amount > 0
-                ? `NT$${Math.round(o.total_amount).toLocaleString()}`
+                ? `${Math.round(o.total_amount).toLocaleString()}`
                 : '未計價'
             return `- 訂單 ${o.order_number || ''}（${o.status || '未知狀態'}、${amt}）`
           })

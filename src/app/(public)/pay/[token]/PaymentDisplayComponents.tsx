@@ -30,7 +30,7 @@ export function AmountRow({
       <span
         className={`tabular-nums ${emphasis ? 'text-lg font-bold text-morandi-gold' : 'text-sm text-morandi-primary'} ${strikeThrough ? 'line-through opacity-60' : ''}`}
       >
-        NT$ {amount.toLocaleString()}
+        {amount.toLocaleString()}
       </span>
     </div>
   )
@@ -101,7 +101,7 @@ export function MemberRow({
       </div>
       <div className="text-right">
         <div className="text-sm font-medium text-morandi-primary tabular-nums">
-          NT$ {invoice.remaining.toLocaleString()}
+          {invoice.remaining.toLocaleString()}
         </div>
         {invoice.paid_amount > 0 && !isPaid && (
           <div className="text-[0.588rem] text-morandi-secondary tabular-nums">

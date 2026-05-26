@@ -137,7 +137,7 @@ async function fetchToursBlock(
     }
 
     const lines = data.map(t => {
-      const price = t.price ? `NT$${Number(t.price).toLocaleString('en-US')}/人` : '價格洽詢'
+      const price = t.price ? `${Number(t.price).toLocaleString('en-US')}/人` : '價格洽詢'
       const seats = `${t.current_participants ?? 0}/${t.max_participants ?? '-'}`
       return `- [${t.code ?? '?'}] ${t.name ?? '(未命名)'} | ${t.location ?? '?'} | ${t.departure_date ?? '?'}→${t.return_date ?? '?'} | ${t.status ?? '?'} | ${price} | ${seats} 人`
     })
@@ -342,7 +342,7 @@ function monthRange(now: Date): { start: string; end: string } {
 }
 
 function fmtNT(amount: number): string {
-  return `NT$${Math.round(amount).toLocaleString('en-US')}`
+  return `${Math.round(amount).toLocaleString('en-US')}`
 }
 
 function summarize(

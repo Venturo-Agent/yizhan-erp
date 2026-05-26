@@ -60,7 +60,7 @@ export function PrintClosingBonusTable({ detailRows, SectionHeader }: PrintClosi
               <tr key={i} style={{ borderBottom: `1px solid ${COLORS.gold}` }}>
                 <td style={{ ...tdStyle, color: COLORS.brown }}>{row.label}</td>
                 <td style={{ ...tdStyle, color: COLORS.lightGray }}>{row.sub || ''}</td>
-                <td style={{ ...tdStyle, textAlign: 'right' }}>NT$ {fmt(row.amount)}</td>
+                <td style={{ ...tdStyle, textAlign: 'right' }}>{fmt(row.amount)}</td>
               </tr>
             ))
           )}

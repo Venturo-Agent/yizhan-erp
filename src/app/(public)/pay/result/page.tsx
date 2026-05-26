@@ -116,7 +116,7 @@ function ResultInner() {
             <h1 className="mt-5 text-xl font-semibold text-morandi-primary">{LABELS.SUCCESS}</h1>
             {amount != null && (
               <p className="mt-3 text-2xl font-bold text-morandi-primary">
-                NT$ {amount.toLocaleString()}
+                {amount.toLocaleString()}
               </p>
             )}
             {transNo && (

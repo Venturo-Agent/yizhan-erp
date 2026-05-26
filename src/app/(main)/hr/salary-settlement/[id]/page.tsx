@@ -57,7 +57,7 @@ interface SettlementDetail {
 }
 
 function formatNT(n: number): string {
-  return `NT$ ${Number(n).toLocaleString('zh-TW')}`
+  return `${Number(n).toLocaleString('zh-TW')}`
 }
 
 const STATUS_BADGE = {

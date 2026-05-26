@@ -208,7 +208,7 @@ export function BatchReceiptDialog({
             })}
           </span>
           <span className="inline-block min-w-[100px] text-right font-semibold text-morandi-gold ml-2">
-            NT$ {formatMoney(totalAmount)}
+            {formatMoney(totalAmount)}
           </span>
         </div>
         <div className="flex-1" />

@@ -132,7 +132,7 @@ export function OrderStatusChangeDialog({
                 <FileText size={14} className="text-muted-foreground" />
                 <span>應收金額</span>
                 <span className="ml-auto tabular-nums">
-                  NT$ {(invoiceInfo?.totalAmount ?? 0).toLocaleString()}
+                  {(invoiceInfo?.totalAmount ?? 0).toLocaleString()}
                 </span>
               </div>
 
@@ -143,7 +143,7 @@ export function OrderStatusChangeDialog({
                   <AlertCircle size={14} className="text-amber-500" />
                 )}
                 <span>待收金額</span>
-                <span className="ml-auto tabular-nums">NT$ {remaining.toLocaleString()}</span>
+                <span className="ml-auto tabular-nums">{remaining.toLocaleString()}</span>
               </div>
             </div>
           )}

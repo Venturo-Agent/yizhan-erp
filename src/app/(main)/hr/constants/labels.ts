@@ -74,7 +74,7 @@ export const LABELS = {
   SALARY_NOTES_SUFFIX: ' 位員工薪資',
   SALARY_DESC_SUFFIX: ' 薪資',
   SALARY_SUCCESS_PREFIX: '已建立薪資請款單（',
-  SALARY_SUCCESS_MID: ' 位員工，共 NT$ ',
+  SALARY_SUCCESS_MID: ' 位員工，共 ',
   SALARY_SUCCESS_SUFFIX: '）',
   SALARY_FAILED: '建立薪資請款失敗，請稍後再試',
 } as const

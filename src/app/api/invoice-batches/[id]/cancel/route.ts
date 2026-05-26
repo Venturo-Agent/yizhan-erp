@@ -60,7 +60,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     )
     if (paidTotal > 0) {
       return NextResponse.json(
-        { error: `此帳單已收款 NT$ ${paidTotal.toLocaleString()}、需先退款才能作廢` },
+        { error: `此帳單已收款 ${paidTotal.toLocaleString()}、需先退款才能作廢` },
         { status: 409 }
       )
     }

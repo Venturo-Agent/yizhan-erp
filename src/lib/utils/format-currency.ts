@@ -15,14 +15,16 @@ export function formatCurrency(
 ): string {
   if (amount === null || amount === undefined) return ''
 
+  // 2026-05-26 William 拍板：台幣不顯示符號（NT$ 拿掉、只留數字）、外幣保留符號
   const prefix = {
-    TWD: 'NT$',
+    TWD: '',
     USD: '$',
     CNY: '¥',
   }[currency]
 
   const sign = amount < 0 ? '-' : ''
-  return `${sign}${prefix} ${Math.abs(amount).toLocaleString()}`
+  const space = prefix ? ' ' : ''
+  return `${sign}${prefix}${space}${Math.abs(amount).toLocaleString()}`
 }
 
 /**
@@ -58,7 +60,7 @@ export function formatUSD(amount: number | null | undefined): string {
  * 用於 <Money> component
  */
 const CURRENCY_CONFIG: Record<string, { symbol: string; spaced: boolean; decimals: number }> = {
-  TWD: { symbol: '$', spaced: false, decimals: 0 },
+  TWD: { symbol: '', spaced: false, decimals: 0 }, // 2026-05-26 台幣不顯示符號（William 拍板）
   USD: { symbol: '$', spaced: false, decimals: 2 },
   JPY: { symbol: 'JPY', spaced: true, decimals: 0 },
   CNY: { symbol: '¥', spaced: false, decimals: 2 },

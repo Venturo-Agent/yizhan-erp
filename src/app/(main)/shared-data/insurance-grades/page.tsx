@@ -51,7 +51,7 @@ const TAB_LABELS: Record<GradeRow['kind'], { title: string; desc: string; rate: 
 }
 
 function formatNT(n: number): string {
-  return `NT$ ${Number(n).toLocaleString('zh-TW')}`
+  return `${Number(n).toLocaleString('zh-TW')}`
 }
 
 type Tab = 'labor' | 'health' | 'pension'

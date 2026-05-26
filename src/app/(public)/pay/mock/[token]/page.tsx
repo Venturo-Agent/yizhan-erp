@@ -128,7 +128,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
           <div className="bg-morandi-container/40 rounded-lg p-4 text-left space-y-2 text-sm">
             <div className="flex justify-between">
               <span className="text-morandi-muted">金額</span>
-              <span className="font-medium">NT$ {tx.amount.toLocaleString()}</span>
+              <span className="font-medium">{tx.amount.toLocaleString()}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-morandi-muted">付款方式</span>
@@ -183,7 +183,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
           <div className="flex justify-between items-baseline pt-3 border-t border-morandi-muted/15">
             <span className="text-sm text-morandi-muted">應付金額</span>
             <span className="text-2xl font-bold text-morandi-primary">
-              NT$ {tx.amount.toLocaleString()}
+              {tx.amount.toLocaleString()}
             </span>
           </div>
         </div>
@@ -274,7 +274,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
             ) : (
               <>
                 <Lock className="w-4 h-4" />
-                確認付款 NT$ {tx.amount.toLocaleString()}
+                確認付款 {tx.amount.toLocaleString()}
               </>
             )}
           </button>

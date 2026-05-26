@@ -45,8 +45,9 @@ function formatDate(iso: string | null) {
 }
 
 function formatCurrency(n: number | null | undefined) {
+  // 2026-05-26 台幣不顯示符號（William 拍板）
   if (n == null) return '-'
-  return `NT$ ${n.toLocaleString('zh-TW')}`
+  return `${n.toLocaleString('zh-TW')}`
 }
 
 export function CustomerInfoSidebar({ lineUserId }: CustomerInfoSidebarProps) {

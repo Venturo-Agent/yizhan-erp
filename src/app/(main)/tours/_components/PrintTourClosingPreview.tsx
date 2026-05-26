@@ -328,7 +328,7 @@ export const PrintTourClosingPreview = forwardRef<HTMLDivElement, PrintTourClosi
         >
           <span style={{ fontSize: '13px', fontWeight: 600, color: COLORS.brown }}>公司盈餘</span>
           <span style={{ fontSize: '15px', fontWeight: 'bold', color: COLORS.brown }}>
-            NT$ {fmt(profitResult.company_profit)}
+            {fmt(profitResult.company_profit)}
           </span>
         </div>
 

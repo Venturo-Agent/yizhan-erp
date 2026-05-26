@@ -76,9 +76,9 @@ interface BillingTabProps {
 }
 
 const formatTwd = (amount: number) =>
+  // 2026-05-26 台幣不顯示符號（William 拍板）：改 decimal、不帶貨幣符號
   new Intl.NumberFormat('zh-TW', {
-    style: 'currency',
-    currency: 'TWD',
+    style: 'decimal',
     minimumFractionDigits: 0,
   }).format(amount)
 

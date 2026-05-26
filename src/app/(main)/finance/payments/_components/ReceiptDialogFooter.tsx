@@ -171,7 +171,7 @@ export function ReceiptDialogFooter({
       <div className="flex items-center gap-2">
         <span className="text-sm text-morandi-secondary">{t('receiptTotalAmount')}</span>
         <span className="text-lg font-semibold text-morandi-gold whitespace-nowrap">
-          NT$ {formatMoney(totalAmount)}
+          {formatMoney(totalAmount)}
         </span>
       </div>
 

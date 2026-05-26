@@ -149,11 +149,10 @@ export function PayFormDialog({
               <div className="text-xs text-morandi-secondary mb-1">
                 {LABELS.FORM_AMOUNT}
                 <span className="ml-1 text-morandi-muted">
-                  （上限 NT$ {totalAmount.toLocaleString()}，共 {selectedIds.length} 人）
+                  （上限 {totalAmount.toLocaleString()}，共 {selectedIds.length} 人）
                 </span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold text-morandi-gold">NT$</span>
                 <input
                   type="number"
                   inputMode="numeric"
@@ -170,7 +169,7 @@ export function PayFormDialog({
               </div>
               {amount < totalAmount && amount > 0 && (
                 <div className="text-[0.588rem] text-morandi-secondary mt-1">
-                  剩餘 NT$ {(totalAmount - amount).toLocaleString()} 下次再付
+                  剩餘 {(totalAmount - amount).toLocaleString()} 下次再付
                 </div>
               )}
             </div>

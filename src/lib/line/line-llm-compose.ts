@@ -217,7 +217,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
           )
           toolAppendix +=
             (toolAppendix ? '\n\n' : '\n\n') +
-            `💳 付款連結（NT$ ${result.amount.toLocaleString()}、有效 ${days} 天）：\n${absoluteLink}`
+            `💳 付款連結（${result.amount.toLocaleString()}、有效 ${days} 天）：\n${absoluteLink}`
         } else {
           toolAppendix +=
             (toolAppendix ? '\n\n' : '\n\n') +
@@ -339,7 +339,7 @@ function buildKbContext(tours: TourSummary[], customerName: string | null): stri
     for (const t of tours) {
       const price =
         t.selling_price_per_person != null
-          ? `NT$ ${Number(t.selling_price_per_person).toLocaleString('en-US')} / 人`
+          ? `${Number(t.selling_price_per_person).toLocaleString('en-US')} / 人`
           : '價格洽詢'
       const seats =
         t.max_participants != null
@@ -367,7 +367,7 @@ export function composeReplyFallback(userText: string, tours: TourSummary[]): st
     const lines = tours.slice(0, 5).map(t => {
       const price =
         t.selling_price_per_person != null
-          ? `NT$ ${Number(t.selling_price_per_person).toLocaleString('en-US')} / 人`
+          ? `${Number(t.selling_price_per_person).toLocaleString('en-US')} / 人`
           : '價格洽詢'
       return `・${t.name}｜${t.departure_date ?? '-'}｜${price}`
     })

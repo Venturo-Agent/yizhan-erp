@@ -83,7 +83,7 @@ export function PrintClosingIncomeTable({
                     : '-'}
                 </td>
                 <td style={{ ...tdStyle, textAlign: 'right' }}>
-                  NT$ {fmt(r.receipt_amount ?? r.amount ?? 0)}
+                  {fmt(r.receipt_amount ?? r.amount ?? 0)}
                 </td>
               </tr>
             ))
@@ -102,7 +102,7 @@ export function PrintClosingIncomeTable({
                 fontSize: '11px',
               }}
             >
-              NT$ {fmt(receiptTotal)}
+              {fmt(receiptTotal)}
             </td>
           </tr>
         </tbody>

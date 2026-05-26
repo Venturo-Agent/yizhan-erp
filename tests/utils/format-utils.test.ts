@@ -16,8 +16,8 @@ import { formatTimeInput, isValidTimeFormat, fullWidthToHalf } from '@/lib/utils
 
 describe('format-currency', () => {
   it('should format TWD', () => {
-    expect(formatCurrency(1000, 'TWD')).toBe('NT$ 1,000')
-    expect(formatTWD(1000)).toBe('NT$ 1,000')
+    expect(formatCurrency(1000, 'TWD')).toBe('1,000')
+    expect(formatTWD(1000)).toBe('1,000')
   })
 
   it('should format USD', () => {
@@ -25,7 +25,7 @@ describe('format-currency', () => {
   })
 
   it('should handle negative amounts', () => {
-    expect(formatCurrency(-500, 'TWD')).toBe('-NT$ 500')
+    expect(formatCurrency(-500, 'TWD')).toBe('-500')
   })
 
   it('should handle null/undefined', () => {

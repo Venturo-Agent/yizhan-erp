@@ -116,7 +116,7 @@ export function QuickReceipt({ onSubmit, defaultTourId, defaultOrderId }: QuickR
         workspaceId: user.workspace_id,
       })
       toast.success('收款單已建立', {
-        description: `共 ${result.itemCount} 筆 / NT$ ${formatMoney(result.totalAmount)}`,
+        description: `共 ${result.itemCount} 筆 / ${formatMoney(result.totalAmount)}`,
       })
       resetForm()
       onSubmit?.()
@@ -194,7 +194,7 @@ export function QuickReceipt({ onSubmit, defaultTourId, defaultOrderId }: QuickR
         <div className="text-sm">
           <span className="text-morandi-secondary">{t('totalAmountPrefix')}</span>
           <span className="text-base font-semibold text-morandi-gold">
-            NT$ {formatMoney(totalAmount)}
+            {formatMoney(totalAmount)}
           </span>
         </div>
         <Button
