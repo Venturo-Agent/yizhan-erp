@@ -122,12 +122,13 @@ export function useOrderMemberActions({
       setMemberCountToAdd(1)
 
       // 重算：團人數 + 訂單金額（人加進去、訂單 total_amount 要增）
+      // skipInvalidate：成員已樂觀更新、這裡只補 DB 數字、不對全部訂單/團廣播失效（避免整頁重刷）
       if (tourId) {
-        recalculateParticipants(tourId).catch(err => {
+        recalculateParticipants(tourId, { skipInvalidate: true }).catch(err => {
           logger.error('重算團人數失敗:', err)
         })
       }
-      recalculateOrderAmount(targetOrderId).catch(err => {
+      recalculateOrderAmount(targetOrderId, { skipInvalidate: true }).catch(err => {
         logger.error('重算訂單金額失敗:', err)
       })
     } catch (error) {
@@ -189,13 +190,14 @@ export function useOrderMemberActions({
       setMembers(members.filter(m => m.id !== memberId))
 
       // 重算：團人數 + 訂單金額（少了一個人、訂單 total_amount 要減）
+      // skipInvalidate：成員已樂觀更新、這裡只補 DB 數字、不對全部訂單/團廣播失效（避免整頁重刷）
       if (tourId) {
-        recalculateParticipants(tourId).catch(err => {
+        recalculateParticipants(tourId, { skipInvalidate: true }).catch(err => {
           logger.error('重算團人數失敗:', err)
         })
       }
       if (orderIdOfDeleted) {
-        recalculateOrderAmount(orderIdOfDeleted).catch(err => {
+        recalculateOrderAmount(orderIdOfDeleted, { skipInvalidate: true }).catch(err => {
           logger.error('重算訂單金額失敗:', err)
         })
       }

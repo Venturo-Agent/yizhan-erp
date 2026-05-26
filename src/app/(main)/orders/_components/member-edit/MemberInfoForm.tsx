@@ -2,9 +2,16 @@
 /**
  * MemberInfoForm - 成員基本資訊表單
  * 從 MemberEditDialog.tsx 拆分
+ *
+ * 效能/中文輸入修正（2026-05-26）：
+ * 表單欄位改「本地草稿」。打字只更新本地 draft（只重繪這個小表單）、
+ * 離開欄位（onBlur）才把值推回父層 onChange。
+ * 原本每打一字就 onChange → 父層 setEditFormData → 整個 OrderMembersExpandable
+ * + 整張成員表重繪、害中文輸入法組字被打斷、字越多越卡。
+ * 儲存 / OCR 回填 / 從顧客同步仍透過 formData prop 進來、useEffect 會重新 seed 草稿。
  */
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import type { EditFormData } from '../MemberEditDialog'
 import { useTranslations } from 'next-intl'
 
@@ -23,6 +30,26 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
     'w-full px-3 py-1.5 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-morandi-gold'
   const labelClass = 'block text-xs font-medium text-morandi-primary mb-1'
 
+  // 本地草稿：打字只動這裡、不驚動父層（父層一動會連帶整張成員表重繪）
+  const [draft, setDraft] = useState<EditFormData>(formData)
+
+  // 外部資料變動（換成員、OCR 回填、從顧客同步）時重新 seed。
+  // formData 是父層 useState、reference 只在 setEditFormData 時才變、打字當下不會誤觸。
+  useEffect(() => {
+    setDraft(formData)
+  }, [formData])
+
+  // 純文字欄位：onChange 只更新本地草稿、onBlur 才推回父層
+  const setField = (field: keyof EditFormData, value: string) =>
+    setDraft(prev => ({ ...prev, [field]: value }))
+  const commit = () => onChange(draft)
+
+  // 下拉（性別）：選了就直接推回父層、無組字/卡頓問題
+  const commitNow = (next: EditFormData) => {
+    setDraft(next)
+    onChange(next)
+  }
+
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-medium text-morandi-primary">{t('memberEditTitle')}</h3>
@@ -33,16 +60,17 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditChineseName')}</label>
           <input
             type="text"
-            value={formData.chinese_name || ''}
-            onChange={e => onChange({ ...formData, chinese_name: e.target.value })}
+            value={draft.chinese_name || ''}
+            onChange={e => setField('chinese_name', e.target.value)}
+            onBlur={commit}
             className={inputClass}
           />
         </div>
         <div>
           <label className={labelClass}>{t('memberEditGender')}</label>
           <select
-            value={formData.gender || ''}
-            onChange={e => onChange({ ...formData, gender: e.target.value })}
+            value={draft.gender || ''}
+            onChange={e => commitNow({ ...draft, gender: e.target.value })}
             className={inputClass}
           >
             <option value="">-</option>
@@ -58,8 +86,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditPassportName')}</label>
           <input
             type="text"
-            value={formData.passport_name || ''}
-            onChange={e => onChange({ ...formData, passport_name: e.target.value })}
+            value={draft.passport_name || ''}
+            onChange={e => setField('passport_name', e.target.value)}
+            onBlur={commit}
             className={inputClass}
           />
         </div>
@@ -72,8 +101,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           </label>
           <input
             type="text"
-            value={formData.passport_name_print || ''}
-            onChange={e => onChange({ ...formData, passport_name_print: e.target.value })}
+            value={draft.passport_name_print || ''}
+            onChange={e => setField('passport_name_print', e.target.value)}
+            onBlur={commit}
             placeholder={t('memberEditPlaceholderPassportName')}
             className={inputClass}
           />
@@ -86,8 +116,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditBirthDate')}</label>
           <input
             type="text"
-            value={formData.birth_date || ''}
-            onChange={e => onChange({ ...formData, birth_date: e.target.value })}
+            value={draft.birth_date || ''}
+            onChange={e => setField('birth_date', e.target.value)}
+            onBlur={commit}
             placeholder={t('memberEditPlaceholderBirthDate')}
             className={inputClass}
           />
@@ -96,8 +127,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditIdNumber')}</label>
           <input
             type="text"
-            value={formData.id_number || ''}
-            onChange={e => onChange({ ...formData, id_number: e.target.value.toUpperCase() })}
+            value={draft.id_number || ''}
+            onChange={e => setField('id_number', e.target.value.toUpperCase())}
+            onBlur={commit}
             className={inputClass}
           />
         </div>
@@ -109,8 +141,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditPassportNumber')}</label>
           <input
             type="text"
-            value={formData.passport_number || ''}
-            onChange={e => onChange({ ...formData, passport_number: e.target.value })}
+            value={draft.passport_number || ''}
+            onChange={e => setField('passport_number', e.target.value)}
+            onBlur={commit}
             className={inputClass}
           />
         </div>
@@ -118,8 +151,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditPassportExpiry')}</label>
           <input
             type="text"
-            value={formData.passport_expiry || ''}
-            onChange={e => onChange({ ...formData, passport_expiry: e.target.value })}
+            value={draft.passport_expiry || ''}
+            onChange={e => setField('passport_expiry', e.target.value)}
+            onBlur={commit}
             placeholder={t('memberEditPlaceholderPassportExpiry')}
             className={inputClass}
           />
@@ -132,8 +166,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditSpecialMeal')}</label>
           <input
             type="text"
-            value={formData.special_meal || ''}
-            onChange={e => onChange({ ...formData, special_meal: e.target.value })}
+            value={draft.special_meal || ''}
+            onChange={e => setField('special_meal', e.target.value)}
+            onBlur={commit}
             className={inputClass}
           />
         </div>
@@ -141,8 +176,9 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
           <label className={labelClass}>{t('memberEditRemarks')}</label>
           <input
             type="text"
-            value={formData.remarks || ''}
-            onChange={e => onChange({ ...formData, remarks: e.target.value })}
+            value={draft.remarks || ''}
+            onChange={e => setField('remarks', e.target.value)}
+            onBlur={commit}
             className={inputClass}
           />
         </div>

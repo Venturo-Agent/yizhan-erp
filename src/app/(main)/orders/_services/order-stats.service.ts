@@ -18,6 +18,9 @@ import { invalidateOrders } from '@/data'
  * 4. 更新 remaining_amount = total_amount - paid_amount
  *
  * @param order_id - 訂單 ID
+ * @param opts.skipInvalidate - 略過全 orders 表快取失效（預設 false）。
+ *   用在「新增/刪除單一成員」這種高頻動作：DB 金額照樣算對、但不對「全部訂單」廣播失效、
+ *   避免訂單管理頁整頁重抓重繪。其他呼叫者不傳 = 維持原本行為。
  * @returns void
  * @throws 如果 DB 查詢或更新失敗
  *
@@ -25,7 +28,10 @@ import { invalidateOrders } from '@/data'
  * // 團員異動後重算訂單金額
  * await recalculateOrderAmount(order_id)
  */
-export async function recalculateOrderAmount(order_id: string): Promise<void> {
+export async function recalculateOrderAmount(
+  order_id: string,
+  opts?: { skipInvalidate?: boolean }
+): Promise<void> {
   try {
     // 1. 查詢訂單基本資訊
     const { data: order, error: orderError } = await supabase
@@ -86,7 +92,10 @@ export async function recalculateOrderAmount(order_id: string): Promise<void> {
     }
 
     // 6. 刷新 SWR 快取（走 entity registry）
-    await invalidateOrders()
+    // skipInvalidate=true（新增/刪除單一成員）時不廣播、避免整頁重繪
+    if (!opts?.skipInvalidate) {
+      await invalidateOrders()
+    }
 
     logger.log('訂單金額已重算:', {
       order_id,

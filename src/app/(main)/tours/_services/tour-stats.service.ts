@@ -17,6 +17,9 @@ import { invalidateTours } from '@/data'
  * 任何 order_members 新增/刪除後都應呼叫此函數。
  *
  * @param tour_id - 團 ID
+ * @param opts.skipInvalidate - 略過全 tours 表快取失效（預設 false）。
+ *   用在「新增/刪除單一成員」這種高頻動作：DB 人數照樣算對、但不對「全部團」廣播失效、
+ *   避免訂單管理頁上的 useToursSlim 等被掃到 → 整頁重抓重繪。其他呼叫者不傳 = 維持原本行為。
  * @returns void
  * @throws 如果 DB 查詢或更新失敗（catch 內部 log 但不會向上拋出）
  *
@@ -24,7 +27,10 @@ import { invalidateTours } from '@/data'
  * // 團員異動後重算
  * await recalculateParticipants(order.tour_id)
  */
-export async function recalculateParticipants(tour_id: string): Promise<void> {
+export async function recalculateParticipants(
+  tour_id: string,
+  opts?: { skipInvalidate?: boolean }
+): Promise<void> {
   try {
     // 查該團所有訂單 ID
     const { data: orders_data, error: ordersError } = await supabase
@@ -71,7 +77,10 @@ export async function recalculateParticipants(tour_id: string): Promise<void> {
     }
 
     // 刷新 SWR 快取（走 entity registry、所有 tours:list/detail/paginated key 一次失效）
-    await invalidateTours()
+    // skipInvalidate=true（新增/刪除單一成員）時不廣播、避免整頁重繪
+    if (!opts?.skipInvalidate) {
+      await invalidateTours()
+    }
 
     logger.log('團人數已重算:', { tour_id, current_participants: participant_count })
   } catch (error) {
