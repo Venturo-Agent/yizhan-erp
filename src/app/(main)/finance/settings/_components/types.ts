@@ -86,8 +86,7 @@ export type ActiveSection =
   | 'payment'
   | 'bank'
   | 'category'
-  | 'company_expense'
-  | 'company_income'
+  | 'company' // 公司收支項目（合併原 company_expense + company_income 兩分頁、2026-05-26）
   | 'bonus'
 
 export const PAGE_LABELS = {
@@ -97,6 +96,14 @@ export const PAGE_LABELS = {
   COL_DEBIT_ACCOUNT: '借方科目',
   COL_CREDIT_ACCOUNT: '貸方科目',
   COL_STATUS: '狀態',
+  COL_TYPE: '類型',
+  TYPE_EXPENSE: '支出',
+  TYPE_INCOME: '收入',
+  TYPE_LOCKED_HINT: '（類型建立後不可更改）',
+  EMPTY_COMPANY: '尚未設定公司收支項目',
+  COL_CUSTOMER_VISIBLE: '客戶收款',
+  CUSTOMER_VISIBLE_HINT:
+    '開啟後、此收款方式才會出現在客人帳單的付款選項；關閉則只供內部後台開收款單',
   COL_ACTION: '操作',
   COL_CODE: '代碼',
   COL_BANK: '銀行',

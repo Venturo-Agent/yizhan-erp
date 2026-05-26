@@ -191,7 +191,6 @@ export const CAPABILITIES = {
   CROSS_BRANCH_WRITE: 'cross_branch.write',
 
   // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════
-  // 2026-05-26 手動移除 CUSTOMERS_READ/WRITE（customers.read/write）：零 caller、客戶已收回 database module。
   CHANNELS_MANAGE: 'channels.manage',
   LINE_BOT_CONFIG: 'line_bot.config',
   LINE_BOT_READ: 'line_bot.read',

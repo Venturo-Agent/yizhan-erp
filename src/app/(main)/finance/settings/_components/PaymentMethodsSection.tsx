@@ -19,7 +19,6 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-ki
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 import { COMMON_MESSAGES } from '@/constants/messages'
-import { useTranslations } from 'next-intl'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './shared-table'
 import { PAGE_LABELS, type PaymentMethod, type ChartOfAccount } from './types'
 import { SortableMethodRow } from './SortableMethodRow'
@@ -53,7 +52,6 @@ export function PaymentMethodsSection({
   editingMethod,
   setEditingMethod,
 }: PaymentMethodsSectionProps) {
-  const t = useTranslations('finance')
   // 沒開通會計功能就隱藏借/貸方科目欄（借貸科目是純會計概念、對非會計租戶是雜訊）
   const { isFeatureEnabled } = useWorkspaceFeatures()
   const hasAccounting = isFeatureEnabled('accounting')
@@ -115,7 +113,7 @@ export function PaymentMethodsSection({
         workspace_id: workspaceId,
         type,
         // code 是純內部識別碼、不讓使用者填（表單沒這欄）。
-        // 新增時自動產生唯一 code（對齊 handleCopyMethod 的做法）、否則後端 schema 擋 400。
+        // 新增時自動產生唯一 code、否則後端 schema 擋 400。
         // 編輯時保留 method 既有 code（PUT 不帶 code = 不動 DB 既有值）。
         ...(isNew && !method.code
           ? {
@@ -138,42 +136,22 @@ export function PaymentMethodsSection({
     await alert(COMMON_MESSAGES.SAVE_SUCCESS, 'success')
   }
 
-  // 複製方式（system / 自訂都可複製、複製後變 user 自訂、可改名 / 編輯）
-  const handleCopyMethod = async (method: PaymentMethod) => {
+  // 切換「客戶收款」：開了才會出現在客人帳單自助付款頁（is_customer_visible）
+  // 低風險、可逆、即時切換（不跳確認框）、防連點靠 rowLoading
+  const handleToggleCustomerVisible = async (method: PaymentMethod) => {
     if (rowLoading[method.id]) return
     setLoading(method.id, true)
     try {
-      const maxSort = Math.max(
-        0,
-        ...paymentMethods.filter(m => m.type === method.type).map(m => m.sort_order || 0)
-      )
       const res = await apiMutate('/api/finance/payment-methods', {
-        method: 'POST',
-        body: {
-          workspace_id: workspaceId,
-          type: method.type,
-          // code 加 _COPY 後綴避免衝突；user 編輯時可改
-          code: `${method.code}_COPY_${Date.now().toString(36).slice(-4).toUpperCase()}`,
-          name: `${method.name} - 副本`,
-          description: method.description,
-          placeholder: method.placeholder,
-          debit_account_id: method.debit_account_id,
-          credit_account_id: method.credit_account_id,
-          fee_percent: method.fee_percent ?? 0,
-          fee_fixed: method.fee_fixed ?? 0,
-          fee_account_id: method.fee_account_id,
-          sort_order: maxSort + 1,
-          is_active: true,
-          is_system: false, // 副本一律 user 自訂
-        },
+        method: 'PUT',
+        body: { id: method.id, is_customer_visible: !method.is_customer_visible },
         invalidate: ['/api/finance/payment-methods'],
       })
       if (!res.ok) {
-        await alert(COMMON_MESSAGES.OPERATION_FAILED, 'error')
+        await alert(COMMON_MESSAGES.UPDATE_FAILED, 'error')
         return
       }
       await reload()
-      await alert(t('copySuccessEditName'), 'success')
     } finally {
       setLoading(method.id, false)
     }
@@ -251,19 +229,24 @@ export function PaymentMethodsSection({
                   <TableHead className="w-[40px]"></TableHead>
                   <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
                   <TableHead className="w-[140px]">金流商</TableHead>
-                  <TableHead>{PAGE_LABELS.COL_DESCRIPTION}</TableHead>
-                  <TableHead>{PAGE_LABELS.COL_PAYMENT_HINT}</TableHead>
-                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>}
-                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>}
+                  {hasAccounting && (
+                    <TableHead className="w-[220px]">{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
+                  )}
+                  {hasAccounting && (
+                    <TableHead className="w-[220px]">{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>
+                  )}
                   <TableHead className="w-[80px]">{PAGE_LABELS.COL_STATUS}</TableHead>
-                  <TableHead className="w-[80px] text-right">{PAGE_LABELS.COL_ACTION}</TableHead>
+                  {type === 'receipt' && (
+                    <TableHead className="w-[90px]">{PAGE_LABELS.COL_CUSTOMER_VISIBLE}</TableHead>
+                  )}
+                  <TableHead className="w-[100px]">{PAGE_LABELS.COL_ACTION}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {list.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={hasAccounting ? 9 : 7}
+                      colSpan={(hasAccounting ? 7 : 5) + (type === 'receipt' ? 1 : 0)}
                       className="text-center py-8 text-morandi-muted"
                     >
                       {emptyText}
@@ -285,8 +268,8 @@ export function PaymentMethodsSection({
                           setIsDialogOpen(true)
                         }}
                         onToggle={() => handleToggleActive(method)}
+                        onToggleCustomerVisible={() => handleToggleCustomerVisible(method)}
                         onDelete={() => handleDeleteMethod(method)}
-                        onCopy={() => handleCopyMethod(method)}
                       />
                     ))}
                   </SortableContext>

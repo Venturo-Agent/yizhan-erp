@@ -4,6 +4,7 @@ import React from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatePicker } from '@/components/ui/date-picker'
+import { BankCombobox } from '@/components/bank-combobox'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { Money } from '@/components/ui/money'
 import { cn } from '@/lib/utils'
@@ -19,7 +20,7 @@ const LABELS = {
   PAY_DAY_25: '每月 25 日',
   PAY_DAY_LAST: '每月最後一天',
   BASE_SALARY: '月薪（本薪）',
-  BANK_SECTION_TITLE: '匯款帳戶（薪資 / 代墊回收用）',
+  BANK_SECTION_TITLE: '薪資帳戶',
   BANK_CODE: '銀行代碼',
   BANK_NAME: '銀行名稱',
   BANK_ACCOUNT_NUMBER: '銀行帳號',
@@ -74,22 +75,14 @@ interface SalarySectionProps {
 export function SalarySection({ formData, salaryHistory, onChange }: SalarySectionProps) {
   return (
     <div className="space-y-5 pt-6 mt-6 border-t border-border">
-      {/* 基本資訊 */}
+      {/* 基本資訊：到職日 / 加保日 / 本薪（2026-05-26 William 拍板：移除任職日+發薪日、集中簡化）
+          二代健保以到職日掛入、其他保項以加保日為準、故只留這兩個日期 */}
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
             {LABELS.HIRE_DATE}
           </Label>
           <DatePicker value={formData.hire_date || ''} onChange={v => onChange({ hire_date: v })} />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-morandi-primary uppercase">
-            {LABELS.TOURISM_JOIN_DATE}
-          </Label>
-          <DatePicker
-            value={formData.tourism_join_date || ''}
-            onChange={v => onChange({ tourism_join_date: v })}
-          />
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
@@ -102,26 +95,6 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
-            {LABELS.PAY_DAY}
-          </Label>
-          <select
-            value={String(formData.pay_day)}
-            onChange={e =>
-              onChange({
-                pay_day: e.target.value === 'last' ? 'last' : Number(e.target.value),
-              })
-            }
-            className="w-full px-3 py-2 border border-morandi-gold/30 rounded-lg focus:border-morandi-gold focus:outline-none bg-card text-morandi-primary"
-          >
-            <option value="5">{LABELS.PAY_DAY_5}</option>
-            <option value="10">{LABELS.PAY_DAY_10}</option>
-            <option value="15">{LABELS.PAY_DAY_15}</option>
-            <option value="25">{LABELS.PAY_DAY_25}</option>
-            <option value="last">{LABELS.PAY_DAY_LAST}</option>
-          </select>
-        </div>
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-morandi-primary uppercase">
             {LABELS.BASE_SALARY}
           </Label>
           <div className="flex items-center gap-2">
@@ -129,15 +102,14 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               type="number"
               value={formData.base_salary}
               onChange={e => onChange({ base_salary: Number(e.target.value) })}
-              className="border-morandi-gold/30 focus:border-morandi-gold"
               placeholder="0"
             />
           </div>
         </div>
       </div>
 
-      {/* 算薪需要的完整薪資組成 */}
-      <div className="grid grid-cols-2 gap-4 pt-2">
+      {/* 薪資組成（2026-05-26 William 拍板統一 3 欄）：全勤獎金 / 其他津貼 / 投保薪資 / 勞退提撥率 */}
+      <div className="grid grid-cols-3 gap-4 pt-2">
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
             {LABELS.ATTENDANCE_BONUS}
@@ -147,11 +119,9 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               type="number"
               value={formData.attendance_bonus}
               onChange={e => onChange({ attendance_bonus: Number(e.target.value) })}
-              className="border-morandi-gold/30 focus:border-morandi-gold"
               placeholder="0"
             />
           </div>
-          <p className="text-[0.588rem] text-morandi-muted">{LABELS.ATTENDANCE_BONUS_NOTE}</p>
         </div>
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
@@ -162,15 +132,10 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               type="number"
               value={formData.other_allowances}
               onChange={e => onChange({ other_allowances: Number(e.target.value) })}
-              className="border-morandi-gold/30 focus:border-morandi-gold"
               placeholder="0"
             />
           </div>
-          <p className="text-[0.588rem] text-morandi-muted">{LABELS.OTHER_ALLOWANCES_NOTE}</p>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
             {LABELS.INSURED_SALARY}
@@ -184,7 +149,6 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
                   insured_salary: e.target.value === '' ? null : Number(e.target.value),
                 })
               }
-              className="border-morandi-gold/30 focus:border-morandi-gold"
               placeholder={LABELS.INSURED_SALARY_PLACEHOLDER}
             />
           </div>
@@ -194,24 +158,25 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
           <Label className="text-xs font-semibold text-morandi-primary uppercase">
             {LABELS.PENSION_RATE}
           </Label>
-          <div className="flex items-center gap-2">
+          {/* 2026-05-26 William 拍板：直接在格子內輸入 % 數、% 符號顯示在框內、不再外面重複顯示 */}
+          <div className="relative">
             <Input
               type="number"
-              step="0.01"
+              step="0.5"
               min="0"
-              max="0.06"
-              value={formData.pension_voluntary_rate}
+              max="6"
+              value={Math.round(formData.pension_voluntary_rate * 1000) / 10}
               onChange={e => {
-                const v = Number(e.target.value)
+                const pct = Number(e.target.value)
                 onChange({
-                  pension_voluntary_rate: Math.min(Math.max(v, 0), 0.06),
+                  pension_voluntary_rate: Math.min(Math.max(pct / 100, 0), 0.06),
                 })
               }}
-              className="border-morandi-gold/30 focus:border-morandi-gold"
+              className="pr-8"
               placeholder="0"
             />
-            <span className="text-morandi-secondary">
-              ({(formData.pension_voluntary_rate * 100).toFixed(1)}%)
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-morandi-secondary">
+              %
             </span>
           </div>
           <p className="text-[0.588rem] text-morandi-muted">{LABELS.PENSION_RATE_NOTE}</p>
@@ -221,7 +186,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
       {/* 勞健保投保設定（2026-05-15 William 拍板加） */}
       <div className="pt-4 border-t border-border">
         <h4 className="text-sm font-semibold text-morandi-primary mb-3">勞健保投保設定</h4>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           {/* 健保眷屬數 */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-morandi-primary uppercase">
@@ -242,7 +207,7 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               眷屬數影響健保保費（員工負擔 = 投保金額 × 1.551% × (1 + 眷屬)）
             </p>
           </div>
-          <div className="space-y-2 col-span-2">
+          <div className="space-y-2">
             {/* 勞保是否在本公司 */}
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -276,38 +241,17 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
         <h4 className="text-sm font-semibold text-morandi-primary mb-3">
           {LABELS.BANK_SECTION_TITLE}
         </h4>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
+          {/* 2026-05-26 William 拍板：銀行代碼改 BankCombobox（全臺 ref_banks 下拉）、
+              移除銀行名稱（由代碼帶出）、順序 = 銀行代碼 / 戶名 / 銀行帳號 */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold text-morandi-primary uppercase">
               {LABELS.BANK_CODE}
             </Label>
-            <Input
+            <BankCombobox
               value={formData.bank_code}
-              onChange={e => onChange({ bank_code: e.target.value })}
-              placeholder="例：808"
-              className="border-morandi-gold/30 focus:border-morandi-gold"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-morandi-primary uppercase">
-              {LABELS.BANK_NAME}
-            </Label>
-            <Input
-              value={formData.bank_name}
-              onChange={e => onChange({ bank_name: e.target.value })}
-              placeholder="例：玉山銀行"
-              className="border-morandi-gold/30 focus:border-morandi-gold"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-morandi-primary uppercase">
-              {LABELS.BANK_ACCOUNT_NUMBER}
-            </Label>
-            <Input
-              value={formData.bank_account_number}
-              onChange={e => onChange({ bank_account_number: e.target.value })}
-              placeholder="銀行帳號"
-              className="border-morandi-gold/30 focus:border-morandi-gold"
+              onChange={code => onChange({ bank_code: code })}
+              onSelect={bank => onChange({ bank_name: bank?.bank_name ?? '' })}
             />
           </div>
           <div className="space-y-1.5">
@@ -318,7 +262,16 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
               value={formData.bank_account_name}
               onChange={e => onChange({ bank_account_name: e.target.value })}
               placeholder="戶名"
-              className="border-morandi-gold/30 focus:border-morandi-gold"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold text-morandi-primary uppercase">
+              {LABELS.BANK_ACCOUNT_NUMBER}
+            </Label>
+            <Input
+              value={formData.bank_account_number}
+              onChange={e => onChange({ bank_account_number: e.target.value })}
+              placeholder="銀行帳號"
             />
           </div>
         </div>
@@ -367,8 +320,8 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
                             className={cn(
                               'text-xs',
                               record.base_salary > prevSalary
-                                ? 'text-morandi-green'
-                                : 'text-morandi-red'
+                                ? 'text-status-success'
+                                : 'text-status-danger'
                             )}
                           >
                             {record.base_salary > prevSalary ? '+' : ''}

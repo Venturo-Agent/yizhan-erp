@@ -5,7 +5,7 @@
  * Dialog 底部：總金額 + 刪除 / 收款轉移 / 存檔 / 確認核帳 按鈕
  */
 
-import { Save, Check, Trash2, ArrowRightLeft } from 'lucide-react'
+import { CheckSquare, Check, Trash2, ArrowRightLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -203,10 +203,10 @@ export function ReceiptDialogFooter({
           <Button
             onClick={onSubmit}
             disabled={isSubmitting || !tourId || !orderId || paymentItemsCount === 0}
-            variant="soft-gold"
+            variant="morandi-gold"
             className="gap-2"
           >
-            <Save size={16} />
+            <CheckSquare size={16} />
             {isSubmitting
               ? isEditMode
                 ? t('receiptUpdating')

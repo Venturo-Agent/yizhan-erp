@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { CountryAirportSelector } from '@/components/selectors/CountryAirportSelector'
-import { X } from 'lucide-react'
+import { X, CheckSquare } from 'lucide-react'
 import { getTodayString } from '@/lib/utils/format-date'
 import { Tour } from '@/stores/types'
 import { TOUR_CONVERT } from '../_constants'
@@ -162,7 +162,8 @@ export function ConvertToTourDialog({
         <X size={16} />
         {TOUR_CONVERT.cancel}
       </Button>
-      <Button onClick={handleSubmit} disabled={isSubmitDisabled} variant="soft-gold">
+      <Button onClick={handleSubmit} disabled={isSubmitDisabled} variant="morandi-gold">
+        <CheckSquare size="1em" />
         {submitLabel}
       </Button>
     </div>

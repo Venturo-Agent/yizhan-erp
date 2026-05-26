@@ -6,7 +6,11 @@ const COMPONENT_LABELS = {
 } as const
 import { EmptyValue } from '@/components/ui/empty-value'
 import { Button } from '@/components/ui/button'
-import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
+import {
+  ActionCell,
+  ACTION_BUTTON_BASE,
+  ACTION_BUTTON_DEFAULT_TONE,
+} from '@/components/table-cells'
 import { cn } from '@/lib/utils'
 
 import { EnhancedTable } from '@/components/ui/enhanced-table'
@@ -181,90 +185,119 @@ export function AttractionsList({
         const attraction = row as Attraction
         const isFirst = index === 0
         const isLast = index === sortedAttractions.length - 1
+        const hasMove = !!(onMoveUp && onMoveDown)
         return (
-          <div className="flex items-center gap-0.5">
-            {/* 上移/下移按鈕 */}
-            {onMoveUp && onMoveDown && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={e => {
-                    e.stopPropagation()
-                    onMoveUp(attraction)
-                  }}
-                  disabled={isFirst}
-                  className={cn(
-                    ACTION_BUTTON_BASE,
-                    ACTION_BUTTON_DEFAULT_TONE,
-                    'disabled:opacity-30'
-                  )}
-                  title={t('attractionsListMoveUp')}
-                >
-                  <ChevronUp size="0.95em" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={e => {
-                    e.stopPropagation()
-                    onMoveDown(attraction)
-                  }}
-                  disabled={isLast}
-                  className={cn(
-                    ACTION_BUTTON_BASE,
-                    ACTION_BUTTON_DEFAULT_TONE,
-                    'disabled:opacity-30'
-                  )}
-                  title={t('attractionsListMoveDown')}
-                >
-                  <ChevronDown size="0.95em" />
-                </Button>
-                <div className="w-px h-4 bg-border mx-1" />
-              </>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={e => {
-                e.stopPropagation()
-                onEdit(attraction)
-              }}
-              className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-              title={t('attractionsListEdit')}
-            >
-              <Edit size="0.95em" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={e => {
-                e.stopPropagation()
-                onToggleStatus(attraction)
-              }}
-              className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-              title={
-                attraction.is_active ? t('attractionsListDisable') : t('attractionsListEnable')
+          <ActionCell
+            className="gap-0.5"
+            iconOnly
+            // 逃生艙：上移/下移（disabled-opacity-30 + 群組後分隔線）與 Power（icon 顏色獨立於按鈕狀態）
+            // 走 ActionCell 標準渲染接不住、故自訂渲染；編輯/刪除回 null 退回標準渲染。
+            renderCustomButton={action => {
+              if (action.label === t('attractionsListMoveUp')) {
+                return (
+                  <Button
+                    key="move-up"
+                    variant="ghost"
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation()
+                      action.onClick()
+                    }}
+                    disabled={isFirst}
+                    className={cn(
+                      ACTION_BUTTON_BASE,
+                      ACTION_BUTTON_DEFAULT_TONE,
+                      'disabled:opacity-30'
+                    )}
+                    title={action.label}
+                  >
+                    <ChevronUp size="0.95em" />
+                  </Button>
+                )
               }
-            >
-              <Power
-                size="0.95em"
-                className={attraction.is_active ? 'text-status-success' : 'text-morandi-secondary'}
-              />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={e => {
-                e.stopPropagation()
-                onDelete(attraction.id)
-              }}
-              className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
-              title={t('attractionsListDelete')}
-            >
-              <Trash2 size="0.95em" />
-            </Button>
-          </div>
+              if (action.label === t('attractionsListMoveDown')) {
+                return (
+                  <div key="move-down" className="flex items-center gap-0.5">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={e => {
+                        e.stopPropagation()
+                        action.onClick()
+                      }}
+                      disabled={isLast}
+                      className={cn(
+                        ACTION_BUTTON_BASE,
+                        ACTION_BUTTON_DEFAULT_TONE,
+                        'disabled:opacity-30'
+                      )}
+                      title={action.label}
+                    >
+                      <ChevronDown size="0.95em" />
+                    </Button>
+                    <div className="w-px h-4 bg-border mx-1" />
+                  </div>
+                )
+              }
+              if (action.icon === Power) {
+                return (
+                  <Button
+                    key="power"
+                    variant="ghost"
+                    size="sm"
+                    onClick={e => {
+                      e.stopPropagation()
+                      action.onClick()
+                    }}
+                    className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
+                    title={action.label}
+                  >
+                    <Power
+                      size="0.95em"
+                      className={
+                        attraction.is_active ? 'text-status-success' : 'text-morandi-secondary'
+                      }
+                    />
+                  </Button>
+                )
+              }
+              return null
+            }}
+            actions={[
+              ...(hasMove
+                ? [
+                    {
+                      icon: ChevronUp,
+                      label: t('attractionsListMoveUp'),
+                      onClick: () => onMoveUp!(attraction),
+                    },
+                    {
+                      icon: ChevronDown,
+                      label: t('attractionsListMoveDown'),
+                      onClick: () => onMoveDown!(attraction),
+                    },
+                  ]
+                : []),
+              {
+                icon: Edit,
+                label: t('attractionsListEdit'),
+                onClick: () => onEdit(attraction),
+              },
+              {
+                icon: Power,
+                label: attraction.is_active
+                  ? t('attractionsListDisable')
+                  : t('attractionsListEnable'),
+                onClick: () => onToggleStatus(attraction),
+              },
+              {
+                icon: Trash2,
+                label: t('attractionsListDelete'),
+                onClick: () => onDelete(attraction.id),
+                variant: 'danger' as const,
+              },
+            ]}
+          />
         )
       }}
     />

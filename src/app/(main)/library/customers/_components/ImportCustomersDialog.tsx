@@ -6,7 +6,7 @@
  * 流程：選擇檔案 → 解析預覽 → 確認匯入
  */
 
-import { Upload, Download, FileSpreadsheet, ArrowLeft } from 'lucide-react'
+import { Upload, Download, FileSpreadsheet, ArrowLeft, CheckSquare } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import {
   Dialog,
@@ -130,13 +130,13 @@ export function ImportCustomersDialog({ open, onOpenChange }: ImportCustomersDia
             </Button>
             {step === 'preview' && (
               <Button
-                variant="soft-gold"
+                variant="morandi-gold"
                 size="sm"
                 onClick={handleImport}
                 disabled={is_importing || valid_count === 0}
                 className="gap-2"
               >
-                <Upload size={16} />
+                <CheckSquare size={16} />
                 {is_importing
                   ? t('customerImportBtnImporting')
                   : `${t('customerImportBtnImport')}（${valid_count} 筆）`}

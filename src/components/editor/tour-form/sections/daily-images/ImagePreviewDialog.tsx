@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useRef } from 'react'
-import { X, Check } from 'lucide-react'
+import { X, CheckSquare } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { Button } from '@/components/ui/button'
@@ -265,8 +265,8 @@ export function ImagePositionEditor({ image, onSave, onClose }: ImagePositionEdi
           <X size="1em" />
           {COMP_EDITOR_LABELS.取消}
         </Button>
-        <Button variant="soft-gold" type="button" onClick={() => onSave(position)}>
-          <Check size="1em" className="mr-1" />
+        <Button variant="morandi-gold" type="button" onClick={() => onSave(position)}>
+          <CheckSquare size="1em" />
           {COMP_EDITOR_LABELS.LABEL_4550}
         </Button>
       </div>

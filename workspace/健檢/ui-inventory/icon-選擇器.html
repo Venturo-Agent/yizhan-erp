@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Icon 選擇器 — 全站 172 個 lucide 圖示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:#c9aa7c; --gold-h:#b8975f; --gold-l:#ede3d4;
+    --text:#3a3633; --muted:#8a847d; --bg:#f6f4f1; --card:#ffffff;
+    --line:#e7e1d8; --danger:#b5705f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,"PingFang TC","Heiti TC",sans-serif;
+    line-height:1.6; padding-bottom:140px;}
+  h1,h2,h3{font-family:"Noto Serif TC",serif;font-weight:700;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
+  header{background:linear-gradient(135deg,#fff,#faf7f2);border-bottom:2px solid var(--gold-l);padding:28px 0 18px;}
+  header h1{margin:0 0 6px;font-size:26px;}
+  header .sub{color:var(--muted);font-size:14px;margin:0;}
+  header .tip{margin-top:12px;background:var(--gold-l);border-radius:10px;padding:10px 14px;
+    font-size:14px;color:#6b5d44;border:1px solid #e3d4ba;}
+  header .tip b{color:#8a6d3b;}
+
+  /* sticky 章節導航 */
+  .topnav{position:sticky;top:0;z-index:50;background:rgba(246,244,241,.96);
+    backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:8px 0;}
+  .topnav .wrap{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+  .topnav a{font-size:12.5px;color:var(--text);text-decoration:none;
+    padding:4px 9px;border-radius:7px;border:1px solid var(--line);background:#fff;white-space:nowrap;}
+  .topnav a:hover{background:var(--gold-l);border-color:var(--gold);}
+  .topnav .sep{width:1px;height:18px;background:var(--line);margin:0 2px;}
+
+  section{margin-top:30px;}
+  section > .wrap > h2{font-size:20px;margin:0 0 4px;display:flex;align-items:center;gap:8px;}
+  section .desc{color:var(--muted);font-size:13.5px;margin:0 0 16px;}
+
+  .dupgroup{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.03);}
+  .dh{display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+  .dt{font-family:"Noto Serif TC",serif;font-weight:700;font-size:17px;}
+  .dhint{font-size:12.5px;color:var(--gold-h);background:var(--gold-l);
+    padding:2px 9px;border-radius:6px;}
+
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));}
+  .wallgroup .grid{grid-template-columns:repeat(auto-fill,minmax(96px,1fr));}
+
+  .cell{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:12px;
+    padding:14px 8px 10px;text-align:center;cursor:pointer;transition:.12s;
+    display:flex;flex-direction:column;align-items:center;gap:5px;user-select:none;}
+  .cell:hover{border-color:var(--gold);transform:translateY(-1px);box-shadow:0 3px 8px rgba(201,170,124,.18);}
+  .cell.checked{border-color:var(--gold);background:linear-gradient(180deg,#fffdf9,#fbf4e8);
+    box-shadow:0 0 0 2px var(--gold) inset;}
+  .dupcell.suggest{border-color:var(--gold-h);}
+  .ico{color:var(--text);display:flex;align-items:center;justify-content:center;height:32px;}
+  .ico.big{height:52px;}
+  .cell.checked .ico{color:var(--gold-h);}
+  .nm{font-size:12px;font-weight:600;word-break:break-all;line-height:1.25;}
+  .ct{font-size:10.5px;color:var(--muted);}
+  .chk{position:absolute;top:7px;right:7px;width:17px;height:17px;accent-color:var(--gold-h);cursor:pointer;}
+  .badge{position:absolute;top:-9px;left:50%;transform:translateX(-50%);
+    background:var(--gold-h);color:#fff;font-size:10px;padding:2px 8px;border-radius:8px;white-space:nowrap;}
+
+  .wallgroup{margin-bottom:26px;}
+  .wallgroup h3{font-size:16px;margin:0 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .wallgroup h3 .gc{font-size:12px;color:var(--muted);font-weight:400;}
+
+  /* sticky 已選面板 */
+  .panel{position:fixed;bottom:0;left:0;right:0;z-index:60;background:#fff;
+    border-top:2px solid var(--gold);box-shadow:0 -4px 18px rgba(0,0,0,.10);}
+  .panel .wrap{display:flex;align-items:center;gap:16px;padding:12px 20px;}
+  .panel .count{font-family:"Noto Serif TC",serif;font-weight:700;font-size:17px;white-space:nowrap;}
+  .panel .count b{color:var(--gold-h);font-size:22px;}
+  .panel .list{flex:1;font-size:12.5px;color:var(--muted);max-height:46px;overflow:auto;
+    line-height:1.5;word-break:break-all;background:var(--bg);border-radius:8px;padding:6px 10px;border:1px solid var(--line);}
+  .panel .list .chip{display:inline-block;background:#fff;border:1px solid var(--line);
+    border-radius:6px;padding:1px 7px;margin:2px 3px 2px 0;color:var(--text);font-size:11.5px;}
+  .panel button{font-family:inherit;border:none;border-radius:10px;cursor:pointer;
+    font-size:14px;font-weight:600;padding:10px 18px;white-space:nowrap;}
+  .btn-copy{background:var(--gold);color:#fff;}
+  .btn-copy:hover{background:var(--gold-h);}
+  .btn-clear{background:#f1ece4;color:var(--muted);}
+  .btn-clear:hover{background:#e7e1d8;color:var(--text);}
+  .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);
+    background:var(--text);color:#fff;padding:9px 18px;border-radius:10px;font-size:13.5px;
+    opacity:0;transition:.25s;pointer-events:none;z-index:80;}
+  .toast.show{opacity:1;}
+  @media(max-width:680px){.panel .list{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>全站 Icon 選擇器</h1>
+    <p class="sub">全站共用了 172 個 lucide 圖示。每個都是真實渲染的 SVG、長相跟畫面上一模一樣。</p>
+    <div class="tip">在<b>「同義重複組」</b>裡勾你要保留的那一個（同一個動作目前用了好幾種 icon）。勾完按右下角的 <b>「📋 複製已選清單」</b>、把文字貼回給我就好。</div>
+  </div>
+</header>
+
+<nav class="topnav">
+  <div class="wrap">
+    <a href="#dup">🔴 同義重複組</a>
+    <span class="sep"></span>
+    <a href="#wall_0">🖱️ 動作類</a><a href="#wall_1">🚦 狀態提示類</a><a href="#wall_2">➡️ 導覽箭頭類</a><a href="#wall_3">📄 檔案文件類</a><a href="#wall_4">🖼️ 圖片媒體類</a><a href="#wall_5">💰 金錢財務類</a><a href="#wall_6">👥 人與組織類</a><a href="#wall_7">✈️ 旅遊地點類</a><a href="#wall_8">💬 通訊社群類</a><a href="#wall_9">🔐 權限系統類</a><a href="#wall_10">🧱 佈局其他類</a>
+  </div>
+</nav>
+
+<section id="dup">
+  <div class="wrap">
+    <h2>🔴 同義重複組 <span style="font-size:13px;color:var(--muted);font-weight:400">（重點區、在這裡挑保留哪個）</span></h2>
+    <p class="desc">同一個動作目前散用了好幾種 icon。組內金框 = 我的建議。勾起來 = 你要保留的。可以複選（譬如刪除留 Trash2、關閉留 X）。</p>
+    <div class="dupgroup">
+    <div class="dh"><span class="dt">✏️ 編輯</span><span class="dhint">建議統一用 Edit2</span></div>
+    <div class="grid"><label class="cell dupcell suggest" data-name="Edit2">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg></div>
+      <div class="nm">Edit2</div>
+      <div class="ct">用 14 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_0_Edit2" value="Edit2">
+    </label><label class="cell dupcell " data-name="Pencil">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></div>
+      <div class="nm">Pencil</div>
+      <div class="ct">用 9 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_0_Pencil" value="Pencil">
+    </label><label class="cell dupcell " data-name="Edit">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg></div>
+      <div class="nm">Edit</div>
+      <div class="ct">用 3 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_0_Edit" value="Edit">
+    </label><label class="cell dupcell " data-name="SquarePen">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg></div>
+      <div class="nm">SquarePen</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_0_SquarePen" value="SquarePen">
+    </label><label class="cell dupcell " data-name="PenLine">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg></div>
+      <div class="nm">PenLine</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_0_PenLine" value="PenLine">
+    </label><label class="cell dupcell " data-name="FileEdit">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg></div>
+      <div class="nm">FileEdit</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_0_FileEdit" value="FileEdit">
+    </label></div>
+  </div><div class="dupgroup">
+    <div class="dh"><span class="dt">🗑️ 刪除 / 關閉</span><span class="dhint">建議 刪除=Trash2、關閉=X</span></div>
+    <div class="grid"><label class="cell dupcell suggest" data-name="Trash2">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+      <div class="nm">Trash2</div>
+      <div class="ct">用 49 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_1_Trash2" value="Trash2">
+    </label><label class="cell dupcell suggest" data-name="X">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
+      <div class="nm">X</div>
+      <div class="ct">用 71 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_1_X" value="X">
+    </label><label class="cell dupcell " data-name="XCircle">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+      <div class="nm">XCircle</div>
+      <div class="ct">用 9 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_1_XCircle" value="XCircle">
+    </label><label class="cell dupcell " data-name="Ban">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.929 4.929 19.07 19.071"/><circle cx="12" cy="12" r="10"/></svg></div>
+      <div class="nm">Ban</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_1_Ban" value="Ban">
+    </label><label class="cell dupcell " data-name="Minus">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></div>
+      <div class="nm">Minus</div>
+      <div class="ct">用 2 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_1_Minus" value="Minus">
+    </label></div>
+  </div><div class="dupgroup">
+    <div class="dh"><span class="dt">✅ 打勾 / 確認 / 成功</span><span class="dhint">建議釐清用途（純打勾 vs 帶圈成功）</span></div>
+    <div class="grid"><label class="cell dupcell suggest" data-name="Check">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="nm">Check</div>
+      <div class="ct">用 47 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_2_Check" value="Check">
+    </label><label class="cell dupcell suggest" data-name="CheckCircle2">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+      <div class="nm">CheckCircle2</div>
+      <div class="ct">用 17 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_2_CheckCircle2" value="CheckCircle2">
+    </label><label class="cell dupcell " data-name="CheckCircle">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+      <div class="nm">CheckCircle</div>
+      <div class="ct">用 5 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_2_CheckCircle" value="CheckCircle">
+    </label><label class="cell dupcell " data-name="CheckSquare">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344"/><path d="m9 11 3 3L22 4"/></svg></div>
+      <div class="nm">CheckSquare</div>
+      <div class="ct">用 2 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_2_CheckSquare" value="CheckSquare">
+    </label></div>
+  </div><div class="dupgroup">
+    <div class="dh"><span class="dt">⚠️ 警告 / 提示</span><span class="dhint">建議 錯誤=AlertCircle、警示=AlertTriangle</span></div>
+    <div class="grid"><label class="cell dupcell suggest" data-name="AlertCircle">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></div>
+      <div class="nm">AlertCircle</div>
+      <div class="ct">用 29 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_3_AlertCircle" value="AlertCircle">
+    </label><label class="cell dupcell suggest" data-name="AlertTriangle">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+      <div class="nm">AlertTriangle</div>
+      <div class="ct">用 16 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_3_AlertTriangle" value="AlertTriangle">
+    </label><label class="cell dupcell " data-name="Info">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+      <div class="nm">Info</div>
+      <div class="ct">用 8 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_3_Info" value="Info">
+    </label><label class="cell dupcell " data-name="HelpCircle">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></div>
+      <div class="nm">HelpCircle</div>
+      <div class="ct">用 2 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_3_HelpCircle" value="HelpCircle">
+    </label></div>
+  </div><div class="dupgroup">
+    <div class="dh"><span class="dt">🔄 載入 / 重整</span><span class="dhint">建議 載入=Loader2、重整=RefreshCw</span></div>
+    <div class="grid"><label class="cell dupcell suggest" data-name="Loader2">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div>
+      <div class="nm">Loader2</div>
+      <div class="ct">用 61 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_4_Loader2" value="Loader2">
+    </label><label class="cell dupcell suggest" data-name="RefreshCw">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></div>
+      <div class="nm">RefreshCw</div>
+      <div class="ct">用 11 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_4_RefreshCw" value="RefreshCw">
+    </label><label class="cell dupcell " data-name="RotateCcw">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
+      <div class="nm">RotateCcw</div>
+      <div class="ct">用 4 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_4_RotateCcw" value="RotateCcw">
+    </label><label class="cell dupcell " data-name="RotateCw">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></div>
+      <div class="nm">RotateCw</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_4_RotateCw" value="RotateCw">
+    </label></div>
+  </div><div class="dupgroup">
+    <div class="dh"><span class="dt">⚙️ 設定</span><span class="dhint">建議統一用 Settings</span></div>
+    <div class="grid"><label class="cell dupcell suggest" data-name="Settings">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <div class="nm">Settings</div>
+      <div class="ct">用 5 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_5_Settings" value="Settings">
+    </label><label class="cell dupcell " data-name="Settings2">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></div>
+      <div class="nm">Settings2</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_5_Settings2" value="Settings2">
+    </label><label class="cell dupcell " data-name="Sliders">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h4"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M17 16h4"/><path d="M19 12V3"/><path d="M19 21v-5"/><path d="M3 14h4"/><path d="M5 10V3"/><path d="M5 21v-7"/></svg></div>
+      <div class="nm">Sliders</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_5_Sliders" value="Sliders">
+    </label><label class="cell dupcell " data-name="Wrench">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div>
+      <div class="nm">Wrench</div>
+      <div class="ct">用 1 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_5_Wrench" value="Wrench">
+    </label></div>
+  </div><div class="dupgroup">
+    <div class="dh"><span class="dt">🔽 展開 / 收合</span><span class="dhint">對齊用途（雙箭頭 vs 單箭頭）</span></div>
+    <div class="grid"><label class="cell dupcell suggest" data-name="ChevronsUpDown">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></div>
+      <div class="nm">ChevronsUpDown</div>
+      <div class="ct">用 2 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_6_ChevronsUpDown" value="ChevronsUpDown">
+    </label><label class="cell dupcell " data-name="ChevronsDownUp">
+      
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/></svg></div>
+      <div class="nm">ChevronsDownUp</div>
+      <div class="ct">用 2 次</div>
+      <input type="checkbox" class="chk"  id="cb_dup_6_ChevronsDownUp" value="ChevronsDownUp">
+    </label><label class="cell dupcell suggest" data-name="ChevronDown">
+      <span class="badge">建議保留</span>
+      <div class="ico big"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+      <div class="nm">ChevronDown</div>
+      <div class="ct">用 24 次</div>
+      <input type="checkbox" class="chk" checked id="cb_dup_6_ChevronDown" value="ChevronDown">
+    </label></div>
+  </div>
+  </div>
+</section>
+
+<section id="wall">
+  <div class="wrap">
+    <h2>🧱 完整 Icon 牆 <span style="font-size:13px;color:var(--muted);font-weight:400">（全部 172 個、按語義分組）</span></h2>
+    <p class="desc">想看全部 icon 真實長相、或想額外勾掉哪些、在這裡挑。</p>
+    <div class="wallgroup" id="wall_0">
+    <h3>🖱️ 動作類 <span class="gc">28</span></h3>
+    <div class="grid"><label class="cell" data-name="Plus">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></div>
+    <div class="nm">Plus</div>
+    <div class="ct">用 52 次</div>
+    <input type="checkbox" class="chk" id="cb_Plus" value="Plus">
+  </label><label class="cell" data-name="Save">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg></div>
+    <div class="nm">Save</div>
+    <div class="ct">用 24 次</div>
+    <input type="checkbox" class="chk" id="cb_Save" value="Save">
+  </label><label class="cell" data-name="Edit2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg></div>
+    <div class="nm">Edit2</div>
+    <div class="ct">用 14 次</div>
+    <input type="checkbox" class="chk" id="cb_Edit2" value="Edit2">
+  </label><label class="cell" data-name="Edit">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg></div>
+    <div class="nm">Edit</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Edit" value="Edit">
+  </label><label class="cell" data-name="Pencil">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg></div>
+    <div class="nm">Pencil</div>
+    <div class="ct">用 9 次</div>
+    <input type="checkbox" class="chk" id="cb_Pencil" value="Pencil">
+  </label><label class="cell" data-name="SquarePen">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg></div>
+    <div class="nm">SquarePen</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_SquarePen" value="SquarePen">
+  </label><label class="cell" data-name="PenLine">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 21h8"/><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg></div>
+    <div class="nm">PenLine</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_PenLine" value="PenLine">
+  </label><label class="cell" data-name="FileEdit">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg></div>
+    <div class="nm">FileEdit</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_FileEdit" value="FileEdit">
+  </label><label class="cell" data-name="Trash2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div>
+    <div class="nm">Trash2</div>
+    <div class="ct">用 49 次</div>
+    <input type="checkbox" class="chk" id="cb_Trash2" value="Trash2">
+  </label><label class="cell" data-name="Copy">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div>
+    <div class="nm">Copy</div>
+    <div class="ct">用 13 次</div>
+    <input type="checkbox" class="chk" id="cb_Copy" value="Copy">
+  </label><label class="cell" data-name="Download">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/></svg></div>
+    <div class="nm">Download</div>
+    <div class="ct">用 5 次</div>
+    <input type="checkbox" class="chk" id="cb_Download" value="Download">
+  </label><label class="cell" data-name="Upload">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg></div>
+    <div class="nm">Upload</div>
+    <div class="ct">用 14 次</div>
+    <input type="checkbox" class="chk" id="cb_Upload" value="Upload">
+  </label><label class="cell" data-name="Search">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></div>
+    <div class="nm">Search</div>
+    <div class="ct">用 17 次</div>
+    <input type="checkbox" class="chk" id="cb_Search" value="Search">
+  </label><label class="cell" data-name="Filter">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z"/></svg></div>
+    <div class="nm">Filter</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Filter" value="Filter">
+  </label><label class="cell" data-name="Send">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg></div>
+    <div class="nm">Send</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Send" value="Send">
+  </label><label class="cell" data-name="Printer">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg></div>
+    <div class="nm">Printer</div>
+    <div class="ct">用 13 次</div>
+    <input type="checkbox" class="chk" id="cb_Printer" value="Printer">
+  </label><label class="cell" data-name="Share2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></svg></div>
+    <div class="nm">Share2</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Share2" value="Share2">
+  </label><label class="cell" data-name="Move">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m15 19-3 3-3-3"/><path d="m19 9 3 3-3 3"/><path d="M2 12h20"/><path d="m5 9-3 3 3 3"/><path d="m9 5 3-3 3 3"/></svg></div>
+    <div class="nm">Move</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Move" value="Move">
+  </label><label class="cell" data-name="GripVertical">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></svg></div>
+    <div class="nm">GripVertical</div>
+    <div class="ct">用 10 次</div>
+    <input type="checkbox" class="chk" id="cb_GripVertical" value="GripVertical">
+  </label><label class="cell" data-name="Scan">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg></div>
+    <div class="nm">Scan</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Scan" value="Scan">
+  </label><label class="cell" data-name="Crop">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg></div>
+    <div class="nm">Crop</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Crop" value="Crop">
+  </label><label class="cell" data-name="FlipHorizontal">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 20v2"/><path d="M12 14v2"/><path d="M12 8v2"/><path d="M12 2v2"/></svg></div>
+    <div class="nm">FlipHorizontal</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_FlipHorizontal" value="FlipHorizontal">
+  </label><label class="cell" data-name="ZoomIn">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg></div>
+    <div class="nm">ZoomIn</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_ZoomIn" value="ZoomIn">
+  </label><label class="cell" data-name="ZoomOut">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg></div>
+    <div class="nm">ZoomOut</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ZoomOut" value="ZoomOut">
+  </label><label class="cell" data-name="Eraser">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21H8a2 2 0 0 1-1.42-.587l-3.994-3.999a2 2 0 0 1 0-2.828l10-10a2 2 0 0 1 2.829 0l5.999 6a2 2 0 0 1 0 2.828L12.834 21"/><path d="m5.082 11.09 8.828 8.828"/></svg></div>
+    <div class="nm">Eraser</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Eraser" value="Eraser">
+  </label><label class="cell" data-name="Stamp">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13"/><path d="M20 15.5a2.5 2.5 0 0 0-2.5-2.5h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1z"/><path d="M5 22h14"/></svg></div>
+    <div class="nm">Stamp</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Stamp" value="Stamp">
+  </label><label class="cell" data-name="Undo2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></div>
+    <div class="nm">Undo2</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Undo2" value="Undo2">
+  </label><label class="cell" data-name="MoreHorizontal">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></div>
+    <div class="nm">MoreHorizontal</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_MoreHorizontal" value="MoreHorizontal">
+  </label></div>
+  </div><div class="wallgroup" id="wall_1">
+    <h3>🚦 狀態提示類 <span class="gc">27</span></h3>
+    <div class="grid"><label class="cell" data-name="Check">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <div class="nm">Check</div>
+    <div class="ct">用 47 次</div>
+    <input type="checkbox" class="chk" id="cb_Check" value="Check">
+  </label><label class="cell" data-name="CheckCircle">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.801 10A10 10 0 1 1 17 3.335"/><path d="m9 11 3 3L22 4"/></svg></div>
+    <div class="nm">CheckCircle</div>
+    <div class="ct">用 5 次</div>
+    <input type="checkbox" class="chk" id="cb_CheckCircle" value="CheckCircle">
+  </label><label class="cell" data-name="CheckCircle2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
+    <div class="nm">CheckCircle2</div>
+    <div class="ct">用 17 次</div>
+    <input type="checkbox" class="chk" id="cb_CheckCircle2" value="CheckCircle2">
+  </label><label class="cell" data-name="CheckSquare">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344"/><path d="m9 11 3 3L22 4"/></svg></div>
+    <div class="nm">CheckSquare</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_CheckSquare" value="CheckSquare">
+  </label><label class="cell" data-name="X">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></div>
+    <div class="nm">X</div>
+    <div class="ct">用 71 次</div>
+    <input type="checkbox" class="chk" id="cb_X" value="X">
+  </label><label class="cell" data-name="XCircle">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg></div>
+    <div class="nm">XCircle</div>
+    <div class="ct">用 9 次</div>
+    <input type="checkbox" class="chk" id="cb_XCircle" value="XCircle">
+  </label><label class="cell" data-name="Ban">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.929 4.929 19.07 19.071"/><circle cx="12" cy="12" r="10"/></svg></div>
+    <div class="nm">Ban</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Ban" value="Ban">
+  </label><label class="cell" data-name="Minus">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></div>
+    <div class="nm">Minus</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Minus" value="Minus">
+  </label><label class="cell" data-name="AlertCircle">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg></div>
+    <div class="nm">AlertCircle</div>
+    <div class="ct">用 29 次</div>
+    <input type="checkbox" class="chk" id="cb_AlertCircle" value="AlertCircle">
+  </label><label class="cell" data-name="AlertTriangle">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></div>
+    <div class="nm">AlertTriangle</div>
+    <div class="ct">用 16 次</div>
+    <input type="checkbox" class="chk" id="cb_AlertTriangle" value="AlertTriangle">
+  </label><label class="cell" data-name="Info">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+    <div class="nm">Info</div>
+    <div class="ct">用 8 次</div>
+    <input type="checkbox" class="chk" id="cb_Info" value="Info">
+  </label><label class="cell" data-name="HelpCircle">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></div>
+    <div class="nm">HelpCircle</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_HelpCircle" value="HelpCircle">
+  </label><label class="cell" data-name="Loader2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div>
+    <div class="nm">Loader2</div>
+    <div class="ct">用 61 次</div>
+    <input type="checkbox" class="chk" id="cb_Loader2" value="Loader2">
+  </label><label class="cell" data-name="RefreshCw">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></div>
+    <div class="nm">RefreshCw</div>
+    <div class="ct">用 11 次</div>
+    <input type="checkbox" class="chk" id="cb_RefreshCw" value="RefreshCw">
+  </label><label class="cell" data-name="RotateCcw">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
+    <div class="nm">RotateCcw</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_RotateCcw" value="RotateCcw">
+  </label><label class="cell" data-name="RotateCw">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg></div>
+    <div class="nm">RotateCw</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_RotateCw" value="RotateCw">
+  </label><label class="cell" data-name="Clock">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="10"/></svg></div>
+    <div class="nm">Clock</div>
+    <div class="ct">用 9 次</div>
+    <input type="checkbox" class="chk" id="cb_Clock" value="Clock">
+  </label><label class="cell" data-name="Timer">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/></svg></div>
+    <div class="nm">Timer</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Timer" value="Timer">
+  </label><label class="cell" data-name="Hourglass">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg></div>
+    <div class="nm">Hourglass</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Hourglass" value="Hourglass">
+  </label><label class="cell" data-name="CalendarClock">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 14v2.2l1.6 1"/><path d="M16 2v4"/><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M3 10h5"/><path d="M8 2v4"/><circle cx="16" cy="16" r="6"/></svg></div>
+    <div class="nm">CalendarClock</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_CalendarClock" value="CalendarClock">
+  </label><label class="cell" data-name="Bell">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></div>
+    <div class="nm">Bell</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Bell" value="Bell">
+  </label><label class="cell" data-name="Circle">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg></div>
+    <div class="nm">Circle</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Circle" value="Circle">
+  </label><label class="cell" data-name="Star">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg></div>
+    <div class="nm">Star</div>
+    <div class="ct">用 12 次</div>
+    <input type="checkbox" class="chk" id="cb_Star" value="Star">
+  </label><label class="cell" data-name="Sparkles">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg></div>
+    <div class="nm">Sparkles</div>
+    <div class="ct">用 10 次</div>
+    <input type="checkbox" class="chk" id="cb_Sparkles" value="Sparkles">
+  </label><label class="cell" data-name="TrendingUp">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg></div>
+    <div class="nm">TrendingUp</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_TrendingUp" value="TrendingUp">
+  </label><label class="cell" data-name="Award">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"/><circle cx="12" cy="8" r="6"/></svg></div>
+    <div class="nm">Award</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Award" value="Award">
+  </label><label class="cell" data-name="Crown">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/></svg></div>
+    <div class="nm">Crown</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Crown" value="Crown">
+  </label></div>
+  </div><div class="wallgroup" id="wall_2">
+    <h3>➡️ 導覽箭頭類 <span class="gc">14</span></h3>
+    <div class="grid"><label class="cell" data-name="ArrowLeft">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg></div>
+    <div class="nm">ArrowLeft</div>
+    <div class="ct">用 9 次</div>
+    <input type="checkbox" class="chk" id="cb_ArrowLeft" value="ArrowLeft">
+  </label><label class="cell" data-name="ArrowRight">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+    <div class="nm">ArrowRight</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_ArrowRight" value="ArrowRight">
+  </label><label class="cell" data-name="ArrowRightLeft">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg></div>
+    <div class="nm">ArrowRightLeft</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_ArrowRightLeft" value="ArrowRightLeft">
+  </label><label class="cell" data-name="ChevronDown">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="nm">ChevronDown</div>
+    <div class="ct">用 24 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronDown" value="ChevronDown">
+  </label><label class="cell" data-name="ChevronUp">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg></div>
+    <div class="nm">ChevronUp</div>
+    <div class="ct">用 7 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronUp" value="ChevronUp">
+  </label><label class="cell" data-name="ChevronLeft">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></div>
+    <div class="nm">ChevronLeft</div>
+    <div class="ct">用 7 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronLeft" value="ChevronLeft">
+  </label><label class="cell" data-name="ChevronRight">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
+    <div class="nm">ChevronRight</div>
+    <div class="ct">用 21 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronRight" value="ChevronRight">
+  </label><label class="cell" data-name="ChevronsUpDown">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg></div>
+    <div class="nm">ChevronsUpDown</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronsUpDown" value="ChevronsUpDown">
+  </label><label class="cell" data-name="ChevronsDownUp">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 20 5-5 5 5"/><path d="m7 4 5 5 5-5"/></svg></div>
+    <div class="nm">ChevronsDownUp</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronsDownUp" value="ChevronsDownUp">
+  </label><label class="cell" data-name="ChevronsLeft">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17-5-5 5-5"/><path d="m18 17-5-5 5-5"/></svg></div>
+    <div class="nm">ChevronsLeft</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronsLeft" value="ChevronsLeft">
+  </label><label class="cell" data-name="ChevronsRight">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 17 5-5-5-5"/><path d="m13 17 5-5-5-5"/></svg></div>
+    <div class="nm">ChevronsRight</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ChevronsRight" value="ChevronsRight">
+  </label><label class="cell" data-name="Navigation">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></div>
+    <div class="nm">Navigation</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Navigation" value="Navigation">
+  </label><label class="cell" data-name="ExternalLink">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></div>
+    <div class="nm">ExternalLink</div>
+    <div class="ct">用 13 次</div>
+    <input type="checkbox" class="chk" id="cb_ExternalLink" value="ExternalLink">
+  </label><label class="cell" data-name="LogOut">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg></div>
+    <div class="nm">LogOut</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_LogOut" value="LogOut">
+  </label></div>
+  </div><div class="wallgroup" id="wall_3">
+    <h3>📄 檔案文件類 <span class="gc">21</span></h3>
+    <div class="grid"><label class="cell" data-name="FileText">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></div>
+    <div class="nm">FileText</div>
+    <div class="ct">用 14 次</div>
+    <input type="checkbox" class="chk" id="cb_FileText" value="FileText">
+  </label><label class="cell" data-name="FilePlus">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 18v-6"/></svg></div>
+    <div class="nm">FilePlus</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_FilePlus" value="FilePlus">
+  </label><label class="cell" data-name="FileCheck">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m9 15 2 2 4-4"/></svg></div>
+    <div class="nm">FileCheck</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_FileCheck" value="FileCheck">
+  </label><label class="cell" data-name="FileX">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="m14.5 12.5-5 5"/><path d="m9.5 12.5 5 5"/></svg></div>
+    <div class="nm">FileX</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_FileX" value="FileX">
+  </label><label class="cell" data-name="FileDown">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg></div>
+    <div class="nm">FileDown</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_FileDown" value="FileDown">
+  </label><label class="cell" data-name="FileImage">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><circle cx="10" cy="12" r="2"/><path d="m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22"/></svg></div>
+    <div class="nm">FileImage</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_FileImage" value="FileImage">
+  </label><label class="cell" data-name="FileSpreadsheet">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/><path d="M14 17h2"/></svg></div>
+    <div class="nm">FileSpreadsheet</div>
+    <div class="ct">用 5 次</div>
+    <input type="checkbox" class="chk" id="cb_FileSpreadsheet" value="FileSpreadsheet">
+  </label><label class="cell" data-name="FileSignature">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2"/><path d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/><path d="M8 18h1"/></svg></div>
+    <div class="nm">FileSignature</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_FileSignature" value="FileSignature">
+  </label><label class="cell" data-name="Files">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2a2 2 0 0 1 1.414.586l4 4A2 2 0 0 1 21 8v7a2 2 0 0 1-2 2h-8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M15 2v4a2 2 0 0 0 2 2h4"/><path d="M5 7a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h8a2 2 0 0 0 1.732-1"/></svg></div>
+    <div class="nm">Files</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Files" value="Files">
+  </label><label class="cell" data-name="FolderPlus">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10v6"/><path d="M9 13h6"/><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg></div>
+    <div class="nm">FolderPlus</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_FolderPlus" value="FolderPlus">
+  </label><label class="cell" data-name="Clipboard">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></div>
+    <div class="nm">Clipboard</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Clipboard" value="Clipboard">
+  </label><label class="cell" data-name="ClipboardList">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></div>
+    <div class="nm">ClipboardList</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ClipboardList" value="ClipboardList">
+  </label><label class="cell" data-name="BookOpen">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg></div>
+    <div class="nm">BookOpen</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_BookOpen" value="BookOpen">
+  </label><label class="cell" data-name="BookOpenCheck">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V7"/><path d="m16 12 2 2 4-4"/><path d="M22 6V4a1 1 0 0 0-1-1h-5a4 4 0 0 0-4 4 4 4 0 0 0-4-4H3a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6a3 3 0 0 1 3 3 3 3 0 0 1 3-3h6a1 1 0 0 0 1-1v-1.3"/></svg></div>
+    <div class="nm">BookOpenCheck</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_BookOpenCheck" value="BookOpenCheck">
+  </label><label class="cell" data-name="StickyNote">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></svg></div>
+    <div class="nm">StickyNote</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_StickyNote" value="StickyNote">
+  </label><label class="cell" data-name="Archive">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg></div>
+    <div class="nm">Archive</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Archive" value="Archive">
+  </label><label class="cell" data-name="ArchiveRestore">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h2"/><path d="M20 8v11a2 2 0 0 1-2 2h-2"/><path d="m9 15 3-3 3 3"/><path d="M12 12v9"/></svg></div>
+    <div class="nm">ArchiveRestore</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ArchiveRestore" value="ArchiveRestore">
+  </label><label class="cell" data-name="Tag">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg></div>
+    <div class="nm">Tag</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Tag" value="Tag">
+  </label><label class="cell" data-name="Ticket">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg></div>
+    <div class="nm">Ticket</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Ticket" value="Ticket">
+  </label><label class="cell" data-name="PackageCheck">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" x2="12" y1="22" y2="12"/></svg></div>
+    <div class="nm">PackageCheck</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_PackageCheck" value="PackageCheck">
+  </label><label class="cell" data-name="Paperclip">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg></div>
+    <div class="nm">Paperclip</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Paperclip" value="Paperclip">
+  </label></div>
+  </div><div class="wallgroup" id="wall_4">
+    <h3>🖼️ 圖片媒體類 <span class="gc">8</span></h3>
+    <div class="grid"><label class="cell" data-name="Image">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div>
+    <div class="nm">Image</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Image" value="Image">
+  </label><label class="cell" data-name="ImageIcon">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></div>
+    <div class="nm">ImageIcon</div>
+    <div class="ct">用 9 次</div>
+    <input type="checkbox" class="chk" id="cb_ImageIcon" value="ImageIcon">
+  </label><label class="cell" data-name="ImageOff">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" x2="22" y1="2" y2="22"/><path d="M10.41 10.41a2 2 0 1 1-2.83-2.83"/><line x1="13.5" x2="6" y1="13.5" y2="21"/><line x1="18" x2="21" y1="12" y2="15"/><path d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"/><path d="M21 15V5a2 2 0 0 0-2-2H9"/></svg></div>
+    <div class="nm">ImageOff</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_ImageOff" value="ImageOff">
+  </label><label class="cell" data-name="Camera">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg></div>
+    <div class="nm">Camera</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Camera" value="Camera">
+  </label><label class="cell" data-name="Eye">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg></div>
+    <div class="nm">Eye</div>
+    <div class="ct">用 13 次</div>
+    <input type="checkbox" class="chk" id="cb_Eye" value="Eye">
+  </label><label class="cell" data-name="EyeOff">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg></div>
+    <div class="nm">EyeOff</div>
+    <div class="ct">用 6 次</div>
+    <input type="checkbox" class="chk" id="cb_EyeOff" value="EyeOff">
+  </label><label class="cell" data-name="Palette">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg></div>
+    <div class="nm">Palette</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Palette" value="Palette">
+  </label><label class="cell" data-name="Wand2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg></div>
+    <div class="nm">Wand2</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Wand2" value="Wand2">
+  </label></div>
+  </div><div class="wallgroup" id="wall_5">
+    <h3>💰 金錢財務類 <span class="gc">10</span></h3>
+    <div class="grid"><label class="cell" data-name="Wallet">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg></div>
+    <div class="nm">Wallet</div>
+    <div class="ct">用 7 次</div>
+    <input type="checkbox" class="chk" id="cb_Wallet" value="Wallet">
+  </label><label class="cell" data-name="DollarSign">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+    <div class="nm">DollarSign</div>
+    <div class="ct">用 6 次</div>
+    <input type="checkbox" class="chk" id="cb_DollarSign" value="DollarSign">
+  </label><label class="cell" data-name="Coins">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></svg></div>
+    <div class="nm">Coins</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Coins" value="Coins">
+  </label><label class="cell" data-name="Banknote">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></div>
+    <div class="nm">Banknote</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Banknote" value="Banknote">
+  </label><label class="cell" data-name="Receipt">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 17.5v-11"/></svg></div>
+    <div class="nm">Receipt</div>
+    <div class="ct">用 7 次</div>
+    <input type="checkbox" class="chk" id="cb_Receipt" value="Receipt">
+  </label><label class="cell" data-name="Calculator">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg></div>
+    <div class="nm">Calculator</div>
+    <div class="ct">用 6 次</div>
+    <input type="checkbox" class="chk" id="cb_Calculator" value="Calculator">
+  </label><label class="cell" data-name="HandCoins">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9"/><path d="m2 16 6 6"/><circle cx="16" cy="9" r="2.9"/><circle cx="6" cy="5" r="3"/></svg></div>
+    <div class="nm">HandCoins</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_HandCoins" value="HandCoins">
+  </label><label class="cell" data-name="CreditCard">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
+    <div class="nm">CreditCard</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_CreditCard" value="CreditCard">
+  </label><label class="cell" data-name="Landmark">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 18v-7"/><path d="M11.12 2.198a2 2 0 0 1 1.76.006l7.866 3.847c.476.233.31.949-.22.949H3.474c-.53 0-.695-.716-.22-.949z"/><path d="M14 18v-7"/><path d="M18 18v-7"/><path d="M3 22h18"/><path d="M6 18v-7"/></svg></div>
+    <div class="nm">Landmark</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Landmark" value="Landmark">
+  </label><label class="cell" data-name="BarChart3">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div>
+    <div class="nm">BarChart3</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_BarChart3" value="BarChart3">
+  </label></div>
+  </div><div class="wallgroup" id="wall_6">
+    <h3>👥 人與組織類 <span class="gc">13</span></h3>
+    <div class="grid"><label class="cell" data-name="User">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+    <div class="nm">User</div>
+    <div class="ct">用 10 次</div>
+    <input type="checkbox" class="chk" id="cb_User" value="User">
+  </label><label class="cell" data-name="Users">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg></div>
+    <div class="nm">Users</div>
+    <div class="ct">用 16 次</div>
+    <input type="checkbox" class="chk" id="cb_Users" value="Users">
+  </label><label class="cell" data-name="UserPlus">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg></div>
+    <div class="nm">UserPlus</div>
+    <div class="ct">用 7 次</div>
+    <input type="checkbox" class="chk" id="cb_UserPlus" value="UserPlus">
+  </label><label class="cell" data-name="UserCheck">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 11 2 2 4-4"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+    <div class="nm">UserCheck</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_UserCheck" value="UserCheck">
+  </label><label class="cell" data-name="UserMinus">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="22" x2="16" y1="11" y2="11"/></svg></div>
+    <div class="nm">UserMinus</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_UserMinus" value="UserMinus">
+  </label><label class="cell" data-name="UserX">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg></div>
+    <div class="nm">UserX</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_UserX" value="UserX">
+  </label><label class="cell" data-name="Contact">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 2v2"/><path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/><path d="M8 2v2"/><circle cx="12" cy="11" r="3"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div>
+    <div class="nm">Contact</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Contact" value="Contact">
+  </label><label class="cell" data-name="Building">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M12 6h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/><path d="M8 6h.01"/><path d="M9 22v-3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/><rect x="4" y="2" width="16" height="20" rx="2"/></svg></div>
+    <div class="nm">Building</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Building" value="Building">
+  </label><label class="cell" data-name="Building2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg></div>
+    <div class="nm">Building2</div>
+    <div class="ct">用 11 次</div>
+    <input type="checkbox" class="chk" id="cb_Building2" value="Building2">
+  </label><label class="cell" data-name="Network">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg></div>
+    <div class="nm">Network</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Network" value="Network">
+  </label><label class="cell" data-name="Briefcase">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></div>
+    <div class="nm">Briefcase</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Briefcase" value="Briefcase">
+  </label><label class="cell" data-name="Heart">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg></div>
+    <div class="nm">Heart</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Heart" value="Heart">
+  </label><label class="cell" data-name="Cake">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3"/><path d="M12 8v3"/><path d="M17 8v3"/><path d="M7 4h.01"/><path d="M12 4h.01"/><path d="M17 4h.01"/></svg></div>
+    <div class="nm">Cake</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Cake" value="Cake">
+  </label></div>
+  </div><div class="wallgroup" id="wall_7">
+    <h3>✈️ 旅遊地點類 <span class="gc">13</span></h3>
+    <div class="grid"><label class="cell" data-name="Plane">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></div>
+    <div class="nm">Plane</div>
+    <div class="ct">用 17 次</div>
+    <input type="checkbox" class="chk" id="cb_Plane" value="Plane">
+  </label><label class="cell" data-name="MapPin">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></div>
+    <div class="nm">MapPin</div>
+    <div class="ct">用 27 次</div>
+    <input type="checkbox" class="chk" id="cb_MapPin" value="MapPin">
+  </label><label class="cell" data-name="Map">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></div>
+    <div class="nm">Map</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Map" value="Map">
+  </label><label class="cell" data-name="Globe">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></div>
+    <div class="nm">Globe</div>
+    <div class="ct">用 5 次</div>
+    <input type="checkbox" class="chk" id="cb_Globe" value="Globe">
+  </label><label class="cell" data-name="Hotel">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22v-6.57"/><path d="M12 11h.01"/><path d="M12 7h.01"/><path d="M14 15.43V22"/><path d="M15 16a5 5 0 0 0-6 0"/><path d="M16 11h.01"/><path d="M16 7h.01"/><path d="M8 11h.01"/><path d="M8 7h.01"/><rect x="4" y="2" width="16" height="20" rx="2"/></svg></div>
+    <div class="nm">Hotel</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Hotel" value="Hotel">
+  </label><label class="cell" data-name="Home">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+    <div class="nm">Home</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Home" value="Home">
+  </label><label class="cell" data-name="Ship">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 10.189V14"/><path d="M12 2v3"/><path d="M19 13V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v6"/><path d="M19.38 20A11.6 11.6 0 0 0 21 14l-8.188-3.639a2 2 0 0 0-1.624 0L3 14a11.6 11.6 0 0 0 2.81 7.76"/><path d="M2 21c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1s1.2 1 2.5 1c2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg></div>
+    <div class="nm">Ship</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Ship" value="Ship">
+  </label><label class="cell" data-name="TreePine">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.7-1.7L9 9h-.2A1 1 0 0 1 8 7.3L12 3l4 4.3a1 1 0 0 1-.8 1.7H15l3 3.3a1 1 0 0 1-.7 1.7H17Z"/><path d="M12 22v-3"/></svg></div>
+    <div class="nm">TreePine</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_TreePine" value="TreePine">
+  </label><label class="cell" data-name="Utensils">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg></div>
+    <div class="nm">Utensils</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Utensils" value="Utensils">
+  </label><label class="cell" data-name="UtensilsCrossed">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"/><path d="m2.1 21.8 6.4-6.3"/><path d="m19 5-7 7"/></svg></div>
+    <div class="nm">UtensilsCrossed</div>
+    <div class="ct">用 5 次</div>
+    <input type="checkbox" class="chk" id="cb_UtensilsCrossed" value="UtensilsCrossed">
+  </label><label class="cell" data-name="ShoppingBag">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10a4 4 0 0 1-8 0"/><path d="M3.103 6.034h17.794"/><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"/></svg></div>
+    <div class="nm">ShoppingBag</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_ShoppingBag" value="ShoppingBag">
+  </label><label class="cell" data-name="ShoppingCart">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></div>
+    <div class="nm">ShoppingCart</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ShoppingCart" value="ShoppingCart">
+  </label><label class="cell" data-name="Sun">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></div>
+    <div class="nm">Sun</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Sun" value="Sun">
+  </label></div>
+  </div><div class="wallgroup" id="wall_8">
+    <h3>💬 通訊社群類 <span class="gc">11</span></h3>
+    <div class="grid"><label class="cell" data-name="MessageSquare">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></svg></div>
+    <div class="nm">MessageSquare</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_MessageSquare" value="MessageSquare">
+  </label><label class="cell" data-name="MessageCircleQuestion">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg></div>
+    <div class="nm">MessageCircleQuestion</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_MessageCircleQuestion" value="MessageCircleQuestion">
+  </label><label class="cell" data-name="Mail">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg></div>
+    <div class="nm">Mail</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Mail" value="Mail">
+  </label><label class="cell" data-name="Phone">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg></div>
+    <div class="nm">Phone</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Phone" value="Phone">
+  </label><label class="cell" data-name="Megaphone">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/><path d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14"/><path d="M8 6v8"/></svg></div>
+    <div class="nm">Megaphone</div>
+    <div class="ct">用 3 次</div>
+    <input type="checkbox" class="chk" id="cb_Megaphone" value="Megaphone">
+  </label><label class="cell" data-name="Instagram">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></div>
+    <div class="nm">Instagram</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Instagram" value="Instagram">
+  </label><label class="cell" data-name="Facebook">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></div>
+    <div class="nm">Facebook</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Facebook" value="Facebook">
+  </label><label class="cell" data-name="Link">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+    <div class="nm">Link</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Link" value="Link">
+  </label><label class="cell" data-name="Link2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17H7A5 5 0 0 1 7 7h2"/><path d="M15 7h2a5 5 0 1 1 0 10h-2"/><line x1="8" x2="16" y1="12" y2="12"/></svg></div>
+    <div class="nm">Link2</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Link2" value="Link2">
+  </label><label class="cell" data-name="Unlink">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18.84 12.25 1.72-1.71h-.02a5.004 5.004 0 0 0-.12-7.07 5.006 5.006 0 0 0-6.95 0l-1.72 1.71"/><path d="m5.17 11.75-1.71 1.71a5.004 5.004 0 0 0 .12 7.07 5.006 5.006 0 0 0 6.95 0l1.71-1.71"/><line x1="8" x2="8" y1="2" y2="5"/><line x1="2" x2="5" y1="8" y2="8"/><line x1="16" x2="16" y1="19" y2="22"/><line x1="19" x2="22" y1="16" y2="16"/></svg></div>
+    <div class="nm">Unlink</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Unlink" value="Unlink">
+  </label><label class="cell" data-name="Bot">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>
+    <div class="nm">Bot</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_Bot" value="Bot">
+  </label></div>
+  </div><div class="wallgroup" id="wall_9">
+    <h3>🔐 權限系統類 <span class="gc">14</span></h3>
+    <div class="grid"><label class="cell" data-name="Shield">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></div>
+    <div class="nm">Shield</div>
+    <div class="ct">用 7 次</div>
+    <input type="checkbox" class="chk" id="cb_Shield" value="Shield">
+  </label><label class="cell" data-name="ShieldAlert">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg></div>
+    <div class="nm">ShieldAlert</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ShieldAlert" value="ShieldAlert">
+  </label><label class="cell" data-name="ShieldX">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m14.5 9.5-5 5"/><path d="m9.5 9.5 5 5"/></svg></div>
+    <div class="nm">ShieldX</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_ShieldX" value="ShieldX">
+  </label><label class="cell" data-name="Lock">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    <div class="nm">Lock</div>
+    <div class="ct">用 6 次</div>
+    <input type="checkbox" class="chk" id="cb_Lock" value="Lock">
+  </label><label class="cell" data-name="Unlock">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg></div>
+    <div class="nm">Unlock</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Unlock" value="Unlock">
+  </label><label class="cell" data-name="Key">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg></div>
+    <div class="nm">Key</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Key" value="Key">
+  </label><label class="cell" data-name="KeyRound">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg></div>
+    <div class="nm">KeyRound</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_KeyRound" value="KeyRound">
+  </label><label class="cell" data-name="Power">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg></div>
+    <div class="nm">Power</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Power" value="Power">
+  </label><label class="cell" data-name="Plug">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg></div>
+    <div class="nm">Plug</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Plug" value="Plug">
+  </label><label class="cell" data-name="Database">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg></div>
+    <div class="nm">Database</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Database" value="Database">
+  </label><label class="cell" data-name="Cpu">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v2"/><path d="M12 2v2"/><path d="M17 20v2"/><path d="M17 2v2"/><path d="M2 12h2"/><path d="M2 17h2"/><path d="M2 7h2"/><path d="M20 12h2"/><path d="M20 17h2"/><path d="M20 7h2"/><path d="M7 20v2"/><path d="M7 2v2"/><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg></div>
+    <div class="nm">Cpu</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Cpu" value="Cpu">
+  </label><label class="cell" data-name="Monitor">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg></div>
+    <div class="nm">Monitor</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Monitor" value="Monitor">
+  </label><label class="cell" data-name="Rocket">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></div>
+    <div class="nm">Rocket</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Rocket" value="Rocket">
+  </label><label class="cell" data-name="History">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></div>
+    <div class="nm">History</div>
+    <div class="ct">用 4 次</div>
+    <input type="checkbox" class="chk" id="cb_History" value="History">
+  </label></div>
+  </div><div class="wallgroup" id="wall_10">
+    <h3>🧱 佈局其他類 <span class="gc">13</span></h3>
+    <div class="grid"><label class="cell" data-name="Layout">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg></div>
+    <div class="nm">Layout</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_Layout" value="Layout">
+  </label><label class="cell" data-name="LayoutGrid">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></div>
+    <div class="nm">LayoutGrid</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_LayoutGrid" value="LayoutGrid">
+  </label><label class="cell" data-name="LayoutDashboard">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></div>
+    <div class="nm">LayoutDashboard</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_LayoutDashboard" value="LayoutDashboard">
+  </label><label class="cell" data-name="Layers">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/></svg></div>
+    <div class="nm">Layers</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Layers" value="Layers">
+  </label><label class="cell" data-name="List">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h.01"/><path d="M3 12h.01"/><path d="M3 19h.01"/><path d="M8 5h13"/><path d="M8 12h13"/><path d="M8 19h13"/></svg></div>
+    <div class="nm">List</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_List" value="List">
+  </label><label class="cell" data-name="PanelLeftClose">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></svg></div>
+    <div class="nm">PanelLeftClose</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_PanelLeftClose" value="PanelLeftClose">
+  </label><label class="cell" data-name="Settings">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/></svg></div>
+    <div class="nm">Settings</div>
+    <div class="ct">用 5 次</div>
+    <input type="checkbox" class="chk" id="cb_Settings" value="Settings">
+  </label><label class="cell" data-name="Settings2">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 17H5"/><path d="M19 7h-9"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></div>
+    <div class="nm">Settings2</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Settings2" value="Settings2">
+  </label><label class="cell" data-name="Sliders">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h4"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M17 16h4"/><path d="M19 12V3"/><path d="M19 21v-5"/><path d="M3 14h4"/><path d="M5 10V3"/><path d="M5 21v-7"/></svg></div>
+    <div class="nm">Sliders</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Sliders" value="Sliders">
+  </label><label class="cell" data-name="Wrench">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/></svg></div>
+    <div class="nm">Wrench</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_Wrench" value="Wrench">
+  </label><label class="cell" data-name="Calendar">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></div>
+    <div class="nm">Calendar</div>
+    <div class="ct">用 15 次</div>
+    <input type="checkbox" class="chk" id="cb_Calendar" value="Calendar">
+  </label><label class="cell" data-name="CalendarDays">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg></div>
+    <div class="nm">CalendarDays</div>
+    <div class="ct">用 2 次</div>
+    <input type="checkbox" class="chk" id="cb_CalendarDays" value="CalendarDays">
+  </label><label class="cell" data-name="CalendarIcon">
+    <div class="ico "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg></div>
+    <div class="nm">CalendarIcon</div>
+    <div class="ct">用 1 次</div>
+    <input type="checkbox" class="chk" id="cb_CalendarIcon" value="CalendarIcon">
+  </label></div>
+  </div>
+  </div>
+</section>
+
+<div class="panel">
+  <div class="wrap">
+    <div class="count">已勾 <b id="cnt">0</b> 個</div>
+    <div class="list" id="list"><span style="color:#bbb">尚未勾選</span></div>
+    <button class="btn-clear" id="btnClear">清空</button>
+    <button class="btn-copy" id="btnCopy">📋 複製已選清單</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var LS_KEY = 'venturo-icon-selector-v1';
+  var checks = Array.prototype.slice.call(document.querySelectorAll('.chk'));
+
+  // 還原 localStorage（以最後一次每個 name 的狀態為準、跨重複/牆面同步）
+  function loadState(){
+    try{ return JSON.parse(localStorage.getItem(LS_KEY) || '{}'); }catch(e){ return {}; }
+  }
+  function saveState(){
+    var s = {};
+    checks.forEach(function(c){ s[c.value] = s[c.value] || c.checked; });
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  }
+
+  var saved = localStorage.getItem(LS_KEY);
+  if(saved){
+    var st = loadState();
+    // 有存檔才覆蓋預設（包含預設建議的勾）
+    checks.forEach(function(c){ c.checked = !!st[c.value]; });
+  }
+
+  function syncCellClass(c){
+    var cell = c.closest('.cell');
+    if(cell) cell.classList.toggle('checked', c.checked);
+  }
+
+  function refresh(){
+    // 同名 checkbox 在重複組 & 牆面可能各一份、視覺同步
+    var nameState = {};
+    checks.forEach(function(c){ if(c.checked) nameState[c.value]=true; });
+    checks.forEach(syncCellClass);
+
+    var names = Object.keys(nameState).sort();
+    document.getElementById('cnt').textContent = names.length;
+    var listEl = document.getElementById('list');
+    if(names.length===0){ listEl.innerHTML='<span style="color:#bbb">尚未勾選</span>'; }
+    else{ listEl.innerHTML = names.map(function(n){ return '<span class="chip">'+n+'</span>'; }).join(''); }
+  }
+
+  checks.forEach(function(c){
+    c.addEventListener('change', function(){
+      // 同名連動：在重複組勾 X、牆面的 X 也跟著勾
+      checks.forEach(function(o){ if(o!==c && o.value===c.value) o.checked = c.checked; });
+      saveState(); refresh();
+    });
+    // 點 label 區（非 checkbox 本身）也能 toggle（label 已包 input、瀏覽器自動處理）
+  });
+
+  function toast(msg){
+    var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 1600);
+  }
+
+  document.getElementById('btnCopy').addEventListener('click', function(){
+    var nameState={}; checks.forEach(function(c){ if(c.checked) nameState[c.value]=true; });
+    var names = Object.keys(nameState).sort();
+    if(names.length===0){ toast('還沒勾任何 icon'); return; }
+    var text = '保留的 icon（共 '+names.length+' 個）：\n' + names.join('\n');
+    navigator.clipboard.writeText(text).then(function(){
+      toast('已複製 '+names.length+' 個到剪貼簿');
+    }, function(){
+      // fallback
+      var ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta);
+      ta.select(); try{document.execCommand('copy'); toast('已複製 '+names.length+' 個');}catch(e){toast('複製失敗、請手動選取');}
+      document.body.removeChild(ta);
+    });
+  });
+
+  document.getElementById('btnClear').addEventListener('click', function(){
+    if(!confirm('確定清空所有勾選？')) return;
+    checks.forEach(function(c){ c.checked=false; });
+    saveState(); refresh(); toast('已清空');
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>

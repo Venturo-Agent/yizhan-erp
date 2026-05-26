@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { FormDialog } from '@/components/dialog'
 import { Label } from '@/components/ui/label'
-import { SquarePen, Trash2 } from 'lucide-react'
+import { Edit, Trash2 } from 'lucide-react'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { COMMON_MESSAGES } from '@/constants/messages'
 import { useTranslations } from 'next-intl'
@@ -93,17 +93,18 @@ export function BankAccountsSection({
     <>
       <div className="space-y-4">
         <Card className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
-          {/* 2026-05-21 William 拍板：砍 code 欄位（無 caller 引用）、加跨行手續費、列寬重排、操作 center 對齊鉛筆 */}
+          {/* 2026-05-21 William 拍板：砍 code 欄位（無 caller 引用）、加跨行手續費、列寬重排 */}
+          {/* 2026-05-26 William 拍板：操作欄改靠左對齊第一顆按鈕、比照訂單管理、財務設定各 section 統一 */}
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[180px]">{PAGE_LABELS.COL_NAME}</TableHead>
+                <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
                 <TableHead className="w-[180px]">{PAGE_LABELS.COL_BANK}</TableHead>
                 <TableHead className="w-[200px]">{PAGE_LABELS.COL_ACCOUNT_NUMBER}</TableHead>
                 <TableHead className="w-[110px] text-right">跨行手續費</TableHead>
                 <TableHead className="w-[70px] text-center">{PAGE_LABELS.COL_DEFAULT}</TableHead>
                 <TableHead className="w-[80px] text-center">可出帳</TableHead>
-                <TableHead className="w-[90px] text-center">{PAGE_LABELS.COL_ACTION}</TableHead>
+                <TableHead className="w-[100px]">{PAGE_LABELS.COL_ACTION}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -135,13 +136,13 @@ export function BankAccountsSection({
                     </TableCell>
                     <TableCell className="text-center">
                       {bank.is_disbursement_eligible !== false ? (
-                        <Badge className="bg-morandi-green/20 text-morandi-green">可</Badge>
+                        <Badge className="bg-status-success/20 text-status-success">可</Badge>
                       ) : (
                         <Badge className="bg-morandi-muted/20 text-morandi-muted">不可</Badge>
                       )}
                     </TableCell>
-                    <TableCell className="text-center">
-                      <div className="flex justify-center gap-1">
+                    <TableCell>
+                      <div className="flex justify-start gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -151,7 +152,7 @@ export function BankAccountsSection({
                           }}
                           disabled={!!rowLoading[bank.id]}
                         >
-                          <SquarePen className="h-4 w-4" />
+                          <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"

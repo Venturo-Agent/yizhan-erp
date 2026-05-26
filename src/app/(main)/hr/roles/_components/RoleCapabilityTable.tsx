@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
-import { Shield, Save, Loader2 } from 'lucide-react'
+import { Shield, CheckSquare, Loader2 } from 'lucide-react'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import { type ModuleDefinition, type TabPermission } from '@/lib/permissions'
 import type { Role } from '@/data/hooks/useRoles'
@@ -172,7 +172,7 @@ export function RoleCapabilityTable({
         </div>
         {selectedRole && (
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             onClick={onSavePermissions}
             disabled={saving}
             size="sm"
@@ -181,7 +181,7 @@ export function RoleCapabilityTable({
             {saving ? (
               <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
             ) : (
-              <Save className="h-3.5 w-3.5 mr-1.5" />
+              <CheckSquare className="h-3.5 w-3.5 mr-1.5" />
             )}
             儲存
           </Button>

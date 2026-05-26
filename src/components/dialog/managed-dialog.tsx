@@ -34,7 +34,7 @@
 import { useState, useCallback, useRef, useEffect, ReactNode } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, Save, X } from 'lucide-react'
+import { AlertTriangle, CheckSquare, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface ManagedDialogRenderProps {
@@ -350,12 +350,12 @@ export function ManagedDialog({
                         {cancelLabel}
                       </Button>
                       <Button
-                        variant="soft-gold"
+                        variant="morandi-gold"
                         type="submit"
                         disabled={loading || submitDisabled}
                         className="gap-2"
                       >
-                        <Save size="1em" />
+                        <CheckSquare size="1em" />
                         {loading ? '處理中...' : submitLabel}
                       </Button>
                     </>

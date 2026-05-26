@@ -10,6 +10,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { filterActive } from '@/lib/data/filter-active'
 import { logger } from '@/lib/utils/logger'
 import { searchKnowledgeByKeywords, buildRagBlock } from '@/lib/rag/keyword-search'
+import { buildProductBlock } from '@/lib/ai/product-context'
 import { getCompanyName } from '@/lib/ai/get-company-name'
 import { getTaipeiToday, normalizeDatesInText } from '@/lib/line/date-normalizer'
 import {
@@ -149,6 +150,16 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     logger.warn(`${HANDLER}: rag search failed (ignored)`, { err })
   }
 
+  // 商品注入（William 2026-05-26 拍板）：從 ai_products 正本表全量注入上架中商品。
+  // 商品不繞 knowledge_chunks（那條 keyword 檢索是旅遊字典 + 地區 inner join、撈不到商品）、
+  // 直接組成 block 塞 system prompt、保證客戶問商品時 AI 查得到。失敗不擋對話。
+  let productBlock: string | null = null
+  try {
+    productBlock = await buildProductBlock(ctx.workspaceId)
+  } catch (err) {
+    logger.warn(`${HANDLER}: product block failed (ignored)`, { err })
+  }
+
   // MiniMax-M2 不接受多個連續 system messages（會回 "invalid params, invalid chat setting"）。
   // 合併成單一 system message、用分隔線區隔不同段落。
   // OpenAI / Anthropic 接受多個 system、之後若改 provider 可改回多條。
@@ -160,6 +171,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
   if (customerName) systemParts.push(`客戶顯示名：${customerName}`)
   if (memoryBlock) systemParts.push(memoryBlock)
   if (ragBlock) systemParts.push(ragBlock)
+  if (productBlock) systemParts.push(productBlock)
 
   const messages: LLMChatMessage[] = [
     { role: 'system', content: systemParts.join('\n\n═══════════════════\n\n') },

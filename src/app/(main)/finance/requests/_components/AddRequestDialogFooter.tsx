@@ -4,7 +4,7 @@
  * 包含：左側總金額顯示 / 右側操作按鈕（新增 / 儲存 / 刪除）
  */
 
-import { Plus, Trash2, Save } from 'lucide-react'
+import { CheckSquare, Trash2, Save } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatMoney } from '@/lib/utils/format-currency'
 import { cn } from '@/lib/utils'
@@ -111,9 +111,7 @@ export function AddRequestDialogFooter({
                 disabled={isSubmitting || !isDirty}
                 className={cn(
                   'gap-2 transition-all',
-                  isDirty
-                    ? 'bg-morandi-gold hover:bg-morandi-gold/90 text-white'
-                    : 'bg-morandi-container/50 text-morandi-muted cursor-not-allowed'
+                  isDirty ? '' : 'bg-morandi-container/50 text-morandi-muted cursor-not-allowed'
                 )}
               >
                 <Save size={16} />
@@ -125,10 +123,10 @@ export function AddRequestDialogFooter({
           <Button
             onClick={onSubmit}
             disabled={submitDisabled}
-            variant="soft-gold"
+            variant="morandi-gold"
             className="rounded-md gap-2"
           >
-            <Plus size={16} />
+            <CheckSquare size={16} />
             {isSubmitting
               ? t('addRequestProcessing')
               : activeTab === 'batch'

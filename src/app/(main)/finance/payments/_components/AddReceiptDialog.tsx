@@ -124,10 +124,8 @@ export function AddReceiptDialog({
     setDialogLoading(true)
 
     const initialize = async () => {
-      const { invalidateTours, invalidateOrders } = await import('@/data')
       const { supabase } = await import('@/lib/supabase/client')
 
-      await Promise.all([invalidateTours(), invalidateOrders()])
       const loadedMethods = paymentMethods
 
       if (editingReceipt) {

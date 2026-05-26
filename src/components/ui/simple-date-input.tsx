@@ -174,7 +174,7 @@ export function SimpleDateInput({
               maxLength={4}
               required={required}
             />
-            <span className="text-morandi-secondary/50">/</span>
+            <span className="text-morandi-secondary/50">-</span>
             <input
               ref={monthRef}
               type="text"
@@ -188,7 +188,7 @@ export function SimpleDateInput({
               maxLength={2}
               required={required}
             />
-            <span className="text-morandi-secondary/50">/</span>
+            <span className="text-morandi-secondary/50">-</span>
             <input
               ref={dayRef}
               type="text"

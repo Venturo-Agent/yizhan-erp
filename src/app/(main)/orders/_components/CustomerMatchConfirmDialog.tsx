@@ -23,7 +23,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { CustomerAvatar } from '@/components/ui/avatar'
-import { UserPlus, UserCheck } from 'lucide-react'
+import { UserPlus, CheckSquare } from 'lucide-react'
 import type { Customer } from '@/types/customer.types'
 import type { OrderMember } from '../_types/order-member.types'
 import { useTranslations } from 'next-intl'
@@ -142,13 +142,13 @@ export function CustomerMatchConfirmDialog({
                   </div>
                 </div>
                 <Button
-                  variant="soft-gold"
+                  variant="morandi-gold"
                   size="sm"
                   className="flex-shrink-0 gap-1"
                   disabled={loading}
                   onClick={() => onUpdateExisting(customer.id)}
                 >
-                  <UserCheck size={14} />
+                  <CheckSquare size={14} />
                   {t('customerClashUpdateExisting')}
                 </Button>
               </div>

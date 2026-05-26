@@ -26,7 +26,7 @@ export default function WebsiteDesignPage() {
   }, [router])
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#FDFAF6]">
+    <div className="fixed inset-0 z-50 flex flex-col bg-morandi-cream">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shadow-sm">
         <div className="flex items-center gap-3">

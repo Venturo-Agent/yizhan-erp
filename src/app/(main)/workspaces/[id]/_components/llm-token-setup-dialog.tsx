@@ -434,11 +434,7 @@ export function LlmTokenSetupDialog({
               <Button
                 onClick={handleSave}
                 disabled={!validationResult?.ok || saving}
-                className={
-                  validationResult?.ok
-                    ? 'bg-morandi-gold hover:bg-morandi-gold/90 text-white font-semibold animate-pulse'
-                    : ''
-                }
+                className={validationResult?.ok ? 'animate-pulse' : ''}
               >
                 {saving ? (
                   <>

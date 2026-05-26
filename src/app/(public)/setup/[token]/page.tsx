@@ -266,7 +266,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full py-3 bg-morandi-gold text-white font-medium rounded-lg hover:bg-morandi-gold/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full py-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
         >
           {submitting ? (
             <span className="flex items-center justify-center gap-2">

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useEnterSubmitWithShift } from '@/hooks/useEnterSubmit'
-import { MessageSquare, Edit, X, Save } from 'lucide-react'
+import { MessageSquare, Edit, X, CheckSquare } from 'lucide-react'
 import { NotesSectionProps } from './types'
 import { useAuthStore } from '@/stores/auth-store'
 import { generateUUID } from '@/lib/utils/uuid'
@@ -106,10 +106,10 @@ export function NotesSection({ todo, onUpdate }: NotesSectionProps) {
                       onUpdate({ notes: newNotes })
                       setEditingNoteIndex(null)
                     }}
-                    variant="soft-gold"
+                    variant="morandi-gold"
                     className="h-7 text-xs gap-1.5"
                   >
-                    <Save size={12} />
+                    <CheckSquare size={12} />
                     {t('save')}
                   </Button>
                   <Button

@@ -4,7 +4,7 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import type { Area } from 'react-easy-crop'
 import type { ComponentType } from 'react'
-import { Upload, X, Loader2, Crop as CropIcon } from 'lucide-react'
+import { Upload, X, Loader2, Crop as CropIcon, CheckSquare } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import {
@@ -399,7 +399,12 @@ function CropDialog({ open, imageSrc, onConfirm, onCancel }: CropDialogProps) {
           <Button variant="ghost" onClick={onCancel} disabled={processing}>
             取消
           </Button>
-          <Button onClick={handleConfirm} disabled={!pixelCrop || processing} variant="soft-gold">
+          <Button
+            onClick={handleConfirm}
+            disabled={!pixelCrop || processing}
+            variant="morandi-gold"
+          >
+            <CheckSquare size="1em" />
             {processing ? <Loader2 className="h-4 w-4 animate-spin" /> : '確定裁切'}
           </Button>
         </DialogFooter>

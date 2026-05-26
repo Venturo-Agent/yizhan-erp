@@ -178,7 +178,7 @@ export async function processIncomingTextMessage(
     })
     if (orderResult.created) {
       createdOrderCode = orderResult.code
-      const replyText = `✅ 已建立訂單：${orderResult.code}\n團名：${orderResult.tourName}\n聯絡人：${orderResult.contactPerson}\n金額：NT$ ${orderResult.totalAmount.toLocaleString('en-US')}\n\n業務會在 1 小時內聯繫您確認。`
+      const replyText = `✅ 已建立訂單：${orderResult.code}\n團名：${orderResult.tourName}\n聯絡人：${orderResult.contactPerson}\n金額：${orderResult.totalAmount.toLocaleString('en-US')}\n\n業務會在 1 小時內聯繫您確認。`
       await sendReply(ctx, replyToken, replyText)
       await botRecordMessage(ctx, {
         direction: 'outbound',

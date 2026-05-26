@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
 import { FormLabel } from '@/components/ui/form-label'
-import { Check, X } from 'lucide-react'
+import { CheckSquare, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface TourOrder {
@@ -94,12 +94,12 @@ export function OrderSelectDialog({ isOpen, orders, onClose, onSelect }: OrderSe
             {t('cancel')}
           </Button>
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             onClick={handleConfirm}
             disabled={!selectedOrderId}
             className="gap-2"
           >
-            <Check size={16} />
+            <CheckSquare size={16} />
             {t('selectOrder')}
           </Button>
         </DialogFooter>

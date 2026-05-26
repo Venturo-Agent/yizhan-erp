@@ -6,7 +6,7 @@
  */
 
 import { createPortal } from 'react-dom'
-import { Save, Printer, Plus } from 'lucide-react'
+import { CheckSquare, Printer, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TierPricing, SellingPrices } from '@/app/(main)/orders/_quotes/_types'
 import { generateUniqueId } from '@/app/(main)/orders/_quotes/_utils/priceCalculations'
@@ -82,11 +82,11 @@ export function QuoteActionsPortal({
           onSave()
         }}
         disabled={isReadOnly}
-        variant="soft-gold"
+        variant="morandi-gold"
         className="h-9 text-sm gap-1.5"
         type="button"
       >
-        <Save size={14} />
+        <CheckSquare size={14} />
         {t('quoteDetailEmbedSave')}
       </Button>
       <Button

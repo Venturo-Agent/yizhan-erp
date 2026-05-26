@@ -42,7 +42,12 @@ export default function GlobalError({
             {/* 重試按鈕 */}
             <button
               onClick={reset}
-              className="bg-morandi-gold text-white px-6 py-2 rounded-md cursor-pointer text-base font-medium hover:bg-morandi-gold-hover transition-colors"
+              style={{
+                background: 'linear-gradient(135deg, #f8eede 0%, #f5e8d3 50%, #ecd9bb 100%)',
+                color: '#5c4a2f',
+                borderColor: '#efe2c8',
+              }}
+              className="border px-6 py-2 rounded-md cursor-pointer text-base font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
             >
               重新載入應用程式
             </button>

@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Loader2, Save } from 'lucide-react'
+import { Loader2, CheckSquare } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -241,7 +241,7 @@ export function IntegrationSettingsDialog({
             取消
           </Button>
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             size="sm"
             onClick={handleSave}
             disabled={saving || loading || !integration}
@@ -250,7 +250,7 @@ export function IntegrationSettingsDialog({
             {saving ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <Save className="h-3.5 w-3.5" />
+              <CheckSquare className="h-3.5 w-3.5" />
             )}
             儲存
           </Button>

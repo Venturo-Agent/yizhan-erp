@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
-import { AlertTriangle, Check, X } from 'lucide-react'
+import { AlertTriangle, CheckSquare, X } from 'lucide-react'
 
 export interface AccommodationChange {
   dayNumber: number
@@ -41,8 +41,8 @@ export function AccommodationChangeDialog({
         <X className="h-4 w-4 mr-1" />
         {t('accommodationChangeCancel')}
       </Button>
-      <Button variant="soft-gold" onClick={onConfirm} disabled={loading}>
-        <Check className="h-4 w-4 mr-1" />
+      <Button variant="morandi-gold" onClick={onConfirm} disabled={loading}>
+        <CheckSquare size="1em" />
         {loading ? '處理中...' : t('accommodationChangeConfirm')}
       </Button>
     </div>

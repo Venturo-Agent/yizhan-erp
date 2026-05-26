@@ -281,7 +281,7 @@ export function PayFormDialog({
               <button
                 type="submit"
                 disabled={submitting || paymentMethods.length === 0}
-                className="flex-1 py-2 bg-morandi-gold text-white rounded-lg text-sm font-medium hover:bg-morandi-gold/90 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                className="flex-1 py-2 rounded-lg text-sm disabled:opacity-50 inline-flex items-center justify-center gap-2 [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
               >
                 {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                 {submitting

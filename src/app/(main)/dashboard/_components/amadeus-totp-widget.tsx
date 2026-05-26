@@ -236,7 +236,7 @@ export function AmadeusTotpWidget() {
                 </div>
                 <div className="h-4 mt-2 text-xs flex items-center justify-center gap-1">
                   {copied ? (
-                    <span className="text-morandi-green flex items-center gap-1">
+                    <span className="text-status-success flex items-center gap-1">
                       <Check size={12} /> {COMPONENT_LABELS.COPIED}
                     </span>
                   ) : (

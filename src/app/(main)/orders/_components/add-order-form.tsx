@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { CheckSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Combobox } from '@/components/ui/combobox'
@@ -137,10 +138,11 @@ export function AddOrderForm({ tourId, onSubmit, onCancel, value, onChange }: Ad
             {t('cancel')}
           </Button>
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             type="submit"
             disabled={!formData.tour_id || !formData.contact_person}
           >
+            <CheckSquare size="1em" />
             {t('addOrder')} <span className="ml-1 text-xs opacity-70">(Enter)</span>
           </Button>
         </div>

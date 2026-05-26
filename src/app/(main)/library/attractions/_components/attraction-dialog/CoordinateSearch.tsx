@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { MapPin, ExternalLink } from 'lucide-react'
+import { MapPin, ExternalLink, CheckSquare } from 'lucide-react'
 
 const COMPONENT_LABELS = {
   ERR_PARSE_URL: '無法解析座標，請確認連結格式',
@@ -173,10 +173,11 @@ export function CoordinateSearch({
           <Button
             type="button"
             size="sm"
-            variant="soft-gold"
+            variant="morandi-gold"
             onClick={handleCoordsPaste}
             disabled={!coordsPaste}
           >
+            <CheckSquare size="1em" />
             {COMPONENT_LABELS.APPLY}
           </Button>
         </div>
@@ -223,10 +224,11 @@ export function CoordinateSearch({
           <Button
             type="button"
             size="sm"
-            variant="soft-gold"
+            variant="morandi-gold"
             onClick={handleManualInput}
             disabled={!manualLat || !manualLng}
           >
+            <CheckSquare size="1em" />
             {COMPONENT_LABELS.APPLY}
           </Button>
         </div>

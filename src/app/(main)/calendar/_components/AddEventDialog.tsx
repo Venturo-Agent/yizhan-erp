@@ -1,6 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { X, CheckSquare } from 'lucide-react'
 import { FormDialog } from '@/components/dialog/form-dialog'
 import { Button } from '@/components/ui/button'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -77,7 +77,7 @@ const parseTimeRange = (value: string): { start: string; end: string } => {
 
 // 輸入框樣式
 const inputClassName =
-  'w-full px-4 py-2.5 rounded-lg border border-morandi-container bg-card text-[var(--morandi-primary)] placeholder:text-[var(--morandi-primary)]/30 focus:outline-none focus:ring-1 focus:ring-[#B8A99A] focus:border-morandi-container transition-shadow text-sm shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]'
+  'w-full px-4 py-2.5 rounded-lg border border-morandi-container bg-card text-[var(--morandi-primary)] placeholder:text-[var(--morandi-primary)]/30 focus:outline-none focus:ring-1 focus:ring-morandi-gold focus:border-morandi-container transition-shadow text-sm shadow-[0_1px_2px_0_rgba(0,0,0,0.05)]'
 
 /**
  * 2026-05-16 QDF R69：遷移到 FormDialog SSOT
@@ -105,10 +105,11 @@ export function AddEventDialog({
       </Button>
       <Button
         type="button"
-        variant="soft-gold"
+        variant="morandi-gold"
         onClick={handleSubmit}
         disabled={!newEvent.title.trim()}
       >
+        <CheckSquare size="1em" />
         {t('addEnter')}
       </Button>
     </div>

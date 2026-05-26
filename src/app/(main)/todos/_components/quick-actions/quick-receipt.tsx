@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState } from 'react'
-import { Save } from 'lucide-react'
+import { CheckSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
 import { toast } from 'sonner'
@@ -202,10 +202,10 @@ export function QuickReceipt({ onSubmit, defaultTourId, defaultOrderId }: QuickR
           disabled={
             isSubmitting || !formData.tour_id || !formData.order_id || paymentItems.length === 0
           }
-          variant="soft-gold"
+          variant="morandi-gold"
           className="gap-2"
         >
-          <Save size={16} />
+          <CheckSquare size={16} />
           {isSubmitting ? t('creating') : t('createReceiptBtn')}
         </Button>
       </div>

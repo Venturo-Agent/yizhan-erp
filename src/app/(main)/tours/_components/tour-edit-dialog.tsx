@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { X } from 'lucide-react'
+import { X, CheckSquare } from 'lucide-react'
 import { Tour } from '@/stores/types'
 import { useTourEdit } from '../_hooks/useTourEdit'
 import { CountryAirportSelector } from '@/components/selectors/CountryAirportSelector'
@@ -260,8 +260,9 @@ export function TourEditDialog({ isOpen, onClose, tour, onSuccess }: TourEditDia
                 !formData.departure_date ||
                 !formData.return_date
               }
-              variant="soft-gold"
+              variant="morandi-gold"
             >
+              <CheckSquare size="1em" />
               {submitting ? t('editTourSaving') : t('editTourSave')}
             </Button>
           </div>

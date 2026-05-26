@@ -8,7 +8,7 @@ import { PexelsPicker } from '@/components/shared/PexelsPicker'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Loader2, Plus, Trash2, Upload, Search } from 'lucide-react'
+import { Loader2, Plus, Trash2, Upload, Search, CheckSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores'
 import { logger } from '@/lib/utils/logger'
@@ -378,7 +378,7 @@ export function AirportImageLibrary({
                     {COMP_EDITOR_LABELS.取消}
                   </Button>
                   <Button
-                    variant="soft-gold"
+                    variant="morandi-gold"
                     type="button"
                     onClick={handleSaveNewImage}
                     disabled={!newImageUrl || isUploading}
@@ -387,7 +387,10 @@ export function AirportImageLibrary({
                     {isUploading ? (
                       <Loader2 size="0.875em" className="animate-spin" />
                     ) : (
-                      COMP_EDITOR_LABELS.加入圖片庫
+                      <>
+                        <CheckSquare size="0.875em" />
+                        {COMP_EDITOR_LABELS.加入圖片庫}
+                      </>
                     )}
                   </Button>
                 </div>

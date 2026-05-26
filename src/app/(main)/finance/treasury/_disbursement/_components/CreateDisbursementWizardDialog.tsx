@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
-import { Check, X } from 'lucide-react'
+import { CheckSquare, X } from 'lucide-react'
 import { apiPost, apiPatch } from '@/lib/api/client'
 import { alert } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
@@ -392,12 +392,12 @@ export function CreateDisbursementWizardDialog({
                     取消
                   </Button>
                   <Button
-                    variant="soft-gold"
+                    variant="morandi-gold"
                     size="sm"
                     onClick={handleSubmit}
                     disabled={isSubmitting}
                   >
-                    <Check size={14} className="mr-1" />
+                    <CheckSquare size={14} className="mr-1" />
                     {isSubmitting ? '儲存中...' : '儲存變更'}
                   </Button>
                 </>
@@ -425,12 +425,12 @@ export function CreateDisbursementWizardDialog({
                     取消
                   </Button>
                   <Button
-                    variant="soft-gold"
+                    variant="morandi-gold"
                     size="sm"
                     onClick={handleSubmit}
                     disabled={isSubmitting || stagedBatches.length === 0}
                   >
-                    <Check size={14} className="mr-1" />
+                    <CheckSquare size={14} className="mr-1" />
                     {isSubmitting ? '儲存中...' : '儲存出納單'}
                   </Button>
                 </>

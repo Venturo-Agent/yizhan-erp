@@ -32,8 +32,8 @@ import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 type CategoryType = 'expense' | 'company_expense' | 'company_income'
 
 interface CategoriesSectionProps {
-  /** 'category' = 團體請款類別、其他 = 公司支出 / 收入 */
-  variant: 'category' | 'company_expense' | 'company_income'
+  /** 'category' = 團體請款類別、'company' = 公司收支項目（支出+收入合併、2026-05-26） */
+  variant: 'category' | 'company'
   expenseCategories: ExpenseCategory[]
   chartOfAccounts: ChartOfAccount[]
   workspaceId: string | undefined
@@ -64,20 +64,20 @@ export function CategoriesSection({
   const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({})
   const setLoading = (id: string, v: boolean) => setRowLoading(prev => ({ ...prev, [id]: v }))
 
-  // 依 variant 篩 list + 設定 dialog 用 categoryType
+  // 依 variant 篩 list
+  // company = 支出+收入合併顯示、支出群組在前、群組內依 sort_order
   const list =
     variant === 'category'
       ? expenseCategories.filter(c => c.type === 'expense' || c.type === 'both')
-      : variant === 'company_expense'
-        ? expenseCategories.filter(c => c.type === 'company_expense')
-        : expenseCategories.filter(c => c.type === 'company_income')
+      : expenseCategories
+          .filter(c => c.type === 'company_expense' || c.type === 'company_income')
+          .sort((a, b) => {
+            const rank = (tp: string) => (tp === 'company_income' ? 1 : 0)
+            return rank(a.type) - rank(b.type) || (a.sort_order || 0) - (b.sort_order || 0)
+          })
 
-  const dialogCategoryType: CategoryType =
-    variant === 'company_expense'
-      ? 'company_expense'
-      : variant === 'company_income'
-        ? 'company_income'
-        : 'expense'
+  // 彈窗預設類型：team 請款用 expense、公司收支新增預設 company_expense（彈窗內可改選收入）
+  const dialogCategoryType: CategoryType = variant === 'company' ? 'company_expense' : 'expense'
 
   // ===== 拖曳排序 =====
   const sensors = useSensors(
@@ -149,15 +149,15 @@ export function CategoriesSection({
 
   // 儲存（新增 / 編輯）
   const handleSaveCategory = async (category: Partial<ExpenseCategory>) => {
-    const categoryType: CategoryType = dialogCategoryType
-
+    // 新增時的 type：公司收支由彈窗回傳（category.type）、團體請款用 dialogCategoryType
+    // 編輯時不帶 type（type 建立後不可改）
     const res = await apiMutate('/api/finance/expense-categories', {
       method: editingCategory?.id ? 'PUT' : 'POST',
       body: {
         ...category,
         id: editingCategory?.id,
         workspace_id: workspaceId,
-        type: editingCategory?.id ? undefined : categoryType,
+        type: editingCategory?.id ? undefined : (category.type ?? dialogCategoryType),
       },
       invalidate: ['/api/finance/expense-categories'],
     })
@@ -202,12 +202,7 @@ export function CategoriesSection({
     }
   }
 
-  const emptyText =
-    variant === 'category'
-      ? t('emptyCategories')
-      : variant === 'company_expense'
-        ? t('emptyCompanyExpense')
-        : t('emptyCompanyIncome')
+  const emptyText = variant === 'category' ? t('emptyCategories') : PAGE_LABELS.EMPTY_COMPANY
 
   return (
     <>
@@ -223,17 +218,24 @@ export function CategoriesSection({
                 <TableRow>
                   <TableHead className="w-[40px]"></TableHead>
                   <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
-                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>}
-                  {hasAccounting && <TableHead>{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>}
+                  {variant === 'company' && (
+                    <TableHead className="w-[90px]">{PAGE_LABELS.COL_TYPE}</TableHead>
+                  )}
+                  {hasAccounting && (
+                    <TableHead className="w-[220px]">{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
+                  )}
+                  {hasAccounting && (
+                    <TableHead className="w-[220px]">{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>
+                  )}
                   <TableHead className="w-[80px]">{PAGE_LABELS.COL_STATUS}</TableHead>
-                  <TableHead className="w-[100px] text-right">{PAGE_LABELS.COL_ACTION}</TableHead>
+                  <TableHead className="w-[100px]">{PAGE_LABELS.COL_ACTION}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {list.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={hasAccounting ? 6 : 4}
+                      colSpan={(hasAccounting ? 6 : 4) + (variant === 'company' ? 1 : 0)}
                       className="text-center py-8 text-morandi-muted"
                     >
                       {emptyText}
@@ -249,6 +251,7 @@ export function CategoriesSection({
                         key={category.id}
                         category={category}
                         showAccounting={hasAccounting}
+                        showType={variant === 'company'}
                         loading={!!rowLoading[category.id]}
                         onEdit={() => {
                           setEditingCategory(category)
@@ -276,6 +279,7 @@ export function CategoriesSection({
         onSave={handleSaveCategory}
         chartOfAccounts={chartOfAccounts}
         categoryType={dialogCategoryType}
+        showTypeChoice={variant === 'company'}
       />
     </>
   )
@@ -289,6 +293,7 @@ function CategoryDialog({
   onSave,
   chartOfAccounts,
   categoryType = 'expense',
+  showTypeChoice = false,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -296,6 +301,8 @@ function CategoryDialog({
   onSave: (category: Partial<ExpenseCategory>) => Promise<void>
   chartOfAccounts: ChartOfAccount[]
   categoryType?: CategoryType
+  /** 公司收支：新增時讓使用者選支出/收入（驅動科目過濾），編輯時類型鎖定 */
+  showTypeChoice?: boolean
 }) {
   const t = useTranslations('finance')
   const { isFeatureEnabled } = useWorkspaceFeatures()
@@ -303,17 +310,22 @@ function CategoryDialog({
   const [name, setName] = useState('')
   const [debitAccountId, setDebitAccountId] = useState<string>('')
   const [creditAccountId, setCreditAccountId] = useState<string>('')
+  // 公司收支類型選擇（支出/收入）：編輯沿用既有、新增預設支出
+  const [typeChoice, setTypeChoice] = useState<CategoryType>('company_expense')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // 有效類型：公司收支看使用者選的（typeChoice），其他 variant 用傳入的 categoryType
+  const effectiveType: CategoryType = showTypeChoice ? typeChoice : categoryType
 
   // 根據類型決定科目篩選
   // 費用/公司支出: 借方=費用(5), 貸方=負債(2)
   // 公司收入: 借方=資產(1), 貸方=收入(4)
   const debitAccounts =
-    categoryType === 'company_income'
+    effectiveType === 'company_income'
       ? chartOfAccounts.filter(a => a.code.startsWith('1'))
       : chartOfAccounts.filter(a => a.code.startsWith('5'))
   const creditAccounts =
-    categoryType === 'company_income'
+    effectiveType === 'company_income'
       ? chartOfAccounts.filter(a => a.code.startsWith('4'))
       : chartOfAccounts.filter(a => a.code.startsWith('2'))
 
@@ -322,6 +334,8 @@ function CategoryDialog({
       setName(category?.name || '')
       setDebitAccountId(category?.debit_account_id || '')
       setCreditAccountId(category?.credit_account_id || '')
+      // 編輯沿用既有類型、新增預設支出
+      setTypeChoice((category?.type as CategoryType) ?? 'company_expense')
     }
   }, [open, category])
 
@@ -336,6 +350,8 @@ function CategoryDialog({
         name,
         debit_account_id: debitAccountId || null,
         credit_account_id: creditAccountId || null,
+        // 公司收支新增時帶上選的類型（支出/收入）；編輯時上層會忽略 type
+        ...(showTypeChoice ? { type: effectiveType } : {}),
       })
     } finally {
       setIsSubmitting(false)
@@ -349,9 +365,9 @@ function CategoryDialog({
       title={(() => {
         const mode = category ? 'Edit' : 'Create'
         const kind =
-          categoryType === 'company_expense'
+          effectiveType === 'company_expense'
             ? 'CompanyExpense'
-            : categoryType === 'company_income'
+            : effectiveType === 'company_income'
               ? 'CompanyIncome'
               : 'Expense'
         return t(`categoryDialogTitle${mode}${kind}` as Parameters<typeof t>[0])
@@ -363,6 +379,36 @@ function CategoryDialog({
       maxWidth="md"
     >
       <div className="space-y-4 py-4">
+        {/* 公司收支：選支出 / 收入（驅動科目過濾）；編輯時鎖定不可改 */}
+        {showTypeChoice && (
+          <div className="space-y-2">
+            <Label>{PAGE_LABELS.COL_TYPE} *</Label>
+            {category ? (
+              <p className="text-sm text-morandi-secondary">
+                {effectiveType === 'company_income'
+                  ? PAGE_LABELS.TYPE_INCOME
+                  : PAGE_LABELS.TYPE_EXPENSE}
+                <span className="ml-2 text-xs text-morandi-muted">
+                  {PAGE_LABELS.TYPE_LOCKED_HINT}
+                </span>
+              </p>
+            ) : (
+              <select
+                value={typeChoice}
+                onChange={e => {
+                  setTypeChoice(e.target.value as CategoryType)
+                  // 切換收支 → 借貸科目選項不同、清掉已選避免殘留無效值
+                  setDebitAccountId('')
+                  setCreditAccountId('')
+                }}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="company_expense">{PAGE_LABELS.TYPE_EXPENSE}</option>
+                <option value="company_income">{PAGE_LABELS.TYPE_INCOME}</option>
+              </select>
+            )}
+          </div>
+        )}
         <div className="space-y-2">
           <Label>{t('fieldNameRequired')}</Label>
           <Input
@@ -374,7 +420,9 @@ function CategoryDialog({
         {hasAccounting && (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>{t('debitAccountExpense')}</Label>
+              <Label>
+                {showTypeChoice ? PAGE_LABELS.COL_DEBIT_ACCOUNT : t('debitAccountExpense')}
+              </Label>
               <select
                 value={debitAccountId}
                 onChange={e => setDebitAccountId(e.target.value)}
@@ -389,7 +437,9 @@ function CategoryDialog({
               </select>
             </div>
             <div className="space-y-2">
-              <Label>{t('creditAccountLiability')}</Label>
+              <Label>
+                {showTypeChoice ? PAGE_LABELS.COL_CREDIT_ACCOUNT : t('creditAccountLiability')}
+              </Label>
               <select
                 value={creditAccountId}
                 onChange={e => setCreditAccountId(e.target.value)}

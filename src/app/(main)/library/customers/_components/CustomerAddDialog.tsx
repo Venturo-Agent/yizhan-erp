@@ -10,7 +10,16 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Edit, Upload, FileImage, Trash2, Plus, X, ChevronDown, ChevronRight } from 'lucide-react'
+import {
+  Edit,
+  Upload,
+  FileImage,
+  Trash2,
+  CheckSquare,
+  X,
+  ChevronDown,
+  ChevronRight,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -226,12 +235,12 @@ export function CustomerAddDialog({
           </div>
 
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             onClick={handleAddManually}
             disabled={!newCustomer.name.trim() || !newCustomer.phone.trim()}
             className="w-full gap-2"
           >
-            <Plus size={16} />
+            <CheckSquare size={16} />
             {t('customerAddBtnManual')}
           </Button>
         </div>

@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { DatePicker } from '@/components/ui/date-picker'
-import { Plus, X } from 'lucide-react'
+import { CheckSquare, X } from 'lucide-react'
 import { useEmployeesSlim } from '@/data'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
@@ -149,8 +149,13 @@ export function AddTodoForm({ onSubmit, onCancel, isSubmitting }: AddTodoFormPro
       </div>
 
       <div className="flex gap-2 pt-4">
-        <Button variant="soft-gold" type="submit" disabled={isSubmitting} className="flex-1 gap-2">
-          <Plus size={16} />
+        <Button
+          variant="morandi-gold"
+          type="submit"
+          disabled={isSubmitting}
+          className="flex-1 gap-2"
+        >
+          <CheckSquare size={16} />
           {t('createTask')}
         </Button>
         <Button type="button" variant="soft-gold" onClick={onCancel} className="gap-2">

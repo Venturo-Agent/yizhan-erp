@@ -4,7 +4,6 @@
  */
 
 import { useMemo } from 'react'
-import Link from 'next/link'
 import { TableColumn } from '@/components/ui/enhanced-table'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { Tour } from '@/stores/types'
@@ -22,16 +21,9 @@ export function useTourTableColumns() {
         sortable: true,
         width: '7.5rem',
         render: (value, _row) => {
+          // 團號純文字（點整列即導向詳情頁、不再做重複的超連結 + 變色）
           const code = String(value || '')
-          return (
-            <Link
-              href={`/tours/${code}`}
-              onClick={e => e.stopPropagation()}
-              className="text-sm text-morandi-gold hover:text-morandi-gold-hover hover:underline font-medium"
-            >
-              {code}
-            </Link>
-          )
+          return <span className="text-sm font-medium text-morandi-primary">{code}</span>
         },
       },
       {

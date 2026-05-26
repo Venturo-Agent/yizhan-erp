@@ -17,10 +17,11 @@ import { Archive, ArchiveRestore, Trash2, Edit, Copy, Send, UserPlus } from 'luc
 import { Tour, EmployeeFull } from '@/stores/types'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
 
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
+import { ActionCell } from '@/components/table-cells'
 import { useRouter } from 'next/navigation'
+
+// 金色強調語意色（複製 / 開團 / 報名）— ActionCell 標準語意色接不住、走 custom
+const TOUR_GOLD_TONE = 'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
 
 interface UseTourActionButtonsParams {
   quotes: unknown[]
@@ -62,8 +63,7 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
       const isProposal = tour.status === TOUR_STATUS.PROPOSAL
       const isActiveTour = !isTemplate && !isProposal
 
-      const handleSignUp = (e: React.MouseEvent) => {
-        e.stopPropagation()
+      const handleSignUp = () => {
         if (onAddOrder) {
           onAddOrder(tour)
         } else {
@@ -71,11 +71,49 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
         }
       }
 
-      const ArchiveButton = (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
+      // 狀態機判斷（isTemplate / isProposal / isActiveTour）保留在 caller、
+      // 餵成 ActionCell 的 actions 陣列、用 hidden 對應狀態決定哪些按鈕出現。
+      // 金色強調按鈕走 variant='custom' + customColor、危險走 variant='danger'、
+      // 其餘走預設灰（ActionCell 內建 ACTION_BUTTON_DEFAULT_TONE）。
+      const actions = [
+        // 編輯永遠第一、跟訂單列表對齊
+        {
+          icon: Edit,
+          label: t('actionEdit'),
+          onClick: () => onEditTour(tour),
+        },
+        // 模板：複製→提案
+        {
+          icon: Copy,
+          label: t('actionCopy'),
+          onClick: () => onCopyTemplate?.(tour),
+          variant: 'custom' as const,
+          customColor: TOUR_GOLD_TONE,
+          hidden: !(isTemplate && onCopyTemplate),
+        },
+        // 模板 / 提案：開團（proposal → upcoming）
+        {
+          icon: Send,
+          label: t('actionConvert'),
+          onClick: () => onConvertTour?.(tour),
+          variant: 'custom' as const,
+          customColor: TOUR_GOLD_TONE,
+          hidden: !((isTemplate || isProposal) && onConvertTour),
+        },
+        // 正式團：報名
+        {
+          icon: UserPlus,
+          label: t('actionEnroll'),
+          onClick: handleSignUp,
+          variant: 'custom' as const,
+          customColor: TOUR_GOLD_TONE,
+          hidden: !isActiveTour,
+        },
+        // 所有狀態通用：封存 / 還原
+        {
+          icon: tour.archived ? ArchiveRestore : Archive,
+          label: tour.archived ? '還原' : '封存',
+          onClick: () => {
             if (tour.archived) {
               operations.handleArchiveTour(tour)
             } else if (onOpenArchiveDialog) {
@@ -83,119 +121,18 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
             } else {
               operations.handleArchiveTour(tour)
             }
-          }}
-          className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-        >
-          {tour.archived ? <ArchiveRestore size="0.95em" /> : <Archive size="0.95em" />}
-          {tour.archived ? '還原' : '封存'}
-        </Button>
-      )
+          },
+        },
+        // 所有狀態通用：刪除
+        {
+          icon: Trash2,
+          label: t('actionDelete'),
+          onClick: () => setDeleteConfirm({ isOpen: true, tour }),
+          variant: 'danger' as const,
+        },
+      ]
 
-      const EditButton = (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onEditTour(tour)}
-          className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-        >
-          <Edit size="0.95em" />
-          {t('actionEdit')}
-        </Button>
-      )
-
-      const DeleteButton = (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setDeleteConfirm({ isOpen: true, tour })}
-          className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
-        >
-          <Trash2 size="0.95em" />
-          {t('actionDelete')}
-        </Button>
-      )
-
-      return (
-        <div className="flex items-center gap-1 justify-start" onClick={e => e.stopPropagation()}>
-          {/* 編輯永遠第一、跟訂單列表對齊 */}
-          {EditButton}
-
-          {/* 模板：複製→提案 + 直接開團 */}
-          {isTemplate && onCopyTemplate && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={e => {
-                e.stopPropagation()
-                onCopyTemplate(tour)
-              }}
-              className={cn(
-                ACTION_BUTTON_BASE,
-                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
-              )}
-            >
-              <Copy size="0.95em" />
-              {t('actionCopy')}
-            </Button>
-          )}
-          {isTemplate && onConvertTour && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={e => {
-                e.stopPropagation()
-                onConvertTour(tour)
-              }}
-              className={cn(
-                ACTION_BUTTON_BASE,
-                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
-              )}
-            >
-              <Send size="0.95em" />
-              {t('actionConvert')}
-            </Button>
-          )}
-
-          {/* 提案：開團按鈕 */}
-          {isProposal && onConvertTour && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={e => {
-                e.stopPropagation()
-                onConvertTour(tour)
-              }}
-              className={cn(
-                ACTION_BUTTON_BASE,
-                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
-              )}
-            >
-              <Send size="0.95em" />
-              {t('actionConvert')}
-            </Button>
-          )}
-
-          {/* 正式團：報名（加 UserPlus icon、跟其他按鈕一致 icon+文字）*/}
-          {isActiveTour && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignUp}
-              className={cn(
-                ACTION_BUTTON_BASE,
-                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
-              )}
-            >
-              <UserPlus size="0.95em" />
-              {t('actionEnroll')}
-            </Button>
-          )}
-
-          {/* 所有狀態通用：封存、刪除 */}
-          {ArchiveButton}
-          {DeleteButton}
-        </div>
-      )
+      return <ActionCell actions={actions} className="justify-start" />
     },
     [
       operations,

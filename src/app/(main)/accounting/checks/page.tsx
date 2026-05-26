@@ -3,10 +3,8 @@
 import { useState, useEffect } from 'react'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Plus, CheckSquare, XCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { ACTION_BUTTON_BASE } from '@/components/table-cells'
+import { ActionCell } from '@/components/table-cells'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
@@ -129,30 +127,25 @@ export default function ChecksPage() {
       label: '操作',
       width: '140px',
       render: (_: unknown, row: Check) => (
-        <div className="flex gap-1">
-          {row.status === 'pending' && (
-            <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleClearCheck(row)}
-                className={cn(ACTION_BUTTON_BASE, 'text-status-success hover:bg-status-success-bg')}
-                title="標記已兌現"
-              >
-                <CheckSquare size="0.95em" />
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleVoidCheck(row)}
-                className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
-                title="作廢"
-              >
-                <XCircle size="0.95em" />
-              </Button>
-            </>
-          )}
-        </div>
+        <ActionCell
+          iconOnly
+          actions={[
+            {
+              icon: CheckSquare,
+              label: '標記已兌現',
+              onClick: () => handleClearCheck(row),
+              variant: 'success',
+              hidden: row.status !== 'pending',
+            },
+            {
+              icon: XCircle,
+              label: '作廢',
+              onClick: () => handleVoidCheck(row),
+              variant: 'danger',
+              hidden: row.status !== 'pending',
+            },
+          ]}
+        />
       ),
     },
   ]

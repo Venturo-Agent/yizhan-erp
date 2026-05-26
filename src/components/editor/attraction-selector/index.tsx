@@ -10,7 +10,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { MapPin, Loader2, Map, X } from 'lucide-react'
+import { MapPin, Loader2, Map, X, CheckSquare } from 'lucide-react'
 import { TourCountry } from '../tour-form/types'
 import { Attraction } from '@/app/(main)/library/attractions/_types'
 import { AttractionSearchBar } from './AttractionSearchBar'
@@ -282,7 +282,8 @@ export function AttractionSelector({
             {ATTRACTION_SELECTOR_LABELS.CANCEL}
           </Button>
           {selectedIds.size > 0 && (
-            <Button variant="soft-gold" onClick={handleConfirm} className="rounded-xl">
+            <Button variant="morandi-gold" onClick={handleConfirm} className="rounded-xl">
+              <CheckSquare size="1em" />
               加入 {selectedIds.size} 個景點
             </Button>
           )}

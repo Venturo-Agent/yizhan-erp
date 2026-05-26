@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<style>
+  :root{
+    --gold:#c9aa7c; --gold-soft-bg:rgba(201,170,124,.08); --gold-soft-bd:rgba(201,170,124,.2);
+    --primary:#3a3633; --container:#e8e5e0; --cream:#faf7f3;
+    --btn-bg:linear-gradient(135deg,#f8eede 0%,#f5e8d3 50%,#ecd9bb 100%);
+    --btn-fg:#5c4a2f; --btn-bd:#efe2c8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang TC","Noto Serif TC",sans-serif;background:#f0ece6;color:var(--primary);padding:32px;width:860px}
+  h1{font-size:22px;font-weight:700;margin-bottom:6px}
+  .sub{font-size:14px;color:#7a746c;margin-bottom:26px;line-height:1.6}
+  .block{background:#fff;border:1px solid var(--container);border-radius:14px;padding:22px 24px;margin-bottom:18px}
+  .block.now{background:#faf4f2;border-color:rgba(192,131,116,.3)}
+  .tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:6px;margin-bottom:14px}
+  .tag.bad{background:rgba(192,131,116,.15);color:#c08374}
+  .tag.opt{background:var(--gold-soft-bg);color:#9a7d4f;border:1px solid var(--gold-soft-bd)}
+  .footer-demo{display:flex;justify-content:flex-end;gap:10px;background:var(--cream);border:1px solid var(--container);border-radius:10px;padding:16px 18px}
+  .label{font-size:13px;color:#7a746c;margin-top:12px;line-height:1.6}
+  .label b{color:var(--primary)}
+  /* button base：對齊 h-10 px-4 rounded-md text-sm */
+  .btn{height:40px;padding:0 16px;border-radius:6px;font-size:14px;display:inline-flex;align-items:center;gap:8px;cursor:default;border:1px solid transparent;font-family:inherit}
+  .btn svg{width:16px;height:16px;flex:0 0 16px}
+  /* soft-gold（取消 + 現況確認）*/
+  .v-soft{background:var(--gold-soft-bg);color:var(--primary);border-color:var(--gold-soft-bd)}
+  /* default 拍板款（淡金漸層）*/
+  .v-default{background:var(--btn-bg);color:var(--btn-fg);border-color:var(--btn-bd);font-weight:600}
+  /* morandi-gold 金字外框 */
+  .v-outline{background:transparent;color:var(--gold);border-color:rgba(201,170,124,.5)}
+  /* 實心金 */
+  .v-solid{background:var(--gold);color:#fff;border:none;font-weight:600}
+  .num{display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#fff;font-size:14px;font-weight:700;align-items:center;justify-content:center;margin-right:8px}
+  .pick{margin-top:24px;font-size:15px;font-weight:700;text-align:center;color:#9a7d4f;background:var(--gold-soft-bg);border:1px dashed var(--gold-soft-bd);border-radius:10px;padding:14px}
+</style>
+</head>
+<body>
+  <h1>「套用／確認／儲存」鈕 — 現況 vs 改法</h1>
+  <div class="sub">範圍：只動「按下去生效」的確認類鈕、配上 ✓ 打勾（CheckSquare）。<b>取消等次要鈕維持原樣、不碰。</b><br>下圖每個方案都畫整個對話框底部（取消＋確認並排），你看主次分不分明。</div>
+
+  <div class="block now">
+    <span class="tag bad">現況 — 主次不分</span>
+    <div class="footer-demo">
+      <button class="btn v-soft">取消</button>
+      <button class="btn v-soft">確認</button>
+    </div>
+    <div class="label">取消和確認<b>同一顆淡金款（soft-gold）</b>、長得一樣、沒有打勾。全站 244 處、共用對話框層 11 處都這樣。</div>
+  </div>
+
+  <div class="block">
+    <span class="tag opt"><span class="num">1</span>淡金漸層拍板款 + ✓</span>
+    <div class="footer-demo">
+      <button class="btn v-soft">取消</button>
+      <button class="btn v-default"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>確認</button>
+    </div>
+    <div class="label"><b>跟「新增」同一款</b>（你圖裡金色那顆）。確認鈕變實心淡金漸層 + 打勾、取消維持淡。最穩、跟現有主按鈕語言一致。</div>
+  </div>
+
+  <div class="block">
+    <span class="tag opt"><span class="num">2</span>金字外框 + ✓</span>
+    <div class="footer-demo">
+      <button class="btn v-soft">取消</button>
+      <button class="btn v-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>確認</button>
+    </div>
+    <div class="label">透明底 + 金字金邊 + 打勾。比方案 1 輕、但有金色識別。對話框多時視覺較不重。</div>
+  </div>
+
+  <div class="block">
+    <span class="tag opt"><span class="num">3</span>實心金 + ✓</span>
+    <div class="footer-demo">
+      <button class="btn v-soft">取消</button>
+      <button class="btn v-solid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>確認</button>
+    </div>
+    <div class="label">實心金底白字 + 打勾。<b>最強調、確認鈕一眼跳出來</b>。但金色實心面積大、整站對話框會偏「重」。</div>
+  </div>
+
+  <div class="pick">回我 1 / 2 / 3 就定案、我套全站確認類鈕</div>
+</body>
+</html>

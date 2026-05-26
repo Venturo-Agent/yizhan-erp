@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
-import { ArrowRightLeft, X } from 'lucide-react'
+import { ArrowRightLeft, CheckSquare, X } from 'lucide-react'
 import { useToursSlim, invalidateReceipts } from '@/data'
 import { useTourOptions } from '@/hooks'
 import { supabase } from '@/lib/supabase/client'
@@ -224,12 +224,12 @@ export function ReceiptTransferDialog({
         {COMPONENT_LABELS.CANCEL}
       </Button>
       <Button
-        variant="soft-gold"
+        variant="morandi-gold"
         onClick={handleTransfer}
         disabled={transferring || !targetTourId}
         className="gap-2"
       >
-        {transferring ? <Spinner size="sm" /> : <ArrowRightLeft size={14} />}
+        {transferring ? <Spinner size="sm" /> : <CheckSquare size={14} />}
         {COMPONENT_LABELS.CONFIRM_TRANSFER}
       </Button>
     </div>

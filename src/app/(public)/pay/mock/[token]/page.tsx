@@ -264,7 +264,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
           <button
             type="submit"
             disabled={submitting}
-            className="w-full mt-5 py-2.5 rounded-md bg-morandi-gold hover:bg-morandi-gold-hover text-white font-semibold text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full mt-5 py-2.5 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
           >
             {submitting ? (
               <>

@@ -6,9 +6,7 @@
 import React from 'react'
 import { useTranslations } from 'next-intl'
 import { EnhancedTable, type TableColumn } from '@/components/ui/enhanced-table'
-import { Button } from '@/components/ui/button'
-import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
-import { cn } from '@/lib/utils'
+import { ActionCell } from '@/components/table-cells'
 import { Edit, Trash2 } from 'lucide-react'
 import { Supplier } from '../_types'
 
@@ -98,36 +96,24 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
       actions={row => {
         const supplier = row as Supplier
         return (
-          <div className="flex items-center gap-1">
-            {onEdit && (
-              <Button
-                variant="ghost"
-                size="iconSm"
-                onClick={e => {
-                  e.stopPropagation()
-                  onEdit(supplier)
-                }}
-                className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-                title={t('supplierEdit')}
-              >
-                <Edit size="0.95em" />
-              </Button>
-            )}
-            {onDelete && (
-              <Button
-                variant="ghost"
-                size="iconSm"
-                onClick={e => {
-                  e.stopPropagation()
-                  onDelete(supplier)
-                }}
-                className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
-                title={t('supplierDelete')}
-              >
-                <Trash2 size="0.95em" />
-              </Button>
-            )}
-          </div>
+          <ActionCell
+            iconOnly
+            actions={[
+              {
+                icon: Edit,
+                label: t('supplierEdit'),
+                onClick: () => onEdit?.(supplier),
+                hidden: !onEdit,
+              },
+              {
+                icon: Trash2,
+                label: t('supplierDelete'),
+                onClick: () => onDelete?.(supplier),
+                variant: 'danger',
+                hidden: !onDelete,
+              },
+            ]}
+          />
         )
       }}
     />

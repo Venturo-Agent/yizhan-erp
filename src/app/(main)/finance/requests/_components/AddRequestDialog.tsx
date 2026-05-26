@@ -203,8 +203,6 @@ export function AddRequestDialog({
     resetBatchState()
 
     const initialize = async () => {
-      const { invalidateTours, invalidateOrders } = await import('@/data')
-      await Promise.all([invalidateTours(), invalidateOrders()])
       if (defaultTourId) {
         setActiveTab('tour')
         setFormData(prev => ({

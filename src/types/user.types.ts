@@ -104,6 +104,8 @@ export interface EmployeeFull {
   attendance: EmployeeAttendance
   contracts: EmployeeContract[]
   status: 'active' | 'probation' | 'leave' | 'terminated'
+  /** 員工類型：human（真人）/ bot（LINE/FB 機器人、後台頻道用、不在 HR 人事 / 職務清單顯示）*/
+  employee_type?: 'human' | 'bot'
   terminated_at?: string | null
   terminated_by?: string | null
   avatar?: string

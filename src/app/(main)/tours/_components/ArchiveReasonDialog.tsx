@@ -5,7 +5,7 @@
 import React, { useState } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
-import { Archive, Check, X } from 'lucide-react'
+import { Archive, CheckSquare, X } from 'lucide-react'
 import { Tour } from '@/stores/types'
 import { cn } from '@/lib/utils'
 import { TOUR_ARCHIVE } from '../_constants'
@@ -70,12 +70,12 @@ export function ArchiveReasonDialog({
         {TOUR_ARCHIVE.cancel}
       </Button>
       <Button
-        variant="soft-gold"
+        variant="morandi-gold"
         onClick={handleConfirm}
         disabled={!selectedReason || loading}
         className="gap-2"
       >
-        <Check size={16} />
+        <CheckSquare size="1em" />
         {loading ? '處理中...' : TOUR_ARCHIVE.confirm}
       </Button>
     </div>

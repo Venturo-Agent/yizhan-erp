@@ -106,11 +106,7 @@ export function EmployeeForm({
           {LABELS.CHANGE_PASSWORD}
         </Button>
       )}
-      <Button
-        type="submit"
-        disabled={submitting}
-        className="bg-morandi-gold hover:bg-morandi-gold/90 text-white"
-      >
+      <Button type="submit" disabled={submitting}>
         {submitting ? (
           <>
             <Spinner size="md" className="mr-2" />

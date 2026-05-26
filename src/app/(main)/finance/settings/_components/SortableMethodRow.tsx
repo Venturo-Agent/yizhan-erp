@@ -2,11 +2,11 @@
 
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Pencil, Trash2, GripVertical, Copy } from 'lucide-react'
+import { Edit, Trash2, GripVertical } from 'lucide-react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useTranslations } from 'next-intl'
-import { type PaymentMethod } from './types'
+import { PAGE_LABELS, type PaymentMethod } from './types'
 import { PROVIDER_LABELS, isGatewayProvider } from '@/constants/payment-provider'
 
 // 不用刻的 TableRow（要傳 ref/style 給 useSortable）、直接 <tr>
@@ -15,16 +15,16 @@ export function SortableMethodRow({
   loading,
   onEdit,
   onToggle,
+  onToggleCustomerVisible,
   onDelete,
-  onCopy,
   showAccounting,
 }: {
   method: PaymentMethod
   loading: boolean
   onEdit: () => void
   onToggle: () => void
+  onToggleCustomerVisible: () => void
   onDelete: () => void
-  onCopy: () => void
   showAccounting: boolean
 }) {
   const t = useTranslations('finance')
@@ -53,26 +53,8 @@ export function SortableMethodRow({
           <GripVertical className="h-4 w-4 text-morandi-secondary" />
         </button>
       </td>
-      {/* 名稱（收款方式額外標「對外/內部」） */}
-      <td className="px-4 py-3 text-sm font-medium">
-        {method.name}
-        {method.type === 'receipt' && (
-          <span
-            className={`ml-2 inline-flex items-center px-1.5 py-0.5 rounded text-[0.65rem] font-medium ${
-              method.is_customer_visible
-                ? 'bg-status-success-bg text-status-success'
-                : 'bg-morandi-container text-morandi-muted'
-            }`}
-            title={
-              method.is_customer_visible
-                ? '客戶自助付款頁可選此方式'
-                : '只供內部後台開收款單、客戶看不到'
-            }
-          >
-            {method.is_customer_visible ? '對外' : '內部'}
-          </span>
-        )}
-      </td>
+      {/* 名稱（對外/內部開關移到編輯框、列表不再展示標籤） */}
+      <td className="px-4 py-3 text-sm font-medium">{method.name}</td>
       {/* 金流商（B 方案 provider）*/}
       <td className="px-4 py-3 text-sm">
         {isGatewayProvider(method.provider) ? (
@@ -83,10 +65,6 @@ export function SortableMethodRow({
           <span className="text-morandi-muted text-xs">{PROVIDER_LABELS.manual}</span>
         )}
       </td>
-      {/* 說明 */}
-      <td className="px-4 py-3 text-sm text-morandi-muted">{method.description || '-'}</td>
-      {/* 付款提示 */}
-      <td className="px-4 py-3 text-sm text-morandi-muted">{method.placeholder || '-'}</td>
       {/* 借/貸方科目 — 僅開通會計功能顯示 */}
       {showAccounting && (
         <td className="px-4 py-3 text-sm text-morandi-muted">
@@ -101,21 +79,24 @@ export function SortableMethodRow({
         </td>
       )}
       {/* 狀態（純 Switch、不再加「啟用/停用」中文撐高） */}
-      <td className="px-4 py-3 text-sm w-[60px]">
+      <td className="px-4 py-3 text-sm w-[80px]">
         <Switch checked={method.is_active} onCheckedChange={onToggle} disabled={loading} />
       </td>
-      {/* 操作（複製 / 編輯 / 刪除、寬度拉寬避免 wrap） */}
-      <td className="px-4 py-3 text-sm w-[140px] text-right">
-        <div className="flex justify-end gap-0.5">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onCopy}
-            title={t('tooltipCopyCustom')}
-            disabled={loading}
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
+      {/* 客戶收款（僅收款方式：開了才會出現在客人帳單自助付款頁）*/}
+      {method.type === 'receipt' && (
+        <td className="px-4 py-3 text-sm w-[90px]">
+          <span title={PAGE_LABELS.CUSTOMER_VISIBLE_HINT}>
+            <Switch
+              checked={!!method.is_customer_visible}
+              onCheckedChange={onToggleCustomerVisible}
+              disabled={loading}
+            />
+          </span>
+        </td>
+      )}
+      {/* 操作（編輯 / 刪除、靠左對齊第一顆按鈕、比照訂單管理） */}
+      <td className="px-4 py-3 text-sm w-[100px]">
+        <div className="flex justify-start gap-0.5">
           <Button
             variant="ghost"
             size="icon"
@@ -123,7 +104,7 @@ export function SortableMethodRow({
             title={t('tooltipEdit')}
             disabled={loading}
           >
-            <Pencil className="h-4 w-4" />
+            <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"

@@ -19,7 +19,11 @@ import { useRouter } from 'next/navigation'
 import { Megaphone, RefreshCw, Edit, ExternalLink, Loader2 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
-import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
+import {
+  ActionCell,
+  ACTION_BUTTON_BASE,
+  ACTION_BUTTON_DEFAULT_TONE,
+} from '@/components/table-cells'
 import { cn } from '@/lib/utils'
 import { ListPageLayout, type BreadcrumbItem } from '@/components/layout/list-page-layout'
 import type { TableColumn } from '@/components/ui/enhanced-table'
@@ -203,29 +207,39 @@ export default function MarketingWebsitePage() {
       searchFields={['code', 'name', 'marketing_title']}
       actionsWidth="160px"
       renderActions={row => (
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push(`/marketing/website/${row.code}`)}
-            disabled={togglingCode === row.code}
-            className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-          >
-            <Edit size="0.95em" />
-            編輯
-          </Button>
-          {row.is_public_listed && (
-            <a
-              href={`https://corner.venturo.tw/tours/${row.code}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-            >
-              <ExternalLink size="0.95em" />
-              預覽
-            </a>
-          )}
-        </div>
+        <ActionCell
+          // 預覽是真實 <a target="_blank">（保留開新分頁 / 中鍵 / 右鍵原生行為）、
+          // ActionCell 標準渲染只出 <button>、故走 renderCustomButton 逃生艙渲染 anchor。
+          renderCustomButton={action =>
+            action.label === '預覽' ? (
+              <a
+                key="preview"
+                href={`https://corner.venturo.tw/tours/${row.code}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
+                title="預覽"
+              >
+                <ExternalLink size="0.95em" />
+                預覽
+              </a>
+            ) : null
+          }
+          actions={[
+            {
+              icon: Edit,
+              label: '編輯',
+              onClick: () => router.push(`/marketing/website/${row.code}`),
+              disabled: togglingCode === row.code,
+            },
+            {
+              icon: ExternalLink,
+              label: '預覽',
+              onClick: () => {},
+              hidden: !row.is_public_listed,
+            },
+          ]}
+        />
       )}
       headerActions={
         <Button variant="outline" size="sm" onClick={handleRebuild} disabled={rebuilding}>

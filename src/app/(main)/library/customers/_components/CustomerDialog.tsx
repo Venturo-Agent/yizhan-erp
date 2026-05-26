@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
-import { X, Edit, Upload, ImageOff, Save, Check } from 'lucide-react'
+import { X, Edit, Upload, ImageOff, CheckSquare, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -441,12 +441,12 @@ export function CustomerDialog({
                 {t('customerDetailBtnCancel')}
               </Button>
               <Button
-                variant="soft-gold"
+                variant="morandi-gold"
                 onClick={handleSave}
                 disabled={saving || !isDirty}
                 className="gap-1.5"
               >
-                <Save size={14} />
+                <CheckSquare size={14} />
                 {saving ? t('customerDetailBtnSaving') : t('customerDetailBtnConfirm')}
               </Button>
             </>

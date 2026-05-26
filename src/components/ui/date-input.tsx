@@ -201,7 +201,7 @@ export function DateInput({
         style={{ boxShadow: 'none' }}
         maxLength={4}
       />
-      <span className="text-morandi-secondary/50 px-1">/</span>
+      <span className="text-morandi-secondary/50 px-1">-</span>
       <input
         ref={monthRef}
         type="text"
@@ -215,7 +215,7 @@ export function DateInput({
         style={{ boxShadow: 'none' }}
         maxLength={2}
       />
-      <span className="text-morandi-secondary/50 px-1">/</span>
+      <span className="text-morandi-secondary/50 px-1">-</span>
       <input
         ref={dayRef}
         type="text"

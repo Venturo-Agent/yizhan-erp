@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<style>
+  :root{
+    --gold:#c9aa7c; --gold-hover:#b8996b;
+    --gold-soft-bg:rgba(201,170,124,.08); --gold-soft-bd:rgba(201,170,124,.2);
+    --primary:#3a3633; --secondary:#8b8680; --container:#e8e5e0; --cream:#faf7f3;
+    --solid-bg:linear-gradient(135deg,#f8eede 0%,#f5e8d3 50%,#ecd9bb 100%);
+    --solid-fg:#5c4a2f; --solid-bd:#efe2c8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"PingFang TC","Noto Serif TC",sans-serif;background:#f0ece6;color:var(--primary);padding:32px;width:920px}
+  h1{font-size:22px;font-weight:700;margin-bottom:6px}
+  .sub{font-size:14px;color:#7a746c;margin-bottom:24px;line-height:1.6}
+  .block{background:#fff;border:1px solid var(--container);border-radius:14px;padding:22px 24px;margin-bottom:18px}
+  .tag{display:inline-block;font-size:13px;font-weight:700;padding:4px 12px;border-radius:6px;margin-bottom:16px;background:var(--gold-soft-bg);color:#9a7d4f;border:1px solid var(--gold-soft-bd)}
+  .row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .col{flex:1;min-width:340px}
+  .mini{font-size:12px;font-weight:700;color:#7a746c;margin-bottom:10px}
+  .mini.before{color:#b08a6e}
+  .mini.after{color:#9a7d4f}
+  .demo{background:var(--cream);border:1px solid var(--container);border-radius:10px;padding:16px 18px;display:flex;justify-content:flex-end;gap:10px}
+  .demo.single{justify-content:flex-start}
+  .label{font-size:13px;color:#7a746c;margin-top:12px;line-height:1.6}
+  .label b{color:var(--primary)}
+  .btn{height:40px;padding:0 16px;border-radius:6px;font-size:14px;display:inline-flex;align-items:center;gap:8px;cursor:default;border:1px solid transparent;font-family:inherit;font-weight:600}
+  .btn svg{width:16px;height:16px;flex:0 0 16px}
+  /* 改前：金色實心 default */
+  .v-solid{background:var(--solid-bg);color:var(--solid-fg);border-color:var(--solid-bd)}
+  /* 改後：金字外框 default（新）*/
+  .v-frame{background:transparent;color:var(--gold);border-color:var(--gold)}
+  /* soft-gold 取消 */
+  .v-soft{background:var(--gold-soft-bg);color:var(--primary);border-color:var(--gold-soft-bd);font-weight:400}
+  /* outline 取消（配套 B、更輕）*/
+  .v-outline{background:transparent;color:var(--secondary);border-color:var(--container);font-weight:400}
+  .pick{margin-top:24px;font-size:15px;font-weight:700;text-align:center;color:#9a7d4f;background:var(--gold-soft-bg);border:1px dashed var(--gold-soft-bd);border-radius:10px;padding:14px;line-height:1.7}
+  .vs{font-size:20px;color:#cbbfa8;align-self:center}
+</style>
+</head>
+<body>
+  <h1>全站「金色實心」→「金字外框」換皮預覽（方案 B）</h1>
+  <div class="sub">改 button.tsx 一處、全站 415 顆主按鈕（default）一起變。圖示各自保留（新增還是 +、送出還是 ✓）。<br>下面把幾個場景的「改前 vs 改後」並排、重點看最後一塊「主次會不會反轉」。</div>
+
+  <div class="block">
+    <span class="tag">① 列表頁右上「+ 新增」入口鈕</span>
+    <div class="row">
+      <div class="col"><div class="mini before">改前 · 金色實心</div>
+        <div class="demo single"><button class="btn v-solid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>新增申辦</button></div>
+      </div>
+      <div class="vs">→</div>
+      <div class="col"><div class="mini after">改後 · 金字外框</div>
+        <div class="demo single"><button class="btn v-frame"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>新增申辦</button></div>
+      </div>
+    </div>
+    <div class="label">填滿金色 → 透明底金字金邊。整頁瞬間變清爽、不再有大塊金色。</div>
+  </div>
+
+  <div class="block">
+    <span class="tag">② 對話框送出鈕（建立傳票這種、原本金色實心）</span>
+    <div class="row">
+      <div class="col"><div class="mini before">改前 · 金色實心</div>
+        <div class="demo"><button class="btn v-solid">建立傳票</button></div>
+      </div>
+      <div class="vs">→</div>
+      <div class="col"><div class="mini after">改後 · 金字外框 + ✓</div>
+        <div class="demo"><button class="btn v-frame"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>建立傳票</button></div>
+      </div>
+    </div>
+    <div class="label">改後跟前面已統一的確認鈕（金字外框 + ✓）<b>完全一致</b>、對話框送出鈕全站一個樣。</div>
+  </div>
+
+  <div class="block">
+    <span class="tag">③ 主次驗證 — 對話框底部「取消 vs 送出」（這塊最關鍵）</span>
+    <div class="row">
+      <div class="col"><div class="mini before">改前：送出實心、取消淡金 → 主次分明</div>
+        <div class="demo"><button class="btn v-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>取消</button><button class="btn v-solid">送出</button></div>
+      </div>
+    </div>
+    <div class="label" style="margin-bottom:18px">改後送出變透明金字外框、若取消還是<b>淡金底色</b>、可能「取消的色塊反而比送出搶眼」→ 主次反轉風險。兩種配套給你選：</div>
+    <div class="row">
+      <div class="col"><div class="mini after">配套甲：取消維持淡金底（soft-gold）</div>
+        <div class="demo"><button class="btn v-soft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>取消</button><button class="btn v-frame"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>送出</button></div>
+        <div class="label">取消有淡金色塊、送出透明 — 兩顆份量接近、稍嫌主次不夠。</div>
+      </div>
+      <div class="vs">vs</div>
+      <div class="col"><div class="mini after">配套乙：取消改成「無底灰框」更輕</div>
+        <div class="demo"><button class="btn v-outline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>取消</button><button class="btn v-frame"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>送出</button></div>
+        <div class="label">取消變灰、份量退下去、送出的金字外框自然成主角 — 主次清楚。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pick">方向對的話回「改」、我就動 button.tsx 全站換掉金色實心<br>主次那塊順便挑「甲」（取消維持淡金）或「乙」（取消改灰、主次更清楚）</div>
+</body>
+</html>

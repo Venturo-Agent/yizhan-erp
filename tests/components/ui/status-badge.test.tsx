@@ -44,8 +44,8 @@ describe('StatusBadge Component', () => {
     it('should apply success tone classes', () => {
       render(<StatusBadge tone="success" label="x" />)
       const badge = screen.getByText('x')
-      expect(badge).toHaveClass('bg-morandi-green/15')
-      expect(badge).toHaveClass('text-morandi-green')
+      expect(badge).toHaveClass('bg-status-success/15')
+      expect(badge).toHaveClass('text-status-success')
     })
 
     it('should apply warning tone classes', () => {
@@ -58,8 +58,8 @@ describe('StatusBadge Component', () => {
     it('should apply danger tone classes', () => {
       render(<StatusBadge tone="danger" label="x" />)
       const badge = screen.getByText('x')
-      expect(badge).toHaveClass('bg-morandi-red/15')
-      expect(badge).toHaveClass('text-morandi-red')
+      expect(badge).toHaveClass('bg-status-danger/15')
+      expect(badge).toHaveClass('text-status-danger')
     })
 
     it('should apply neutral tone classes', () => {
@@ -75,7 +75,7 @@ describe('StatusBadge Component', () => {
       render(<StatusBadge tone="success" label="x" className="custom-extra" />)
       const badge = screen.getByText('x')
       expect(badge).toHaveClass('custom-extra')
-      expect(badge).toHaveClass('bg-morandi-green/15')
+      expect(badge).toHaveClass('bg-status-success/15')
     })
   })
 
@@ -89,13 +89,13 @@ describe('StatusBadge Component', () => {
     it('should resolve payment_request billed → success tone + 已付款 label (billed 5/15 後歸 paid)', () => {
       render(<StatusBadge type="payment_request" status="billed" />)
       const badge = screen.getByText('已付款')
-      expect(badge).toHaveClass('bg-morandi-green/15')
+      expect(badge).toHaveClass('bg-status-success/15')
     })
 
     it('should resolve disbursement paid → success tone + 已付款 label', () => {
       render(<StatusBadge type="disbursement" status="paid" />)
       const badge = screen.getByText('已付款')
-      expect(badge).toHaveClass('bg-morandi-green/15')
+      expect(badge).toHaveClass('bg-status-success/15')
     })
 
     it('should resolve tour proposal → pending tone + 提案 label (NOT 開團)', () => {

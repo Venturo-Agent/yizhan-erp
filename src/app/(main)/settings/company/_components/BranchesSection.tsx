@@ -10,14 +10,13 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Building2, Network, Edit, Trash2, Star } from 'lucide-react'
+import { Building2, Network, Edit, Trash2, Star, CheckSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { fetcher, type DimensionRow } from '../_types/organizationTypes'
 import { apiMutate } from '@/lib/swr/api-mutate'
-import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
-import { cn } from '@/lib/utils'
+import { ActionCell } from '@/components/table-cells'
 
 interface BranchFormState {
   open: boolean
@@ -188,7 +187,8 @@ export function BranchesSection() {
             <Button variant="ghost" size="sm" onClick={cancelBranchForm} type="button">
               取消
             </Button>
-            <Button variant="soft-gold" size="sm" onClick={submitBranchForm} type="button">
+            <Button variant="morandi-gold" size="sm" onClick={submitBranchForm} type="button">
+              <CheckSquare size="1em" />
               儲存
             </Button>
           </div>
@@ -226,28 +226,24 @@ export function BranchesSection() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => startEditBranch(branch)}
-                    type="button"
-                    title="編輯分公司"
-                    className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-                  >
-                    <Edit size="0.95em" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteBranch(branch)}
-                    disabled={branch.is_default}
-                    type="button"
-                    title={branch.is_default ? '預設分公司不可刪除' : '刪除分公司'}
-                    className={cn(
-                      ACTION_BUTTON_BASE,
-                      'text-status-danger hover:bg-status-danger-bg disabled:opacity-30'
-                    )}
-                  >
-                    <Trash2 size="0.95em" />
-                  </button>
-                </div>
+                <ActionCell
+                  iconOnly
+                  actions={[
+                    {
+                      icon: Edit,
+                      label: '編輯分公司',
+                      onClick: () => startEditBranch(branch),
+                    },
+                    {
+                      icon: Trash2,
+                      // 預設分公司不可刪除：禁用整顆（業務邏輯不動、handleDeleteBranch 內仍有 is_default 防呆）
+                      label: branch.is_default ? '預設分公司不可刪除' : '刪除分公司',
+                      onClick: () => handleDeleteBranch(branch),
+                      variant: 'danger',
+                      disabled: branch.is_default,
+                    },
+                  ]}
+                />
               </div>
             </Card>
           ))}

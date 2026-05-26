@@ -1,0 +1,42 @@
+# ============================================================
+# 散刻顏色 ratchet baseline（檔案級豁免清單）
+# ============================================================
+# 用途：記錄「現存」用了 Tailwind 預設色（bg-red-* / text-blue-* …）的檔案。
+#       這些檔在本清單內 = 豁免（漸進清、不擋 commit）；
+#       不在本清單、但出現散刻色 = 新引入、check-standards.sh #11 會 🚫 FAIL。
+#
+# 為什麼用「檔案級」而非「行號級」：
+#   行號會因為別人改檔上下移動而漂移、檔案級穩定、不會誤報。
+#
+# 怎麼重生（清理進度後收緊 baseline）：
+#   ./scripts/check-standards.sh --update-color-baseline
+#   → 會把「當前所有非白名單違規檔」重寫進本檔（sorted unique）。
+#   清完某檔的散刻色後重生、該檔就會從清單消失、之後再復發就會被擋。
+#
+# 注意：channel badge（LINE 綠 / FB 藍 / IG 粉）badge 行 + OrderStatusBadge.tsx
+#       + (public)/p/** 提案頁 + global-error/not-found 是「白名單」（在腳本內寫死）、
+#       不靠本 baseline 豁免、也不會出現在本清單。
+#
+# 產生時間：2026-05-26（首版）
+# ============================================================
+src/app/(main)/ai/_components/AiConversationsTab.tsx
+src/app/(main)/ai/_components/AiSettingsTab.tsx
+src/app/(main)/ai/_components/AiSidebar.tsx
+src/app/(main)/finance/reports/_components/TourPnlTab.tsx
+src/app/(main)/hr/_components/SeveranceCalculatorDialog.tsx
+src/app/(main)/hr/bonus-settlement/[tourId]/page.tsx
+src/app/(main)/hr/bonus-settlement/page.tsx
+src/app/(main)/hr/salary-settlement/[id]/page.tsx
+src/app/(main)/hr/salary-settlement/page.tsx
+src/app/(main)/orders/_components/OrderStatusChangeDialog.tsx
+src/app/(main)/shared-data/insurance-grades/page.tsx
+src/app/(main)/todos/_components/AddTodoForm.tsx
+src/app/(main)/todos/_components/todo-expanded-view/TodoSidebar.tsx
+src/app/(main)/todos/_components/TodoCard.tsx
+src/app/(main)/tours/_components/tour-display-itinerary-tab.tsx
+src/app/(main)/workspaces/[id]/_components/addons-tab.tsx
+src/app/(main)/workspaces/[id]/_components/ai-settings-tab.tsx
+src/app/(main)/workspaces/[id]/_components/billing-tab.tsx
+src/app/(main)/workspaces/[id]/_components/llm-token-setup-dialog.tsx
+src/components/bank-combobox.tsx
+src/components/setup/StepIndicator.tsx

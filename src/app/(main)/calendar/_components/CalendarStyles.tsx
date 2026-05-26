@@ -230,13 +230,13 @@ export function CalendarStyles() {
       }
 
       .fc-event[data-event-type='deadline'] {
-        border-left-color: var(--morandi-red);
-        background-color: color-mix(in srgb, var(--morandi-red) 10%, transparent);
+        border-left-color: var(--status-danger);
+        background-color: color-mix(in srgb, var(--status-danger) 10%, transparent);
       }
 
       .fc-event[data-event-type='holiday'] {
-        border-left-color: var(--morandi-green);
-        background-color: color-mix(in srgb, var(--morandi-green) 20%, transparent);
+        border-left-color: var(--status-success);
+        background-color: color-mix(in srgb, var(--status-success) 20%, transparent);
       }
 
       .fc-event[data-event-type='task'] {

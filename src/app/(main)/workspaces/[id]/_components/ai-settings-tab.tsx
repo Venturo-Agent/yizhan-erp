@@ -15,7 +15,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react'
-import { Sparkles, Save, Cpu, KeyRound, Trash2 } from 'lucide-react'
+import { Sparkles, CheckSquare, Cpu, KeyRound, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -264,11 +264,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
                 {llmDeleting ? '移除中...' : '移除設定'}
               </Button>
             )}
-            <Button
-              size="sm"
-              onClick={() => setLlmDialogOpen(true)}
-              className="bg-morandi-gold hover:bg-morandi-gold/90 text-white"
-            >
+            <Button size="sm" onClick={() => setLlmDialogOpen(true)}>
               <KeyRound className="h-3.5 w-3.5 mr-1.5" />
               {llmStatus?.has_token ? '變更 Token' : '設定 Token'}
             </Button>
@@ -379,12 +375,12 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
 
         <div className="flex justify-end pt-6 mt-6 border-t border-morandi-gold/20">
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             onClick={handleSave}
             disabled={saving}
             className="border-morandi-gold text-morandi-gold hover:bg-morandi-gold/10"
           >
-            <Save className="h-4 w-4 mr-2" />
+            <CheckSquare className="h-4 w-4 mr-2" />
             {saving ? '儲存中...' : '儲存 AI 設定'}
           </Button>
         </div>
@@ -526,12 +522,12 @@ function HappyPersonaSection({ workspaceId }: { workspaceId: string }) {
 
       <div className="flex justify-end pt-6 mt-6 border-t border-morandi-gold/20">
         <Button
-          variant="soft-gold"
+          variant="morandi-gold"
           onClick={handleSave}
           disabled={saving}
           className="border-morandi-gold text-morandi-gold hover:bg-morandi-gold/10"
         >
-          <Save className="h-4 w-4 mr-2" />
+          <CheckSquare className="h-4 w-4 mr-2" />
           {saving ? '儲存中...' : '儲存 HAPPY 人格'}
         </Button>
       </div>

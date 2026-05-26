@@ -1,8 +1,7 @@
 // 職務列表左側面板（從 roles/page.tsx 抽出）
 
 import { Loader2, Users, Trash2, Check } from 'lucide-react'
-import { ACTION_BUTTON_BASE } from '@/components/table-cells'
-import { cn } from '@/lib/utils'
+import { ActionCell } from '@/components/table-cells'
 import type { Role } from '@/data/hooks/useRoles'
 
 const PANEL_LABELS = {
@@ -60,21 +59,21 @@ export function RoleListPanel({
                     )}
                     <span className="font-medium text-morandi-primary text-sm">{role.name}</span>
                   </div>
-                  {!role.is_admin && (
-                    <button
-                      type="button"
-                      className={cn(
-                        ACTION_BUTTON_BASE,
-                        'text-status-danger hover:bg-status-danger-bg opacity-0 group-hover:opacity-100 transition-opacity'
-                      )}
-                      onClick={e => {
-                        e.stopPropagation()
-                        onDeleteRole(role)
-                      }}
-                    >
-                      <Trash2 size="0.95em" />
-                    </button>
-                  )}
+                  <ActionCell
+                    iconOnly
+                    actions={[
+                      {
+                        icon: Trash2,
+                        label: '刪除角色',
+                        // 系統角色不可刪：條件隱藏整顆（業務邏輯不動）
+                        hidden: role.is_admin,
+                        // hover 才浮現：沿用原 group-hover 動畫（ActionCell onClick 已內建 stopPropagation）
+                        className: 'opacity-0 group-hover:opacity-100 transition-opacity',
+                        onClick: () => onDeleteRole(role),
+                        variant: 'danger',
+                      },
+                    ]}
+                  />
                 </div>
               </div>
             ))}

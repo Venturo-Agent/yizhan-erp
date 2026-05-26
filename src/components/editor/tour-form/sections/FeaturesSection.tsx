@@ -92,7 +92,7 @@ export function FeaturesSection({
         </div>
         <button
           onClick={addFeature}
-          className="px-3 py-1 bg-morandi-gold text-white rounded-lg text-sm hover:bg-morandi-gold-hover"
+          className="px-3 py-1 rounded-lg text-sm [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
         >
           + 新增特色
         </button>

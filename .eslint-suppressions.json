@@ -114,17 +114,12 @@
   },
   "src/app/(main)/orders/_hooks/passport/usePassportValidation.ts": {
     "venturo/no-direct-supabase-writes": {
-      "count": 5
+      "count": 2
     }
   },
   "src/app/(main)/orders/_hooks/useCustomerMatch.ts": {
     "venturo/no-direct-supabase-writes": {
       "count": 2
-    }
-  },
-  "src/app/(main)/orders/_hooks/useEditModeSyncCustomers.ts": {
-    "venturo/no-direct-supabase-writes": {
-      "count": 1
     }
   },
   "src/app/(main)/orders/_hooks/useMemberEditDialog.ts": {
@@ -178,11 +173,6 @@
     }
   },
   "src/app/(main)/settings/company/_components/BranchesSection.tsx": {
-    "venturo/no-direct-useswr-in-pages": {
-      "count": 1
-    }
-  },
-  "src/app/(main)/settings/company/_components/DimensionSection.tsx": {
     "venturo/no-direct-useswr-in-pages": {
       "count": 1
     }

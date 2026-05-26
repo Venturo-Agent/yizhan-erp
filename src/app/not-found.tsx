@@ -9,7 +9,7 @@ export default function NotFound() {
         <p className="text-morandi-secondary mb-8">很抱歉，您訪問的頁面不存在</p>
         <Link
           href="/dashboard"
-          className="inline-block px-6 py-2 bg-morandi-gold text-white rounded-md font-medium hover:bg-morandi-gold-hover transition-colors"
+          className="inline-block px-6 py-2 rounded-md font-medium [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
         >
           返回首頁
         </Link>

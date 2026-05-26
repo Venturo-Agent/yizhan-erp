@@ -9,7 +9,7 @@ import {
   getTemplateColor,
 } from '@/app/(main)/tours/[code]/_itinerary/_hooks/useTemplates'
 import {} from '@/components/ui/select'
-import { FolderPlus, Loader2 } from 'lucide-react'
+import { FolderPlus, Loader2, CheckSquare } from 'lucide-react'
 
 const HotelSelector = dynamic(() => import('../../HotelSelector').then(m => m.HotelSelector), {
   loading: () => (
@@ -283,7 +283,7 @@ export function DailyItinerarySection({
               {COMP_EDITOR_LABELS.LABEL_1066}
             </Button>
             <Button
-              variant="soft-gold"
+              variant="morandi-gold"
               type="button"
               onClick={handleSaveToLibrary}
               disabled={isSavingToLibrary}
@@ -294,7 +294,10 @@ export function DailyItinerarySection({
                   {COMP_EDITOR_LABELS.儲存中}
                 </>
               ) : (
-                COMP_EDITOR_LABELS.儲存到圖庫
+                <>
+                  <CheckSquare size="1em" />
+                  {COMP_EDITOR_LABELS.儲存到圖庫}
+                </>
               )}
             </Button>
           </DialogFooter>

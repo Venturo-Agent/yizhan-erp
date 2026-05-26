@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
-import { X } from 'lucide-react'
+import { X, CheckSquare } from 'lucide-react'
 import { NewTourData } from '../_types'
 import type { OrderFormData } from '@/app/(main)/orders/_components/add-order-form'
 import { TourBasicInfo, TourSettings, TourOrderSection } from './tour-form'
@@ -203,7 +203,8 @@ export function TourFormShell({
             <X size={16} />
             {TOUR_FORM.cancel}
           </Button>
-          <Button variant="soft-gold" onClick={onSubmit} disabled={isSubmitDisabled()}>
+          <Button variant="morandi-gold" onClick={onSubmit} disabled={isSubmitDisabled()}>
+            <CheckSquare size="1em" />
             {getSubmitLabel()}
           </Button>
         </div>

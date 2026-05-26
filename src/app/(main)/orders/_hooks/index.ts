@@ -1,7 +1,6 @@
 'use client'
 
 export * from './useOrderMembersData'
-export * from './useOrderMembers'
 export * from './usePassportUpload'
 export * from './useCustomerMatch'
 export * from './useMemberExport'

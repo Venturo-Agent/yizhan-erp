@@ -9,7 +9,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Building2 } from 'lucide-react'
+import { Building2, CheckSquare } from 'lucide-react'
 import { HotelSearchInput } from './hotel/HotelSearchInput'
 import { HotelList } from './hotel/HotelList'
 import { useHotelSelector } from './hooks/useHotelSelector'
@@ -165,11 +165,12 @@ export function HotelSelector({
             {COMP_EDITOR_LABELS.取消}
           </Button>
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             onClick={handleConfirm}
             disabled={selectedIds.size === 0}
             className="rounded-xl min-w-[7.5rem]"
           >
+            <CheckSquare size="1em" />
             新增飯店 ({selectedIds.size})
           </Button>
         </DialogFooter>

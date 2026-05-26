@@ -6,8 +6,7 @@ import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Plus, Star, Edit, ChevronRight, ChevronDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
+import { ActionCell } from '@/components/table-cells'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { updateChartOfAccount } from '@/data/entities/chart-of-accounts'
 import { supabase } from '@/lib/supabase/client'
@@ -283,26 +282,24 @@ export default function AccountsPage() {
       key: 'actions',
       label: '操作',
       width: '120px',
+      // 只收「操作欄按鈕」（新增子科目 / 編輯）進 ActionCell；
+      // 樹狀展開/折疊（在科目名稱欄）與標記常用星星（在常用欄）屬「非操作欄」互動、保留原樣不收。
       render: (_: unknown, row: Account) => (
-        <div className="flex gap-1">
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => handleAddChild(row)}
-            className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-            title={t('addChildAccount')}
-          >
-            <Plus size="0.95em" />
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => handleEdit(row)}
-            className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-          >
-            <Edit size="0.95em" />
-          </Button>
-        </div>
+        <ActionCell
+          iconOnly
+          actions={[
+            {
+              icon: Plus,
+              label: t('addChildAccount'),
+              onClick: () => handleAddChild(row),
+            },
+            {
+              icon: Edit,
+              label: '編輯',
+              onClick: () => handleEdit(row),
+            },
+          ]}
+        />
       ),
     },
   ]

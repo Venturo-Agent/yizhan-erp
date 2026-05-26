@@ -14,7 +14,6 @@
 import { useCallback, useEffect, useState, useMemo } from 'react'
 import { Plus, Wallet } from 'lucide-react'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
-import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { TableColumn } from '@/components/ui/enhanced-table'
 import {
@@ -26,13 +25,7 @@ import {
   invalidateDisbursementOrders,
 } from '@/data'
 import { useLinkedPaymentRequests } from '../_hooks/useLinkedPaymentRequests'
-import {
-  DateCell,
-  CurrencyCell,
-  ACTION_BUTTON_BASE,
-  ACTION_BUTTON_DEFAULT_TONE,
-} from '@/components/table-cells'
-import { cn } from '@/lib/utils'
+import { DateCell, CurrencyCell, ActionCell } from '@/components/table-cells'
 import { DisbursementOrder } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
 import { CreateDisbursementWizardDialog } from './CreateDisbursementWizardDialog'
@@ -324,64 +317,40 @@ export function DisbursementPage() {
   }, [])
 
   // 操作按鈕渲染（順序：預覽 → 編輯 → 出帳 → 刪除）
-  const renderActions = (row: DisbursementOrder) => (
-    <div className="flex items-center gap-1">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={e => {
-          e.stopPropagation()
-          handlePreview(row)
-        }}
-        className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-      >
-        {t('disbursementActionPreview')}
-      </Button>
-      {row.status === 'pending' && canManage && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={e => {
-            e.stopPropagation()
-            setEditingOrder(row)
-            setIsCreateDialogOpen(true)
-          }}
-          className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-        >
-          {t('disbursementActionEdit')}
-        </Button>
-      )}
-      {row.status === 'pending' && canManage && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={e => {
-            e.stopPropagation()
-            handleConfirmPaid(row)
-          }}
-          className={cn(
-            ACTION_BUTTON_BASE,
-            'text-status-success hover:text-status-success hover:bg-status-success/10'
-          )}
-        >
-          {t('disbursementActionPay')}
-        </Button>
-      )}
-      {row.status === 'pending' && canManage && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={e => {
-            e.stopPropagation()
-            handleDelete(row)
-          }}
-          className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
-        >
-          {t('disbursementActionDelete')}
-        </Button>
-      )}
-    </div>
-  )
+  // 純文字按鈕（無圖示）→ ActionButton.icon optional、不傳就只渲染 label
+  const renderActions = (row: DisbursementOrder) => {
+    const canAct = row.status === 'pending' && canManage
+    return (
+      <ActionCell
+        actions={[
+          {
+            label: t('disbursementActionPreview'),
+            onClick: () => handlePreview(row),
+          },
+          {
+            label: t('disbursementActionEdit'),
+            onClick: () => {
+              setEditingOrder(row)
+              setIsCreateDialogOpen(true)
+            },
+            hidden: !canAct,
+          },
+          {
+            label: t('disbursementActionPay'),
+            onClick: () => handleConfirmPaid(row),
+            variant: 'success',
+            hidden: !canAct,
+          },
+          {
+            label: t('disbursementActionDelete'),
+            onClick: () => handleDelete(row),
+            variant: 'danger',
+            hidden: !canAct,
+          },
+        ]}
+      />
+    )
+  }
 
   if (permLoading) return null // ModuleGuard 已在外層顯示 loading
   if (!can(CAPABILITIES.FINANCE_READ_DISBURSEMENT)) return <UnauthorizedPage />

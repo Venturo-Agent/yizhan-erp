@@ -235,7 +235,7 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
             type="button"
             onClick={() => setShowForm(true)}
             disabled={selected.size === 0}
-            className="w-full py-3 bg-morandi-gold text-white rounded-xl font-semibold hover:bg-morandi-gold/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 rounded-xl shadow-sm disabled:opacity-50 disabled:cursor-not-allowed [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
           >
             {selected.size === 0
               ? LABELS.ERR_NO_SELECTION

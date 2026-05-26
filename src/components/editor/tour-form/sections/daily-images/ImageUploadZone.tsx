@@ -75,7 +75,7 @@ export function ImageUploadZone({
           </>
         ) : (
           <>
-            <div className="flex items-center gap-2 px-4 py-2 bg-morandi-gold text-white rounded-lg hover:bg-morandi-gold-hover transition-colors">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]">
               <Plus size="1.125em" />
               <span className="text-sm font-medium">{DAILY_IMAGES_LABELS.UPLOADING_5213}</span>
             </div>

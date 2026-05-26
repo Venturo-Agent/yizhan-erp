@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Pencil, Trash2, GripVertical } from 'lucide-react'
+import { Edit, Trash2, GripVertical } from 'lucide-react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useTranslations } from 'next-intl'
@@ -16,6 +16,7 @@ export function SortableCategoryRow({
   onToggle,
   onDelete,
   showAccounting,
+  showType,
 }: {
   category: ExpenseCategory
   loading: boolean
@@ -23,6 +24,8 @@ export function SortableCategoryRow({
   onToggle: () => void
   onDelete: () => void
   showAccounting: boolean
+  /** 公司收支：顯示「支出/收入」類型欄 */
+  showType?: boolean
 }) {
   const t = useTranslations('finance')
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -52,6 +55,22 @@ export function SortableCategoryRow({
       </td>
       {/* 名稱 */}
       <td className="px-4 py-3 text-sm font-medium">{category.name}</td>
+      {/* 類型（公司收支：支出/收入 badge）*/}
+      {showType && (
+        <td className="px-4 py-3 text-sm w-[90px]">
+          <span
+            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[0.7rem] font-medium ${
+              category.type === 'company_income'
+                ? 'bg-status-success-bg text-status-success'
+                : 'bg-morandi-container text-morandi-secondary'
+            }`}
+          >
+            {category.type === 'company_income'
+              ? PAGE_LABELS.TYPE_INCOME
+              : PAGE_LABELS.TYPE_EXPENSE}
+          </span>
+        </td>
+      )}
       {/* 借/貸方科目 — 僅開通會計功能顯示 */}
       {showAccounting && (
         <td className="px-4 py-3 text-sm text-morandi-muted">
@@ -71,9 +90,9 @@ export function SortableCategoryRow({
       <td className="px-4 py-3 text-sm w-[60px]">
         <Switch checked={category.is_active} onCheckedChange={onToggle} disabled={loading} />
       </td>
-      {/* 操作 */}
-      <td className="px-4 py-3 text-sm w-[100px] text-right">
-        <div className="flex justify-end gap-0.5">
+      {/* 操作（靠左對齊第一顆按鈕、比照訂單管理） */}
+      <td className="px-4 py-3 text-sm w-[100px]">
+        <div className="flex justify-start gap-0.5">
           <Button
             variant="ghost"
             size="icon"
@@ -81,7 +100,7 @@ export function SortableCategoryRow({
             title={t('tooltipEdit')}
             disabled={loading}
           >
-            <Pencil className="h-4 w-4" />
+            <Edit className="h-4 w-4" />
           </Button>
           {!category.is_system && (
             <Button

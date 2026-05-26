@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI 視覺對比 — 哪裡長得不一樣、選哪個當標準</title>
+<style>
+  /* ───── 字型 / 基底 ───── */
+  :root{
+    --gold:#c9aa7c; --gold-hover:#b8996b; --gold-light:#f7efe2;
+    --ink:#3a3633; --ink2:#8b8680; --bg:#f6f4f1; --card:#ffffff;
+    --border:#e3ddd4; --serif:'Noto Serif TC','Songti TC',Georgia,serif;
+    --sans:'PingFang TC','Heiti TC','Noto Sans TC',-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:17px; line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{font-family:var(--serif);}
+  /* ───── 版面 ───── */
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  header.hero{
+    background:linear-gradient(135deg,#faf7f3 0%,#f5f0e8 60%,#f1e7d4 100%);
+    border-bottom:1px solid var(--border); padding:64px 0 52px;
+  }
+  header.hero h1{font-size:42px; margin:0 0 14px; letter-spacing:1px;}
+  header.hero .sub{font-size:20px; color:var(--ink2); max-width:760px; margin:0;}
+  header.hero .stamp{
+    display:inline-block; margin-bottom:20px; padding:6px 16px;
+    border:1px solid var(--gold); border-radius:999px; color:var(--gold-hover);
+    font-size:14px; letter-spacing:2px; background:#fff;
+  }
+  /* ───── 導航（sticky 頂部）───── */
+  nav.toc{
+    position:sticky; top:0; z-index:50; background:rgba(246,244,241,.94);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
+    padding:12px 0;
+  }
+  nav.toc .wrap{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+  nav.toc a{
+    text-decoration:none; color:var(--ink); font-size:15px;
+    padding:7px 15px; border-radius:999px; border:1px solid transparent;
+    transition:all .15s; white-space:nowrap;
+  }
+  nav.toc a:hover{background:#fff; border-color:var(--gold); color:var(--gold-hover);}
+  /* ───── 章節 ───── */
+  section{padding:56px 0; border-bottom:1px dashed var(--border);}
+  section h2{
+    font-size:30px; margin:0 0 8px; display:flex; align-items:center; gap:12px;
+  }
+  section .lead{font-size:18px; color:var(--ink2); margin:0 0 36px; max-width:820px;}
+  .biz{
+    background:var(--gold-light); border-left:4px solid var(--gold);
+    border-radius:0 14px 14px 0; padding:18px 22px; margin:26px 0;
+    font-size:17px; line-height:1.75;
+  }
+  .biz b{color:var(--gold-hover);}
+  .pick{
+    margin-top:14px; padding:14px 20px; background:#fff; border:2px solid var(--gold);
+    border-radius:14px; font-size:17px; display:flex; align-items:center; gap:10px;
+  }
+  .pick .tag{
+    background:var(--gold); color:#fff; font-size:13px; padding:3px 12px;
+    border-radius:999px; font-weight:700; white-space:nowrap; letter-spacing:1px;
+  }
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    padding:30px; margin:22px 0; box-shadow:0 8px 24px -16px rgba(180,160,120,.4);
+  }
+  /* ───── 顏色矩陣 ───── */
+  .theme-grid{display:grid; grid-template-columns:200px repeat(4,1fr); gap:0; margin:8px 0;}
+  .theme-grid .th{
+    font-weight:700; padding:14px 12px; border-bottom:2px solid var(--border);
+    text-align:center; font-family:var(--serif); font-size:17px;
+  }
+  .theme-grid .rowlabel{
+    display:flex; flex-direction:column; justify-content:center; padding:14px 12px;
+    border-bottom:1px solid var(--border); font-size:15px;
+  }
+  .theme-grid .rowlabel small{color:var(--ink2); font-size:13px; font-family:monospace;}
+  .swatch{
+    height:74px; border-bottom:1px solid var(--border); border-left:1px solid var(--border);
+    display:flex; align-items:flex-end; justify-content:center; position:relative;
+  }
+  .swatch code{
+    background:rgba(255,255,255,.86); color:#222; font-size:11px; padding:2px 6px;
+    border-radius:5px 5px 0 0; font-family:monospace; letter-spacing:.3px;
+  }
+  .swatch.art::after{ /* 美術色標記 */
+    content:'美術'; position:absolute; top:6px; left:6px; font-size:10px;
+    background:#3a3633; color:#fff; padding:1px 6px; border-radius:4px; letter-spacing:1px;
+  }
+  .swatch.sem::after{
+    content:'語意'; position:absolute; top:6px; left:6px; font-size:10px;
+    background:var(--gold-hover); color:#fff; padding:1px 6px; border-radius:4px; letter-spacing:1px;
+  }
+  .diverge{outline:3px solid #c08374; outline-offset:-3px; z-index:2;}
+  .matrix-note{font-size:14px; color:var(--ink2); margin-top:10px;}
+  /* 小色塊對比（同色 / 分岔） */
+  .pair-row{display:flex; gap:30px; flex-wrap:wrap; margin:20px 0;}
+  .pair{flex:1; min-width:240px; border:1px solid var(--border); border-radius:14px; overflow:hidden;}
+  .pair .ph{padding:10px 16px; font-weight:700; background:#faf8f5; border-bottom:1px solid var(--border); font-size:15px;}
+  .pair .two{display:flex;}
+  .pair .two > div{flex:1; height:88px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; color:#fff; font-size:13px; text-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .pair .verdict{padding:10px 16px; font-size:14px;}
+  .same{color:#9fa68f; font-weight:700;} .split{color:#c08374; font-weight:700;}
+  /* ───── 色票牆 ───── */
+  .wall{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px;}
+  .chip{border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+  .chip .sw{height:64px;}
+  .chip .meta{padding:8px 10px; font-size:12px;}
+  .chip .meta .nm{font-weight:700; font-size:13px;}
+  .chip .meta code{font-family:monospace; color:var(--ink2); font-size:11px;}
+  /* ───── 圖示 ───── */
+  .icon-row{display:flex; gap:26px; flex-wrap:wrap; align-items:flex-end;}
+  .icon-cell{text-align:center; padding:18px 20px; border:1px solid var(--border); border-radius:14px; min-width:130px; background:#fff;}
+  .icon-cell.winner{border:2px solid var(--gold); box-shadow:0 0 0 4px var(--gold-light);}
+  .icon-cell svg{stroke:var(--ink); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  .icon-cell .nm{font-weight:700; margin-top:12px; font-size:16px;}
+  .icon-cell .use{font-size:13px; color:var(--ink2); margin-top:2px;}
+  .icon-cell .crown{font-size:12px; color:var(--gold-hover); font-weight:700; margin-top:6px;}
+  .size-row{display:flex; gap:30px; flex-wrap:wrap; align-items:flex-end; padding:10px 0;}
+  .size-cell{text-align:center;}
+  .size-cell svg{stroke:var(--ink); stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; display:block; margin:0 auto;}
+  .size-cell .lb{font-size:13px; color:var(--ink2); margin-top:8px; font-family:monospace;}
+  /* ───── 按鈕 ───── */
+  .btn-row{display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin:6px 0;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 18px;
+    border-radius:8px; font-size:15px; font-weight:600; cursor:default; border:1px solid transparent;
+    font-family:var(--sans);
+  }
+  .btn svg{width:16px; height:16px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  /* default 淡金漸層 */
+  .btn-default{background:linear-gradient(135deg,#f8eede 0%,#f5e8d3 50%,#ecd9bb 100%); color:#5c4a2f; border-color:#efe2c8;}
+  .btn-destructive{background:#c08374; color:#fff;}
+  .btn-outline{border:1px solid rgba(201,170,124,.3); background:linear-gradient(135deg,#f6f4f1,rgba(232,229,224,.2)); color:#3a3633;}
+  .btn-soft-gold{background:rgba(201,170,124,.08); color:#3a3633; border:1px solid rgba(201,170,124,.2);}
+  .btn-header{background:linear-gradient(135deg,#fff,rgba(232,229,224,.3)); border:1px solid rgba(201,170,124,.3); color:#3a3633; border-radius:12px; box-shadow:0 8px 16px -4px rgba(180,160,120,.12);}
+  .btn-label{font-size:12px; color:var(--ink2); font-family:monospace; display:block; text-align:center; margin-top:6px;}
+  .btn-stack{display:flex; flex-direction:column; align-items:center;}
+  /* 操作欄三套 */
+  .actionbar{display:flex; gap:6px; align-items:center;}
+  .ab-btn{display:inline-flex; align-items:center; gap:3px; height:28px; padding:0 6px; border-radius:5px; font-size:13px; font-weight:500; border:none; background:transparent; cursor:default;}
+  .ab-btn svg{width:13px; height:13px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  .ab-default{color:#8b8680;}
+  .ab-danger{color:#c08374;}
+  .ab-inline-grad{display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:8px; background:linear-gradient(135deg,#c9aa7c,#b8996b); color:#fff; font-size:14px; font-weight:600; border:none;}
+  .approach{border:1px solid var(--border); border-radius:14px; padding:18px 20px; flex:1; min-width:260px;}
+  .approach .ph{font-weight:700; margin-bottom:12px; font-size:16px;}
+  .approach .desc{font-size:13px; color:var(--ink2); margin-top:12px;}
+  /* ───── Badge ───── */
+  .badge{display:inline-flex; align-items:center; padding:3px 12px; border-radius:999px; font-size:13px; font-weight:500; white-space:nowrap;}
+  .badge-row{display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin:8px 0;}
+  .b-pending{background:rgba(139,134,128,.15); color:#8b8680;}
+  .b-info{background:rgba(139,164,180,.15); color:#8ba4b4;}
+  .b-success{background:rgba(159,166,143,.15); color:#9fa68f;}  /* 美術綠 */
+  .b-warning{background:rgba(212,165,116,.15); color:#d4a574;}
+  .b-danger{background:rgba(192,131,116,.15); color:#c08374;}   /* 美術紅 */
+  .b-neutral{background:#e8e5e0; color:#3a3633;}
+  .b-flag{outline:2px dashed #c08374; outline-offset:2px;}
+  /* 手刻 Tailwind 預設色 badge */
+  .b-tw-amber{background:#fef3c7; color:#b45309;}
+  .b-tw-green{background:#dcfce7; color:#15803d;}
+  .b-tw-red{background:#fee2e2; color:#b91c1c;}
+  .b-tw-blue{background:#dbeafe; color:#1d4ed8;}
+  .badge-stack{display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .badge-stack .tn{font-size:11px; color:var(--ink2); font-family:monospace;}
+  /* ───── bug ───── */
+  .bug-row{display:flex; gap:30px; flex-wrap:wrap;}
+  .bug-cell{flex:1; min-width:280px; border:1px solid var(--border); border-radius:14px; padding:22px; text-align:center;}
+  .bug-cell.bad{border-color:#c08374; background:#faf4f2;}
+  .bug-cell.good{border-color:#9fa68f; background:#f4f6f2;}
+  .bug-cell .ph{font-weight:700; margin-bottom:18px;}
+  .bug-cell code{font-family:monospace; font-size:13px; background:#fff; padding:2px 8px; border-radius:6px; border:1px solid var(--border);}
+  .red-dot{display:inline-block; width:18px; height:18px; border-radius:999px;}
+  .rd-broken{background:transparent; border:1px dashed #ccc;} /* bg-status-danger-bg0 = 不存在 = 透明 */
+  .rd-ok{background:#c08374;}
+  .notif{position:relative; display:inline-block; padding:10px 18px; background:#fff; border:1px solid var(--border); border-radius:10px; font-size:14px;}
+  .notif .dot{position:absolute; top:-6px; right:-6px; min-width:18px; height:18px; border-radius:999px; color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; padding:0 5px; box-shadow:0 0 0 2px #fff;}
+  /* ───── 概覽清單 ───── */
+  .overview{background:#fff; border:1px solid var(--border); border-radius:18px; padding:8px 0; margin:30px 0 0;}
+  .ov-item{display:flex; gap:16px; align-items:flex-start; padding:16px 26px; border-bottom:1px solid var(--border);}
+  .ov-item:last-child{border-bottom:none;}
+  .ov-item .no{width:32px; height:32px; border-radius:999px; background:var(--gold-light); color:var(--gold-hover); display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; font-family:var(--serif);}
+  .ov-item .txt b{display:block; font-size:17px;}
+  .ov-item .txt span{font-size:15px; color:var(--ink2);}
+  footer{padding:40px 0 60px; text-align:center; color:var(--ink2); font-size:14px;}
+  .legend{display:flex; gap:22px; flex-wrap:wrap; font-size:14px; margin:14px 0; color:var(--ink2);}
+  .legend .k{display:inline-flex; align-items:center; gap:7px;}
+  .legend .box{width:16px; height:16px; border-radius:4px; display:inline-block;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="stamp">VENTURO · UI 視覺對比 styleguide</span>
+    <h1>同一個東西、現在長了好幾個樣 —— 請你挑哪個當全站標準</h1>
+    <p class="sub">這份不是文字報告、是「把不一致的 UI 真的畫出來並排給你看」。你用眼睛對比哪裡不一樣、在每組底下挑一個當統一標準、我再去全站改成那一個。</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#c1">🎨 顏色軌分岔</a>
+    <a href="#c2">✏️ 編輯圖示 4 種</a>
+    <a href="#c3">📏 圖示尺寸三軌</a>
+    <a href="#c4">🔘 按鈕變體</a>
+    <a href="#c5">🏷️ 狀態標籤</a>
+    <a href="#c6">🚨 真 bug</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- 概覽 -->
+  <section style="border-bottom:none; padding-bottom:24px;">
+    <h2>一句話總結</h2>
+    <p class="lead">全站視覺現在最大的毛病是「<b style="color:#c08374">一個概念有兩條色軌</b>」：同樣是「成功 / 失敗」，有的地方貼<b>美術色</b>（莫蘭迪綠 / 紅）、有的地方貼<b>語意色</b>（status-success / danger）。在預設莫蘭迪主題這兩條剛好同色、看不出問題；<b>一切到 airtable / 克萊因藍主題就分岔成兩種綠、兩種紅</b>，畫面就花了。其餘是圖示款式、尺寸、按鈕做法各自為政。下面六組請你逐一挑。</p>
+
+    <div class="overview">
+      <div class="ov-item"><div class="no">1</div><div class="txt"><b>🎨 顏色軌分岔（最嚴重）</b><span>美術色 vs 語意色 —— 換主題就分裂。請選：全站統一貼語意色？</span></div></div>
+      <div class="ov-item"><div class="no">2</div><div class="txt"><b>✏️ 編輯圖示 4 種混用</b><span>Edit2 / Pencil / Edit / SquarePen 同時在用。請選一個當「編輯」唯一圖示。</span></div></div>
+      <div class="ov-item"><div class="no">3</div><div class="txt"><b>📏 圖示尺寸三軌</b><span>12 / 14 / 16 / 20px / 0.95em 都有人用。請選一種尺寸。</span></div></div>
+      <div class="ov-item"><div class="no">4</div><div class="txt"><b>🔘 按鈕變體與操作欄三套做法</b><span>共用 Button 有 5 種樣式 + 操作欄三套不同寫法。請選操作欄標準。</span></div></div>
+      <div class="ov-item"><div class="no">5</div><div class="txt"><b>🏷️ 狀態標籤兩套機制</b><span>共用 StatusBadge vs 手刻 Tailwind 預設色。請選只留 StatusBadge？</span></div></div>
+      <div class="ov-item"><div class="no">6</div><div class="txt"><b>🚨 真 bug（打錯字 → 紅點不見了）</b><span>AI 未讀紅點的底色 token 多打一個「0」、實際渲染變透明。確認修。</span></div></div>
+    </div>
+  </section>
+
+
+  <!-- ════════ 1. 顏色軌分岔 ════════ -->
+  <section id="c1">
+    <h2>🎨 1. 顏色軌分岔 ── 同一個「成功 / 失敗」、貼了兩條不同色軌</h2>
+    <p class="lead">下面是 4 套主題（你能在系統右上角切換）。每套主題裡，我把「美術色」跟「語意色」上下並排。重點看：<b>預設莫蘭迪</b>兩塊同色 → 換到 <b>airtable / 克萊因藍</b> 就分裂成兩種綠、兩種紅。</p>
+
+    <div class="legend">
+      <span class="k"><span class="box" style="background:#3a3633;"></span>美術色（morandi-green / morandi-red）</span>
+      <span class="k"><span class="box" style="background:#c9aa7c;"></span>語意色（status-success / status-danger）</span>
+      <span class="k"><span class="box" style="outline:3px solid #c08374; outline-offset:-3px; background:#fff;"></span>紅框 = 此主題下兩軌分岔</span>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">成功色：美術綠 vs 語意成功色</h3>
+      <div class="theme-grid">
+        <div class="rowlabel" style="border-bottom:2px solid var(--border);"></div>
+        <div class="th">莫蘭迪（預設）</div>
+        <div class="th">鐵灰 iron</div>
+        <div class="th">Airtable</div>
+        <div class="th">克萊因藍</div>
+
+        <!-- morandi-green 列 -->
+        <div class="rowlabel"><b>美術綠</b><small>morandi-green</small></div>
+        <div class="swatch art" style="background:#9fa68f;"><code>#9fa68f</code></div>
+        <div class="swatch art" style="background:#6f9285;"><code>#6f9285</code></div>
+        <div class="swatch art diverge" style="background:#006400;"><code>#006400</code></div>
+        <div class="swatch art diverge" style="background:#5c8765;"><code>#5c8765</code></div>
+
+        <!-- status-success 列 -->
+        <div class="rowlabel"><b>語意成功</b><small>status-success</small></div>
+        <div class="swatch sem" style="background:#9fa68f;"><code>#9fa68f</code></div>
+        <div class="swatch sem" style="background:#9fa68f;"><code>#9fa68f</code></div>
+        <div class="swatch sem diverge" style="background:#9fa68f;"><code>#9fa68f</code></div>
+        <div class="swatch sem diverge" style="background:#4d8259;"><code>#4d8259</code></div>
+      </div>
+      <p class="matrix-note">⚠️ <b style="color:#c08374">Airtable 主題下分岔最明顯：</b>美術綠 = <code>#006400</code>（深墨綠），語意成功 = <code>#9fa68f</code>（莫蘭迪灰綠）。同樣標「成功」，兩塊差超多 → 畫面同時出現兩種綠就是「花掉」的來源。<br>（鐵灰 iron 主題沒覆寫 status-* → 語意成功仍是 <code>#9fa68f</code>，但美術綠變 <code>#6f9285</code>，一樣分岔。）</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">危險色：美術紅 vs 語意危險色</h3>
+      <div class="theme-grid">
+        <div class="rowlabel" style="border-bottom:2px solid var(--border);"></div>
+        <div class="th">莫蘭迪（預設）</div>
+        <div class="th">鐵灰 iron</div>
+        <div class="th">Airtable</div>
+        <div class="th">克萊因藍</div>
+
+        <div class="rowlabel"><b>美術紅</b><small>morandi-red</small></div>
+        <div class="swatch art" style="background:#c08374;"><code>#c08374</code></div>
+        <div class="swatch art" style="background:#b3716a;"><code>#b3716a</code></div>
+        <div class="swatch art diverge" style="background:#c44545;"><code>#c44545</code></div>
+        <div class="swatch art diverge" style="background:#a86859;"><code>#a86859</code></div>
+
+        <div class="rowlabel"><b>語意危險</b><small>status-danger</small></div>
+        <div class="swatch sem" style="background:#c08374;"><code>#c08374</code></div>
+        <div class="swatch sem" style="background:#c08374;"><code>#c08374</code></div>
+        <div class="swatch sem diverge" style="background:#c08374;"><code>#c08374</code></div>
+        <div class="swatch sem diverge" style="background:#a86859;"><code>#a86859</code></div>
+      </div>
+      <p class="matrix-note">⚠️ Airtable 主題：美術紅 = <code>#c44545</code>（鮮紅），語意危險 = <code>#c08374</code>（莫蘭迪磚紅）。同樣標「失敗 / 刪除」，紅得不一樣。</p>
+    </div>
+
+    <div class="biz">
+      <b>白話：</b>同樣是「成功」這件事，有的頁面貼上面那塊（美術綠），有的頁面貼下面那塊（語意綠）。<b>在預設主題你看不出差別、因為兩塊剛好調成一樣的顏色</b>。但客戶一旦切到 airtable 藍或克萊因藍主題，同一個畫面就會同時出現「深墨綠」跟「灰綠」兩種成功色 —— 看起來就像沒對齊、廉價。失敗的紅色同樣有這個毛病。
+    </div>
+    <div class="pick"><span class="tag">建議統一</span> 全站「成功 / 失敗 / 警告 / 資訊」一律貼<b>語意色（status-*）</b>，不要再用美術色（morandi-green / morandi-red）當狀態。美術色只當「品牌裝飾」用，不背狀態語意。 ←&nbsp;<b>請確認採用</b></div>
+
+    <!-- 完整色票牆 -->
+    <h3 style="margin-top:48px;">完整色票牆（預設莫蘭迪主題實際 hex）</h3>
+    <p class="lead" style="margin-bottom:18px;">全部可用色塊一次攤開，標變數名 + hex。這是「調色盤」，方便你指認「我要那一塊」。</p>
+
+    <h3 style="font-size:19px;">主品牌 / 中性</h3>
+    <div class="wall">
+      <div class="chip"><div class="sw" style="background:#c9aa7c;"></div><div class="meta"><div class="nm">主品牌金</div><code>morandi-gold #c9aa7c</code></div></div>
+      <div class="chip"><div class="sw" style="background:#b8996b;"></div><div class="meta"><div class="nm">金 hover</div><code>gold-hover #b8996b</code></div></div>
+      <div class="chip"><div class="sw" style="background:#f7efe2;"></div><div class="meta"><div class="nm">金淺底</div><code>gold-light #f7efe2</code></div></div>
+      <div class="chip"><div class="sw" style="background:#3a3633;"></div><div class="meta"><div class="nm" style="color:#fff">主文字</div><code style="color:#cbb">primary #3a3633</code></div></div>
+      <div class="chip"><div class="sw" style="background:#8b8680;"></div><div class="meta"><div class="nm">次文字</div><code>secondary #8b8680</code></div></div>
+      <div class="chip"><div class="sw" style="background:#b8b2aa;"></div><div class="meta"><div class="nm">弱化</div><code>muted #b8b2aa</code></div></div>
+      <div class="chip"><div class="sw" style="background:#e8e5e0;"></div><div class="meta"><div class="nm">容器底</div><code>container #e8e5e0</code></div></div>
+      <div class="chip"><div class="sw" style="background:#9fa68f;"></div><div class="meta"><div class="nm">美術綠</div><code>green #9fa68f</code></div></div>
+      <div class="chip"><div class="sw" style="background:#c08374;"></div><div class="meta"><div class="nm">美術紅</div><code>red #c08374</code></div></div>
+      <div class="chip"><div class="sw" style="background:#faf7f3;"></div><div class="meta"><div class="nm">奶油</div><code>cream #faf7f3</code></div></div>
+      <div class="chip"><div class="sw" style="background:#f6f4f1;"></div><div class="meta"><div class="nm">頁底</div><code>background #f6f4f1</code></div></div>
+      <div class="chip"><div class="sw" style="background:#ffffff; border-bottom:1px solid #eee;"></div><div class="meta"><div class="nm">卡片</div><code>card #ffffff</code></div></div>
+    </div>
+
+    <h3 style="font-size:19px; margin-top:30px;">語意狀態色（建議全站只用這套背狀態）</h3>
+    <div class="wall">
+      <div class="chip"><div class="sw" style="background:#8ba4b4;"></div><div class="meta"><div class="nm">資訊</div><code>status-info #8ba4b4</code></div></div>
+      <div class="chip"><div class="sw" style="background:#f0f4f6;"></div><div class="meta"><div class="nm">資訊底</div><code>info-bg #f0f4f6</code></div></div>
+      <div class="chip"><div class="sw" style="background:#9fa68f;"></div><div class="meta"><div class="nm">成功</div><code>status-success #9fa68f</code></div></div>
+      <div class="chip"><div class="sw" style="background:#f4f6f2;"></div><div class="meta"><div class="nm">成功底</div><code>success-bg #f4f6f2</code></div></div>
+      <div class="chip"><div class="sw" style="background:#d4a574;"></div><div class="meta"><div class="nm">警告</div><code>status-warning #d4a574</code></div></div>
+      <div class="chip"><div class="sw" style="background:#faf6f0;"></div><div class="meta"><div class="nm">警告底</div><code>warning-bg #faf6f0</code></div></div>
+      <div class="chip"><div class="sw" style="background:#c08374;"></div><div class="meta"><div class="nm">危險</div><code>status-danger #c08374</code></div></div>
+      <div class="chip"><div class="sw" style="background:#faf4f2;"></div><div class="meta"><div class="nm">危險底</div><code>danger-bg #faf4f2</code></div></div>
+      <div class="chip"><div class="sw" style="background:#8b8680;"></div><div class="meta"><div class="nm">中性</div><code>status-neutral #8b8680</code></div></div>
+      <div class="chip"><div class="sw" style="background:#f6f5f3;"></div><div class="meta"><div class="nm">中性底</div><code>neutral-bg #f6f5f3</code></div></div>
+    </div>
+
+    <h3 style="font-size:19px; margin-top:30px;">類別色（cat-* — 用於獎金類型 / 角色 badge 等需要區分的場景）</h3>
+    <div class="wall">
+      <div class="chip"><div class="sw" style="background:#a08ab5;"></div><div class="meta"><div class="nm">紫</div><code>cat-purple #a08ab5</code></div></div>
+      <div class="chip"><div class="sw" style="background:#efe8f3;"></div><div class="meta"><div class="nm">紫底</div><code>cat-purple-bg #efe8f3</code></div></div>
+      <div class="chip"><div class="sw" style="background:#c49a74;"></div><div class="meta"><div class="nm">橘</div><code>cat-orange #c49a74</code></div></div>
+      <div class="chip"><div class="sw" style="background:#f5ebe0;"></div><div class="meta"><div class="nm">橘底</div><code>cat-orange-bg #f5ebe0</code></div></div>
+      <div class="chip"><div class="sw" style="background:#c48a9e;"></div><div class="meta"><div class="nm">粉</div><code>cat-pink #c48a9e</code></div></div>
+      <div class="chip"><div class="sw" style="background:#f5e7ed;"></div><div class="meta"><div class="nm">粉底</div><code>cat-pink-bg #f5e7ed</code></div></div>
+      <div class="chip"><div class="sw" style="background:#8a95b5;"></div><div class="meta"><div class="nm">靛</div><code>cat-indigo #8a95b5</code></div></div>
+      <div class="chip"><div class="sw" style="background:#e8ebf3;"></div><div class="meta"><div class="nm">靛底</div><code>cat-indigo-bg #e8ebf3</code></div></div>
+    </div>
+  </section>
+
+
+  <!-- ════════ 2. 編輯圖示 ════════ -->
+  <section id="c2">
+    <h2>✏️ 2. 編輯圖示 ── 4 種「鉛筆」同時在全站使用</h2>
+    <p class="lead">同樣是「編輯」這個動作，列表 / 表單 / 設定頁各自挑了不同的鉛筆圖示。下面用真實 lucide SVG 同尺寸（24px）畫出來，下面標全站使用次數。請挑一個當「編輯」唯一圖示。</p>
+
+    <div class="card">
+      <div class="icon-row">
+        <div class="icon-cell winner">
+          <svg width="44" height="44" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          <div class="nm">Edit2</div>
+          <div class="use">全站用 38 次（最多）</div>
+          <div class="crown">★ 建議統一成這個</div>
+        </div>
+        <div class="icon-cell">
+          <svg width="44" height="44" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          <div class="nm">Pencil</div>
+          <div class="use">全站用 25 次</div>
+        </div>
+        <div class="icon-cell">
+          <svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+          <div class="nm">Edit</div>
+          <div class="use">全站用 15 次</div>
+        </div>
+        <div class="icon-cell">
+          <svg width="44" height="44" viewBox="0 0 24 24"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+          <div class="nm">SquarePen</div>
+          <div class="use">全站用 6 次</div>
+        </div>
+      </div>
+      <p class="matrix-note" style="margin-top:18px;">註：lucide 新版把 <code>Edit2</code> 跟 <code>Pencil</code> 都對應到同一支「斜鉛筆」path（看起來一樣）；<code>Edit</code> 跟 <code>SquarePen</code> 都是「方框內鉛筆」（也一樣）。所以實際畫面上是<b>兩種長相</b>、但 code 裡有<b>四個名字</b>在亂用 → 維護時容易誤判。</p>
+    </div>
+
+    <div class="biz"><b>白話：</b>就像四個櫃台、有的掛「斜鉛筆」牌、有的掛「方框鉛筆」牌，其實都是「改資料」的意思。客戶看不同頁面會覺得「這兩個按鈕是不是不一樣功能？」統一成一個，認知負擔最低。</div>
+    <div class="pick"><span class="tag">建議統一</span> 全站「編輯」一律用 <b>Edit2</b>（用最多、最不用改）。其餘 Pencil / Edit / SquarePen 收斂掉。 ←&nbsp;<b>請確認，或改選你喜歡的那一個</b></div>
+  </section>
+
+
+  <!-- ════════ 3. 圖示尺寸 ════════ -->
+  <section id="c3">
+    <h2>📏 3. 圖示尺寸 ── 同一個圖示、五種大小</h2>
+    <p class="lead">用同一個 Edit2 圖示，把全站實際出現過的尺寸並排畫出來。你會看到大小參差。請挑一種當操作圖示標準尺寸。</p>
+
+    <div class="card">
+      <div class="size-row">
+        <div class="size-cell">
+          <svg width="12" height="12" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          <div class="lb">12px</div>
+        </div>
+        <div class="size-cell">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          <div class="lb">14px</div>
+        </div>
+        <div class="size-cell">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          <div class="lb">16px = w-4 h-4</div>
+        </div>
+        <div class="size-cell">
+          <svg width="15.5" height="15.5" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          <div class="lb">0.95em（≈16px）</div>
+        </div>
+        <div class="size-cell">
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
+          <div class="lb">20px</div>
+        </div>
+      </div>
+      <p class="matrix-note" style="margin-top:18px;">操作欄共用骨架（ActionCell）目前用 <code>0.95em</code>（會隨字級縮放）；共用 Button 內建 <code>size-4</code>（固定 16px）；少數頁面手寫 12 / 14 / 20px。</p>
+    </div>
+
+    <div class="biz"><b>白話：</b>同一排操作按鈕，有的圖示偏小、有的偏大，眼睛掃過去會覺得「沒對齊」。挑一個尺寸、全站收斂，視覺才整齊。</div>
+    <div class="pick"><span class="tag">建議統一</span> 操作欄圖示統一 <b>16px（= w-4 h-4 = lucide 預設）</b>；需要隨字級縮放的場景才用 0.95em。 ←&nbsp;<b>請確認</b></div>
+  </section>
+
+
+  <!-- ════════ 4. 按鈕 ════════ -->
+  <section id="c4">
+    <h2>🔘 4. 按鈕 ── 共用 Button 五種變體 + 操作欄三套做法</h2>
+    <p class="lead">先看共用 Button 五種樣式真實長相（這些是「設計好的、OK 的」變體、只是給你確認哪個當主 CTA）。再看操作欄三套各自為政的做法 —— 這個才是要收斂的。</p>
+
+    <div class="card">
+      <h3 style="margin-top:0;">共用 Button 變體（真實渲染）</h3>
+      <div class="btn-row">
+        <div class="btn-stack">
+          <button class="btn btn-default"><svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></svg>新增</button>
+          <span class="btn-label">default（主 CTA · 淡金漸層）</span>
+        </div>
+        <div class="btn-stack">
+          <button class="btn btn-destructive"><svg viewBox="0 0 24 24"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>刪除</button>
+          <span class="btn-label">destructive</span>
+        </div>
+        <div class="btn-stack">
+          <button class="btn btn-outline">外框按鈕</button>
+          <span class="btn-label">outline</span>
+        </div>
+        <div class="btn-stack">
+          <button class="btn btn-soft-gold">次操作</button>
+          <span class="btn-label">soft-gold（取消 / 編輯）</span>
+        </div>
+        <div class="btn-stack">
+          <button class="btn btn-header">⚙ 設定</button>
+          <span class="btn-label">header-outline（頁面右上）</span>
+        </div>
+      </div>
+      <p class="matrix-note" style="margin-top:16px;">這五個是設計好的、彼此有層次（default 拍板 / soft-gold 次要 / header 右上工具）。<b>這組沒大問題</b>，只是確認主 CTA = default 淡金漸層。</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">操作欄三套做法（這個要收斂）</h3>
+      <p class="lead" style="margin-bottom:24px;">同樣是列表每一行右邊的「編輯 / 刪除」，三種頁面用三種寫法。並排看差異：</p>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+
+        <div class="approach">
+          <div class="ph">① ActionCell 黃金標準（訂單管理）</div>
+          <div class="actionbar">
+            <button class="ab-btn ab-default"><svg viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>編輯</button>
+            <button class="ab-btn ab-danger"><svg viewBox="0 0 24 24"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>刪除</button>
+          </div>
+          <div class="desc">高 28px、圖示+文字、灰色 hover 金底；危險走語意紅。<b style="color:#9fa68f">← 這套是黃金標準。</b></div>
+        </div>
+
+        <div class="approach">
+          <div class="ph">② 只剩骨架、沒上色（部分頁面）</div>
+          <div class="actionbar">
+            <button class="ab-btn" style="color:#999; border:1px solid #ddd;"><svg viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>編輯</button>
+            <button class="ab-btn" style="color:#999; border:1px solid #ddd;"><svg viewBox="0 0 24 24"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>刪除</button>
+          </div>
+          <div class="desc">有骨架但沒接語意色、刪除沒變紅，跟黃金標準長得不一樣。</div>
+        </div>
+
+        <div class="approach">
+          <div class="ph">③ 認證頁 inline 漸層大按鈕</div>
+          <div class="actionbar">
+            <button class="ab-inline-grad">確認</button>
+          </div>
+          <div class="desc">登入 / 認證頁自己手寫的金漸層大按鈕，跟列表操作欄完全兩種風格。</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="biz"><b>白話：</b>同樣是「每一行右邊的編輯 / 刪除」，訂單頁長一個樣、別的頁長另一個樣、刪除有的紅有的灰。客戶在不同頁面操作會覺得「這軟體是不是好幾組人各做各的」。</div>
+    <div class="pick"><span class="tag">建議統一</span> 全站列表操作欄一律走 <b>① ActionCell 黃金標準</b>（已是 SSOT，只差把②③收編進來）。 ←&nbsp;<b>請確認</b></div>
+  </section>
+
+
+  <!-- ════════ 5. 狀態標籤 ════════ -->
+  <section id="c5">
+    <h2>🏷️ 5. 狀態標籤 ── 共用 StatusBadge vs 手刻 Tailwind 色</h2>
+    <p class="lead">先看共用 StatusBadge 六個 tone 真實長相（注意 success / danger 用美術色、會跟主題分岔 → 接第 1 組那個問題）。再並排「有人不用共用組件、自己手刻 Tailwind 預設色 badge」。</p>
+
+    <div class="card">
+      <h3 style="margin-top:0;">共用 StatusBadge 六個 tone（真實渲染）</h3>
+      <div class="badge-row">
+        <div class="badge-stack"><span class="badge b-pending">待處理</span><span class="tn">pending</span></div>
+        <div class="badge-stack"><span class="badge b-info">進行中</span><span class="tn">info（語意）</span></div>
+        <div class="badge-stack"><span class="badge b-success b-flag">已完成</span><span class="tn" style="color:#c08374">success（美術綠⚠）</span></div>
+        <div class="badge-stack"><span class="badge b-warning">過期</span><span class="tn">warning（語意）</span></div>
+        <div class="badge-stack"><span class="badge b-danger b-flag">已取消</span><span class="tn" style="color:#c08374">danger（美術紅⚠）</span></div>
+        <div class="badge-stack"><span class="badge b-neutral">未分類</span><span class="tn">neutral</span></div>
+      </div>
+      <p class="matrix-note" style="margin-top:16px;">⚠️ <b style="color:#c08374">紅虛線框那兩個（success / danger）用美術色 morandi-green / morandi-red</b>，但 info / warning 用語意色 status-info / status-warning。<b>同一個組件裡半套美術、半套語意</b> → 換主題時這兩個 tone 會跟其他 tone 不同步分岔。</p>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">兩套機制並排：共用組件 vs 手刻 Tailwind</h3>
+      <div class="pair-row" style="align-items:stretch;">
+        <div class="pair">
+          <div class="ph">✅ 共用 StatusBadge（柔和半透明 pill）</div>
+          <div style="padding:24px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; background:#fff;">
+            <span class="badge b-warning">待補資料</span>
+            <span class="badge b-success">已通過</span>
+            <span class="badge b-danger">已退回</span>
+            <span class="badge b-info">處理中</span>
+          </div>
+          <div class="verdict"><span class="same">隨主題連動、半透明同色字、無邊框。</span></div>
+        </div>
+        <div class="pair">
+          <div class="ph">❌ 手刻 Tailwind 預設色（散落各頁）</div>
+          <div style="padding:24px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; background:#fff;">
+            <span class="badge b-tw-amber">待補資料</span>
+            <span class="badge b-tw-green">已通過</span>
+            <span class="badge b-tw-red">已退回</span>
+            <span class="badge b-tw-blue">處理中</span>
+          </div>
+          <div class="verdict"><span class="split">寫死 amber/green/red/blue、不隨主題變、顏色偏鮮豔、跟莫蘭迪不搭。違反 UI 紅線。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="biz"><b>白話：</b>左邊是公司統一做的柔和標籤（會跟著主題換色）；右邊是有些頁面圖方便、自己貼了「Tailwind 內建的鮮豔紅黃綠藍」。右邊那種一換主題不會變、而且顏色太亮、跟莫蘭迪的素雅調性打架，像穿花襯衫進公司。</div>
+    <div class="pick"><span class="tag">建議統一</span> ①全站狀態標籤只用 <b>共用 StatusBadge</b>，手刻 Tailwind 色全部收編。②順手把 StatusBadge 的 success / danger 從美術色改成<b>語意色</b>（呼應第 1 組）。 ←&nbsp;<b>請確認這兩件</b></div>
+  </section>
+
+
+  <!-- ════════ 6. 真 bug ════════ -->
+  <section id="c6">
+    <h2>🚨 6. 真 bug ── 打錯一個字，紅點直接消失</h2>
+    <p class="lead">這不是「選哪個」，是「確認要不要修」。AI 助理的未讀紅點，底色 token 被多打了一個「<b>0</b>」（<code>bg-status-danger-bg0</code>），系統裡根本沒這個顏色 → 渲染出來是透明的，紅點等於隱形。並排看實際長相：</p>
+
+    <div class="card">
+      <div class="bug-row">
+        <div class="bug-cell bad">
+          <div class="ph" style="color:#c08374;">❌ 現況（打錯字 = 透明）</div>
+          <div style="display:flex; gap:30px; justify-content:center; align-items:center; margin:24px 0;">
+            <div style="text-align:center;">
+              <div class="notif">AI 對話<span class="dot rd-broken">3</span></div>
+              <div style="font-size:12px; color:#999; margin-top:14px;">紅底沒出來、數字飄在外面</div>
+            </div>
+            <span class="red-dot rd-broken"></span>
+          </div>
+          <code>bg-status-danger-bg0</code>
+          <p style="font-size:13px; color:#8b8680; margin:14px 0 0;">多了結尾的「0」、CSS 找不到這個 class → 沒套到任何背景色。出現在 AI 對話分頁 / 側邊欄未讀數共 3 處。</p>
+        </div>
+        <div class="bug-cell good">
+          <div class="ph" style="color:#9fa68f;">✅ 修正後（正確紅底）</div>
+          <div style="display:flex; gap:30px; justify-content:center; align-items:center; margin:24px 0;">
+            <div style="text-align:center;">
+              <div class="notif">AI 對話<span class="dot rd-ok">3</span></div>
+              <div style="font-size:12px; color:#999; margin-top:14px;">紅底正常、一眼看到未讀</div>
+            </div>
+            <span class="red-dot rd-ok"></span>
+          </div>
+          <code>bg-status-danger</code>
+          <p style="font-size:13px; color:#8b8680; margin:14px 0 0;">拿掉多餘的「0」、改用正確的危險色 token，紅點就上色了。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="biz"><b>白話：</b>就像收銀機上「有新訂單」的紅燈，師傅接線時電線標籤多寫一個字、燈泡根本沒通電。客戶有 3 則未讀 AI 訊息，但那顆提醒紅點是透明的、看不到、會漏看訊息。改一個字就好。</div>
+
+    <div class="card" style="margin-top:26px;">
+      <h3 style="margin-top:0;">同類問題：用到「系統裡不存在的顏色」</h3>
+      <p class="lead" style="margin-bottom:20px;">badge 引用一個沒定義的 token（拼錯 / 沒建）時，會像下面右邊這樣 —— 字還在、但底色 / 字色掉了，變成「裸 badge」。這類「指向不存在的顏色」的寫法應一併揪出，避免畫面悄悄掉色。</p>
+      <div class="pair-row">
+        <div class="pair">
+          <div class="ph">✅ token 存在 → 正常上色</div>
+          <div style="padding:24px; background:#fff;"><span class="badge b-success">已核准</span></div>
+        </div>
+        <div class="pair">
+          <div class="ph">❌ token 不存在 → 裸 badge（沒底沒色）</div>
+          <div style="padding:24px; background:#fff;"><span class="badge" style="background:transparent; color:inherit; border:1px dashed #ccc;">已核准</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pick"><span class="tag">請確認修</span> ① 把 AI 那 3 處 <code>bg-status-danger-bg0</code> 改成 <code>bg-status-danger</code>（未讀紅點要紅底）。② 全站掃一遍有沒有其他「指向不存在 token」的裸 badge。 ←&nbsp;<b>低風險、純改字</b></div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    VENTURO ERP · UI 視覺對比 styleguide · 色值取自 <code>src/styles/tokens.css</code> 真實 hex · 圖示為 lucide-react v0.544 真實 path<br>
+    這份只供視覺對比與決策，未改動任何程式碼。你在每組挑定後，我再去全站收斂。
+  </div>
+</footer>
+
+</body>
+</html>

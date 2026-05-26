@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
-import { ArrowRightLeft, X } from 'lucide-react'
+import { ArrowRightLeft, CheckSquare, X } from 'lucide-react'
 
 const COMPONENT_LABELS = {
   PH_SEARCH_TOUR: '搜尋團號或團名...',
@@ -333,12 +333,12 @@ export function CostTransferDialog({
           {COMPONENT_LABELS.CANCEL}
         </Button>
         <Button
-          variant="soft-gold"
+          variant="morandi-gold"
           onClick={handleTransfer}
           disabled={transferring || selectedItems.size === 0 || !targetTourId}
           className="gap-2"
         >
-          {transferring ? <Spinner size="sm" /> : <ArrowRightLeft size={14} />}
+          {transferring ? <Spinner size="sm" /> : <CheckSquare size={14} />}
           {COMPONENT_LABELS.CONFIRM_TRANSFER}
         </Button>
       </div>

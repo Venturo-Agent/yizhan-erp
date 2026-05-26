@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Save, FilePlus, History, Trash2, Files } from 'lucide-react'
+import { CheckSquare, FilePlus, History, Trash2, Files } from 'lucide-react'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 import { alert } from '@/lib/ui/alert-dialog'
@@ -120,13 +120,13 @@ export function PublishButton({
       <div className="flex items-center gap-2">
         {/* 1. 存檔按鈕 */}
         <Button
-          variant="soft-gold"
+          variant="morandi-gold"
           onClick={saveItinerary}
           disabled={saving}
           size="sm"
           className="h-8 px-3"
         >
-          <Save size="0.875em" className="mr-1.5" />
+          <CheckSquare size="0.875em" />
           {saving ? COMP_EDITOR_LABELS.儲存中 : COMP_EDITOR_LABELS.存檔}
         </Button>
 

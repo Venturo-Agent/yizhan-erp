@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useCallback } from 'react'
-import { AlertTriangle, Info, X, RefreshCw } from 'lucide-react'
+import { AlertTriangle, CheckSquare, Info, X, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { MemberInfoForm } from './member-edit/MemberInfoForm'
@@ -307,7 +307,7 @@ export function MemberEditDialog({
               {t('cancel')}
             </Button>
             <Button
-              variant="soft-gold"
+              variant="morandi-gold"
               onClick={onSave}
               disabled={isSaving}
               size="lg"
@@ -317,6 +317,7 @@ export function MemberEditDialog({
                   : 'px-8 font-medium'
               }
             >
+              <CheckSquare size={16} />
               {isSaving
                 ? t('saving')
                 : editMode === 'verify'

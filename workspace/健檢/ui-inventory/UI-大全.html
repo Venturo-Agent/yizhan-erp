@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VENTURO ERP — 全站 UI 大全（91 路由普查彙整）</title>
+<style>
+  :root{
+    --gold:#c9aa7c; --gold-hover:#b8966a; --gold-light:#f0e8dc;
+    --ink:#3a3633; --muted:#8b8680; --bg:#f6f4f1; --card:#ffffff;
+    --line:#e6e0d8; --line-soft:#efe9e1;
+    --success:#9fa68f; --success-bg:#eef0ea;
+    --danger:#c08374; --danger-bg:#f5e9e5;
+    --warning:#d4a574; --warning-bg:#f7efe4;
+    --info:#8ba4b4; --info-bg:#eaf0f3;
+    --serif:'Noto Serif TC',Georgia,'Songti TC',serif;
+    --sans:'Noto Sans TC','PingFang TC','Microsoft JhengHei',-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.7;font-size:15px;}
+  .layout{display:flex;align-items:flex-start;}
+  /* sidebar nav */
+  nav.toc{position:sticky;top:0;height:100vh;width:248px;flex:0 0 248px;overflow-y:auto;
+    background:#fffdfa;border-right:1px solid var(--line);padding:22px 14px;font-size:13px;}
+  nav.toc .brand{font-family:var(--serif);font-weight:700;font-size:17px;color:var(--gold-hover);margin-bottom:4px;}
+  nav.toc .sub{color:var(--muted);font-size:11px;margin-bottom:18px;}
+  nav.toc a{display:block;color:var(--ink);text-decoration:none;padding:5px 10px;border-radius:7px;margin:1px 0;}
+  nav.toc a:hover{background:var(--gold-light);color:var(--gold-hover);}
+  nav.toc a.danger{color:var(--danger);font-weight:600;}
+  nav.toc .group{margin-top:14px;font-size:10.5px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;padding:0 10px;}
+  main{flex:1;min-width:0;padding:42px 54px 120px;max-width:1180px;}
+  h1{font-family:var(--serif);font-size:32px;font-weight:700;margin:0 0 6px;letter-spacing:.01em;}
+  h2{font-family:var(--serif);font-size:24px;font-weight:700;margin:54px 0 14px;padding-bottom:9px;border-bottom:2px solid var(--gold-light);scroll-margin-top:20px;}
+  h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:30px 0 10px;color:var(--gold-hover);}
+  h4{font-size:15px;font-weight:700;margin:20px 0 8px;color:var(--ink);}
+  p{margin:9px 0;}
+  code{font-family:'SF Mono',Menlo,Consolas,monospace;font-size:12.5px;background:var(--gold-light);
+    padding:1.5px 6px;border-radius:5px;color:#7a5f3a;word-break:break-word;}
+  .lead{font-size:16px;color:var(--muted);max-width:760px;}
+  /* dashboard */
+  .dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:28px 0 8px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 16px;text-align:center;
+    box-shadow:0 1px 3px rgba(180,160,120,.07);}
+  .stat .num{font-family:var(--serif);font-size:38px;font-weight:700;color:var(--gold-hover);line-height:1;}
+  .stat .lbl{font-size:12px;color:var(--muted);margin-top:7px;}
+  .stat.danger .num{color:var(--danger);}
+  .stat.warn .num{color:var(--warning);}
+  /* callout cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;}
+  .bug{background:var(--danger-bg);border:1px solid #e3c3b9;border-left:5px solid var(--danger);border-radius:10px;padding:14px 18px;margin:14px 0;}
+  .bug .tag{display:inline-block;background:var(--danger);color:#fff;font-size:11px;font-weight:700;
+    padding:2px 9px;border-radius:20px;margin-bottom:7px;letter-spacing:.04em;}
+  .bug h4{margin:2px 0 6px;color:#8a4a3a;}
+  .good{background:var(--success-bg);border:1px solid #cdd4c2;border-left:5px solid var(--success);border-radius:10px;padding:14px 18px;margin:14px 0;}
+  .good .tag{display:inline-block;background:var(--success);color:#fff;font-size:11px;font-weight:700;
+    padding:2px 9px;border-radius:20px;margin-bottom:7px;}
+  .warn-box{background:var(--warning-bg);border:1px solid #e6cfa8;border-left:5px solid var(--warning);border-radius:10px;padding:14px 18px;margin:14px 0;}
+  .info-box{background:var(--info-bg);border:1px solid #c4d3da;border-left:5px solid var(--info);border-radius:10px;padding:14px 18px;margin:14px 0;}
+  /* tables */
+  table.dt{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px;background:var(--card);
+    border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+  table.dt th{background:#f3ede4;text-align:left;padding:9px 12px;font-weight:700;font-size:12px;
+    color:var(--ink);border-bottom:1px solid var(--line);}
+  table.dt td{padding:9px 12px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  table.dt tr:last-child td{border-bottom:none;}
+  table.dt tr:hover td{background:#fbf8f4;}
+  .x-bad{color:var(--danger);font-weight:700;}
+  .x-good{color:var(--success);font-weight:700;}
+  .x-warn{color:#b07d2e;font-weight:700;}
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:1px 8px;border-radius:20px;white-space:nowrap;}
+  .pill.b{background:var(--danger-bg);color:#9a5343;border:1px solid #e3c3b9;}
+  .pill.g{background:var(--success-bg);color:#5f6a4d;border:1px solid #cdd4c2;}
+  .pill.w{background:var(--warning-bg);color:#9a7327;border:1px solid #e6cfa8;}
+  .pill.i{background:var(--info-bg);color:#4d6c7a;border:1px solid #c4d3da;}
+  .pill.n{background:#efe9e1;color:var(--muted);border:1px solid var(--line);}
+  ul{margin:9px 0;padding-left:22px;}
+  li{margin:5px 0;}
+  /* collapsible page index */
+  details.mod{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:10px 0;overflow:hidden;}
+  details.mod>summary{cursor:pointer;padding:12px 16px;font-weight:700;font-family:var(--serif);font-size:15px;
+    background:#f7f1e9;list-style:none;display:flex;justify-content:space-between;align-items:center;}
+  details.mod>summary::-webkit-details-marker{display:none;}
+  details.mod>summary .cnt{font-size:12px;color:var(--muted);font-weight:400;}
+  details.mod[open]>summary{border-bottom:1px solid var(--line);}
+  table.idx{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.idx td{padding:7px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+  table.idx tr:last-child td{border-bottom:none;}
+  table.idx td.route{font-family:'SF Mono',monospace;font-size:12px;white-space:nowrap;color:#7a5f3a;width:1%;}
+  table.idx td.route a{color:#7a5f3a;text-decoration:none;}
+  table.idx td.route a:hover{text-decoration:underline;}
+  table.idx td.ty{width:1%;white-space:nowrap;}
+  .note{font-size:12.5px;color:var(--muted);font-style:normal;}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;margin:6px 0 0;}
+  hr{border:none;border-top:1px solid var(--line);margin:30px 0;}
+  .footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);}
+  .swatch{display:inline-block;width:13px;height:13px;border-radius:3px;vertical-align:middle;margin-right:5px;border:1px solid rgba(0,0,0,.08);}
+  .kbd{font-family:'SF Mono',monospace;font-size:11px;background:#efe9e1;padding:1px 5px;border-radius:4px;}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+  <div class="brand">VENTURO</div>
+  <div class="sub">全站 UI 大全 · 91 路由普查</div>
+  <a href="#overview">總覽儀表板</a>
+  <a href="#bugs" class="danger">真 Bug 區（先救命）</a>
+  <a href="#systems">三大設計系統並存</a>
+  <div class="group">跨頁元素變體</div>
+  <a href="#buttons">按鈕</a>
+  <a href="#actioncell">列表操作欄</a>
+  <a href="#editicon">編輯圖示</a>
+  <a href="#iconsize">圖示尺寸</a>
+  <a href="#colortrack">顏色軌（最重要）</a>
+  <a href="#badge">狀態 Badge</a>
+  <a href="#tailwind">Tailwind 預設色硬傷</a>
+  <a href="#native">原生控件</a>
+  <a href="#dialog">對話框</a>
+  <a href="#card">卡片 / 容器</a>
+  <a href="#empty">空狀態 / 載入</a>
+  <div class="group">深層</div>
+  <a href="#root">病根</a>
+  <a href="#models">正面範本</a>
+  <a href="#ssot">結構性 SSOT</a>
+  <a href="#plan">統一路線建議</a>
+  <a href="#pageindex">91 頁逐頁索引</a>
+</nav>
+
+<main>
+<h1 id="overview">VENTURO ERP — 全站 UI 大全</h1>
+<p class="lead">91 個路由逐頁盤點彙整。核心結論一句話：<strong>全站不是一套 UI、是三大設計系統並存</strong>，且共用層（StatusBadge、列表操作欄黃金標準）內部就用錯顏色軌，導致全站抄錯源頭。本文件按「先救命、再體檢、最後開藥方」組織。</p>
+
+<div class="dash">
+  <div class="stat"><div class="num">91</div><div class="lbl">路由總盤點</div></div>
+  <div class="stat"><div class="num">3</div><div class="lbl">並存的設計系統</div></div>
+  <div class="stat danger"><div class="num">5</div><div class="lbl">會壞畫面的真 Bug</div></div>
+  <div class="stat warn"><div class="num">11</div><div class="lbl">跨頁元素變體類</div></div>
+  <div class="stat"><div class="num">17</div><div class="lbl">對客公開頁</div></div>
+  <div class="stat"><div class="num">10</div><div class="lbl">純轉址殼 / dead code</div></div>
+</div>
+
+<div class="card">
+<h4>91 頁怎麼分（讀 md 確認後的分類）</h4>
+<table class="dt">
+<tr><th>類別</th><th>數量</th><th>說明</th></tr>
+<tr><td><strong>實質 ERP 內部頁</strong></td><td>約 56</td><td>有真正可操作的 UI（列表 / 表單 / 詳情 / 儀表板 / 設定 / 看板 / 行事曆 / 對話介面）。桌面 morandi 體系主體。</td></tr>
+<tr><td><strong>對客公開頁</strong></td><td>17</td><td>登入 / 認證 / 行銷 landing / 行程展示 / 提案 / 付款 / 簽約。多套獨立 CIS（見「三大設計系統」）。</td></tr>
+<tr><td><strong>純轉址殼 / dead code 殘留</strong></td><td>10</td><td><code>bot</code>×5（line/setup/fb/ig）+ <code>messaging</code> + <code>root</code> + <code>platform</code> + <code>websites</code> + <code>settings</code>。內容已遷移、組件殘留。</td></tr>
+<tr><td><strong>WIP 空殼 / placeholder</strong></td><td>7+</td><td><code>documents</code> / <code>shared-data/attractions</code> / <code>websites/design</code> / <code>websites/products</code> + 行動版 <code>app/calendar、app/orders、app/settings</code>（「即將推出」）。<code>finance/settings</code> 內含 1 個 placeholder tab。</td></tr>
+<tr><td><strong>外嵌 iframe</strong></td><td>1</td><td><code>platform/aitoearn</code>（純 iframe、無內部 UI）。</td></tr>
+</table>
+<p class="note">註：分類有交集（行動版 placeholder 同時屬「分岔設計系統」與「WIP」）；總數仍為 91 個路由。</p>
+</div>
+
+<!-- ============== BUGS ============== -->
+<h2 id="bugs">🚨 真 Bug 區（救護車式：先講會壞畫面的）</h2>
+<p>這幾個不是「風格不統一」，是 <strong>class 名 / token 名寫錯、瀏覽器解析失敗、樣式靜默掉光</strong>——畫面當下就是壞的。修這幾個成本最低、收益最高，建議第一優先。</p>
+
+<div class="bug">
+<span class="tag">BUG 1 · 高優先</span>
+<h4><code>bg-status-danger-bg0</code>（多打一個 0、未讀紅點沒底色）</h4>
+<p>AI Hub 未讀數紅點 <strong>3 處</strong>（主列表 / sidebar 展開態 / sidebar 收合態）都寫 <code>bg-status-danger-bg0</code>。合法 token 是 <code>bg-status-danger</code>（或 <code>-bg</code>），<code>-bg0</code> 不存在 → 紅點根本沒上色。</p>
+<p class="note">證據：<code>ai.md</code> L81、L123（譬喻：警報燈裝了、但燈泡型號寫錯、按下去不亮）。</p>
+</div>
+
+<div class="bug">
+<span class="tag">BUG 2 · 最嚴重 / 整頁</span>
+<h4><code>/visas</code> 整頁引用「不存在的」morandi 數字階 token</h4>
+<p>簽證頁的狀態 badge + 表單邊框 + 空狀態文字，全引用 <code>morandi-gray-200/300/500/700</code>、<code>morandi-blue-100/600</code>、<code>morandi-purple-100/600</code>、<code>morandi-green-100/600</code>、<code>morandi-red-100/500/600</code>。但 <code>tokens.css</code> 只定義 <code>morandi-green</code> / <code>morandi-red</code> / <code>morandi-gold</code>（<strong>無數字階、無 gray/blue/purple</strong>）→ 這些 class 全無對應 CSS、靜默失效。狀態 badge 無底色、表單邊框無色，整頁視覺像「半成品」。</p>
+<p class="note">證據：<code>visas.md</code> L27/L32-34/L54/L72/L76（這頁是 91 頁中對齊度最低的一頁）。</p>
+</div>
+
+<div class="bug">
+<span class="tag">BUG 3</span>
+<h4><code>/landing</code> 卡片背景 <code>bg-morandi-container/50/50</code>（多一段 /50）</h4>
+<p>行銷首頁某卡片背景寫成 <code>bg-morandi-container/50/50</code>（多打一段 <code>/50</code>）→ Tailwind 解析失敗、此處實際無背景色生效。</p>
+<p class="note">證據：<code>landing.md</code> L75（line 82）。整頁其餘色彩都守住 token、唯這個 typo 是硬 bug。</p>
+</div>
+
+<div class="bug">
+<span class="tag">BUG 4</span>
+<h4><code>/app/settings</code> 返回鈕用未定義 class <code>app-header-btn</code></h4>
+<p>行動版設定頁返回按鈕 class 寫 <code>app-header-btn</code>，但 <code>globals.css</code> 完全無此定義（已 grep 確認、全專案僅此一處用、其他頁用的是 <code>.app-back-btn</code>）→ 返回鈕掉樣式。同頁空狀態還全用 inline <code>style</code> + 硬編碼 <code>#666</code>。</p>
+<p class="note">證據：<code>app__settings.md</code> L25/L62-64。</p>
+</div>
+
+<div class="bug">
+<span class="tag">BUG 5 · 待確認</span>
+<h4>多頁用疑似不存在的 <code>bg-morandi-background</code></h4>
+<p><code>/no-access</code>、<code>/setup/[token]</code>、<code>/view/[id]</code> 用 <code>bg-morandi-background</code> 當底色，其他頁多用 <code>bg-background</code> / <code>bg-morandi-container</code> / <code>bg-morandi-cream</code>。需確認 <code>morandi-background</code> 是否為有效 token；若無、這幾頁底色也靜默失效。</p>
+<p class="note">證據：<code>no-access.md</code> L72、<code>setup__token.md</code>、<code>view__id.md</code>（標「待確認」）。</p>
+</div>
+
+<!-- ============== 三大設計系統 ============== -->
+<h2 id="systems">三大設計系統並存（最高層事實）</h2>
+<p>全站不是「一套 UI 有些頁沒對齊」，而是<strong>三套各自獨立的設計語言同時存在</strong>。理解這一點，才知道哪些是「該收斂的偏離」、哪些是「刻意劃分的獨立設計域」。</p>
+
+<table class="dt">
+<tr><th>設計系統</th><th>範圍</th><th>主色 / 字型</th><th>用的組件</th><th>定性</th></tr>
+<tr>
+  <td><strong>① 桌面 ERP</strong></td>
+  <td>主體、約 56 頁</td>
+  <td>morandi 4 主題 token 體系（金 + 淺色卡片）／ 思源宋體 + 蘋方</td>
+  <td><code>&lt;Button&gt;</code> / <code>ActionCell</code> / <code>EnhancedTable</code> / <code>FormDialog</code> / shadcn</td>
+  <td>真正的「公司 CIS 主體」、所有跨頁變體章節都在講它內部的不統一</td>
+</tr>
+<tr>
+  <td><strong>② 行動版 <code>/app</code></strong></td>
+  <td>6 頁（4 頁是 placeholder）</td>
+  <td><span class="swatch" style="background:#3B82F6"></span>藍 <code>#3B82F6</code> + 深色底 <code>#0d0f14</code>（手刻 <code>--app-*</code> CSS）／ Noto Sans TC</td>
+  <td><strong>0 個共用組件</strong>：全手刻 <code>.login-*</code>/<code>.dash-*</code>/<code>.app-*</code> className、原生 input/checkbox、語意色硬編 <code>#ef4444</code></td>
+  <td>完全分岔的第二套設計系統。直接違反 UI 紅線「主色走 morandi-gold」，但根因是<strong>整層分岔、非個別寫錯</strong></td>
+</tr>
+<tr>
+  <td><strong>③ 對客頁</strong></td>
+  <td>17 個公開頁</td>
+  <td>多套獨立 CIS（見下）</td>
+  <td>多為 inline style + framer-motion + Noto Serif TC 襯線</td>
+  <td>部分刻意獨立（W 拍板的對客 CIS）、部分是真違規，需逐頁拍板</td>
+</tr>
+</table>
+
+<h4>對客頁（系統③）內部又分多套 CIS</h4>
+<table class="dt">
+<tr><th>子 CIS</th><th>頁面</th><th>配色寫法</th><th>定性</th></tr>
+<tr><td><strong>YONGCHENG canvas</strong></td><td><code>p/canvas-demo</code>、<code>p/tour/[code]/canvas</code></td><td><code>YONGCHENG_*</code> token（ink/copper/paper/gold、tokens.ts）+ inline</td><td class="x-good">有紀律（W 2026-05-17 拍板的對客展示引擎）</td></tr>
+<tr><td><strong>public-* token</strong></td><td><code>p/tour/[code]</code>（Tokyo Sakura 風）、<code>p/tour/[code]/register</code></td><td><code>public-primary/accent/secondary</code> 漸層</td><td class="x-warn">獨立對客色軌、待拍板是否納管</td></tr>
+<tr><td><strong>proposal inline hex（3 套各自為政）</strong></td><td><code>p/fukuoka-family-proposal</code>（Editorial）、<code>p/fukuoka-golf-proposal</code>（Editorial）、<code>p/samui-proposal</code>（Luxury）</td><td>全 inline hex：samui <code>LUXURY={#2C5F4D,#C69C6D,#8F4F4F}</code>、福岡 <code>#FAF8F5/#1a1a1a/#8B7355</code>，資料硬編在組件內</td><td class="x-warn">一次性客製、刻意脫離 ERP；建議「抽 proposal CIS token」而非逐頁改色</td></tr>
+<tr><td><strong>付款頁 morandi token</strong></td><td><code>pay/[token]</code>、<code>pay/mock/[token]</code>、<code>pay/result</code></td><td>走 morandi + status token（明寫「不用永豐品牌色」）</td><td class="x-good"><code>pay/result</code> 是對客頁最乾淨範例</td></tr>
+<tr><td><strong>認證頁 inline style（3 套各自為政）</strong></td><td><code>login</code>、<code>change-password</code>、<code>reset-password</code></td><td>各自手刻 <code>.login-button</code>/<code>.cp-button</code>/<code>.reset-button</code>，<strong>3 套漸層配方都不同</strong></td><td class="x-bad">該抽共用認證卡（見 SSOT 章節）</td></tr>
+</table>
+
+<!-- ============== BUTTONS ============== -->
+<h2 id="buttons">跨頁變體 ① — 按鈕</h2>
+<div class="legend">
+  <span class="pill g">✅ 黃金標準</span>
+  <span class="pill w">🟡 可接受但分岔</span>
+  <span class="pill b">🔴 應收斂</span>
+</div>
+<table class="dt">
+<tr><th>變體</th><th>寫法</th><th>出沒範圍</th><th>評</th></tr>
+<tr><td><strong>共用 <code>&lt;Button&gt;</code></strong></td><td>variant：<code>default</code>(金漸層)/<code>destructive</code>/<code>outline</code>/<code>soft-gold</code>/<code>header-outline</code>/<code>ghost</code></td><td>桌面 ERP 主流</td><td><span class="pill g">標準</span> 黃金標準</td></tr>
+<tr><td>手套 <code>ACTION_BUTTON_BASE</code></td><td><code>&lt;Button variant="ghost"&gt;</code> + 常數骨架（orders/tours 操作欄）</td><td>列表操作欄多數</td><td><span class="pill w">並行</span></td></tr>
+<tr><td>純手刻 <code>&lt;button&gt;</code></td><td>沉浸式介面（ai/channels sidebar header、icon 鈕、tab）；看板欄位操作（todos）</td><td>ai / channels / todos</td><td><span class="pill w">慣例</span></td></tr>
+<tr><td><strong>主操作手寫覆蓋 variant</strong></td><td><code>bg-morandi-gold text-white</code> 硬刻金底白字、蓋掉 variant</td><td>workspaces/[id]（設定 Token、LLM 儲存）、finance/payments footer「確認核帳」<code>bg-morandi-green</code></td><td><span class="pill b">違規</span></td></tr>
+<tr><td>認證頁 inline 漸層（3 套）</td><td><code>.login-button</code>(45° 雙色)/<code>.cp-button</code>(純金)/<code>.reset-button</code>(45° 雙色)</td><td>login / change-password / reset-password</td><td><span class="pill b">3 套配方</span></td></tr>
+<tr><td>行銷 / 對客 CTA 手刻</td><td><code>&lt;Link&gt;</code>/<code>&lt;a&gt;</code> className（<code>bg-morandi-gold text-white</code> 純色填底，非全站淡金漸層 + 暖棕字）</td><td>landing 3 種 CTA、p/tour public-* 漸層</td><td><span class="pill w">待拍板</span></td></tr>
+</table>
+<div class="warn-box"><strong>關鍵分岔：「儲存 / 提交」主操作的視覺不統一。</strong>全站 <code>&lt;Button&gt; default</code> 是「135° 淡金漸層 + 暖深棕字」(<code>--btn-primary-*</code>)；但 workspaces/[id]、finance/payments、3 個認證頁、landing 各自手寫不同金底配方 → 同一個「主 CTA」概念至少 <strong>5 種不同的金</strong>。</div>
+
+<!-- ============== ACTIONCELL ============== -->
+<h2 id="actioncell">跨頁變體 ② — 列表操作欄</h2>
+<p>「列表每行右側的編輯/刪除/核准小按鈕」全站三套寫法並行。<code>ActionCell</code> 是統一組件、但只有少數頁用對。</p>
+<table class="dt">
+<tr><th>變體</th><th>正確用對的頁</th><th>評</th></tr>
+<tr><td><strong><code>&lt;ActionCell&gt;</code></strong>（含 success/danger variant 正確走 status token）</td><td>finance/payments、library/customers、accounting/vouchers、archive-management、hr、workspaces</td><td><span class="pill g">黃金標準</span></td></tr>
+<tr><td>手套 <code>ACTION_BUTTON_BASE</code>（<code>ghost</code> + 常數）</td><td>多數列表頁（orders/tours/各 finance）</td><td><span class="pill w">並行、且色軌錯（見下）</span></td></tr>
+<tr><td>純手刻 <code>&lt;button&gt;</code></td><td>看板 / 沉浸式介面</td><td><span class="pill w">慣例</span></td></tr>
+</table>
+<div class="info-box"><strong>數據：</strong>91 份 md 中 <code>ActionCell</code> 出現 130 次、<code>ACTION_BUTTON_BASE</code> 出現 47 次 → 兩套體系規模都不小、是真「並行」而非「個別漏改」。<strong>注意陷阱</strong>：<code>orders/simple-order-table.tsx</code> 雖被註解標為「操作欄黃金標準來源」，但它本身用美術色（見「病根」），所以「用對 ActionCell」≠「色軌也對」。</div>
+
+<!-- ============== EDIT ICON ============== -->
+<h2 id="editicon">跨頁變體 ③ — 編輯圖示</h2>
+<p>「編輯」這個動作全站用了 <strong>4 種不同 lucide 圖示</strong>。實際從 91 份 md grep 的出現次數：</p>
+<table class="dt">
+<tr><th>圖示</th><th>md 提及次數</th><th>典型出沒</th><th>建議</th></tr>
+<tr><td><code>Edit2</code></td><td><strong>38</strong>（橫跨 15 檔）</td><td>ActionCell、orders、各 finance 列表</td><td class="x-good">主流 → 收斂目標</td></tr>
+<tr><td><code>Pencil</code></td><td><strong>25</strong></td><td>ai（改名/notes/速記卡）、todos（欄位重命名）、calendar 等</td><td class="x-bad">改 Edit2</td></tr>
+<tr><td><code>Edit</code>（無 2）</td><td><strong>15</strong></td><td>散落舊頁</td><td class="x-bad">改 Edit2</td></tr>
+<tr><td><code>SquarePen</code></td><td><strong>6</strong></td><td>少數新頁</td><td class="x-bad">改 Edit2</td></tr>
+</table>
+<p class="note">統計口徑：在 ui-inventory 全 md 跨檔 grep；同一頁多處提及會累計。結論不變：<code>Edit2</code> 是事實上的主流、其餘三種應收斂過去。</p>
+
+<!-- ============== ICON SIZE ============== -->
+<h2 id="iconsize">跨頁變體 ④ — 圖示尺寸寫法</h2>
+<p>同一套 lucide 圖示，尺寸有 <strong>三軌寫法並存</strong>，連同一頁內都混用。</p>
+<table class="dt">
+<tr><th>寫法軌</th><th>實例</th><th>典型頁</th></tr>
+<tr><td>數字 prop <code>size={n}</code></td><td><code>size={16}</code> / <code>{14}</code> / <code>{12}</code> / <code>{10}</code> / <code>{20}</code> / <code>{32}</code> / <code>{40}</code> / <code>{48}</code></td><td>orders（10/12/32 並存）、todos（10/11/13/16）、no-access、app/settings</td></tr>
+<tr><td>em prop <code>size="x.xxem"</code></td><td><code>"0.95em"</code> / <code>"0.875em"</code> / <code>"1em"</code> / <code>"1.5em"</code></td><td>ActionCell 操作圖示（0.95em）、landing（全 em、最一致）</td></tr>
+<tr><td>className <code>w-_ h-_</code></td><td><code>w-4 h-4</code> / <code>h-5 w-5</code> / <code>w-3.5 h-3.5</code> / <code>size-5</code></td><td>ai、workspaces/[id]（同頁 <code>h-4 w-4</code> 與 <code>size-5</code> 混用）</td></tr>
+</table>
+<div class="warn-box">最佳實踐參考：<code>landing</code> 全頁統一走 <code>size="x.xxem"</code>、是少數一致的頁。建議全站收斂成單一寫法（em 跟字級連動、最適合）。</div>
+
+<!-- ============== COLOR TRACK ============== -->
+<h2 id="colortrack">跨頁變體 ⑤ — 顏色軌（最重要）</h2>
+<p>這是全站<strong>最廣、最根本</strong>的不統一：把「美術色」當「語意色」用。</p>
+<table class="dt">
+<tr><th>軌</th><th>寫法</th><th>問題</th></tr>
+<tr><td class="x-bad">美術色當語意色</td><td>成功用 <code>text-morandi-green</code>、危險/刪除用 <code>text-morandi-red</code></td><td>跨 <strong>49 個 md 檔</strong>出現 morandi-green/red</td></tr>
+<tr><td class="x-good">語意色（正解）</td><td>成功 <code>status-success</code>、危險 <code>status-danger</code>、警告 <code>status-warning</code>、資訊 <code>status-info</code></td><td>跨 <strong>57 個 md 檔</strong>有用到（多為部分用對）</td></tr>
+</table>
+<div class="bug">
+<span class="tag">為什麼是大問題</span>
+<h4>「預設主題同 hex、但換主題就分岔」</h4>
+<p><code>morandi-green</code> 與 <code>status-success</code> 在<strong>預設主題下碰巧是同一個 hex</strong>，所以肉眼看不出差別、沒人改。但 4 主題體系下，換主題時 <code>status-*</code> 會跟著主題走、<code>morandi-green/red</code> 是固定美術色不跟 → 換主題後「成功是綠、危險是紅」的語意會錯亂。等於現在埋了一顆「換主題才引爆」的雷。</p>
+</div>
+<p class="note">出沒最廣：orders 操作欄（收款 green / 請款·刪除 red）、tours、finance 各頁、workspaces/[id]、3 個認證頁錯誤色（morandi-red）。病根見下方「病根」章節。</p>
+
+<!-- ============== BADGE ============== -->
+<h2 id="badge">跨頁變體 ⑥ — 狀態 Badge</h2>
+<table class="dt">
+<tr><th>變體</th><th>寫法</th><th>典型頁</th><th>評</th></tr>
+<tr><td>共用 <code>&lt;StatusBadge tone&gt;</code> / <code>StatusCell</code></td><td>走 status-tone-map SSOT</td><td>finance/payments（StatusCell type="receipt"）</td><td><span class="pill g">標準</span>（但 tone 內部色軌錯、見病根）</td></tr>
+<tr><td>各頁手刻 className map</td><td>各自帶 <code>STATUS_COLORS</code> / <code>PRIORITY_COLORS</code> / <code>STATUS_BADGE_CLASS</code> map（多份重複）</td><td>visas、orders（OrderStatusBadge）、todos（TodoCard）、workspaces/[id]（Billing）</td><td><span class="pill b">重複 + 常用錯色</span></td></tr>
+<tr><td>emoji / 純文字代 badge</td><td>shared-data banks/countries 用 <code>✓</code>/<code>—</code>；ai 信心用 🟢🟡🔴</td><td>shared-data、ai</td><td><span class="pill w">無語意色</span></td></tr>
+</table>
+<p class="note">md 中 <code>StatusBadge</code> 提及 39 次、<code>FormDialog</code> 81 次。Badge 的核心問題在「手刻 map 各自重複 + map 內常摻 Tailwind 預設色」。</p>
+
+<!-- ============== TAILWIND ============== -->
+<h2 id="tailwind">跨頁變體 ⑦ — Tailwind 預設色硬傷（直接違紅線）</h2>
+<p>UI 紅線明禁 <code>bg-red-*/green-*/blue-*/amber-*</code> 等 Tailwind 預設色。實際從 md grep，<strong>9 個檔</strong>命中。逐一列出（含 file:位置）：</p>
+<table class="dt">
+<tr><th>頁 / 組件</th><th>違規寫法</th><th>嚴重度</th></tr>
+<tr><td><strong>orders</strong> · OrderStatusBadge</td><td>整套狀態色 <code>bg-amber-100/blue-100/green-100/orange-100/teal-100</code> + <code>text-*-700</code>；KK 選項 <code>text-green-700</code></td><td class="x-bad">🔴🔴 整套</td></tr>
+<tr><td><strong>todos</strong> · PRIORITY_COLORS / 期限色</td><td><code>bg-red-50/500</code>、<code>orange-50/500</code>、<code>amber-50/500</code>、<code>slate-100/400/300</code>；期限 <code>text-red-600/amber-600/orange-500</code>（連 slate 都非 morandi）</td><td class="x-bad">🔴🔴 重災區</td></tr>
+<tr><td><strong>workspaces/[id]</strong></td><td>整頁硬編漸層 + <code>text-red-600</code>、<code>bg-green-50</code>、<code>border-amber-200</code>、<code>bg-red-100</code>、<code>text-green-500/700</code>，靠 <code>eslint-disable venturo/no-forbidden-classes</code> 大量壓制</td><td class="x-bad">🔴 全頁 + 壓 lint</td></tr>
+<tr><td><strong>ai</strong></td><td>bot 暫停 <code>text-orange-500</code>；復盤 pending <code>bg-orange-50 text-orange-700 border-orange-200</code></td><td class="x-bad">🔴</td></tr>
+<tr><td><strong>p/tour/[code]/register</strong></td><td><code>green-50</code> 類</td><td class="x-bad">🔴</td></tr>
+<tr><td><strong>hr</strong> · 結算 / salary-settlement / bonus-settlement</td><td><code>bg-red-100</code>、<code>orange-600</code> 等</td><td class="x-bad">🔴</td></tr>
+<tr><td><strong>shared-data/insurance-grades</strong>（透過 hr 連動）</td><td><code>orange-600</code></td><td class="x-bad">🔴</td></tr>
+<tr><td><strong>finance/reports</strong> · TourPnlTab</td><td><code>text-red-600</code></td><td class="x-bad">🔴</td></tr>
+</table>
+<div class="info-box"><strong>合法例外（不算違規）：</strong>社群通訊 channel badge 的品牌色（LINE 綠 <code>bg-green-100</code> / FB 藍 / IG 粉）—— W 2026-05-23 拍板「識別色非狀態色、保留」。ai 頁的 channel badge 屬此例外。</div>
+
+<!-- ============== NATIVE ============== -->
+<h2 id="native">跨頁變體 ⑧ — 原生控件 vs 共用組件</h2>
+<table class="dt">
+<tr><th>控件</th><th>共用組件（標準）</th><th>仍用原生的頁</th></tr>
+<tr><td>下拉</td><td><code>&lt;Select&gt;</code>（shadcn）</td><td>visas（3 個原生 <code>&lt;select&gt;</code>）、workspaces/[id]（HR 政策特休/資遣費）、app（行動版）</td></tr>
+<tr><td>勾選</td><td><code>&lt;Checkbox&gt;</code></td><td>app（原生 checkbox、藍 accent）、部分舊頁</td></tr>
+<tr><td>開關</td><td><code>&lt;Switch&gt;</code></td><td>多數已對齊（workspaces toggle、ai 自動回覆）</td></tr>
+<tr><td>單選</td><td>—（無統一 Radio 慣例）</td><td>workspaces/[id] LlmTokenDialog provider 原生 radio、app</td></tr>
+<tr><td>輸入框 / Textarea</td><td><code>&lt;Input&gt;</code> / <code>&lt;Textarea&gt;</code></td><td>visas（原生 textarea）、ai（3 套手刻 textarea，含 shadcn 預設 <code>border-input</code>）、app（原生 input）</td></tr>
+</table>
+<div class="warn-box"><strong>合理對齊的頁：</strong>finance/settings、hr 表單、settings/company、pay 多走共用 <code>&lt;Select&gt;</code>/<code>&lt;Checkbox&gt;</code>/<code>&lt;Switch&gt;</code>。原生控件主要殘留在 visas（最舊）、行動版 /app（整層分岔）、workspaces/[id]（HR 政策區）。</div>
+
+<!-- ============== DIALOG ============== -->
+<h2 id="dialog">跨頁變體 ⑨ — 對話框</h2>
+<table class="dt">
+<tr><th>變體</th><th>寫法</th><th>典型頁</th><th>評</th></tr>
+<tr><td><code>&lt;FormDialog&gt;</code>（設 level）</td><td>共用、傳 <code>loading</code>、有 footer</td><td>finance/payments、library 各頁、visas（未明設 level）</td><td><span class="pill g">標準</span></td></tr>
+<tr><td>裸 <code>&lt;DialogContent&gt;</code> 無 level</td><td>違反「Dialog 必設 level」紅線</td><td>workspaces/[id]（LlmTokenSetupDialog、IntegrationSettingsDialog）、hr wizard</td><td><span class="pill b">缺 level</span></td></tr>
+<tr><td>手刻 modal（<code>createPortal</code> + <code>fixed inset-0</code>）</td><td>未走 Dialog 組件、<code>bg-white</code> 硬寫底色</td><td>ai（RetrospectiveModal / SpeedCardEditor / ImageLightbox）、display-editor（AiAssistDialog）</td><td><span class="pill b">手刻</span></td></tr>
+<tr><td>原生 <code>window.confirm()</code> / <code>alert()</code></td><td>瀏覽器原生、非統一確認 dialog</td><td>ai（刪速記卡/復盤）、workspaces/[id]（移除 LLM）</td><td><span class="pill b">原生</span></td></tr>
+</table>
+<p class="note">orders / todos 已改走 <code>@/lib/ui/alert-dialog</code> 與 <code>ConfirmDialog</code> + <code>useConfirmDialog</code>（正確）。原生 confirm 主要殘留在 ai 與 workspaces/[id]。</p>
+
+<!-- ============== CARD ============== -->
+<h2 id="card">跨頁變體 ⑩ — 卡片 / 容器</h2>
+<table class="dt">
+<tr><th>變體</th><th>寫法</th><th>典型頁</th><th>評</th></tr>
+<tr><td>Card token</td><td><code>&lt;Card&gt;</code> / <code>bg-card border-morandi-container rounded-2xl shadow-sm</code></td><td>no-access、pay/result、todos 容器層</td><td><span class="pill g">標準</span></td></tr>
+<tr><td>硬編圓角 + 陰影</td><td><code>rounded-[24px]</code>/<code>[20px]</code>/<code>[16px]</code> + <code>shadow-[rgba(180,160,120,.15)...]</code>，靠 <code>eslint-disable</code> 壓制</td><td><strong>workspaces/[id]</strong>（Overview/AiSettings/Billing/Addons 全頁）</td><td><span class="pill b">最大技術債</span></td></tr>
+<tr><td>對客 inline 漸層卡</td><td>inline <code>boxShadow</code> + hex 漸層</td><td>samui-proposal（總計卡 <code>#1a4a5e→#2d6a7a</code>）、福岡 proposal</td><td><span class="pill w">對客客製</span></td></tr>
+</table>
+
+<!-- ============== EMPTY ============== -->
+<h2 id="empty">跨頁變體 ⑪ — 空狀態 / 載入</h2>
+<table class="dt">
+<tr><th>變體</th><th>典型頁</th><th>評</th></tr>
+<tr><td>共用 Spinner / EmptyState / ListPageLayout loading 骨架</td><td>finance/payments（骨架屏）、Addons EmptyState helper</td><td><span class="pill g">標準</span></td></tr>
+<tr><td>EnhancedTable emptyState 自刻（icon + 文字）</td><td>orders（FileText 32 + 「尚無訂單」）</td><td><span class="pill w">頁內自刻、可接受</span></td></tr>
+<tr><td>手刻純文字「載入中...」</td><td>todos（看板）、shared-data banks/countries（colSpan row）</td><td><span class="pill w">非 Spinner/Skeleton</span></td></tr>
+<tr><td>手刻 animate-spin / 自刻 dot 動畫</td><td>app（<code>.login-loading</code> 兩個彈跳 dot）、pay/result（Loader2 置中）</td><td><span class="pill w">分岔</span></td></tr>
+<tr><td>全 inline style 空狀態</td><td>app/settings（inline <code>#666</code>，連行動版自己的 <code>.app-placeholder</code> 都沒用）</td><td><span class="pill b">最不一致</span></td></tr>
+</table>
+
+<!-- ============== 病根 ============== -->
+<h2 id="root">🔴 病根（共用層就錯、改一處影響全站）</h2>
+<p>最值得修的不是各頁、是這兩個「源頭」——它們被全站抄、改源頭等於一次修全站。</p>
+<div class="bug">
+<span class="tag">病根 1</span>
+<h4>共用 <code>&lt;StatusBadge&gt;</code> 內部色軌「半套混用」（已坐實原始碼）</h4>
+<p>所有頁的狀態標籤都 call 這個共用組件。<strong>已讀原始碼坐實</strong>（<code>src/components/ui/status-badge.tsx:25-32</code> 的 <code>TONE_STYLES</code>）：同一份 map 裡 <code>info</code>/<code>warning</code> 走語意色 <code>status-info</code>/<code>status-warning</code>（✅ 對），但 <code>success</code>=<code>bg-morandi-green/15 text-morandi-green</code>、<code>danger</code>=<code>bg-morandi-red/15 text-morandi-red</code> 卻是<strong>美術色</strong>（🔴 錯）。亦即組件內部就<strong>自相矛盾</strong>。→ 所有 caller 的成功/危險 badge 跟著錯。<strong>改這 2 行、全站 badge 一次對齊</strong>，是「修一處影響全站」的最佳起手點。</p>
+</div>
+<div class="bug">
+<span class="tag">病根 2</span>
+<h4><code>orders/simple-order-table.tsx</code>（操作欄黃金標準本人）就用美術色</h4>
+<p><code>ACTION_BUTTON_BASE</code> 常數的註解明指此檔是「全站列表操作欄黃金標準來源」。但它本身：收款 <code>text-morandi-green</code>、請款/刪除 <code>text-morandi-red</code>、開票 <code>text-morandi-gold</code> —— <strong>把美術色當語意色的做法、從黃金標準被抄到 tours / 各 finance 頁</strong>。要全站收斂色軌、得先拍板「改不改黃金標準本人」。</p>
+<p class="note">證據：<code>orders.md</code> L98/L104。</p>
+</div>
+
+<!-- ============== 正面範本 ============== -->
+<h2 id="models">✅ 正面範本（對齊標竿、要表揚）</h2>
+<div class="good">
+<span class="tag">最乾淨</span>
+<h4><code>/no-access</code></h4>
+<p>按鈕全走 <code>&lt;Button&gt;</code>(soft-gold + default)、卡片走 <code>&lt;Card&gt;</code>、危險視覺正確走 <code>status-danger</code> / <code>status-danger-bg</code>、圖示用 lucide、文案全 i18n。可當「公開提示頁」對齊範本。（唯一小瑕：<code>bg-morandi-background</code> 待確認、見 BUG 5）</p>
+</div>
+<div class="good">
+<span class="tag">語意色標竿</span>
+<h4><code>/pay/result</code></h4>
+<p>成功/失敗/警告語意全走 <code>status-success</code>/<code>status-danger</code>/<code>status-warning</code>、品牌走 <code>morandi-gold</code>、底 <code>morandi-cream</code>、卡片走 token。註解明寫「走 morandi design token、不用永豐品牌色（UI 紅線）」。無需修復。</p>
+</div>
+<div class="good">
+<span class="tag">唯一全對的 tab</span>
+<h4><code>workspaces/[id]</code> · AiHealthTab</h4>
+<p>整頁 workspaces/[id] 是 UI 最亂的頁（硬編漸層 + 美術色當語意色 + Dialog 缺 level），<strong>唯獨 AiHealthTab</strong> 全走 <code>status-danger/warning/success</code> token + Card token。可當同頁其餘 tab 的修正範本。</p>
+</div>
+<div class="good">
+<span class="tag">操作欄正解</span>
+<h4><code>finance/payments</code></h4>
+<p>列表操作欄完整走 <code>&lt;ActionCell&gt;</code>，success/danger variant 正確走 status token（核准 success、退回/退款 danger）。列表區是好範例（不統一集中在 AddReceiptDialog footer 按鈕語意色手寫）。</p>
+</div>
+<div class="good">
+<span class="tag">已統一</span>
+<h4>channels ↔ ai composer</h4>
+<p>W 2026-05-19 拍板統一：兩個對話介面的「輸入框 + 送出鈕」completely 一致（<code>border-border bg-background focus:ring-morandi-gold</code> + Send/Loader2 + default 金漸層送出鈕）。（殘留：訊息泡泡「誰是我」的配色兩頁仍分岔）</p>
+</div>
+
+<!-- ============== SSOT ============== -->
+<h2 id="ssot">結構性 SSOT 問題（不是色、是「該抽沒抽」）</h2>
+<div class="card">
+<h4>① shared-data master 表複製貼上</h4>
+<p><code>shared-data/banks</code> 與 <code>shared-data/countries</code> 是「同一份手刻 <code>&lt;table&gt;</code> 複製貼上」（單一大表 + Input 搜尋 + 啟用欄 <code>✓</code>/<code>—</code>），沒抽共用「唯讀 master 列表」組件。連表頭背景都三套：<code>bg-muted/50</code>（banks）vs <code>bg-muted/30 text-xs</code>（airports）vs <code>bg-morandi-container/30</code>；行高也三種。啟用狀態用 emoji <code>✓</code> 而非 <code>&lt;Badge&gt; status-success</code>，與 insurance-grades 用 Badge 完全不一致。</p>
+</div>
+<div class="card">
+<h4>② 認證頁三套各自手刻</h4>
+<p><code>login</code> / <code>change-password</code> / <code>reset-password</code> 是同一族手刻認證頁（同款圓角卡 + 暖金漸層底），但 input/button 的 inline CSS <strong>各寫各的</strong>（<code>.login-*</code> vs <code>.cp-*</code> vs <code>.reset-*</code>、漸層配方都不同），錯誤色全用美術色 <code>morandi-red</code> 而非 <code>status-danger</code>。該抽共用認證卡 + 共用認證 input/button。</p>
+</div>
+<div class="card">
+<h4>③ 報表排版兩流派</h4>
+<p>會計 / 財務報表兩種排版法並存：<code>balance-sheet</code> / <code>income-statement</code> 用 <code>flex justify-between</code> 明細列；<code>general-ledger</code> / <code>trial-balance</code> 用手刻 <code>&lt;table&gt;</code> + <code>bg-morandi-container</code> 表頭。同模組報表互不對齊（會計報表性質、可接受、但宜統一）。</p>
+</div>
+
+<!-- ============== PLAN ============== -->
+<h2 id="plan">統一路線建議（收尾）</h2>
+<div class="info-box">
+<ol>
+<li><strong>先修真 Bug</strong>（失效 class / 不存在 token）：<code>bg-status-danger-bg0</code>、visas 數字階 token、landing <code>/50/50</code>、app/settings <code>app-header-btn</code>、確認 <code>morandi-background</code>。成本最低、收益最高。</li>
+<li><strong>顏色：建立三層 token</strong>（primitive → semantic → component），組件只用語意色，補齊 4 主題缺的 status/cat/cal/cream → 解「換主題分岔 / 半套主題」。</li>
+<li><strong>收斂共用組件</strong>：StatusBadge 內部改 status token（病根 1）；操作欄統一 ActionCell（擴 brand variant + active 態，讓 simple-order-table 能遷移、病根 2）；編輯圖示統一 <code>Edit2</code>；圖示尺寸統一一種寫法（建議 em）。</li>
+<li><strong>原生控件換共用組件</strong>（visas / workspaces HR 政策 / 殘留舊頁），Dialog 補 <code>level</code>（workspaces 兩個 Dialog、hr wizard）。</li>
+<li><strong>行動版 /app + 對客頁拍板</strong>：明確劃為「獨立設計域」還是「要納入統一」。proposal 建議「抽 proposal CIS token」而非逐頁改色；YONGCHENG canvas / pay 已是刻意獨立、保留。</li>
+<li><strong>加 lint 防回潮</strong>：擴 <code>check-standards.sh</code> 擋 Tailwind 預設色、擋裸 DialogContent 無 level、擋手寫覆蓋 variant 的金底白字。</li>
+</ol>
+</div>
+
+<!-- ============== 91 頁逐頁索引 ============== -->
+<h2 id="pageindex">91 頁逐頁索引</h2>
+<p>按 module 分組。<span class="kbd">點 module 名展開</span>。路由可點連到對應 md 檔。</p>
+<div class="legend">
+  <span class="pill g">乾淨 / 對齊</span>
+  <span class="pill w">部分偏離</span>
+  <span class="pill b">重災 / 真bug</span>
+  <span class="pill n">轉址 / WIP</span>
+  <span class="pill i">對客 / 公開</span>
+</div>
+
+<details class="mod"><summary>會計 accounting<span class="cnt">11 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./accounting.md">/accounting</a></td><td class="ty"><span class="pill w">儀表板</span></td><td>模組入口卡片牆；morandi-green/red 當語意色。</td></tr>
+<tr><td class="route"><a href="./accounting__accounts.md">/accounting/accounts</a></td><td class="ty"><span class="pill w">列表</span></td><td>科目表樹狀；色軌混用。</td></tr>
+<tr><td class="route"><a href="./accounting__checks.md">/accounting/checks</a></td><td class="ty"><span class="pill w">列表</span></td><td>支票管理 + 統計卡。</td></tr>
+<tr><td class="route"><a href="./accounting__opening-balances.md">/accounting/opening-balances</a></td><td class="ty"><span class="pill w">表單</span></td><td>期初餘額三欄輸入。</td></tr>
+<tr><td class="route"><a href="./accounting__period-closing.md">/accounting/period-closing</a></td><td class="ty"><span class="pill w">表單+列表</span></td><td>期末結轉 + 歷史。</td></tr>
+<tr><td class="route"><a href="./accounting__vouchers.md">/accounting/vouchers</a></td><td class="ty"><span class="pill g">列表</span></td><td>傳票管理；ActionCell 用對。</td></tr>
+<tr><td class="route"><a href="./accounting__reports.md">/accounting/reports</a></td><td class="ty"><span class="pill w">儀表板</span></td><td>報表入口卡片牆。</td></tr>
+<tr><td class="route"><a href="./accounting__reports__balance-sheet.md">/accounting/reports/balance-sheet</a></td><td class="ty"><span class="pill w">報表</span></td><td>flex 排版流派。</td></tr>
+<tr><td class="route"><a href="./accounting__reports__general-ledger.md">/accounting/reports/general-ledger</a></td><td class="ty"><span class="pill w">報表</span></td><td>手刻 table 流派。</td></tr>
+<tr><td class="route"><a href="./accounting__reports__income-statement.md">/accounting/reports/income-statement</a></td><td class="ty"><span class="pill w">報表</span></td><td>flex 排版流派。</td></tr>
+<tr><td class="route"><a href="./accounting__reports__trial-balance.md">/accounting/reports/trial-balance</a></td><td class="ty"><span class="pill w">報表</span></td><td>手刻 table 流派。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>財務 finance<span class="cnt">7 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./finance.md">/finance</a></td><td class="ty"><span class="pill w">儀表板</span></td><td>模組首頁。</td></tr>
+<tr><td class="route"><a href="./finance__payments.md">/finance/payments</a></td><td class="ty"><span class="pill g">列表</span></td><td><strong>ActionCell 黃金範例</strong>；偏離集中在 dialog footer 手寫色。</td></tr>
+<tr><td class="route"><a href="./finance__requests.md">/finance/requests</a></td><td class="ty"><span class="pill w">列表</span></td><td>請款管理。</td></tr>
+<tr><td class="route"><a href="./finance__reports.md">/finance/reports</a></td><td class="ty"><span class="pill b">儀表板</span></td><td>多分頁報表；TourPnlTab <code>text-red-600</code>、手刻 table。</td></tr>
+<tr><td class="route"><a href="./finance__settings.md">/finance/settings</a></td><td class="ty"><span class="pill w">設定</span></td><td>6 tab、5 可操作卡 + 1 placeholder。</td></tr>
+<tr><td class="route"><a href="./finance__treasury__disbursement.md">/finance/treasury/disbursement</a></td><td class="ty"><span class="pill w">列表</span></td><td>出納單管理。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>人資 hr<span class="cnt">7 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./hr.md">/hr</a></td><td class="ty"><span class="pill b">列表</span></td><td>員工大表單 + 資遣試算；<code>bg-red-100/orange-600</code>。</td></tr>
+<tr><td class="route"><a href="./hr__roles.md">/hr/roles</a></td><td class="ty"><span class="pill w">設定</span></td><td>職務 + 權限勾選矩陣。</td></tr>
+<tr><td class="route"><a href="./hr__organization.md">/hr/organization</a></td><td class="ty"><span class="pill w">設定</span></td><td>分公司 CRUD。</td></tr>
+<tr><td class="route"><a href="./hr__bonus-settlement.md">/hr/bonus-settlement</a></td><td class="ty"><span class="pill w">列表</span></td><td>+ 結算 wizard dialog。</td></tr>
+<tr><td class="route"><a href="./hr__bonus-settlement__tourId.md">/hr/bonus-settlement/[tourId]</a></td><td class="ty"><span class="pill b">詳情</span></td><td>獎金明細唯讀；Tailwind 預設色。</td></tr>
+<tr><td class="route"><a href="./hr__salary-settlement.md">/hr/salary-settlement</a></td><td class="ty"><span class="pill b">列表</span></td><td>+ wizard；Tailwind 預設色。</td></tr>
+<tr><td class="route"><a href="./hr__salary-settlement__id.md">/hr/salary-settlement/[id]</a></td><td class="ty"><span class="pill b">詳情</span></td><td>確認結算 + 刪草稿；Tailwind 預設色。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>資料庫 library<span class="cnt">6 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./library.md">/library</a></td><td class="ty"><span class="pill w">儀表板</span></td><td>module 入口卡片牆。</td></tr>
+<tr><td class="route"><a href="./library__customers.md">/library/customers</a></td><td class="ty"><span class="pill g">列表</span></td><td>3 dialog；ActionCell 用對。</td></tr>
+<tr><td class="route"><a href="./library__customers__id.md">/library/customers/[id]</a></td><td class="ty"><span class="pill w">詳情</span></td><td>4 tab + 內嵌列表。</td></tr>
+<tr><td class="route"><a href="./library__suppliers.md">/library/suppliers</a></td><td class="ty"><span class="pill w">列表</span></td><td>新增/編輯 + 匯入 dialog。</td></tr>
+<tr><td class="route"><a href="./library__attractions.md">/library/attractions</a></td><td class="ty"><span class="pill w">列表</span></td><td>4 tab + 大型 dialog。</td></tr>
+<tr><td class="route"><a href="./library__archive-management.md">/library/archive-management</a></td><td class="ty"><span class="pill g">列表</span></td><td>ActionCell 用對。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>共用資料 shared-data<span class="cnt">6 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./shared-data.md">/shared-data</a></td><td class="ty"><span class="pill w">儀表板</span></td><td>功能入口導覽。</td></tr>
+<tr><td class="route"><a href="./shared-data__airports.md">/shared-data/airports</a></td><td class="ty"><span class="pill w">列表</span></td><td>唯讀 master、按國家分組。</td></tr>
+<tr><td class="route"><a href="./shared-data__banks.md">/shared-data/banks</a></td><td class="ty"><span class="pill w">列表</span></td><td>手刻 table（與 countries 複製貼上）；emoji ✓ 當狀態。</td></tr>
+<tr><td class="route"><a href="./shared-data__countries.md">/shared-data/countries</a></td><td class="ty"><span class="pill w">列表</span></td><td>手刻 table（同模子）。</td></tr>
+<tr><td class="route"><a href="./shared-data__insurance-grades.md">/shared-data/insurance-grades</a></td><td class="ty"><span class="pill b">列表</span></td><td>Tab 切 3 保險；<code>orange-600</code>。</td></tr>
+<tr><td class="route"><a href="./shared-data__attractions.md">/shared-data/attractions</a></td><td class="ty"><span class="pill n">WIP 占位</span></td><td>尚未開發說明頁。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>旅遊團 / 訂單 / 業務雜項<span class="cnt">7 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./tours.md">/tours</a></td><td class="ty"><span class="pill w">列表</span></td><td>開團/提案/模板 3 流程；抄黃金標準的美術色。</td></tr>
+<tr><td class="route"><a href="./tours__code.md">/tours/[code]</a></td><td class="ty"><span class="pill w">詳情</span></td><td>多 tab（財務/訂單/團員/行程/報價/結案）。</td></tr>
+<tr><td class="route"><a href="./tours__code__display-editor.md">/tours/[code]/display-editor</a></td><td class="ty"><span class="pill b">編輯器</span></td><td>全螢幕 Canvas 編輯器；手刻 modal（AiAssistDialog）。</td></tr>
+<tr><td class="route"><a href="./orders.md">/orders</a></td><td class="ty"><span class="pill b">列表</span></td><td><strong>黃金標準源頭、但本身用美術色 + OrderStatusBadge Tailwind 預設色</strong>。</td></tr>
+<tr><td class="route"><a href="./visas.md">/visas</a></td><td class="ty"><span class="pill b">列表 · 真bug</span></td><td><strong>整頁不存在的數字階 token、原生控件、無 ActionCell、無分頁</strong>。對齊度最低。</td></tr>
+<tr><td class="route"><a href="./calendar.md">/calendar</a></td><td class="ty"><span class="pill w">行事曆</span></td><td>FullCalendar + 事件 CRUD；編輯用 Pencil。</td></tr>
+<tr><td class="route"><a href="./todos.md">/todos</a></td><td class="ty"><span class="pill b">看板</span></td><td><strong>優先級/期限 Tailwind 預設色 + slate 重災</strong>；容器層對齊不錯。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>Bot 設定（純轉址殘骸）<span class="cnt">5 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./bot.md">/bot</a></td><td class="ty"><span class="pill n">轉址</span></td><td>已遷移、redirect 殘骸。</td></tr>
+<tr><td class="route"><a href="./bot__lineUserId.md">/bot/[lineUserId]</a></td><td class="ty"><span class="pill n">轉址+dead</span></td><td>redirect + 孤立 dead-code 組件殘留。</td></tr>
+<tr><td class="route"><a href="./bot__setup.md">/bot/setup</a></td><td class="ty"><span class="pill n">轉址</span></td><td>已遷移。</td></tr>
+<tr><td class="route"><a href="./bot__facebook-setup.md">/bot/facebook-setup</a></td><td class="ty"><span class="pill n">轉址</span></td><td>已遷移。</td></tr>
+<tr><td class="route"><a href="./bot__instagram-setup.md">/bot/instagram-setup</a></td><td class="ty"><span class="pill n">轉址</span></td><td>已遷移。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>通訊 + AI<span class="cnt">4 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./channels.md">/channels</a></td><td class="ty"><span class="pill w">對話介面</span></td><td>Slack 風；進來轉址 loading、UI 在 layout+sidebar。</td></tr>
+<tr><td class="route"><a href="./channels__id.md">/channels/[id]</a></td><td class="ty"><span class="pill w">對話介面</span></td><td>單頻道訊息流；composer 與 ai 統一。</td></tr>
+<tr><td class="route"><a href="./messaging.md">/messaging</a></td><td class="ty"><span class="pill n">轉址</span></td><td>純轉址、內容遷進 ai。</td></tr>
+<tr><td class="route"><a href="./ai.md">/ai</a></td><td class="ty"><span class="pill b">對話介面 · 真bug</span></td><td><strong><code>bg-status-danger-bg0</code> 紅點 bug</strong>；手刻 modal/button、Pencil、原生 confirm。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>設定 / 平台 / 工作區 / 文件<span class="cnt">7 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./settings.md">/settings</a></td><td class="ty"><span class="pill n">轉址</span></td><td>redirect-only。</td></tr>
+<tr><td class="route"><a href="./settings__company.md">/settings/company</a></td><td class="ty"><span class="pill w">設定</span></td><td>多 section 表單 + CRUD；共用控件多。</td></tr>
+<tr><td class="route"><a href="./workspaces.md">/workspaces</a></td><td class="ty"><span class="pill g">列表</span></td><td>租戶管理；ActionCell 用對。</td></tr>
+<tr><td class="route"><a href="./workspaces__id.md">/workspaces/[id]</a></td><td class="ty"><span class="pill b">詳情 · 重災</span></td><td><strong>全頁硬編 rounded-[24px]+漸層、美術/Tailwind 預設色、2 Dialog 缺 level</strong>；唯 AiHealthTab 全對。</td></tr>
+<tr><td class="route"><a href="./platform.md">/platform</a></td><td class="ty"><span class="pill n">轉址</span></td><td>redirect-only。</td></tr>
+<tr><td class="route"><a href="./platform__aitoearn.md">/platform/aitoearn</a></td><td class="ty"><span class="pill n">iframe</span></td><td>純外嵌 iframe。</td></tr>
+<tr><td class="route"><a href="./documents.md">/documents</a></td><td class="ty"><span class="pill n">WIP 佔位</span></td><td>建置中 placeholder。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>行銷 + 官網<span class="cnt">5 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./marketing__website.md">/marketing/website</a></td><td class="ty"><span class="pill w">列表</span></td><td>—</td></tr>
+<tr><td class="route"><a href="./marketing__website__code.md">/marketing/website/[code]</a></td><td class="ty"><span class="pill w">表單/詳情</span></td><td>—</td></tr>
+<tr><td class="route"><a href="./websites.md">/websites</a></td><td class="ty"><span class="pill n">轉址</span></td><td>redirect、無 UI。</td></tr>
+<tr><td class="route"><a href="./websites__design.md">/websites/design</a></td><td class="ty"><span class="pill n">WIP skeleton</span></td><td>全螢幕編輯器 skeleton；<code>bg-[#FDFAF6]</code> 硬編。</td></tr>
+<tr><td class="route"><a href="./websites__products.md">/websites/products</a></td><td class="ty"><span class="pill n">WIP skeleton</span></td><td>詳情殼 skeleton。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>main 雜項 + 根層<span class="cnt">10 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./main-home.md">/ (main home)</a></td><td class="ty"><span class="pill w">儀表板</span></td><td>= dashboard alias。</td></tr>
+<tr><td class="route"><a href="./dashboard.md">/dashboard</a></td><td class="ty"><span class="pill w">儀表板</span></td><td>主控台。</td></tr>
+<tr><td class="route"><a href="./no-access.md">/no-access</a></td><td class="ty"><span class="pill g">公開</span></td><td><strong>最乾淨範本</strong>；status-danger 用對。</td></tr>
+<tr><td class="route"><a href="./root.md">/ (app root)</a></td><td class="ty"><span class="pill n">轉址</span></td><td>純 redirect。</td></tr>
+<tr><td class="route"><a href="./landing.md">/landing</a></td><td class="ty"><span class="pill b">公開 · 真bug</span></td><td>行銷首頁；<code>/50/50</code> typo 卡片背景失效。</td></tr>
+<tr><td class="route"><a href="./login.md">/login</a></td><td class="ty"><span class="pill b">公開</span></td><td>inline <code>.login-button</code> 漸層；錯誤色用 morandi-red。</td></tr>
+<tr><td class="route"><a href="./change-password.md">/change-password</a></td><td class="ty"><span class="pill b">公開</span></td><td>手刻 <code>.cp-button</code> 純金；3 套認證之一。</td></tr>
+<tr><td class="route"><a href="./reset-password.md">/reset-password</a></td><td class="ty"><span class="pill b">公開</span></td><td>手刻 <code>.reset-button</code> 45° 漸層；3 套認證之一。</td></tr>
+<tr><td class="route"><a href="./view__id.md">/view/[id]</a></td><td class="ty"><span class="pill i">對客</span></td><td>分享行程表檢視。</td></tr>
+<tr><td class="route"><a href="./public__contract__sign__code.md">/public/contract/sign/[code]</a></td><td class="ty"><span class="pill i">對客</span></td><td>電子簽約多步驟。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>對客公開頁 public / pay / setup<span class="cnt">11 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./p__canvas-demo.md">/p/canvas-demo</a></td><td class="ty"><span class="pill i">對客</span></td><td>行程展示 Demo（YONGCHENG canvas、純 fixture）。</td></tr>
+<tr><td class="route"><a href="./p__tour__code.md">/p/tour/[code]</a></td><td class="ty"><span class="pill i">對客</span></td><td>Tokyo Sakura 風（public-* token）。</td></tr>
+<tr><td class="route"><a href="./p__tour__code__canvas.md">/p/tour/[code]/canvas</a></td><td class="ty"><span class="pill i">對客</span></td><td>Canvas 引擎版（YONGCHENG）。</td></tr>
+<tr><td class="route"><a href="./p__tour__code__register.md">/p/tour/[code]/register</a></td><td class="ty"><span class="pill i">對客</span></td><td>報名表單；含 green-50 違規。</td></tr>
+<tr><td class="route"><a href="./p__fukuoka-family-proposal__code.md">/p/fukuoka-family-proposal/[code]</a></td><td class="ty"><span class="pill i">對客客製</span></td><td>Editorial 風、inline hex、資料硬編。</td></tr>
+<tr><td class="route"><a href="./p__fukuoka-golf-proposal__code.md">/p/fukuoka-golf-proposal/[code]</a></td><td class="ty"><span class="pill i">對客客製</span></td><td>Editorial 風、inline hex。</td></tr>
+<tr><td class="route"><a href="./p__samui-proposal__code.md">/p/samui-proposal/[code]</a></td><td class="ty"><span class="pill i">對客客製</span></td><td>Luxury 風（LUXURY hex）、emoji icon。</td></tr>
+<tr><td class="route"><a href="./pay__token.md">/pay/[token]</a></td><td class="ty"><span class="pill i">對客</span></td><td>自助付款；走 morandi token。</td></tr>
+<tr><td class="route"><a href="./pay__mock__token.md">/pay/mock/[token]</a></td><td class="ty"><span class="pill i">對客</span></td><td>mock 刷卡頁；morandi token 仿 EPOS 版型。</td></tr>
+<tr><td class="route"><a href="./pay__result.md">/pay/result</a></td><td class="ty"><span class="pill g">對客範本</span></td><td><strong>對客頁最乾淨</strong>；status-* 全對。</td></tr>
+<tr><td class="route"><a href="./setup__token.md">/setup/[token]</a></td><td class="ty"><span class="pill i">對客</span></td><td>Magic Link 設定頁；morandi token（morandi-background 待確認）。</td></tr>
+</table>
+</details>
+
+<details class="mod"><summary>行動版 app/（分岔設計系統）<span class="cnt">6 頁</span></summary>
+<table class="idx">
+<tr><td class="route"><a href="./app.md">/app</a></td><td class="ty"><span class="pill b">分岔</span></td><td>登入頁；藍 #3B82F6、inline .login-* CSS、硬編 #ef4444。</td></tr>
+<tr><td class="route"><a href="./app__dashboard.md">/app/dashboard</a></td><td class="ty"><span class="pill b">分岔</span></td><td>儀表板；手刻 .dash-* CSS。</td></tr>
+<tr><td class="route"><a href="./app__more.md">/app/more</a></td><td class="ty"><span class="pill b">分岔</span></td><td>設定/選單列表。</td></tr>
+<tr><td class="route"><a href="./app__calendar.md">/app/calendar</a></td><td class="ty"><span class="pill n">WIP placeholder</span></td><td>即將推出。</td></tr>
+<tr><td class="route"><a href="./app__orders.md">/app/orders</a></td><td class="ty"><span class="pill n">WIP placeholder</span></td><td>即將推出。</td></tr>
+<tr><td class="route"><a href="./app__settings.md">/app/settings</a></td><td class="ty"><span class="pill b">WIP · 真bug</span></td><td><strong>未定義 class <code>app-header-btn</code></strong> + 全 inline style #666。</td></tr>
+</table>
+</details>
+
+<div class="footer">
+VENTURO ERP 全站 UI 普查彙整 · 91 路由 · 來源：<code>workspace/健檢/ui-inventory/*.md</code> · 產出日期 2026-05-26<br>
+本文件為唯讀體檢報告、未改動任何 src 程式碼或 md 清單。所有 file:行號證據可回溯至各頁 md 檔。
+</div>
+
+</main>
+</div>
+</body>
+</html>

@@ -24,6 +24,7 @@ export const GET = apiHandler(async () => {
     .from('workspace_roles')
     .select('id, name, description, is_admin, sort_order, workspace_id, created_at, updated_at')
     .eq('workspace_id', workspaceId)
+    .eq('is_system_bot', false) // 2026-05-26 William 拍板：機器人角色（System Bot）不顯示在職務管理
     .order('sort_order', { ascending: true })
 
   if (error) {

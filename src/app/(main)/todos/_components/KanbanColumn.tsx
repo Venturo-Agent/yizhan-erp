@@ -23,8 +23,8 @@ interface TodoColumn {
 const COLOR_MAP: Record<string, { border: string; text: string }> = {
   gray: { border: 'border-morandi-muted', text: 'text-morandi-secondary' },
   gold: { border: 'border-morandi-gold', text: 'text-morandi-gold' },
-  green: { border: 'border-morandi-green', text: 'text-morandi-green' },
-  red: { border: 'border-morandi-red', text: 'text-morandi-red' },
+  green: { border: 'border-status-success', text: 'text-status-success' },
+  red: { border: 'border-status-danger', text: 'text-status-danger' },
   blue: { border: 'border-status-info', text: 'text-status-info' },
   purple: { border: 'border-cat-purple/30', text: 'text-cat-purple' },
   orange: { border: 'border-cat-orange/30', text: 'text-cat-orange' },

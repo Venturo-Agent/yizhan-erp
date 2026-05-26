@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect, useLayoutEffect, useMe
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Check, Loader2, Crop } from 'lucide-react'
+import { Check, Loader2, CheckSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { alert } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
@@ -428,7 +428,7 @@ export function ImageEditor({
           </Button>
           {onCropAndSave && hasCornerOffsets && (
             <Button
-              variant="soft-gold"
+              variant="morandi-gold"
               type="button"
               onClick={handleApplyCrop}
               disabled={isProcessing}
@@ -438,7 +438,7 @@ export function ImageEditor({
               {isProcessing ? (
                 <Loader2 size="0.875em" className="animate-spin" />
               ) : (
-                <Crop size="0.875em" />
+                <CheckSquare size="0.875em" />
               )}
               套用裁切
             </Button>

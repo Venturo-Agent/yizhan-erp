@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import { ACTION_BUTTON_BASE } from '@/components/table-cells'
+import { ActionCell } from '@/components/table-cells'
 import type { PaymentItem, ReceiptType } from '../_types'
 import { useTranslations } from 'next-intl'
 
@@ -297,18 +297,21 @@ export function PaymentItemRow({
               disabled={readonly}
               className="input-no-focus w-full bg-transparent text-sm text-right"
             />
-            {!canConfirmReceipt && canRemove && (
-              <button
-                type="button"
-                onClick={() => onRemove(item.id)}
-                className={cn(
-                  ACTION_BUTTON_BASE,
-                  'text-status-danger hover:bg-status-danger-bg shrink-0'
-                )}
-                title={t('receiptDelete')}
-              >
-                <Trash2 size="0.95em" />
-              </button>
+            {!canConfirmReceipt && (
+              <ActionCell
+                iconOnly
+                className="shrink-0"
+                actions={[
+                  {
+                    icon: Trash2,
+                    label: t('receiptDelete'),
+                    // canRemove 條件保留：不可刪時整顆隱藏（業務邏輯不動）
+                    hidden: !canRemove,
+                    onClick: () => onRemove(item.id),
+                    variant: 'danger',
+                  },
+                ]}
+              />
             )}
           </div>
         </td>
@@ -334,19 +337,19 @@ export function PaymentItemRow({
                   placeholder="0"
                   className="input-no-focus w-full bg-transparent text-sm text-right"
                 />
-                {canRemove && (
-                  <button
-                    type="button"
-                    onClick={() => onRemove(item.id)}
-                    className={cn(
-                      ACTION_BUTTON_BASE,
-                      'text-status-danger hover:bg-status-danger-bg'
-                    )}
-                    title={t('receiptDelete')}
-                  >
-                    <Trash2 size="0.95em" />
-                  </button>
-                )}
+                <ActionCell
+                  iconOnly
+                  actions={[
+                    {
+                      icon: Trash2,
+                      label: t('receiptDelete'),
+                      // canRemove 條件保留：不可刪時整顆隱藏（業務邏輯不動）
+                      hidden: !canRemove,
+                      onClick: () => onRemove(item.id),
+                      variant: 'danger',
+                    },
+                  ]}
+                />
               </div>
               {/* 手續費小 input（可空、可改、跟實收同欄） */}
               <div className="flex items-center justify-end gap-1 mt-0.5">

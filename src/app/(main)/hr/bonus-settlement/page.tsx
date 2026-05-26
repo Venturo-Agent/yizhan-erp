@@ -16,8 +16,7 @@ import { ListPageLayout } from '@/components/layout/list-page-layout'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
-import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
-import { cn } from '@/lib/utils'
+import { ActionCell } from '@/components/table-cells'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DatePicker } from '@/components/ui/date-picker'
 import { getTodayString } from '@/lib/utils/format-date'
@@ -173,18 +172,16 @@ export default function BonusSettlementListPage() {
   ]
 
   const renderActions = (row: PendingTourRow) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      title="看員工明細"
-      onClick={e => {
-        e.stopPropagation()
-        router.push(`/hr/bonus-settlement/${row.tour_id}`)
-      }}
-      className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
-    >
-      <ExternalLink size="0.95em" />
-    </Button>
+    <ActionCell
+      iconOnly
+      actions={[
+        {
+          icon: ExternalLink,
+          label: '看員工明細',
+          onClick: () => router.push(`/hr/bonus-settlement/${row.tour_id}`),
+        },
+      ]}
+    />
   )
 
   const openWizard = () => {

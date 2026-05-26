@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button'
 import { Combobox, type ComboboxOption } from '@/components/ui/combobox'
 import { useCustomersSlim } from '@/data'
 import { toast } from 'sonner'
-import { Link2 } from 'lucide-react'
+import { Link2, CheckSquare } from 'lucide-react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
 import { apiMutate } from '@/lib/swr/api-mutate'
 
@@ -78,7 +78,8 @@ export function BindCustomerDialog({
       <Button variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
         取消
       </Button>
-      <Button variant="soft-gold" onClick={handleSubmit} disabled={submitting || !selectedId}>
+      <Button variant="morandi-gold" onClick={handleSubmit} disabled={submitting || !selectedId}>
+        <CheckSquare size="1em" />
         {submitting ? '綁定中...' : '綁定'}
       </Button>
     </div>

@@ -4,7 +4,7 @@ import React from 'react'
 import { useTranslations } from 'next-intl'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, RefreshCw, X } from 'lucide-react'
+import { ArrowRight, CheckSquare, X } from 'lucide-react'
 
 export interface MealDiff {
   day: number
@@ -62,12 +62,12 @@ export const SyncToItineraryDialog: React.FC<SyncToItineraryDialogProps> = ({
             {t('quoteSyncCancel')}
           </Button>
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             type="submit"
             disabled={diffs.length === 0 || loading}
             className="gap-2"
           >
-            <RefreshCw size={16} />
+            <CheckSquare size={16} />
             {loading ? '處理中...' : t('quoteSyncConfirm')}
           </Button>
         </div>

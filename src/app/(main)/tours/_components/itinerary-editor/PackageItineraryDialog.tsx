@@ -5,7 +5,7 @@
  */
 
 import { useTranslations } from 'next-intl'
-import { FileText, Save, AlertTriangle, Eye, FilePlus, Clock } from 'lucide-react'
+import { FileText, CheckSquare, AlertTriangle, Eye, FilePlus, Clock } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { Button } from '@/components/ui/button'
@@ -220,13 +220,13 @@ export function PackageItineraryDialog({
                         </Button>
                       )}
                       <Button
-                        variant="soft-gold"
+                        variant="morandi-gold"
                         size="sm"
                         onClick={hook.handleSubmit}
                         disabled={hook.isCreating || !hook.formData.title.trim()}
                         className="h-7 px-2 text-[0.647rem] gap-1"
                       >
-                        {hook.isCreating ? <Spinner size="sm" /> : <Save className="w-3 h-3" />}
+                        {hook.isCreating ? <Spinner size="sm" /> : <CheckSquare size="1em" />}
                         {hook.isEditMode ? t('packageDialogUpdate') : t('packageDialogCreate')}
                       </Button>
                     </div>

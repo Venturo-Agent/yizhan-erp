@@ -7,7 +7,7 @@ import React, { useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Save, Printer, Edit, X, Download } from 'lucide-react'
+import { CheckSquare, Printer, Edit, X, Download } from 'lucide-react'
 import { ResponsiveHeader } from '@/components/layout/responsive-header'
 import { Quote, QuickQuoteItem } from '@/stores/types'
 import type { Quote as PrintableQuote } from '@/types/quote.types'
@@ -189,13 +189,13 @@ export const QuickQuoteDetail: React.FC<QuickQuoteDetailProps> = ({
             {t('quoteDetailCancel')}
           </Button>
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             size="sm"
             onClick={() => handleSave(true)}
             disabled={isSaving}
             className="h-8 px-2 gap-1 text-xs"
           >
-            <Save className="h-3.5 w-3.5" />
+            <CheckSquare className="h-3.5 w-3.5" />
             {isSaving ? t('quoteDetailSavingLabel') : t('quoteDetailSave')}
           </Button>
         </>

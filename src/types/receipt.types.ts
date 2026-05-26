@@ -178,10 +178,10 @@ export const RECEIPT_STATUS_LABELS: Record<ReceiptStatus, string> = {
 export const RECEIPT_STATUS_COLORS: Record<ReceiptStatus, string> = {
   pending: 'text-morandi-gold',
   pending_verify: 'text-status-warning',
-  confirmed: 'text-morandi-green',
-  rejected: 'text-morandi-red',
+  confirmed: 'text-status-success',
+  rejected: 'text-status-danger',
   cancelled: 'text-morandi-secondary',
-  refunded: 'text-morandi-red',
+  refunded: 'text-status-danger',
 }
 
 export const RECEIPT_STATUS_ICONS: Record<ReceiptStatus, string> = {

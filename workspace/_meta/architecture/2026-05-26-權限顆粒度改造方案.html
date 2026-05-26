@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>權限顆粒度改造方案 — VENTURO ERP</title>
+<style>
+  :root{
+    --cream:#FAF8F3; --cream2:#F5F2EC; --container:#EFEAE1; --line:#E2DBCE;
+    --gold:#B0934E; --gold-hover:#9A7F3F; --gold-light:#EFE6CE;
+    --primary:#3A3632; --secondary:#6B645C; --muted:#9B948A;
+    --success:#6F8466; --success-bg:#E6ECE2;
+    --danger:#A86B62; --danger-bg:#F2E3E0;
+    --info:#6F7E8B; --info-bg:#E3E9ED;
+    --warning:#B0934E; --warning-bg:#F3EAD4;
+    --shadow:0 1px 3px rgba(58,54,50,.08),0 4px 16px rgba(58,54,50,.05);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"PingFang TC","Noto Serif TC","Heiti TC",sans-serif;
+    background:var(--cream); color:var(--primary);
+    line-height:1.75; font-size:15px; padding-bottom:80px;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px}
+  /* ── header ── */
+  header{
+    background:linear-gradient(135deg,#3A3632 0%,#4A443C 100%);
+    color:var(--cream); padding:48px 0 40px; margin-bottom:36px;
+  }
+  header .wrap{position:relative}
+  .eyebrow{font-size:13px; letter-spacing:3px; color:var(--gold-light); opacity:.85; margin-bottom:10px}
+  h1{font-size:30px; font-weight:700; letter-spacing:1px; margin-bottom:14px}
+  .lead{font-size:16px; color:#D8D0C2; max-width:760px; line-height:1.85}
+  .meta-row{margin-top:22px; display:flex; gap:10px; flex-wrap:wrap}
+  .pill{
+    display:inline-flex; align-items:center; gap:6px; font-size:12.5px;
+    padding:5px 13px; border-radius:999px; background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.16); color:#E8E2D6;
+  }
+  .pill.warn{background:rgba(176,147,78,.22); border-color:rgba(176,147,78,.4); color:var(--gold-light)}
+  /* ── nav ── */
+  nav{
+    position:sticky; top:0; z-index:50; background:rgba(250,248,243,.92);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line); margin-bottom:40px;
+  }
+  nav .wrap{display:flex; gap:4px; flex-wrap:wrap; padding-top:11px; padding-bottom:11px}
+  nav a{
+    font-size:13px; color:var(--secondary); text-decoration:none; padding:6px 12px;
+    border-radius:8px; transition:.15s;
+  }
+  nav a:hover{background:var(--container); color:var(--gold-hover)}
+  /* ── sections ── */
+  section{margin-bottom:48px; scroll-margin-top:64px}
+  .sec-head{display:flex; align-items:baseline; gap:12px; margin-bottom:18px}
+  .sec-num{
+    font-size:13px; font-weight:700; color:var(--gold); border:1.5px solid var(--gold);
+    width:30px; height:30px; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; flex-shrink:0; align-self:center;
+  }
+  h2{font-size:21px; font-weight:700; letter-spacing:.5px}
+  .sec-sub{color:var(--muted); font-size:14px; margin-left:auto}
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:26px 28px; box-shadow:var(--shadow); margin-bottom:16px;
+  }
+  p.note{color:var(--secondary); margin-bottom:14px}
+  .analogy{
+    border-left:3px solid var(--gold); background:var(--gold-light);
+    padding:12px 18px; border-radius:0 10px 10px 0; color:#5A4D2E;
+    font-size:14px; margin:14px 0;
+  }
+  .analogy b{color:var(--gold-hover)}
+  /* ── 現況 vs 目標 ── */
+  .compare{display:grid; grid-template-columns:1fr auto 1fr; gap:20px; align-items:center}
+  .compare .box{border-radius:12px; padding:20px 22px}
+  .box.now{background:var(--danger-bg); border:1px solid #E2C4BE}
+  .box.goal{background:var(--success-bg); border:1px solid #C9D6C0}
+  .box h4{font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:7px}
+  .box.now h4{color:var(--danger)} .box.goal h4{color:var(--success)}
+  .box ul{list-style:none; font-size:13.5px}
+  .box li{padding:4px 0 4px 20px; position:relative; color:var(--primary)}
+  .box li::before{position:absolute; left:0; top:4px}
+  .box.now li::before{content:"▸"; color:var(--danger)}
+  .box.goal li::before{content:"▸"; color:var(--success)}
+  .arrow{font-size:28px; color:var(--gold); text-align:center}
+  /* ── 階梯圖 ── */
+  .ladder{display:flex; flex-direction:column; gap:0; max-width:720px; margin:6px auto}
+  .rung{
+    display:flex; align-items:center; gap:16px; padding:14px 20px; border-radius:12px;
+    color:#fff; font-weight:600; position:relative; box-shadow:var(--shadow);
+  }
+  .rung .lvl{font-size:12px; opacity:.85; font-weight:500}
+  .rung .name{font-size:16px}
+  .rung .desc{margin-left:auto; font-size:13px; font-weight:400; opacity:.92; text-align:right}
+  .r1{background:#5E6B54; width:100%}
+  .r2{background:#74735A; width:90%; margin-left:5%}
+  .r3{background:#8B7A55; width:78%; margin-left:11%}
+  .r4{background:#A86B62; width:64%; margin-left:18%}
+  .contain-note{text-align:center; color:var(--muted); font-size:13px; margin-top:12px}
+  /* ── 五關階梯 ── */
+  .gates{counter-reset:g; display:flex; flex-direction:column; gap:10px}
+  .gate{
+    display:flex; gap:14px; align-items:flex-start; padding:14px 18px; background:var(--cream2);
+    border:1px solid var(--line); border-radius:11px;
+  }
+  .gate .g-num{
+    counter-increment:g; flex-shrink:0; width:26px; height:26px; border-radius:50%;
+    background:var(--gold); color:#fff; font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .gate .g-num::before{content:counter(g)}
+  .gate b{color:var(--primary)}
+  .gate .g-body{font-size:14px; color:var(--secondary)}
+  .gate.keystone{background:var(--gold-light); border-color:var(--gold)}
+  .gate.keystone .g-body{color:#5A4D2E}
+  /* ── 12 條定案 ── */
+  .decisions{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+  .dec{display:flex; gap:12px; padding:13px 16px; background:#fff; border:1px solid var(--line); border-radius:10px}
+  .dec .d-n{flex-shrink:0; font-weight:700; color:var(--gold); font-size:15px}
+  .dec .d-t{font-size:13.5px; color:var(--primary)}
+  .dec.hot{border-color:var(--gold); background:var(--gold-light)}
+  .grp-label{grid-column:1/-1; font-size:12px; letter-spacing:2px; color:var(--muted); margin-top:8px; font-weight:600}
+  /* ── 組織複雜度表 ── */
+  table{width:100%; border-collapse:collapse; font-size:14px}
+  thead th{background:var(--container); color:var(--primary); font-weight:700; padding:11px 14px; text-align:left; border-bottom:2px solid var(--line); font-size:13px}
+  tbody td{padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+  tbody tr:hover{background:var(--cream2)}
+  .badge{display:inline-block; font-size:11.5px; padding:2px 9px; border-radius:6px; font-weight:600; white-space:nowrap}
+  .b-group{background:#5E6B54; color:#fff}
+  .b-branch{background:#74735A; color:#fff}
+  .b-dept{background:#8B7A55; color:#fff}
+  .b-self{background:#A86B62; color:#fff}
+  /* ── 權限矩陣 ── */
+  .matrix-tools{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom:14px; font-size:13px; color:var(--secondary)}
+  .legend{display:flex; gap:14px; align-items:center}
+  .legend span{display:inline-flex; align-items:center; gap:6px}
+  .cell-demo{width:34px; height:24px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; font-size:11px; font-weight:700}
+  .c-none{background:var(--cream2); color:var(--muted); border:1px dashed var(--line)}
+  .c-r{background:var(--info-bg); color:var(--info); border:1px solid #C5D1D8}
+  .c-rw{background:var(--success-bg); color:var(--success); border:1px solid #C9D6C0}
+  .matrix-scroll{overflow-x:auto; border:1px solid var(--line); border-radius:12px}
+  table.matrix{font-size:13px; min-width:880px}
+  table.matrix th.role-col{position:sticky; left:0; background:var(--container); z-index:2; min-width:150px}
+  table.matrix td.role-col{position:sticky; left:0; background:#fff; z-index:1; min-width:150px}
+  table.matrix tr:hover td.role-col{background:var(--cream2)}
+  table.matrix th{padding:9px 6px; text-align:center; font-size:11.5px; white-space:nowrap; line-height:1.3}
+  table.matrix td{padding:6px; text-align:center; border-bottom:1px solid var(--line)}
+  table.matrix .role-col{text-align:left; padding:10px 14px}
+  .role-name{font-weight:700; display:block; margin-bottom:5px; font-size:13.5px}
+  .scope-btn{cursor:pointer; border:none; font-family:inherit}
+  .mx-cell{cursor:pointer; width:38px; height:27px; border-radius:6px; font-size:11px; font-weight:700; transition:.12s; border:1px solid transparent}
+  .mx-cell:hover{transform:scale(1.12)}
+  .hint{font-size:12.5px; color:var(--muted); margin-top:10px; font-style:normal}
+  /* ── 工程拆解 ── */
+  .phases{display:flex; flex-direction:column; gap:12px}
+  .phase{display:flex; gap:16px; padding:16px 20px; border-radius:12px; border:1px solid var(--line); background:#fff; align-items:flex-start}
+  .phase .ph-n{flex-shrink:0; width:34px; height:34px; border-radius:9px; background:var(--container); color:var(--gold-hover); font-weight:700; display:flex; align-items:center; justify-content:center; font-size:15px}
+  .phase .ph-body{flex:1}
+  .phase h4{font-size:15px; margin-bottom:4px}
+  .phase p{font-size:13.5px; color:var(--secondary)}
+  .risk{flex-shrink:0; font-size:11.5px; font-weight:700; padding:4px 11px; border-radius:7px; align-self:center}
+  .risk.r-mid{background:var(--warning-bg); color:var(--gold-hover)}
+  .risk.r-high{background:#F0DCC4; color:#9A6B2F}
+  .risk.r-crit{background:var(--danger-bg); color:var(--danger)}
+  /* ── 待拍板 ── */
+  .pending-list{list-style:none}
+  .pending-list li{padding:12px 16px; background:var(--cream2); border:1px solid var(--line); border-radius:10px; margin-bottom:9px; font-size:14px; display:flex; gap:10px}
+  .pending-list li::before{content:"☐"; color:var(--gold); font-size:18px; flex-shrink:0}
+  footer{text-align:center; color:var(--muted); font-size:12.5px; padding:30px 0; border-top:1px solid var(--line); margin-top:40px}
+  .tag-draft{background:var(--warning-bg); color:var(--gold-hover); font-size:11px; padding:2px 8px; border-radius:5px; font-weight:600; margin-left:8px}
+  @media(max-width:760px){
+    .compare,.decisions{grid-template-columns:1fr} .arrow{transform:rotate(90deg)}
+    .rung{width:100%!important; margin-left:0!important}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">VENTURO ERP · 資安 / 權限工程</div>
+    <h1>權限顆粒度改造方案</h1>
+    <p class="lead">把「誰能看到、能改到哪些資料」從現在的<b>兩檔（只看自己分公司 / 全看）</b>，升級成<b>集團 → 分公司 → 部門 → 個人四階階梯</b>；範圍綁職務、跟著組織複雜度自動長出對應職務。</p>
+    <div class="meta-row">
+      <span class="pill">📅 2026-05-26</span>
+      <span class="pill">優先級：資安 #1</span>
+      <span class="pill warn">⚠ 待 William 逐項拍板 · 尚未動 code</span>
+    </div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <a href="#gap">現況 vs 目標</a>
+  <a href="#ladder">四階階梯</a>
+  <a href="#gates">五關判斷</a>
+  <a href="#decisions">12 條定案</a>
+  <a href="#org">職務跟組織長</a>
+  <a href="#matrix">職務權限包草案</a>
+  <a href="#phases">工程拆解</a>
+  <a href="#pending">待拍板</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- 現況 vs 目標 -->
+<section id="gap">
+  <div class="sec-head"><span class="sec-num">A</span><h2>現況 vs 目標</h2><span class="sec-sub">為什麼要改</span></div>
+  <div class="card">
+    <div class="compare">
+      <div class="box now">
+        <h4>🔴 現在：識別證只有兩檔</h4>
+        <ul>
+          <li>沒「集團萬能卡」→ 只看自己分公司</li>
+          <li>有「集團萬能卡」→ 一刀切全看</li>
+          <li>中間沒有「部門」「個人」兩檔</li>
+          <li>「部門」資料庫根本沒這張表</li>
+          <li>「能不能改別人」開關躺著沒接、形同虛設</li>
+        </ul>
+      </div>
+      <div class="arrow">➜</div>
+      <div class="box goal">
+        <h4>🟢 目標：四階可調階梯</h4>
+        <ul>
+          <li>集團 / 分公司 / 部門 / 個人 四階</li>
+          <li>範圍綁職務、一個職務一個範圍</li>
+          <li>同時管「能看多大」和「能改多大」</li>
+          <li>部門這輪完整蓋好</li>
+          <li>職務跟組織複雜度自動長、開箱即用</li>
+        </ul>
+      </div>
+    </div>
+    <div class="analogy">🏨 <b>飯店譬喻：</b>識別證上「能進哪些部門」（功能）和「能刷多大樓層範圍」（範圍）是兩排獨立權限。現在只發得出「分店卡」和「集團萬能卡」，缺「樓層卡（部門）」「個人房卡」。</div>
+  </div>
+</section>
+
+<!-- 四階階梯 -->
+<section id="ladder">
+  <div class="sec-head"><span class="sec-num">B</span><h2>四階階梯</h2><span class="sec-sub">由寬到窄、外層包含內層</span></div>
+  <div class="card">
+    <div class="ladder">
+      <div class="rung r1"><span class="name">集團級</span><span class="lvl">GROUP</span><span class="desc">所有分公司、跨部門全看全改</span></div>
+      <div class="rung r2"><span class="name">分公司級</span><span class="lvl">BRANCH</span><span class="desc">只看自己所屬分公司（跨部門、限本店）</span></div>
+      <div class="rung r3"><span class="name">部門級</span><span class="lvl">DEPARTMENT</span><span class="desc">只看自己部門</span></div>
+      <div class="rung r4"><span class="name">個人級</span><span class="lvl">SELF</span><span class="desc">只看自己經手的</span></div>
+    </div>
+    <p class="contain-note">集團 ⊃ 分公司 ⊃ 部門 ⊃ 個人　·　上層自動涵蓋下層</p>
+    <div class="analogy">💡 <b>關鍵認知：</b>對「單一分公司、沒分部門」的客戶，範圍維度幾乎沒作用（集團＝分公司＝就這一間）。<b>範圍是替「將來變複雜」預留的</b>，不增加簡單客戶的負擔。</div>
+  </div>
+</section>
+
+<!-- 五關判斷 -->
+<section id="gates">
+  <div class="sec-head"><span class="sec-num">C</span><h2>能不能看到一張單？走五關階梯</h2><span class="sec-sub">取代現在的兩檔判斷</span></div>
+  <div class="card">
+    <div class="gates">
+      <div class="gate keystone"><span class="g-num"></span><span class="g-body"><b>這張單是我建的 / 我負責的？</b> → 看得到。<b>保底線、永遠成立</b>，部門重組也不會把人的歷史資料鎖死。</span></div>
+      <div class="gate"><span class="g-num"></span><span class="g-body"><b>我的職務是「集團級」？</b> → 看得到，不分分公司。</span></div>
+      <div class="gate"><span class="g-num"></span><span class="g-body"><b>我的職務是「分公司級」？</b> → 這張單跟我同一間分公司 → 看得到。</span></div>
+      <div class="gate"><span class="g-num"></span><span class="g-body"><b>我的職務是「部門級」？</b> → 這張單跟我同一個部門 → 看得到。</span></div>
+      <div class="gate"><span class="g-num"></span><span class="g-body"><b>我的職務是「個人級」？</b> → 只有第①關成立才看得到。</span></div>
+    </div>
+    <div class="analogy">📁 <b>署名權譬喻：</b>你換部門、辦公室搬三樓，但以前在一樓經手、署了名的卷宗你還是調得出來——卷宗本身沒搬樓，是「署名權」（第①關）讓你看得到。</div>
+  </div>
+</section>
+
+<!-- 12 條定案 -->
+<section id="decisions">
+  <div class="sec-head"><span class="sec-num">D</span><h2>12 條定案</h2><span class="sec-sub">已對話拍板</span></div>
+  <div class="card">
+    <div class="decisions">
+      <div class="grp-label">核心模型</div>
+      <div class="dec"><span class="d-n">1</span><span class="d-t">「能看什麼功能」與「能看多大範圍」拆成兩個獨立維度。</span></div>
+      <div class="dec hot"><span class="d-n">2</span><span class="d-t">範圍<b>綁職務、不綁每個功能</b>（避免權限矩陣爆炸）。</span></div>
+      <div class="dec"><span class="d-n">3</span><span class="d-t">四階：集團 ⊃ 分公司 ⊃ 部門 ⊃ 個人。</span></div>
+      <div class="dec hot"><span class="d-n">4</span><span class="d-t">一個範圍<b>同時管「看」和「改/刪」</b>；廢掉躺著沒接的 can_write_others。</span></div>
+      <div class="grp-label">可見性判斷</div>
+      <div class="dec hot"><span class="d-n">5</span><span class="d-t">五關階梯，「<b>建立人永遠看得到自己建的</b>」是保底線。</span></div>
+      <div class="grp-label">組織維度</div>
+      <div class="dec"><span class="d-n">6</span><span class="d-t">部門這輪<b>完整蓋好</b>（建表＋員工欄位＋設定 UI＋RLS）。</span></div>
+      <div class="dec"><span class="d-n">7</span><span class="d-t">每筆業務資料帶「部門」欄位、<b>預設總部</b>；分部門後歷史資料留總部。</span></div>
+      <div class="dec"><span class="d-n">8</span><span class="d-t">一人<b>只隸屬一間分公司</b>（單值）。</span></div>
+      <div class="grp-label">職務怎麼產生</div>
+      <div class="dec hot"><span class="d-n">9</span><span class="d-t">職務組<b>跟著組織複雜度長</b>：建分公司補「分公司負責人」、建部門補「部門主管」。</span></div>
+      <div class="dec"><span class="d-n">10</span><span class="d-t">seed 走<b>租戶開通程式流程</b>、不走資料庫觸發（撞車鐵律）。</span></div>
+      <div class="grp-label">邊界</div>
+      <div class="dec"><span class="d-n">11</span><span class="d-t">共用資料（公司設定／銀行帳戶／主檔）<b>不吃範圍</b>；否決全局模板庫（無超級管理員鐵律）。</span></div>
+      <div class="dec hot"><span class="d-n">12</span><span class="d-t">每個預設職務 = 名字 + <b>一整套預配好的功能權限 + 範圍</b>，開箱即用、不是空殼。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 職務跟組織長 -->
+<section id="org">
+  <div class="sec-head"><span class="sec-num">E</span><h2>職務組跟著組織複雜度長</h2><span class="sec-sub">退化規則</span></div>
+  <div class="card">
+    <table>
+      <thead><tr><th style="width:32%">客戶的組織狀況</th><th>自動配的職務組</th><th style="width:28%">新增職務的範圍</th></tr></thead>
+      <tbody>
+        <tr><td><b>最簡</b><br><span style="color:var(--muted);font-size:13px">沒分公司、沒部門</span></td><td>系統管理員、會計、團控、業務</td><td><span class="badge b-group">管理員＝集團</span> <span class="badge b-branch">會計/團控＝分公司</span> <span class="badge b-self">業務＝個人</span></td></tr>
+        <tr><td><b>＋ 有分公司</b><br><span style="color:var(--muted);font-size:13px">建第一間分公司時提示</span></td><td>＋ 分公司負責人</td><td><span class="badge b-branch">分公司級</span></td></tr>
+        <tr><td><b>＋ 有部門</b><br><span style="color:var(--muted);font-size:13px">建第一個部門時提示</span></td><td>＋ 部門主管</td><td><span class="badge b-dept">部門級</span></td></tr>
+      </tbody>
+    </table>
+    <div class="analogy">🪪 <b>譬喻：</b>不用開店第一天就把所有卡印好。等你真的開第二家分店，系統才提醒「要不要印一張分店長卡」。組織多複雜、就發多少種卡。</div>
+  </div>
+</section>
+
+<!-- 權限矩陣 -->
+<section id="matrix">
+  <div class="sec-head"><span class="sec-num">F</span><h2>各職務權限包草案<span class="tag-draft">草案 · 待業務確認</span></h2><span class="sec-sub">點格子可改</span></div>
+  <div class="card">
+    <div class="matrix-tools">
+      <div class="legend">
+        <span><i class="cell-demo c-none">—</i> 無</span>
+        <span><i class="cell-demo c-r">讀</i> 可讀</span>
+        <span><i class="cell-demo c-rw">讀寫</i> 可讀寫</span>
+      </div>
+      <span style="margin-left:auto">點功能格子循環切換、點範圍標籤循環四階</span>
+    </div>
+    <div class="matrix-scroll">
+      <table class="matrix" id="mx"></table>
+    </div>
+    <p class="hint">⌨ 這是可在畫面上比劃的草案：點任一格切換無/讀/讀寫、點職務的範圍標籤切換階級。改好後<b>截圖或直接告訴我哪幾格要調</b>，我落地（畫面不會自動存檔）。「業務＝個人級」表示業務只看得到自己經手的客戶/團，不是看不到客戶功能。<br>📌 <b>會計/團控預設「分公司級」（最小權限）</b>：單一分公司時等於全看、多分公司時各自只看自己分公司——「台北會計」「台中會計」用<b>同一個「會計」職務</b>、靠各自所屬分公司自動隔離，不會變成多個職務。需要跨分公司看全集團帳的，另設集團級職務或由系統管理員。</p>
+  </div>
+</section>
+
+<!-- 工程拆解 -->
+<section id="phases">
+  <div class="sec-head"><span class="sec-num">G</span><h2>五段工程拆解</h2><span class="sec-sub">資安第一、最高風險</span></div>
+  <div class="card">
+    <div class="phases">
+      <div class="phase"><span class="ph-n">1</span><div class="ph-body"><h4>地基（schema）</h4><p>建部門表、員工＋業務表加部門欄位（預設總部）、職務加「範圍」欄位、廢 can_write_others。</p></div><span class="risk r-mid">中</span></div>
+      <div class="phase"><span class="ph-n">2</span><div class="ph-body"><h4>守門邏輯（RLS）</h4><p>改寫資料庫隱形柵欄成「五關階梯」、全站 60+ 業務表統一吃新邏輯。動前先跑登入測試＋RLS 稽核、模擬各職務視角驗過再 apply。</p></div><span class="risk r-crit">🔴 最高</span></div>
+      <div class="phase"><span class="ph-n">3</span><div class="ph-body"><h4>開通配套</h4><p>最簡職務組（含預配權限＋範圍）seed、建分公司/部門時動態補職務的提示機制。</p></div><span class="risk r-mid">中</span></div>
+      <div class="phase"><span class="ph-n">4</span><div class="ph-body"><h4>介面</h4><p>職務頁加範圍下拉、部門管理頁、員工選部門、遷移舊的「看全部/看自己」切換改讀職務範圍。</p></div><span class="risk r-mid">中</span></div>
+      <div class="phase"><span class="ph-n">5</span><div class="ph-body"><h4>遷移驗證</h4><p>舊資料歸總部、舊職務設範圍、跨租戶滲透＋登入測試全綠。</p></div><span class="risk r-high">高</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 待拍板 -->
+<section id="pending">
+  <div class="sec-head"><span class="sec-num">H</span><h2>狀態：方向全定案</h2><span class="sec-sub">剩 2 項最終確認</span></div>
+  <div class="card">
+    <p class="note">✅ <b>seed 時機</b>（建分公司/部門時動態提示）　✅ <b>個人級定義</b>（負責業務優先、空值退回建檔人、可留空補正）　✅ <b>會計/團控改最小權限</b>（分公司級）——皆已拍板。<br>工程實作設計卡已產出：<b>2026-05-26-權限顆粒度改造-實作設計卡.md</b>（含新 RLS 函數、32 張吃範圍的表清單、遷移步驟、各段 rollback）。</p>
+    <ul class="pending-list">
+      <li><b>精確 seed 權限包</b>——對著上方第 F 段矩陣做最終確認/微調（哪個職務該碰哪些功能，譬如「會計只碰財務設定、不碰系統設定」已記）。</li>
+      <li><b>上線遷移策略</b>——現有角色一律先設「分公司級」、日後讓客戶自行收緊到部門/個人（不破壞現狀的折衷），確認可接受。</li>
+    </ul>
+    <p class="note" style="margin-top:14px">這兩項確認後，逐段推進五段工程，<b>每段動手前先報「執行」確認</b>、不偷跑。</p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  VENTURO ERP · 權限顆粒度改造方案 · 2026-05-26 · 由 Max（資安/權限工程）整理 · 待拍板，尚未動 code
+</footer>
+
+<script>
+const MODULES = ["旅遊團","訂單","客戶","報價","收款","請款","出納","會計憑證","財務報表","員工資料","薪資","溝通頻道","行事曆","公司設定"];
+const SCOPES = [
+  {k:"group",  label:"集團級",  cls:"b-group"},
+  {k:"branch", label:"分公司級",cls:"b-branch"},
+  {k:"dept",   label:"部門級",  cls:"b-dept"},
+  {k:"self",   label:"個人級",  cls:"b-self"},
+];
+// 0=無 1=讀 2=讀寫
+const ROLES = [
+  {name:"系統管理員", scope:0, caps:[2,2,2,2,2,2,2,2,2,2,2,2,2,2]},
+  {name:"會計",       scope:1, caps:[1,1,1,1,2,2,2,2,2,1,2,2,1,2]},
+  {name:"團控",       scope:1, caps:[2,2,2,2,1,1,0,0,1,0,0,2,2,0]},
+  {name:"業務",       scope:3, caps:[2,2,2,2,1,1,0,0,0,0,0,2,2,0]},
+  {name:"分公司負責人",scope:1, caps:[2,2,2,2,2,2,1,1,2,1,0,2,2,1]},
+  {name:"部門主管",   scope:2, caps:[2,2,2,2,1,1,0,0,1,1,0,2,2,0]},
+];
+const CELL = [
+  {t:"—",   c:"c-none"},
+  {t:"讀",  c:"c-r"},
+  {t:"讀寫",c:"c-rw"},
+];
+function render(){
+  const t=document.getElementById('mx');
+  let h="<thead><tr><th class='role-col'>職務 / 功能</th>";
+  MODULES.forEach(m=>h+=`<th>${m}</th>`);
+  h+="</tr></thead><tbody>";
+  ROLES.forEach((r,ri)=>{
+    const sc=SCOPES[r.scope];
+    h+=`<tr><td class='role-col'><span class='role-name'>${r.name}</span><button class='badge ${sc.cls} scope-btn' data-r='${ri}' title='點切換範圍'>${sc.label}</button></td>`;
+    r.caps.forEach((v,ci)=>{
+      const c=CELL[v];
+      h+=`<td><button class='mx-cell ${c.c}' data-r='${ri}' data-c='${ci}'>${c.t}</button></td>`;
+    });
+    h+="</tr>";
+  });
+  h+="</tbody>"; t.innerHTML=h;
+}
+render();
+document.getElementById('mx').addEventListener('click',e=>{
+  const cell=e.target.closest('.mx-cell');
+  if(cell){
+    const ri=+cell.dataset.r, ci=+cell.dataset.c;
+    ROLES[ri].caps[ci]=(ROLES[ri].caps[ci]+1)%3;
+    render(); return;
+  }
+  const sb=e.target.closest('.scope-btn');
+  if(sb){
+    const ri=+sb.dataset.r;
+    ROLES[ri].scope=(ROLES[ri].scope+1)%4;
+    render();
+  }
+});
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Combobox } from '@/components/ui/combobox'
 import { updateOrder } from '@/data'
 import type { Order } from '@/stores/types'
-import { X } from 'lucide-react'
+import { CheckSquare, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
@@ -149,10 +149,11 @@ export function OrderEditDialog({ open, onOpenChange, order, level = 2 }: OrderE
               {t('cancel')}
             </Button>
             <Button
-              variant="soft-gold"
+              variant="morandi-gold"
               type="submit"
               disabled={!formData.contact_person || isSubmitting}
             >
+              <CheckSquare size={16} />
               {isSubmitting ? t('saving') : t('save')}
             </Button>
           </div>

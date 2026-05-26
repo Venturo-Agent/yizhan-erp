@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormDialog } from '@/components/dialog'
-import { MapPin, X, Check, Plus } from 'lucide-react'
+import { MapPin, X, CheckSquare, Plus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { InlineEditTable, type InlineEditColumn } from '@/components/ui/inline-edit-table'
 
@@ -132,11 +132,11 @@ export const LocalPricingDialog: React.FC<LocalPricingDialogProps> = ({
         {t('quoteLocalPricingCancel')}
       </Button>
       <Button
-        variant="soft-gold"
+        variant="morandi-gold"
         onClick={handleConfirmClick}
         disabled={isSubmitDisabled || loading}
       >
-        <Check className="w-4 h-4 mr-2" />
+        <CheckSquare className="w-4 h-4 mr-2" />
         {loading ? '處理中...' : t('quoteLocalPricingConfirm')}
       </Button>
     </div>

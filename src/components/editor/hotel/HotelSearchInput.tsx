@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Search, Edit, Plus } from 'lucide-react'
+import { Search, Edit, CheckSquare } from 'lucide-react'
 import { COMP_EDITOR_LABELS } from '../constants/labels'
 
 // 品牌列表
@@ -191,13 +191,13 @@ export function HotelSearchInput({
             autoFocus
           />
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             type="button"
             onClick={onManualAdd}
             disabled={!manualHotelName.trim()}
             className="rounded-lg h-10 px-4 gap-1.5"
           >
-            <Plus size="1em" />
+            <CheckSquare size="1em" />
             {COMP_EDITOR_LABELS.新增}
           </Button>
         </div>

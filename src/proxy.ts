@@ -33,7 +33,6 @@ function buildCSPHeader(nonce: string): string {
 // 精確匹配 + 子路徑 prefix 分兩組、避免 `/api/auth` 這種過寬 prefix 把敏感 API 放行。
 const EXACT_PUBLIC_PATHS = new Set<string>([
   // === 頁面（無子路由者）===
-  '/landing',
   '/login',
   '/confirm',
   '/public',

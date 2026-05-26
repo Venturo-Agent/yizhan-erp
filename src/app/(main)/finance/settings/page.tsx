@@ -99,8 +99,7 @@ export default function FinanceSettingsPage() {
     { value: 'receipt', label: '收款方式', icon: CreditCard },
     { value: 'payment', label: '付款方式', icon: Banknote },
     { value: 'category', label: '團體請款類別', icon: Tag },
-    { value: 'company_expense', label: '公司支出項目', icon: Building2 },
-    { value: 'company_income', label: '公司收入項目', icon: TrendingUp },
+    { value: 'company', label: '公司收支項目', icon: TrendingUp },
     { value: 'bonus', label: '獎金設定', icon: Award },
   ]
 
@@ -128,15 +127,8 @@ export default function FinanceSettingsPage() {
           setIsCategoryDialogOpen(true)
         },
       },
-      company_expense: {
-        label: '新增支出項目',
-        onClick: () => {
-          setEditingCategory(null)
-          setIsCategoryDialogOpen(true)
-        },
-      },
-      company_income: {
-        label: '新增收入項目',
+      company: {
+        label: '新增收支項目',
         onClick: () => {
           setEditingCategory(null)
           setIsCategoryDialogOpen(true)
@@ -189,9 +181,7 @@ export default function FinanceSettingsPage() {
           />
         )}
 
-        {(activeSection === 'category' ||
-          activeSection === 'company_expense' ||
-          activeSection === 'company_income') && (
+        {(activeSection === 'category' || activeSection === 'company') && (
           <CategoriesSection
             variant={activeSection}
             expenseCategories={expenseCategories}

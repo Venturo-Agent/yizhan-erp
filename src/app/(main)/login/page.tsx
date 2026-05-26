@@ -263,7 +263,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={forgotLoading}
-                    className="flex-1 py-2 text-xs text-white bg-morandi-gold rounded-2xl disabled:opacity-60"
+                    className="flex-1 py-2 text-xs rounded-2xl disabled:opacity-60 [background:var(--btn-primary-bg)] [color:var(--btn-primary-fg)] [border-color:var(--btn-primary-border)] border font-semibold transition-[filter] hover:brightness-[.96] active:brightness-[.92]"
                   >
                     {forgotLoading ? '寄送中...' : '寄出重設信'}
                   </button>

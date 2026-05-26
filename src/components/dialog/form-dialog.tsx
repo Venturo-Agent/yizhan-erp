@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { ReactNode } from 'react'
-import { Save, X } from 'lucide-react'
+import { CheckSquare, X } from 'lucide-react'
 
 interface FormDialogProps {
   /** 對話框開啟狀態 */
@@ -120,8 +120,34 @@ export function FormDialog({
     }
   }
 
-  // 如果沒有 onSubmit，就不需要 form 包裝
-  const shouldShowFooter = showFooter && onSubmit
+  // Footer 顯示條件：有 onSubmit（用預設提交按鈕）或有自訂 footer 都要顯示
+  // 修 2026-05-26：原本只看 onSubmit、導致「自訂 footer 但無 onSubmit」的確認類彈窗
+  //（刪除確認 / 退款 / 綁定客戶等 7 個）按鈕整塊消失、彈窗開了點不到
+  const shouldShowFooter = showFooter && (onSubmit || footer)
+
+  // Footer 區（抽出來、讓有/無 onSubmit 兩種包裝都能共用）
+  // 無 onSubmit 時 shouldShowFooter 只在有自訂 footer 才為真、故此處只會渲染自訂 footer（不會渲染需 form 的預設提交鈕）
+  const footerNode = shouldShowFooter ? (
+    <div className="flex justify-end gap-2 pt-4 border-t border-border">
+      {footer || (
+        <>
+          <Button type="button" variant="soft-gold" onClick={handleCancel} className="gap-2">
+            <X size="1em" />
+            {cancelLabel}
+          </Button>
+          <Button
+            variant="morandi-gold"
+            type="submit"
+            disabled={loading || submitDisabled}
+            className="gap-2"
+          >
+            <CheckSquare size="1em" />
+            {loading ? '處理中...' : submitLabel}
+          </Button>
+        </>
+      )}
+    </div>
+  ) : null
 
   // 阻止 Dialog 預設的拖放行為，讓子元素可以處理
   const handleDragOver = (e: React.DragEvent) => {
@@ -150,38 +176,15 @@ export function FormDialog({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* 表單內容區域 */}
             <div className="space-y-4">{children}</div>
-
-            {/* Footer 按鈕組 */}
-            {shouldShowFooter && (
-              <div className="flex justify-end gap-2 pt-4 border-t border-border">
-                {footer || (
-                  <>
-                    <Button
-                      type="button"
-                      variant="soft-gold"
-                      onClick={handleCancel}
-                      className="gap-2"
-                    >
-                      <X size="1em" />
-                      {cancelLabel}
-                    </Button>
-                    <Button
-                      variant="soft-gold"
-                      type="submit"
-                      disabled={loading || submitDisabled}
-                      className="gap-2"
-                    >
-                      <Save size="1em" />
-                      {loading ? '處理中...' : submitLabel}
-                    </Button>
-                  </>
-                )}
-              </div>
-            )}
+            {/* Footer 按鈕組（含自訂 footer）*/}
+            {footerNode}
           </form>
         ) : (
-          // 沒有 onSubmit 就不用 form 包裝
-          <div className="space-y-4">{children}</div>
+          // 沒有 onSubmit 就不用 form 包裝、但自訂 footer 仍要顯示
+          <div className="space-y-4">
+            <div className="space-y-4">{children}</div>
+            {footerNode}
+          </div>
         )}
       </DialogContent>
     </Dialog>

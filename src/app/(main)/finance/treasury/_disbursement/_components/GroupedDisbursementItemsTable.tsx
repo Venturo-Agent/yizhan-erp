@@ -149,7 +149,7 @@ export function GroupedDisbursementItemsTable({
               <tr className="border-b border-border">
                 <th className="bg-morandi-gold-header px-3 py-2.5"></th>
                 <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
-                  出帳日期
+                  請款日期
                 </th>
                 <th className="bg-morandi-gold-header text-left px-3 py-2.5 text-xs font-medium text-morandi-primary">
                   請款單號
@@ -249,6 +249,17 @@ function GroupRows({
   // 譬喻：預算內不 noise、超預算才提醒
   const totalSpend = alreadyPaid + pickedAmount
   const isOverspend = income !== null && totalSpend > income && totalSpend > 0
+
+  // 整團的請款日期區間（摺疊批勾時露出、讓使用者一眼看出這團是否有日期不一致的單要剔出）
+  // ISO 日期字串（YYYY-MM-DD）可直接字串比大小取 min/max
+  const reqDates = group.items.map(i => i.request_date).filter((d): d is string => !!d)
+  const minReqDate = reqDates.length ? reqDates.reduce((a, b) => (a < b ? a : b)) : null
+  const maxReqDate = reqDates.length ? reqDates.reduce((a, b) => (a > b ? a : b)) : null
+  const reqDateRange = minReqDate
+    ? minReqDate === maxReqDate
+      ? minReqDate
+      : `${minReqDate} ~ ${maxReqDate}`
+    : null
   // 整個 group（含 group row + items）用同個 stripedBg、跨 group 穿插
   // group row 跟 items 視覺一塊、跟下一團對比
   return (
@@ -264,7 +275,7 @@ function GroupRows({
             onCheckedChange={checked => onToggleGroupAll(checked === true)}
           />
         </td>
-        {/* 團名對齊「出帳日期」column 起點（含 chevron）*/}
+        {/* 團名對齊「請款日期」column 起點（含 chevron）*/}
         <td colSpan={2} className="px-3 py-2.5">
           <div className="flex items-center gap-2">
             <span className="text-morandi-secondary">
@@ -279,8 +290,16 @@ function GroupRows({
             {selectedCount}/{group.items.length} 筆
           </span>
         </td>
-        {/* 超支警示在「品項 + 付款對象 + 對方銀行」3 欄合併區（只在超支才顯示）*/}
-        <td colSpan={3} className="px-3 py-2.5">
+        {/* 該團請款日期區間對齊「品項」column（摺疊批勾時露出、讓使用者看出有日期不一致要剔出的單）*/}
+        <td className="px-3 py-2.5">
+          {!isExpanded && reqDateRange && (
+            <span className="text-xs text-morandi-secondary whitespace-nowrap">
+              請款 {reqDateRange}
+            </span>
+          )}
+        </td>
+        {/* 超支警示在「付款對象 + 對方銀行」2 欄合併區（只在超支才顯示）*/}
+        <td colSpan={2} className="px-3 py-2.5">
           {isOverspend && (
             <span className="text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded bg-status-danger/10 text-status-danger font-medium">
               <AlertTriangle size={12} />

@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
-import { ZoomIn, ZoomOut, RotateCcw, Move } from 'lucide-react'
+import { ZoomIn, ZoomOut, RotateCcw, Move, CheckSquare } from 'lucide-react'
 import { UI_LABELS } from './constants/labels'
 
 // 圖片位置設定的型別
@@ -297,7 +297,8 @@ export function ImagePositionEditor({
                 <Button type="button" variant="soft-gold" onClick={onClose}>
                   {UI_LABELS.CANCEL}
                 </Button>
-                <Button variant="soft-gold" type="button" onClick={handleConfirm}>
+                <Button variant="morandi-gold" type="button" onClick={handleConfirm}>
+                  <CheckSquare size="1em" />
                   {UI_LABELS.LABEL_4550}
                 </Button>
               </div>

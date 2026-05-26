@@ -4,8 +4,9 @@
 # 初版 2026-05-02、序號 2026-05-18 重整（原本 2 → 4 → 6 → 10 →… 跳號是因為早期條款廢除沒重排、現在 1→10 連號）
 #
 # 用法：
-#   ./scripts/check-standards.sh          # 跑所有檢查
-#   ./scripts/check-standards.sh --strict # CI 模式（任何違反 = exit 1）
+#   ./scripts/check-standards.sh                       # 跑所有檢查
+#   ./scripts/check-standards.sh --strict              # CI 模式（任何違反 = exit 1）
+#   ./scripts/check-standards.sh --update-color-baseline  # 重生散刻色 baseline（清理進度後收緊用）
 #
 # 目標：自動偵測能機械式偵測的違反、防止 ERP 退化
 # 注：本檔只列「能機械偵測」的 10 條；CLAUDE.md 紅線 A/B/C/D/E/F/G 是「人為審查」紅線、不在此檔
@@ -28,6 +29,47 @@ NC='\033[0m'
 log_pass() { echo -e "${GREEN}✅ PASS${NC} $*"; }
 log_fail() { echo -e "${RED}❌ FAIL${NC} $*"; VIOLATIONS=$((VIOLATIONS+1)); }
 log_warn() { echo -e "${YELLOW}⚠️  WARN${NC} $*"; }
+
+# ============================================================
+# 散刻色（#11）共用設定 — regen branch 與 #11 檢查共用同一份邏輯
+# ============================================================
+COLOR_BASELINE_FILE="scripts/.hardcoded-color-baseline.txt"
+# Tailwind 預設色 pattern：(屬性前綴)-(色名)-(數字 50~900)
+COLOR_PATTERN='(bg|text|border|ring|from|to|via|fill|stroke)-(red|green|blue|yellow|purple|pink|orange|indigo|teal|cyan|rose|amber|lime|emerald|sky|violet|fuchsia)-[0-9]{2,3}'
+# channel badge 品牌色（LINE 綠 / FB 藍 / IG 粉）行級白名單 — 不算違規
+COLOR_BADGE_WHITELIST='bg-(green|blue|pink)-100 text-(green|blue|pink)-700'
+
+# 列出「當前所有非白名單散刻色違規檔」（sorted unique 檔案路徑）
+# 白名單（不算違規）：
+#   - channel badge 品牌色行（行級、grep -v）
+#   - OrderStatusBadge.tsx（客運供應商色，整檔）
+#   - (public)/p/**（設計提案公開頁、自成一套品牌色，整目錄）
+#   - global-error.tsx / not-found.tsx（錯誤頁）
+list_color_violation_files() {
+  grep -rnE "$COLOR_PATTERN" src --include="*.ts" --include="*.tsx" 2>/dev/null \
+    | grep -vE "$COLOR_BADGE_WHITELIST" \
+    | grep -vE "^src/app/\(main\)/orders/_components/OrderStatusBadge\.tsx:" \
+    | grep -vE "^src/app/\(public\)/p/" \
+    | grep -vE "^src/app/global-error\.tsx:" \
+    | grep -vE "^src/app/not-found\.tsx:" \
+    | sed -E 's/:[0-9]+:.*$//' \
+    | sort -u
+}
+
+# --update-color-baseline：重生 baseline（保留檔頭註解、只重寫檔案清單）
+if [ "$STRICT" = "--update-color-baseline" ]; then
+  echo "重生散刻色 baseline → $COLOR_BASELINE_FILE"
+  # 保留現有檔頭（# 開頭的註解行）、重寫下方清單
+  HEADER=$(grep -E "^#" "$COLOR_BASELINE_FILE" 2>/dev/null || true)
+  NEW_FILES=$(list_color_violation_files)
+  {
+    [ -n "$HEADER" ] && echo "$HEADER"
+    echo "$NEW_FILES"
+  } > "$COLOR_BASELINE_FILE"
+  COUNT=$(echo "$NEW_FILES" | grep -c . || true)
+  echo "已寫入 $COUNT 個違規檔（白名單已排除）"
+  exit 0
+fi
 
 echo "============================================"
 echo "ERP 整理憲法 守門檢查"
@@ -230,6 +272,45 @@ if [ "$ANY_COUNT" -gt 0 ]; then
   echo "$ANY_REPORT" | grep -v "^TOTAL:" | head -3
 else
   log_pass "#10: 無 any / as any 散落"
+fi
+
+# ============================================================
+# #11: 散刻顏色（Tailwind 預設色）— ratchet baseline 機制
+# UI 紅線（2026-05-23）：禁用 bg-red-* / text-blue-* 等 Tailwind 預設色、應走 design token（morandi-* / status-*）
+# 防炸原則：用檔案級 ratchet baseline 豁免「現存」違規檔、只擋「新引入」散刻色的新檔
+#   - baseline 內的檔 → 漸進清、不擋
+#   - 不在 baseline 的檔出現散刻色 → 🚫 FAIL（新引入、擋）
+# 白名單（不算違規、見 list_color_violation_files）：channel badge / OrderStatusBadge / (public)/p/** / 錯誤頁
+# 重生 baseline：./scripts/check-standards.sh --update-color-baseline
+# ============================================================
+echo
+echo "▶ #11: 散刻顏色（Tailwind 預設色）"
+if [ ! -f "$COLOR_BASELINE_FILE" ]; then
+  log_warn "#11: 找不到 baseline 檔（$COLOR_BASELINE_FILE）、跳過散刻色檢查（不擋 commit）"
+else
+  # baseline 內的檔案路徑（排除註解行與空行）
+  BASELINE_FILES=$(grep -vE "^#|^[[:space:]]*$" "$COLOR_BASELINE_FILE" 2>/dev/null | sort -u)
+  CURRENT_FILES=$(list_color_violation_files)
+  # 新違規檔 = 當前違規檔 − baseline 檔（comm 取「只在當前」那欄）
+  NEW_VIOLATION_FILES=$(comm -23 <(echo "$CURRENT_FILES") <(echo "$BASELINE_FILES") | grep -v "^$" || true)
+  if [ -n "$NEW_VIOLATION_FILES" ]; then
+    NEW_COUNT=$(echo "$NEW_VIOLATION_FILES" | grep -c . | tr -d ' ')
+    log_fail "#11: $NEW_COUNT 個「不在 baseline」的檔新引入散刻色（Tailwind 預設色、應改 morandi-* / status-* token）"
+    echo "$NEW_VIOLATION_FILES" | while read -r f; do
+      [ -z "$f" ] && continue
+      echo "    🆕 $f"
+      grep -nE "$COLOR_PATTERN" "$f" 2>/dev/null | grep -vE "$COLOR_BADGE_WHITELIST" | head -2 | sed 's/^/        /'
+    done
+  else
+    BASELINE_COUNT=$(echo "$BASELINE_FILES" | grep -c . | tr -d ' ')
+    log_pass "#11: 無新引入散刻色（baseline 豁免 $BASELINE_COUNT 個現存違規檔、漸進清）"
+  fi
+
+  # morandi-red / green 散刻 — 第一版只 warning、不影響 exit code（量大、漸進改 status token）
+  MORANDI_RG=$(grep -rnE "morandi-(red|green)" src --include="*.ts" --include="*.tsx" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$MORANDI_RG" -gt 0 ]; then
+    log_warn "#11: morandi-red/green 散刻 $MORANDI_RG 筆、建議漸進改 status token（text-status-success / text-status-danger）— 此項僅提示、不擋 commit"
+  fi
 fi
 
 # ============================================================

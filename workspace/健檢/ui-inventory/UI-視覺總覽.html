@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全站 UI 視覺總覽 — Venturo ERP</title>
+<style>
+/* ═══════════════ 真實 Morandi Token（複刻自 src/styles/tokens.css 預設主題）═══════════════ */
+:root{
+  --morandi-primary:#3a3633;
+  --morandi-secondary:#8b8680;
+  --morandi-gold:#c9aa7c;
+  --morandi-gold-hover:#b8996b;
+  --morandi-gold-light:rgba(201,170,124,0.12);
+  --morandi-green:#9fa68f;
+  --morandi-red:#c08374;
+  --morandi-container:#e8e5e0;
+  --morandi-muted:#b8b2aa;
+  --morandi-cream:#faf7f3;
+  --status-info:#8ba4b4;        --status-info-bg:#f0f4f6;
+  --status-success:#9fa68f;     --status-success-bg:#f4f6f2;
+  --status-warning:#d4a574;     --status-warning-bg:#faf6f0;
+  --status-danger:#c08374;      --status-danger-bg:#faf4f2;
+  --status-neutral:#8b8680;     --status-neutral-bg:#f6f5f3;
+  --background:#f6f4f1;
+  --card:#ffffff;
+  --border:#d4c4b0;
+  --input:#b8a385;
+  --input-border:#b8a385;
+  --muted-foreground:#8b8680;
+  /* 主 CTA 淡金漸層 token（--btn-primary-*） */
+  --btn-primary-bg:linear-gradient(135deg,#f8eede 0%,#f5e8d3 50%,#ecd9bb 100%);
+  --btn-primary-fg:#5c4a2f;
+  --btn-primary-border:#efe2c8;
+  --destructive:#c08374;
+  --shadow-sm:0 4px 12px -2px rgba(180,160,120,0.08);
+  --shadow-md:0 8px 16px -4px rgba(180,160,120,0.12);
+  --shadow-lg:0 12px 24px -8px rgba(180,160,120,0.15);
+
+  /* 報告自身配色 */
+  --page-bg:#f6f4f1;
+  --nav-w:248px;
+  --ok:#5a8a5e;       --ok-bg:#eef4ee;     --ok-border:#bcd6bd;
+  --bad:#c0584a;      --bad-bg:#f9eeec;    --bad-border:#e2b3aa;
+  --warn:#b8893f;     --warn-bg:#f8f1e6;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:'Noto Sans TC','PingFang TC','Heiti TC',system-ui,sans-serif;
+  background:var(--page-bg);
+  color:var(--morandi-primary);
+  font-size:15px;
+  line-height:1.65;
+}
+h1,h2,h3,.serif{font-family:'Noto Serif TC','Songti TC',serif;}
+a{color:inherit}
+
+/* ═══════════════ Layout ═══════════════ */
+.layout{display:flex;}
+nav.side{
+  position:sticky;top:0;align-self:flex-start;
+  width:var(--nav-w);height:100vh;overflow-y:auto;
+  background:#fff;border-right:1px solid var(--morandi-container);
+  padding:22px 16px;flex-shrink:0;
+}
+nav.side .brand{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:700;color:var(--morandi-gold-hover);margin-bottom:4px;}
+nav.side .brand small{display:block;font-family:inherit;font-size:11px;color:var(--morandi-secondary);font-weight:400;}
+nav.side ol{list-style:none;margin:14px 0 0;padding:0;counter-reset:ch;}
+nav.side ol li a{
+  display:flex;align-items:center;gap:9px;
+  padding:7px 10px;border-radius:9px;font-size:13.5px;color:var(--morandi-secondary);
+  text-decoration:none;transition:background .15s,color .15s;
+}
+nav.side ol li a:hover{background:var(--morandi-gold-light);color:var(--morandi-primary);}
+nav.side ol li a .num{
+  width:22px;height:22px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--morandi-container);color:var(--morandi-primary);border-radius:6px;font-size:11px;font-weight:700;
+}
+main{flex:1;min-width:0;padding:0 0 80px;}
+
+/* ═══════════════ Hero / Overview ═══════════════ */
+.hero{
+  background:linear-gradient(135deg,#fff 0%,var(--morandi-cream) 100%);
+  border-bottom:1px solid var(--morandi-container);
+  padding:46px 56px 40px;
+}
+.hero h1{font-size:33px;margin:0 0 6px;letter-spacing:.5px;}
+.hero .sub{color:var(--morandi-secondary);font-size:15px;max-width:760px;}
+.hero .meta{margin-top:14px;font-size:12.5px;color:var(--morandi-muted);}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:20px;font-size:13px;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;}
+.dot.ok{background:var(--ok);}
+.dot.warn{background:var(--warn);}
+.dot.bad{background:var(--bad);}
+
+.callout{
+  margin:24px 56px 0;padding:16px 20px;border-radius:12px;
+  background:#fff;border:1px solid var(--morandi-container);border-left:4px solid var(--morandi-gold);
+  font-size:13.5px;color:var(--morandi-primary);
+}
+.callout b{color:var(--morandi-gold-hover);}
+
+/* 速覽表 */
+.overview-tbl{margin:26px 56px 0;border-collapse:collapse;width:calc(100% - 112px);font-size:13.5px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm);}
+.overview-tbl th,.overview-tbl td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--morandi-container);vertical-align:top;}
+.overview-tbl th{background:var(--morandi-container);font-weight:700;font-size:12.5px;color:var(--morandi-primary);}
+.overview-tbl tr:last-child td{border-bottom:none;}
+.overview-tbl td a{color:var(--morandi-gold-hover);text-decoration:none;font-weight:600;}
+.overview-tbl td a:hover{text-decoration:underline;}
+.overview-tbl .cur{color:var(--morandi-secondary);}
+.overview-tbl .rec{color:var(--ok);font-weight:600;}
+
+/* ═══════════════ 章節 ═══════════════ */
+section.ch{padding:42px 56px 8px;scroll-margin-top:10px;}
+section.ch > h2{
+  font-size:25px;margin:0 0 4px;display:flex;align-items:center;gap:12px;
+  padding-bottom:12px;border-bottom:2px solid var(--morandi-gold);
+}
+section.ch > h2 .chnum{
+  width:38px;height:38px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;
+  background:var(--btn-primary-bg);color:var(--btn-primary-fg);border:1px solid var(--btn-primary-border);
+  border-radius:10px;font-size:18px;font-weight:700;font-family:'Noto Serif TC',serif;
+}
+section.ch > .chdesc{color:var(--morandi-secondary);font-size:13.5px;margin:14px 0 4px;max-width:880px;}
+section.ch > .chdesc code{background:var(--morandi-container);padding:1px 6px;border-radius:5px;font-size:12px;}
+
+/* 對照卡 */
+.card{
+  background:#fff;border:1px solid var(--morandi-container);border-radius:16px;
+  margin:18px 0;box-shadow:var(--shadow-sm);overflow:hidden;
+}
+.card > .card-hd{
+  display:flex;align-items:center;gap:10px;padding:13px 20px;
+  border-bottom:1px solid var(--morandi-container);background:#fcfbfa;
+}
+.card > .card-hd h3{font-size:16px;margin:0;flex:1;}
+.card > .card-bd{padding:20px;}
+
+/* tag 標籤 */
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+.tag.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-border);}
+.tag.warn{background:var(--warn-bg);color:var(--warn);border:1px solid #e0c89a;}
+.tag.bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-border);}
+
+/* 樣本 + 標註的雙欄 */
+.spec{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch;}
+@media(max-width:1100px){.spec{grid-template-columns:1fr;}}
+.demo{
+  border:1px solid var(--morandi-container);border-radius:12px;padding:22px;
+  display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--morandi-cream);
+}
+.demo.col{flex-direction:column;align-items:flex-start;}
+.note{font-size:13px;}
+.note .where-lbl{font-size:11.5px;font-weight:700;color:var(--morandi-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;}
+.routes{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.route{font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;background:var(--morandi-container);color:var(--morandi-primary);padding:2px 8px;border-radius:6px;}
+.note p{margin:8px 0 0;color:var(--morandi-secondary);font-size:12.5px;}
+
+/* 並排對比 */
+.versus{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--morandi-container);}
+@media(max-width:760px){.versus{grid-template-columns:1fr;}}
+.versus .vcol{padding:20px;}
+.versus .vcol.good{background:var(--ok-bg);border-right:1px solid var(--ok-border);}
+.versus .vcol.bad{background:var(--bad-bg);}
+.versus .vhd{font-size:12.5px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.versus .good .vhd{color:var(--ok);}
+.versus .bad .vhd{color:var(--bad);}
+.versus .vsample{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:12px;min-height:44px;}
+.versus .vwhere{font-size:12px;color:var(--morandi-secondary);}
+.versus .vwhere .route{font-size:11px;}
+
+/* 建議統一橫幅 */
+.banner{
+  margin:18px 0 4px;padding:14px 20px;border-radius:12px;
+  background:var(--btn-primary-bg);border:1px solid var(--btn-primary-border);color:var(--btn-primary-fg);
+  font-size:13.5px;font-weight:600;display:flex;gap:10px;align-items:flex-start;
+}
+.banner .arr{font-weight:700;flex-shrink:0;}
+
+/* ───────── 真渲染元件樣式（複刻 src/components/ui）───────── */
+/* 按鈕 — button.tsx variants */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;border-radius:6px;font-size:14px;font-weight:500;height:40px;padding:0 16px;cursor:pointer;border:1px solid transparent;transition:filter .15s,background .15s;font-family:inherit;}
+.btn svg{width:16px;height:16px;}
+.btn.sm{height:36px;padding:0 12px;}
+.btn.xs{height:32px;padding:0 10px;}
+.btn-default{background:var(--btn-primary-bg);color:var(--btn-primary-fg);border-color:var(--btn-primary-border);font-weight:600;}
+.btn-default:hover{filter:brightness(.96);}
+.btn-destructive{background:var(--destructive);color:#fff;}
+.btn-soft-gold{background:rgba(201,170,124,0.08);color:var(--morandi-primary);border:1px solid rgba(201,170,124,0.20);}
+.btn-soft-gold:hover{background:rgba(201,170,124,0.14);}
+.btn-outline{border:1px solid rgba(201,170,124,0.30);background:linear-gradient(135deg,var(--background),rgba(232,229,224,0.2));color:var(--morandi-primary);}
+.btn-header-outline{background:linear-gradient(135deg,var(--card),rgba(232,229,224,0.3));border:1px solid rgba(201,170,124,0.30);color:var(--morandi-primary);box-shadow:var(--shadow-md);border-radius:12px;}
+.btn-morandi-gold{color:var(--morandi-gold);border:1px solid rgba(201,170,124,0.50);background:transparent;}
+/* 異常按鈕 */
+.btn-bad-handcolor{background:var(--morandi-gold);color:#fff;border:none;font-weight:600;}/* 手寫 bg-morandi-gold 蓋掉漸層 */
+.btn-login{background:linear-gradient(135deg,#e6d9bf,#c9aa7c,#a8875d);color:#fff;border:none;border-radius:24px;font-weight:600;box-shadow:0 8px 18px rgba(180,160,120,0.4);}
+.btn-app{background:#3B82F6;color:#fff;border:none;border-radius:10px;font-weight:600;}/* 行動版藍 */
+
+/* ActionCell — action-cells.tsx */
+.actioncell{display:inline-flex;align-items:center;gap:4px;}
+.action-btn{display:inline-flex;align-items:center;justify-content:center;gap:2px;border-radius:4px;font-size:12px;font-weight:500;height:28px;padding:0 6px;border:none;background:transparent;cursor:pointer;font-family:inherit;}
+.action-btn svg{width:13px;height:13px;}
+.action-btn.default{color:var(--morandi-secondary);}
+.action-btn.default:hover{color:var(--morandi-primary);background:var(--morandi-gold-light);}
+.action-btn.danger{color:var(--status-danger);}
+.action-btn.danger:hover{background:var(--status-danger-bg);}
+.action-btn.success{color:var(--status-success);}
+.action-btn.warning{color:var(--status-warning);}
+/* 純手刻操作按鈕（異常） */
+.action-raw{display:inline-flex;gap:6px;}
+.action-raw button{width:26px;height:26px;border:1px solid #ccc;background:#f3f3f3;border-radius:4px;color:#555;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+.action-raw button svg{width:13px;height:13px;}
+
+/* Input — input.tsx */
+.in{display:flex;height:40px;width:230px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);padding:8px 12px;font-size:14px;font-weight:500;color:#2a2522;outline:none;font-family:inherit;}
+.in::placeholder{color:#a89e92;font-weight:400;}
+.in.focus{border-color:var(--morandi-gold);box-shadow:0 0 0 1px var(--morandi-gold);}
+.in.danger{border-color:var(--status-danger);}
+.txta{width:230px;border-radius:6px;border:1px solid var(--input-border);background:var(--card);padding:8px 12px;font-size:14px;font-weight:500;color:#2a2522;outline:none;font-family:inherit;resize:none;}
+/* 原生 input（異常） */
+.in-native{height:36px;width:230px;border:1px solid #767676;border-radius:0;padding:4px 8px;font-size:14px;font-family:inherit;background:#fff;}
+
+/* Select trigger — select.tsx */
+.sel{display:inline-flex;height:40px;width:230px;align-items:center;justify-content:space-between;border-radius:6px;border:1px solid var(--input-border);background:var(--card);padding:0 12px;font-size:14px;font-weight:500;color:var(--morandi-primary);cursor:pointer;}
+.sel svg{width:16px;height:16px;opacity:.5;}
+.sel .ph{color:var(--muted-foreground);font-weight:400;}
+/* 原生 select（異常） */
+.sel-native{height:36px;width:230px;border:1px solid #767676;border-radius:3px;padding:0 8px;font-size:14px;font-family:inherit;background:#fff;}
+
+/* Checkbox — checkbox.tsx */
+.cbx{width:18px;height:18px;border-radius:6px;border:1px solid var(--morandi-container);background:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cbx.on{background:var(--morandi-gold);border-color:var(--morandi-gold);color:#fff;}
+.cbx svg{width:14px;height:14px;}
+.cbx-native{width:16px;height:16px;}
+/* Switch — switch.tsx */
+.sw{width:36px;height:20px;border-radius:999px;background:var(--morandi-muted);position:relative;display:inline-block;border:2px solid transparent;box-shadow:var(--shadow-sm);flex-shrink:0;}
+.sw .thumb{position:absolute;top:0;left:0;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:transform .2s;}
+.sw.on{background:var(--morandi-gold);}
+.sw.on .thumb{transform:translateX(16px);}
+.sw.green.on{background:var(--morandi-green);}
+/* radio */
+.rdo{width:16px;height:16px;border-radius:50%;border:2px solid var(--morandi-gold);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rdo.on::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--morandi-gold);}
+.rdo-native{width:16px;height:16px;}
+.fieldrow{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--morandi-primary);}
+
+/* Card — card */
+.uicard{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-sm);padding:18px 20px;width:230px;}
+.uicard h4{margin:0 0 6px;font-size:15px;}
+.uicard p{margin:0;font-size:12.5px;color:var(--morandi-secondary);}
+.card-bad{background:#fff;border:3px solid #d9c9a0;border-radius:24px;box-shadow:0 16px 32px -8px rgba(180,160,120,.45);padding:18px 20px;width:230px;background:linear-gradient(to top,#fff,var(--morandi-cream));}
+.card-bad h4{margin:0 0 6px;font-size:15px;}
+.card-bad p{margin:0;font-size:12.5px;color:var(--morandi-secondary);}
+/* 統計卡 */
+.statcard{background:#fff;border:1px solid var(--morandi-container);border-radius:12px;padding:16px;width:170px;}
+.statcard .lbl{font-size:12px;color:var(--morandi-secondary);}
+.statcard .val{font-size:24px;font-weight:700;font-family:'Noto Serif TC',serif;margin-top:4px;}
+.statcard-bad{border-radius:8px;padding:16px;width:170px;background:rgba(192,131,116,0.10);}
+.statcard-bad .lbl{font-size:12px;color:var(--morandi-red);}
+.statcard-bad .val{font-size:24px;font-weight:700;color:var(--morandi-red);margin-top:4px;}
+
+/* Tabs */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--morandi-container);}
+.tabs .tab{padding:8px 16px;font-size:13.5px;color:var(--morandi-secondary);cursor:pointer;border-bottom:2px solid transparent;}
+.tabs .tab.active{color:var(--morandi-gold-hover);border-bottom-color:var(--morandi-gold);font-weight:600;}
+.tabs-bad .tab.active{color:#2563eb;border-bottom-color:#2563eb;}
+
+/* Table — EnhancedTable 風 */
+.uitbl{border-collapse:collapse;width:100%;font-size:13px;border-radius:10px;overflow:hidden;border:1px solid var(--morandi-container);}
+.uitbl th{background:var(--morandi-container);text-align:left;padding:9px 12px;font-weight:700;font-size:12px;color:var(--morandi-primary);}
+.uitbl td{padding:9px 12px;border-top:1px solid #f0ede8;}
+.uitbl tr:nth-child(even) td{background:#fbfaf8;}
+.tbl-bad{border-collapse:collapse;width:100%;font-size:13px;border:1px solid #ccc;}
+.tbl-bad.green th{background:rgba(159,166,143,0.18);color:var(--morandi-green);}
+.tbl-bad th{background:#eee;text-align:left;padding:6px 10px;font-size:11px;border:1px solid #ddd;}
+.tbl-bad td{padding:6px 10px;border:1px solid #eee;}
+
+/* Pagination */
+.pager{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--morandi-secondary);}
+.pager .pg{width:30px;height:30px;border-radius:7px;border:1px solid var(--morandi-container);background:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--morandi-secondary);}
+.pager .pg.active{background:var(--morandi-gold);color:#fff;border-color:var(--morandi-gold);font-weight:600;}
+.pager .pg svg{width:14px;height:14px;}
+
+/* Dialog 縮影 */
+.dlg{width:300px;background:#fff;border-radius:14px;box-shadow:0 20px 50px -12px rgba(120,100,70,.4);border:1px solid var(--morandi-container);overflow:hidden;}
+.dlg .dlg-hd{padding:14px 18px;border-bottom:1px solid var(--morandi-container);}
+.dlg .dlg-hd .t{font-size:15px;font-weight:700;}
+.dlg .dlg-hd .s{font-size:12px;color:var(--morandi-secondary);}
+.dlg .dlg-bd{padding:18px;font-size:13px;color:var(--morandi-secondary);}
+.dlg .dlg-ft{padding:12px 18px;border-top:1px solid var(--morandi-container);display:flex;justify-content:flex-end;gap:8px;background:#fcfbfa;}
+.dlg-bad{width:300px;background:#fff;border:none;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);overflow:hidden;}
+.dlg-bad .dlg-bd{padding:18px;font-size:13px;}
+.dlg-bad .dlg-ft{padding:12px 18px;display:flex;justify-content:flex-end;gap:8px;}
+.win-confirm{width:300px;background:#ececec;border:1px solid #999;border-radius:8px;font-family:system-ui;padding:18px;font-size:13px;color:#333;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+.win-confirm .wc-ft{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;}
+.win-confirm button{font-family:system-ui;font-size:12px;padding:4px 14px;border:1px solid #aaa;border-radius:4px;background:#f5f5f5;cursor:pointer;}
+
+/* Badge — StatusBadge soft pill */
+.pill{display:inline-flex;align-items:center;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:500;white-space:nowrap;}
+.pill.pending{background:rgba(139,134,128,0.15);color:var(--morandi-secondary);}
+.pill.info{background:rgba(139,164,180,0.15);color:var(--status-info);}
+.pill.success{background:rgba(159,166,143,0.15);color:var(--morandi-green);}/* 根病根：美術色 morandi-green */
+.pill.warning{background:rgba(212,165,116,0.15);color:var(--status-warning);}
+.pill.danger{background:rgba(192,131,116,0.15);color:var(--morandi-red);}/* 根病根：美術色 morandi-red */
+.pill.neutral{background:var(--morandi-container);color:var(--morandi-primary);}
+.pill.success-fix{background:var(--status-success-bg);color:var(--status-success);}
+.pill.danger-fix{background:var(--status-danger-bg);color:var(--status-danger);}
+/* Tailwind 預設色 badge（異常） */
+.pill-tw{display:inline-flex;align-items:center;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;}
+.pill-amber{background:#fef3c7;color:#92400e;}
+.pill-blue{background:#dbeafe;color:#1e40af;}
+.pill-green{background:#dcfce7;color:#15803d;}
+.pill-orange{background:#ffedd5;color:#9a3412;}
+.pill-teal{background:#ccfbf1;color:#0f766e;}
+.pill-red{background:#fee2e2;color:#b91c1c;}
+.pill-slate{background:#e2e8f0;color:#475569;}
+/* 品牌色 channel badge（合法例外） */
+.pill-line{background:#dcfce7;color:#15803d;}
+.pill-fb{background:#dbeafe;color:#1d4ed8;}
+.pill-ig{background:#fce7f3;color:#be185d;}
+
+/* 空狀態 / 載入 */
+.empty{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--morandi-muted);padding:20px;font-size:13px;}
+.empty svg{width:34px;height:34px;}
+.spinner{width:30px;height:30px;color:var(--morandi-gold);animation:spin .9s linear infinite;}
+.spinner svg{width:30px;height:30px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skeleton{width:200px;}
+.skeleton .sk{height:13px;border-radius:6px;background:linear-gradient(90deg,#eee9e2,#f5f2ec,#eee9e2);background-size:200% 100%;animation:shimmer 1.4s infinite;margin-bottom:8px;}
+.skeleton .sk.w70{width:70%}.skeleton .sk.w90{width:90%}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Icon grid */
+.icongrid{display:flex;flex-wrap:wrap;gap:10px;}
+.iconchip{display:flex;flex-direction:column;align-items:center;gap:6px;width:88px;padding:12px 6px;border:1px solid var(--morandi-container);border-radius:10px;background:#fff;}
+.iconchip svg{width:24px;height:24px;color:var(--morandi-primary);}
+.iconchip .nm{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--morandi-secondary);text-align:center;line-height:1.3;}
+.iconchip .ct{font-size:10px;color:var(--morandi-muted);}
+.iconchip.pick{border-color:var(--morandi-gold);background:var(--morandi-gold-light);position:relative;}
+.iconchip.pick::after{content:"建議";position:absolute;top:-9px;right:-6px;background:var(--morandi-gold);color:#fff;font-size:9px;padding:1px 6px;border-radius:999px;}
+
+.subhd{font-size:14px;font-weight:700;margin:6px 0 10px;color:var(--morandi-primary);}
+.swatchrow{display:flex;flex-wrap:wrap;gap:14px;margin:4px 0;}
+.swatch{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--morandi-secondary);}
+.swatch .sq{width:46px;height:46px;border-radius:8px;border:1px solid rgba(0,0,0,.06);}
+.swatch code{font-size:10px;}
+
+.footer{padding:30px 56px;color:var(--morandi-muted);font-size:12px;border-top:1px solid var(--morandi-container);margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="side">
+  <div class="brand">VENTURO ERP<small>全站 UI 視覺總覽</small></div>
+  <ol>
+    <li><a href="#ch1"><span class="num">1</span>按鈕 Button</a></li>
+    <li><a href="#ch2"><span class="num">2</span>輸入框 Input</a></li>
+    <li><a href="#ch3"><span class="num">3</span>下拉 Select</a></li>
+    <li><a href="#ch4"><span class="num">4</span>勾選 / 開關</a></li>
+    <li><a href="#ch5"><span class="num">5</span>卡片 Card</a></li>
+    <li><a href="#ch6"><span class="num">6</span>頁籤 Tabs</a></li>
+    <li><a href="#ch7"><span class="num">7</span>表格 Table</a></li>
+    <li><a href="#ch8"><span class="num">8</span>分頁 Pagination</a></li>
+    <li><a href="#ch9"><span class="num">9</span>對話框 Dialog</a></li>
+    <li><a href="#ch10"><span class="num">10</span>狀態 Badge</a></li>
+    <li><a href="#ch11"><span class="num">11</span>空狀態 / 載入</a></li>
+    <li><a href="#ch12"><span class="num">12</span>圖示 Icon</a></li>
+  </ol>
+</nav>
+
+<main>
+<!-- ═══════════ HERO ═══════════ -->
+<div class="hero">
+  <h1>全站 UI 視覺總覽</h1>
+  <div class="sub">把 91 頁逐頁盤點到的每個 UI 元素，<b>真的畫出來</b>給你看：左邊綠底是「✅ 標準做法（共用組件 + morandi 色票）」、右邊紅底是「🔴 異常做法（手刻 / Tailwind 預設色 / 失效 token）」。每個樣本旁邊都標「出現在哪些頁」。一眼看出哪裡長得不一樣、該收編成哪一套。</div>
+  <div class="legend">
+    <span><i class="dot ok"></i> ✅ 標準（走共用組件 + token）</span>
+    <span><i class="dot warn"></i> 🟡 半對齊（組件對、樣式手刻）</span>
+    <span><i class="dot bad"></i> 🔴 異常（手刻 / 預設色 / 失效）</span>
+  </div>
+  <div class="meta">資料來源：UI-元素出處對照.md（91 頁盤點）｜真實色票複刻自 src/styles/tokens.css morandi 預設主題｜圖示自 lucide-react v0.544 抽取｜2026-05-26</div>
+</div>
+
+<div class="callout">
+  <b>大前提：全站不是一套 UI、是三套設計系統並存。</b>
+  ① 桌面 ERP（morandi 金色、本總覽主範圍）　② 行動版 <code>/app</code>（藍色深色、手刻 CSS、0 共用組件、另一個世界）　③ 對客頁（提案 / 付款 / canvas，多套獨立 CIS，William 拍板的特例、暫不強制納管）。下面的「異常」多數指 ERP 內部該對齊卻沒對齊的部分。
+</div>
+
+<!-- 速覽表 -->
+<table class="overview-tbl">
+  <thead><tr><th style="width:34px"></th><th>元素類型</th><th>現況幾套做法</th><th>→ 建議統一成</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><a href="#ch1">按鈕 Button</a></td><td class="cur">共用 5 variant + ActionCell；另有手套骨架、純手刻、手寫色蓋 variant、認證頁 3 套、行動版另一套</td><td class="rec">主/次走 &lt;Button&gt; variant、操作欄走 &lt;ActionCell&gt;</td></tr>
+    <tr><td>2</td><td><a href="#ch2">輸入框 Input</a></td><td class="cur">共用 &lt;Input&gt;（內建算式）；另有 inline style 自刻、hardcode hex、未定義 token</td><td class="rec">一律 &lt;Input&gt;/&lt;Textarea&gt;、error 走 border-status-danger</td></tr>
+    <tr><td>3</td><td><a href="#ch3">下拉 Select</a></td><td class="cur">共用 &lt;Select&gt;/&lt;Combobox&gt;；另有 16 個原生 &lt;select&gt; 散在 orders/finance/hr/visas/pay</td><td class="rec">選值走 &lt;Select&gt;、可搜尋走 &lt;Combobox&gt;</td></tr>
+    <tr><td>4</td><td><a href="#ch4">勾選 / 開關</a></td><td class="cur">共用 &lt;Checkbox&gt;/&lt;Switch&gt;；24 個原生 checkbox、4 處原生 radio（無共用 RadioGroup）</td><td class="rec">收編 &lt;Checkbox&gt;/&lt;Switch&gt;、新建 &lt;RadioGroup&gt;</td></tr>
+    <tr><td>5</td><td><a href="#ch5">卡片 Card</a></td><td class="cur">共用 &lt;Card&gt;；另有手刻 token div、入口卡牆、硬編 rounded-[24px] 漸層卡、統計卡染美術色</td><td class="rec">一律 &lt;Card&gt;、抽共用 EntryCard/StatCard</td></tr>
+    <tr><td>6</td><td><a href="#ch6">頁籤 Tabs</a></td><td class="cur">框架 tabs + shadcn Tabs（2 套清楚）；另有手刻 button tab、dead-ish _TourTabs</td><td class="rec">路由級走框架 tabs、內容級走 shadcn Tabs</td></tr>
+    <tr><td>7</td><td><a href="#ch7">表格 Table</a></td><td class="cur">共用 EnhancedTable；shared-data 四頁手刻 table（三套表頭+行高）、報表/子表手刻</td><td class="rec">ERP 列表一律 EnhancedTable</td></tr>
+    <tr><td>8</td><td><a href="#ch8">分頁 Pagination</a></td><td class="cur">EnhancedTable 內建（固定 15 筆）；/finance 自刻分頁列；visas/shared-data 全量無分頁</td><td class="rec">一律 serverPagination 固定 15 筆</td></tr>
+    <tr><td>9</td><td><a href="#ch9">對話框 Dialog</a></td><td class="cur">共用 FormDialog（設 level）；裸 Dialog 無 level、createPortal 手刻 modal、原生 window.confirm</td><td class="rec">FormDialog+level、確認框走 alert-dialog</td></tr>
+    <tr><td>10</td><td><a href="#ch10">狀態 Badge</a></td><td class="cur">共用 StatusBadge（根病根：success/danger 用美術色）；各頁手刻 map、Tailwind 預設色、失效 token</td><td class="rec">先治根病根 → 全改 status-success/danger</td></tr>
+    <tr><td>11</td><td><a href="#ch11">空狀態 / 載入</a></td><td class="cur">共用 Spinner/ModuleLoading/EmptyState（幾乎沒人用）；自刻 animate-spin、純文字、各頁自排空狀態</td><td class="rec">載入走 Spinner、空狀態走 EmptyState</td></tr>
+    <tr><td>12</td><td><a href="#ch12">圖示 Icon</a></td><td class="cur">統一 lucide-react；但同一動作多種 icon（編輯 6 種）、尺寸三軌並存</td><td class="rec">同動作收斂單一 icon、尺寸擇一</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════════════ 1. 按鈕 ═══════════════════════════════ -->
+<section class="ch" id="ch1">
+  <h2><span class="chnum">1</span>按鈕 Button</h2>
+  <p class="chdesc">共用基準：<code>src/components/ui/button.tsx</code>（5+ variant）、列表操作欄 <code>src/components/table-cells/action-cells.tsx</code>（ActionCell）。下面先畫全套標準變體，再把標準 vs 異常並排。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. 共用 &lt;Button&gt; 五大變體（真渲染）</h3><span class="tag ok">✅ 標準</span></div>
+    <div class="card-bd">
+      <div class="spec">
+        <div class="demo">
+          <button class="btn btn-default"><i data-icon="plus"></i>新增</button>
+          <button class="btn btn-soft-gold">取消</button>
+          <button class="btn btn-outline">次要動作</button>
+          <button class="btn btn-header-outline"><i data-icon="settings"></i>小工具設定</button>
+          <button class="btn btn-destructive"><i data-icon="trash-2"></i>刪除</button>
+          <button class="btn btn-morandi-gold">套用</button>
+        </div>
+        <div class="note">
+          <div class="where-lbl">出現在哪些頁</div>
+          <div class="routes"><span class="route">/library/customers</span><span class="route">/orders</span><span class="route">/hr</span><span class="route">/library/suppliers</span><span class="route">FormDialog footer</span><span class="route">刪除確認框</span><span class="route">頁首工具列</span></div>
+          <p><b>default</b> = 主 CTA 淡金漸層（拍板動作）；<b>soft-gold</b> = 取消/儲存；<b>outline / header-outline</b> = 次要 / 頁首工具列；<b>destructive</b> = 刪除確認。各列表頁首「新增」鈕都用 default。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 列表行內操作按鈕 — 標準 ActionCell vs 純手刻</h3><span class="tag bad">🔴 三套並存</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 黃金標準：&lt;ActionCell&gt;</div>
+          <div class="vsample">
+            <span class="actioncell">
+              <button class="action-btn default"><i data-icon="edit-2"></i>編輯</button>
+              <button class="action-btn danger"><i data-icon="trash-2"></i>刪除</button>
+            </span>
+          </div>
+          <div class="vwhere">統一高度 h-7 / padding / 字級、危險色走 status-danger token。<div class="routes" style="margin-top:6px"><span class="route">/finance/payments</span><span class="route">/library/customers</span><span class="route">/accounting/vouchers</span><span class="route">/hr</span><span class="route">/workspaces</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 純手刻 &lt;button&gt;（脫離組件）</div>
+          <div class="vsample">
+            <span class="action-raw">
+              <button><i data-icon="plus"></i></button>
+              <button><i data-icon="x"></i></button>
+            </span>
+            <span style="font-size:11px;color:var(--bad)">便條紙 inline SVG 手畫 +/×</span>
+          </div>
+          <div class="vwhere">灰底硬邊框、與全站操作欄完全對不上。<div class="routes" style="margin-top:6px"><span class="route">/accounting/accounts（科目展開鈕）</span><span class="route">/dashboard（便條紙）</span></div></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:12px;color:var(--morandi-secondary);font-size:12.5px">另有中間流派「手套 ACTION_BUTTON_BASE 骨架常數」（視覺像、沒走組件）：<span class="route">/orders</span> <span class="route">/tours</span> <span class="route">/library/attractions</span> <span class="route">/accounting/checks</span> <span class="route">/finance/treasury/disbursement</span> 等 11 處（🟡）。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>C. 主操作鈕「手寫色」蓋掉 variant vs 認證頁手刻三套</h3><span class="tag bad">🔴 異常</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 正規 default（淡金漸層）</div>
+          <div class="vsample"><button class="btn btn-default">儲存</button></div>
+          <div class="vwhere">走 var(--btn-primary-bg) tone-on-tone 漸層、暖深棕字。</div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 手寫 bg-morandi-gold 蓋掉漸層</div>
+          <div class="vsample"><button class="btn btn-bad-handcolor">儲存</button></div>
+          <div class="vwhere">純金實底白字、比 default 重、視覺不一致。<div class="routes" style="margin-top:6px"><span class="route">/hr（EmployeeForm）</span><span class="route">/finance/requests</span><span class="route">/workspaces</span><span class="route">/workspaces/[id]</span></div></div>
+        </div>
+      </div>
+      <div class="versus" style="margin-top:14px">
+        <div class="vcol bad" style="border-right:1px solid var(--bad-border)">
+          <div class="vhd">🔴 /login 自刻金漸層圓角鈕</div>
+          <div class="vsample"><button class="btn btn-login">登入</button></div>
+          <div class="vwhere">inline &lt;style&gt; .login-button、雙色漸層 rounded 24px。<div class="routes" style="margin-top:6px"><span class="route">/login</span><span class="route">/change-password</span><span class="route">/reset-password（各一套配方）</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 行動版 /app 藍色另一套</div>
+          <div class="vsample"><button class="btn btn-app">送出</button></div>
+          <div class="vwhere">.app-* 手刻 class、藍色系、0 共用組件。<div class="routes" style="margin-top:6px"><span class="route">/app</span><span class="route">/app/dashboard</span><span class="route">/app/settings</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>主/次按鈕一律走 &lt;Button&gt; 對應 variant（禁手寫 bg-morandi-gold 蓋色）；列表操作欄一律走 &lt;ActionCell&gt;（擴充支援 active 高亮 + brand 金色，讓 orders/tours 遷移）；認證頁 + 行動版手刻按鈕收斂到共用 &lt;Button&gt;。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 2. 輸入框 ═══════════════════════════════ -->
+<section class="ch" id="ch2">
+  <h2><span class="chnum">2</span>輸入框 Input / Textarea</h2>
+  <p class="chdesc">共用基準：<code>src/components/ui/input.tsx</code>（97 檔 import、內建數學算式 + 全形轉半形）、<code>textarea.tsx</code>。共用 &lt;Input&gt; 本身已內建算式、金額/數字欄位<b>不需另刻</b>。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. 共用 &lt;Input&gt; / &lt;Textarea&gt; 標準（含 focus 金環）</h3><span class="tag ok">✅ 標準</span></div>
+    <div class="card-bd">
+      <div class="spec">
+        <div class="demo col">
+          <input class="in" placeholder="一般輸入框（h-10、morandi 邊框）">
+          <input class="in focus" value="focus 態：金色環 morandi-gold">
+          <textarea class="txta" rows="2" placeholder="多行 Textarea"></textarea>
+        </div>
+        <div class="note">
+          <div class="where-lbl">出現在哪些頁（30+ 處）</div>
+          <div class="routes"><span class="route">/accounting/accounts·checks·vouchers</span><span class="route">/hr</span><span class="route">/hr/roles</span><span class="route">/library/suppliers·attractions</span><span class="route">/settings/company</span><span class="route">/workspaces</span><span class="route">/shared-data/*（搜尋框）</span><span class="route">/tours</span></div>
+          <p>邊框 #b8a385（2026-05-02 加深、UX 反映看不清）、focus 不用外框 ring、改 border 變金色。ListPageLayout 內建搜尋框也走同款。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 標準共用 input vs 原生 / inline-style 自刻</h3><span class="tag bad">🔴 異常</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 共用 &lt;Input&gt;（morandi 邊框 + 金環）</div>
+          <div class="vsample"><input class="in focus" value="共用 Input" style="width:200px"></div>
+          <div class="vwhere">統一邊框色 / 高度 / focus 行為、內建算式。</div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 原生 &lt;input&gt; / inline &lt;style&gt; 自刻</div>
+          <div class="vsample"><input class="in-native" value="原生 input（系統預設外觀）" style="width:200px"></div>
+          <div class="vwhere">認證頁 inline style、公開頁手刻、夾 hardcode hex（#B8A99A、#333）與未定義 token（morandi-gray-300、shadcn ring-ring）。<div class="routes" style="margin-top:6px"><span class="route">/login</span><span class="route">/change-password</span><span class="route">/reset-password</span><span class="route">/pay/[token]</span><span class="route">/setup/[token]</span><span class="route">/public/contract/sign</span><span class="route">/ai</span><span class="route">/visas</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>C. error 邊框：語意色 vs Tailwind 預設色 / 美術色</h3><span class="tag warn">🟡/🔴 顏色軌分岔</span></div>
+    <div class="card-bd">
+      <div class="demo">
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+          <input class="in danger" value="✅ border-status-danger" style="width:200px">
+          <span style="font-size:11px;color:var(--ok)">語意色（建議）</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+          <input class="in" value="🔴 border-red-500" style="width:200px;border-color:#ef4444">
+          <span style="font-size:11px;color:var(--bad)">Tailwind 預設紅 · /p/tour/[code]/register</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+          <input class="in" value="🔴 border-morandi-red" style="width:200px;border-color:#c08374">
+          <span style="font-size:11px;color:var(--bad)">美術色非語意色 · /workspaces</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin:4px 0;color:var(--morandi-secondary);font-size:12.5px">特殊但仍是共用組件：<b>&lt;CalcInput&gt;</b> Excel 算式金額（/orders/_quotes、/finance/requests 共 6 處 ✅）、<b>&lt;DatePicker&gt;</b>/<b>&lt;DateInput&gt;</b>（會計報表、/calendar、/hr/bonus-settlement ✅）。</p>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>所有單行/多行輸入一律走 &lt;Input&gt;/&lt;Textarea&gt;（金額用 &lt;CalcInput&gt;、日期用 &lt;DatePicker&gt;）；認證頁 + 公開頁手刻 input 收斂、淘汰 inline style 與 hardcode hex；error 邊框統一 border-status-danger（禁 border-red-500 / border-morandi-red）。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 3. 下拉 ═══════════════════════════════ -->
+<section class="ch" id="ch3">
+  <h2><span class="chnum">3</span>下拉 Select / Combobox</h2>
+  <p class="chdesc">共用基準：<code>select.tsx</code>（shadcn radix、41 檔、trigger h-10 border-input focus 金色）、<code>combobox.tsx</code>（可搜尋、24 檔）、<code>bank-combobox.tsx</code>、<code>dropdown-menu.tsx</code>。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. 共用 &lt;Select&gt; trigger vs 原生 &lt;select&gt;（16 檔）</h3><span class="tag bad">🔴 重災區</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 共用 &lt;Select&gt;（morandi trigger + 自繪 chevron）</div>
+          <div class="vsample"><span class="sel"><span>請選擇狀態</span><i data-icon="chevron-down"></i></span></div>
+          <div class="vwhere">h-10、border-input、focus 金色、shadcn radix Content。<div class="routes" style="margin-top:6px"><span class="route">/accounting/accounts</span><span class="route">/accounting/vouchers</span><span class="route">/finance/payments·requests</span><span class="route">/todos</span><span class="route">/tours/[code]</span><span class="route">/workspaces/[id]</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 原生 &lt;select&gt;（系統預設箭頭）</div>
+          <div class="vsample"><select class="sel-native"><option>請選擇（原生外觀）</option></select></div>
+          <div class="vwhere">手刻 h-10 border、與共用 Select 視覺對不上、visas 還有 option 空白 TODO。<div class="routes" style="margin-top:6px"><span class="route">/orders（6 檔）</span><span class="route">/finance/settings</span><span class="route">/hr（員工表單）</span><span class="route">/settings/company</span><span class="route">/visas</span><span class="route">/pay/[token]</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 共用 &lt;Combobox&gt;（可搜尋）/ &lt;BankCombobox&gt;</h3><span class="tag ok">✅ 標準</span></div>
+    <div class="card-bd">
+      <div class="spec">
+        <div class="demo col">
+          <span class="sel" style="position:relative"><span class="ph"><i data-icon="search" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:6px"></i>搜尋客戶 / 團號…</span><i data-icon="chevrons-up-down"></i></span>
+          <span class="sel"><span>台灣銀行 (004)</span><i data-icon="chevron-down"></i></span>
+        </div>
+        <div class="note">
+          <div class="where-lbl">出現在哪些頁</div>
+          <div class="routes"><span class="route">/bot/[lineUserId]</span><span class="route">/channels</span><span class="route">/library/attractions</span><span class="route">/finance/payments·requests（團號/訂單/供應商）</span><span class="route">/tours</span><span class="route">/library/suppliers（BankCombobox）</span><span class="route">/settings/company</span><span class="route">/hr（薪資銀行代碼）</span></div>
+          <p>內建搜尋 input、清除、disablePortal。長清單 / 可搜尋場景用這個、不用原生。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>選值靜態走 &lt;Select&gt;、可搜尋/長清單走 &lt;Combobox&gt;；16 個原生 &lt;select&gt; 全數收斂（重災區 = orders 系列 6 檔 + finance/settings + hr 員工表單 + visas + pay）；/calendar 移除 trigger 覆寫的 inputClassName。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 4. 勾選 / 開關 ═══════════════════════════════ -->
+<section class="ch" id="ch4">
+  <h2><span class="chnum">4</span>勾選 / 開關 Checkbox · Radio · Switch</h2>
+  <p class="chdesc">共用基準：<code>checkbox.tsx</code>（14 檔）、<code>switch.tsx</code>（17 檔）。<b>Radio 全站無共用組件</b>（無 RadioGroup、全原生）— 是缺口。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. 共用 &lt;Checkbox&gt; / &lt;Switch&gt; vs 原生</h3><span class="tag bad">🔴 24 個原生 checkbox</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 共用 &lt;Checkbox&gt; / &lt;Switch&gt;（morandi 滑塊）</div>
+          <div class="vsample">
+            <span class="fieldrow"><span class="cbx on"><i data-icon="check"></i></span> 已勾選</span>
+            <span class="fieldrow"><span class="cbx"></span> 未勾選</span>
+            <span class="fieldrow"><span class="sw on"><span class="thumb"></span></span> 啟用</span>
+            <span class="fieldrow"><span class="sw"><span class="thumb"></span></span> 關閉</span>
+          </div>
+          <div class="vwhere">勾選框金色 morandi-gold、Switch 金滑塊。<div class="routes" style="margin-top:6px"><span class="route">/accounting/accounts</span><span class="route">/library/attractions</span><span class="route">/marketing/website</span><span class="route">/settings/company</span><span class="route">/hr/bonus-settlement</span><span class="route">/workspaces/[id]</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 原生 checkbox（含 hardcode 銅/藍 accent）</div>
+          <div class="vsample">
+            <span class="fieldrow"><input type="checkbox" class="cbx-native" checked> 原生 w-4 h-4</span>
+            <span class="fieldrow"><input type="checkbox" class="cbx-native" checked style="accent-color:#b87333"> 銅色 accent</span>
+            <span class="fieldrow"><input type="checkbox" class="cbx-native" checked style="accent-color:#3B82F6"> 行動版藍 accent</span>
+          </div>
+          <div class="vwhere">tours 編輯器系列 + finance/settings + hr 薪資 + 公開頁；部分 hardcode COPPER / --app-accent 藍。<div class="routes" style="margin-top:6px"><span class="route">/hr（SalarySection）</span><span class="route">/finance/settings</span><span class="route">/tours（itinerary/editor）</span><span class="route">/setup/[token]</span><span class="route">/pay/[token]</span><span class="route">/app</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. Radio — 全站無共用 RadioGroup（4 處全原生）</h3><span class="tag bad">🔴 缺口</span></div>
+    <div class="card-bd">
+      <div class="spec">
+        <div class="demo">
+          <span class="fieldrow"><span class="rdo on"></span> accent token（🟡）</span>
+          <span class="fieldrow"><span class="rdo"></span> 選項二</span>
+          <span class="fieldrow"><input type="radio" class="rdo-native" checked> 原生 radio（🔴）</span>
+        </div>
+        <div class="note">
+          <div class="where-lbl">出現在哪些頁</div>
+          <div class="routes"><span class="route">/settings/company（手續費模式/獎金順序、accent-morandi-gold 🟡）</span><span class="route">/library/suppliers（國內/國外 🔴）</span><span class="route">/workspaces/[id]（LLM provider 🔴）</span></div>
+          <p>就算 token 對（accent-morandi-gold），還是原生 radio、無共用組件可統一行為。建議新建共用 &lt;RadioGroup&gt;。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>C. ⚠️ 共用 Switch 但用美術色當語意色（/hr/roles）</h3><span class="tag warn">⚠️ 美術色當語意色</span></div>
+    <div class="card-bd">
+      <div class="demo">
+        <span class="fieldrow"><span class="sw green on"><span class="thumb"></span></span> 可讀取（綠 morandi-green）</span>
+        <span class="fieldrow"><span class="sw on"><span class="thumb"></span></span> 可寫入（金 morandi-gold）</span>
+        <span style="font-size:11.5px;color:var(--warn)">+ 手刻「部分開啟」小圓點裝飾　·　/hr/roles 模組層/分頁層</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>所有勾選走 &lt;Checkbox&gt;（24 個原生收斂、重災區 = tours 編輯器 + finance/settings + hr 薪資 + 公開頁）；新建共用 &lt;RadioGroup&gt; 收 4 處原生 radio；開關走 &lt;Switch&gt;；/hr/roles 綠=讀金=寫語意化色走 status token 或明確定義、移除手刻圓點；公開/行動頁 hardcode accent 改組件預設色。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 5. 卡片 ═══════════════════════════════ -->
+<section class="ch" id="ch5">
+  <h2><span class="chnum">5</span>卡片 Card / Panel</h2>
+  <p class="chdesc">共用 <code>@/components/ui/card</code>（內建圓角 / 陰影 / border token），散成 5 種做法。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. 共用 &lt;Card&gt; vs 硬編碼 rounded-[24px] 漸層卡</h3><span class="tag bad">🔴 此頁最大技術債</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 共用 &lt;Card&gt;（內建 token）</div>
+          <div class="vsample"><div class="uicard"><h4>共用卡片</h4><p>rounded / shadow / border 全內建 token、改 token 自動影響全站。</p></div></div>
+          <div class="vwhere"><div class="routes"><span class="route">/accounting/reports/*</span><span class="route">/library/customers/[id]</span><span class="route">/settings/company</span><span class="route">/workspaces（CreateDialog）</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 硬編 rounded-[24px] + rgba 陰影漸層</div>
+          <div class="vsample"><div class="card-bad"><h4>硬編漸層卡</h4><p>rounded-[24/20/16px]、shadow-[rgba(...)]、border-[3px]、靠 eslint-disable 壓制。</p></div></div>
+          <div class="vwhere">/workspaces/[id] 整頁 6 個 _components 散落、盤點列為此頁最大債。<div class="routes" style="margin-top:6px"><span class="route">/workspaces/[id]（overview/billing/ai-settings/addons/quota）</span><span class="route">/workspaces（TenantPlanSection）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 統計卡 — 共用 StatCard vs 手刻 div 染美術色</h3><span class="tag bad">🔴 美術色染底</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ ReportStatCard（2026-05-23 已收斂）</div>
+          <div class="vsample"><div class="statcard"><div class="lbl">本月收入</div><div class="val">$128,400</div></div></div>
+          <div class="vwhere">&lt;Card&gt;+CardContent、hover:border-morandi-gold/40。好範例。<div class="routes" style="margin-top:6px"><span class="route">/finance/reports（5 分頁共用）</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 手刻 div + bg-morandi-red/10 染底</div>
+          <div class="vsample"><div class="statcard-bad"><div class="lbl">逾期金額</div><div class="val">$32,100</div></div></div>
+          <div class="vwhere">逾期/危險用 morandi-red/10（美術色當語意）、收支用 morandi-green/red/10。<div class="routes" style="margin-top:6px"><span class="route">/accounting/checks</span><span class="route">/finance</span><span class="route">/finance/reports（OverviewStatCards）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin:4px 0;color:var(--morandi-secondary);font-size:12.5px">其他流派：🟡 手刻 div 但走 token（/calendar、/hr/roles、/todos）；🟡 入口卡牆可抽未抽（/accounting、/finance、/library、/shared-data 結構幾乎相同）；🟡 對客頁 inline hex 卡（/p/*-proposal、canvas — 刻意獨立 CIS、待拍板納管）。</p>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>ERP 容器一律走 &lt;Card&gt;；最該收 /workspaces/[id] 整頁硬編 rounded-[24px]+rgba 漸層卡；入口卡牆抽共用 EntryCard；統計卡走 ReportStatCard + status token 染底。對客 CIS 待拍板。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 6. 頁籤 ═══════════════════════════════ -->
+<section class="ch" id="ch6">
+  <h2><span class="chnum">6</span>頁籤 Tabs</h2>
+  <p class="chdesc">兩套 SSOT 清楚：<code>ContentPageLayout</code> 的 tabs prop（路由級子導航）+ shadcn <code>&lt;Tabs&gt;</code>（內容級切換）。問題在手刻 button tab。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>標準頁籤 vs 手刻 button tab</h3><span class="tag bad">🔴 手刻</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 框架 tabs / shadcn Tabs（金色底線）</div>
+          <div class="vsample" style="display:block">
+            <div class="tabs"><span class="tab active">基本資料</span><span class="tab">收款</span><span class="tab">請款</span><span class="tab">支出</span></div>
+          </div>
+          <div class="vwhere">統一樣式、切 tab 同步 URL。<div class="routes" style="margin-top:6px"><span class="route">/orders</span><span class="route">/tours/[code]</span><span class="route">/finance/settings</span><span class="route">/hr/roles</span><span class="route">/finance/payments（對話框內 shadcn Tabs）</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 手刻 button tab（藍底線 / 自刻高亮）</div>
+          <div class="vsample" style="display:block">
+            <div class="tabs tabs-bad"><span class="tab active">設定</span><span class="tab">進階</span></div>
+          </div>
+          <div class="vwhere">settings/company SettingsTabs 手刻、/ai 設定 dialog tab rounded-md button；/tours/[code] _TourTabs 疑 dead code。<div class="routes" style="margin-top:6px"><span class="route">/settings/company</span><span class="route">/ai</span><span class="route">/tours/[code]（_TourTabs dead-ish）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>路由級走 ContentPageLayout tabs、內容級走 shadcn &lt;Tabs&gt;；手刻 button tab（settings/company、/ai 設定 dialog）改 shadcn Tabs；/tours/[code] _TourTabs 走刪除驗證流程清掉；雙層 Tabs（customers/[id]、attractions、finance/reports）評估收成單層。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 7. 表格 ═══════════════════════════════ -->
+<section class="ch" id="ch7">
+  <h2><span class="chnum">7</span>表格 Table / List</h2>
+  <p class="chdesc">黃金標準 <code>EnhancedTable</code>（initialPageSize=15、內建表頭/斑馬紋/空狀態/分頁），實際散成 5 種做法。最該收 shared-data 四頁手刻 table。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. EnhancedTable vs shared-data 手刻 table（三套表頭並存）</h3><span class="tag bad">🔴 三套表頭+行高</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ EnhancedTable（統一表頭/斑馬紋/行高）</div>
+          <div class="vsample" style="display:block;width:100%">
+            <table class="uitbl"><thead><tr><th>編號</th><th>名稱</th><th>狀態</th></tr></thead>
+            <tbody><tr><td>C001</td><td>王小明</td><td><span class="pill success">已確認</span></td></tr>
+            <tr><td>C002</td><td>李大華</td><td><span class="pill pending">待處理</span></td></tr>
+            <tr><td>C003</td><td>陳美玲</td><td><span class="pill success">已確認</span></td></tr></tbody></table>
+          </div>
+          <div class="vwhere"><div class="routes"><span class="route">/orders</span><span class="route">/tours</span><span class="route">/finance/payments</span><span class="route">/library/customers</span><span class="route">/accounting/vouchers</span><span class="route">/workspaces</span> 等 20+ 處</div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 手刻 &lt;table&gt;（三套表頭背景）</div>
+          <div class="vsample" style="display:block;width:100%">
+            <table class="tbl-bad"><thead><tr><th>代碼 (bg-muted/50)</th><th>名稱</th><th>啟用</th></tr></thead>
+            <tbody><tr><td>004</td><td>台灣銀行</td><td>✓</td></tr><tr><td>012</td><td>台北富邦</td><td>✓</td></tr></tbody></table>
+          </div>
+          <div class="vwhere">banks/countries 用 bg-muted/50、airports 用 bg-muted/30、insurance-grades 用 morandi-container/30；行高 py-1.5/2/3 三種；banks↔countries 還是複製貼上。emoji ✓ 當啟用狀態。<div class="routes" style="margin-top:6px"><span class="route">/shared-data/banks</span><span class="route">/shared-data/countries</span><span class="route">/shared-data/airports</span><span class="route">/shared-data/insurance-grades</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 🔴 收款總覽表頭染綠（美術色當「收款」語意）</h3><span class="tag bad">🔴 綠色表頭</span></div>
+    <div class="card-bd">
+      <div class="demo" style="display:block">
+        <table class="tbl-bad green" style="max-width:420px"><thead><tr><th>日期</th><th>收款項目</th><th>金額</th></tr></thead>
+        <tbody><tr><td>2026-05-01</td><td>訂金</td><td>$30,000</td></tr><tr><td>2026-05-10</td><td>尾款</td><td>$70,000</td></tr></tbody></table>
+        <p style="font-size:12px;color:var(--bad);margin-top:8px">header 列 bg-morandi-green/10 綠底 · /tours/[code]（tour-receipts、PaymentRequestOverviewTable）</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin:4px 0;color:var(--morandi-secondary);font-size:12.5px">合理特例（可保留）：🟡 會計報表手刻 table（general-ledger/trial-balance）+ flex 明細（balance-sheet/income-statement）；🟡 唯讀子表（缺空狀態應補）；🟡 對話流/看板/對客 CIS。</p>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>ERP 內部列表一律走 EnhancedTable；最該收 shared-data 四頁手刻 master table（三套表頭+行高、banks↔countries 複製貼上）；收款綠表頭改 status token；唯讀子表補空狀態。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 8. 分頁 ═══════════════════════════════ -->
+<section class="ch" id="ch8">
+  <h2><span class="chnum">8</span>分頁 Pagination</h2>
+  <p class="chdesc">效能紅線：列表分頁固定 15 筆、不給「每頁筆數」選擇器。EnhancedTable 內建符合；自刻分頁列與全量 render 是問題。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>EnhancedTable 內建分頁 vs 自刻分頁列</h3><span class="tag bad">🔴 自刻 + 全量 render</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ EnhancedTable serverPagination（固定 15 筆）</div>
+          <div class="vsample">
+            <span class="pager">
+              <span class="pg"><i data-icon="chevron-left"></i></span>
+              <span class="pg active">1</span><span class="pg">2</span><span class="pg">3</span>
+              <span class="pg"><i data-icon="chevron-right"></i></span>
+              <span style="margin-left:6px">共 42 筆 · 15 筆/頁</span>
+            </span>
+          </div>
+          <div class="vwhere">server-side、不給每頁筆數選擇器。<div class="routes" style="margin-top:6px"><span class="route">/finance/payments·requests</span><span class="route">/orders</span><span class="route">/tours</span><span class="route">/library/customers·suppliers</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 自刻兩顆主 CTA 鈕當分頁</div>
+          <div class="vsample">
+            <button class="btn btn-default sm">上一頁</button>
+            <span style="font-size:12px;color:var(--morandi-secondary)">第 1 / 3 頁</span>
+            <button class="btn btn-default sm">下一頁</button>
+          </div>
+          <div class="vwhere">用 default 金漸層主 CTA 樣式（語意過重）。<div class="routes" style="margin-top:6px"><span class="route">/finance（交易紀錄）</span></div></div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:12px;color:var(--bad);font-size:12.5px">🔴 無分頁全量 render（效能炸點）：<span class="route">/visas</span> <span class="route">/library/archive-management</span> <span class="route">/finance/treasury/disbursement（all:true）</span> <span class="route">/shared-data/*（airports 6000+ 筆一次撈）</span></p>
+    </div>
+  </div>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>資料量會成長的列表一律走 EnhancedTable serverPagination（固定 15 筆）；最該收 /visas 與 shared-data 四頁全量 render；/finance 自刻分頁列改用內建分頁。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 9. 對話框 ═══════════════════════════════ -->
+<section class="ch" id="ch9">
+  <h2><span class="chnum">9</span>對話框 Dialog</h2>
+  <p class="chdesc">共用 SSOT：<code>form-dialog.tsx</code>（FormDialog，level + 統一 header/footer + loading 防連點）、<code>EntityFormDialog</code>、底層 <code>dialog.tsx</code>（必設 level=1|2|3）、確認框走 <code>@/lib/ui/alert-dialog</code>。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. FormDialog（設 level）vs 完全手刻 createPortal modal</h3><span class="tag bad">🔴 手刻 modal</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ FormDialog（統一 header/footer/level）</div>
+          <div class="vsample" style="display:block">
+            <div class="dlg">
+              <div class="dlg-hd"><div class="t">新增傳票</div><div class="s">level=2 · 統一標題副標</div></div>
+              <div class="dlg-bd">內建 footer + loading 防連點…</div>
+              <div class="dlg-ft"><button class="btn btn-soft-gold xs">取消</button><button class="btn btn-default xs">儲存</button></div>
+            </div>
+          </div>
+          <div class="vwhere"><div class="routes"><span class="route">/accounting/vouchers</span><span class="route">/library/attractions</span><span class="route">/hr/roles</span><span class="route">/visas</span><span class="route">/tours/[code]</span><span class="route">/channels（EntityFormDialog）</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 createPortal + bg-black/55 自刻面板</div>
+          <div class="vsample" style="display:block">
+            <div class="dlg-bad">
+              <div class="dlg-bd" style="background:#fff"><b>速記卡編輯</b><br><span style="color:var(--morandi-secondary)">bg-white 硬寫底色、無統一 footer、不設 level</span></div>
+              <div class="dlg-ft"><button class="btn btn-soft-gold xs">關閉</button></div>
+            </div>
+          </div>
+          <div class="vwhere">不走 Dialog 組件、不設 level。<div class="routes" style="margin-top:6px"><span class="route">/ai（RetrospectiveModal、SpeedCardEditor）</span><span class="route">/tours/[code]/display-editor（AiAssistDialog）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 共用 confirm() vs 原生 window.confirm</h3><span class="tag bad">🔴 原生彈窗</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ @/lib/ui/alert-dialog 的 confirm()</div>
+          <div class="vsample" style="display:block">
+            <div class="dlg" style="width:280px">
+              <div class="dlg-hd"><div class="t">確認刪除？</div></div>
+              <div class="dlg-bd">此操作無法復原。</div>
+              <div class="dlg-ft"><button class="btn btn-soft-gold xs">取消</button><button class="btn btn-destructive xs">刪除</button></div>
+            </div>
+          </div>
+          <div class="vwhere">morandi 風、統一。<div class="routes" style="margin-top:6px"><span class="route">/accounting/*</span><span class="route">/hr/roles</span><span class="route">/orders</span><span class="route">/tours</span><span class="route">/library/*</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 瀏覽器原生 window.confirm()</div>
+          <div class="vsample" style="display:block">
+            <div class="win-confirm">erp.venturo.tw 顯示<br><br>確定要刪除嗎？<div class="wc-ft"><button>取消</button><button>確定</button></div></div>
+          </div>
+          <div class="vwhere">系統灰彈窗、跳出感、無 morandi。<div class="routes" style="margin-top:6px"><span class="route">/ai（速記卡/復盤刪除）</span><span class="route">/workspaces/[id]（移除 LLM）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin:4px 0;color:var(--morandi-secondary);font-size:12.5px">🔴 裸 Dialog 無 level（違反「Dialog 必設 level」紅線）：/workspaces/[id]（LLM Token wizard、API 整合）、/hr/bonus-settlement·salary-settlement（結算 wizard）。🟡 殼對齊但 footer 自刻語意色：/finance/payments·requests、/library/customers（ManagedDialog）。</p>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>一律 FormDialog/EntityFormDialog + 明設 level；footer 用內建 submit/cancel；確認框一律 alert-dialog 的 confirm()、移除所有 window.confirm（/ai、/workspaces/[id]）；手刻 portal modal（/ai、display-editor）改包 DialogContent level。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 10. Badge ═══════════════════════════════ -->
+<section class="ch" id="ch10">
+  <h2><span class="chnum">10</span>狀態標籤 Badge</h2>
+  <p class="chdesc">共用 SSOT：<code>status-badge.tsx</code>（StatusBadge、tone 或 type+status API）+ <code>status-cells.tsx</code>（StatusCell）。<b>全站根病根</b>：StatusBadge 的 success tone 內部寫 <code>bg-morandi-green/15</code>、danger 寫 <code>bg-morandi-red/15</code>（美術色，非 status-success/danger 語意 token）— 連最標準的共用組件都從美術色軌出發。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. 共用 StatusBadge 六 tone（真渲染 soft pill）</h3><span class="tag warn">✅ 標準但繼承根病根</span></div>
+    <div class="card-bd">
+      <div class="demo">
+        <span class="pill pending">待處理 pending</span>
+        <span class="pill info">進行中 info</span>
+        <span class="pill success">已完成 success ⚠️</span>
+        <span class="pill warning">警告 warning</span>
+        <span class="pill danger">已取消 danger ⚠️</span>
+        <span class="pill neutral">未分類 neutral</span>
+      </div>
+      <p class="note" style="color:var(--morandi-secondary);font-size:12.5px">⚠️ success / danger 兩 tone 內部用美術色 morandi-green/red、應走 status-success/danger 語意 token（顏色幾乎一樣、但軌道錯）。</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 治根病根：success/danger 美術色 → 語意色（並排）</h3><span class="tag ok">→ 改一處全站受益</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol bad">
+          <div class="vhd">🔴 現況：bg-morandi-green/red（美術色軌）</div>
+          <div class="vsample"><span class="pill success">已付清</span><span class="pill danger">已退款</span></div>
+          <div class="vwhere">success=morandi-green、danger=morandi-red、寫在共用組件 TONE_STYLES。</div>
+        </div>
+        <div class="vcol good">
+          <div class="vhd">✅ 建議：bg-status-success/danger-bg（語意軌）</div>
+          <div class="vsample"><span class="pill success-fix">已付清</span><span class="pill danger-fix">已退款</span></div>
+          <div class="vwhere">改 status-badge.tsx 一處、全站受益。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>C. 🔴🔴 最緊急：Tailwind 預設色當狀態色（嚴重違規 UI 紅線）</h3><span class="tag bad">🔴🔴 最緊急</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 標準：StatusBadge type=... + status token</div>
+          <div class="vsample"><span class="pill warning">待審核</span><span class="pill info">已收款</span><span class="pill success">已結團</span></div>
+          <div class="vwhere">soft pill、走語意 token。</div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴🔴 整套 Tailwind 預設色 / slate</div>
+          <div class="vsample">
+            <span class="pill-tw pill-amber">待審核</span><span class="pill-tw pill-blue">HK</span><span class="pill-tw pill-green">KK</span><span class="pill-tw pill-orange">HL</span><span class="pill-tw pill-teal">LK</span><br>
+            <span class="pill-tw pill-red" style="margin-top:6px">緊急</span><span class="pill-tw pill-slate">低</span>
+          </div>
+          <div class="vwhere">orders OrderStatusBadge 整套 amber/blue/green/orange/teal；todos 優先級 red/orange/amber/slate（連 morandi 都不是）。<div class="routes" style="margin-top:6px"><span class="route">/orders（OrderStatusBadge）</span><span class="route">/todos（優先級/期限）</span><span class="route">/workspaces/[id]（多處）</span><span class="route">/ai（bot 暫停 orange）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>D. 合法例外（不需改）— 社群品牌色 channel badge</h3><span class="tag ok">✅ W 5/23 拍板合法</span></div>
+    <div class="card-bd">
+      <div class="demo">
+        <span class="pill-line">LINE</span><span class="pill-fb">FB</span><span class="pill-ig">IG</span>
+        <span style="font-size:11.5px;color:var(--morandi-secondary)">社群識別色（非狀態色）· /ai channel badge — 保留</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin:4px 0;color:var(--bad);font-size:12.5px">🔴 失效 token / hardcode（渲染極可能失效）：/visas 用不存在的 morandi-gray/blue-100（無底色）；/ai 未讀點 class <code>bg-status-danger-bg0</code>（-bg0 不存在、實際無底色）；display-editor SaveIndicator hardcode hex #A8D5A2/#E8C57A/#E89A8C。</p>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>① 先治根病根：改 status-badge.tsx 的 success→status-success、danger→status-danger（一處全站受益）。② D 類最緊急（Tailwind 預設色）：/orders OrderStatusBadge、/todos 優先級、/workspaces/[id] 全改 StatusBadge type+token。③ 各頁手刻 map（/hr 三結算頁）收斂。④ 修失效 class（/visas、/ai -bg0、SaveIndicator hex）。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 11. 空狀態 / 載入 ═══════════════════════════════ -->
+<section class="ch" id="ch11">
+  <h2><span class="chnum">11</span>空狀態 EmptyState / 載入 Loading</h2>
+  <p class="chdesc">共用：<code>Spinner</code> / <code>ModuleLoading</code> / <code>skeleton.tsx</code> / <code>empty-state.tsx</code>（EmptyState，<b>幾乎沒人用</b>）/ EnhancedTable 內建 emptyState。跨頁最碎的一塊。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>A. 載入 — 共用 Spinner / Skeleton vs 自刻 animate-spin</h3><span class="tag bad">🔴 自刻動畫</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 共用 Spinner / Skeleton（morandi）</div>
+          <div class="vsample">
+            <span class="spinner"><i data-icon="loader-2"></i></span>
+            <div class="skeleton"><div class="sk w90"></div><div class="sk w70"></div><div class="sk"></div></div>
+          </div>
+          <div class="vwhere">Loader2 morandi-gold / 列表骨架防白閃。<div class="routes" style="margin-top:6px"><span class="route">/finance</span><span class="route">/tours/[code]</span><span class="route">各 ListPageLayout 頁</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 自刻 animate-spin / 純文字</div>
+          <div class="vsample">
+            <span style="display:inline-block;width:30px;height:30px;border:3px solid var(--morandi-gold);border-top-color:transparent;border-radius:50%;animation:spin .9s linear infinite"></span>
+            <span style="font-size:13px;color:var(--morandi-secondary)">載入中...</span>
+          </div>
+          <div class="vwhere">自刻 border-morandi-gold 轉圈 / 純文字「載入中…」非 Skeleton。<div class="routes" style="margin-top:6px"><span class="route">/library/archive-management</span><span class="route">/calendar（CalendarGrid）</span><span class="route">/accounting/opening-balances</span><span class="route">/shared-data/*</span><span class="route">/app（彈跳 dot @keyframes）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 空狀態 — EnhancedTable 內建 vs 各頁自刻 div</h3><span class="tag warn">🟡 共用 EmptyState 幾乎沒人用</span></div>
+    <div class="card-bd">
+      <div class="versus">
+        <div class="vcol good">
+          <div class="vhd">✅ 列表內建 emptyState（統一）</div>
+          <div class="vsample" style="display:block;width:100%"><div class="empty"><i data-icon="file-text"></i>目前沒有資料</div></div>
+          <div class="vwhere"><div class="routes"><span class="route">/orders</span><span class="route">/tours</span><span class="route">/library/customers·suppliers</span><span class="route">/workspaces</span></div></div>
+        </div>
+        <div class="vcol bad">
+          <div class="vhd">🔴 各頁自刻 div + icon（含失效 token）</div>
+          <div class="vsample" style="display:block;width:100%"><div class="empty" style="color:#b91c1c"><i data-icon="map-pin"></i>找不到資料（text-morandi-gray-500 不存在）</div></div>
+          <div class="vwhere">散落自刻、未用共用 EmptyState；/visas 用不存在的 morandi-gray-500（silent 失效）。<div class="routes" style="margin-top:6px"><span class="route">/ai</span><span class="route">/library/archive-management</span><span class="route">/library/attractions</span><span class="route">/visas（失效 token）</span><span class="route">/app/*（.app-placeholder vs inline 不一致）</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin:4px 0;color:var(--morandi-secondary);font-size:12.5px">回饋 Toast：✅ 全站高度統一走 sonner（toast.success/error）30+ 處。但 🔴 錯誤橫幅顏色各走各的（/login、/app、/hr、/finance/reports 混 morandi-red / Tailwind red / hardcode rgba）。</p>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>載入一律走 &lt;Spinner&gt;/&lt;ModuleLoading&gt;（清掉 archive-management、calendar、app 自刻 animate-spin）；空狀態收斂到共用 &lt;EmptyState&gt;（目前幾乎無人用）；錯誤橫幅顏色全收斂到 status-danger token；優先修 /visas 失效 token。</span></div>
+</section>
+
+<!-- ═══════════════════════════════ 12. 圖示 ═══════════════════════════════ -->
+<section class="ch" id="ch12">
+  <h2><span class="chnum">12</span>圖示 Icon</h2>
+  <p class="chdesc">圖示庫：全站只用 <code>lucide-react</code>（382 檔、無混用、172 個不重複 icon）。✅ 庫統一、顏色走 token。🔴 問題：同一動作用多種 icon、尺寸三軌並存。下面是<b>真實 lucide SVG</b>（自 lucide-react v0.544 抽取）。</p>
+
+  <div class="card">
+    <div class="card-hd"><h3>B. 同一動作用多種 icon（同義組並排、標建議）</h3><span class="tag bad">🔴 要統一</span></div>
+    <div class="card-bd">
+
+      <div class="subhd">編輯 — 6 種並存（→ 統一 Edit2）</div>
+      <div class="icongrid">
+        <div class="iconchip pick"><i data-icon="edit-2"></i><span class="nm">Edit2</span><span class="ct">×14</span></div>
+        <div class="iconchip"><i data-icon="pencil"></i><span class="nm">Pencil</span><span class="ct">×9</span></div>
+        <div class="iconchip"><i data-icon="edit"></i><span class="nm">Edit</span><span class="ct">×3</span></div>
+        <div class="iconchip"><i data-icon="square-pen"></i><span class="nm">SquarePen</span><span class="ct">×1</span></div>
+        <div class="iconchip"><i data-icon="pen-line"></i><span class="nm">PenLine</span><span class="ct">×1</span></div>
+        <div class="iconchip"><i data-icon="file-edit"></i><span class="nm">FileEdit</span><span class="ct">×1</span></div>
+      </div>
+
+      <div class="subhd" style="margin-top:18px">刪除 vs 關閉（→ 刪除=Trash2、關閉=X）</div>
+      <div class="icongrid">
+        <div class="iconchip pick"><i data-icon="trash-2"></i><span class="nm">Trash2</span><span class="ct">刪除 ×49</span></div>
+        <div class="iconchip pick"><i data-icon="x"></i><span class="nm">X</span><span class="ct">關閉 ×71</span></div>
+        <div class="iconchip"><i data-icon="x-circle"></i><span class="nm">XCircle</span><span class="ct">×9</span></div>
+        <div class="iconchip"><i data-icon="ban"></i><span class="nm">Ban</span><span class="ct">×1</span></div>
+        <div class="iconchip"><i data-icon="minus"></i><span class="nm">Minus</span><span class="ct">×2</span></div>
+      </div>
+
+      <div class="subhd" style="margin-top:18px">打勾 / 確認 / 成功（→ 釐清勾選框/成功/確認鈕）</div>
+      <div class="icongrid">
+        <div class="iconchip"><i data-icon="check"></i><span class="nm">Check</span><span class="ct">×47</span></div>
+        <div class="iconchip"><i data-icon="check-circle-2"></i><span class="nm">CheckCircle2</span><span class="ct">×17</span></div>
+        <div class="iconchip"><i data-icon="check-circle"></i><span class="nm">CheckCircle</span><span class="ct">×5</span></div>
+        <div class="iconchip"><i data-icon="check-square"></i><span class="nm">CheckSquare</span><span class="ct">×2</span></div>
+      </div>
+
+      <div class="subhd" style="margin-top:18px">警告 / 提示（→ 錯誤=AlertCircle、警示=AlertTriangle）</div>
+      <div class="icongrid">
+        <div class="iconchip pick"><i data-icon="alert-circle"></i><span class="nm">AlertCircle</span><span class="ct">錯誤 ×29</span></div>
+        <div class="iconchip pick"><i data-icon="alert-triangle"></i><span class="nm">AlertTriangle</span><span class="ct">警示 ×16</span></div>
+        <div class="iconchip"><i data-icon="info"></i><span class="nm">Info</span><span class="ct">×8</span></div>
+        <div class="iconchip"><i data-icon="help-circle"></i><span class="nm">HelpCircle</span><span class="ct">×2</span></div>
+      </div>
+
+      <div class="subhd" style="margin-top:18px">載入 vs 重整（→ 載入=Loader2、重整=RefreshCw）</div>
+      <div class="icongrid">
+        <div class="iconchip pick"><i data-icon="loader-2"></i><span class="nm">Loader2</span><span class="ct">載入 ×61</span></div>
+        <div class="iconchip pick"><i data-icon="refresh-cw"></i><span class="nm">RefreshCw</span><span class="ct">重整 ×11</span></div>
+        <div class="iconchip"><i data-icon="rotate-ccw"></i><span class="nm">RotateCcw</span><span class="ct">×4</span></div>
+        <div class="iconchip"><i data-icon="rotate-cw"></i><span class="nm">RotateCw</span><span class="ct">×1</span></div>
+      </div>
+
+      <div class="subhd" style="margin-top:18px">設定（→ 統一 Settings）　·　展開/收合</div>
+      <div class="icongrid">
+        <div class="iconchip pick"><i data-icon="settings"></i><span class="nm">Settings</span><span class="ct">×5</span></div>
+        <div class="iconchip"><i data-icon="settings-2"></i><span class="nm">Settings2</span><span class="ct">×1</span></div>
+        <div class="iconchip"><i data-icon="sliders"></i><span class="nm">Sliders</span><span class="ct">×1</span></div>
+        <div class="iconchip"><i data-icon="wrench"></i><span class="nm">Wrench</span><span class="ct">×1</span></div>
+        <div class="iconchip"><i data-icon="chevrons-up-down"></i><span class="nm">ChevronsUpDown</span><span class="ct">×2</span></div>
+        <div class="iconchip"><i data-icon="chevrons-down-up"></i><span class="nm">ChevronsDownUp</span><span class="ct">×2</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hd"><h3>C. 圖示尺寸三軌並存</h3><span class="tag bad">🔴 三套寫法</span></div>
+    <div class="card-bd">
+      <div class="demo">
+        <div class="swatch"><span style="color:var(--morandi-primary)"><i data-icon="settings" style="display:inline-block;width:20px;height:20px"></i></span><code>size={'{16}'}</code></div>
+        <div class="swatch"><span style="color:var(--morandi-primary)"><i data-icon="settings" style="display:inline-block;width:19px;height:19px"></i></span><code>size="0.95em"</code></div>
+        <div class="swatch"><span style="color:var(--morandi-primary)"><i data-icon="settings" style="display:inline-block;width:16px;height:16px"></i></span><code>w-4 h-4</code></div>
+      </div>
+      <p class="note" style="color:var(--morandi-secondary);font-size:12.5px">三軌：<code>size={'{數字}'}</code> / <code>size="0.95em"</code>（操作欄、跟字級連動）/ Tailwind <code>w-4 h-4</code>。建議全站擇一。</p>
+    </div>
+  </div>
+
+  <div class="banner"><span class="arr">→ 建議統一</span><span>同一動作收斂到單一 icon（編輯→Edit2、刪除→Trash2、關閉→X、錯誤→AlertCircle、警示→AlertTriangle、載入→Loader2、重整→RefreshCw、設定→Settings）；尺寸寫法全站擇一（建議 size="0.95em" 跟字級連動、或統一 w-4 h-4）。</span></div>
+</section>
+
+<div class="footer">
+  全站 UI 視覺總覽 · Venturo ERP · 2026-05-26 · 自 91 頁逐頁盤點（UI-元素出處對照.md）彙整 · 元件樣式複刻自 src/styles/tokens.css morandi 預設主題與 src/components/ui · 圖示自 lucide-react v0.544 __iconNode 抽取 · 自包含單檔、無外部連線。
+</div>
+</main>
+</div>
+
+<script>
+// ═══════════ 內嵌真實 lucide SVG（自 node_modules/lucide-react v0.544 __iconNode 抽取）═══════════
+const ICONS = {"edit-2":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/></svg>","pencil":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/><path d=\"m15 5 4 4\"/></svg>","edit":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\"/></svg>","square-pen":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z\"/></svg>","pen-line":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M13 21h8\"/><path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\"/></svg>","file-edit":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z\"/></svg>","x":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 6 6 18\"/><path d=\"m6 6 12 12\"/></svg>","trash-2":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 11v6\"/><path d=\"M14 11v6\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6\"/><path d=\"M3 6h18\"/><path d=\"M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/></svg>","x-circle":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m15 9-6 6\"/><path d=\"m9 9 6 6\"/></svg>","ban":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4.929 4.929 19.07 19.071\"/><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg>","minus":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/></svg>","check":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>","check-circle-2":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/></svg>","check-circle":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.801 10A10 10 0 1 1 17 3.335\"/><path d=\"m9 11 3 3L22 4\"/></svg>","check-square":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 10.656V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.344\"/><path d=\"m9 11 3 3L22 4\"/></svg>","square-check":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\"/><path d=\"m9 12 2 2 4-4\"/></svg>","alert-circle":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" x2=\"12\" y1=\"8\" y2=\"12\"/><line x1=\"12\" x2=\"12.01\" y1=\"16\" y2=\"16\"/></svg>","alert-triangle":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg>","info":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4\"/><path d=\"M12 8h.01\"/></svg>","help-circle":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"/><path d=\"M12 17h.01\"/></svg>","loader":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2v4\"/><path d=\"m16.2 7.8 2.9-2.9\"/><path d=\"M18 12h4\"/><path d=\"m16.2 16.2 2.9 2.9\"/><path d=\"M12 18v4\"/><path d=\"m4.9 19.1 2.9-2.9\"/><path d=\"M2 12h4\"/><path d=\"m4.9 4.9 2.9 2.9\"/></svg>","loader-2":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12a9 9 0 1 1-6.219-8.56\"/></svg>","loader-circle":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12a9 9 0 1 1-6.219-8.56\"/></svg>","refresh-cw":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/></svg>","rotate-ccw":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\"/><path d=\"M3 3v5h5\"/></svg>","rotate-cw":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/></svg>","settings":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>","settings-2":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14 17H5\"/><path d=\"M19 7h-9\"/><circle cx=\"17\" cy=\"17\" r=\"3\"/><circle cx=\"7\" cy=\"7\" r=\"3\"/></svg>","sliders":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 8h4\"/><path d=\"M12 21v-9\"/><path d=\"M12 8V3\"/><path d=\"M17 16h4\"/><path d=\"M19 12V3\"/><path d=\"M19 21v-5\"/><path d=\"M3 14h4\"/><path d=\"M5 10V3\"/><path d=\"M5 21v-7\"/></svg>","sliders-horizontal":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 5H3\"/><path d=\"M12 19H3\"/><path d=\"M14 3v4\"/><path d=\"M16 17v4\"/><path d=\"M21 12h-9\"/><path d=\"M21 19h-5\"/><path d=\"M21 5h-7\"/><path d=\"M8 10v4\"/><path d=\"M8 12H3\"/></svg>","wrench":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z\"/></svg>","chevrons-up-down":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 15 5 5 5-5\"/><path d=\"m7 9 5-5 5 5\"/></svg>","chevrons-down-up":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m7 20 5-5 5 5\"/><path d=\"m7 4 5 5 5-5\"/></svg>","chevron-down":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg>","chevron-up":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m18 15-6-6-6 6\"/></svg>","chevron-right":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg>","chevron-left":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\"/></svg>","plus":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>","search":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m21 21-4.34-4.34\"/><circle cx=\"11\" cy=\"11\" r=\"8\"/></svg>","calendar":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/></svg>","filter":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z\"/></svg>","star":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\"/></svg>","crown":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z\"/><path d=\"M5 21h14\"/></svg>","shield-x":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m14.5 9.5-5 5\"/><path d=\"m9.5 9.5 5 5\"/></svg>","archive":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"20\" height=\"5\" x=\"2\" y=\"3\" rx=\"1\"/><path d=\"M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8\"/><path d=\"M10 12h4\"/></svg>","map-pin":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/></svg>","image-off":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><line x1=\"2\" x2=\"22\" y1=\"2\" y2=\"22\"/><path d=\"M10.41 10.41a2 2 0 1 1-2.83-2.83\"/><line x1=\"13.5\" x2=\"6\" y1=\"13.5\" y2=\"21\"/><line x1=\"18\" x2=\"21\" y1=\"12\" y2=\"15\"/><path d=\"M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59\"/><path d=\"M21 15V5a2 2 0 0 0-2-2H9\"/></svg>","bot":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 8V4H8\"/><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\"/><path d=\"M2 14h2\"/><path d=\"M20 14h2\"/><path d=\"M15 13v2\"/><path d=\"M9 13v2\"/></svg>","trending-up":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M16 7h6v6\"/><path d=\"m22 7-8.5 8.5-5-5L2 17\"/></svg>","file-text":"<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/><path d=\"M10 9H8\"/><path d=\"M16 13H8\"/><path d=\"M16 17H8\"/></svg>"};
+document.querySelectorAll('[data-icon]').forEach(el=>{
+  const name = el.getAttribute('data-icon');
+  if(name && ICONS[name]) el.innerHTML = ICONS[name];
+});
+</script>
+</body>
+</html>
