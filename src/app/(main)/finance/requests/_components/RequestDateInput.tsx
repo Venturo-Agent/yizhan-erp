@@ -1,6 +1,6 @@
 'use client'
 
-import { getTodayString } from '@/lib/utils/format-date'
+import { getTodayString, getNextWeekday } from '@/lib/utils/format-date'
 import { useEffect } from 'react'
 import { DatePicker } from '@/components/ui/date-picker'
 import { cn } from '@/lib/utils'
@@ -23,13 +23,15 @@ export function RequestDateInput({ value, onChange, label }: RequestDateInputPro
   const { payload } = useLayoutContext()
   const defaultBillingDay = payload.workspace?.default_billing_day_of_week ?? null
 
-  // 預設帶入今天（不指定時所有日期都當「正常出帳」、isSpecial = false）
+  // 預設帶入「下一個公司出帳日」（有設定 → 下一個該星期幾；無設定 → 今天、不區分正常/特殊）
   useEffect(() => {
     if (!value) {
-      const today = getTodayString()
+      const defaultDate =
+        defaultBillingDay !== null ? getNextWeekday(defaultBillingDay) : getTodayString()
       const isSpecial =
-        defaultBillingDay !== null && new Date(today + 'T00:00:00').getDay() !== defaultBillingDay
-      onChange(today, isSpecial)
+        defaultBillingDay !== null &&
+        new Date(defaultDate + 'T00:00:00').getDay() !== defaultBillingDay
+      onChange(defaultDate, isSpecial)
     }
   }, [defaultBillingDay])
 

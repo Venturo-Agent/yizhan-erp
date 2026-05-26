@@ -8,8 +8,10 @@ import { RequestFormData, RequestItem } from '../_types'
 import type { PaymentItemCategory } from '@/stores/types'
 import type { RequestMode } from '../_components/AddRequestDialog.types'
 
-export function useRequestForm(opts?: { mode?: RequestMode }) {
+export function useRequestForm(opts?: { mode?: RequestMode; defaultDate?: string }) {
   const mode = opts?.mode
+  // 預設請款日期：caller（AddRequestDialog）依公司預設出帳日算好傳入；未傳則退回今天
+  const defaultDate = opts?.defaultDate ?? getTodayString()
   // 使用 @/data 的 SWR hooks（和 usePaymentForm 一致）
   const { items: tours } = useToursSlim({ all: true })
   const { items: suppliers } = useSuppliersSlim({ all: true })
@@ -24,7 +26,7 @@ export function useRequestForm(opts?: { mode?: RequestMode }) {
     tour_id: '',
     order_id: '',
     expense_type: '', // 公司請款時使用
-    request_date: getTodayString(),
+    request_date: defaultDate,
     notes: '',
     is_special_billing: false,
     created_by: currentUser?.id || undefined,
@@ -45,7 +47,7 @@ export function useRequestForm(opts?: { mode?: RequestMode }) {
   const [requestItems, setRequestItems] = useState<RequestItem[]>(() => [
     {
       id: Math.random().toString(36).substr(2, 9),
-      custom_request_date: getTodayString(),
+      custom_request_date: defaultDate,
       payment_method_id: undefined,
       category: '' as PaymentItemCategory, // 不預設類別，由用戶選擇
       supplier_id: '',
@@ -130,7 +132,7 @@ export function useRequestForm(opts?: { mode?: RequestMode }) {
   const addNewEmptyItem = useCallback(() => {
     const newItem: RequestItem = {
       id: Math.random().toString(36).substr(2, 9),
-      custom_request_date: getTodayString(),
+      custom_request_date: defaultDate,
       payment_method_id: undefined,
       category: '' as PaymentItemCategory, // 不預設類別，由用戶選擇
       supplier_id: '',
@@ -140,7 +142,7 @@ export function useRequestForm(opts?: { mode?: RequestMode }) {
       quantity: 1,
     }
     setRequestItems(prev => [...prev, newItem])
-  }, [])
+  }, [defaultDate])
 
   // Update an item in the list
   const updateItem = useCallback((itemId: string, updatedFields: Partial<RequestItem>) => {
@@ -161,7 +163,7 @@ export function useRequestForm(opts?: { mode?: RequestMode }) {
       tour_id: '',
       order_id: '',
       expense_type: '',
-      request_date: getTodayString(), // 預設今天
+      request_date: defaultDate, // 預設公司出帳日（無設定則今天）
       notes: '',
       is_special_billing: false,
       created_by: currentUser?.id || undefined,
@@ -169,7 +171,7 @@ export function useRequestForm(opts?: { mode?: RequestMode }) {
     setRequestItems([
       {
         id: Math.random().toString(36).substr(2, 9),
-        custom_request_date: getTodayString(),
+        custom_request_date: defaultDate,
         payment_method_id: undefined,
         category: '' as PaymentItemCategory, // 不預設類別，由用戶選擇
         supplier_id: '',
@@ -183,7 +185,7 @@ export function useRequestForm(opts?: { mode?: RequestMode }) {
     setOrderSearchValue('')
     setShowTourDropdown(false)
     setShowOrderDropdown(false)
-  }, [currentUser?.id])
+  }, [currentUser?.id, defaultDate])
 
   return {
     formData,

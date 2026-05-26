@@ -22,8 +22,9 @@ import { RequestItem } from '../_types'
 import { usePaymentMethodsCached } from '@/data/hooks'
 import { useExpenseCategories } from '@/data/entities'
 import { logger } from '@/lib/utils/logger'
-import { getTodayString } from '@/lib/utils/format-date'
+import { getTodayString, getNextWeekday } from '@/lib/utils/format-date'
 import { useWorkspaceId } from '@/lib/workspace-context'
+import { useLayoutContext } from '@/lib/auth/useLayoutContext'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { useTranslations } from 'next-intl'
 import { useTourOptions } from '@/hooks'
@@ -43,6 +44,12 @@ export function AddRequestDialog({
   const t = useTranslations('finance')
   // activeTab 提前宣告：傳給 useRequestForm 決定訂單載入策略（單筆只撈選定團、批次才全撈）
   const [activeTab, setActiveTab] = useState<RequestMode>('tour')
+  // 公司預設出帳日（admin 在 /settings/company 設定、存 workspaces.default_billing_day_of_week）
+  //   → 新請款單預設帶「下一個該星期幾」（今天就是該天則填今天）；公司沒設定則退回今天
+  const { payload } = useLayoutContext()
+  const defaultBillingDay = payload.workspace?.default_billing_day_of_week ?? null
+  const defaultRequestDate =
+    defaultBillingDay !== null ? getNextWeekday(defaultBillingDay) : getTodayString()
   // === 共用 Hooks ===
   const {
     formData,
@@ -58,7 +65,7 @@ export function AddRequestDialog({
     tours,
     orders,
     currentUser,
-  } = useRequestForm({ mode: activeTab })
+  } = useRequestForm({ mode: activeTab, defaultDate: defaultRequestDate })
 
   const { createRequest } = useRequestOperations()
   const { createPaymentRequest, addPaymentItem } = usePayments()
@@ -103,7 +110,7 @@ export function AddRequestDialog({
     handleSupplierCreated: handleSupplierCreatedFromHook,
     handleSupplierDialogClose,
     resetBatchState,
-  } = useAddRequestDialogState()
+  } = useAddRequestDialogState(defaultRequestDate)
 
   // tour_requests 系統未啟用、stub
   const tourRequestItems: Array<{
@@ -205,6 +212,9 @@ export function AddRequestDialog({
           request_category: 'tour',
           tour_id: defaultTourId,
           order_id: defaultOrderId || '',
+          // 從團頁帶入時不走 resetForm、補上公司預設出帳日（否則停在 mount 時的舊值）
+          request_date: defaultRequestDate,
+          is_special_billing: false,
         }))
       } else {
         resetForm()
@@ -220,6 +230,7 @@ export function AddRequestDialog({
     isEditMode,
     editingRequest,
     resetBatchState,
+    defaultRequestDate,
   ])
 
   // 自動帶入訂單

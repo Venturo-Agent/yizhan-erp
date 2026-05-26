@@ -24,9 +24,11 @@ const DEFAULT_ALLOCATIONS: TourAllocation[] = [
   { tour_id: '', tour_code: '', tour_name: '', allocated_amount: 0 },
 ]
 
-export function useAddRequestDialogState() {
+export function useAddRequestDialogState(defaultDate?: string) {
+  // 預設請款日期：caller（AddRequestDialog）依公司預設出帳日算好傳入；未傳則退回今天
+  const billingDate = defaultDate ?? getTodayString()
   // === 批量請款狀態 ===
-  const [batchDate, setBatchDate] = useState(getTodayString())
+  const [batchDate, setBatchDate] = useState(billingDate)
   // 2026-05-21：類別改吃 expense_categories.id (uuid)；舊 PaymentItemCategory enum 走入歷史
   const [batchCategoryId, setBatchCategoryId] = useState<string>('')
   const [batchSupplierId, setBatchSupplierId] = useState('')
@@ -128,13 +130,13 @@ export function useAddRequestDialogState() {
 
   // === 重置批量 state ===
   const resetBatchState = useCallback(() => {
-    setBatchDate(getTodayString())
+    setBatchDate(billingDate)
     setBatchCategoryId('')
     setBatchSupplierId('')
     setTourAllocations([...DEFAULT_ALLOCATIONS])
     setImportFromRequests(false)
     setSelectedRequestItems({})
-  }, [])
+  }, [billingDate])
 
   return {
     // batch state

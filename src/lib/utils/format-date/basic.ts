@@ -107,6 +107,20 @@ export function getTodayString(): string {
 }
 
 /**
+ * 回傳「下一個指定星期幾」的日期字串 (YYYY-MM-DD)。
+ * 今天剛好是該星期幾 → 回傳今天。
+ * 用途：請款單依公司預設出帳日（workspaces.default_billing_day_of_week）自動帶日期。
+ * @param targetDay 0=週日 1=週一 … 6=週六（對齊 JS Date.getDay()）
+ * @param from 起算日（預設今天）
+ */
+export function getNextWeekday(targetDay: number, from: Date = new Date()): string {
+  const d = new Date(from.getFullYear(), from.getMonth(), from.getDate())
+  const diff = (((targetDay - d.getDay()) % 7) + 7) % 7
+  d.setDate(d.getDate() + diff)
+  return formatDate(d)
+}
+
+/**
  * 判斷兩個日期是否為同一天
  */
 export function isSameDay(date1: Date | string, date2: Date | string): boolean {
