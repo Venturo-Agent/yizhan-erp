@@ -43,7 +43,7 @@ describe('Badge Component', () => {
     it('should apply destructive variant class', () => {
       render(<Badge variant="destructive">Destructive</Badge>)
       const badge = screen.getByText('Destructive')
-      expect(badge).toHaveClass('bg-morandi-red')
+      expect(badge).toHaveClass('bg-status-danger')
       expect(badge).toHaveClass('text-white')
     })
 
