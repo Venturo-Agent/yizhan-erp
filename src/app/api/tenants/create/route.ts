@@ -105,7 +105,6 @@ export async function POST(request: NextRequest) {
       adminName,
       adminEmail,
       subscriptionPlan,
-      advancePicks,
       optionalFeatures,
     } = body
 
@@ -209,7 +208,6 @@ export async function POST(request: NextRequest) {
       supabaseAdmin,
       wsResult.workspaceId,
       subscriptionPlan ?? 'custom',
-      advancePicks,
       optionalFeatures
     )
     if (featuresError) {

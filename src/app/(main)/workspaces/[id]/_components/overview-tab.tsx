@@ -5,9 +5,8 @@ import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { alert as showAlert } from '@/lib/ui/alert-dialog'
 import { apiMutate } from '@/lib/swr/api-mutate'
-import { Users, Check } from 'lucide-react'
-import { ADVANCE_PICK_OPTIONS } from '@/lib/permissions/subscription-plans'
-import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import { Users, Check, CheckSquare } from 'lucide-react'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 import { QuotaHistorySection } from './QuotaHistorySection'
 
 // ─── 方案卡增量顯示定義 ────────────────────────────────────────────────────────
@@ -20,7 +19,7 @@ interface PlanFeature {
 
 const PLAN_INCREMENTAL: Record<
   Exclude<PlanId, 'custom'>,
-  { base?: string; features: PlanFeature[]; isPickTwo?: true }
+  { base?: string; features: PlanFeature[] }
 > = {
   lite: {
     features: [
@@ -38,8 +37,7 @@ const PLAN_INCREMENTAL: Record<
   },
   advance: {
     base: '標準版',
-    isPickTwo: true,
-    features: [],
+    features: [{ name: '完整人資（薪資+獎金）' }, { name: '會計系統' }],
   },
   premium: {
     base: '標準版',
@@ -78,6 +76,7 @@ const OTHER_OPTIONAL_FEATURES: {
   { code: 'esim', name: 'eSIM 管理', note: '開發中', kind: 'module' },
   { code: 'documents', name: '文件中心', kind: 'module' },
   { code: 'tours.contract', name: '電子合約系統', kind: 'tab' },
+  { code: 'tours.display-itinerary', name: '展示行程', kind: 'tab' },
 ]
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -107,7 +106,6 @@ interface OverviewTabProps {
   pensionSystem: 'old' | 'new' | 'mixed'
   savingHrPolicy: boolean
   subscriptionPlan: PlanId
-  advancePicks: AdvancePickId[]
   onToggleFeature: (featureCode: string) => void
   onToggleTabFeature: (moduleCode: string, tabCode: string, nextEnabled: boolean) => void
   onIsTabFeatureEnabled: (
@@ -119,7 +117,6 @@ interface OverviewTabProps {
   onSetPensionSystem: (val: 'old' | 'new' | 'mixed') => void
   onSaveHrPolicy: () => void
   onPlanChange: (planId: PlanId) => void
-  onAdvancePicksChange: (picks: AdvancePickId[]) => void
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -134,7 +131,6 @@ export function OverviewTab({
   pensionSystem,
   savingHrPolicy,
   subscriptionPlan,
-  advancePicks,
   onToggleFeature,
   onToggleTabFeature,
   onIsTabFeatureEnabled,
@@ -142,7 +138,6 @@ export function OverviewTab({
   onSetPensionSystem,
   onSaveHrPolicy,
   onPlanChange,
-  onAdvancePicksChange,
 }: OverviewTabProps) {
   return (
     <div className="space-y-6">
@@ -197,24 +192,6 @@ export function OverviewTab({
                       </p>
                     )}
 
-                    {def.isPickTwo && (
-                      <>
-                        {(
-                          Object.values(ADVANCE_PICK_OPTIONS) as { name: string; icon: string }[]
-                        ).map(opt => (
-                          <div key={opt.name} className="flex items-center gap-2">
-                            <span className="text-[9px] font-bold text-morandi-gold leading-none w-3 text-center">
-                              2/3
-                            </span>
-                            <span className="text-xs text-morandi-gold leading-tight">
-                              {opt.name}
-                            </span>
-                          </div>
-                        ))}
-                        <p className="text-[11px] text-morandi-secondary">從下方選擇 2 個</p>
-                      </>
-                    )}
-
                     {def.features.map(f => {
                       if (!f.code) {
                         return (
@@ -259,60 +236,6 @@ export function OverviewTab({
               )
             })}
           </div>
-
-          {/* Advance 3選2 — 只在選了 advance 時顯示 */}
-          {subscriptionPlan === 'advance' && (
-            // eslint-disable-next-line venturo/no-forbidden-classes
-            <div className="p-4 rounded-[16px] border border-morandi-gold/30 bg-morandi-gold/5">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <span className="text-sm font-semibold text-morandi-primary">
-                    進階版 — 選擇 2 個模組
-                  </span>
-                  <span className="text-xs text-morandi-secondary ml-2">旗艦版包含全部 3 個</span>
-                </div>
-                {advancePicks.length !== 2 && (
-                  <span className="text-xs text-status-danger font-medium">請選擇 2 個</span>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {(
-                  Object.entries(ADVANCE_PICK_OPTIONS) as [
-                    AdvancePickId,
-                    { name: string; icon: string; features: string[] },
-                  ][]
-                ).map(([pickId, option]) => {
-                  const isChecked = advancePicks.includes(pickId)
-                  const isDisabled = !isChecked && advancePicks.length >= 2
-                  return (
-                    // eslint-disable-next-line venturo/no-forbidden-classes
-                    <button
-                      key={pickId}
-                      type="button"
-                      disabled={isDisabled}
-                      onClick={() => {
-                        if (isChecked) {
-                          onAdvancePicksChange(advancePicks.filter(p => p !== pickId))
-                        } else if (advancePicks.length < 2) {
-                          onAdvancePicksChange([...advancePicks, pickId])
-                        }
-                      }}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-[12px] border transition-all text-left ${
-                        isChecked
-                          ? 'border-morandi-gold/60 bg-morandi-gold/15 text-morandi-primary'
-                          : isDisabled
-                            ? 'border-morandi-border/30 bg-morandi-container/10 opacity-40 cursor-not-allowed'
-                            : 'border-morandi-border/40 bg-white hover:border-morandi-gold/40 hover:bg-morandi-gold/5'
-                      }`}
-                    >
-                      <span className="text-sm font-medium">{option.name}</span>
-                      {isChecked && <Check className="ml-auto h-4 w-4 text-morandi-gold" />}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
 
           {/* 其他可選功能 */}
           <div>
@@ -453,12 +376,13 @@ export function OverviewTab({
             <span className="text-sm text-morandi-secondary">特休 / 資遣費 計算依此設定</span>
           </div>
           <Button
-            variant="soft-gold"
+            variant="morandi-gold"
             size="sm"
             disabled={savingHrPolicy}
             onClick={onSaveHrPolicy}
             className="border-morandi-gold text-morandi-gold hover:bg-morandi-gold/10"
           >
+            <CheckSquare size="1em" />
             {savingHrPolicy ? '儲存中...' : '儲存 HR 政策'}
           </Button>
         </div>

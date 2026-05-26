@@ -18,7 +18,7 @@ import {
   type SubIndustry,
   INITIAL_FORM,
 } from './create-tenant-types'
-import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 export function useCreateTenantForm(existingCodes: string[]) {
   const t = useTranslations('workspacesPage')
@@ -143,12 +143,7 @@ export function useCreateTenantForm(existingCodes: string[]) {
     setForm(prev => ({
       ...prev,
       subscriptionPlan: planId,
-      advancePicks: planId === 'advance' ? prev.advancePicks : [],
     }))
-  }, [])
-
-  const handleAdvancePicksChange = useCallback((picks: AdvancePickId[]) => {
-    setForm(prev => ({ ...prev, advancePicks: picks }))
   }, [])
 
   const handleOptionalFeaturesChange = useCallback((features: string[]) => {
@@ -177,7 +172,6 @@ export function useCreateTenantForm(existingCodes: string[]) {
     if (!form.industry) return false
     if ((form.industry === 'tourism' || form.industry === 'beauty') && !form.subIndustry)
       return false
-    if (form.subscriptionPlan === 'advance' && form.advancePicks.length !== 2) return false
     for (const b of form.brands) {
       if (b.name.trim() === '' && b.code.trim() !== '') return false
     }
@@ -205,7 +199,6 @@ export function useCreateTenantForm(existingCodes: string[]) {
         maxEmployees: form.maxEmployees ? parseInt(form.maxEmployees, 10) : null,
         taxId: form.taxId.trim(),
         subscriptionPlan: form.subscriptionPlan,
-        advancePicks: form.advancePicks,
         optionalFeatures: form.optionalFeatures,
         brands: form.brands
           .filter(b => b.name.trim())
@@ -302,7 +295,6 @@ export function useCreateTenantForm(existingCodes: string[]) {
     toggleMultiBranch,
     // plan
     handlePlanChange,
-    handleAdvancePicksChange,
     handleOptionalFeaturesChange,
     // industry
     handleIndustryChange,

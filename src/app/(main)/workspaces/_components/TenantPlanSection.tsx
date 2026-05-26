@@ -7,8 +7,8 @@
 
 import { useMemo } from 'react'
 import { Check, Lock } from 'lucide-react'
-import { ADVANCE_PICK_OPTIONS, getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
-import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import { getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 /**
  * 「其他可選功能」chip 對照表
@@ -22,6 +22,7 @@ const OPTIONAL_FEATURES: ReadonlyArray<{ code: string; name: string }> = [
   { code: 'esim', name: 'eSIM 管理' },
   { code: 'documents', name: '文件中心' },
   { code: 'tours.contract', name: '電子合約系統' },
+  { code: 'tours.display-itinerary', name: '展示行程' },
 ]
 
 interface PlanFeature {
@@ -31,7 +32,7 @@ interface PlanFeature {
 
 const PLAN_INCREMENTAL: Record<
   Exclude<PlanId, 'custom'>,
-  { base?: string; features: PlanFeature[]; isPickTwo?: true }
+  { base?: string; features: PlanFeature[] }
 > = {
   lite: {
     features: [
@@ -46,8 +47,7 @@ const PLAN_INCREMENTAL: Record<
   },
   advance: {
     base: '標準版',
-    isPickTwo: true,
-    features: [],
+    features: [{ name: '完整人資（薪資+獎金）' }, { name: '會計系統' }],
   },
   premium: {
     base: '標準版',
@@ -74,25 +74,21 @@ const PLAN_ORDER: Exclude<PlanId, 'custom'>[] = ['lite', 'standard', 'advance', 
 
 interface Props {
   subscriptionPlan: PlanId
-  advancePicks: AdvancePickId[]
   optionalFeatures: string[]
   onPlanChange: (plan: PlanId) => void
-  onAdvancePicksChange: (picks: AdvancePickId[]) => void
   onOptionalFeaturesChange: (features: string[]) => void
 }
 
 export function TenantPlanSection({
   subscriptionPlan,
-  advancePicks,
   optionalFeatures,
   onPlanChange,
-  onAdvancePicksChange,
   onOptionalFeaturesChange,
 }: Props) {
   // 方案已含的 feature 集合（chip 勾選 + 鎖住的依據）
   const planFeatureSet = useMemo(
-    () => new Set(getFeaturesForPlan(subscriptionPlan, advancePicks)),
-    [subscriptionPlan, advancePicks]
+    () => new Set(getFeaturesForPlan(subscriptionPlan)),
+    [subscriptionPlan]
   )
 
   const toggleOptional = (code: string) => {
@@ -150,25 +146,6 @@ export function TenantPlanSection({
                   </p>
                 )}
 
-                {/* 進階版：顯示 3選2 選項 */}
-                {def.isPickTwo && (
-                  <>
-                    {(Object.values(ADVANCE_PICK_OPTIONS) as { name: string; icon: string }[]).map(
-                      opt => (
-                        <div key={opt.name} className="flex items-center gap-1.5">
-                          <span className="text-[9px] font-bold text-morandi-gold leading-none w-3 text-center">
-                            2/3
-                          </span>
-                          <span className="text-[11px] text-morandi-gold leading-tight">
-                            {opt.name}
-                          </span>
-                        </div>
-                      )
-                    )}
-                    <p className="text-[10px] text-morandi-secondary mt-0.5">從下方選擇 2 個</p>
-                  </>
-                )}
-
                 {/* 該方案新增的功能 */}
                 {def.features.map(f => (
                   <div key={f.name} className="flex items-center gap-1.5">
@@ -218,59 +195,6 @@ export function TenantPlanSection({
           })}
         </div>
       </div>
-
-      {/* Advance 3選2 */}
-      {subscriptionPlan === 'advance' && (
-        // eslint-disable-next-line venturo/no-forbidden-classes
-        <div className="p-3.5 rounded-[14px] border border-morandi-gold/30 bg-morandi-gold/5">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-sm font-semibold text-morandi-primary">
-              進階版 — 選擇 2 個模組
-            </span>
-            {advancePicks.length !== 2 && (
-              <span className="text-xs text-status-danger font-medium">請選擇 2 個</span>
-            )}
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {(
-              Object.entries(ADVANCE_PICK_OPTIONS) as [
-                AdvancePickId,
-                { name: string; icon: string },
-              ][]
-            ).map(([pickId, option]) => {
-              const isChecked = advancePicks.includes(pickId)
-              const isDisabled = !isChecked && advancePicks.length >= 2
-              return (
-                // eslint-disable-next-line venturo/no-forbidden-classes
-                <button
-                  key={pickId}
-                  type="button"
-                  disabled={isDisabled}
-                  onClick={() => {
-                    if (isChecked) {
-                      onAdvancePicksChange(advancePicks.filter(p => p !== pickId))
-                    } else if (advancePicks.length < 2) {
-                      onAdvancePicksChange([...advancePicks, pickId])
-                    }
-                  }}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-[10px] border transition-all text-left ${
-                    isChecked
-                      ? 'border-morandi-gold/60 bg-morandi-gold/15'
-                      : isDisabled
-                        ? 'border-morandi-border/30 bg-morandi-container/10 opacity-40 cursor-not-allowed'
-                        : 'border-morandi-border/40 bg-white hover:border-morandi-gold/40 hover:bg-morandi-gold/5'
-                  }`}
-                >
-                  <span className="text-xs font-medium text-morandi-primary">{option.name}</span>
-                  {isChecked && (
-                    <Check className="ml-auto h-3.5 w-3.5 text-morandi-gold flex-shrink-0" />
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
     </section>
   )
 }

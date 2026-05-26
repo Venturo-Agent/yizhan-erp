@@ -2,9 +2,9 @@
  * 建立租戶 Dialog — 共用型別
  */
 
-import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
-export type { PlanId, AdvancePickId }
+export type { PlanId }
 
 export interface DimensionRow {
   code: string
@@ -31,7 +31,6 @@ export interface FormData {
 
   // 訂閱方案
   subscriptionPlan: PlanId
-  advancePicks: AdvancePickId[]
 
   // 其他可選功能（建立時現場決定、union 進方案 features）
   // 方案已含的 chip 鎖住、用戶不能取消（避免「勾了 calendar 但 BASE 還是強制開」的 UX 不一致）
@@ -65,7 +64,6 @@ export const INITIAL_FORM: FormData = {
   industry: '',
   subIndustry: null,
   subscriptionPlan: 'lite',
-  advancePicks: [],
   optionalFeatures: [],
   brands: [],
   isMultiBranch: false,

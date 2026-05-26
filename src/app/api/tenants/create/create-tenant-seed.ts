@@ -13,12 +13,7 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { errorResponse, ErrorCode } from '@/lib/api/response'
 import { logger } from '@/lib/utils/logger'
 import { MODULES } from '@/lib/permissions/module-tabs'
-import {
-  getFeaturesForPlan,
-  ADVANCE_PICK_OPTIONS,
-  type PlanId,
-  type AdvancePickId,
-} from '@/lib/permissions/subscription-plans'
+import { getFeaturesForPlan, type PlanId } from '@/lib/permissions/subscription-plans'
 import type { BrandPayload } from './create-tenant-validation'
 
 // Corner workspace 當全站職務模板的來源。
@@ -198,7 +193,6 @@ export async function seedWorkspaceFeatures(
   supabaseAdmin: SupabaseClient,
   workspaceId: string,
   planId: PlanId = 'custom',
-  advancePicks?: AdvancePickId[],
   /** 「其他可選功能」現場勾選的 feature_code、union 進方案 features */
   optionalFeatures?: string[]
 ): Promise<ReturnType<typeof errorResponse> | null> {
@@ -251,23 +245,12 @@ export async function seedWorkspaceFeatures(
         'itinerary',
         ...(optionalFeatures ?? []),
       ])
-    : new Set([
-        ...getFeaturesForPlan(planId, advancePicks),
-        ...ALWAYS_ENABLED,
-        ...(optionalFeatures ?? []),
-      ])
+    : new Set([...getFeaturesForPlan(planId), ...ALWAYS_ENABLED, ...(optionalFeatures ?? [])])
 
   const defaultFeatures = allModuleFeatures.map(code => ({
     feature_code: code,
     enabled: planFeatureSet.has(code),
   }))
-
-  // Tab-level features: advance pick tabs (e.g. tours.contract) only enabled if in plan
-  const advancePickTabCodes = new Set(
-    Object.values(ADVANCE_PICK_OPTIONS)
-      .flatMap(o => o.features)
-      .filter(f => f.includes('.'))
-  )
 
   // 某些 tab.code 跟獨立 module feature 同名（例：database.customers tab vs customers module）
   // 這種 tab 的開關必須對齊 module feature、不是看 parent module
@@ -278,9 +261,9 @@ export async function seedWorkspaceFeatures(
     for (const t of m.tabs) {
       const key = `${m.code}.${t.code}`
       let enabled: boolean
-      if (advancePickTabCodes.has(key)) {
-        // Special tab only enabled if explicitly included in plan (e.g. tours.contract)
-        enabled = planFeatureSet.has(key)
+      if (planFeatureSet.has(key)) {
+        // tab key 明確在方案 / 可選功能內（如 premium tab tours.contract 經「其他可選功能」勾選）
+        enabled = true
       } else if (moduleFeatureCodes.has(t.code)) {
         // tab 跟某 module feature 同名（如 customers）→ 對齊 module feature 狀態
         enabled = planFeatureSet.has(t.code)

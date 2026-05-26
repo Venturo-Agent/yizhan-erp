@@ -34,11 +34,8 @@ import { BillingTab } from './_components/billing-tab'
 import { AddonsTab } from './_components/addons-tab'
 import { OverviewTab } from './_components/overview-tab'
 import { apiMutate } from '@/lib/swr/api-mutate'
-import {
-  getFeaturesForPlan,
-  getAdvancePicksFromFeatures,
-} from '@/lib/permissions/subscription-plans'
-import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import { getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 const TAB_VALUES = {
   OVERVIEW: 'overview',
@@ -94,7 +91,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
   const [employeeCount, setEmployeeCount] = useState(0)
   const [adminName, setAdminName] = useState<string | null>(null)
   const [subscriptionPlan, setSubscriptionPlan] = useState<PlanId>('custom')
-  const [advancePicks, setAdvancePicks] = useState<AdvancePickId[]>([])
 
   // 載入資料（總覽 tab 用）
   useEffect(() => {
@@ -146,8 +142,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
         enabled,
       }))
       setFeatures(resolvedFeatures)
-      // 從 features 推導進階選項（Advance 方案）
-      setAdvancePicks(getAdvancePicksFromFeatures(resolvedFeatures))
 
       setLoading(false)
     }
@@ -193,23 +187,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
       // custom 不自動配置 features
       return
     }
-    const featuresToEnable = getFeaturesForPlan(
-      planId,
-      planId === 'advance' ? advancePicks : undefined
-    )
-    setFeatures(prev =>
-      prev.map(f => ({
-        ...f,
-        enabled: featuresToEnable.includes(f.feature_code),
-      }))
-    )
-  }
-
-  // 切換進階選項（advance 方案）
-  const handleAdvancePicksChange = (picks: AdvancePickId[]) => {
-    setAdvancePicks(picks)
-    // 同步更新 features（仍在 advance 方案下）
-    const featuresToEnable = getFeaturesForPlan('advance', picks)
+    const featuresToEnable = getFeaturesForPlan(planId)
     setFeatures(prev =>
       prev.map(f => ({
         ...f,
@@ -327,7 +305,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
           pensionSystem={pensionSystem}
           savingHrPolicy={savingHrPolicy}
           subscriptionPlan={subscriptionPlan}
-          advancePicks={advancePicks}
           onToggleFeature={toggleFeature}
           onToggleTabFeature={toggleTabFeature}
           onIsTabFeatureEnabled={isTabFeatureEnabled}
@@ -335,7 +312,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
           onSetPensionSystem={setPensionSystem}
           onSaveHrPolicy={handleSaveHrPolicy}
           onPlanChange={handlePlanChange}
-          onAdvancePicksChange={handleAdvancePicksChange}
         />
       )}
 

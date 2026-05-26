@@ -2,21 +2,22 @@
  * 訂閱方案定義
  *
  * William 2026-05-18 拍板：5 層方案（Lite / Standard / Advance / Premium / Custom）
+ * William 2026-05-26 調整：
+ *   - 廢進階版「3 選 2」pick 機制 → 進階版直接內含「完整人資 + 會計」
+ *   - 電子合約（tours.contract）不再綁方案 → 改為「其他可選功能」手動加購
+ *     （旗艦版 baseFeatures 也拿掉 tours.contract 內含）
  *
  * 設計原則：
  * - 方案只是「UI 套裝快捷」，真實授權由 workspace_features 決定
  * - 切換方案會自動配置 features state（前端 only）、儲存時才寫入 DB
- * - Advance 方案需選 2 個進階模組（合約 / 完整人資 / 會計）
  * - Custom = 手動管理、方案選擇不動 features
  * - parent module 在方案內 → 該 module 所有 basic 子 tab 自動展開（getFeaturesForPlan）
- *   premium-tagged 子 tab（如 tours.contract / tours.display-itinerary）只在方案明確列入時才加
+ *   premium-tagged 子 tab（如 tours.contract / tours.display-itinerary）不綁方案、走可選加購
  */
 
 import { MODULES } from './module-tabs'
 
 export type PlanId = 'lite' | 'standard' | 'advance' | 'premium' | 'custom'
-
-export type AdvancePickId = 'contracts' | 'hr_full' | 'accounting'
 
 /**
  * 基本功能：任何方案都包含、不列入計費
@@ -31,31 +32,11 @@ export const BASE_FEATURES: string[] = [
 ]
 
 /**
- * 進階版 3選2 模組定義
- * - contracts → tours.contract
- * - hr_full → hr_salary_settlement + hr_bonus_settlement
- * - accounting → accounting
+ * 「完整人資」對應的 feature code 集合（薪資結算 + 獎金結算）
+ * SSOT：給「員工 form 是否顯示薪資 / 銀行 / 到職日等進階欄位」判定用、避免散刻
+ * 2026-05-26：原本掛在 ADVANCE_PICK_OPTIONS.hr_full、pick 機制廢除後改為獨立常數
  */
-export const ADVANCE_PICK_OPTIONS: Record<
-  AdvancePickId,
-  { name: string; icon: string; features: string[] }
-> = {
-  contracts: {
-    name: '合約完整',
-    icon: '📄',
-    features: ['tours.contract'],
-  },
-  hr_full: {
-    name: '人資',
-    icon: '👥',
-    features: ['hr_salary_settlement', 'hr_bonus_settlement'],
-  },
-  accounting: {
-    name: '會計',
-    icon: '🧾',
-    features: ['accounting'],
-  },
-}
+export const HR_FULL_FEATURES: readonly string[] = ['hr_salary_settlement', 'hr_bonus_settlement']
 
 export interface PlanDefinition {
   id: PlanId
@@ -89,21 +70,28 @@ export const SUBSCRIPTION_PLANS: PlanDefinition[] = [
     name: '進階版',
     tagline: 'Advance',
     colorClass: 'text-morandi-gold bg-morandi-gold/10',
-    description: '標準版 + 選擇 2 個進階模組（合約 / 完整人資 / 會計）',
-    baseFeatures: ['tours', 'orders', 'finance', 'customers'],
+    description: '標準版 + 完整人資（薪資 + 獎金）+ 會計系統',
+    baseFeatures: [
+      'tours',
+      'orders',
+      'finance',
+      'customers',
+      'hr_salary_settlement',
+      'hr_bonus_settlement',
+      'accounting',
+    ],
   },
   {
     id: 'premium',
     name: '旗艦版',
     tagline: 'Premium',
     colorClass: 'text-morandi-primary bg-morandi-gold/20',
-    description: '全功能：標準版 + 合約系統 + 完整人資 + 會計系統 + AI Hub + Happy 機器人',
+    description: '全功能：標準版 + 完整人資 + 會計系統 + AI Hub + Happy 機器人',
     baseFeatures: [
       'tours',
       'orders',
       'finance',
       'customers',
-      'tours.contract',
       'hr_salary_settlement',
       'hr_bonus_settlement',
       'accounting',
@@ -134,13 +122,14 @@ export function getPlanById(id: PlanId): PlanDefinition {
 }
 
 /**
- * 依方案 + 進階選項 取得應啟用的 feature code 列表
+ * 依方案 取得應啟用的 feature code 列表
  *
  * @param planId 方案 id
- * @param advancePicks advance 方案時選的 2 個模組（其他方案不用傳）
  * @returns 所有應啟用的 feature code（包含 BASE_FEATURES）
+ *
+ * 註：2026-05-26 廢除進階版 pick 機制後、進階版直接靠 baseFeatures、不再吃 advancePicks
  */
-export function getFeaturesForPlan(planId: PlanId, advancePicks?: AdvancePickId[]): string[] {
+export function getFeaturesForPlan(planId: PlanId): string[] {
   if (planId === 'custom') {
     // custom 不自動配置
     return []
@@ -148,15 +137,6 @@ export function getFeaturesForPlan(planId: PlanId, advancePicks?: AdvancePickId[
 
   const plan = getPlanById(planId)
   const features = new Set<string>([...BASE_FEATURES, ...plan.baseFeatures])
-
-  if (planId === 'advance' && advancePicks) {
-    for (const pickId of advancePicks) {
-      const pick = ADVANCE_PICK_OPTIONS[pickId]
-      if (pick) {
-        pick.features.forEach(f => features.add(f))
-      }
-    }
-  }
 
   for (const m of MODULES) {
     if (!features.has(m.code)) continue
@@ -173,26 +153,24 @@ export function getFeaturesForPlan(planId: PlanId, advancePicks?: AdvancePickId[
  * 從目前已啟用的 feature 集合推測當前方案（盡力判斷、用於顯示）
  *
  * 判斷邏輯（從最高往下）：
- * 1. premium：包含全部 4 個進階 feature
- * 2. advance：包含 standard 基礎 + 至少 1 個進階 feature
+ * 1. premium：包含 premium 全部 baseFeatures（含 AI Hub + Happy）
+ * 2. advance：包含 advance 全部 baseFeatures（完整人資 + 會計、但無 AI Hub）
  * 3. standard：包含 customers
  * 4. lite：包含 tours + orders + finance
  * 5. custom：其他
+ *
+ * 註：tours.contract / tours.display-itinerary 是不綁方案的可選加購、不參與方案判定
  */
 export function detectCurrentPlan(enabledFeatures: string[]): PlanId {
   const featureSet = new Set(enabledFeatures)
 
   const hasAll = (codes: string[]) => codes.every(c => featureSet.has(c))
 
-  const premiumPlan = getPlanById('premium')
-  if (hasAll(premiumPlan.baseFeatures)) {
+  if (hasAll(getPlanById('premium').baseFeatures)) {
     return 'premium'
   }
 
-  // advance：standard base + 至少 1 個 advance pick feature
-  const advancePickFeatures = Object.values(ADVANCE_PICK_OPTIONS).flatMap(o => o.features)
-  const standardBase = getPlanById('standard').baseFeatures
-  if (hasAll(standardBase) && advancePickFeatures.some(f => featureSet.has(f))) {
+  if (hasAll(getPlanById('advance').baseFeatures)) {
     return 'advance'
   }
 
@@ -208,39 +186,8 @@ export function detectCurrentPlan(enabledFeatures: string[]): PlanId {
 }
 
 /**
- * 從 workspace_features 列表推導目前勾選了哪些進階選項
- */
-export function getAdvancePicksFromFeatures(
-  features: { feature_code: string; enabled: boolean }[]
-): AdvancePickId[] {
-  const picks: AdvancePickId[] = []
-
-  for (const [pickId, option] of Object.entries(ADVANCE_PICK_OPTIONS) as [
-    AdvancePickId,
-    { name: string; icon: string; features: string[] },
-  ][]) {
-    const allEnabled = option.features.every(f => {
-      const found = features.find(wf => wf.feature_code === f)
-      return found?.enabled === true
-    })
-    if (allEnabled) {
-      picks.push(pickId)
-    }
-  }
-
-  return picks
-}
-
-/**
- * 「完整人資」對應的 feature code 集合（薪資結算 + 獎金結算）
- * SSOT：來自 ADVANCE_PICK_OPTIONS.hr_full、避免散刻
- * 用途：判定員工 form 是否顯示薪資 / 銀行 / 到職日等進階欄位
- */
-export const HR_FULL_FEATURES: readonly string[] = ADVANCE_PICK_OPTIONS.hr_full.features
-
-/**
  * 判定某 workspace 是否啟用「完整人資」(hr_full)
- * = ADVANCE_PICK_OPTIONS.hr_full.features 全部都開
+ * = HR_FULL_FEATURES 全部都開
  *
  * @param check 給定 feature_code 判定是否啟用的函數（譬如 useWorkspaceFeatures.isFeatureEnabled）
  */

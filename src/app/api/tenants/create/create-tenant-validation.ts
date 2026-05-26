@@ -5,7 +5,7 @@
  */
 
 import { errorResponse, ErrorCode } from '@/lib/api/response'
-import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 export interface BrandPayload {
   code: string
@@ -31,7 +31,6 @@ export interface CreateTenantRequest {
 
   // 訂閱方案
   subscriptionPlan?: PlanId
-  advancePicks?: AdvancePickId[]
   /** 「其他可選功能」現場勾選的 feature_code 陣列、union 進方案 features */
   optionalFeatures?: string[]
 

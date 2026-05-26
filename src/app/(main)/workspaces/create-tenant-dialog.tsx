@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Copy, Check } from 'lucide-react'
+import { Copy, Check, CheckSquare } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useCreateTenantForm } from './_components/useCreateTenantForm'
 import { TenantBasicInfoSection } from './_components/TenantBasicInfoSection'
@@ -52,7 +52,6 @@ export function CreateTenantDialog({
     removeBranch,
     toggleMultiBranch,
     handlePlanChange,
-    handleAdvancePicksChange,
     handleOptionalFeaturesChange,
     handleIndustryChange,
     handleSubIndustryChange,
@@ -84,16 +83,13 @@ export function CreateTenantDialog({
           <div className="space-y-5">
             <TenantPlanSection
               subscriptionPlan={form.subscriptionPlan}
-              advancePicks={form.advancePicks}
               optionalFeatures={form.optionalFeatures}
               onPlanChange={handlePlanChange}
-              onAdvancePicksChange={handleAdvancePicksChange}
               onOptionalFeaturesChange={handleOptionalFeaturesChange}
             />
 
             <TenantPrepSection
               subscriptionPlan={form.subscriptionPlan}
-              advancePicks={form.advancePicks}
               optionalFeatures={form.optionalFeatures}
             />
 
@@ -141,12 +137,13 @@ export function CreateTenantDialog({
                 {t('btnCancel')}
               </Button>
               <Button
-                variant="soft-gold"
+                variant="morandi-gold"
                 onClick={handleCreate}
                 disabled={!isFormValid || creating}
                 className="flex-1"
                 type="button"
               >
+                <CheckSquare size="1em" />
                 {creating ? t('btnCreating') : t('btnCreate')}
               </Button>
             </div>

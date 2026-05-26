@@ -3,14 +3,14 @@
 /**
  * TenantPrepSection — 新增租戶時「該準備的資料」提醒
  *
- * 純提醒、不上傳。依當前方案 + 進階 picks + 可選功能動態浮現。
+ * 純提醒、不上傳。依當前方案 + 可選功能動態浮現。
  * 沒勾對應 feature 就不顯示、避免要客戶準備他不會用的東西。
  */
 
 import { useMemo } from 'react'
 import { FileText } from 'lucide-react'
 import { getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
-import type { PlanId, AdvancePickId } from '@/lib/permissions/subscription-plans'
+import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 interface PrepItem {
   feature: string
@@ -31,16 +31,15 @@ const PREP_LIST: ReadonlyArray<PrepItem> = [
 
 interface Props {
   subscriptionPlan: PlanId
-  advancePicks: AdvancePickId[]
   optionalFeatures: string[]
 }
 
-export function TenantPrepSection({ subscriptionPlan, advancePicks, optionalFeatures }: Props) {
+export function TenantPrepSection({ subscriptionPlan, optionalFeatures }: Props) {
   const enabledFeatures = useMemo(() => {
-    const set = new Set(getFeaturesForPlan(subscriptionPlan, advancePicks))
+    const set = new Set(getFeaturesForPlan(subscriptionPlan))
     optionalFeatures.forEach(f => set.add(f))
     return set
-  }, [subscriptionPlan, advancePicks, optionalFeatures])
+  }, [subscriptionPlan, optionalFeatures])
 
   const visible = PREP_LIST.filter(item => enabledFeatures.has(item.feature))
   if (visible.length === 0) return null
