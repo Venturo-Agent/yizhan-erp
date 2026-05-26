@@ -5,6 +5,8 @@ import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Plus, CheckCircle, XCircle } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { ACTION_BUTTON_BASE } from '@/components/table-cells'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
@@ -132,19 +134,19 @@ export default function ChecksPage() {
                 size="sm"
                 variant="ghost"
                 onClick={() => handleClearCheck(row)}
-                className="text-morandi-green hover:text-morandi-green"
+                className={cn(ACTION_BUTTON_BASE, 'text-status-success hover:bg-status-success-bg')}
                 title="標記已兌現"
               >
-                <CheckCircle size={14} />
+                <CheckCircle size="0.95em" />
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => handleVoidCheck(row)}
-                className="text-morandi-red hover:text-morandi-red"
+                className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
                 title="作廢"
               >
-                <XCircle size={14} />
+                <XCircle size="0.95em" />
               </Button>
             </>
           )}

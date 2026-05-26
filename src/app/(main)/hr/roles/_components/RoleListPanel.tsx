@@ -1,7 +1,8 @@
 // 職務列表左側面板（從 roles/page.tsx 抽出）
 
-import { Button } from '@/components/ui/button'
 import { Loader2, Users, Trash2, Check } from 'lucide-react'
+import { ACTION_BUTTON_BASE } from '@/components/table-cells'
+import { cn } from '@/lib/utils'
 import type { Role } from '@/data/hooks/useRoles'
 
 const PANEL_LABELS = {
@@ -60,17 +61,19 @@ export function RoleListPanel({
                     <span className="font-medium text-morandi-primary text-sm">{role.name}</span>
                   </div>
                   {!role.is_admin && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 w-6 p-0 hover:bg-morandi-red/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    <button
+                      type="button"
+                      className={cn(
+                        ACTION_BUTTON_BASE,
+                        'text-status-danger hover:bg-status-danger-bg opacity-0 group-hover:opacity-100 transition-opacity'
+                      )}
                       onClick={e => {
                         e.stopPropagation()
                         onDeleteRole(role)
                       }}
                     >
-                      <Trash2 className="h-3 w-3 text-morandi-red" />
-                    </Button>
+                      <Trash2 size="0.95em" />
+                    </button>
                   )}
                 </div>
               </div>

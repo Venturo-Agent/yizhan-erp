@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { ACTION_BUTTON_BASE } from '@/components/table-cells'
 import type { PaymentItem, ReceiptType } from '../_types'
 import { useTranslations } from 'next-intl'
 
@@ -297,16 +298,17 @@ export function PaymentItemRow({
               className="input-no-focus w-full bg-transparent text-sm text-right"
             />
             {!canConfirmReceipt && canRemove && (
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="iconSm"
                 onClick={() => onRemove(item.id)}
-                className="text-morandi-secondary/60 hover:text-morandi-red shrink-0"
+                className={cn(
+                  ACTION_BUTTON_BASE,
+                  'text-status-danger hover:bg-status-danger-bg shrink-0'
+                )}
                 title={t('receiptDelete')}
               >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+                <Trash2 size="0.95em" />
+              </button>
             )}
           </div>
         </td>
@@ -333,16 +335,17 @@ export function PaymentItemRow({
                   className="input-no-focus w-full bg-transparent text-sm text-right"
                 />
                 {canRemove && (
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="iconSm"
                     onClick={() => onRemove(item.id)}
-                    className="text-morandi-secondary/60 hover:text-morandi-red"
+                    className={cn(
+                      ACTION_BUTTON_BASE,
+                      'text-status-danger hover:bg-status-danger-bg'
+                    )}
                     title={t('receiptDelete')}
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    <Trash2 size="0.95em" />
+                  </button>
                 )}
               </div>
               {/* 手續費小 input（可空、可改、跟實收同欄） */}

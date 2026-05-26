@@ -7,7 +7,9 @@ import React from 'react'
 import { useTranslations } from 'next-intl'
 import { EnhancedTable, type TableColumn } from '@/components/ui/enhanced-table'
 import { Button } from '@/components/ui/button'
-import { SquarePen, Trash2 } from 'lucide-react'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
+import { cn } from '@/lib/utils'
+import { Edit2, Trash2 } from 'lucide-react'
 import { Supplier } from '../_types'
 
 interface SuppliersListProps {
@@ -105,10 +107,10 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
                   e.stopPropagation()
                   onEdit(supplier)
                 }}
-                className="text-morandi-blue hover:bg-morandi-blue/10"
+                className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
                 title={t('supplierEdit')}
               >
-                <SquarePen size={16} />
+                <Edit2 size="0.95em" />
               </Button>
             )}
             {onDelete && (
@@ -119,10 +121,10 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
                   e.stopPropagation()
                   onDelete(supplier)
                 }}
-                className="text-morandi-red hover:bg-morandi-red/10"
+                className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
                 title={t('supplierDelete')}
               >
-                <Trash2 size={16} />
+                <Trash2 size="0.95em" />
               </Button>
             )}
           </div>

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
-import { Building2, Pencil, Plus } from 'lucide-react'
+import { Building2, Edit2, Plus } from 'lucide-react'
 import { useWorkspaceStore } from '@/stores/workspace'
 import type { Workspace } from '@/stores/workspace'
 import { TableColumn } from '@/components/ui/enhanced-table'
@@ -143,7 +143,7 @@ export default function TenantsPage() {
       <ActionCell
         actions={[
           {
-            icon: Pencil,
+            icon: Edit2,
             label: t('editTenant'),
             onClick: () => setEditingWorkspace(workspace),
           },

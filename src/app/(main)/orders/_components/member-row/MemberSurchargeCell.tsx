@@ -6,6 +6,8 @@
 
 import React, { useState, useCallback, useMemo } from 'react'
 import { Plus, Trash2, Calculator } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormDialog } from '@/components/dialog'
@@ -208,8 +210,9 @@ export function MemberSurchargeCell({
                 variant="soft-gold"
                 size="sm"
                 onClick={() => handleAddItem('add_on_items')}
+                className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
               >
-                <Plus size={14} className="mr-1" />
+                <Plus size="0.95em" />
                 {SURCHARGE_LABELS.add_item}
               </Button>
             </div>
@@ -234,9 +237,9 @@ export function MemberSurchargeCell({
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemoveItem('add_on_items', index)}
-                  className="text-status-danger hover:text-status-danger"
+                  className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size="0.95em" />
                 </Button>
               </div>
             ))}
@@ -253,8 +256,9 @@ export function MemberSurchargeCell({
                 variant="soft-gold"
                 size="sm"
                 onClick={() => handleAddItem('other_charges')}
+                className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
               >
-                <Plus size={14} className="mr-1" />
+                <Plus size="0.95em" />
                 {SURCHARGE_LABELS.add_item}
               </Button>
             </div>
@@ -279,9 +283,9 @@ export function MemberSurchargeCell({
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemoveItem('other_charges', index)}
-                  className="text-status-danger hover:text-status-danger"
+                  className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size="0.95em" />
                 </Button>
               </div>
             ))}

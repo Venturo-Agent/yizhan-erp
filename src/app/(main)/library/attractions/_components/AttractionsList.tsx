@@ -1,19 +1,12 @@
 import { useTranslations } from 'next-intl'
-import {
-  MapPin,
-  Trash2,
-  Power,
-  SquarePen,
-  ChevronUp,
-  ChevronDown,
-  AlertTriangle,
-} from 'lucide-react'
+import { MapPin, Trash2, Power, Edit2, ChevronUp, ChevronDown, AlertTriangle } from 'lucide-react'
 
 const COMPONENT_LABELS = {
   PENDING_VERIFY: '待驗證',
 } as const
 import { EmptyValue } from '@/components/ui/empty-value'
 import { Button } from '@/components/ui/button'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
 import { cn } from '@/lib/utils'
 
 import { EnhancedTable } from '@/components/ui/enhanced-table'
@@ -201,10 +194,14 @@ export function AttractionsList({
                     onMoveUp(attraction)
                   }}
                   disabled={isFirst}
-                  className="h-7 w-7 p-0 text-morandi-secondary hover:bg-morandi-container disabled:opacity-30"
+                  className={cn(
+                    ACTION_BUTTON_BASE,
+                    ACTION_BUTTON_DEFAULT_TONE,
+                    'disabled:opacity-30'
+                  )}
                   title={t('attractionsListMoveUp')}
                 >
-                  <ChevronUp size={14} />
+                  <ChevronUp size="0.95em" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -214,10 +211,14 @@ export function AttractionsList({
                     onMoveDown(attraction)
                   }}
                   disabled={isLast}
-                  className="h-7 w-7 p-0 text-morandi-secondary hover:bg-morandi-container disabled:opacity-30"
+                  className={cn(
+                    ACTION_BUTTON_BASE,
+                    ACTION_BUTTON_DEFAULT_TONE,
+                    'disabled:opacity-30'
+                  )}
                   title={t('attractionsListMoveDown')}
                 >
-                  <ChevronDown size={14} />
+                  <ChevronDown size="0.95em" />
                 </Button>
                 <div className="w-px h-4 bg-border mx-1" />
               </>
@@ -229,10 +230,10 @@ export function AttractionsList({
                 e.stopPropagation()
                 onEdit(attraction)
               }}
-              className="h-8 px-2 text-morandi-blue hover:bg-morandi-blue/10"
+              className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
               title={t('attractionsListEdit')}
             >
-              <SquarePen size={14} />
+              <Edit2 size="0.95em" />
             </Button>
             <Button
               variant="ghost"
@@ -241,13 +242,13 @@ export function AttractionsList({
                 e.stopPropagation()
                 onToggleStatus(attraction)
               }}
-              className="h-8 px-2"
+              className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
               title={
                 attraction.is_active ? t('attractionsListDisable') : t('attractionsListEnable')
               }
             >
               <Power
-                size={14}
+                size="0.95em"
                 className={attraction.is_active ? 'text-morandi-green' : 'text-morandi-secondary'}
               />
             </Button>
@@ -258,10 +259,10 @@ export function AttractionsList({
                 e.stopPropagation()
                 onDelete(attraction.id)
               }}
-              className="h-8 px-2 hover:text-morandi-red hover:bg-morandi-red/10"
+              className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
               title={t('attractionsListDelete')}
             >
-              <Trash2 size={14} />
+              <Trash2 size="0.95em" />
             </Button>
           </div>
         )

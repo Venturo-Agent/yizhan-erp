@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Plus, Star, Edit, ChevronRight, ChevronDown } from 'lucide-react'
+import { Plus, Star, Edit2, ChevronRight, ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { updateChartOfAccount } from '@/data/entities/chart-of-accounts'
 import { supabase } from '@/lib/supabase/client'
@@ -287,13 +289,18 @@ export default function AccountsPage() {
             size="sm"
             variant="ghost"
             onClick={() => handleAddChild(row)}
-            className="gap-1 px-2"
+            className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
             title={t('addChildAccount')}
           >
-            <Plus size={14} />
+            <Plus size="0.95em" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => handleEdit(row)} className="gap-1 px-2">
-            <Edit size={14} />
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => handleEdit(row)}
+            className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
+          >
+            <Edit2 size="0.95em" />
           </Button>
         </div>
       ),

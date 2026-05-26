@@ -20,11 +20,11 @@ export function MemberActions({ member, onEdit, onDelete }: MemberActionsProps) 
   const t = useTranslations('orders')
   return (
     <td className="border border-morandi-gold/20 px-2 py-1 bg-card">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
         {/* 檢視明細（永遠有、固定第一個、跨列對齊）*/}
         <button
           type="button"
-          className="p-1 text-morandi-secondary hover:text-morandi-gold hover:bg-morandi-gold/10 rounded transition-colors"
+          className="p-1 rounded text-morandi-secondary hover:text-morandi-primary transition-colors"
           title={t('viewDetail')}
           onClick={e => {
             e.stopPropagation()
@@ -36,7 +36,7 @@ export function MemberActions({ member, onEdit, onDelete }: MemberActionsProps) 
         {/* 刪除（永遠有、固定第二個）*/}
         <button
           type="button"
-          className="p-1 text-morandi-secondary hover:text-status-danger hover:bg-status-danger-bg rounded transition-colors"
+          className="p-1 rounded text-status-danger hover:bg-status-danger-bg transition-colors"
           title={t('deleteMember')}
           onClick={e => {
             e.stopPropagation()
@@ -49,7 +49,7 @@ export function MemberActions({ member, onEdit, onDelete }: MemberActionsProps) 
         {member.customer_verification_status === 'unverified' && (
           <button
             type="button"
-            className="p-1 text-status-warning hover:text-status-warning hover:bg-status-warning-bg rounded transition-colors"
+            className="p-1 rounded text-status-warning hover:bg-status-warning-bg transition-colors"
             title={t('pendingVerifyClickToVerify')}
             onClick={e => {
               e.stopPropagation()
