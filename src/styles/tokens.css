@@ -241,6 +241,42 @@ html[data-font-scale='xl'] {
   --btn-primary-bg: linear-gradient(135deg, #eceef1 0%, #dde0e5 50%, #c8ccd2 100%);
   --btn-primary-fg: #2d3139;
   --btn-primary-border: #d8dbe0;
+
+  /* 語義色（鐵灰冷調、補齊主題完整切換）— success/danger 對齊本主題綠/紅、不分岔 */
+  --status-info: #7e8a99;
+  --status-info-bg: #eef0f3;
+  --status-success: #6f9285;
+  --status-success-bg: #eef2f0;
+  --status-warning: #b89968;
+  --status-warning-bg: #f3eee5;
+  --status-danger: #b3716a;
+  --status-danger-bg: #f3eae8;
+  --status-neutral: #4d535c;
+  --status-neutral-bg: #eef0f3;
+
+  /* claymorphism 卡片漸層（冷灰版） */
+  --morandi-cream: #f7f8f9;
+  --morandi-cream-warm: #eef0f3;
+  --morandi-cream-soft: #f4f5f7;
+  --morandi-cream-shadow: rgba(93, 102, 112, 0.1);
+  --morandi-cream-shadow-strong: rgba(93, 102, 112, 0.18);
+  --morandi-cream-shadow-deep: rgba(93, 102, 112, 0.28);
+
+  /* 行事曆狀態色（冷調） */
+  --cal-proposal: #8194a8;
+  --cal-in-progress: #8ba89e;
+  --cal-pending-close: #b8a98f;
+  --cal-closed: #a8adb5;
+  --cal-special: #b89aa0;
+  --cal-personal: #9a93a8;
+  --cal-birthday: #c2a3ad;
+  --cal-company: #b0a392;
+  --cal-selected-bg: var(--morandi-gold);
+  --cal-selected-fg: #ffffff;
+  --cal-today-ring: var(--morandi-gold);
+  --cal-today-fg: var(--morandi-gold);
+  --cal-day-hover: color-mix(in srgb, var(--morandi-container) 40%, transparent);
+  --cal-weekday-text: var(--morandi-secondary);
 }
 
 /* ─────────────────────────────────────────────
@@ -312,6 +348,42 @@ html[data-font-scale='xl'] {
   --btn-primary-bg: linear-gradient(135deg, #f0f5fc 0%, #dde7f4 50%, #b8cce8 100%);
   --btn-primary-fg: #1b61c9;
   --btn-primary-border: #cfdcef;
+
+  /* 語義色（配 Airtable 藍、補齊主題完整切換）— success/danger 對齊本主題綠/紅、不分岔 */
+  --status-info: #1b61c9;
+  --status-info-bg: #eaf2fc;
+  --status-success: #006400;
+  --status-success-bg: #e6f4ea;
+  --status-warning: #d97706;
+  --status-warning-bg: #fff0db;
+  --status-danger: #c44545;
+  --status-danger-bg: #fbeaea;
+  --status-neutral: #64748b;
+  --status-neutral-bg: #f1f5f9;
+
+  /* claymorphism 卡片漸層（淺色版） */
+  --morandi-cream: #fafbfd;
+  --morandi-cream-warm: #f1f5f9;
+  --morandi-cream-soft: #f6f9fc;
+  --morandi-cream-shadow: rgba(27, 97, 201, 0.08);
+  --morandi-cream-shadow-strong: rgba(27, 97, 201, 0.14);
+  --morandi-cream-shadow-deep: rgba(27, 97, 201, 0.22);
+
+  /* 行事曆狀態色（配藍、清晰） */
+  --cal-proposal: #6b94d9;
+  --cal-in-progress: #4a9d7f;
+  --cal-pending-close: #d4a056;
+  --cal-closed: #94a3b8;
+  --cal-special: #d97070;
+  --cal-personal: #8b7fd4;
+  --cal-birthday: #e08aa8;
+  --cal-company: #c79a5a;
+  --cal-selected-bg: var(--morandi-gold);
+  --cal-selected-fg: #ffffff;
+  --cal-today-ring: var(--morandi-gold);
+  --cal-today-fg: var(--morandi-gold);
+  --cal-day-hover: color-mix(in srgb, var(--morandi-container) 40%, transparent);
+  --cal-weekday-text: var(--morandi-secondary);
 }
 
 /* ─────────────────────────────────────────────
