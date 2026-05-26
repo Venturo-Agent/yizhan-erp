@@ -125,6 +125,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
     const result = await createSinopacCardTransaction({
       workspaceId: batch.workspace_id,
       provider: method.provider,
+      paymentMethodId: method.id,
       amount: totalAmount,
       invoiceIds: payload.selected_invoice_ids,
       customerEmail: payload.customer_email ?? null,

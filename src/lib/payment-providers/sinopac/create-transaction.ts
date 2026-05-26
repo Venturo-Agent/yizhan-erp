@@ -34,6 +34,9 @@ export interface CreateCardTxInput {
   workspaceId: string
   /** payment_methods.provider（sinopac_qpay 等） */
   provider: string
+  /** payment_methods.id — confirm 時開收款單填 payment_method_id + 算手續費用。
+   *  客戶自助入口有；業務手動 / AI 入口只給 provider、此欄留空、confirm 時用 provider fallback。2026-05-26 */
+  paymentMethodId?: string
   /** 金額（新台幣元、整數） */
   amount: number
   /** 這筆付款涵蓋的帳單 id */
@@ -121,6 +124,7 @@ export async function createSinopacCardTransaction(
       workspace_id: input.workspaceId,
       receipt_id: null,
       provider: input.provider,
+      payment_method_id: input.paymentMethodId ?? null,
       payment_link: cardPayUrl,
       payment_link_token: payToken,
       payment_link_expires_at: input.expiresAt,
