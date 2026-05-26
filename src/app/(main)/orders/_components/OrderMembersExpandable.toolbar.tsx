@@ -7,7 +7,7 @@
  */
 
 import React from 'react'
-import { Plus, Printer, Coins, Settings, SquarePen, Plane, Receipt } from 'lucide-react'
+import { Plus, Printer, Coins, Settings, SquarePen, Plane, Receipt, Users } from 'lucide-react'
 import { prompt } from '@/lib/ui/alert-dialog'
 import {
   DropdownMenu,
@@ -37,6 +37,7 @@ interface OrderMembersToolbarProps {
   onOpenPnrDialog: () => void
   onOpenInvoiceDialog: () => void
   onOpenExportDialog: () => void
+  onOpenBatchMatch: () => void
   onAddMember: () => void
   columnVisibility: ColumnVisibility
   onToggleColumnVisibility: (column: keyof ColumnVisibility) => void
@@ -57,6 +58,7 @@ export function OrderMembersToolbar({
   onOpenPnrDialog,
   onOpenInvoiceDialog,
   onOpenExportDialog,
+  onOpenBatchMatch,
   onAddMember,
   columnVisibility,
   onToggleColumnVisibility,
@@ -85,6 +87,17 @@ export function OrderMembersToolbar({
         >
           <Plane size={12} className="mr-1" />
           {t('pnrMatch')}
+        </Button>
+        {/* 比對顧客：挑「有護照或身分證、還沒連顧客」的團員批次比對既有顧客（2026-05-26 新增、防空白重複卡） */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 px-2 gap-1 text-xs text-morandi-secondary"
+          onClick={onOpenBatchMatch}
+          title={t('batchMatchTooltip')}
+        >
+          <Users size={12} />
+          {t('batchMatchButton')}
         </Button>
         <Button
           variant="ghost"

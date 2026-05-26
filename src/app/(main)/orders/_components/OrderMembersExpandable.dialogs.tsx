@@ -19,6 +19,8 @@ import {
   PnrMatchDialog,
 } from './'
 import { PassportConflictDialog } from './PassportConflictDialog'
+import { CustomerMatchConfirmDialog } from './CustomerMatchConfirmDialog'
+import { BatchCustomerMatchDialog } from './BatchCustomerMatchDialog'
 import type { EditFormData } from './MemberEditDialog'
 import type {
   usePassportUpload,
@@ -26,6 +28,7 @@ import type {
   useCustomerMatch,
   useMemberEditDialog,
   useMemberExport,
+  useBatchCustomerMatch,
 } from '../_hooks'
 import type { OrderMember } from '../_types/order-member.types'
 import type { Tour } from '@/stores/types'
@@ -54,6 +57,7 @@ export interface OrderMembersDialogsProps {
   >
   customerMatch: ReturnType<typeof useCustomerMatch>
   memberEdit: ReturnType<typeof useMemberEditDialog>
+  batchMatch: ReturnType<typeof useBatchCustomerMatch>
   tourPrint: {
     effectiveTour: Tour | null | undefined
     isExportDialogOpen: ReturnType<typeof useMemberExport>['isExportDialogOpen']
@@ -85,6 +89,7 @@ export function OrderMembersDialogs({
   membersData,
   customerMatch,
   memberEdit,
+  batchMatch,
   tourPrint,
   pnrDialog,
   invoiceDialog,
@@ -183,6 +188,25 @@ export function OrderMembersDialogs({
             }))
           )
         }
+      />
+      {/* 撞名確認對話框（單筆驗證時、身分證沒比中但名字撞到既有顧客）*/}
+      <CustomerMatchConfirmDialog
+        open={memberEdit.clashDialogOpen}
+        pendingForm={memberEdit.clashPendingForm}
+        candidates={memberEdit.clashCandidates}
+        loading={memberEdit.isResolvingClash}
+        onClose={memberEdit.closeClashDialog}
+        onUpdateExisting={memberEdit.resolveClashUpdateExisting}
+        onCreateNew={memberEdit.resolveClashCreateNew}
+      />
+      {/* 批次「比對顧客」審核清單 */}
+      <BatchCustomerMatchDialog
+        open={batchMatch.isOpen}
+        rows={batchMatch.rows}
+        isApplying={batchMatch.isApplying}
+        onClose={batchMatch.closeBatchMatch}
+        onChangeResolution={batchMatch.setRowResolution}
+        onApplyAll={batchMatch.applyAll}
       />
       {tourPrint.effectiveTour && (
         <TourPrintDialog

@@ -3,17 +3,14 @@
  *
  * 功能：
  * - 上傳護照照片到 Storage
- * - 建立訂單成員
- * - 同步顧客資料
- * - 比對現有顧客
+ * - 建立訂單成員（只填名單資料）
+ *
+ * 2026-05-26 重設計：OCR 不再自動建/連顧客。顧客一律等「單筆驗證」或「比對顧客」明確入口才建。
  */
 
 import { useCallback } from 'react'
 import { supabase } from '@/lib/supabase/client'
-import { fetchAllCustomers } from '@/app/(main)/orders/_services/order_member.service'
-import { createCustomer } from '@/data'
 import { logger } from '@/lib/utils/logger'
-import { syncPassportImageToMembers } from '@/lib/utils/sync-passport-image'
 
 interface CustomerData {
   name?: string
@@ -169,96 +166,14 @@ export function usePassportValidation(): UsePassportValidationReturn {
 
         if (error) throw error
 
-        // 同步顧客
-        let matchedCustomer = false
-        let newCustomer = false
-
-        // 驗證身份證格式（1英文+9數字）
-        const isValidIdNumber = idNumber && /^[A-Z][12]\d{8}$/i.test(idNumber)
-        // 驗證護照號碼格式（9位數字）
-        const isValidPassport = passportNumber && /^\d{9}$/.test(passportNumber)
-        // 只有完整身份證或護照號碼才嘗試比對/建立顧客
-        const canSyncCustomer = isValidIdNumber || isValidPassport
-
-        if (newMember && canSyncCustomer) {
-          // 註：不在這裡 invalidateCustomers——fetchAllCustomers 是直接 DB 查詢（不走快取），
-          // 此處 invalidate 對下一行沒作用、卻會害批次「每存一張就刷新全部客戶 + 重繪」。
-          // 改由批次結束後（handleBatchUpload）統一刷一次。2026-05-25 修批次第二張卡頓。
-          const freshCustomers = await fetchAllCustomers()
-
-          const existingCustomer = freshCustomers.find(c => {
-            if (isValidPassport && c.passport_number === passportNumber) return true
-            if (isValidIdNumber && c.national_id === idNumber) return true
-            // 也比對姓名+生日（作為輔助比對，但不會因為這個而建立新顧客）
-            if (
-              chineseName &&
-              birthDate &&
-              c.name?.replace(/\([^)]+\)$/, '').trim() === chineseName &&
-              c.birth_date === birthDate
-            )
-              return true
-            return false
-          })
-
-          if (existingCustomer) {
-            const updateData: Record<string, unknown> = {
-              customer_id: existingCustomer.id,
-            }
-
-            if (!newMember.passport_name && existingCustomer.passport_name) {
-              updateData.passport_name = existingCustomer.passport_name
-            }
-
-            await supabase.from('order_members').update(updateData).eq('id', newMember.id)
-
-            if (passportImageUrl) {
-              await supabase
-                .from('customers')
-                .update({ passport_image_url: passportImageUrl })
-                .eq('id', existingCustomer.id)
-
-              // 同步護照照片到其他關聯的訂單成員
-              await syncPassportImageToMembers(existingCustomer.id, passportImageUrl)
-            }
-
-            matchedCustomer = true
-          } else {
-            // 護照辨識自動建立客戶
-            const createdCustomer = await createCustomer({
-              name: customerData.name || '',
-              english_name: customerData.english_name || null,
-              passport_number: passportNumber || null,
-              passport_name: customerData.passport_name || null,
-              passport_name_print: customerData.passport_name_print || null,
-              passport_expiry: customerData.passport_expiry || null,
-              passport_image_url: passportImageUrl || null,
-              national_id: idNumber || null,
-              birth_date: birthDate || null,
-              gender: customerData.sex === '男' ? 'M' : customerData.sex === '女' ? 'F' : null,
-              phone: '',
-              member_type: 'potential', // 護照建立的客戶預設為潛在客戶
-              is_vip: false,
-              is_active: true,
-              total_spent: 0,
-              total_orders: 0,
-              verification_status: 'unverified',
-            })
-
-            if (createdCustomer) {
-              await supabase
-                .from('order_members')
-                .update({ customer_id: createdCustomer.id })
-                .eq('id', newMember.id)
-              newCustomer = true
-            }
-          }
-        }
-
+        // 2026-05-26 重設計：OCR 只把護照資料填進 order_member（名單），不再建/連顧客。
+        // 顧客一律等「單筆驗證」或「比對顧客」兩個明確入口才建——防福岡團那種一貼名單就狂生空白重複卡。
+        // matchedCustomer / newCustomer 保留欄位但恆為 false（呼叫端的摘要顯示沿用、不再會被觸發）。
         return {
           success: true,
           memberId: newMember.id,
-          matchedCustomer,
-          newCustomer,
+          matchedCustomer: false,
+          newCustomer: false,
         }
       } catch (error) {
         logger.error('建立成員失敗:', error)

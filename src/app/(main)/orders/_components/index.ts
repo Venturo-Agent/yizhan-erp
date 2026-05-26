@@ -9,6 +9,8 @@ export { MemberEditDialog } from './MemberEditDialog'
 
 export { OrderSelectDialog } from './OrderSelectDialog'
 export { CustomerMatchDialog } from './CustomerMatchDialog'
+export { CustomerMatchConfirmDialog } from './CustomerMatchConfirmDialog'
+export { BatchCustomerMatchDialog } from './BatchCustomerMatchDialog'
 export { CustomCostFieldsSection } from './CustomCostFieldsSection'
 export { MemberTableHeader } from './MemberTableHeader'
 export { PnrMatchDialog } from './PnrMatchDialog'

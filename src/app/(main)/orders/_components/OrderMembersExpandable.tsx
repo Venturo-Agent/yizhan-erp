@@ -36,6 +36,7 @@ import {
   useEditModeSyncCustomers,
   useMemberFieldHandlers,
   useMemberTableActions,
+  useBatchCustomerMatch,
 } from '../_hooks'
 import { MemberRow, MemberTableHeader } from './'
 import { OrderMembersToolbar } from './OrderMembersExpandable.toolbar'
@@ -99,9 +100,14 @@ export function OrderMembersExpandable({
   const { columnWidths, setColumnWidth } = useColumnWidths()
   const sensors = useDefaultDndSensors()
 
-  // 編輯模式 + 自動同步顧客
-  const { isAllEditMode, handleToggleEditMode } = useEditModeSyncCustomers({
+  // 全部編輯模式開關（純 UI、關閉時不再自動建顧客 — 2026-05-26 重設計）
+  const { isAllEditMode, handleToggleEditMode } = useEditModeSyncCustomers()
+
+  // 批次「比對顧客」（2026-05-26 新增、明確入口建/連顧客）
+  const batchMatch = useBatchCustomerMatch({
     members: membersData.members,
+    setMembers: membersData.setMembers,
+    customers,
   })
 
   // 欄位更新 + 附加費用
@@ -320,6 +326,7 @@ export function OrderMembersExpandable({
         onOpenPnrDialog={() => setShowPnrMatchDialog(true)}
         onOpenInvoiceDialog={() => setShowInvoiceDialog(true)}
         onOpenExportDialog={() => memberExport.setIsExportDialogOpen(true)}
+        onOpenBatchMatch={batchMatch.openBatchMatch}
         onAddMember={membersData.handleAddMember}
         columnVisibility={columnVisibility}
         onToggleColumnVisibility={toggleColumnVisibility}
@@ -462,6 +469,7 @@ export function OrderMembersExpandable({
         membersData={membersData}
         customerMatch={customerMatch}
         memberEdit={memberEdit}
+        batchMatch={batchMatch}
         tourPrint={{
           effectiveTour,
           isExportDialogOpen: memberExport.isExportDialogOpen,
