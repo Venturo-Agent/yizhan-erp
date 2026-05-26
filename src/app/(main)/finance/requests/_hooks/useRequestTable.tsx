@@ -86,7 +86,7 @@ export function useRequestTable(payment_requests: PaymentRequest[]) {
         label: t('printAmount'),
         sortable: true,
         render: (value: unknown) => (
-          <CurrencyCell amount={value as number} className="font-semibold text-morandi-gold" />
+          <CurrencyCell amount={value as number} className="font-semibold text-morandi-primary" />
         ),
       },
       {
