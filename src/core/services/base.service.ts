@@ -161,15 +161,20 @@ export abstract class BaseService<T extends BaseEntity> {
         throw new NotFoundError(this.resourceName, id)
       }
 
+      const timestamp = this.now()
       const updated = {
         ...existing,
         ...data,
         id, // 確保 ID 不會被覆蓋
-        updated_at: this.now(),
+        updated_at: timestamp,
       } as T
 
-      // await store 操作確保寫入完成
-      await store.update(id, updated)
+      // 只送「這次有改的欄位」給 store、不把整列 existing 覆寫回 DB。
+      // 為什麼：整列覆寫會連 DB 生成欄位（GENERATED ALWAYS、如 list_sort_group）一起送回，
+      //         Postgres 會退件 400「can only be updated to DEFAULT」；整列覆寫也會蓋掉他人並發改動。
+      //         store.update 只需收到要改的欄位即可、回傳值仍用完整 updated（呼叫端介面不變）。
+      const changedFields = { ...data, updated_at: timestamp } as Partial<T>
+      await store.update(id, changedFields)
       return updated
     } catch (error) {
       throw error instanceof Error ? error : new Error(`Failed to update ${this.resourceName}`)
