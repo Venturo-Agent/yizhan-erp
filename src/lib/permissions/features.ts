@@ -118,6 +118,7 @@ export const FEATURES: FeatureDefinition[] = [
     category: 'basic',
     routes: [
       '/library',
+      '/library/customers',
       '/library/attractions',
       '/library/suppliers',
       '/library/archive-management',
@@ -143,13 +144,6 @@ export const FEATURES: FeatureDefinition[] = [
     description: '系統首頁與儀表板',
     category: 'basic',
     routes: ['/dashboard'],
-  },
-  {
-    code: 'customers',
-    name: '顧客管理',
-    description: '客戶資料',
-    category: 'premium',
-    routes: ['/library/customers'],
   },
   {
     code: 'tour_attributes',

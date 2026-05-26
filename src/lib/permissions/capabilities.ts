@@ -127,9 +127,6 @@ export const CAPABILITIES = {
   // ── dashboard ──
   DASHBOARD_READ: 'dashboard.read',
   DASHBOARD_WRITE: 'dashboard.write',
-  // ── customers ──
-  CUSTOMERS_READ: 'customers.read',
-  CUSTOMERS_WRITE: 'customers.write',
   // ── tour_attributes ──
   TOUR_ATTRIBUTES_READ: 'tour_attributes.read',
   TOUR_ATTRIBUTES_WRITE: 'tour_attributes.write',
@@ -194,6 +191,7 @@ export const CAPABILITIES = {
   CROSS_BRANCH_WRITE: 'cross_branch.write',
 
   // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════
+  // 2026-05-26 手動移除 CUSTOMERS_READ/WRITE（customers.read/write）：零 caller、客戶已收回 database module。
   CHANNELS_MANAGE: 'channels.manage',
   LINE_BOT_CONFIG: 'line_bot.config',
   LINE_BOT_READ: 'line_bot.read',

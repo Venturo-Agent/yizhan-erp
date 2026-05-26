@@ -302,12 +302,6 @@ export const MODULES: ModuleDefinition[] = [
     ],
   },
   {
-    code: 'customers',
-    name: '顧客管理',
-    description: '客戶資料',
-    tabs: [],
-  },
-  {
     code: 'tour_attributes',
     name: '旅行屬性功能',
     description: '選擇團類型：機票、機加酒、訂房、派車、旅遊團',

@@ -42,7 +42,7 @@ export const FEATURE_PERMISSIONS: PermissionConfig[] = [
   { id: 'database', label: '資料管理', category: '核心', routes: ['/library'] },
   { id: 'hr', label: '人資', category: '管理', routes: ['/hr'] },
   { id: 'settings', label: '設定', category: '管理', routes: ['/settings'] },
-  { id: 'customers', label: '顧客管理', category: '付費', routes: ['/library/customers'] },
+  // 2026-05-26 移除重複 'customers' 顯示設定：客戶收回 database（資料管理）、顧客管理走 database.customers
   { id: 'fleet', label: '車隊管理', category: '企業', routes: ['/fleet', '/supplier/trips'] },
 ]
 

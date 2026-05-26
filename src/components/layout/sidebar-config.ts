@@ -99,7 +99,8 @@ export const SIDEBAR_ORDER: readonly string[] = [
   'dashboard',
   'calendar',
   'todos',
-  'customers', // 2026-05-22 William 拍板：客戶頁從 library 移到主 sidebar、業務每天用
+  // 2026-05-26 William 拍板：客戶收回「資料管理」分區底下（database > 顧客管理）、
+  // 移除頂層獨立客戶入口（推翻 5/22「移到主 sidebar」決定）。顧客項目見 database.children。
   'channels',
   'ai_hub',
   'tours',
@@ -120,7 +121,7 @@ export const SIDEBAR_META: Record<string, SidebarMeta> = {
   dashboard: { icon: Home, label: COMP_LAYOUT_LABELS.首頁 },
   calendar: { icon: CalendarDays, label: COMP_LAYOUT_LABELS.行事曆 },
   todos: { icon: CheckSquare, label: COMP_LAYOUT_LABELS.待辦事項 },
-  customers: { icon: Contact, label: COMP_LAYOUT_LABELS.客戶, href: '/library/customers' }, // 2026-05-22 William 拍板上 sidebar
+  // 2026-05-26 移除頂層 customers 獨立項目（收回 database > 顧客管理、見 database.children）
   channels: { icon: MessagesSquare, label: COMP_LAYOUT_LABELS.頻道 },
   ai_hub: { icon: Sparkles, label: 'AI Hub' },
   tours: { icon: MapPinned, label: COMP_LAYOUT_LABELS.旅遊團 },

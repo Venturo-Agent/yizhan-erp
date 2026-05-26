@@ -21,7 +21,9 @@ import { DatabaseModule } from './database'
 import { AiHubModule } from './ai_hub'
 import { SettingsModule } from './settings'
 import { DashboardModule } from './dashboard'
-import { CustomersModule } from './customers'
+// 2026-05-26 deprecated（凍住、保留檔案 / 不 rm·鐵律 #8）：customers
+// 客戶收回 database module（database > 顧客管理 tab）、舊獨立 customers module/capability 全死、無 caller。
+// import { CustomersModule } from './customers'
 import { TourAttributesModule } from './tour_attributes'
 import { WorkspacesModule } from './workspaces'
 import { SharedDataManagementModule } from './shared_data_management'
@@ -67,7 +69,7 @@ export const ALL_MODULES = [
   SettingsModule,
   // ===== 不暴露給 HR / 漫途專用 / 個人空間 =====
   DashboardModule,
-  CustomersModule,
+  // 2026-05-26 deprecated（凍住）：CustomersModule — 客戶收回 database module
   TourAttributesModule,
   WorkspacesModule,
   SharedDataManagementModule,
