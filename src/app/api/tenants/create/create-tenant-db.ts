@@ -113,6 +113,9 @@ export async function createWorkspace(
       subscription_plan: subscriptionPlan ?? 'custom',
       industry: industry ?? null,
       sub_industry: subIndustry ?? null,
+      // 2026-05-26 William 拍板：新租戶不再預設出帳日（覆蓋 DB column DEFAULT 4）
+      // null = 未預設、請款不區分正常/特殊出帳；租戶自行到公司設定指定。不動 migration。
+      default_billing_day_of_week: null,
     })
     .select('id')
     .single()
