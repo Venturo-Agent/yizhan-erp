@@ -299,7 +299,8 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
 
       const payload = {
         chinese_name: formData.chinese_name,
-        display_name: formData.display_name || formData.chinese_name,
+        // 5/26 William 拍板：拔「顯示名稱」欄、display_name 一律鏡像中文姓名（全站統一用中文姓名）
+        display_name: formData.chinese_name,
         job_title: formData.job_title || null,
         ...(formData.avatar_url ? { avatar_url: formData.avatar_url } : {}),
         email: formData.email,
