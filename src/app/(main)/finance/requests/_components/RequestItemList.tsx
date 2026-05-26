@@ -21,7 +21,9 @@ import { CurrencyCell } from '@/components/table-cells'
 import { useTranslations } from 'next-intl'
 import { InlineEditTable, type InlineEditColumn } from '@/components/ui/inline-edit-table'
 import { DeferredInput } from './DeferredInput'
-import { CalcInput } from './CalcInput'
+// SSOT：用公司共用的安全算式輸入框（CSP-safe shunting-yard、支援 +-*/ 與括號）
+// 2026-05-26：原本地 ./CalcInput 只會加減、碰乘除丟值；改用共用版並刪除重複實作
+import { CalcInput } from '@/components/ui/calc-input'
 
 const COMPONENT_LABELS = {
   PH_PICK_DATE: '選擇日期',
@@ -319,7 +321,7 @@ export function EditableRequestItemList({
       render: ({ row, onUpdate }) => (
         <CalcInput
           value={row.unit_price}
-          onChange={val => onUpdate({ unit_price: val })}
+          onChange={val => onUpdate({ unit_price: val ?? 0 })}
           placeholder="0"
           className={`${inputClass} text-right placeholder:text-morandi-muted`}
           disabled={disabled}
