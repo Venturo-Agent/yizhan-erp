@@ -10,6 +10,7 @@ import { supabase } from '@/lib/supabase/client'
 import { updateMembersTicketingDeadline } from '@/app/(main)/orders/_services/order_member.service'
 import { updateMember } from '@/data/entities/members'
 import { logger } from '@/lib/utils/logger'
+import { markMemberLocalWrite } from './member-write-tracker'
 import type { OrderMember } from '../_types/order-member.types'
 import type { MemberSurcharges } from '../_types/member-surcharge.types'
 
@@ -38,6 +39,8 @@ export function useMemberFieldHandlers({ members, setMembers }: UseMemberFieldHa
           )
           try {
             const memberIds = samePnrMembers.map(m => m.id)
+            // 標記本地寫入：擋掉 realtime 自己的回音蓋回正在編輯的列
+            memberIds.forEach(markMemberLocalWrite)
             await updateMembersTicketingDeadline(memberIds, deadlineValue)
           } catch (error) {
             logger.error('更新欄位失敗:', error)
@@ -47,6 +50,8 @@ export function useMemberFieldHandlers({ members, setMembers }: UseMemberFieldHa
       }
 
       // 一般欄位更新
+      // 標記本地寫入：擋掉 realtime 自己的回音蓋回正在編輯的輸入框（中文快打重複字根因）
+      markMemberLocalWrite(memberId)
       setMembers(members.map(m => (m.id === memberId ? { ...m, [field]: value } : m)))
       try {
         await updateMember(memberId, { [field]: value })

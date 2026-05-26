@@ -66,6 +66,15 @@ export function MemberBasicInfo({
     setLocalBirthDate(member.birth_date || '')
   }, [member.birth_date])
 
+  // 中文姓名本地草稿（避免每打一字寫 DB → order_members realtime 廣播回來蓋掉輸入框、
+  // 害中文快打重複字「張張文」。改成：打字只動本地、失焦才寫一次 DB）
+  const [localChineseName, setLocalChineseName] = useState(member.chinese_name || '')
+  const isNameFocused = React.useRef(false)
+  // 同步外部變化（realtime / 重新載入）；但正在輸入時不蓋、避免打斷組字
+  useEffect(() => {
+    if (!isNameFocused.current) setLocalChineseName(member.chinese_name || '')
+  }, [member.chinese_name])
+
   // 處理日期輸入（自動格式化 YYYY-MM-DD）
   const handleDateInput = (value: string) => {
     const digitsOnly = value.replace(/\D/g, '').slice(0, 8) // 最多 8 位數字
@@ -130,17 +139,26 @@ export function MemberBasicInfo({
           {isEditMode ? (
             <input
               type="text"
-              value={member.chinese_name || ''}
+              value={localChineseName}
+              onFocus={() => {
+                isNameFocused.current = true
+              }}
               onChange={e => {
-                onUpdateField(member.id, 'chinese_name', e.target.value)
+                // 只更新本地草稿、不寫 DB（避免每字觸發 realtime 廣播蓋回輸入框）
+                setLocalChineseName(e.target.value)
               }}
               onCompositionStart={() => setIsComposing(true)}
               onCompositionEnd={e => {
                 setIsComposing(false)
-                const value = e.currentTarget.value
-                setTimeout(() => {
+                setLocalChineseName(e.currentTarget.value)
+              }}
+              onBlur={e => {
+                isNameFocused.current = false
+                const value = e.target.value
+                // 失焦才寫一次 DB（值有變才寫）
+                if (value !== (member.chinese_name || '')) {
                   onUpdateField(member.id, 'chinese_name', value)
-                }, 0)
+                }
               }}
               onKeyDown={e => {
                 // 輸入法組字中，不處理任何鍵盤事件
@@ -148,7 +166,7 @@ export function MemberBasicInfo({
                 // 按 Enter 時觸發搜尋（避免輸入新客戶時被打斷）
                 if (e.key === 'Enter') {
                   e.preventDefault()
-                  onNameSearch?.(member.id, member.chinese_name || '')
+                  onNameSearch?.(member.id, localChineseName)
                 } else {
                   onKeyDown(e, index, 'chinese_name')
                 }

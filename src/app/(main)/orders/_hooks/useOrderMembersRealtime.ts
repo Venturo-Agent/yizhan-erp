@@ -11,6 +11,7 @@
 import { useEffect, useRef } from 'react'
 import { supabase } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { wasMemberRecentlyWritten } from './member-write-tracker'
 import type { OrderMember } from '../_types/order-member.types'
 import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import { useTranslations } from 'next-intl'
@@ -92,7 +93,12 @@ export function useOrderMembersRealtime({
               return [...prev, newRecord]
             })
           } else if (payload.eventType === 'UPDATE' && newRecord) {
-            // 更新成員
+            // 若這個成員是「本地剛寫過」的、這就是自己寫入的回音、別拿來蓋本地
+            // （否則會把使用者正在編輯的輸入框值蓋回去 → 中文快打重複字「張張文」）
+            if (wasMemberRecentlyWritten(newRecord.id)) {
+              return
+            }
+            // 更新成員（真正的遠端變更）
             setMembers(prev => prev.map(m => (m.id === newRecord.id ? { ...m, ...newRecord } : m)))
           } else if (payload.eventType === 'DELETE' && oldRecord) {
             // 刪除成員

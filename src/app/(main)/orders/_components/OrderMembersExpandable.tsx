@@ -256,11 +256,23 @@ export function OrderMembersExpandable({
       })
     }
     return [...membersData.members].sort((a, b) => {
+      // 團體模式：先按單號分組（O01 整批排完、再排 O02…），同一張單內才按 sort_order。
+      // 否則各訂單的 sort_order 都從 1 起跳、全部混排會讓不同訂單的成員交叉穿插。
+      // order_code 是完整單號字串（非純數字）、同團各單共用前綴只差尾碼、字串比較即可正確分組。
+      if (mode === 'tour') {
+        const aCode = (a as { order_code?: string | null }).order_code ?? ''
+        const bCode = (b as { order_code?: string | null }).order_code ?? ''
+        if (aCode !== bCode) {
+          if (!aCode) return 1 // 沒單號（理論上不會發生）排最後
+          if (!bCode) return -1
+          return aCode.localeCompare(bCode)
+        }
+      }
       const sortDiff = (a.sort_order ?? 999) - (b.sort_order ?? 999)
       if (sortDiff !== 0) return sortDiff
       return a.id.localeCompare(b.id)
     })
-  }, [membersData.members, roomVehicle.showRoomColumn, roomVehicle.roomSortKeys])
+  }, [membersData.members, roomVehicle.showRoomColumn, roomVehicle.roomSortKeys, mode])
 
   // 分房/分車合併行數
   const rowSpans = useMemo(

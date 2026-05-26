@@ -21,6 +21,31 @@ export function MemberActions({ member, onEdit, onDelete }: MemberActionsProps) 
   return (
     <td className="border border-morandi-gold/20 px-2 py-1 bg-card">
       <div className="flex items-center gap-1">
+        {/* 檢視明細（永遠有、固定第一個、跨列對齊）*/}
+        <button
+          type="button"
+          className="p-1 text-morandi-secondary hover:text-morandi-gold hover:bg-morandi-gold/10 rounded transition-colors"
+          title={t('viewDetail')}
+          onClick={e => {
+            e.stopPropagation()
+            onEdit(member, 'edit')
+          }}
+        >
+          <Info size={14} />
+        </button>
+        {/* 刪除（永遠有、固定第二個）*/}
+        <button
+          type="button"
+          className="p-1 text-morandi-secondary hover:text-status-danger hover:bg-status-danger-bg rounded transition-colors"
+          title={t('deleteMember')}
+          onClick={e => {
+            e.stopPropagation()
+            onDelete(member.id)
+          }}
+        >
+          <Trash2 size={14} />
+        </button>
+        {/* 待驗證警告（有條件、放最後、避免有的有有的沒有害前面圖示對不齊）*/}
         {member.customer_verification_status === 'unverified' && (
           <button
             type="button"
@@ -34,28 +59,6 @@ export function MemberActions({ member, onEdit, onDelete }: MemberActionsProps) 
             <AlertTriangle size={14} />
           </button>
         )}
-        <button
-          type="button"
-          className="p-1 text-morandi-secondary hover:text-morandi-gold hover:bg-morandi-gold/10 rounded transition-colors"
-          title={t('viewDetail')}
-          onClick={e => {
-            e.stopPropagation()
-            onEdit(member, 'edit')
-          }}
-        >
-          <Info size={14} />
-        </button>
-        <button
-          type="button"
-          className="p-1 text-morandi-secondary hover:text-status-danger hover:bg-status-danger-bg rounded transition-colors"
-          title={t('deleteMember')}
-          onClick={e => {
-            e.stopPropagation()
-            onDelete(member.id)
-          }}
-        >
-          <Trash2 size={14} />
-        </button>
       </div>
     </td>
   )
