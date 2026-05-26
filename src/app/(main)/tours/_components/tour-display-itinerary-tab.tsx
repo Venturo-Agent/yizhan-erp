@@ -309,7 +309,7 @@ function ReadOnlyToolbar({
   return (
     <div className="sticky top-0 z-20 flex flex-wrap items-center gap-2 pb-2 bg-background">
       <Button variant="outline" onClick={onCopy} className="gap-2">
-        {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+        {copied ? <Check className="h-4 w-4 text-status-success" /> : <Copy className="h-4 w-4" />}
         {copied ? '已複製' : '複製連結'}
       </Button>
       <Button variant="outline" onClick={onOpen} className="gap-2">
@@ -324,10 +324,10 @@ function ReadOnlyToolbar({
 
 function SaveStatusBadge({ status }: { status: SaveStatus }) {
   const variants: Record<SaveStatus, { label: string; className: string }> = {
-    saved: { label: '已儲存 ✓', className: 'text-green-600' },
-    pending: { label: '未儲存 ●', className: 'text-amber-500' },
-    saving: { label: '儲存中⋯', className: 'text-amber-500' },
-    error: { label: '儲存失敗 ●', className: 'text-red-500' },
+    saved: { label: '已儲存 ✓', className: 'text-status-success' },
+    pending: { label: '未儲存 ●', className: 'text-status-warning' },
+    saving: { label: '儲存中⋯', className: 'text-status-warning' },
+    error: { label: '儲存失敗 ●', className: 'text-status-danger' },
   }
   const v = variants[status]
   return <span className={`text-xs font-medium tabular-nums ${v.className}`}>{v.label}</span>
@@ -444,7 +444,11 @@ function EditorView({
 
         {/* 複製連結 */}
         <Button variant="outline" onClick={onCopy} className="gap-2">
-          {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+          {copied ? (
+            <Check className="h-4 w-4 text-status-success" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
           {copied ? '已複製' : '複製連結'}
         </Button>
 

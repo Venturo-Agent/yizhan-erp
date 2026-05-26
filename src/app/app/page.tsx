@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, AlertTriangle } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 
 const LAST_CODE_KEY = 'venturo-app-last-code'
@@ -92,7 +92,7 @@ export default function AppLoginPage() {
 
         {error && (
           <div className="login-error">
-            <AlertCircle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
+            <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0 }} />
             <span className="login-error-text">{error}</span>
           </div>
         )}

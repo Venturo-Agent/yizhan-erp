@@ -277,7 +277,7 @@ export function SeveranceCalculatorDialog({
               <p className="text-[0.647rem] text-morandi-muted mt-1">正在撈最近薪資結算...</p>
             )}
             {payslipError && (
-              <p className="text-[0.647rem] text-amber-600 mt-1">
+              <p className="text-[0.647rem] text-status-warning mt-1">
                 ⚠ {payslipError}、改用 salary_info 估算
               </p>
             )}
@@ -368,7 +368,7 @@ export function SeveranceCalculatorDialog({
         )}
 
         {!result && (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+          <div className="rounded-lg border border-status-warning/30 bg-status-warning-bg p-3 text-sm text-status-warning">
             無法試算：請確認到職日 + 離職日資料正確（離職日不可早於到職日）。
           </div>
         )}

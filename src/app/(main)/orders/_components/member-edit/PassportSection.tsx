@@ -5,7 +5,7 @@
 
 import React, { useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { RefreshCw, Upload, Pencil } from 'lucide-react'
+import { RefreshCw, Upload, Edit } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ImageEditor, type ImageEditorSettings } from '@/components/ui/image-editor'
 import { supabase } from '@/lib/supabase/client'
@@ -135,7 +135,7 @@ export function PassportSection({
                 onClick={() => setIsEditorOpen(true)}
                 className="px-2 py-1 text-xs gap-1.5"
               >
-                <Pencil size={12} />
+                <Edit size={12} />
                 {t('passport.editImage')}
               </Button>
               <Button

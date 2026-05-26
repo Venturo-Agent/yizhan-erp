@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useState, use } from 'react'
-import { Loader2, CheckCircle2, XCircle, ExternalLink, Lock } from 'lucide-react'
+import { Loader2, CheckSquare, XCircle, ExternalLink, Lock } from 'lucide-react'
 
 interface VerifyResult {
   valid: boolean
@@ -153,7 +153,7 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
     return (
       <div className="min-h-screen flex items-center justify-center bg-morandi-background px-4">
         <div className="max-w-md w-full bg-card border border-border rounded-xl shadow-sm p-8 text-center">
-          <CheckCircle2 size={48} className="mx-auto text-morandi-green mb-4" />
+          <CheckSquare size={48} className="mx-auto text-morandi-green mb-4" />
           <h1 className="text-xl font-semibold text-morandi-primary mb-2">設定完成 ✓</h1>
           <p className="text-morandi-secondary mb-6">
             {verify.integration_name} 已成功設定到 {verify.workspace_name}。

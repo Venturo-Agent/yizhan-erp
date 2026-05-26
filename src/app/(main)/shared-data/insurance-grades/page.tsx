@@ -188,7 +188,7 @@ export default function InsuranceGradesPage() {
       {canEdit &&
         filtered.length > 0 &&
         filtered.length < (activeTab === 'health' ? 58 : activeTab === 'pension' ? 65 : 11) && (
-          <p className="text-xs text-orange-600 mt-3">
+          <p className="text-xs text-status-warning mt-3">
             ⚠ {tabConfig.title} 級距不完整、目前 {filtered.length} 筆、官方應有
             {activeTab === 'health' ? 58 : activeTab === 'pension' ? 65 : 11} 級。
             請從官方網站補完整資料（編輯 UI 之後上、目前可請 dev 用 SQL 補）。

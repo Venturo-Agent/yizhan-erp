@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase/client'
 import { recalculateParticipants } from '@/app/(main)/tours/_services/tour-stats.service'
 import { recalculateReceiptStats } from '@/app/(main)/finance/payments/_services/receipt-core.service'
 import { logger } from '@/lib/utils/logger'
-import { User, Trash2, FileText, Edit2, Plus, HandCoins, Wallet } from 'lucide-react'
+import { User, Trash2, FileText, Edit, Plus, HandCoins, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Order, Tour } from '@/stores/types'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
@@ -272,7 +272,7 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
                 }}
                 className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
               >
-                <Edit2 size="0.95em" />
+                <Edit size="0.95em" />
                 {t('simpleOrderEdit')}
               </Button>
             )}

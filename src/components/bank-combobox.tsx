@@ -201,7 +201,7 @@ export function BankCombobox({
             <div>
               <Label htmlFor="bank-code">
                 {LABELS.FIELD_BANK_CODE}
-                <span className="text-red-500">*</span>
+                <span className="text-status-danger">*</span>
               </Label>
               <Input
                 id="bank-code"
@@ -213,7 +213,7 @@ export function BankCombobox({
             </div>
             <div>
               <Label htmlFor="bank-name">
-                {LABELS.FIELD_BANK_NAME} <span className="text-red-500">*</span>
+                {LABELS.FIELD_BANK_NAME} <span className="text-status-danger">*</span>
               </Label>
               <Input
                 id="bank-name"
@@ -231,7 +231,7 @@ export function BankCombobox({
                 placeholder={LABELS.PLACEHOLDER_ENGLISH_NAME}
               />
             </div>
-            {errorMsg && <div className="text-sm text-red-600">{errorMsg}</div>}
+            {errorMsg && <div className="text-sm text-status-danger">{errorMsg}</div>}
           </div>
         </FormDialog>
       )}

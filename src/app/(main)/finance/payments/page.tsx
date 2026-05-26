@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { TableColumn } from '@/components/ui/enhanced-table'
-import { Plus, Edit2, CheckSquare, Undo2, Printer, XCircle } from 'lucide-react'
+import { Plus, Edit, CheckSquare, Undo2, Printer, XCircle } from 'lucide-react'
 import { confirm, prompt } from '@/lib/ui/alert-dialog'
 import { toast } from 'sonner'
 import { DateCell, StatusCell, CurrencyCell, ActionCell } from '@/components/table-cells'
@@ -316,7 +316,7 @@ export default function PaymentsPage() {
       <ActionCell
         actions={[
           {
-            icon: Edit2,
+            icon: Edit,
             label: isCompleted ? t('viewLabel') : t('editLabel'),
             onClick: () => loadReceiptForEdit(row),
           },

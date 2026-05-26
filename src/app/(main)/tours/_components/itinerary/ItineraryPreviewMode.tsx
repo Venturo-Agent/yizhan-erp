@@ -9,7 +9,7 @@
 
 import { Fragment, RefObject } from 'react'
 import { useTranslations } from 'next-intl'
-import { Eye, Edit2, Printer, Plane } from 'lucide-react'
+import { Eye, Edit, Printer, Plane } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { FlightInfo } from '@/types/flight.types'
 
@@ -57,7 +57,7 @@ export function ItineraryPreviewMode({
         </h3>
         <div className="flex gap-2">
           <Button variant="soft-gold" size="sm" onClick={onBackToEdit}>
-            <Edit2 className="w-4 h-4 mr-1" />
+            <Edit className="w-4 h-4 mr-1" />
             {t('itineraryPreviewEdit')}
           </Button>
           <Button variant="soft-gold" size="sm" onClick={onPrint}>

@@ -197,7 +197,7 @@ export function TourPnlTab() {
   if (error) {
     return (
       <ContentContainer>
-        <div className="flex items-center justify-center min-h-[300px] text-red-600">
+        <div className="flex items-center justify-center min-h-[300px] text-status-danger">
           錯誤：{error}
         </div>
       </ContentContainer>

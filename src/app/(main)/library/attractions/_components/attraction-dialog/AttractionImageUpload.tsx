@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { Upload, X, Pencil } from 'lucide-react'
+import { Upload, X, Edit } from 'lucide-react'
 import { ImagePosition } from '../../_hooks/useAttractionForm'
 import { ImageEditor, type ImageEditorSettings } from '@/components/ui/image-editor'
 import { logger } from '@/lib/utils/logger'
@@ -111,7 +111,7 @@ function ImagePositionAdjuster({
         className="absolute right-1 top-1 bg-morandi-gold text-white rounded p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-morandi-gold-hover"
         title={t('attractionImageUploadEdit')}
       >
-        <Pencil size={12} />
+        <Edit size={12} />
       </button>
 
       {/* 刪除按鈕 */}

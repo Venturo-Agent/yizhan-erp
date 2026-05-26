@@ -44,7 +44,7 @@ export function StepIndicator<TKey extends string>({
                 isActive
                   ? 'text-morandi-gold font-semibold'
                   : isPast
-                    ? 'text-green-600'
+                    ? 'text-status-success'
                     : 'text-morandi-muted'
               }`}
             >
@@ -53,7 +53,7 @@ export function StepIndicator<TKey extends string>({
                   isActive
                     ? 'border-morandi-gold bg-morandi-gold/10'
                     : isPast
-                      ? 'border-green-600 bg-green-600 text-white'
+                      ? 'border-status-success bg-status-success text-white'
                       : 'border-morandi-muted/40'
                 }`}
               >

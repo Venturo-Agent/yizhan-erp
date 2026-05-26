@@ -6,9 +6,9 @@
 
 import {
   Clock,
-  CheckCircle,
+  CheckSquare,
   XCircle,
-  AlertCircle,
+  AlertTriangle,
   FileCheck,
   FileText,
   Package,
@@ -63,7 +63,7 @@ export const tourStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
     bgColor: 'bg-morandi-container',
     borderColor: 'border-morandi-muted/30',
   },
@@ -80,7 +80,7 @@ export const orderStatuses: Record<string, StatusConfig> = {
   confirmed: {
     color: 'text-morandi-primary',
     label: '已確認',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-morandi-primary/15',
   },
   completed: {
@@ -98,7 +98,7 @@ export const orderStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -131,7 +131,7 @@ export const tourRequestStatuses: Record<string, StatusConfig> = {
   confirmed: {
     color: 'text-status-success',
     label: '已確認',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   completed: {
@@ -149,7 +149,7 @@ export const tourRequestStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -170,7 +170,7 @@ export const todoStatuses: Record<string, StatusConfig> = {
   completed: {
     color: 'text-status-success',
     label: '已完成',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   cancelled: {
@@ -182,7 +182,7 @@ export const todoStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -197,7 +197,7 @@ export const esimStatuses: Record<string, StatusConfig> = {
   1: {
     color: 'text-status-success',
     label: '已確認',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   2: {
@@ -209,6 +209,6 @@ export const esimStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }

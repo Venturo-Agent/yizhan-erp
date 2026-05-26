@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Plus, CheckCircle, XCircle } from 'lucide-react'
+import { Plus, CheckSquare, XCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ACTION_BUTTON_BASE } from '@/components/table-cells'
 import type { TableColumn } from '@/components/ui/enhanced-table'
@@ -137,7 +137,7 @@ export default function ChecksPage() {
                 className={cn(ACTION_BUTTON_BASE, 'text-status-success hover:bg-status-success-bg')}
                 title="標記已兌現"
               >
-                <CheckCircle size="0.95em" />
+                <CheckSquare size="0.95em" />
               </Button>
               <Button
                 size="sm"

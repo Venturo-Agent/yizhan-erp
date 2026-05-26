@@ -7,7 +7,7 @@
 import React from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, AlertTriangle, Info, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Info, Trash2, X } from 'lucide-react'
 
 export type ConfirmDialogType = 'danger' | 'warning' | 'info'
 
@@ -95,7 +95,7 @@ export function ConfirmDialog({
               <ul className="space-y-1 text-sm text-morandi-secondary">
                 {details.map((detail, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <AlertCircle size="0.875em" className="mt-0.5 flex-shrink-0" />
+                    <AlertTriangle size="0.875em" className="mt-0.5 flex-shrink-0" />
                     <span>{detail}</span>
                   </li>
                 ))}

@@ -8,7 +8,7 @@ import {
   DollarSign,
   Hotel,
   Sparkles,
-  AlertCircle,
+  AlertTriangle,
   type LucideIcon,
 } from 'lucide-react'
 import { COMPANY_NAME } from '@/lib/tenant'
@@ -82,7 +82,7 @@ export function TourNavigation({ data, scrollOpacity, isPreview, viewMode }: Tou
       (data.showNotices && data.notices && data.notices.length > 0) ||
       (data.showCancellationPolicy && data.cancellationPolicy && data.cancellationPolicy.length > 0)
     if (hasNotices) {
-      links.push({ title: '須知', icon: AlertCircle, href: '#notices' })
+      links.push({ title: '須知', icon: AlertTriangle, href: '#notices' })
     }
 
     return links

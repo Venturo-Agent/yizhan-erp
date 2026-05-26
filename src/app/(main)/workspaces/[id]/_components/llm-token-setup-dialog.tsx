@@ -15,7 +15,7 @@
  */
 
 import { useState } from 'react'
-import { Loader2, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react'
+import { Loader2, CheckSquare, XCircle, Eye, EyeOff } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -361,12 +361,12 @@ export function LlmTokenSetupDialog({
               <div
                 className={`flex items-start gap-2 p-3 rounded-lg ${
                   validationResult.ok
-                    ? 'bg-green-50 text-green-800 border border-green-200'
-                    : 'bg-red-50 text-red-800 border border-red-200'
+                    ? 'bg-status-success-bg text-status-success border border-status-success/30'
+                    : 'bg-status-danger-bg text-status-danger border border-status-danger/30'
                 }`}
               >
                 {validationResult.ok ? (
-                  <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+                  <CheckSquare className="w-5 h-5 shrink-0 mt-0.5" />
                 ) : (
                   <XCircle className="w-5 h-5 shrink-0 mt-0.5" />
                 )}
@@ -399,7 +399,7 @@ export function LlmTokenSetupDialog({
         {/* Step 4: 完成 */}
         {step === 4 && (
           <div className="py-8 text-center space-y-3">
-            <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
+            <CheckSquare className="w-12 h-12 text-status-success mx-auto" />
             <div className="font-medium">LLM 設定完成！</div>
             <div className="text-sm text-morandi-secondary">
               該租戶的 LINE Bot 之後會用 {providerInfo.label} / {model} 回覆。

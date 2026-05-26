@@ -13,11 +13,16 @@ import { ORDER_STATUS_MAP } from '@/lib/constants/status-maps'
 import type { OrderStatus } from '@/types/order.types'
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
-  pending_review: 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200',
-  hk: 'bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200',
-  kk: 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200',
-  hl: 'bg-orange-100 text-orange-700 border-orange-200 hover:bg-orange-200',
-  lk: 'bg-teal-100 text-teal-700 border-teal-200 hover:bg-teal-200',
+  // 待處理 = 待接手（警告）
+  pending_review: 'bg-status-warning-bg text-status-warning border-status-warning/30',
+  // 待確認 = 訂好等開票（進行中、資訊）
+  hk: 'bg-status-info-bg text-status-info border-status-info/30',
+  // 已確認 = 開票完成（成功）
+  kk: 'bg-status-success-bg text-status-success border-status-success/30',
+  // 候補 = 預留待定（中性）
+  hl: 'bg-status-neutral-bg text-status-neutral border-status-neutral/30',
+  // 候補成功未處理（資訊）
+  lk: 'bg-status-info-bg text-status-info border-status-info/30',
 }
 
 const ALL_STATUSES: OrderStatus[] = ['pending_review', 'hk', 'kk', 'hl', 'lk']
@@ -66,7 +71,7 @@ export function OrderStatusBadge({ status, onChangeRequest }: OrderStatusBadgePr
         ))}
         <DropdownMenuItem
           onClick={() => onChangeRequest('kk')}
-          className="text-xs cursor-pointer text-green-700 font-medium"
+          className="text-xs cursor-pointer text-status-success font-medium"
         >
           {ORDER_STATUS_MAP['kk']}（開票確認）
         </DropdownMenuItem>

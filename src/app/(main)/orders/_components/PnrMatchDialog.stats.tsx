@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, X, AlertCircle, Users, UserPlus } from 'lucide-react'
+import { Check, X, AlertTriangle, Users, UserPlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
 interface OrderInfo {
@@ -44,7 +44,7 @@ export function PnrMatchStats({
           <Check size={14} /> {stats.exact} {t('fullMatch')}
         </span>
         <span className="flex items-center gap-1 text-sm text-morandi-gold">
-          <AlertCircle size={14} /> {stats.partial} {t('partialMatch')}
+          <AlertTriangle size={14} /> {stats.partial} {t('partialMatch')}
         </span>
         <span className="flex items-center gap-1 text-sm text-morandi-red">
           <X size={14} /> {stats.none} {t('noMatch')}
@@ -71,7 +71,7 @@ export function PnrMatchStats({
       )}
       {stats.withSuggestions > 0 && !orderId && !isTourMode && (
         <div className="p-2 bg-morandi-gold/10 rounded-lg text-xs text-morandi-gold">
-          <AlertCircle size={12} className="inline mr-1" />
+          <AlertTriangle size={12} className="inline mr-1" />
           {t('suggestedNoOrderDesc')}
         </div>
       )}

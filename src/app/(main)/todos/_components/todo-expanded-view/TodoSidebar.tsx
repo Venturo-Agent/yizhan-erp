@@ -152,28 +152,28 @@ export function TodoSidebar({
           <SelectContent>
             <SelectItem value="5">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500" />
+                <span className="w-2 h-2 rounded-full bg-status-danger" />
                 緊急
               </span>
             </SelectItem>
             <SelectItem value="4">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-orange-500" />高
+                <span className="w-2 h-2 rounded-full bg-status-danger" />高
               </span>
             </SelectItem>
             <SelectItem value="3">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500" />中
+                <span className="w-2 h-2 rounded-full bg-status-warning" />中
               </span>
             </SelectItem>
             <SelectItem value="2">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-slate-400" />低
+                <span className="w-2 h-2 rounded-full bg-status-neutral" />低
               </span>
             </SelectItem>
             <SelectItem value="1">
               <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-slate-300" />
+                <span className="w-2 h-2 rounded-full bg-morandi-muted" />
                 很低
               </span>
             </SelectItem>

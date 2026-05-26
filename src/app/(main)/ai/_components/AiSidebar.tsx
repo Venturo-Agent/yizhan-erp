@@ -289,7 +289,7 @@ export function AiSidebar() {
                           {c.unread_count}
                         </span>
                       )}
-                      {c.bot_paused && <Pause className="w-3 h-3 text-orange-500 shrink-0" />}
+                      {c.bot_paused && <Pause className="w-3 h-3 text-status-warning shrink-0" />}
                     </div>
                   </div>
                 </div>

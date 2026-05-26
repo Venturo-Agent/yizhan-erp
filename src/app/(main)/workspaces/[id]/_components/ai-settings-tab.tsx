@@ -233,7 +233,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
               <div className="text-xs text-morandi-secondary">啟用狀態</div>
               <div className="text-sm font-medium">
                 {llmStatus?.is_active ? (
-                  <span className="text-green-700">✅ 啟用中</span>
+                  <span className="text-status-success">✅ 啟用中</span>
                 ) : (
                   <span className="text-morandi-secondary">未啟用</span>
                 )}
@@ -258,7 +258,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
                 size="sm"
                 onClick={handleRemoveLlm}
                 disabled={llmDeleting}
-                className="text-red-600 hover:text-red-700"
+                className="text-status-danger hover:text-status-danger/80"
               >
                 <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                 {llmDeleting ? '移除中...' : '移除設定'}
@@ -318,7 +318,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
               <Label className="text-sm font-medium text-morandi-primary">
                 HAPPY 可讀取的資料模組
               </Label>
-              <span className="text-[0.65rem] px-2 py-0.5 rounded-full border border-amber-200 bg-amber-50 text-amber-700">
+              <span className="text-[0.65rem] px-2 py-0.5 rounded-full border border-status-warning/30 bg-status-warning-bg text-status-warning">
                 設定保留、待 RAG 開動後生效
               </span>
             </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
-import { AlertCircle, Eye, EyeOff } from 'lucide-react'
+import { AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import { logger } from '@/lib/utils/logger'
 import { supabase } from '@/lib/supabase/client'
 
@@ -165,7 +165,7 @@ export default function LoginPage() {
         {/* 錯誤訊息 */}
         {error && (
           <div className="mt-4 p-3 bg-morandi-red/10 border border-morandi-red/30 rounded-2xl flex items-start gap-2">
-            <AlertCircle size={16} className="text-morandi-red mt-0.5 shrink-0" />
+            <AlertTriangle size={16} className="text-morandi-red mt-0.5 shrink-0" />
             <span className="text-xs text-morandi-red">{error}</span>
           </div>
         )}

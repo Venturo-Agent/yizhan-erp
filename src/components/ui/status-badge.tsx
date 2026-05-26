@@ -25,9 +25,9 @@ export type StatusTone =
 const TONE_STYLES: Record<StatusTone, string> = {
   pending: 'bg-morandi-secondary/15 text-morandi-secondary',
   info: 'bg-status-info/15 text-status-info',
-  success: 'bg-morandi-green/15 text-morandi-green',
+  success: 'bg-status-success/15 text-status-success',
   warning: 'bg-status-warning/15 text-status-warning',
-  danger: 'bg-morandi-red/15 text-morandi-red',
+  danger: 'bg-status-danger/15 text-status-danger',
   neutral: 'bg-morandi-container text-morandi-primary',
 }
 

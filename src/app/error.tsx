@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { logger } from '@/lib/utils/logger'
 
 import { Button } from '@/components/ui/button'
-import { AlertCircle, RefreshCw, Home } from 'lucide-react'
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react'
 
 export default function Error({
   error,
@@ -22,7 +22,7 @@ export default function Error({
       <div className="max-w-md w-full space-y-6 text-center">
         <div className="flex justify-center">
           <div className="rounded-full bg-status-danger-bg p-6">
-            <AlertCircle className="h-12 w-12 text-status-danger" />
+            <AlertTriangle className="h-12 w-12 text-status-danger" />
           </div>
         </div>
 

@@ -6,7 +6,7 @@
 import { formatMoney } from '@/lib/utils/format-currency'
 import { useState, useEffect } from 'react'
 import { usePaymentMethodsCached } from '@/data/hooks'
-import { Trash2, Link2, Copy, ExternalLink, Loader2, CheckCircle2 } from 'lucide-react'
+import { Trash2, Link2, Copy, ExternalLink, Loader2, CheckSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import {
@@ -428,7 +428,7 @@ export function PaymentItemRow({
             ) : (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-status-success">
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckSquare className="w-4 h-4" />
                   <span className="font-medium">連結已產生</span>
                   {generatedExpiresAt && (
                     <span className="text-xs text-morandi-muted">

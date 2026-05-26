@@ -3,7 +3,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { ImageIcon, Map, Sparkles, Pencil } from 'lucide-react'
+import { ImageIcon, Map, Sparkles, Edit } from 'lucide-react'
 
 const COMPONENT_LABELS = {
   EDIT_ATTRACTION: '編輯景點',
@@ -123,7 +123,7 @@ export function AttractionCard({
             className="h-8 px-2 rounded-lg hover:bg-morandi-gold/10 hover:text-morandi-gold"
             title={COMPONENT_LABELS.EDIT_ATTRACTION}
           >
-            <Pencil size="1em" />
+            <Edit size="1em" />
           </Button>
         )}
 

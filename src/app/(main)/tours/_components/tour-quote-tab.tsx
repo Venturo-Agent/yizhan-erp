@@ -17,7 +17,7 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { generateQuoteCode } from '@/lib/codes'
-import { FileText, Plus, Star, Receipt, Pencil, Trash2 } from 'lucide-react'
+import { FileText, Plus, Star, Receipt, Edit, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -391,7 +391,7 @@ export function TourQuoteTab({ tour }: TourQuoteTabProps) {
                         className="p-1 text-morandi-secondary hover:text-morandi-gold transition-colors"
                         title={COMPONENT_LABELS.RENAME}
                       >
-                        <Pencil size={11} />
+                        <Edit size={11} />
                       </button>
                       <button
                         type="button"

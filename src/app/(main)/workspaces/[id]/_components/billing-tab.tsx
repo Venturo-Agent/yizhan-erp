@@ -49,7 +49,7 @@ const STATUS_LABEL: Record<string, string> = {
 const STATUS_BADGE_CLASS: Record<string, string> = {
   pending: 'bg-morandi-gold/20 text-morandi-gold',
   paid: 'bg-morandi-green/20 text-morandi-green',
-  overdue: 'bg-red-100 text-red-700',
+  overdue: 'bg-status-warning-bg text-status-warning',
 }
 
 interface BillingRecord {

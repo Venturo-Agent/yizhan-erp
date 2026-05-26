@@ -7,7 +7,7 @@ import React, { useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Save, Printer, Edit2, X, Download } from 'lucide-react'
+import { Save, Printer, Edit, X, Download } from 'lucide-react'
 import { ResponsiveHeader } from '@/components/layout/responsive-header'
 import { Quote, QuickQuoteItem } from '@/stores/types'
 import type { Quote as PrintableQuote } from '@/types/quote.types'
@@ -159,7 +159,7 @@ export const QuickQuoteDetail: React.FC<QuickQuoteDetailProps> = ({
           size="sm"
           className="h-8 px-2 gap-1 text-xs"
         >
-          <Edit2 size={14} />
+          <Edit size={14} />
           {t('quoteDetailEdit')}
         </Button>
       )}

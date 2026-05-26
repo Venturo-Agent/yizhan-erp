@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { AlertCircle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { CurrencyCell } from '@/components/table-cells'
 
@@ -37,7 +37,7 @@ export function UnallocatedAmountWarning({
       )}
     >
       <div className="flex items-center gap-2">
-        <AlertCircle className="h-4 w-4 shrink-0" />
+        <AlertTriangle className="h-4 w-4 shrink-0" />
         <span>{isUnder ? underMessage : overMessage}</span>
       </div>
       <div className="font-medium">

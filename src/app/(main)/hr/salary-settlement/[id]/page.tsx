@@ -63,7 +63,7 @@ function formatNT(n: number): string {
 const STATUS_BADGE = {
   draft: { label: '草稿（未確認）', className: 'bg-morandi-muted/20 text-morandi-secondary' },
   submitted: { label: '已確認', className: 'bg-morandi-green/20 text-morandi-green' },
-  cancelled: { label: '已取消', className: 'bg-red-100 text-red-700' },
+  cancelled: { label: '已取消', className: 'bg-status-danger-bg text-status-danger' },
 } as const
 
 export default function SalarySettlementDetailPage({
@@ -242,7 +242,7 @@ export default function SalarySettlementDetailPage({
             )}
           </div>
           {detail.status === 'draft' && (
-            <Button variant="ghost" size="sm" onClick={handleDelete} className="text-red-600">
+            <Button variant="ghost" size="sm" onClick={handleDelete} className="text-status-danger">
               <Trash2 className="w-4 h-4 mr-1" />
               刪除草稿
             </Button>
@@ -280,11 +280,11 @@ export default function SalarySettlementDetailPage({
                         <div className="text-xs text-morandi-muted">{it.employee_number}</div>
                       )}
                       {calc.labor_insured_here === false && (
-                        <div className="text-[0.588rem] text-orange-600">⚠ 勞保不在本公司</div>
+                        <div className="text-[0.588rem] text-status-warning">⚠ 勞保不在本公司</div>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">{formatNT(grossPay)}</td>
-                    <td className="px-4 py-3 text-right tabular-nums text-red-600">
+                    <td className="px-4 py-3 text-right tabular-nums text-status-danger">
                       {pensionVol > 0 ? `-${formatNT(pensionVol)}` : '—'}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums font-semibold text-morandi-gold">

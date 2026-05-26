@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { AlertCircle, CheckCircle2, Info, X, XCircle } from 'lucide-react'
+import { AlertTriangle, CheckSquare, Info, X, XCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type AlertVariant = 'default' | 'success' | 'warning' | 'danger' | 'info'
@@ -30,8 +30,8 @@ const variantClass: Record<AlertVariant, string> = {
 
 const variantIcon: Record<AlertVariant, React.ComponentType<{ className?: string }> | null> = {
   default: null,
-  success: CheckCircle2,
-  warning: AlertCircle,
+  success: CheckSquare,
+  warning: AlertTriangle,
   danger: XCircle,
   info: Info,
 }

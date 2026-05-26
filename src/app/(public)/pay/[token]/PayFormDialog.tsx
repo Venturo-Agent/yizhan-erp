@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react'
-import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Loader2, CheckSquare, AlertTriangle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { LABELS, PaymentMethodOption } from './types'
 import { apiMutate } from '@/lib/swr/api-mutate'
@@ -139,7 +139,7 @@ export function PayFormDialog({
 
         {success ? (
           <div className="text-center py-6">
-            <CheckCircle2 className="h-12 w-12 mx-auto text-morandi-green mb-3" />
+            <CheckSquare className="h-12 w-12 mx-auto text-morandi-green mb-3" />
             <p className="text-sm text-morandi-primary">{LABELS.SUBMIT_SUCCESS}</p>
           </div>
         ) : (
@@ -264,7 +264,7 @@ export function PayFormDialog({
 
             {error && (
               <div className="flex items-start gap-2 px-3 py-2 bg-morandi-red/10 border border-morandi-red/30 rounded-lg text-sm text-morandi-red">
-                <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="h-4 w-4 flex-shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
             )}

@@ -3,7 +3,7 @@
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Draggable, Droppable } from '@hello-pangea/dnd'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Edit, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Todo } from '@/stores/types'
 import { TodoCard } from './TodoCard'
@@ -150,7 +150,7 @@ export function KanbanColumn({
                     className="p-1 rounded hover:bg-morandi-container/50 text-morandi-secondary hover:text-morandi-primary transition-colors"
                     title={t('rename')}
                   >
-                    <Pencil size={13} />
+                    <Edit size={13} />
                   </button>
                   <button
                     onClick={e => {

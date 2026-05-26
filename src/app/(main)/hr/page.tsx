@@ -11,7 +11,7 @@ import { EmployeeForm } from './_components/EmployeeForm'
 import { SeveranceCalculatorDialog } from './_components/SeveranceCalculatorDialog'
 import { useRouter } from 'next/navigation'
 import { HR_ADMIN_TABS } from './components/hr-admin-tabs'
-import { Users, Edit2, UserX, Plus, Trash2, Calculator } from 'lucide-react'
+import { Users, Edit, UserX, Plus, Trash2, Calculator } from 'lucide-react'
 import { useRoles } from '@/data/hooks'
 import { useBranches } from '@/data/hooks/useBranches'
 import { TableColumn } from '@/components/ui/enhanced-table'
@@ -42,8 +42,11 @@ export default function HRPage() {
     fetchAll()
   }, [fetchAll])
 
-  // 員工列表：只顯示在職員工（不含已離職）
-  const filteredEmployees = useMemo(() => users.filter(emp => emp.status !== 'terminated'), [users])
+  // 員工列表：只顯示在職「真人」員工（不含已離職、不含 LINE/FB 機器人 bot — 2026-05-26 William 拍板）
+  const filteredEmployees = useMemo(
+    () => users.filter(emp => emp.status !== 'terminated' && emp.employee_type !== 'bot'),
+    [users]
+  )
 
   const getStatusLabel = (status: EmployeeFull['status']) => {
     const statusMap = {
@@ -246,7 +249,7 @@ export default function HRPage() {
       <ActionCell
         actions={[
           {
-            icon: Edit2,
+            icon: Edit,
             label: t('actionEdit'),
             onClick: () => setExpandedEmployee(employee.id),
           },

@@ -13,7 +13,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState, use } from 'react'
-import { Loader2, CheckCircle2, XCircle, AlertCircle, Building2 } from 'lucide-react'
+import { Loader2, CheckSquare, XCircle, AlertTriangle, Building2 } from 'lucide-react'
 import { LABELS, BatchData } from './types'
 import { AmountRow, BankRow, MemberRow, ReceiptHistoryRow } from './PaymentDisplayComponents'
 import { PayFormDialog } from './PayFormDialog'
@@ -163,7 +163,7 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
 
           {isAllPaid && (
             <div className="flex items-center gap-2 px-3 py-2 bg-morandi-green/10 border border-morandi-green/30 rounded-lg text-morandi-green text-sm">
-              <CheckCircle2 className="h-4 w-4" />
+              <CheckSquare className="h-4 w-4" />
               {LABELS.ALL_PAID}
             </div>
           )}
@@ -189,7 +189,7 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
             </div>
           ) : (
             <div className="flex items-center gap-2 text-sm text-morandi-secondary">
-              <AlertCircle className="h-4 w-4 text-morandi-red" />
+              <AlertTriangle className="h-4 w-4 text-morandi-red" />
               {LABELS.NO_BANK_INFO}
             </div>
           )}

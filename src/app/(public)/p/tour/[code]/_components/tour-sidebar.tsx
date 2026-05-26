@@ -5,7 +5,7 @@
  */
 
 import Link from 'next/link'
-import { Calendar, Users, Clock, CheckCircle } from 'lucide-react'
+import { Calendar, Users, Clock, CheckSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useTranslations } from 'next-intl'
 import { formatDate } from '@/lib/utils/format-date'
@@ -118,7 +118,7 @@ export function TourSidebar({
         {/* Features */}
         <div className="bg-public-primary p-6 rounded-2xl text-white">
           <div className="flex items-center gap-3 mb-4">
-            <CheckCircle className="w-5 h-5 text-morandi-green" />
+            <CheckSquare className="w-5 h-5 text-morandi-green" />
             <span className="font-bold">{t('exclusiveService')}</span>
           </div>
           <ul className="text-sm text-white/70 space-y-2">

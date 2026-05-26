@@ -231,7 +231,7 @@ export default function BonusSettlementListPage() {
           <div className="space-y-4 py-2">
             <div>
               <label className="text-sm text-morandi-secondary block mb-2">
-                請款日期 <span className="text-red-500">*</span>
+                請款日期 <span className="text-status-danger">*</span>
               </label>
               <DatePicker value={requestDate} onChange={setRequestDate} className="w-full" />
               <p className="text-xs text-morandi-muted mt-1">

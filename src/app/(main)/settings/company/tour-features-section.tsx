@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { supabase } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Save, AlertCircle } from 'lucide-react'
+import { Save, AlertTriangle } from 'lucide-react'
 import { logger } from '@/lib/utils/logger'
 import { TOUR_SERVICE_TYPES } from '@/lib/constants/tour-service-types'
 
@@ -189,7 +189,7 @@ export function TourAttributesSection({ workspaceId }: { workspaceId: string }) 
             if (validCount === 0) return null
             return (
               <div className="flex items-start gap-2 p-3 bg-morandi-gold/10 border border-morandi-gold/20 rounded-md">
-                <AlertCircle className="h-4 w-4 text-morandi-gold mt-0.5" />
+                <AlertTriangle className="h-4 w-4 text-morandi-gold mt-0.5" />
                 <div className="text-sm text-morandi-secondary space-y-1">
                   <p>開團時，可從已選擇的 {validCount} 種團類型中選擇一種</p>
                   {ghosts.length > 0 && (

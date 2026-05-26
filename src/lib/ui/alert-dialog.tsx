@@ -1,7 +1,7 @@
 'use client'
 
 import { create } from 'zustand'
-import { CheckCircle, Info, XCircle, AlertTriangle } from 'lucide-react'
+import { CheckSquare, Info, XCircle, AlertTriangle } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -203,7 +203,7 @@ const typeConfig: Record<AlertType, { icon: React.ReactNode; color: string; bgCo
     bgColor: 'bg-morandi-primary/10',
   },
   success: {
-    icon: <CheckCircle className="h-6 w-6" />,
+    icon: <CheckSquare className="h-6 w-6" />,
     color: 'text-morandi-gold',
     bgColor: 'bg-morandi-gold/10',
   },

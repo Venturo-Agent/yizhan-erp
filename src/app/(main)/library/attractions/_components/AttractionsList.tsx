@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import { MapPin, Trash2, Power, Edit2, ChevronUp, ChevronDown, AlertTriangle } from 'lucide-react'
+import { MapPin, Trash2, Power, Edit, ChevronUp, ChevronDown, AlertTriangle } from 'lucide-react'
 
 const COMPONENT_LABELS = {
   PENDING_VERIFY: '待驗證',
@@ -233,7 +233,7 @@ export function AttractionsList({
               className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
               title={t('attractionsListEdit')}
             >
-              <Edit2 size="0.95em" />
+              <Edit size="0.95em" />
             </Button>
             <Button
               variant="ghost"

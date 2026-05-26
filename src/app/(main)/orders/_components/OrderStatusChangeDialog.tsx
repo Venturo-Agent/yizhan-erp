@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle2, AlertCircle, FileText } from 'lucide-react'
+import { CheckSquare, AlertTriangle, FileText } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { updateOrder } from '@/data'
 import { useAuthStore } from '@/stores'
@@ -118,9 +118,9 @@ export function OrderStatusChangeDialog({
             <div className="space-y-2 rounded-md border p-3 text-sm">
               <div className="flex items-center gap-2">
                 {invoiceInfo?.hasInvoice ? (
-                  <CheckCircle2 size={14} className="text-green-500" />
+                  <CheckSquare size={14} className="text-status-success" />
                 ) : (
-                  <AlertCircle size={14} className="text-amber-500" />
+                  <AlertTriangle size={14} className="text-status-warning" />
                 )}
                 <span>帳單</span>
                 <span className="ml-auto text-muted-foreground">
@@ -138,9 +138,9 @@ export function OrderStatusChangeDialog({
 
               <div className="flex items-center gap-2">
                 {remaining <= 0 ? (
-                  <CheckCircle2 size={14} className="text-green-500" />
+                  <CheckSquare size={14} className="text-status-success" />
                 ) : (
-                  <AlertCircle size={14} className="text-amber-500" />
+                  <AlertTriangle size={14} className="text-status-warning" />
                 )}
                 <span>待收金額</span>
                 <span className="ml-auto tabular-nums">{remaining.toLocaleString()}</span>

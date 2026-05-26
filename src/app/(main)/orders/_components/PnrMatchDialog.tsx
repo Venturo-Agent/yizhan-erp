@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { isValidRecordLocator } from '@/lib/pnr-parser/utils'
-import { Check, X, AlertCircle, Plane, Save, RefreshCw, Users } from 'lucide-react'
+import { Check, X, AlertTriangle, Plane, Save, RefreshCw, Users } from 'lucide-react'
 import { parseFlightConfirmation, type ParsedPNR } from '@/lib/pnr-parser'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -344,7 +344,7 @@ export function PnrMatchDialog({
             {/* 提示：無團員時會搜尋客戶資料庫 */}
             {members.length === 0 && (
               <p className="text-xs text-morandi-gold bg-morandi-gold/10 px-3 py-2 rounded-lg">
-                <AlertCircle size={12} className="inline mr-1" />
+                <AlertTriangle size={12} className="inline mr-1" />
                 {t('noMembersHint')}
               </p>
             )}

@@ -22,7 +22,7 @@ import {
   Sparkles,
   BookOpenCheck,
   BrainCircuit,
-  AlertCircle,
+  AlertTriangle,
   Coins,
 } from 'lucide-react'
 
@@ -172,7 +172,7 @@ export function AiHealthDashboard({
           highlight={d.messages.ai_takeover_rate < 0.3 ? 'warn' : null}
         />
         <StatCard
-          icon={AlertCircle}
+          icon={AlertTriangle}
           label="Bot 被暫停"
           value={d.conversations.bot_paused}
           sub={`占 ${d.conversations.total > 0 ? Math.round((d.conversations.bot_paused / d.conversations.total) * 100) : 0}%`}
@@ -286,7 +286,7 @@ export function AiHealthDashboard({
       <Card className="p-5 border border-border">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-morandi-gold" />
+            <AlertTriangle className="w-4 h-4 text-morandi-gold" />
             <h3 className="text-sm font-semibold text-morandi-primary">
               AI 答不出來的問題（Top 5）
             </h3>

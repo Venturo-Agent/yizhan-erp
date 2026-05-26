@@ -16,7 +16,7 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Megaphone, RefreshCw, Edit2, ExternalLink, Loader2 } from 'lucide-react'
+import { Megaphone, RefreshCw, Edit, ExternalLink, Loader2 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
 import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
@@ -211,7 +211,7 @@ export default function MarketingWebsitePage() {
             disabled={togglingCode === row.code}
             className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
           >
-            <Edit2 size="0.95em" />
+            <Edit size="0.95em" />
             編輯
           </Button>
           {row.is_public_listed && (

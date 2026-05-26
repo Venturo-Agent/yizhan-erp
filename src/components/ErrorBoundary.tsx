@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useState } from 'react'
-import { AlertCircle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { logger } from '@/lib/utils/logger'
 import { COMPONENT_LABELS } from './constants/labels'
@@ -41,7 +41,7 @@ function ErrorDisplay({ error, errorInfo, onRetry }: ErrorDisplayProps) {
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
           <div className="p-3 bg-morandi-red/10 rounded-full">
-            <AlertCircle className="w-8 h-8 text-morandi-red" />
+            <AlertTriangle className="w-8 h-8 text-morandi-red" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-morandi-primary">

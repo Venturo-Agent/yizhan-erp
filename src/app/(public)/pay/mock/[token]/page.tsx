@@ -16,7 +16,7 @@
  */
 
 import { useEffect, useState, use } from 'react'
-import { Loader2, CheckCircle2, AlertCircle, CreditCard, Lock } from 'lucide-react'
+import { Loader2, CheckSquare, AlertTriangle, CreditCard, Lock } from 'lucide-react'
 
 interface TxData {
   id: string
@@ -103,7 +103,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
     return (
       <div className="min-h-screen flex items-center justify-center bg-morandi-container/30 px-4">
         <div className="max-w-md w-full bg-card rounded-xl border border-border p-8 text-center">
-          <AlertCircle className="w-12 h-12 text-status-danger mx-auto mb-4" />
+          <AlertTriangle className="w-12 h-12 text-status-danger mx-auto mb-4" />
           <h1 className="text-lg font-semibold text-morandi-primary mb-2">無法載入</h1>
           <p className="text-sm text-morandi-secondary">{error}</p>
         </div>
@@ -119,7 +119,7 @@ export default function MockPaymentPage({ params }: { params: Promise<{ token: s
       <div className="min-h-screen flex items-center justify-center bg-morandi-container/30 px-4 py-8">
         <div className="max-w-md w-full bg-card rounded-xl border border-border p-8 text-center">
           <div className="w-16 h-16 rounded-full bg-status-success-bg flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-10 h-10 text-status-success" />
+            <CheckSquare className="w-10 h-10 text-status-success" />
           </div>
           <h1 className="text-xl font-semibold text-morandi-primary mb-2">付款成功</h1>
           <p className="text-sm text-morandi-secondary mb-6">

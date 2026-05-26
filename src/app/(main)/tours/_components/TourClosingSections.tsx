@@ -13,7 +13,7 @@
 import { useMemo, useState, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
-import { Unlock, FileDown, Settings2 } from 'lucide-react'
+import { Unlock, FileDown, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -266,7 +266,7 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="soft-gold" onClick={() => setBonusDialogOpen(true)}>
-            <Settings2 className="h-4 w-4 mr-2" />
+            <Settings className="h-4 w-4 mr-2" />
             {t('closingSectionEditBonus')}
           </Button>
           <Button variant="soft-gold" onClick={() => setReportDialogOpen(true)}>

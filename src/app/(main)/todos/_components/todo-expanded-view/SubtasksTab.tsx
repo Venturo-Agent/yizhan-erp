@@ -3,7 +3,7 @@
 import React, { lazy, Suspense } from 'react'
 import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
-import { CheckCircle2, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { CheckSquare, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PRESET_BUSINESS_SUBTASKS } from '@/app/(main)/todos/_constants/labels'
 import { PnrToolContent } from '@/app/(main)/todos/_components/PnrToolDialog'
@@ -146,7 +146,7 @@ export function SubtasksTab({
                         : 'border-border hover:border-morandi-gold'
                     )}
                   >
-                    {sub.done && <CheckCircle2 className="w-3.5 h-3.5" />}
+                    {sub.done && <CheckSquare className="w-3.5 h-3.5" />}
                   </button>
                   <span
                     className={cn(

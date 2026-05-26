@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
-import { Save, AlertCircle } from 'lucide-react'
+import { Save, AlertTriangle } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
@@ -189,7 +189,7 @@ export default function CompanySettingsPage() {
       <ContentPageLayout title={t('companyTitle')}>
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="p-8 text-center">
-            <AlertCircle className="h-12 w-12 mx-auto text-morandi-red mb-4" />
+            <AlertTriangle className="h-12 w-12 mx-auto text-morandi-red mb-4" />
             <p className="text-morandi-secondary">{t('companyNoPermission')}</p>
           </Card>
         </div>
@@ -202,7 +202,7 @@ export default function CompanySettingsPage() {
       <ContentPageLayout title={t('companyTitle')}>
         <div className="flex-1 flex items-center justify-center p-6">
           <Card className="p-8 text-center">
-            <AlertCircle className="h-12 w-12 mx-auto text-morandi-secondary mb-4" />
+            <AlertTriangle className="h-12 w-12 mx-auto text-morandi-secondary mb-4" />
             <p className="text-morandi-secondary">{t('companyNoWorkspace')}</p>
           </Card>
         </div>

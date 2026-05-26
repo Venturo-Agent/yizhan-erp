@@ -11,7 +11,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Instagram, Check, Copy, Loader2, AlertCircle, ExternalLink, Sparkles } from 'lucide-react'
+import {
+  Instagram,
+  Check,
+  Copy,
+  Loader2,
+  AlertTriangle,
+  ExternalLink,
+  Sparkles,
+} from 'lucide-react'
 import { logger } from '@/lib/utils/logger'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -193,7 +201,7 @@ export function StepCredentials({
 
       {error && (
         <div className="rounded-md bg-status-danger-bg border border-status-danger/30 p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
           <p className="text-sm text-status-danger">{error}</p>
         </div>
       )}
@@ -271,7 +279,7 @@ export function StepValidateConfirm({
 
       {error && (
         <div className="rounded-md bg-status-danger-bg border border-status-danger/30 p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
           <p className="text-sm text-status-danger">{error}</p>
         </div>
       )}

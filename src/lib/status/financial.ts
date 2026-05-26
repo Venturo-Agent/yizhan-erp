@@ -6,9 +6,9 @@
 
 import {
   Clock,
-  CheckCircle,
+  CheckSquare,
   XCircle,
-  AlertCircle,
+  AlertTriangle,
   FileCheck,
   FileText,
   DollarSign,
@@ -39,7 +39,7 @@ export const paymentStatuses: Record<string, StatusConfig> = {
   paid: {
     color: 'text-status-success',
     label: '已付款',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
     borderColor: 'border-status-success',
   },
@@ -53,7 +53,7 @@ export const paymentStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知狀態',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -68,7 +68,7 @@ export const disbursementStatuses: Record<string, StatusConfig> = {
   confirmed: {
     color: 'text-status-success',
     label: '已確認',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   paid: {
@@ -80,7 +80,7 @@ export const disbursementStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -107,7 +107,7 @@ export const invoiceStatuses: Record<string, StatusConfig> = {
   issued: {
     color: 'text-status-success',
     label: '已開立',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   voided: {
@@ -125,13 +125,13 @@ export const invoiceStatuses: Record<string, StatusConfig> = {
   failed: {
     color: 'text-status-danger',
     label: '失敗',
-    icon: AlertCircle,
+    icon: AlertTriangle,
     bgColor: 'bg-status-danger-bg',
   },
   approved: {
     color: 'text-status-success',
     label: '已核准',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   paid: {
@@ -149,7 +149,7 @@ export const invoiceStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -165,7 +165,7 @@ export const voucherStatuses: Record<string, StatusConfig> = {
   posted: {
     color: 'text-status-success',
     label: '已過帳',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
     borderColor: 'border-status-success',
   },
@@ -186,7 +186,7 @@ export const voucherStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -203,7 +203,7 @@ export const receiptStatuses: Record<string, StatusConfig> = {
   '1': {
     color: 'text-status-success',
     label: '已確認',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   '2': {
@@ -229,7 +229,7 @@ export const receiptStatuses: Record<string, StatusConfig> = {
   confirmed: {
     color: 'text-status-success',
     label: '已確認',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   rejected: {
@@ -253,7 +253,7 @@ export const receiptStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }
 
@@ -286,7 +286,7 @@ export const quoteStatuses: Record<string, StatusConfig> = {
   approved: {
     color: 'text-status-success',
     label: '已核准',
-    icon: CheckCircle,
+    icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
   converted: {
@@ -304,6 +304,6 @@ export const quoteStatuses: Record<string, StatusConfig> = {
   default: {
     color: 'text-morandi-secondary',
     label: '未知',
-    icon: AlertCircle,
+    icon: AlertTriangle,
   },
 }

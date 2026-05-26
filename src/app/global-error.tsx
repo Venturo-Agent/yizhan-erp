@@ -35,14 +35,14 @@ export default function GlobalError({
             {/* 錯誤訊息（開發模式） */}
             {process.env.NODE_ENV === 'development' && (
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-6 text-left">
-                <p className="text-sm font-mono text-red-500 break-words">{error.message}</p>
+                <p className="text-sm font-mono text-status-danger break-words">{error.message}</p>
               </div>
             )}
 
             {/* 重試按鈕 */}
             <button
               onClick={reset}
-              className="bg-blue-500 text-white px-6 py-2 rounded-md cursor-pointer text-base font-medium hover:bg-blue-600 transition-colors"
+              className="bg-morandi-gold text-white px-6 py-2 rounded-md cursor-pointer text-base font-medium hover:bg-morandi-gold-hover transition-colors"
             >
               重新載入應用程式
             </button>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, CheckSquare, AlertTriangle } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
 
         {done ? (
           <div className="mt-6 flex flex-col items-center gap-3 text-center">
-            <CheckCircle2 size={40} className="text-morandi-green" />
+            <CheckSquare size={40} className="text-morandi-green" />
             <p className="text-sm text-morandi-primary font-medium">密碼已更新！</p>
             <p className="text-xs text-morandi-muted">正在跳回登入頁...</p>
           </div>
@@ -77,7 +77,7 @@ export default function ResetPasswordPage() {
           <form onSubmit={handleSubmit} className="mt-5">
             {error && (
               <div className="mb-3 p-3 bg-morandi-red/10 border border-morandi-red/30 rounded-2xl flex items-start gap-2">
-                <AlertCircle size={14} className="text-morandi-red mt-0.5 shrink-0" />
+                <AlertTriangle size={14} className="text-morandi-red mt-0.5 shrink-0" />
                 <span className="text-xs text-morandi-red">{error}</span>
               </div>
             )}

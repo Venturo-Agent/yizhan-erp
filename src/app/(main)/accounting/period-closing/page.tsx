@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, CheckCircle, AlertCircle } from 'lucide-react'
+import { Calendar, CheckSquare, AlertTriangle } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
 import { toast } from 'sonner'
@@ -278,12 +278,12 @@ export default function PeriodClosingPage() {
                 <span className="text-muted-foreground">狀態：</span>
                 {isClosed ? (
                   <Badge variant="outline" className="text-morandi-green">
-                    <CheckCircle size={14} className="mr-1" />
+                    <CheckSquare size={14} className="mr-1" />
                     已結轉
                   </Badge>
                 ) : (
                   <Badge variant="secondary">
-                    <AlertCircle size={14} className="mr-1" />
+                    <AlertTriangle size={14} className="mr-1" />
                     未結轉
                   </Badge>
                 )}

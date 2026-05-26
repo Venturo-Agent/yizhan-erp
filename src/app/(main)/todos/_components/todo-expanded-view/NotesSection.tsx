@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 
 import { useEnterSubmitWithShift } from '@/hooks/useEnterSubmit'
-import { MessageSquare, Edit2, X, Save } from 'lucide-react'
+import { MessageSquare, Edit, X, Save } from 'lucide-react'
 import { NotesSectionProps } from './types'
 import { useAuthStore } from '@/stores/auth-store'
 import { generateUUID } from '@/lib/utils/uuid'
@@ -135,7 +135,7 @@ export function NotesSection({ todo, onUpdate }: NotesSectionProps) {
                     className="p-1 hover:bg-morandi-gold/10 rounded text-morandi-secondary hover:text-morandi-gold"
                     title={t('editNote')}
                   >
-                    <Edit2 size={12} />
+                    <Edit size={12} />
                   </button>
                   <button
                     onClick={() => {

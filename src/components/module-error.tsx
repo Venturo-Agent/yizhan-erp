@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { logger } from '@/lib/utils/logger'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { COMPONENT_LABELS } from './constants/labels'
 
 interface ModuleErrorProps {
@@ -20,7 +20,7 @@ export function ModuleError({ error, reset, moduleName }: ModuleErrorProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[25rem] gap-4 p-6">
       <div className="rounded-full bg-status-danger-bg p-4">
-        <AlertCircle className="h-8 w-8 text-status-danger" />
+        <AlertTriangle className="h-8 w-8 text-status-danger" />
       </div>
       <div className="text-center space-y-1">
         <h2 className="text-lg font-semibold text-foreground">{COMPONENT_LABELS.LABEL_5959}</h2>

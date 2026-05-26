@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Search, PenLine, Plus } from 'lucide-react'
+import { Search, Edit, Plus } from 'lucide-react'
 import { COMP_EDITOR_LABELS } from '../constants/labels'
 
 // 品牌列表
@@ -169,7 +169,7 @@ export function HotelSearchInput({
           onClick={onToggleManualInput}
           className={`rounded-xl h-11 gap-1.5 ${showManualInput ? 'bg-morandi-gold/10 border-morandi-gold' : ''}`}
         >
-          <PenLine size="1em" />
+          <Edit size="1em" />
           {COMP_EDITOR_LABELS.手動輸入}
         </Button>
       </div>

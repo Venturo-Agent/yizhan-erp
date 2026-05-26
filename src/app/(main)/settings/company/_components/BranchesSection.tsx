@@ -10,7 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Building2, Network, Edit2, Trash2, Star } from 'lucide-react'
+import { Building2, Network, Edit, Trash2, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { confirm } from '@/lib/ui/alert-dialog'
@@ -233,7 +233,7 @@ export function BranchesSection() {
                     title="編輯分公司"
                     className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
                   >
-                    <Edit2 size="0.95em" />
+                    <Edit size="0.95em" />
                   </button>
                   <button
                     onClick={() => handleDeleteBranch(branch)}

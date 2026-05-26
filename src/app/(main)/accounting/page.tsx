@@ -9,7 +9,7 @@ import {
   TrendingUp,
   Calendar,
   AlertTriangle,
-  FileEdit,
+  Edit,
 } from 'lucide-react'
 import Link from 'next/link'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
@@ -78,7 +78,7 @@ export default function AccountingPage() {
     },
     {
       href: '/accounting/opening-balances',
-      icon: FileEdit,
+      icon: Edit,
       title: t('openingBalances'),
       description: '啟用會計時設定資產 / 負債 / 權益期初',
       color: 'text-morandi-gold',

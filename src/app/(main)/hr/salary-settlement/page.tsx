@@ -62,7 +62,7 @@ function formatNT(n: number): string {
 const STATUS_BADGE: Record<SettlementRow['status'], { label: string; className: string }> = {
   draft: { label: '草稿', className: 'bg-morandi-muted/20 text-morandi-secondary' },
   submitted: { label: '已確認', className: 'bg-morandi-green/20 text-morandi-green' },
-  cancelled: { label: '已取消', className: 'bg-red-100 text-red-700' },
+  cancelled: { label: '已取消', className: 'bg-status-danger-bg text-status-danger' },
 }
 
 export default function SalarySettlementListPage() {
@@ -274,7 +274,7 @@ export default function SalarySettlementListPage() {
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>
-                結算月份 (YYYY-MM、可加多個補發) <span className="text-red-500">*</span>
+                結算月份 (YYYY-MM、可加多個補發) <span className="text-status-danger">*</span>
               </Label>
 
               {/* 已加入的月份 chips */}

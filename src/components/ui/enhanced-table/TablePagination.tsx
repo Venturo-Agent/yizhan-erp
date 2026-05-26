@@ -68,7 +68,7 @@ export const TablePagination = React.memo(function TablePagination({
           {visiblePageNums.map(pageNum => (
             <Button
               key={pageNum}
-              variant={currentPage === pageNum ? 'soft-gold' : 'ghost'}
+              variant={currentPage === pageNum ? 'default' : 'ghost'}
               size="iconSm"
               onClick={() => onPageChange(pageNum)}
               disabled={pageNum > totalPages}

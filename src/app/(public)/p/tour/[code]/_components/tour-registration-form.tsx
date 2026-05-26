@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Check, Loader2, AlertCircle } from 'lucide-react'
+import { Check, Loader2, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface TourRegistrationFormProps {
@@ -110,12 +110,12 @@ export function TourRegistrationForm({
 
   if (success) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Check className="w-6 h-6 text-green-600" />
+      <div className="bg-status-success-bg border border-status-success/30 rounded-xl p-6 text-center">
+        <div className="w-12 h-12 bg-status-success-bg rounded-full flex items-center justify-center mx-auto mb-4">
+          <Check className="w-6 h-6 text-status-success" />
         </div>
-        <h3 className="text-lg font-semibold text-green-800 mb-2">報名成功！</h3>
-        <p className="text-sm text-green-600">我們將盡快與您聯繫，感謝您的報名！</p>
+        <h3 className="text-lg font-semibold text-status-success mb-2">報名成功！</h3>
+        <p className="text-sm text-status-success">我們將盡快與您聯繫，感謝您的報名！</p>
       </div>
     )
   }
@@ -130,11 +130,11 @@ export function TourRegistrationForm({
           value={formData.customerName}
           onChange={handleChange}
           placeholder="請填寫您的姓名"
-          className={errors.customerName ? 'border-red-500' : ''}
+          className={errors.customerName ? 'border-status-danger' : ''}
         />
         {errors.customerName && (
-          <p className="text-xs text-red-500 flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" />
+          <p className="text-xs text-status-danger flex items-center gap-1">
+            <AlertTriangle className="w-3 h-3" />
             {errors.customerName}
           </p>
         )}
@@ -149,11 +149,11 @@ export function TourRegistrationForm({
           value={formData.customerEmail}
           onChange={handleChange}
           placeholder="example@email.com"
-          className={errors.customerEmail ? 'border-red-500' : ''}
+          className={errors.customerEmail ? 'border-status-danger' : ''}
         />
         {errors.customerEmail && (
-          <p className="text-xs text-red-500 flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" />
+          <p className="text-xs text-status-danger flex items-center gap-1">
+            <AlertTriangle className="w-3 h-3" />
             {errors.customerEmail}
           </p>
         )}
@@ -180,11 +180,11 @@ export function TourRegistrationForm({
           min="1"
           value={formData.passengerCount}
           onChange={handleChange}
-          className={errors.passengerCount ? 'border-red-500' : ''}
+          className={errors.passengerCount ? 'border-status-danger' : ''}
         />
         {errors.passengerCount && (
-          <p className="text-xs text-red-500 flex items-center gap-1">
-            <AlertCircle className="w-3 h-3" />
+          <p className="text-xs text-status-danger flex items-center gap-1">
+            <AlertTriangle className="w-3 h-3" />
             {errors.passengerCount}
           </p>
         )}

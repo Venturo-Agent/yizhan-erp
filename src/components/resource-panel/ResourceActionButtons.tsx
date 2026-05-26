@@ -1,6 +1,6 @@
 'use client'
 
-import { Save, X, FileEdit, Database, Trash2, CheckCircle2 } from 'lucide-react'
+import { Save, X, Edit, Database, Trash2, CheckSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const LABELS = {
@@ -59,7 +59,7 @@ export function ResourceActionButtons({
           <div className="flex gap-2">
             {/* 驗證/取消驗證 */}
             <Button variant="soft-gold" size="sm" onClick={onToggleVerify}>
-              <CheckCircle2 size="0.875em" className="mr-1" />
+              <CheckSquare size="0.875em" className="mr-1" />
               {dataVerified ? LABELS.CANCEL_VERIFY : LABELS.VERIFY}
             </Button>
             {/* 刪除 */}
@@ -92,7 +92,7 @@ export function ResourceActionButtons({
             {/* 編輯本團按鈕 */}
             {tourItineraryItemId && (
               <Button variant="soft-gold" size="sm" onClick={onOpenOverride}>
-                <FileEdit size="0.875em" className="mr-1" />
+                <Edit size="0.875em" className="mr-1" />
                 {LABELS.EDIT_THIS_TOUR}
               </Button>
             )}

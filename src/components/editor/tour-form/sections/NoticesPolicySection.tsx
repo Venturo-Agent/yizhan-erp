@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Plus, Trash2, AlertCircle, FileX, GripVertical } from 'lucide-react'
+import { Plus, Trash2, AlertTriangle, FileX, GripVertical } from 'lucide-react'
 import { COMP_EDITOR_LABELS } from '../../constants/labels'
 
 interface NoticesPolicySectionProps {
@@ -82,7 +82,7 @@ export function NoticesPolicySection({ data, onChange }: NoticesPolicySectionPro
         {/* 顯示開關 */}
         <div className="flex items-center justify-between p-4 bg-muted rounded-lg border border-border">
           <div className="flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-status-warning" />
+            <AlertTriangle className="h-5 w-5 text-status-warning" />
             <div>
               <h3 className="font-medium text-morandi-primary">{COMP_EDITOR_LABELS.LABEL_9164}</h3>
               <p className="text-sm text-morandi-secondary">{COMP_EDITOR_LABELS.LABEL_379}</p>

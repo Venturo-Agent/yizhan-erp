@@ -25,7 +25,7 @@ import {
   Plane,
   ScanLine,
   Sparkles,
-  Settings2,
+  Settings,
   type LucideIcon,
 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
@@ -175,7 +175,7 @@ export function AddonsTab({ features, onToggle, workspaceId }: AddonsTabProps) {
                       {enabled && (
                         <Badge
                           variant="outline"
-                          className="text-[0.65rem] border-green-200 text-green-700 bg-green-50"
+                          className="text-[0.65rem] border-status-success/30 text-status-success bg-status-success-bg"
                         >
                           啟用中
                         </Badge>
@@ -203,7 +203,7 @@ export function AddonsTab({ features, onToggle, workspaceId }: AddonsTabProps) {
                     className="gap-1 text-xs"
                     onClick={() => setDialogCode(it.code)}
                   >
-                    <Settings2 className="w-3.5 h-3.5" />
+                    <Settings className="w-3.5 h-3.5" />
                     設定
                   </Button>
                 </div>

@@ -20,7 +20,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 import { mutate } from '@/lib/swr/scoped-mutate'
 import { Button } from '@/components/ui/button'
-import { Loader2, Sparkles, Check, X, Pencil } from 'lucide-react'
+import { Loader2, Sparkles, Check, X, Edit } from 'lucide-react'
 import { toast } from 'sonner'
 import { apiMutate } from '@/lib/swr/api-mutate'
 
@@ -362,7 +362,7 @@ function TopicRow({ topic, onChanged }: { topic: RagTopic; onChanged: () => void
                   className="text-morandi-muted hover:text-morandi-primary shrink-0"
                   title="編輯補充"
                 >
-                  <Pencil className="w-3 h-3" />
+                  <Edit className="w-3 h-3" />
                 </button>
               </div>
             ) : (

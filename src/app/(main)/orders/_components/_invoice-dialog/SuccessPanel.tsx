@@ -6,7 +6,7 @@
 
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Copy, Check, CheckCircle2 } from 'lucide-react'
+import { Copy, Check, CheckSquare } from 'lucide-react'
 import type { CreatedBatch } from './invoice-dialog.types'
 
 interface SuccessPanelProps {
@@ -21,7 +21,7 @@ export function SuccessPanel({ batch, link, copied, onCopy, onAnother }: Success
   return (
     <div className="space-y-3">
       <div className="flex items-start gap-2 px-3 py-3 bg-morandi-green/10 border border-morandi-green/30 rounded-lg">
-        <CheckCircle2 className="h-5 w-5 text-morandi-green flex-shrink-0 mt-0.5" />
+        <CheckSquare className="h-5 w-5 text-morandi-green flex-shrink-0 mt-0.5" />
         <div className="text-sm">
           <div className="font-medium text-morandi-primary">
             成功開立 {batch.invoice_count} 人帳單

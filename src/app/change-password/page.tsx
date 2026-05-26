@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Lock, AlertCircle, Eye, EyeOff } from 'lucide-react'
+import { Lock, AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '@/lib/supabase/client'
 
 const LABELS = {
@@ -98,7 +98,7 @@ export default function ChangePasswordPage() {
 
         {error && (
           <div className="mt-4 p-3 bg-morandi-red/10 border border-morandi-red/30 rounded-2xl flex items-start gap-2">
-            <AlertCircle size={16} className="text-morandi-red mt-0.5 shrink-0" />
+            <AlertTriangle size={16} className="text-morandi-red mt-0.5 shrink-0" />
             <span className="text-xs text-morandi-red">{error}</span>
           </div>
         )}

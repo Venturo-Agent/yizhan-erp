@@ -5,7 +5,7 @@
  */
 
 import { useTranslations } from 'next-intl'
-import { FileText, Save, AlertCircle, Eye, FilePlus, Clock } from 'lucide-react'
+import { FileText, Save, AlertTriangle, Eye, FilePlus, Clock } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { Button } from '@/components/ui/button'
@@ -185,7 +185,7 @@ export function PackageItineraryDialog({
                   {/* 錯誤訊息 */}
                   {hook.createError && (
                     <div className="flex items-center gap-2 p-3 rounded-lg bg-morandi-red/10 border border-morandi-red/30 text-morandi-red text-sm">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <AlertTriangle className="w-4 h-4 shrink-0" />
                       <span>{hook.createError}</span>
                     </div>
                   )}

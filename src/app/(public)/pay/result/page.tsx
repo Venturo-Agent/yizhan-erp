@@ -15,7 +15,7 @@
 
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react'
+import { CheckSquare, XCircle, Loader2, Clock } from 'lucide-react'
 
 type View = 'loading' | 'pending' | 'captured' | 'failed' | 'timeout'
 
@@ -112,7 +112,7 @@ function ResultInner() {
 
         {view === 'captured' && (
           <>
-            <CheckCircle2 className="mx-auto h-14 w-14 text-status-success" />
+            <CheckSquare className="mx-auto h-14 w-14 text-status-success" />
             <h1 className="mt-5 text-xl font-semibold text-morandi-primary">{LABELS.SUCCESS}</h1>
             {amount != null && (
               <p className="mt-3 text-2xl font-bold text-morandi-primary">

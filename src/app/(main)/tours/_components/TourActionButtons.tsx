@@ -13,7 +13,7 @@
 
 import { useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { Archive, ArchiveRestore, Trash2, Edit2, Copy, Send, UserPlus } from 'lucide-react'
+import { Archive, ArchiveRestore, Trash2, Edit, Copy, Send, UserPlus } from 'lucide-react'
 import { Tour, EmployeeFull } from '@/stores/types'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
 
@@ -98,7 +98,7 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
           onClick={() => onEditTour(tour)}
           className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
         >
-          <Edit2 size="0.95em" />
+          <Edit size="0.95em" />
           {t('actionEdit')}
         </Button>
       )

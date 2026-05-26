@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useWorkspaceFeatures } from '@/lib/permissions'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
-import { ChevronRight, ChevronDown, User, Wrench, LogOut } from 'lucide-react'
+import { ChevronRight, ChevronDown, User, Settings, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -324,7 +324,7 @@ export function Sidebar() {
                 renderMenuItem({
                   href: '/settings',
                   label: COMP_LAYOUT_LABELS.設定,
-                  icon: Wrench,
+                  icon: Settings,
                 })}
             </>
           )}
@@ -349,7 +349,7 @@ export function Sidebar() {
                   title={COMP_LAYOUT_LABELS.個人偏好}
                   className="px-2 py-2 text-sidebar-fg hover:text-morandi-gold transition-colors"
                 >
-                  <Wrench size="1em" />
+                  <Settings size="1em" />
                 </button>
                 <button
                   type="button"

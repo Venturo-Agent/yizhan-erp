@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { LayoutDashboard, BookOpenCheck, Plug, Sliders, Bot, type LucideIcon } from 'lucide-react'
+import { LayoutDashboard, BookOpenCheck, Plug, Settings, Bot, type LucideIcon } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { cn } from '@/lib/utils'
 import { AiSetupTab } from './AiSetupTab'
@@ -37,7 +37,7 @@ const TABS: Array<{ value: SettingsTab; label: string; icon: LucideIcon }> = [
   { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
   { value: 'bots', label: 'AI 機器人', icon: Bot },
-  { value: 'policy', label: '全域 AI Policy', icon: Sliders },
+  { value: 'policy', label: '全域 AI Policy', icon: Settings },
 ]
 
 export function AiSettingsDialog({ open, onOpenChange }: Props) {

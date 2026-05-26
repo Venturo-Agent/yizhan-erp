@@ -6,7 +6,7 @@
  */
 
 import { useMemo } from 'react'
-import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import { CheckSquare, XCircle, Loader2 } from 'lucide-react'
 import { LABELS, InvoiceItem, ReceiptRowData } from './types'
 
 export function AmountRow({
@@ -83,7 +83,7 @@ export function MemberRow({
         </span>
         {isPaid && (
           <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[0.588rem] bg-morandi-green/10 text-morandi-green border border-morandi-green/30">
-            <CheckCircle2 className="h-2.5 w-2.5" />
+            <CheckSquare className="h-2.5 w-2.5" />
             已付清
           </span>
         )}
@@ -120,7 +120,7 @@ export function ReceiptHistoryRow({ receipt }: { receipt: ReceiptRowData }) {
         return {
           label: LABELS.STATUS_CONFIRMED,
           className: 'bg-morandi-green/10 text-morandi-green border-morandi-green/30',
-          icon: <CheckCircle2 className="h-3 w-3" />,
+          icon: <CheckSquare className="h-3 w-3" />,
         }
       case 'pending_verify':
         return {

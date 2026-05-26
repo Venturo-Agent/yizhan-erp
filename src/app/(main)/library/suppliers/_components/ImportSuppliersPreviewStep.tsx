@@ -8,7 +8,7 @@
 
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
-import { AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { AlertTriangle, CheckSquare } from 'lucide-react'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { EnhancedTable, type TableColumn } from '@/components/ui/enhanced-table'
 import type { PreviewTableRow } from './useSupplierImport'
@@ -51,7 +51,7 @@ export function ImportSuppliersPreviewStep({
                 className="inline-flex items-center gap-1 text-xs text-morandi-red"
                 title={Object.values(row.errors).join('\n')}
               >
-                <AlertCircle size={12} />
+                <AlertTriangle size={12} />
                 {row.status_text}
               </span>
             )
@@ -69,7 +69,7 @@ export function ImportSuppliersPreviewStep({
           }
           return (
             <span className="inline-flex items-center gap-1 text-xs text-morandi-green">
-              <CheckCircle2 size={12} />
+              <CheckSquare size={12} />
               {row.status_text}
             </span>
           )
@@ -152,7 +152,7 @@ export function ImportSuppliersPreviewStep({
         <div className="bg-morandi-red/10 border border-morandi-red/30 rounded-lg p-3">
           {global_errors.map((err, i) => (
             <p key={i} className="text-sm text-morandi-red flex items-center gap-1">
-              <AlertCircle size={14} />
+              <AlertTriangle size={14} />
               {err}
             </p>
           ))}

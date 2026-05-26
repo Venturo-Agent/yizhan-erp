@@ -41,7 +41,7 @@ function formatNT(n: number): string {
 const STATUS_BADGE = {
   pending: { label: '待結算', className: 'bg-morandi-muted/20 text-morandi-secondary' },
   settled: { label: '已結算', className: 'bg-morandi-green/20 text-morandi-green' },
-  cancelled: { label: '已取消', className: 'bg-red-100 text-red-700' },
+  cancelled: { label: '已取消', className: 'bg-status-danger-bg text-status-danger' },
 } as const
 
 export default function BonusSettlementTourDetailPage({

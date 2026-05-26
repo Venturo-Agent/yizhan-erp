@@ -7,17 +7,7 @@
  */
 
 import React from 'react'
-import {
-  Plus,
-  Printer,
-  Coins,
-  Settings,
-  SquarePen,
-  Plane,
-  Receipt,
-  Users,
-  FileText,
-} from 'lucide-react'
+import { Plus, Printer, Coins, Settings, Edit, Plane, Receipt, Users, FileText } from 'lucide-react'
 import { prompt } from '@/lib/ui/alert-dialog'
 import {
   DropdownMenu,
@@ -120,7 +110,7 @@ export function OrderMembersToolbar({
           onClick={onToggleEditMode}
           title={isAllEditMode ? t('closeAllEditMode') : t('openAllEditMode')}
         >
-          <SquarePen size={12} />
+          <Edit size={12} />
           {isAllEditMode ? t('closeEdit') : t('editAll')}
         </Button>
         {/* 「新增費用欄位」屬於訂單成員的 per-order 動作、由 order mode 提供（非 tour 全域） */}

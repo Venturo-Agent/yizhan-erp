@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Bot, Check, Copy, Loader2, AlertCircle, ExternalLink } from 'lucide-react'
+import { Bot, Check, Copy, Loader2, AlertTriangle, ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -295,7 +295,7 @@ export function StepCredentials({
 
       {error && (
         <div className="rounded-md bg-status-danger-bg border border-status-danger/30 p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
           <p className="text-sm text-status-danger">{error}</p>
         </div>
       )}
@@ -368,7 +368,7 @@ export function StepValidateConfirm({
 
       {error && (
         <div className="rounded-md bg-status-danger-bg border border-status-danger/30 p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
+          <AlertTriangle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
           <p className="text-sm text-status-danger">{error}</p>
         </div>
       )}
@@ -466,7 +466,7 @@ export function StepDone({
 export function ErrorAlert({ message }: { message: string }) {
   return (
     <div className="rounded-md bg-status-danger-bg border border-status-danger/30 p-3 flex items-start gap-2">
-      <AlertCircle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
+      <AlertTriangle className="w-4 h-4 text-status-danger flex-shrink-0 mt-0.5" />
       <p className="text-sm text-status-danger">{message}</p>
     </div>
   )

@@ -20,11 +20,36 @@ interface TodoCardProps {
 }
 
 const PRIORITY_COLORS: Record<number, { bg: string; text: string; dot: string; label: string }> = {
-  5: { bg: 'bg-red-50', text: 'text-red-600', dot: 'bg-red-500', label: '緊急' },
-  4: { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500', label: '高' },
-  3: { bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-500', label: '中' },
-  2: { bg: 'bg-slate-100', text: 'text-slate-500', dot: 'bg-slate-400', label: '低' },
-  1: { bg: 'bg-slate-100', text: 'text-slate-400', dot: 'bg-slate-300', label: '很低' },
+  5: {
+    bg: 'bg-status-danger-bg',
+    text: 'text-status-danger',
+    dot: 'bg-status-danger',
+    label: '緊急',
+  },
+  4: {
+    bg: 'bg-status-danger-bg',
+    text: 'text-status-danger',
+    dot: 'bg-status-danger',
+    label: '高',
+  },
+  3: {
+    bg: 'bg-status-warning-bg',
+    text: 'text-status-warning',
+    dot: 'bg-status-warning',
+    label: '中',
+  },
+  2: {
+    bg: 'bg-status-neutral-bg',
+    text: 'text-status-neutral',
+    dot: 'bg-status-neutral',
+    label: '低',
+  },
+  1: {
+    bg: 'bg-status-neutral-bg',
+    text: 'text-morandi-muted',
+    dot: 'bg-morandi-muted',
+    label: '很低',
+  },
 }
 
 export const TodoCard = React.memo(
@@ -104,9 +129,9 @@ export const TodoCard = React.memo(
                     <span
                       className={cn(
                         'flex items-center gap-1',
-                        isOverdue && 'text-red-600',
-                        isToday && 'text-amber-600',
-                        isSoon && !isOverdue && 'text-orange-500',
+                        isOverdue && 'text-status-danger',
+                        isToday && 'text-status-warning',
+                        isSoon && !isOverdue && 'text-status-warning',
                         !isOverdue && !isToday && !isSoon && 'text-muted-foreground'
                       )}
                     >

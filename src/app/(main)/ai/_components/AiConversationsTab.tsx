@@ -42,7 +42,7 @@ import {
   Send,
   Loader2,
   Users,
-  Pencil,
+  Edit,
   Check,
   X,
   Camera,
@@ -365,7 +365,7 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
                             {c.unread_count}
                           </span>
                         )}
-                        {c.bot_paused && <Pause className="w-3 h-3 text-orange-500 shrink-0" />}
+                        {c.bot_paused && <Pause className="w-3 h-3 text-status-warning shrink-0" />}
                       </div>
                     </div>
                   </div>
@@ -690,7 +690,7 @@ function ConversationHeader({
                   className="text-morandi-muted hover:text-morandi-primary shrink-0"
                   title="改名"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
+                  <Edit className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={handleRefreshGroupProfile}
@@ -821,7 +821,7 @@ const RETRO_STATUS_LABEL: Record<RetroStatus, string> = {
 }
 
 const RETRO_STATUS_COLOR: Record<RetroStatus, string> = {
-  pending: 'bg-orange-50 text-orange-700 border-orange-200',
+  pending: 'bg-status-warning-bg text-status-warning border-status-warning/30',
   reviewed: 'bg-status-info-bg text-status-info border-status-info/30',
   actioned: 'bg-status-success-bg text-status-success border-status-success/30',
   archived: 'bg-morandi-muted/20 text-morandi-muted border-morandi-muted/30',
@@ -1082,7 +1082,7 @@ function RetrospectiveEntry({
                   className="text-morandi-muted hover:text-morandi-primary shrink-0"
                   title="編輯補充"
                 >
-                  <Pencil className="w-3.5 h-3.5" />
+                  <Edit className="w-3.5 h-3.5" />
                 </button>
               </div>
             ) : (
@@ -1414,7 +1414,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
               <p className="text-[0.6rem] text-morandi-muted mb-0.5">AI 答不出來：</p>
               <ul className="space-y-0.5">
                 {m.unanswered_questions.slice(0, 3).map((q, i) => (
-                  <li key={i} className="text-[0.65rem] text-orange-700 line-clamp-1">
+                  <li key={i} className="text-[0.65rem] text-status-warning line-clamp-1">
                     • {q}
                   </li>
                 ))}
@@ -1452,7 +1452,7 @@ function SpeedCardSection({ conversationId }: { conversationId: string }) {
                 title="編輯"
                 className="p-1 text-morandi-muted hover:text-morandi-primary"
               >
-                <Pencil className="w-3 h-3" />
+                <Edit className="w-3 h-3" />
               </button>
               <button
                 onClick={handleDelete}

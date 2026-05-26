@@ -9,7 +9,7 @@ import { EnhancedTable, type TableColumn } from '@/components/ui/enhanced-table'
 import { Button } from '@/components/ui/button'
 import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
 import { cn } from '@/lib/utils'
-import { Edit2, Trash2 } from 'lucide-react'
+import { Edit, Trash2 } from 'lucide-react'
 import { Supplier } from '../_types'
 
 interface SuppliersListProps {
@@ -110,7 +110,7 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
                 className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
                 title={t('supplierEdit')}
               >
-                <Edit2 size="0.95em" />
+                <Edit size="0.95em" />
               </Button>
             )}
             {onDelete && (

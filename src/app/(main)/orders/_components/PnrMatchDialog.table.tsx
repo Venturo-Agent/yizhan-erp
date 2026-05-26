@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, X, AlertCircle, UserPlus } from 'lucide-react'
+import { Check, X, AlertTriangle, UserPlus } from 'lucide-react'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
@@ -114,7 +114,7 @@ export function PnrMatchTable({
                   </span>
                 ) : result.confidence === 'partial' ? (
                   <span className="flex items-center gap-1 text-morandi-gold">
-                    <AlertCircle size={14} /> {t('partialMatch')}
+                    <AlertTriangle size={14} /> {t('partialMatch')}
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 text-morandi-red">

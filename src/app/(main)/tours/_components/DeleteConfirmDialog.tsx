@@ -1,7 +1,7 @@
 import React from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
-import { AlertCircle, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Trash2, X } from 'lucide-react'
 import { Tour } from '@/stores/types'
 import { TOUR_DELETE } from '../_constants'
 
@@ -44,7 +44,7 @@ export function DeleteConfirmDialog({
       onOpenChange={open => !open && !loading && onClose()}
       title={
         <span className="flex items-center gap-2 text-morandi-red">
-          <AlertCircle size={20} />
+          <AlertTriangle size={20} />
           {TOUR_DELETE.title}
         </span>
       }

@@ -4,7 +4,7 @@
  */
 
 import { useTranslations } from 'next-intl'
-import { Eye, Edit2, Printer } from 'lucide-react'
+import { Eye, Edit, Printer } from 'lucide-react'
 import { EmptyValue } from '@/components/ui/empty-value'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -58,7 +58,7 @@ export function ItineraryPreview({
                 onClick={onEdit}
                 className="h-7 text-[0.647rem] gap-1"
               >
-                <Edit2 size={12} />
+                <Edit size={12} />
                 {t('itineraryPreviewEdit')}
               </Button>
               <Button
@@ -254,7 +254,7 @@ export function ItineraryPreviewContent({
             onClick={onEdit}
             className="h-7 text-[0.647rem] gap-1"
           >
-            <Edit2 size={12} />
+            <Edit size={12} />
             {t('itineraryPreviewEdit')}
           </Button>
           <Button

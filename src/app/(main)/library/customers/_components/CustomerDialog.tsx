@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
-import { X, Edit, Upload, ImageOff, Save, Pencil, Check } from 'lucide-react'
+import { X, Edit, Upload, ImageOff, Save, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -244,7 +244,7 @@ export function CustomerDialog({
                   className="absolute bottom-3 right-3 p-2 bg-card/90 hover:bg-card rounded-full shadow-md transition-all opacity-80 hover:opacity-100"
                   title={t('customerDetailTitleEditPhoto')}
                 >
-                  <Pencil size={16} className="text-morandi-primary" />
+                  <Edit size={16} className="text-morandi-primary" />
                 </button>
               </>
             ) : (

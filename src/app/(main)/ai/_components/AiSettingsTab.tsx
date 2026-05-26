@@ -25,7 +25,7 @@ import {
   Loader2,
   Plus,
   Trash2,
-  Pencil,
+  Edit,
   Check,
   X,
   GripVertical,
@@ -164,7 +164,7 @@ function BotCard({
   const statusStyles: Record<BotStatus, string> = {
     active: 'bg-status-success-bg text-status-success border-status-success/30',
     inactive: 'bg-morandi-container/30 text-morandi-muted border-morandi-muted/20',
-    warning: 'bg-amber-50 text-amber-700 border-amber-200',
+    warning: 'bg-status-warning-bg text-status-warning border-status-warning/30',
     comingSoon: 'bg-morandi-container/30 text-morandi-muted border-morandi-muted/20',
     loading: 'bg-morandi-container/20 text-morandi-muted border-morandi-muted/20',
   }
@@ -386,7 +386,7 @@ function TemplateRow({
           {t.is_active ? '啟用' : '停用'}
         </button>
         <button onClick={onEdit} className="p-1 text-morandi-muted hover:text-morandi-primary">
-          <Pencil className="w-3.5 h-3.5" />
+          <Edit className="w-3.5 h-3.5" />
         </button>
         <button onClick={onDelete} className="p-1 text-morandi-muted hover:text-status-danger">
           <Trash2 className="w-3.5 h-3.5" />
