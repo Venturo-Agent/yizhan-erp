@@ -19,7 +19,6 @@
  */
 
 export const CAPABILITIES = {
-
   // ════ module 衍生（從 src/modules/* 自動產出）════
   // ── calendar ──
   CALENDAR_READ: 'calendar.read',

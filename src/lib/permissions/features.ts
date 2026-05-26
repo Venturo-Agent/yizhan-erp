@@ -32,57 +32,42 @@ export const FEATURES: FeatureDefinition[] = [
     name: '行事曆',
     description: '出團日曆',
     category: 'basic',
-    routes: [
-      '/calendar',
-    ],
+    routes: ['/calendar'],
   },
   {
     code: 'todos',
     name: '待辦事項',
     description: '任務管理',
     category: 'basic',
-    routes: [
-      '/todos',
-    ],
+    routes: ['/todos'],
   },
   {
     code: 'channels',
     name: '溝通頻道',
     description: '內部訊息、公告、專案頻道、HAPPY AI DM',
     category: 'basic',
-    routes: [
-      '/channels',
-      '/channels/[id]',
-    ],
+    routes: ['/channels', '/channels/[id]'],
   },
   {
     code: 'channels.happy',
     name: 'HAPPY 機器人',
     description: 'AI 助手「哈比」進駐頻道、能查訂單 / 客戶 / 旅遊團資料',
     category: 'premium',
-    routes: [
-      '/channels',
-      '/channels/[id]',
-    ],
+    routes: ['/channels', '/channels/[id]'],
   },
   {
     code: 'tours',
     name: '旅遊團管理',
     description: '團務管理核心功能',
     category: 'basic',
-    routes: [
-      '/tours',
-      '/tours/[code]',
-    ],
+    routes: ['/tours', '/tours/[code]'],
   },
   {
     code: 'orders',
     name: '訂單管理',
     description: '客戶訂單與報名',
     category: 'basic',
-    routes: [
-      '/orders',
-    ],
+    routes: ['/orders'],
   },
   {
     code: 'finance',
@@ -124,11 +109,7 @@ export const FEATURES: FeatureDefinition[] = [
     name: '人資管理',
     description: '員工 + 職務管理',
     category: 'basic',
-    routes: [
-      '/hr',
-      '/hr/roles',
-      '/hr/organization',
-    ],
+    routes: ['/hr', '/hr/roles', '/hr/organization'],
   },
   {
     code: 'database',
@@ -147,61 +128,49 @@ export const FEATURES: FeatureDefinition[] = [
     name: 'AI Hub',
     description: 'AI 整合平台 — 多通路對話統一收件匣 + AI 助理 + 對話分析',
     category: 'premium',
-    routes: [
-      '/ai',
-    ],
+    routes: ['/ai'],
   },
   {
     code: 'settings',
     name: '系統設定',
     description: '公司與系統配置',
     category: 'basic',
-    routes: [
-      '/settings',
-      '/settings/company',
-      '/settings/personal',
-    ],
+    routes: ['/settings', '/settings/company', '/settings/personal'],
   },
   {
     code: 'dashboard',
     name: '首頁',
     description: '系統首頁與儀表板',
     category: 'basic',
-    routes: [
-      '/dashboard',
-    ],
+    routes: ['/dashboard'],
   },
   {
     code: 'customers',
     name: '顧客管理',
     description: '客戶資料',
     category: 'premium',
-    routes: [
-      '/library/customers',
-    ],
+    routes: ['/library/customers'],
   },
   {
     code: 'tour_attributes',
     name: '旅行屬性功能',
     description: '選擇團類型：機票、機加酒、訂房、派車、旅遊團',
     category: 'premium',
-    routes: [
-      '/tours',
-    ],
+    routes: ['/tours'],
   },
   {
     code: 'workspaces',
     name: '租戶管理',
-    description: '管理所有 workspace（建立 / 編輯 / 停用其他公司租戶）— 跨 workspace 能力、限漫途使用',
+    description:
+      '管理所有 workspace（建立 / 編輯 / 停用其他公司租戶）— 跨 workspace 能力、限漫途使用',
     category: 'enterprise',
-    routes: [
-      '/workspaces',
-    ],
+    routes: ['/workspaces'],
   },
   {
     code: 'shared_data_management',
     name: '共用資料管理',
-    description: '維護全平台共用資料（金融機構代號、機場代號等 ref_* 表）— 跨 workspace 能力、限漫途使用、UI 入口未開放',
+    description:
+      '維護全平台共用資料（金融機構代號、機場代號等 ref_* 表）— 跨 workspace 能力、限漫途使用、UI 入口未開放',
     category: 'enterprise',
     routes: [],
   },
@@ -210,10 +179,7 @@ export const FEATURES: FeatureDefinition[] = [
     name: '平台整合',
     description: '第三方 SaaS 整合（AiToEarn 內容自動分發等）— iframe / API 接入、workspace 內功能',
     category: 'enterprise',
-    routes: [
-      '/platform',
-      '/platform/aitoearn',
-    ],
+    routes: ['/platform', '/platform/aitoearn'],
   },
   {
     code: 'addon_data_attractions',
@@ -241,42 +207,28 @@ export const FEATURES: FeatureDefinition[] = [
     name: '薪資結算',
     description: 'HR 月度薪資批次結算、產出請款單',
     category: 'basic',
-    routes: [
-      '/hr/salary-settlement',
-      '/hr/salary-settlement/[id]',
-    ],
+    routes: ['/hr/salary-settlement', '/hr/salary-settlement/[id]'],
   },
   {
     code: 'hr_bonus_settlement',
     name: '獎金結算',
     description: 'HR 按團勾選結算獎金、產出請款單',
     category: 'basic',
-    routes: [
-      '/hr/bonus-settlement',
-      '/hr/bonus-settlement/[tourId]',
-    ],
+    routes: ['/hr/bonus-settlement', '/hr/bonus-settlement/[tourId]'],
   },
   {
     code: 'documents',
     name: '文件中心',
     description: '上傳、編輯、蓋章、合併文件（PDF / Word / Excel / PPT）',
     category: 'basic',
-    routes: [
-      '/documents',
-      '/documents/[id]',
-    ],
+    routes: ['/documents', '/documents/[id]'],
   },
   {
     code: 'esim',
     name: 'eSIM 管理',
     description: '旅遊 eSIM 訂單管理（Worldmove）、產品目錄與 API 設定',
     category: 'basic',
-    routes: [
-      '/esim',
-      '/esim/orders',
-      '/esim/products',
-      '/esim/settings',
-    ],
+    routes: ['/esim', '/esim/orders', '/esim/products', '/esim/settings'],
   },
   {
     code: 'visas',
@@ -295,22 +247,14 @@ export const FEATURES: FeatureDefinition[] = [
     name: '行銷管理',
     description: '官網行程上架、行銷文案、SEO 設定（Corner 官網等）',
     category: 'basic',
-    routes: [
-      '/marketing/website',
-      '/marketing/website/[code]',
-    ],
+    routes: ['/marketing/website', '/marketing/website/[code]'],
   },
   {
     code: 'websites',
     name: '客戶官網系統',
     description: '加購後可進 design 編輯器自由排版、發布到 {subdomain}.venturo.tw',
     category: 'addon',
-    routes: [
-      '/websites',
-      '/websites/design',
-      '/websites/products',
-      '/websites/products/[code]',
-    ],
+    routes: ['/websites', '/websites/design', '/websites/products', '/websites/products/[code]'],
   },
 ]
 
@@ -318,47 +262,47 @@ export const FEATURES: FeatureDefinition[] = [
 // Helper functions（保留現有 API、caller 不需動）
 
 export function getFeatureByCode(code: string): FeatureDefinition | undefined {
-  return FEATURES.find((f) => f.code === code)
+  return FEATURES.find(f => f.code === code)
 }
 
 export function getFeatureByRoute(route: string): FeatureDefinition | undefined {
   const normalizedRoute = route.replace(/\/\[.*?\]/g, '/[param]')
-  return FEATURES.find((f) =>
-    f.routes.some((r) => {
+  return FEATURES.find(f =>
+    f.routes.some(r => {
       const normalizedFeatureRoute = r.replace(/\/\[.*?\]/g, '/[param]')
       return (
         route.startsWith(normalizedFeatureRoute.replace('/[param]', '')) ||
         normalizedRoute === normalizedFeatureRoute
       )
-    }),
+    })
   )
 }
 
 export function getFeaturesByRoute(route: string): FeatureDefinition[] {
   const normalizedRoute = route.replace(/\/\[.*?\]/g, '/[param]')
-  return FEATURES.filter((f) =>
-    f.routes.some((r) => {
+  return FEATURES.filter(f =>
+    f.routes.some(r => {
       const normalizedFeatureRoute = r.replace(/\/\[.*?\]/g, '/[param]')
       return (
         route.startsWith(normalizedFeatureRoute.replace('/[param]', '')) ||
         normalizedRoute === normalizedFeatureRoute
       )
-    }),
+    })
   )
 }
 
 export function getBasicFeatures(): FeatureDefinition[] {
-  return FEATURES.filter((f) => f.category === 'basic')
+  return FEATURES.filter(f => f.category === 'basic')
 }
 
 export function getPremiumFeatures(): FeatureDefinition[] {
-  return FEATURES.filter((f) => f.category === 'premium')
+  return FEATURES.filter(f => f.category === 'premium')
 }
 
 export function getEnterpriseFeatures(): FeatureDefinition[] {
-  return FEATURES.filter((f) => f.category === 'enterprise')
+  return FEATURES.filter(f => f.category === 'enterprise')
 }
 
 export function getAddonFeatures(): FeatureDefinition[] {
-  return FEATURES.filter((f) => f.category === 'addon')
+  return FEATURES.filter(f => f.category === 'addon')
 }

@@ -14,6 +14,7 @@
 import { writeFileSync, readFileSync } from 'node:fs'
 import { dirname, resolve, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { format, resolveConfig } from 'prettier'
 import { ALL_MODULES, getHrExposedModules } from '../src/modules/_registry'
 import { deriveCapabilityCodes, deriveModuleTabsEntry } from '../src/modules/_define'
 
@@ -365,14 +366,25 @@ export type Capability = (typeof CAPABILITIES)[keyof typeof CAPABILITIES]
 // ─────────────────────────────────────────────────────────────────────────────
 // Runner
 
-function main() {
+/**
+ * 用 repo 的 prettier 設定排版 codegen 產出。
+ * 為什麼：本檔的自訂序列化（短陣列也寫成多行 + 尾逗號）跟 prettier 規範不一致，
+ * 不排版的話每次跑 codegen 都把這 3 個衍生檔寫成未排版、害 CI 的 format:check 復發紅燈。
+ */
+async function formatTs(code: string, filepath: string): Promise<string> {
+  const config = await resolveConfig(filepath)
+  return format(code, { ...config, parser: 'typescript', filepath })
+}
+
+async function main() {
   const featuresPath = join(REPO_ROOT, 'src/lib/permissions/features.ts')
   const moduleTabsPath = join(REPO_ROOT, 'src/lib/permissions/module-tabs.ts')
   const capabilitiesPath = join(REPO_ROOT, 'src/lib/permissions/capabilities.ts')
 
-  const featuresOut = genFeaturesTs()
-  const moduleTabsOut = genModuleTabsTs()
-  const { out: capabilitiesOut, stats } = genCapabilitiesTs()
+  const featuresOut = await formatTs(genFeaturesTs(), featuresPath)
+  const moduleTabsOut = await formatTs(genModuleTabsTs(), moduleTabsPath)
+  const { out: capabilitiesRaw, stats } = genCapabilitiesTs()
+  const capabilitiesOut = await formatTs(capabilitiesRaw, capabilitiesPath)
 
   writeFileSync(featuresPath, featuresOut, 'utf8')
   writeFileSync(moduleTabsPath, moduleTabsOut, 'utf8')
@@ -390,4 +402,7 @@ function main() {
   console.log('如果 type-check 失敗、可能是 caller 用了不再存在的 KEY、需要 caller migration')
 }
 
-main()
+main().catch(err => {
+  console.error(err)
+  process.exit(1)
+})

@@ -316,13 +316,15 @@ export const MODULES: ModuleDefinition[] = [
   {
     code: 'workspaces',
     name: '租戶管理',
-    description: '管理所有 workspace（建立 / 編輯 / 停用其他公司租戶）— 跨 workspace 能力、限漫途使用',
+    description:
+      '管理所有 workspace（建立 / 編輯 / 停用其他公司租戶）— 跨 workspace 能力、限漫途使用',
     tabs: [],
   },
   {
     code: 'shared_data_management',
     name: '共用資料管理',
-    description: '維護全平台共用資料（金融機構代號、機場代號等 ref_* 表）— 跨 workspace 能力、限漫途使用、UI 入口未開放',
+    description:
+      '維護全平台共用資料（金融機構代號、機場代號等 ref_* 表）— 跨 workspace 能力、限漫途使用、UI 入口未開放',
     tabs: [],
   },
   {
@@ -461,15 +463,15 @@ export const MODULES: ModuleDefinition[] = [
 // Helper functions（保留現有 API）
 
 export function getModuleByCode(code: string): ModuleDefinition | undefined {
-  return MODULES.find((m) => m.code === code)
+  return MODULES.find(m => m.code === code)
 }
 
 export function getModulesWithTabs(): ModuleDefinition[] {
-  return MODULES.filter((m) => m.tabs.length > 0)
+  return MODULES.filter(m => m.tabs.length > 0)
 }
 
 export function getModulesWithoutTabs(): ModuleDefinition[] {
-  return MODULES.filter((m) => m.tabs.length === 0)
+  return MODULES.filter(m => m.tabs.length === 0)
 }
 
 export function getAllModulesSorted(): ModuleDefinition[] {
