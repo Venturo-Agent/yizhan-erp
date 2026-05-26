@@ -15,9 +15,9 @@
 
 import { Suspense, useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react'
 
-type View = 'loading' | 'pending' | 'captured' | 'failed'
+type View = 'loading' | 'pending' | 'captured' | 'failed' | 'timeout'
 
 const MAX_POLLS = 40 // 每 3 秒一次、約 2 分鐘
 
@@ -30,6 +30,9 @@ const LABELS = {
   FAILED: '付款未完成',
   FAILED_HINT:
     '這筆付款尚未完成、或連結已失效。若您已刷卡、款項仍在確認中、請稍後回原付款連結查看。',
+  TIMEOUT: '款項確認中',
+  TIMEOUT_HINT:
+    '確認時間較長。若您已完成刷卡、款項會稍後自動入帳、可關閉此頁。若尚未刷卡或有疑問、請回原付款連結重新操作或聯繫我們。',
 } as const
 
 function ResultInner() {
@@ -81,7 +84,12 @@ function ResultInner() {
       if (stopped) return
       const r = await poll()
       count += 1
-      if (r === 'stop' || count >= MAX_POLLS) return
+      if (r === 'stop') return
+      // 輪詢到頂仍未有結果 → 給明確「確認中」訊息、停止無限轉圈（D：2026-05-26）
+      if (count >= MAX_POLLS) {
+        setView('timeout')
+        return
+      }
       timer = setTimeout(tick, 3000)
     }
     void tick()
@@ -126,6 +134,14 @@ function ResultInner() {
             <XCircle className="mx-auto h-14 w-14 text-status-danger" />
             <h1 className="mt-5 text-xl font-semibold text-morandi-primary">{LABELS.FAILED}</h1>
             <p className="mt-2 text-sm text-morandi-secondary">{LABELS.FAILED_HINT}</p>
+          </>
+        )}
+
+        {view === 'timeout' && (
+          <>
+            <Clock className="mx-auto h-14 w-14 text-status-warning" />
+            <h1 className="mt-5 text-xl font-semibold text-morandi-primary">{LABELS.TIMEOUT}</h1>
+            <p className="mt-2 text-sm text-morandi-secondary">{LABELS.TIMEOUT_HINT}</p>
           </>
         )}
       </div>
