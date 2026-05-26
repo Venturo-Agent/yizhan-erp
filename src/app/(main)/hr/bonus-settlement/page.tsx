@@ -16,6 +16,8 @@ import { ListPageLayout } from '@/components/layout/list-page-layout'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
+import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { DatePicker } from '@/components/ui/date-picker'
 import { getTodayString } from '@/lib/utils/format-date'
@@ -179,8 +181,9 @@ export default function BonusSettlementListPage() {
         e.stopPropagation()
         router.push(`/hr/bonus-settlement/${row.tour_id}`)
       }}
+      className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
     >
-      <ExternalLink className="w-4 h-4" />
+      <ExternalLink size="0.95em" />
     </Button>
   )
 

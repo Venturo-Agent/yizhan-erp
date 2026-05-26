@@ -295,6 +295,11 @@ export function CreateInvoicesDialog({
         <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-4">
           {/* 左側：開新帳單 */}
           <div className="space-y-3">
+            {/* 左欄標題：跟右欄「歷史帳單」同高同樣式、左右對齊（2026-05-26 William）*/}
+            <div className="flex items-center gap-2">
+              <Receipt size={16} className="text-morandi-secondary" />
+              <h3 className="text-sm font-semibold text-morandi-primary">開新帳單</h3>
+            </div>
             {createdBatch ? (
               <SuccessPanel
                 batch={createdBatch}

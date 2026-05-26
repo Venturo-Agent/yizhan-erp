@@ -16,10 +16,7 @@ import dynamic from 'next/dynamic'
 import type { Order, Tour } from '@/stores/types'
 import { SimpleOrderTable } from '@/app/(main)/orders/_components/simple-order-table'
 import { OrderEditDialog } from '@/app/(main)/orders/_components/order-edit-dialog'
-import { OrderContractDialog } from '@/app/(main)/orders/_contracts/OrderContractDialog'
 import { AddReceiptDialog } from '@/app/(main)/finance/payments'
-import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
-import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 
 const AddRequestDialog = dynamic(
   () =>
@@ -61,14 +58,8 @@ export function OrderListView({
   const [receiptOpen, setReceiptOpen] = useState(false)
   const [requestOpen, setRequestOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
-  const [contractOpen, setContractOpen] = useState(false)
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-
-  // 合約按鈕守門（6 層 L1+L2）：租戶開通 tours.contract feature + 員工有 tours.contract.read capability
-  const { isFeatureEnabled } = useWorkspaceFeatures()
-  const { can } = useCapabilities()
-  const canContract = isFeatureEnabled('tours.contract') && can(CAPABILITIES.TOURS_CONTRACT_READ)
 
   const openReceipt = useCallback((order: Order) => {
     setSelectedOrder(order)
@@ -82,13 +73,9 @@ export function OrderListView({
     setSelectedOrder(order)
     setEditOpen(true)
   }, [])
-  const openContract = useCallback((order: Order) => {
-    setSelectedOrder(order)
-    setContractOpen(true)
-  }, [])
 
-  const clearIfAllClosed = useCallback((r: boolean, q: boolean, e: boolean, c: boolean) => {
-    if (!r && !q && !e && !c) setSelectedOrder(null)
+  const clearIfAllClosed = useCallback((r: boolean, q: boolean, e: boolean) => {
+    if (!r && !q && !e) setSelectedOrder(null)
   }, [])
 
   return (
@@ -102,14 +89,13 @@ export function OrderListView({
         onQuickReceipt={openReceipt}
         onQuickPaymentRequest={openRequest}
         onEdit={openEdit}
-        onContract={canContract ? openContract : undefined}
       />
 
       <AddReceiptDialog
         open={receiptOpen}
         onOpenChange={open => {
           setReceiptOpen(open)
-          clearIfAllClosed(open, requestOpen, editOpen, contractOpen)
+          clearIfAllClosed(open, requestOpen, editOpen)
         }}
         defaultTourId={selectedOrder?.tour_id || undefined}
         defaultOrderId={selectedOrder?.id}
@@ -120,7 +106,7 @@ export function OrderListView({
         open={requestOpen}
         onOpenChange={open => {
           setRequestOpen(open)
-          clearIfAllClosed(receiptOpen, open, editOpen, contractOpen)
+          clearIfAllClosed(receiptOpen, open, editOpen)
         }}
         defaultTourId={selectedOrder?.tour_id || undefined}
         defaultOrderId={selectedOrder?.id}
@@ -132,18 +118,7 @@ export function OrderListView({
           open={editOpen}
           onOpenChange={open => {
             setEditOpen(open)
-            clearIfAllClosed(receiptOpen, requestOpen, open, contractOpen)
-          }}
-          order={selectedOrder}
-        />
-      )}
-
-      {selectedOrder && (
-        <OrderContractDialog
-          open={contractOpen}
-          onOpenChange={open => {
-            setContractOpen(open)
-            clearIfAllClosed(receiptOpen, requestOpen, editOpen, open)
+            clearIfAllClosed(receiptOpen, requestOpen, open)
           }}
           order={selectedOrder}
         />

@@ -9,16 +9,7 @@ import { supabase } from '@/lib/supabase/client'
 import { recalculateParticipants } from '@/app/(main)/tours/_services/tour-stats.service'
 import { recalculateReceiptStats } from '@/app/(main)/finance/payments/_services/receipt-core.service'
 import { logger } from '@/lib/utils/logger'
-import {
-  User,
-  Trash2,
-  FileText,
-  FileSignature,
-  SquarePen,
-  Plus,
-  HandCoins,
-  Wallet,
-} from 'lucide-react'
+import { User, Trash2, FileText, Edit2, Plus, HandCoins, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Order, Tour } from '@/stores/types'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
@@ -26,10 +17,10 @@ import { OrderMembersExpandable } from '@/app/(main)/orders/_components/OrderMem
 import { OrderStatusBadge } from '@/app/(main)/orders/_components/OrderStatusBadge'
 import { OrderStatusChangeDialog } from '@/app/(main)/orders/_components/OrderStatusChangeDialog'
 import { EnhancedTable } from '@/components/ui/enhanced-table'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
 import { useTranslations } from 'next-intl'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import type { OrderStatus } from '@/types/order.types'
-import { CONTRACT_LABELS } from '@/app/(main)/orders/_contracts/constants/labels'
 
 interface SimpleOrderTableProps {
   orders: Order[]
@@ -40,7 +31,6 @@ interface SimpleOrderTableProps {
   onQuickPaymentRequest?: (order: Order) => void
   onQuickInvoice?: (order: Order) => void
   onEdit?: (order: Order) => void
-  onContract?: (order: Order) => void
   onAdd?: () => void
   /** Server-side 分頁（給 /orders 頁用、tour-orders 子頁不用、傳就生效）*/
   serverPagination?: {
@@ -60,7 +50,6 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
   onQuickPaymentRequest,
   onQuickInvoice,
   onEdit,
-  onContract,
   onAdd,
   serverPagination,
 }: SimpleOrderTableProps) {
@@ -281,29 +270,14 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
                   e.stopPropagation()
                   onEdit(order)
                 }}
-                className="h-7 px-1.5 gap-0.5 text-xs text-morandi-secondary hover:text-morandi-primary hover:bg-morandi-gold-light"
+                className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
               >
-                <SquarePen size="0.95em" />
+                <Edit2 size="0.95em" />
                 {t('simpleOrderEdit')}
               </Button>
             )}
 
-            {/* 合約 */}
-            {onContract && (
-              <Button
-                variant="ghost"
-                onClick={e => {
-                  e.stopPropagation()
-                  onContract(order)
-                }}
-                className="h-7 px-1.5 gap-0.5 text-xs text-morandi-secondary hover:text-morandi-primary hover:bg-morandi-gold-light"
-              >
-                <FileSignature size="0.95em" />
-                {CONTRACT_LABELS.ACTION_BUTTON}
-              </Button>
-            )}
-
-            {/* 展開成員 */}
+            {/* 展開成員（展開時保持 active 高亮、ActionCell 不支援此互動、故此頁不遷移）*/}
             <Button
               variant="ghost"
               onClick={e => {
@@ -311,7 +285,8 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
                 handleToggleExpand(order.id)
               }}
               className={cn(
-                'h-7 px-1.5 gap-0.5 text-xs text-morandi-secondary hover:text-morandi-primary hover:bg-morandi-gold-light',
+                ACTION_BUTTON_BASE,
+                ACTION_BUTTON_DEFAULT_TONE,
                 expanded.includes(order.id) && 'text-morandi-primary bg-morandi-gold-light'
               )}
             >
@@ -319,7 +294,7 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
               {t('simpleOrderMembers')}
             </Button>
 
-            {/* 收款 */}
+            {/* 收款（語意綠：收進款項）*/}
             <Button
               variant="ghost"
               onClick={e => {
@@ -332,13 +307,16 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
                   )
                 }
               }}
-              className="h-7 px-1.5 gap-0.5 text-xs text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10"
+              className={cn(
+                ACTION_BUTTON_BASE,
+                'text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10'
+              )}
             >
               <Wallet size="0.95em" />
               {t('simpleOrderReceive')}
             </Button>
 
-            {/* 請款 */}
+            {/* 請款（語意紅：付出款項）*/}
             <Button
               variant="ghost"
               onClick={e => {
@@ -351,13 +329,16 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
                   )
                 }
               }}
-              className="h-7 px-1.5 gap-0.5 text-xs text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10"
+              className={cn(
+                ACTION_BUTTON_BASE,
+                'text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10'
+              )}
             >
               <HandCoins size="0.95em" />
               {t('simpleOrderRequest')}
             </Button>
 
-            {/* 開發票 */}
+            {/* 開發票（語意金：主品牌色）*/}
             {onQuickInvoice && (
               <Button
                 variant="ghost"
@@ -365,18 +346,24 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
                   e.stopPropagation()
                   onQuickInvoice(order)
                 }}
-                className="h-7 px-1.5 gap-0.5 text-xs text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10"
+                className={cn(
+                  ACTION_BUTTON_BASE,
+                  'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
+                )}
               >
                 <FileText size="0.95em" />
                 {t('simpleOrderInvoice')}
               </Button>
             )}
 
-            {/* 刪除 */}
+            {/* 刪除（語意紅：危險動作）*/}
             <Button
               variant="ghost"
               onClick={e => handleDelete(order, e)}
-              className="h-7 px-1.5 gap-0.5 text-xs text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10"
+              className={cn(
+                ACTION_BUTTON_BASE,
+                'text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10'
+              )}
             >
               <Trash2 size="0.95em" />
               {t('simpleOrderDelete')}

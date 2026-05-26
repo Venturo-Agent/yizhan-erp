@@ -26,7 +26,13 @@ import {
   invalidateDisbursementOrders,
 } from '@/data'
 import { useLinkedPaymentRequests } from '../_hooks/useLinkedPaymentRequests'
-import { DateCell, CurrencyCell } from '@/components/table-cells'
+import {
+  DateCell,
+  CurrencyCell,
+  ACTION_BUTTON_BASE,
+  ACTION_BUTTON_DEFAULT_TONE,
+} from '@/components/table-cells'
+import { cn } from '@/lib/utils'
 import { DisbursementOrder } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
 import { CreateDisbursementWizardDialog } from './CreateDisbursementWizardDialog'
@@ -327,7 +333,7 @@ export function DisbursementPage() {
           e.stopPropagation()
           handlePreview(row)
         }}
-        className="h-7 px-2 text-xs"
+        className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
       >
         {t('disbursementActionPreview')}
       </Button>
@@ -340,7 +346,7 @@ export function DisbursementPage() {
             setEditingOrder(row)
             setIsCreateDialogOpen(true)
           }}
-          className="h-7 px-2 text-xs"
+          className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
         >
           {t('disbursementActionEdit')}
         </Button>
@@ -353,7 +359,10 @@ export function DisbursementPage() {
             e.stopPropagation()
             handleConfirmPaid(row)
           }}
-          className="h-7 px-2 text-xs text-morandi-green hover:text-morandi-green/80"
+          className={cn(
+            ACTION_BUTTON_BASE,
+            'text-morandi-green hover:text-morandi-green hover:bg-morandi-green/10'
+          )}
         >
           {t('disbursementActionPay')}
         </Button>
@@ -366,7 +375,7 @@ export function DisbursementPage() {
             e.stopPropagation()
             handleDelete(row)
           }}
-          className="h-7 px-2 text-xs text-status-danger hover:text-status-danger/80"
+          className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
         >
           {t('disbursementActionDelete')}
         </Button>

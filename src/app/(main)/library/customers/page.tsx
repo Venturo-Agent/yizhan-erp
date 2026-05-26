@@ -13,7 +13,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, AlertTriangle, Trash2, Users, FileSpreadsheet, Eye, Info } from 'lucide-react'
 import { formatPassportExpiryWithStatus } from '@/lib/utils/passport-expiry'
-import { DateCell } from '@/components/table-cells'
+import { DateCell, ActionCell } from '@/components/table-cells'
 
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { Button } from '@/components/ui/button'
@@ -379,44 +379,42 @@ export default function CustomersPage() {
             }}
             onRowClick={handleRowClick}
             actions={(customer: Customer) => (
-              <div className="flex items-center gap-1">
-                {customer.verification_status === 'unverified' && customer.passport_image_url && (
-                  <button
-                    className="p-1 text-status-warning hover:text-status-warning hover:bg-status-warning-bg rounded transition-colors"
-                    title={t('customerTitleVerify')}
-                    onClick={e => {
-                      e.stopPropagation()
+              <ActionCell
+                iconOnly
+                actions={[
+                  // 護照待驗證：警告語意（黃）、條件顯示維持原本邏輯
+                  ...(customer.verification_status === 'unverified' && customer.passport_image_url
+                    ? [
+                        {
+                          icon: AlertTriangle,
+                          label: t('customerTitleVerify'),
+                          variant: 'warning' as const,
+                          onClick: () => {
+                            setSelectedCustomer(customer)
+                            setCustomerDialogMode('edit')
+                            setIsCustomerDialogOpen(true)
+                          },
+                        },
+                      ]
+                    : []),
+                  {
+                    icon: Info,
+                    label: t('customerTitleDetail'),
+                    onClick: () => {
                       setSelectedCustomer(customer)
                       setCustomerDialogMode('edit')
                       setIsCustomerDialogOpen(true)
-                    }}
-                  >
-                    <AlertTriangle size={14} />
-                  </button>
-                )}
-                <button
-                  className="p-1 text-morandi-secondary hover:text-morandi-gold hover:bg-morandi-gold/10 rounded transition-colors"
-                  title={t('customerTitleDetail')}
-                  onClick={e => {
-                    e.stopPropagation()
-                    setSelectedCustomer(customer)
-                    setCustomerDialogMode('edit')
-                    setIsCustomerDialogOpen(true)
-                  }}
-                >
-                  <Info size={14} />
-                </button>
-                <button
-                  className="p-1 text-morandi-secondary hover:text-status-danger hover:bg-status-danger-bg rounded transition-colors"
-                  title={t('customerTitleDelete')}
-                  onClick={e => {
-                    e.stopPropagation()
-                    handleDelete(customer)
-                  }}
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
+                    },
+                  },
+                  // 刪除：危險語意（紅）
+                  {
+                    icon: Trash2,
+                    label: t('customerTitleDelete'),
+                    variant: 'danger' as const,
+                    onClick: () => handleDelete(customer),
+                  },
+                ]}
+              />
             )}
           />
         </div>

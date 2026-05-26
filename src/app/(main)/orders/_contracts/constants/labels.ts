@@ -12,6 +12,8 @@ export const CONTRACT_TEMPLATE_LABELS = {
 export const CONTRACT_STATUS_LABELS = {
   draft: '草稿',
   sent: '已發送',
+  // DB CHECK 實際允許的狀態是 unsigned（待簽）；'sent' 為舊 dialog 沿用、兩者並存不衝突
+  unsigned: '待簽署',
   signed: '已簽署',
   cancelled: '已取消',
 } as const
@@ -118,4 +120,27 @@ export const CONTRACT_LABELS = {
   // Loading
   LOADING: '處理中⋯',
   CONFIRMING: '確認標記',
+
+  // ── 批次合約 dialog（2026-05-26、仿帳單左勾選右歷史）──
+  TOOLBAR_BUTTON: '合約',
+  TOOLBAR_BUTTON_TITLE: '勾選團員建合約、由代表人簽署',
+  BATCH_DIALOG_TITLE: '合約',
+  BATCH_NEW_TITLE: '建立合約',
+  BATCH_HISTORY_TITLE: '歷史合約',
+  BATCH_HISTORY_COUNT_SUFFIX: '份',
+  BATCH_HISTORY_EMPTY: '尚未建過合約',
+  BATCH_NO_MEMBERS: '此訂單沒有團員、無法建合約。請先在團員列表新增團員。',
+  BATCH_SELECT_ALL: '全選',
+  BATCH_UNSELECT_ALL: '取消全選',
+  BATCH_SELECTED_COUNT: '已選', // 「已選 X / Y 人」由元件組字
+  BATCH_REP: '代表人',
+  BATCH_REP_PLACEHOLDER: '從勾選的團員中選一位代表簽署',
+  BATCH_REP_HINT: '由代表人一人簽署、勾選的團員會列在合約上',
+  BATCH_CREATE: '建立合約',
+  BATCH_CREATING: '建立中⋯',
+  BATCH_CREATE_COUNT: '建立合約', // 「建立合約 (X 人)」由元件組字
+  BATCH_COVERED_MEMBERS: '涵蓋團員',
+  BATCH_VIEW_PDF: '看 PDF',
+  BATCH_ATTACH_NONE: '無附件',
+  VALIDATION_NEED_REP: '請從勾選的團員中選一位代表人',
 } as const

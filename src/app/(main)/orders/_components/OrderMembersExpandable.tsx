@@ -24,6 +24,8 @@ import { supabase } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
 import { useOcrRecognition } from '@/hooks'
 import { useIsIntegrationEnabled } from '@/lib/permissions/useIntegrationEnabled'
+import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
+import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { useCustomers, useTour } from '@/data'
 import {
   useOrderMembersData,
@@ -198,6 +200,13 @@ export function OrderMembersExpandable({
   // 帳單 Dialog（William 2026-05-14）
   const [showInvoiceDialog, setShowInvoiceDialog] = useState(false)
 
+  // 合約 Dialog（William 2026-05-26、批次勾選流程）
+  // 守門同帳單列表（6 層 L1+L2）：租戶開通 tours.contract feature + 員工有 tours.contract.read capability
+  const [showContractDialog, setShowContractDialog] = useState(false)
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const { can } = useCapabilities()
+  const canContract = isFeatureEnabled('tours.contract') && can(CAPABILITIES.TOURS_CONTRACT_READ)
+
   // 欄位可見性 toggle
   const toggleColumnVisibility = (column: keyof ColumnVisibility) => {
     setColumnVisibility(prev => ({ ...prev, [column]: !prev[column] }))
@@ -325,6 +334,7 @@ export function OrderMembersExpandable({
         setCustomCostFields={setCustomCostFields}
         onOpenPnrDialog={() => setShowPnrMatchDialog(true)}
         onOpenInvoiceDialog={() => setShowInvoiceDialog(true)}
+        onOpenContractDialog={canContract ? () => setShowContractDialog(true) : undefined}
         onOpenExportDialog={() => memberExport.setIsExportDialogOpen(true)}
         onOpenBatchMatch={batchMatch.openBatchMatch}
         onAddMember={membersData.handleAddMember}
@@ -493,6 +503,16 @@ export function OrderMembersExpandable({
             membersData.members.find((m: OrderMember) => m.order_id === effectiveOrderId)
               ?.order_code || null,
           sortedMembers,
+        }}
+        contractDialog={{
+          showContractDialog,
+          setShowContractDialog,
+          effectiveOrderId,
+          orderCode:
+            membersData.members.find((m: OrderMember) => m.order_id === effectiveOrderId)
+              ?.order_code || null,
+          sortedMembers,
+          canContract,
         }}
         ocr={ocr}
         passportOcrEnabled={passportOcrEnabled}

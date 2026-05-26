@@ -16,9 +16,11 @@
 
 import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Megaphone, RefreshCw, Pencil, ExternalLink, Loader2 } from 'lucide-react'
+import { Megaphone, RefreshCw, Edit2, ExternalLink, Loader2 } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Button } from '@/components/ui/button'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
+import { cn } from '@/lib/utils'
 import { ListPageLayout, type BreadcrumbItem } from '@/components/layout/list-page-layout'
 import type { TableColumn } from '@/components/ui/enhanced-table'
 import { useWebsiteTours, invalidateWebsiteTours } from '@/data'
@@ -207,8 +209,9 @@ export default function MarketingWebsitePage() {
             size="sm"
             onClick={() => router.push(`/marketing/website/${row.code}`)}
             disabled={togglingCode === row.code}
+            className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
           >
-            <Pencil className="w-3.5 h-3.5 mr-1" />
+            <Edit2 size="0.95em" />
             編輯
           </Button>
           {row.is_public_listed && (
@@ -216,9 +219,9 @@ export default function MarketingWebsitePage() {
               href={`https://corner.venturo.tw/tours/${row.code}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-morandi-muted hover:text-morandi-primary inline-flex items-center px-2 py-1"
+              className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
             >
-              <ExternalLink className="w-3 h-3 mr-0.5" />
+              <ExternalLink size="0.95em" />
               預覽
             </a>
           )}

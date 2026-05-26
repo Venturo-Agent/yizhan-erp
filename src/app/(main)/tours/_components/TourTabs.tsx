@@ -10,7 +10,6 @@
  */
 
 import { useState, useCallback, useMemo } from 'react'
-import { useTranslations } from 'next-intl'
 import dynamic from 'next/dynamic'
 import { cn } from '@/lib/utils'
 import type { Tour } from '@/stores/types'
@@ -80,16 +79,6 @@ const TourDisplayItineraryTab = dynamic(
   { loading: () => <TabLoading /> }
 )
 
-// TourContractTab：合約功能 William 重寫中、檔案被刪、暫時 stub
-const TourContractTab = ({ tour: _tour }: { tour: unknown }) => {
-  const t = useTranslations('tour')
-  return (
-    <div className="text-sm text-morandi-secondary text-center py-12">
-      {t('tabContractRebuildNotice')}
-    </div>
-  )
-}
-
 // ============================================================================
 // 頁籤定義（共用）
 // ============================================================================
@@ -105,7 +94,6 @@ export const TOUR_TABS = [
   { value: 'itinerary', label: '行程' },
   { value: 'display-itinerary', label: '展示行程' },
   { value: 'quote', label: '報價' },
-  { value: 'contract', label: '合約' },
   { value: 'overview', label: '總覽' },
   // 「結案」併在「總覽」、由 workspace feature `tours.closing` 控制可見性
 ] as const
@@ -200,8 +188,6 @@ export function TourTabContent({
           <ConditionalClosingSections tour={tour} />
         </div>
       )
-    case 'contract':
-      return <TourContractTab tour={tour} />
     default:
       return <TourOverview tour={tour} />
   }

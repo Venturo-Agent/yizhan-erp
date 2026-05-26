@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { TableColumn } from '@/components/ui/enhanced-table'
+import { ActionCell } from '@/components/table-cells'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
 import { CreateVoucherDialog } from './components/CreateVoucherDialog'
@@ -171,22 +172,27 @@ export default function VouchersPage() {
       label: t('actions'),
       width: '140px',
       render: (_: unknown, row: JournalVoucher) => (
-        <div className="flex gap-1">
-          <Button size="sm" variant="ghost" onClick={() => handleViewDetail(row)} title={t('view')}>
-            <Eye size={14} />
-          </Button>
-          {row.status === 'posted' && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => handleReverse(row)}
-              className="text-destructive hover:text-destructive"
-              title={t('reverse')}
-            >
-              <RotateCcw size={14} />
-            </Button>
-          )}
-        </div>
+        <ActionCell
+          iconOnly
+          actions={[
+            {
+              icon: Eye,
+              label: t('view'),
+              onClick: () => handleViewDetail(row),
+            },
+            // 反沖傳票：危險語意（紅）、僅已過帳（posted）時顯示
+            ...(row.status === 'posted'
+              ? [
+                  {
+                    icon: RotateCcw,
+                    label: t('reverse'),
+                    variant: 'danger' as const,
+                    onClick: () => handleReverse(row),
+                  },
+                ]
+              : []),
+          ]}
+        />
       ),
     },
   ]

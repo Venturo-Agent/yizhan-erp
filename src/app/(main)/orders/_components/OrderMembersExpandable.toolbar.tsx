@@ -7,7 +7,17 @@
  */
 
 import React from 'react'
-import { Plus, Printer, Coins, Settings, SquarePen, Plane, Receipt, Users } from 'lucide-react'
+import {
+  Plus,
+  Printer,
+  Coins,
+  Settings,
+  SquarePen,
+  Plane,
+  Receipt,
+  Users,
+  FileText,
+} from 'lucide-react'
 import { prompt } from '@/lib/ui/alert-dialog'
 import {
   DropdownMenu,
@@ -23,6 +33,7 @@ import { useTranslations } from 'next-intl'
 import type { ColumnVisibility } from './OrderMembersExpandable.types'
 import { columnLabels } from './OrderMembersExpandable.types'
 import type { CustomCostField } from '../_types/order-member.types'
+import { CONTRACT_LABELS } from '@/app/(main)/orders/_contracts/constants/labels'
 
 interface OrderMembersToolbarProps {
   mode: 'order' | 'tour'
@@ -36,6 +47,8 @@ interface OrderMembersToolbarProps {
   setCustomCostFields: React.Dispatch<React.SetStateAction<CustomCostField[]>>
   onOpenPnrDialog: () => void
   onOpenInvoiceDialog: () => void
+  /** 合約批次 dialog 入口；undefined = 無權限 / 租戶沒開通、不渲染按鈕（仿帳單守門）2026-05-26 */
+  onOpenContractDialog?: () => void
   onOpenExportDialog: () => void
   onOpenBatchMatch: () => void
   onAddMember: () => void
@@ -57,6 +70,7 @@ export function OrderMembersToolbar({
   setCustomCostFields,
   onOpenPnrDialog,
   onOpenInvoiceDialog,
+  onOpenContractDialog,
   onOpenExportDialog,
   onOpenBatchMatch,
   onAddMember,
@@ -149,6 +163,20 @@ export function OrderMembersToolbar({
           >
             <Receipt size={12} />
             帳單
+          </Button>
+        )}
+        {/* 合約按鈕（William 2026-05-26、批次勾選流程、跟帳單並排）
+            守門同帳單：onOpenContractDialog 為 undefined（無 capability / 租戶沒開通）時不渲染 */}
+        {mode === 'order' && effectiveOrderId && onOpenContractDialog && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 gap-1 text-xs text-morandi-secondary"
+            onClick={onOpenContractDialog}
+            title={CONTRACT_LABELS.TOOLBAR_BUTTON_TITLE}
+          >
+            <FileText size={12} />
+            {CONTRACT_LABELS.TOOLBAR_BUTTON}
           </Button>
         )}
         <Button

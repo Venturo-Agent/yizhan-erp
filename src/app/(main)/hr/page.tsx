@@ -11,7 +11,7 @@ import { EmployeeForm } from './_components/EmployeeForm'
 import { SeveranceCalculatorDialog } from './_components/SeveranceCalculatorDialog'
 import { useRouter } from 'next/navigation'
 import { HR_ADMIN_TABS } from './components/hr-admin-tabs'
-import { Users, SquarePen, UserX, Plus, Trash2, Calculator } from 'lucide-react'
+import { Users, Edit2, UserX, Plus, Trash2, Calculator } from 'lucide-react'
 import { useRoles } from '@/data/hooks'
 import { useBranches } from '@/data/hooks/useBranches'
 import { TableColumn } from '@/components/ui/enhanced-table'
@@ -246,7 +246,7 @@ export default function HRPage() {
       <ActionCell
         actions={[
           {
-            icon: SquarePen,
+            icon: Edit2,
             label: t('actionEdit'),
             onClick: () => setExpandedEmployee(employee.id),
           },

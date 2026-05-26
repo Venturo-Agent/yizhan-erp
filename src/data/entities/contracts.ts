@@ -19,8 +19,10 @@ type Contract = Database['public']['Tables']['contracts']['Row']
 const contractEntity = createEntityHook<Contract>('contracts', {
   list: {
     // 精簡欄位：總覽進度 + 訂單按鈕狀態 + Dialog 列表夠用（詳情走 useContract → select *）
+    // 2026-05-26：批次合約 dialog（右側歷史卡）需 member_ids 顯示涵蓋團員、include_* 顯示附件狀態。
+    // 純加欄位、對既有 consumer（tour-overview / 舊 OrderContractDialog）無影響。
     select:
-      'id,workspace_id,tour_id,order_id,code,template,signer_type,signer_name,signer_phone,status,sent_via,sent_at,signed_at,created_at',
+      'id,workspace_id,tour_id,order_id,code,template,signer_type,signer_name,signer_phone,status,sent_via,sent_at,signed_at,created_at,member_ids,include_member_list,include_itinerary',
     orderBy: { column: 'created_at', ascending: false },
   },
   detail: { select: '*' },

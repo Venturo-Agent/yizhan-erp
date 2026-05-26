@@ -11,6 +11,7 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
 import { CreateInvoicesDialog } from './CreateInvoicesDialog'
+import { CreateContractsDialog } from './CreateContractsDialog'
 import {
   AddMemberDialog,
   MemberEditDialog,
@@ -80,6 +81,15 @@ export interface OrderMembersDialogsProps {
     orderCode: string | null
     sortedMembers: OrderMember[]
   }
+  /** 合約批次 dialog（2026-05-26）。canContract = false（無權限/租戶沒開通）時 parent 不渲染按鈕、dialog 也不會被開 */
+  contractDialog: {
+    showContractDialog: boolean
+    setShowContractDialog: (open: boolean) => void
+    effectiveOrderId: string | undefined
+    orderCode: string | null
+    sortedMembers: OrderMember[]
+    canContract: boolean
+  }
   ocr: ReturnType<typeof useOcrRecognition>
   passportOcrEnabled: boolean
 }
@@ -93,6 +103,7 @@ export function OrderMembersDialogs({
   tourPrint,
   pnrDialog,
   invoiceDialog,
+  contractDialog,
   ocr,
   passportOcrEnabled,
 }: OrderMembersDialogsProps) {
@@ -230,6 +241,16 @@ export function OrderMembersDialogs({
           orderId={invoiceDialog.effectiveOrderId}
           orderCode={invoiceDialog.orderCode}
           members={invoiceDialog.sortedMembers}
+        />
+      )}
+      {/* 合約 Dialog（William 2026-05-26、批次勾選流程）*/}
+      {contractDialog.canContract && contractDialog.effectiveOrderId && (
+        <CreateContractsDialog
+          open={contractDialog.showContractDialog}
+          onClose={() => contractDialog.setShowContractDialog(false)}
+          orderId={contractDialog.effectiveOrderId}
+          orderCode={contractDialog.orderCode}
+          members={contractDialog.sortedMembers}
         />
       )}
     </>

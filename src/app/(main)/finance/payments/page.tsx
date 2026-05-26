@@ -250,6 +250,18 @@ export default function PaymentsPage() {
         )
       },
     },
+    {
+      // 訂單號 column(2026-05-26 加):同一團底下可能多張訂單、只看團名分不出是哪張單
+      key: 'order_number',
+      label: '訂單號',
+      sortable: true,
+      width: '130px',
+      render: value => (
+        <div className="text-sm text-morandi-primary">
+          {(value as string) || <span className="text-morandi-muted">—</span>}
+        </div>
+      ),
+    },
     { key: 'tour_name', label: t('tourNameCol'), sortable: true },
     {
       key: 'receipt_amount',
@@ -303,6 +315,11 @@ export default function PaymentsPage() {
     return (
       <ActionCell
         actions={[
+          {
+            icon: Edit2,
+            label: isCompleted ? t('viewLabel') : t('editLabel'),
+            onClick: () => loadReceiptForEdit(row),
+          },
           ...(isPending
             ? [
                 {
@@ -354,11 +371,6 @@ export default function PaymentsPage() {
                 },
               ]
             : []),
-          {
-            icon: Edit2,
-            label: isCompleted ? t('viewLabel') : t('editLabel'),
-            onClick: () => loadReceiptForEdit(row),
-          },
         ]}
       />
     )

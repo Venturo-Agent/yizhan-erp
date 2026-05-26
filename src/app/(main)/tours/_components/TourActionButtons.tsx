@@ -13,11 +13,13 @@
 
 import { useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { Archive, ArchiveRestore, Trash2, Edit, Copy, Send, UserPlus } from 'lucide-react'
+import { Archive, ArchiveRestore, Trash2, Edit2, Copy, Send, UserPlus } from 'lucide-react'
 import { Tour, EmployeeFull } from '@/stores/types'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
 
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE } from '@/components/table-cells'
 import { useRouter } from 'next/navigation'
 
 interface UseTourActionButtonsParams {
@@ -82,9 +84,9 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
               operations.handleArchiveTour(tour)
             }
           }}
-          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+          className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
         >
-          {tour.archived ? <ArchiveRestore size={12} /> : <Archive size={12} />}
+          {tour.archived ? <ArchiveRestore size="0.95em" /> : <Archive size="0.95em" />}
           {tour.archived ? '還原' : '封存'}
         </Button>
       )
@@ -94,9 +96,9 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
           variant="ghost"
           size="sm"
           onClick={() => onEditTour(tour)}
-          className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+          className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
         >
-          <Edit size={12} />
+          <Edit2 size="0.95em" />
           {t('actionEdit')}
         </Button>
       )
@@ -106,9 +108,9 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
           variant="ghost"
           size="sm"
           onClick={() => setDeleteConfirm({ isOpen: true, tour })}
-          className="h-7 px-2 text-xs text-morandi-red hover:text-morandi-red hover:bg-morandi-red/10 gap-1"
+          className={cn(ACTION_BUTTON_BASE, 'text-status-danger hover:bg-status-danger-bg')}
         >
-          <Trash2 size={12} />
+          <Trash2 size="0.95em" />
           {t('actionDelete')}
         </Button>
       )
@@ -127,9 +129,12 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
                 e.stopPropagation()
                 onCopyTemplate(tour)
               }}
-              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1"
+              className={cn(
+                ACTION_BUTTON_BASE,
+                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
+              )}
             >
-              <Copy size="0.75em" />
+              <Copy size="0.95em" />
               {t('actionCopy')}
             </Button>
           )}
@@ -141,9 +146,12 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
                 e.stopPropagation()
                 onConvertTour(tour)
               }}
-              className="h-7 px-2 text-xs text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10 gap-1"
+              className={cn(
+                ACTION_BUTTON_BASE,
+                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
+              )}
             >
-              <Send size="0.75em" />
+              <Send size="0.95em" />
               {t('actionConvert')}
             </Button>
           )}
@@ -157,9 +165,12 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
                 e.stopPropagation()
                 onConvertTour(tour)
               }}
-              className="h-7 px-2 text-xs text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10 gap-1"
+              className={cn(
+                ACTION_BUTTON_BASE,
+                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
+              )}
             >
-              <Send size="0.75em" />
+              <Send size="0.95em" />
               {t('actionConvert')}
             </Button>
           )}
@@ -170,9 +181,12 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
               variant="ghost"
               size="sm"
               onClick={handleSignUp}
-              className="h-7 px-2 text-xs text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10 gap-1"
+              className={cn(
+                ACTION_BUTTON_BASE,
+                'text-morandi-gold hover:text-morandi-gold hover:bg-morandi-gold/10'
+              )}
             >
-              <UserPlus size="0.75em" />
+              <UserPlus size="0.95em" />
               {t('actionEnroll')}
             </Button>
           )}

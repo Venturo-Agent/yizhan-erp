@@ -4,6 +4,25 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 
+// ========== 操作欄按鈕樣式 SSOT（全站列表操作欄共用、黃金標準＝訂單管理）==========
+
+/**
+ * 操作欄按鈕「外型骨架」共用常數。
+ * 黃金標準來源：訂單管理 simple-order-table.tsx 的操作欄。
+ *
+ * 用途：ActionCell 內部用、訂單頁這種「ActionCell 不支援的特殊互動」也直接引用、
+ * 確保兩邊視覺 100% 一致（高度 / padding / 字級 / 圖示間距）。
+ *
+ * 顏色（語意色）另外接：預設灰 → 走 ACTION_BUTTON_DEFAULT_TONE；
+ * 訂單頁的特殊語意色（收款綠 / 請款紅 / 開票金 / 展開 active）則自行接、不在此常數內。
+ */
+export const ACTION_BUTTON_BASE =
+  'inline-flex items-center justify-center rounded transition-colors text-xs font-medium h-7 px-1.5 gap-0.5'
+
+/** 操作欄按鈕「預設語意色」：莫蘭迪次要灰 → hover 主色 + 金色淺底（訂單黃金標準的編輯 / 展開按鈕同款）。 */
+export const ACTION_BUTTON_DEFAULT_TONE =
+  'text-morandi-secondary hover:text-morandi-primary hover:bg-morandi-gold-light'
+
 // ========== 類型定義 ==========
 
 interface ActionButton {
@@ -44,13 +63,14 @@ export function ActionCell({ actions, className, iconOnly = false }: ActionCellP
       {actions.map((action, index) => {
         const IconComponent = action.icon
         const buttonClass = cn(
-          'rounded transition-colors flex items-center gap-1 text-xs font-medium',
-          iconOnly ? 'p-1' : 'px-2 py-1',
-          action.variant === 'danger' && 'text-morandi-red hover:bg-morandi-red/10',
+          // 外型骨架走共用常數（黃金標準＝訂單管理操作欄）
+          ACTION_BUTTON_BASE,
+          // 危險動作走 design token 紅色（刪除等警示、符合 UI 紅線）
+          action.variant === 'danger' && 'text-status-danger hover:bg-status-danger-bg',
           action.variant === 'warning' && 'text-status-warning hover:bg-status-warning-bg',
-          action.variant === 'success' && 'text-morandi-green hover:bg-morandi-green/10',
-          (!action.variant || action.variant === 'default') &&
-            'text-morandi-gold hover:bg-morandi-gold/10',
+          action.variant === 'success' && 'text-status-success hover:bg-status-success-bg',
+          // 預設色對齊訂單：莫蘭迪次要灰 → hover 主色 + 金色淺底
+          (!action.variant || action.variant === 'default') && ACTION_BUTTON_DEFAULT_TONE,
           action.disabled && 'opacity-50 cursor-not-allowed'
         )
 
@@ -67,7 +87,7 @@ export function ActionCell({ actions, className, iconOnly = false }: ActionCellP
             title={action.label}
             disabled={action.disabled}
           >
-            <IconComponent size="0.875em" />
+            <IconComponent size="0.95em" />
             {!iconOnly && <span>{action.label}</span>}
           </button>
         )
