@@ -340,7 +340,7 @@ export function AddReceiptDialog({
           />
 
           {/* 團體收款 */}
-          <TabsContent value="tour" className="flex-1 flex flex-col overflow-hidden">
+          <TabsContent value="tour" className="flex-1 overflow-y-auto">
             <ReceiptItemsTable
               rows={paymentItems}
               columns={receiptColumns}
@@ -377,7 +377,7 @@ export function AddReceiptDialog({
           </TabsContent>
 
           {/* 公司收款 */}
-          <TabsContent value="company" className="flex-1 flex flex-col overflow-hidden">
+          <TabsContent value="company" className="flex-1 overflow-y-auto">
             <ReceiptItemsTable
               rows={paymentItems}
               columns={receiptColumns}

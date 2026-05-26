@@ -68,7 +68,7 @@ export function ReceiptItemsTable({
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden pt-4 border-t border-morandi-container/30">
+    <div className="pt-4 border-t border-morandi-container/30">
       <InlineEditTable<PaymentItem>
         title={t('receiptItems')}
         rows={rows}
