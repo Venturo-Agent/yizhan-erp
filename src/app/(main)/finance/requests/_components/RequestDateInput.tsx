@@ -13,9 +13,16 @@ interface RequestDateInputProps {
   value: string
   onChange: (date: string, isSpecialBilling: boolean) => void
   label?: string
+  /** 已付款等不可編輯狀態 → 鎖住、且不自動帶預設日期 */
+  disabled?: boolean
 }
 
-export function RequestDateInput({ value, onChange, label }: RequestDateInputProps) {
+export function RequestDateInput({
+  value,
+  onChange,
+  label,
+  disabled = false,
+}: RequestDateInputProps) {
   const t = useTranslations('finance')
   const resolvedLabel = label ?? t('requestDateLabel')
   // SSOT：workspace.default_billing_day_of_week（admin 在 /settings/company 設定）
@@ -25,7 +32,7 @@ export function RequestDateInput({ value, onChange, label }: RequestDateInputPro
 
   // 預設帶入「下一個公司出帳日」（有設定 → 下一個該星期幾；無設定 → 今天、不區分正常/特殊）
   useEffect(() => {
-    if (!value) {
+    if (!value && !disabled) {
       const defaultDate =
         defaultBillingDay !== null ? getNextWeekday(defaultBillingDay) : getTodayString()
       const isSpecial =
@@ -67,6 +74,7 @@ export function RequestDateInput({ value, onChange, label }: RequestDateInputPro
       <DatePicker
         value={value}
         onChange={date => handleDateChange(date)}
+        disabled={disabled}
         className={cn(isSpecialBilling && 'bg-morandi-gold/10 border-morandi-gold/30')}
         placeholder={resolvedLabel || t('paymentItemSelectDate')}
       />
