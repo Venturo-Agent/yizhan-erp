@@ -7,7 +7,6 @@ import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { encryptPersonalField } from '@/lib/crypto/personal-data'
 import type { Json } from '@/lib/supabase/types'
 
 /**
@@ -87,25 +86,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ message: '不可跨 workspace 修改員工' }, { status: 403 })
     }
 
-    // SEC-012 Phase 1：個人敏感欄位寫入前加密。
-    //
-    // 策略：
-    //   - bank_account_number / id_number 明文同時寫到原欄（過渡期讀取不中斷）
-    //   - 加密後的密文寫到 encrypted_bank_account_number / encrypted_id_number（新欄、Phase 1 migration 加的）
-    //   - Phase 2（backfill + verify 完後）才 DROP 明文欄
-    //
-    // 若 PERSONAL_DATA_ENCRYPTION_KEY 未設：直接 throw（上層 catch 回 500）。
-    // 這是預期行為 — production 必設 key、不設就不能 operate 這些欄位。
-    const encryptedExtra: Record<string, string | null> = {}
-    if (typeof data.bank_account_number === 'string' && data.bank_account_number.length > 0) {
-      encryptedExtra.encrypted_bank_account_number = encryptPersonalField(data.bank_account_number)
-    } else if (data.bank_account_number === null) {
-      // 明文被清空 → 密文欄也清
-      encryptedExtra.encrypted_bank_account_number = null
-    }
-
-    // id_number 不在 updateEmployeeSchema 裡（目前 PATCH 不接 id_number input）。
-    // 等 William 確認要開放 id_number 更新後、再把 id_number 加進 schema 並在這裡加密。
+    // 2026-05-27 William 拍板：移除薪資銀行帳號加密（SEC-012 截除）。
+    // bank_account_number 直接以明文寫進 employees 原欄（走下面的 ...data）。
+    // 原因：病根是加密金鑰 PERSONAL_DATA_ENCRYPTION_KEY 未配發、導致存檔 throw 500；
+    //       業務上判定員工薪資帳戶不需此層加密、故移除整套（含 encrypted_* 欄位）。
 
     // 2. UPDATE employees
     const { error: updateErr } = await supabase
@@ -115,7 +99,6 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         personal_info: data.personal_info as Json | undefined,
         job_info: data.job_info as Json | undefined,
         salary_info: data.salary_info as Json | undefined,
-        ...encryptedExtra,
         updated_at: new Date().toISOString(),
         updated_by: guard.employeeId,
       })
