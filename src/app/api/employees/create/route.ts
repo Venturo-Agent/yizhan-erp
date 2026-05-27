@@ -9,6 +9,7 @@ import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
 import { generateEmployeeNumber } from '@/lib/codes'
+import type { Json } from '@/lib/supabase/types'
 
 /**
  * POST /api/employees/create
@@ -127,6 +128,10 @@ export async function POST(request: NextRequest) {
       .from('employees')
       .insert({
         ...employeeData,
+        // jsonb 結構欄位轉型（對齊 PATCH route 寫法、不用 as any）
+        personal_info: employeeData.personal_info as Json | undefined,
+        job_info: employeeData.job_info as Json | undefined,
+        salary_info: employeeData.salary_info as Json | undefined,
         employee_number: employeeNumber,
         workspace_id: currentUser.workspace_id,
         user_id: authUser.user.id,
