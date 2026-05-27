@@ -24,10 +24,11 @@ import { alert } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 import { useAuthStore } from '@/stores/auth-store'
 import { invalidateDisbursementOrders, invalidatePaymentRequests } from '@/data'
-import type { DisbursementOrder } from '@/stores/types'
+import type { DisbursementOrder, PaymentRequest } from '@/stores/types'
 import type { WizardStep } from './disbursement-wizard-types'
 import { useWizardData, getInitialDisbursementDate, type PreFilledData } from './useWizardData'
 import { OnePageView } from './OnePageView'
+import { AddRequestDialog } from '@/app/(main)/finance/requests/_components/AddRequestDialog'
 import { useReceipts } from '@/data/entities/receipts'
 import { usePaymentRequests } from '@/data/entities/payment-requests'
 
@@ -161,6 +162,16 @@ export function CreateDisbursementWizardDialog({
     }
     return map
   }, [allPaymentRequests])
+
+  // 點請款單列 → 唯讀檢視（重用 AddRequestDialog readOnly、level=2 巢狀）
+  const [viewingRequest, setViewingRequest] = useState<PaymentRequest | null>(null)
+  const handleViewRequest = useCallback(
+    (requestId: string) => {
+      const req = allPaymentRequests.find(r => r.id === requestId)
+      if (req) setViewingRequest(req as unknown as PaymentRequest)
+    },
+    [allPaymentRequests]
+  )
 
   // 已被 staged 的 item ids
   const stagedItemIds = useMemo(() => {
@@ -388,9 +399,21 @@ export function CreateDisbursementWizardDialog({
               alreadyPaidByTourId={alreadyPaidByTourId}
               onChangePicked={setPickedItemIds}
               onRemoveStaged={handleRemoveStaged}
+              onViewRequest={handleViewRequest}
             />
           )}
         </div>
+
+        {/* 點請款單列 → 唯讀檢視彈窗（重用 AddRequestDialog、level=2 巢狀於本 level=1 dialog）*/}
+        <AddRequestDialog
+          open={!!viewingRequest}
+          onOpenChange={open => {
+            if (!open) setViewingRequest(null)
+          }}
+          editingRequest={viewingRequest}
+          readOnly
+          level={2}
+        />
 
         {/* 按鈕都在 DialogHeader、不需要 footer */}
       </DialogContent>
