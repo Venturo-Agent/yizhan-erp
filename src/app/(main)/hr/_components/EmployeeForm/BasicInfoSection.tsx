@@ -70,7 +70,6 @@ interface BasicInfoSectionProps {
   roles: Role[]
   branches: ScopeOption[]
   onChange: (patch: Partial<BasicInfoSectionProps['formData']>) => void
-  onCreateBranch: () => void
 }
 
 export function BasicInfoSection({
