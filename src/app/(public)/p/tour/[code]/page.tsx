@@ -87,7 +87,7 @@ export default function PublicTourPage({ params }: { params: Promise<{ code: str
       if (tourData.workspace_id) {
         const { data: workspace } = await supabase
           .from('workspaces')
-          .select('legal_name, phone')
+          .select('legal_name, phone, logo_url, logo_scale, logo_offset_x, logo_offset_y')
           .eq('id', tourData.workspace_id)
           .single()
 
@@ -95,6 +95,10 @@ export default function PublicTourPage({ params }: { params: Promise<{ code: str
           setCompanyInfo({
             name: workspace.legal_name || '旅行社',
             phone: workspace.phone || '',
+            logo_url: workspace.logo_url,
+            logo_scale: workspace.logo_scale,
+            logo_offset_x: workspace.logo_offset_x,
+            logo_offset_y: workspace.logo_offset_y,
           })
         }
       }
