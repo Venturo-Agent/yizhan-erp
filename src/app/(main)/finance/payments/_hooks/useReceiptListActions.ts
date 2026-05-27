@@ -28,6 +28,7 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/stores'
 import { updateReceipt, deleteReceipt } from '@/data'
 import { recalculateReceiptStats } from '@/app/(main)/finance/payments/_services/receipt-core.service'
+import { calculateReceiptFees } from '@/lib/finance/receipt-fees'
 import { apiMutate } from '@/lib/swr/api-mutate'
 import { useTranslations } from 'next-intl'
 import type { Receipt } from '@/types/receipt.types'
@@ -95,8 +96,9 @@ export function useReceiptListActions(
           const feePercent = Number(method?.fee_percent || 0)
           const feeFixed = Number(method?.fee_fixed || 0)
           const receiptAmount = Number(receipt?.receipt_amount || 0)
-          calcFees = Math.round((receiptAmount * feePercent) / 100) + feeFixed
-          calcActual = receiptAmount - calcFees
+          const fee = calculateReceiptFees(receiptAmount, feePercent, feeFixed)
+          calcFees = fee.fees
+          calcActual = fee.actualAmount
         }
 
         await updateReceipt(receiptId, {

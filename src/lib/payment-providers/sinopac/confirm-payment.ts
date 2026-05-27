@@ -20,6 +20,7 @@ import { getSinopacConfig } from './config'
 import { queryOrder, type OrderQueryResult } from './credit-card'
 import { notifyPaymentCapturedToConversation } from '@/lib/ai/notify-payment-captured'
 import { generateReceiptNo } from '@/lib/codes'
+import { calculateReceiptFees } from '@/lib/finance/receipt-fees'
 
 export type ConfirmStatus = 'captured' | 'pending' | 'failed' | 'not_found' | 'expired'
 
@@ -250,6 +251,8 @@ async function openReceiptForCapturedTx(
   // 3. 取 tour 資訊（收款編號需 tour_id；tour_name 為 receipt 冗餘欄位）
   const batchId = invoices[0].batch_id
   let orderId: string | null = null
+  let orderNumber: string | null = null
+  let branchId: string | null = null
   let tourId: string | null = null
   let tourName: string | null = null
   if (batchId) {
@@ -261,12 +264,15 @@ async function openReceiptForCapturedTx(
     orderId = batch?.order_id ?? null
   }
   if (orderId) {
+    // 2026-05-27 William 抓出：LINKPAY 收款單漏抄「訂單號 + 分公司」（列表顯示「—」）→ 一併帶進來
     const { data: order } = await supabase
       .from('orders')
-      .select('tour_id')
+      .select('tour_id, order_number, branch_id')
       .eq('id', orderId)
       .maybeSingle()
     tourId = order?.tour_id ?? null
+    orderNumber = order?.order_number ?? null
+    branchId = order?.branch_id ?? null
   }
   if (tourId) {
     const { data: tour } = await supabase
@@ -284,9 +290,8 @@ async function openReceiptForCapturedTx(
   // 4. 收款編號（中央 SSOT、advisory lock 防撞號）
   const receiptNumber = await generateReceiptNo(tourId, supabase)
 
-  // 5. 手續費：毛額 amount、手續費 fees、實收淨額 actual_amount
-  const fees = Math.round((amount * feePercent) / 100 + feeFixed)
-  const actualAmount = amount - fees
+  // 5. 手續費：毛額 amount、手續費 fees（無條件進位、走 SSOT）、實收淨額 actual_amount
+  const { fees, actualAmount } = calculateReceiptFees(amount, feePercent, feeFixed)
   const today = new Date().toISOString().slice(0, 10)
 
   // 6. INSERT receipt（status=confirmed：永豐已確認授權、跳過會計核對）
@@ -296,6 +301,8 @@ async function openReceiptForCapturedTx(
       workspace_id: tx.workspace_id,
       receipt_number: receiptNumber,
       order_id: orderId,
+      order_number: orderNumber,
+      branch_id: branchId,
       tour_id: tourId,
       tour_name: tourName,
       customer_id: invoices[0].customer_id,
