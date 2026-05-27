@@ -26,6 +26,8 @@ interface OnePageViewProps {
   alreadyPaidByTourId?: Map<string, number>
   onChangePicked: (ids: string[]) => void
   onRemoveStaged: (id: string) => void
+  /** 點請款單列 → 開唯讀檢視（傳 request_id） */
+  onViewRequest?: (requestId: string) => void
 }
 
 export function OnePageView({
@@ -36,6 +38,7 @@ export function OnePageView({
   alreadyPaidByTourId,
   onChangePicked,
   onRemoveStaged,
+  onViewRequest,
 }: OnePageViewProps) {
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden">
@@ -76,6 +79,7 @@ export function OnePageView({
           incomeByTourId={incomeByTourId}
           alreadyPaidByTourId={alreadyPaidByTourId}
           onChangePicked={onChangePicked}
+          onViewRequest={onViewRequest}
         />
       </div>
     </div>
