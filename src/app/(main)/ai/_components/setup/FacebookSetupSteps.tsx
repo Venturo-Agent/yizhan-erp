@@ -155,7 +155,7 @@ export function StepCredentials({
         <Textarea
           value={credentials.bot_greeting}
           onChange={e => onChange('bot_greeting', e.target.value)}
-          placeholder="例：您好！我是漫途旅遊小幫手、想出國玩跟我說團名跟人數就好"
+          placeholder="例：您好！我是您的專屬旅遊小幫手、想出國玩跟我說團名跟人數就好"
           rows={2}
         />
       </div>
