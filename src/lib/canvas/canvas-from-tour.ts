@@ -26,6 +26,8 @@ import type {
   CanvasStayItem,
 } from '@/components/canvas-renderer/types'
 
+import type { CanvasLeaderMeetingSection } from '@/components/canvas-renderer/types'
+
 import type {
   TourData,
   DailyItinerary,
@@ -33,6 +35,8 @@ import type {
   HotelInfo,
   EmployeeInfo,
   CompanyInfo,
+  LeaderInfo,
+  MeetingInfo,
 } from '@/app/(public)/p/tour/[code]/_components/tour-types'
 import { getHotelDataForDay, type EnrichedAttractionMeta } from './enrich-itinerary'
 
@@ -80,13 +84,30 @@ export function buildCanvasFromTour(input: CanvasFromTourInput): Canvas {
   })
 
   // ============ Stays ============
+  // 工單3 D2-A：舊系統 show_hotels=false → stays section 首次生成帶 hidden:true
+  // （只讀一次當初值、之後 canvas 自理、不雙向同步回 show_hotels — 紅線 E）
+  // TODO(工單3): show_features / show_pricing_details / show_leader_meeting / show_faqs /
+  //              show_notices / show_cancellation_policy / show_price_tiers 對應 canvas 哪塊尚未拍板
+  //              （規格書 §六 開放問題）→ 先不映射、待拍板再接
   if (hotels.length > 0) {
     sections.push({
       type: 'stays',
+      hidden: itinerary?.show_hotels === false ? true : undefined,
       data: {
         items: hotels.map((h, i) => buildStayItem(h, i)),
       },
     })
+  }
+
+  // ============ Leader & Meeting（領隊・集合、行前資訊群）============
+  // 工單2 / D3-A：獨立 section、收在 stays 之後 appendix 之前。
+  // 有料才生（leader 或 meeting_info 任一有實質內容才 push）、全空不生（優雅降級、不開天窗）。
+  // 工單3 D2-A：舊系統 show_leader_meeting=false → 首次生成帶 hidden:true
+  //            （只讀一次當初值、之後 canvas 自理、不雙向同步回 show_leader_meeting — 紅線 E）
+  const leaderMeeting = buildLeaderMeetingSection(itinerary?.leader, itinerary?.meeting_info)
+  if (leaderMeeting) {
+    leaderMeeting.hidden = itinerary?.show_leader_meeting === false ? true : undefined
+    sections.push(leaderMeeting)
   }
 
   // ============ Appendix ============
@@ -273,6 +294,54 @@ function formatDuration(minutes: number): string {
   return Number.isInteger(hours)
     ? `建議停留約 ${hours} 小時`
     : `建議停留約 ${hours.toFixed(1)} 小時`
+}
+
+/**
+ * 領隊・集合 section 生成（有料才生、全空回 null）
+ *
+ * 為什麼要查「值非空白」而非「物件存在」：
+ * - DB 實測（2026-05-27）leader/meeting_info 大多是「有 key 但值是空字串」的空殼
+ *   （譬如 {name:"", domesticPhone:"", overseasPhone:""}）
+ * - 只看物件存在會把空殼也生出來、開天窗 → 必須看欄位值有沒有實質內容
+ *
+ * 欄位映射：itinerary.types.ts 的 camelCase（domesticPhone）→ canvas 的 snake_case（domestic_phone）
+ */
+function buildLeaderMeetingSection(
+  leader: LeaderInfo | null | undefined,
+  meetingInfo: MeetingInfo | null | undefined
+): CanvasLeaderMeetingSection | null {
+  const leaderName = leader?.name?.trim()
+  const leaderEnglish = leader?.englishName?.trim()
+  const leaderDomestic = leader?.domesticPhone?.trim()
+  const leaderOverseas = leader?.overseasPhone?.trim()
+  const meetingTime = meetingInfo?.time?.trim()
+  const meetingLocation = meetingInfo?.location?.trim()
+
+  const hasLeader = Boolean(leaderName || leaderEnglish || leaderDomestic || leaderOverseas)
+  const hasMeeting = Boolean(meetingTime || meetingLocation)
+
+  // 兩塊都沒料 → 不生（優雅降級、不開天窗）
+  if (!hasLeader && !hasMeeting) return null
+
+  return {
+    type: 'leader_meeting',
+    data: {
+      leader: hasLeader
+        ? {
+            name: leaderName || undefined,
+            english_name: leaderEnglish || undefined,
+            domestic_phone: leaderDomestic || undefined,
+            overseas_phone: leaderOverseas || undefined,
+          }
+        : undefined,
+      meeting: hasMeeting
+        ? {
+            time: meetingTime || undefined,
+            location: meetingLocation || undefined,
+          }
+        : undefined,
+    },
+  }
 }
 
 function buildStayItem(hotel: HotelInfo, index: number): CanvasStayItem {

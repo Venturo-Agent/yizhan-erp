@@ -8,9 +8,41 @@
  */
 
 import * as React from 'react'
+import { Star } from 'lucide-react'
 import type { Canvas, CanvasRouteCardBlock } from '@/components/canvas-renderer/types'
-import { updateRouteCardAttraction } from '../canvas-utils'
+import { promoteAttractionToSpotlight, updateRouteCardAttraction } from '../canvas-utils'
 import { DeleteButton, FormSection, TextAreaField, TextField } from './_form-primitives'
+
+// 「升級為亮點」按鈕（走 morandi-gold、不用 Tailwind 預設色）
+function PromoteButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title="把這個景點升級成獨享一頁寬的特色亮點（spotlight）"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        width: '100%',
+        justifyContent: 'center',
+        padding: '7px 12px',
+        marginTop: 4,
+        borderRadius: 4,
+        border: '1px solid var(--morandi-gold)',
+        background: 'var(--morandi-gold-light)',
+        color: 'var(--morandi-gold-hover)',
+        cursor: 'pointer',
+        fontSize: 12,
+        fontWeight: 500,
+        letterSpacing: '0.03em',
+      }}
+    >
+      <Star size={13} />
+      升級為亮點
+    </button>
+  )
+}
 
 interface RouteCardEditorProps {
   block: CanvasRouteCardBlock
@@ -72,6 +104,9 @@ export function RouteCardEditor({
                 )
               }
               placeholder="例：建議停留 2 小時"
+            />
+            <PromoteButton
+              onClick={() => onChange(promoteAttractionToSpotlight(canvas, block.id, attr.id))}
             />
           </FormSection>
         ))

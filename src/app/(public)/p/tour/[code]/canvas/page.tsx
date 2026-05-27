@@ -92,7 +92,9 @@ export default function PublicTourCanvasPage({ params }: { params: Promise<{ cod
       // Step 2: 用 tour.id 查 itinerary
       const { data: rawItinerary } = await supabase
         .from('itineraries')
-        .select('id, title, subtitle, daily_itinerary, hotels')
+        .select(
+          'id, title, subtitle, daily_itinerary, hotels, show_hotels, leader, meeting_info, show_leader_meeting'
+        )
         .eq('tour_id', tourData.id)
         .maybeSingle()
 

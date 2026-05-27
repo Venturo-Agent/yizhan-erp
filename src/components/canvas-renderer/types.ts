@@ -54,6 +54,7 @@ export interface CanvasCoverData {
 
 export interface CanvasCoverSection {
   type: 'cover'
+  hidden?: boolean // 工單3 積木開關：true=隱藏（不渲染、不丟資料）、undefined/false=顯示
   data: CanvasCoverData
 }
 
@@ -66,6 +67,7 @@ export interface CanvasTimelineDay {
 
 export interface CanvasOverviewTimelineSection {
   type: 'overview_timeline'
+  hidden?: boolean // 工單3 積木開關
   data: {
     days: CanvasTimelineDay[]
   }
@@ -75,6 +77,7 @@ export interface CanvasOverviewTimelineSection {
 export interface CanvasDayHeaderBlock {
   id: CanvasBlockId
   type: 'day_header'
+  hidden?: boolean // 工單3 積木開關
   data: {
     day_index: number
     date: string // 「2026.12.02（星期三）」
@@ -98,6 +101,7 @@ export interface CanvasAttraction {
 export interface CanvasRouteCardBlock {
   id: CanvasBlockId
   type: 'route_card'
+  hidden?: boolean // 工單3 積木開關
   layout: '1up' | '2up' | '3up' | 'transit'
   data: {
     attractions: CanvasAttraction[]
@@ -116,6 +120,7 @@ export interface CanvasSequenceStep {
 export interface CanvasSequenceStepsBlock {
   id: CanvasBlockId
   type: 'sequence_steps'
+  hidden?: boolean // 工單3 積木開關
   data: {
     title?: string // 「TIMELINE · DAY 3」
     steps: CanvasSequenceStep[]
@@ -126,6 +131,7 @@ export interface CanvasSequenceStepsBlock {
 export interface CanvasHotelCardBlock {
   id: CanvasBlockId
   type: 'hotel_card'
+  hidden?: boolean // 工單3 積木開關
   data: {
     name: string
     rating?: number // 星級 1-5
@@ -139,6 +145,7 @@ export interface CanvasHotelCardBlock {
 export interface CanvasFlightCardBlock {
   id: CanvasBlockId
   type: 'flight_card'
+  hidden?: boolean // 工單3 積木開關
   data: {
     from_city: string
     from_airport?: string
@@ -155,6 +162,7 @@ export interface CanvasFlightCardBlock {
 export interface CanvasRestaurantCardBlock {
   id: CanvasBlockId
   type: 'restaurant_card'
+  hidden?: boolean // 工單3 積木開關
   data: {
     meal: 'breakfast' | 'lunch' | 'dinner'
     name: string
@@ -168,6 +176,7 @@ export interface CanvasRestaurantCardBlock {
 export interface CanvasFeatureHeroBlock {
   id: CanvasBlockId
   type: 'feature_hero'
+  hidden?: boolean // 工單3 積木開關
   data: {
     eyebrow?: string
     title: string
@@ -187,6 +196,7 @@ export interface CanvasStallItem {
 export interface CanvasStallGridBlock {
   id: CanvasBlockId
   type: 'stall_grid'
+  hidden?: boolean // 工單3 積木開關
   data: {
     items: CanvasStallItem[]
   }
@@ -199,6 +209,7 @@ export interface CanvasStallGridBlock {
 export interface CanvasSpotlightBlock {
   id: CanvasBlockId
   type: 'spotlight'
+  hidden?: boolean // 工單3 積木開關
   data: {
     tag?: string // eyebrow（紅銅 italic）例：「— LUNCH · 元祖日光ゆば料理 惠比壽家」
     title: string // 標題（36px、可帶 [accent]xxx[/accent] 紅銅標記）
@@ -215,6 +226,7 @@ export interface CanvasSpotlightBlock {
 export interface CanvasJpNoteBlock {
   id: CanvasBlockId
   type: 'jp_note'
+  hidden?: boolean // 工單3 積木開關
   data: {
     term: string // 用語本身、紅銅粗體（例：「湯波（ゆば）」）
     description: string // 解釋（例：「日光特產、豆乳加熱後表面凝結的薄膜。」）
@@ -236,6 +248,7 @@ export type CanvasDayBlock =
 
 export interface CanvasDaySection {
   type: 'day'
+  hidden?: boolean // 工單3 積木開關
   day_index: number
   date: string
   blocks: CanvasDayBlock[]
@@ -252,14 +265,40 @@ export interface CanvasStayItem {
 
 export interface CanvasStaysSection {
   type: 'stays'
+  hidden?: boolean // 工單3 積木開關（D2-A：show_hotels=false 首次生成設 true）
   data: {
     items: CanvasStayItem[]
+  }
+}
+
+// C15 領隊・集合資訊（行前資訊群、收在 stays 之後 appendix 之前）
+// 概念：行前重要資訊、領隊聯絡 + 集合時間地點各一塊
+// 視覺氣質：克制的行前資訊感（非賣點 showcase）、走 manhattan 留白外殼
+// 資料來源：itineraries.leader（jsonb）+ itineraries.meeting_info（jsonb）
+// 欄位結構對齊 src/types/tour/itinerary.types.ts 的 LeaderInfo / MeetingInfo
+export interface CanvasLeaderMeetingSection {
+  type: 'leader_meeting'
+  hidden?: boolean // 工單3 積木開關（D2-A：show_leader_meeting=false 首次生成設 true）
+  data: {
+    // 領隊塊：空的欄位渲染時不顯示
+    leader?: {
+      name?: string
+      english_name?: string
+      domestic_phone?: string
+      overseas_phone?: string
+    }
+    // 集合塊
+    meeting?: {
+      time?: string
+      location?: string
+    }
   }
 }
 
 // C12 附錄
 export interface CanvasAppendixSection {
   type: 'appendix'
+  hidden?: boolean // 工單3 積木開關
   data: {
     inclusions?: string[] // 費用包含
     exclusions?: string[] // 費用不含
@@ -275,6 +314,7 @@ export type CanvasSection =
   | CanvasOverviewTimelineSection
   | CanvasDaySection
   | CanvasStaysSection
+  | CanvasLeaderMeetingSection
   | CanvasAppendixSection
 
 export interface Canvas {

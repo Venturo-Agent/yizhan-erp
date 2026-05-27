@@ -17,6 +17,7 @@
  */
 
 import * as React from 'react'
+import { Eye, EyeOff } from 'lucide-react'
 import type {
   Canvas,
   CanvasDayBlock,
@@ -24,9 +25,12 @@ import type {
   CanvasSection,
 } from '@/components/canvas-renderer/types'
 import type { SelectionKey } from './canvas-utils'
+import { toggleHiddenBlock, toggleHiddenSection } from './canvas-utils'
 import { CoverEditor } from './block-editors/CoverEditor'
 import { DayHeaderEditor } from './block-editors/DayHeaderEditor'
+import { FlightCardEditor } from './block-editors/FlightCardEditor'
 import { JpNoteEditor } from './block-editors/JpNoteEditor'
+import { LeaderMeetingEditor } from './block-editors/LeaderMeetingEditor'
 import { ReadOnlyBlockEditor } from './block-editors/ReadOnlyBlockEditor'
 import { RouteCardEditor } from './block-editors/RouteCardEditor'
 import { SpotlightEditor } from './block-editors/SpotlightEditor'
@@ -80,6 +84,8 @@ function sectionLabel(section: CanvasSection): string {
       return `Day ${section.day_index} · ${section.date}`
     case 'stays':
       return '住宿總覽'
+    case 'leader_meeting':
+      return '領隊・集合資訊'
     case 'appendix':
       return '附錄'
     default: {
@@ -101,9 +107,39 @@ interface TreeProps {
   canvas: Canvas
   selection: SelectionKey | null
   onSelect: (key: SelectionKey) => void
+  onChange: (next: Canvas) => void
 }
 
-function SectionTree({ canvas, selection, onSelect }: TreeProps) {
+// 眼睛 toggle 按鈕（顯示=Eye、隱藏=EyeOff）— 走中性色、不引 Tailwind 預設色
+function HiddenToggle({ hidden, onClick }: { hidden: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      title={hidden ? '此積木已隱藏、點擊顯示' : '隱藏此積木'}
+      onClick={e => {
+        e.stopPropagation() // 別觸發外層「選取」
+        onClick()
+      }}
+      style={{
+        flexShrink: 0,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 24,
+        height: 24,
+        padding: 0,
+        border: 'none',
+        background: 'transparent',
+        color: 'var(--morandi-secondary)',
+        cursor: 'pointer',
+      }}
+    >
+      {hidden ? <EyeOff size={14} /> : <Eye size={14} />}
+    </button>
+  )
+}
+
+function SectionTree({ canvas, selection, onSelect, onChange }: TreeProps) {
   return (
     <div style={{ padding: '12px 16px', fontSize: 13 }}>
       <div
@@ -127,29 +163,50 @@ function SectionTree({ canvas, selection, onSelect }: TreeProps) {
                 ? { kind: 'overview' }
                 : section.type === 'stays'
                   ? { kind: 'stays' }
-                  : { kind: 'appendix' }
+                  : section.type === 'leader_meeting'
+                    ? { kind: 'leader_meeting' }
+                    : { kind: 'appendix' }
         const sel = isSelected(selection, key)
+        const sectionHidden = section.hidden === true
         return (
           <div key={`sec-${idx}`} style={{ marginBottom: 6 }}>
-            <button
-              type="button"
-              onClick={() => onSelect(key)}
+            <div
               style={{
-                width: '100%',
-                textAlign: 'left',
-                padding: '6px 10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
                 borderRadius: 4,
                 border: sel ? '1px solid var(--morandi-gold)' : '1px solid transparent',
                 background: sel ? 'var(--morandi-gold-light)' : 'transparent',
-                color: 'var(--morandi-primary)',
-                cursor: 'pointer',
-                fontSize: 13,
-                fontWeight: 500,
+                // 隱藏的積木變淡、讓業務一眼看出這塊被關掉
+                opacity: sectionHidden ? 0.5 : 1,
               }}
             >
-              {sectionLabel(section)}
-            </button>
-            {section.type === 'day' ? renderDayBlocks(section, selection, onSelect) : null}
+              <button
+                type="button"
+                onClick={() => onSelect(key)}
+                style={{
+                  flex: 1,
+                  textAlign: 'left',
+                  padding: '6px 10px',
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'var(--morandi-primary)',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                {sectionLabel(section)}
+              </button>
+              <HiddenToggle
+                hidden={sectionHidden}
+                onClick={() => onChange(toggleHiddenSection(canvas, idx))}
+              />
+            </div>
+            {section.type === 'day'
+              ? renderDayBlocks(section, selection, onSelect, canvas, onChange)
+              : null}
           </div>
         )
       })}
@@ -160,33 +217,52 @@ function SectionTree({ canvas, selection, onSelect }: TreeProps) {
 function renderDayBlocks(
   section: CanvasDaySection,
   selection: SelectionKey | null,
-  onSelect: (key: SelectionKey) => void
+  onSelect: (key: SelectionKey) => void,
+  canvas: Canvas,
+  onChange: (next: Canvas) => void
 ) {
   return (
     <div style={{ paddingLeft: 14, marginTop: 4 }}>
       {section.blocks.map(b => {
         const k: SelectionKey = { kind: 'block', blockId: b.id }
         const sel = isSelected(selection, k)
+        const blockHidden = b.hidden === true
         return (
-          <button
+          <div
             key={b.id}
-            type="button"
-            onClick={() => onSelect(k)}
             style={{
-              width: '100%',
-              textAlign: 'left',
-              padding: '4px 10px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
               borderRadius: 4,
               border: sel ? '1px solid var(--morandi-gold)' : '1px solid transparent',
               background: sel ? 'var(--morandi-gold-light)' : 'transparent',
-              color: 'var(--morandi-secondary)',
-              cursor: 'pointer',
-              fontSize: 12,
               marginBottom: 2,
+              // 隱藏的積木變淡
+              opacity: blockHidden ? 0.5 : 1,
             }}
           >
-            {blockLabel(b)}
-          </button>
+            <button
+              type="button"
+              onClick={() => onSelect(k)}
+              style={{
+                flex: 1,
+                textAlign: 'left',
+                padding: '4px 10px',
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--morandi-secondary)',
+                cursor: 'pointer',
+                fontSize: 12,
+              }}
+            >
+              {blockLabel(b)}
+            </button>
+            <HiddenToggle
+              hidden={blockHidden}
+              onClick={() => onChange(toggleHiddenBlock(canvas, b.id))}
+            />
+          </div>
         )
       })}
     </div>
@@ -212,6 +288,14 @@ function EditorForm({
       return <EmptyHint text="找不到封面 section" />
     }
     return <CoverEditor data={cover.data} canvas={canvas} onChange={onChange} />
+  }
+
+  if (selection.kind === 'leader_meeting') {
+    const lm = canvas.sections.find(s => s.type === 'leader_meeting')
+    if (!lm || lm.type !== 'leader_meeting') {
+      return <EmptyHint text="找不到領隊・集合 section" />
+    }
+    return <LeaderMeetingEditor section={lm} canvas={canvas} onChange={onChange} />
   }
 
   if (selection.kind === 'block') {
@@ -250,6 +334,15 @@ function EditorForm({
         case 'jp_note':
           return (
             <JpNoteEditor
+              block={b}
+              canvas={canvas}
+              onChange={onChange}
+              onRequestDelete={() => onRequestDeleteBlock(b.id)}
+            />
+          )
+        case 'flight_card':
+          return (
+            <FlightCardEditor
               block={b}
               canvas={canvas}
               onChange={onChange}
@@ -326,7 +419,12 @@ export function EditorPanel({
           borderBottom: '1px solid var(--border, #e8e5e0)',
         }}
       >
-        <SectionTree canvas={canvas} selection={selection} onSelect={onSelect} />
+        <SectionTree
+          canvas={canvas}
+          selection={selection}
+          onSelect={onSelect}
+          onChange={onChange}
+        />
       </div>
       <div style={{ flex: 1, overflowY: 'auto' }}>
         {selection ? (
