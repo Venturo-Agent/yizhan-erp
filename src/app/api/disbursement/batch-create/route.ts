@@ -22,7 +22,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { generateDisbursementNo } from '@/lib/codes'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
-import { distributeFees } from '@/lib/disbursement/fee-distribution'
+import { distributeFees, isCrossBankTransfer } from '@/lib/disbursement/fee-distribution'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 interface BatchInput {
@@ -208,6 +208,29 @@ export async function POST(request: NextRequest) {
     supplierMap = new Map((suppliers ?? []).map(s => [s.id, s]))
   }
 
+  // 收款對象若是員工（代墊 advanced_by / 公司請款受款 payee_employee_id）、要拿「員工的銀行」判同行、
+  // 不是供應商的。2026-05-27 William 拍板：員工也可能不同行、按員工真實銀行判。
+  const employeeIds = Array.from(
+    new Set(items.flatMap(i => [i.advanced_by, i.payee_employee_id]).filter(Boolean) as string[])
+  )
+  const employeeBankById = new Map<string, string | null>()
+  if (employeeIds.length > 0) {
+    type EmpFetchChain = {
+      select: (c: string) => {
+        in: (
+          k: string,
+          v: string[]
+        ) => Promise<{ data: { id: string; bank_code: string | null }[] | null }>
+      }
+    }
+    const { data: emps } = await (admin.from as unknown as (t: string) => EmpFetchChain)(
+      'employees'
+    )
+      .select('id, bank_code')
+      .in('id', employeeIds)
+    for (const e of emps ?? []) employeeBankById.set(e.id, e.bank_code)
+  }
+
   // 所有相關 bank_account bank_code + workspace 驗證
   const bankAccountIds = Array.from(new Set(body.batches.map(b => b.from_bank_account_id)))
   type BankFetchChain = {
@@ -341,12 +364,16 @@ export async function POST(request: NextRequest) {
       const item = itemById.get(id)!
       const supplier = item.supplier_id ? supplierMap.get(item.supplier_id) : null
       const supplierBankCode = supplier?.bank_code ?? null
-      // 2026-05-22 William 拍板：cash / check 不收跨行手續費（不走銀行轉帳機制）
+      // 2026-05-27 William 拍板：同行判定吃「收款對象真實銀行」、不是只看供應商。
+      // 優先序（對齊下方 payer_key）：代墊員工 > 受款員工 > 供應商。員工也可能不同行、照查真實銀行。
+      const payeeBankCode = item.advanced_by
+        ? (employeeBankById.get(item.advanced_by) ?? null)
+        : item.payee_employee_id
+          ? (employeeBankById.get(item.payee_employee_id) ?? null)
+          : supplierBankCode
+      // 同行/跨行判定走 SSOT（concept A）：cash/check 不收、同行 0、沒填銀行視同跨行照收（選項 A）
       const itemKind = item.payment_method_id ? pmKindById.get(item.payment_method_id) : null
-      const isNonTransferKind = itemKind === 'cash' || itemKind === 'check'
-      const isCrossBank = isNonTransferKind
-        ? false
-        : !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
+      const isCrossBank = isCrossBankTransfer({ payeeBankCode, fromBankCode, itemKind })
       return {
         item,
         from_bank_account_id: batch.from_bank_account_id,

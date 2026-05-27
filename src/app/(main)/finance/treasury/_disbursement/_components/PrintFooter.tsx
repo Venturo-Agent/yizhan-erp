@@ -44,8 +44,8 @@ export function PrintFooter({
   const grandTotal = totalAmount + bankFee
   return (
     <>
-      {/* 2026-05-21 William 拍板：手續費含在小計、不另外列行（避免會計兩處數字打架）
-          顯示：總計（含 X 手續費）NT$ 45,083 */}
+      {/* 2026-05-27 William 拍板：手續費分攤在上面各列 / 小計、不另列獨立行；
+          總計 = 應付純額 + 手續費、註記「（含 X 手續費）」。 */}
       <div
         style={{
           display: 'flex',
