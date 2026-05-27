@@ -173,7 +173,6 @@ export default function BonusSettlementListPage() {
 
   const renderActions = (row: PendingTourRow) => (
     <ActionCell
-      iconOnly
       actions={[
         {
           icon: ExternalLink,

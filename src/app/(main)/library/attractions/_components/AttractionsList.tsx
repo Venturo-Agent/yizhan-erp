@@ -189,7 +189,6 @@ export function AttractionsList({
         return (
           <ActionCell
             className="gap-0.5"
-            iconOnly
             // 逃生艙：上移/下移（disabled-opacity-30 + 群組後分隔線）與 Power（icon 顏色獨立於按鈕狀態）
             // 走 ActionCell 標準渲染接不住、故自訂渲染；編輯/刪除回 null 退回標準渲染。
             renderCustomButton={action => {

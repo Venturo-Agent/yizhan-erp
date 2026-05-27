@@ -60,7 +60,6 @@ export function RoleListPanel({
                     <span className="font-medium text-morandi-primary text-sm">{role.name}</span>
                   </div>
                   <ActionCell
-                    iconOnly
                     actions={[
                       {
                         icon: Trash2,

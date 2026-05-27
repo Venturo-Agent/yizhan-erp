@@ -125,10 +125,9 @@ export default function ChecksPage() {
     {
       key: 'actions',
       label: '操作',
-      width: '140px',
+      width: '200px',
       render: (_: unknown, row: Check) => (
         <ActionCell
-          iconOnly
           actions={[
             {
               icon: CheckSquare,

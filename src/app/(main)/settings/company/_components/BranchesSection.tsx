@@ -228,7 +228,6 @@ export function BranchesSection() {
                   </div>
                 </div>
                 <ActionCell
-                  iconOnly
                   actions={[
                     {
                       icon: Edit,

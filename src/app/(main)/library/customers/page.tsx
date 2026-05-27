@@ -380,7 +380,6 @@ export default function CustomersPage() {
             onRowClick={handleRowClick}
             actions={(customer: Customer) => (
               <ActionCell
-                iconOnly
                 actions={[
                   // 護照待驗證：警告語意（黃）、條件顯示維持原本邏輯
                   ...(customer.verification_status === 'unverified' && customer.passport_image_url

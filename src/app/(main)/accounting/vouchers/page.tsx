@@ -170,10 +170,9 @@ export default function VouchersPage() {
     {
       key: 'actions',
       label: t('actions'),
-      width: '140px',
+      width: '180px',
       render: (_: unknown, row: JournalVoucher) => (
         <ActionCell
-          iconOnly
           actions={[
             {
               icon: Eye,

@@ -281,12 +281,11 @@ export default function AccountsPage() {
     {
       key: 'actions',
       label: '操作',
-      width: '120px',
+      width: '180px',
       // 只收「操作欄按鈕」（新增子科目 / 編輯）進 ActionCell；
       // 樹狀展開/折疊（在科目名稱欄）與標記常用星星（在常用欄）屬「非操作欄」互動、保留原樣不收。
       render: (_: unknown, row: Account) => (
         <ActionCell
-          iconOnly
           actions={[
             {
               icon: Plus,

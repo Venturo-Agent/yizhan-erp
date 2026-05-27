@@ -97,7 +97,6 @@ export const SuppliersList: React.FC<SuppliersListProps> = ({
         const supplier = row as Supplier
         return (
           <ActionCell
-            iconOnly
             actions={[
               {
                 icon: Edit,
