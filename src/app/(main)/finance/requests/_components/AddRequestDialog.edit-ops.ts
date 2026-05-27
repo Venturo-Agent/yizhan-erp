@@ -47,7 +47,7 @@ export interface SaveEditParams {
   newItemIds: string[]
   suppliers: Array<{ id: string; name?: string | null }>
   localPaymentMethodId: string | null
-  formData: { order_id?: string }
+  formData: { order_id?: string; request_date?: string; is_special_billing?: boolean }
   orders: Array<{ id: string; order_number?: string | null }>
   refreshRequestItems: () => Promise<void>
   onSuccess: () => void
@@ -168,6 +168,9 @@ export async function saveEditedRequest({
         payment_method_id: localPaymentMethodId || null,
         order_id: formData.order_id || null,
         order_number: editedOrder?.order_number ?? null,
+        // 2026-05-27 修：編輯模式存回 header 請款日期（之前漏存、所以日期改了不會生效）
+        request_date: formData.request_date ?? currentRequest.request_date,
+        is_special_billing: formData.is_special_billing ?? false,
       })
       .eq('id', currentRequest.id)
     if (amountError) {
