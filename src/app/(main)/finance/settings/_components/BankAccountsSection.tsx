@@ -22,7 +22,6 @@ import { apiMutate } from '@/lib/swr/api-mutate'
 
 interface BankAccountsSectionProps {
   bankAccounts: BankAccount[]
-  workspaceId: string | undefined
   reload: () => Promise<void>
   isDialogOpen: boolean
   setIsDialogOpen: (open: boolean) => void
@@ -32,7 +31,6 @@ interface BankAccountsSectionProps {
 
 export function BankAccountsSection({
   bankAccounts,
-  workspaceId,
   reload,
   isDialogOpen,
   setIsDialogOpen,
@@ -50,7 +48,6 @@ export function BankAccountsSection({
       body: {
         ...bank,
         id: editingBank?.id,
-        workspace_id: workspaceId,
       },
       invalidate: ['/api/bank-accounts'],
     })

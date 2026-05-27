@@ -176,63 +176,69 @@ export const createEmployeeSchema = z
 
 // POST：新建 payment_method。name/code/type required、其他 optional。
 // 跟 UPDATE 對稱、whitelist 嚴格、防 spread attack（William review 2026-05-11 補）
-export const createPaymentMethodSchema = z.object({
-  name: z.string().min(1).max(100),
-  code: z.string().min(1).max(50),
-  type: z.enum(['receipt', 'payment']),
-  description: z.string().max(500).optional().nullable(),
-  placeholder: z.string().max(200).optional().nullable(),
-  is_active: z.boolean().optional(),
-  sort_order: z.number().int().optional(),
-  debit_account_id: z.string().uuid().optional().nullable(),
-  credit_account_id: z.string().uuid().optional().nullable(),
-  fee_account_id: z.string().uuid().optional().nullable(),
-  fee_percent: z.number().min(0).max(100).optional().nullable(),
-  fee_fixed: z.number().min(0).optional().nullable(),
-  // 種類 enum（分類用、各 kind 邏輯未來再接）
-  kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
-  // provider（B 方案）：誰處理金流。manual / sinopac_* / 未來其他銀行
-  provider: z.string().min(1).max(50).optional(),
-  // 對客戶開放（客戶自助付款頁可選）2026-05-26
-  is_customer_visible: z.boolean().optional(),
-})
+export const createPaymentMethodSchema = z
+  .object({
+    name: z.string().min(1).max(100),
+    code: z.string().min(1).max(50),
+    type: z.enum(['receipt', 'payment']),
+    description: z.string().max(500).optional().nullable(),
+    placeholder: z.string().max(200).optional().nullable(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().int().optional(),
+    debit_account_id: z.string().uuid().optional().nullable(),
+    credit_account_id: z.string().uuid().optional().nullable(),
+    fee_account_id: z.string().uuid().optional().nullable(),
+    fee_percent: z.number().min(0).max(100).optional().nullable(),
+    fee_fixed: z.number().min(0).optional().nullable(),
+    // 種類 enum（分類用、各 kind 邏輯未來再接）
+    kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
+    // provider（B 方案）：誰處理金流。manual / sinopac_* / 未來其他銀行
+    provider: z.string().min(1).max(50).optional(),
+    // 對客戶開放（客戶自助付款頁可選）2026-05-26
+    is_customer_visible: z.boolean().optional(),
+  })
+  .strict()
 
-export const updatePaymentMethodSchema = z.object({
-  id: z.string().uuid(),
-  // whitelist：name/code/type/description/placeholder/is_active/sort_order/科目綁定/手續費
-  // 拒收 is_system / workspace_id / created_at / id 重複等敏感欄位
-  name: z.string().min(1).max(100).optional(),
-  code: z.string().min(1).max(50).optional(),
-  type: z.enum(['receipt', 'payment']).optional(),
-  description: z.string().max(500).optional().nullable(),
-  placeholder: z.string().max(200).optional().nullable(),
-  is_active: z.boolean().optional(),
-  sort_order: z.number().int().optional(),
-  debit_account_id: z.string().uuid().optional().nullable(),
-  credit_account_id: z.string().uuid().optional().nullable(),
-  fee_account_id: z.string().uuid().optional().nullable(),
-  fee_percent: z.number().min(0).max(100).optional().nullable(),
-  fee_fixed: z.number().min(0).optional().nullable(),
-  // 種類 enum（分類用、各 kind 邏輯未來再接）
-  kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
-  // provider（B 方案）
-  provider: z.string().min(1).max(50).optional(),
-  // 對客戶開放（客戶自助付款頁可選）2026-05-26
-  is_customer_visible: z.boolean().optional(),
-})
+export const updatePaymentMethodSchema = z
+  .object({
+    id: z.string().uuid(),
+    // whitelist：name/code/type/description/placeholder/is_active/sort_order/科目綁定/手續費
+    // 拒收 is_system / workspace_id / created_at / id 重複等敏感欄位
+    name: z.string().min(1).max(100).optional(),
+    code: z.string().min(1).max(50).optional(),
+    type: z.enum(['receipt', 'payment']).optional(),
+    description: z.string().max(500).optional().nullable(),
+    placeholder: z.string().max(200).optional().nullable(),
+    is_active: z.boolean().optional(),
+    sort_order: z.number().int().optional(),
+    debit_account_id: z.string().uuid().optional().nullable(),
+    credit_account_id: z.string().uuid().optional().nullable(),
+    fee_account_id: z.string().uuid().optional().nullable(),
+    fee_percent: z.number().min(0).max(100).optional().nullable(),
+    fee_fixed: z.number().min(0).optional().nullable(),
+    // 種類 enum（分類用、各 kind 邏輯未來再接）
+    kind: z.enum(['wire_transfer', 'card', 'cash', 'check', 'other']).optional().nullable(),
+    // provider（B 方案）
+    provider: z.string().min(1).max(50).optional(),
+    // 對客戶開放（客戶自助付款頁可選）2026-05-26
+    is_customer_visible: z.boolean().optional(),
+  })
+  .strict()
 
-export const upsertBankAccountSchema = z.object({
-  id: z.string().uuid().optional(),
-  code: z.string().min(1).max(50),
-  name: z.string().min(1).max(100),
-  bank_code: z.string().max(3).optional().nullable(), // FK to ref_banks.bank_code（onboarding fix pack）
-  bank_name: z.string().max(100).optional().nullable(),
-  account_number: z.string().max(50).optional().nullable(),
-  is_default: z.boolean().optional(),
-  account_id: z.string().uuid().optional().nullable(),
-  is_disbursement_eligible: z.boolean().optional(),
-  cross_bank_fee: z.number().min(0).optional(), // 跨行匯款每筆手續費（2026-05-21 加）
-})
+export const upsertBankAccountSchema = z
+  .object({
+    id: z.string().uuid().optional(),
+    code: z.string().min(1).max(50),
+    name: z.string().min(1).max(100),
+    bank_code: z.string().max(3).optional().nullable(), // FK to ref_banks.bank_code（onboarding fix pack）
+    bank_name: z.string().max(100).optional().nullable(),
+    account_number: z.string().max(50).optional().nullable(),
+    is_default: z.boolean().optional(),
+    account_id: z.string().uuid().optional().nullable(),
+    is_disbursement_eligible: z.boolean().optional(),
+    cross_bank_fee: z.number().min(0).optional(), // 跨行匯款每筆手續費（2026-05-21 加）
+  })
+  .strict()
 
 export const autoCreateVoucherSchema = z
   .object({

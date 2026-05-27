@@ -171,7 +171,6 @@ export default function FinanceSettingsPage() {
             type={activeSection}
             paymentMethods={paymentMethods}
             chartOfAccounts={chartOfAccounts}
-            workspaceId={workspaceId}
             reload={loadData}
             setPaymentMethods={setPaymentMethods}
             isDialogOpen={isMethodDialogOpen}
@@ -199,7 +198,6 @@ export default function FinanceSettingsPage() {
         {activeSection === 'bank' && (
           <BankAccountsSection
             bankAccounts={bankAccounts}
-            workspaceId={workspaceId}
             reload={loadData}
             isDialogOpen={isBankDialogOpen}
             setIsDialogOpen={setIsBankDialogOpen}
