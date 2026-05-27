@@ -183,6 +183,10 @@ export async function saveEditedRequest({
     if (currentRequest.tour_id) {
       await recalculateExpenseStats(currentRequest.tour_id)
     }
+    // 2026-05-27 修（P0-1）：觸發 page 的 refreshAll（= invalidatePaymentRequests + refreshListView）。
+    // invalidatePaymentRequests 只刷 entity key、刷不到列表頁 useRequestsListView 的自訂分頁 key；
+    // 此處之前漏呼叫 onSuccess → 編輯請款後列表金額卡舊值（紅線 F）。
+    _onSuccess?.()
 
     setIsDirty(false)
     setDeletedItemIds([])
@@ -209,6 +213,8 @@ export interface DeleteEditParams {
   setSelectedRequestId: (v: string) => void
   onOpenChange: (open: boolean) => void
   setIsSubmitting: (v: boolean) => void
+  /** 2026-05-27（P0-1）：刪除後刷列表頁自訂 key（page 傳 refreshAll） */
+  onSuccess?: () => void
 }
 
 export async function deleteEditedRequest({
@@ -219,6 +225,7 @@ export async function deleteEditedRequest({
   setSelectedRequestId,
   onOpenChange,
   setIsSubmitting,
+  onSuccess: _onSuccess,
 }: DeleteEditParams): Promise<void> {
   const deleteMessage = isEditBatch
     ? `確定要刪除此請款單（${currentRequest.code}）嗎？此操作無法復原。\n\n注意：只會刪除當前選中的請款單，同批次的其他請款單不受影響。`
@@ -236,6 +243,8 @@ export async function deleteEditedRequest({
     if (currentRequest.tour_id) {
       await recalculateExpenseStats(currentRequest.tour_id)
     }
+    // 2026-05-27 修（P0-1）：刪除後也刷列表頁 useRequestsListView 自訂 key（同 save 路徑）
+    _onSuccess?.()
     await alert('請款單已刪除', 'success')
 
     if (isEditBatch && editBatchRequests.length > 1) {
