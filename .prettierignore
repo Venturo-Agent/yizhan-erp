@@ -38,3 +38,6 @@ coverage/
 
 # Legacy scripts (手動維護，不需格式化)
 scripts/legacy/
+
+# 工作筆記區（健檢報告／草稿／handoff／研究卡／規格文件 — 給人看的文件、非 ship 程式碼，不納入 prettier 格式檢查）
+workspace/
