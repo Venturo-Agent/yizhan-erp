@@ -1,14 +1,10 @@
 'use client'
 
 /**
- * AddonsTab — 附加服務（加值訂閱）
+ * AddonsTab — 附加服務
  *
- * William 2026-05-15 拍板：客戶可單獨購買的加值包、跟月費 module 分開計費。
- * William 2026-05-19 重組：分三區（資料庫 / API / AI），原 API 整合 tab 已砍、
- *   API 加值併入這、護照 / 航班走 IntegrationSettingsDialog 設定。
- *
- * 三區資料底層不同：
- * - 資料庫加值：workspace_features（toggle 寫 features 表）
+ * 2026-05-27 William 拍板：資料庫加值「販售」概念移除（公共池資料歸還角落、見
+ *   _registry.ts addon_data_* 凍住註解）、區塊已下架。現存兩區：
  * - API 加值：workspace_integrations（toggle + config 寫 integrations 表、走 dialog）
  * - AI 加值：未來預留、目前 placeholder
  */
@@ -16,10 +12,6 @@
 import { useEffect, useState } from 'react'
 import {
   PackagePlus,
-  Database,
-  Hotel,
-  MapPinned,
-  UtensilsCrossed,
   Bot,
   Plug,
   Plane,
@@ -28,26 +20,15 @@ import {
   Settings,
   type LucideIcon,
 } from 'lucide-react'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { getAddonFeatures } from '@/lib/permissions'
 import { INTEGRATIONS } from '@/lib/integrations/registry'
 import { IntegrationSettingsDialog } from './integration-settings-dialog'
 import { logger } from '@/lib/utils/logger'
 
 interface AddonsTabProps {
-  features: { feature_code: string; enabled: boolean }[]
-  onToggle: (featureCode: string, enabled: boolean) => void
   workspaceId: string
-}
-
-// 資料庫加值 addon code → icon
-const DB_ADDON_ICONS: Record<string, LucideIcon> = {
-  addon_data_attractions: MapPinned,
-  addon_data_hotels: Hotel,
-  addon_data_restaurants: UtensilsCrossed,
 }
 
 // API 加值 integration code → icon
@@ -62,8 +43,7 @@ interface IntegrationStatus {
   configured: boolean
 }
 
-export function AddonsTab({ features, onToggle, workspaceId }: AddonsTabProps) {
-  const addonFeatures = getAddonFeatures()
+export function AddonsTab({ workspaceId }: AddonsTabProps) {
   const [integrationStatus, setIntegrationStatus] = useState<Record<string, IntegrationStatus>>({})
   const [dialogCode, setDialogCode] = useState<string | null>(null)
 
@@ -88,9 +68,6 @@ export function AddonsTab({ features, onToggle, workspaceId }: AddonsTabProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspaceId])
 
-  const isFeatureEnabled = (code: string) =>
-    features.find(f => f.feature_code === code)?.enabled ?? false
-
   return (
     <div className="space-y-8">
       {/* 說明卡 */}
@@ -102,42 +79,13 @@ export function AddonsTab({ features, onToggle, workspaceId }: AddonsTabProps) {
           <div>
             <h3 className="font-semibold text-morandi-primary mb-1">附加服務</h3>
             <p className="text-sm text-morandi-secondary leading-relaxed">
-              可單獨販售的加值包、跟月費 module 分開計費。分三類：
-              <strong className="text-morandi-primary">資料庫加值</strong>（共用旅遊資料）、
+              workspace 的延伸功能設定。分兩類：
               <strong className="text-morandi-primary">API 加值</strong>（第三方 API 整合）、
               <strong className="text-morandi-primary">AI 加值</strong>（即將推出）。
             </p>
           </div>
         </div>
       </Card>
-
-      {/* 📚 資料庫加值 */}
-      <SectionHeader
-        icon={Database}
-        title="資料庫加值"
-        description="購買後可讀取對應的共用旅遊資料。寫權限（編輯資料）另由 shared_data.X.write capability 控、預設只給漫途 + 角落。"
-      />
-      {addonFeatures.length === 0 ? (
-        <EmptyState text="目前沒有可供販售的資料庫加值。" />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {addonFeatures.map(addon => {
-            const Icon = DB_ADDON_ICONS[addon.code] ?? Database
-            const enabled = isFeatureEnabled(addon.code)
-            return (
-              <AddonCard
-                key={addon.code}
-                icon={Icon}
-                title={addon.name}
-                description={addon.description}
-                badgeText={addon.code}
-                enabled={enabled}
-                onToggle={next => onToggle(addon.code, next)}
-              />
-            )
-          })}
-        </div>
-      )}
 
       {/* 🔌 API 加值 */}
       <SectionHeader
@@ -272,46 +220,4 @@ function EmptyState({ text }: { text: string }) {
   )
 }
 
-function AddonCard({
-  icon: Icon,
-  title,
-  description,
-  badgeText,
-  enabled,
-  onToggle,
-}: {
-  icon: LucideIcon
-  title: string
-  description: string
-  badgeText: string
-  enabled: boolean
-  onToggle: (next: boolean) => void
-}) {
-  return (
-    <Card className="rounded-[24px] p-5 bg-gradient-to-t from-white to-morandi-cream border-[3px] border-white shadow-[rgba(180,160,120,0.15)_0px_12px_24px_-8px]">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div
-            className={
-              enabled
-                ? 'rounded-md p-2.5 bg-morandi-gold/15 text-morandi-gold'
-                : 'rounded-md p-2.5 bg-morandi-secondary/10 text-morandi-secondary'
-            }
-          >
-            <Icon className="size-5" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-morandi-primary">{title}</div>
-            <p className="text-sm text-morandi-secondary mt-1 leading-relaxed">{description}</p>
-            <div className="mt-2">
-              <Badge variant="outline" className="font-mono text-xs">
-                {badgeText}
-              </Badge>
-            </div>
-          </div>
-        </div>
-        <Switch checked={enabled} onCheckedChange={onToggle} />
-      </div>
-    </Card>
-  )
-}
+// AddonCard（資料庫加值用）已隨販售區塊下架移除（2026-05-27）

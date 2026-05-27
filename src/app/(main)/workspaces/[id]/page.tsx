@@ -272,7 +272,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
   // primaryAction 在「總覽」+「附加服務」tab 顯示「儲存」（兩者都動 features state、共用 handleSave）
   // AI / Billing tab 各自有獨立儲存按鈕
   const primaryAction =
-    activeTab === TAB_VALUES.OVERVIEW || activeTab === TAB_VALUES.ADDONS
+    activeTab === TAB_VALUES.OVERVIEW
       ? {
           label: saving ? '儲存中...' : '儲存',
           icon: Save,
@@ -319,23 +319,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
 
       {activeTab === TAB_VALUES.AI_HEALTH && <AiHealthTab workspaceId={id} />}
 
-      {activeTab === TAB_VALUES.ADDONS && (
-        <AddonsTab
-          features={features}
-          workspaceId={id}
-          onToggle={(code, enabled) => {
-            setFeatures(prev => {
-              const idx = prev.findIndex(f => f.feature_code === code)
-              if (idx >= 0) {
-                const next = [...prev]
-                next[idx] = { ...next[idx], enabled }
-                return next
-              }
-              return [...prev, { feature_code: code, enabled }]
-            })
-          }}
-        />
-      )}
+      {activeTab === TAB_VALUES.ADDONS && <AddonsTab workspaceId={id} />}
 
       {activeTab === TAB_VALUES.BILLING && <BillingTab workspaceId={id} />}
     </ContentPageLayout>
