@@ -11,6 +11,7 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { apiPost } from '@/lib/api/client'
 import { formatMoney } from '@/lib/utils/format-currency'
+import { calculateReceiptFees } from '@/lib/finance/receipt-fees'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { useAuthStore } from '@/stores'
 import { updateReceipt } from '@/data'
@@ -132,8 +133,11 @@ export function ReceiptDialogFooter({
         feeFixed = Number(method?.fee_fixed || 0)
       }
       const receiptAmount = Number(paymentItems[0]?.amount || totalAmount || 0)
-      const calcFees = Math.round((receiptAmount * feePercent) / 100) + feeFixed
-      const calcActual = receiptAmount - calcFees
+      const { fees: calcFees, actualAmount: calcActual } = calculateReceiptFees(
+        receiptAmount,
+        feePercent,
+        feeFixed
+      )
 
       await updateFunc(editingReceipt.id, {
         status: 'confirmed',
