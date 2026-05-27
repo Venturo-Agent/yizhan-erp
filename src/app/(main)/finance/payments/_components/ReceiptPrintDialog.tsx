@@ -13,7 +13,7 @@ import { Money } from '@/components/ui/money'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Printer } from 'lucide-react'
-import { useWorkspaceSettings, getLogoStyle } from '@/hooks/useWorkspaceSettings'
+import { useWorkspaceSettings, getScaledLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 import { SealImage } from '@/components/seal-image'
 import type { Receipt } from '@/stores'
 
@@ -167,7 +167,18 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
       >
         <div>
           {workspace.logo_url && (
-            <img src={workspace.logo_url} alt="logo" style={getLogoStyle('print')} />
+            <div style={getScaledLogoBoxStyle(workspace, { applyOffset: true })}>
+              <img
+                src={workspace.logo_url}
+                alt="logo"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'left top',
+                }}
+              />
+            </div>
           )}
           <div style={{ marginTop: '6px', fontSize: '14px', fontWeight: 600 }}>
             {workspace.legal_name || workspace.name}
