@@ -95,96 +95,12 @@ export const validateLoginSchema = z.object({
 })
 
 // ==========================================
-// Gemini 圖片生成
-// ==========================================
-
-export const generateImageSchema = z.object({
-  prompt: z.string().min(1, '請提供 Prompt'),
-  style: z.string().optional(),
-  aspectRatio: z.string().default('16:9'),
-})
-
-// ==========================================
 // OCR 批次重處理
 // ==========================================
 
 export const batchReprocessSchema = z.object({
   table: z.enum(['all', 'customers', 'order_members']).default('all'),
   limit: z.number().int().positive().max(100).default(10),
-})
-
-// ==========================================
-// 頻道成員
-// ==========================================
-
-export const addChannelMembersSchema = z.object({
-  employeeIds: z.array(z.string()).min(1, '至少選擇一位成員'),
-  role: z.string().default('member'),
-})
-
-export const removeChannelMemberSchema = z.object({
-  memberId: z.string().min(1, '缺少成員 ID'),
-})
-
-// ==========================================
-// Bot 通知
-// ==========================================
-
-export const botNotificationRequestSchema = z.object({
-  recipient_id: z.string().min(1, '缺少收件人 ID'),
-  message: z.string().min(1, '訊息不能為空'),
-  type: z.enum(['info', 'warning', 'error']).default('info'),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-})
-
-// ==========================================
-// 行程生成
-// ==========================================
-
-export const generateItineraryRequestSchema = z.object({
-  cityId: z.string().optional(),
-  countryId: z.string().optional(),
-  destination: z.string().optional(),
-  numDays: z.number().int().min(1).max(30, '天數必須在 1-30 天之間'),
-  departureDate: z.string().min(1, '請提供出發日期'),
-  outboundFlight: z.object({ arrivalTime: z.string().optional() }).optional(),
-  returnFlight: z.object({ departureTime: z.string().optional() }).optional(),
-  arrivalTime: z.string().optional(),
-  departureTime: z.string().optional(),
-  accommodations: z.array(z.unknown()).optional(),
-  style: z.string().optional(),
-  theme: z.string().optional(),
-})
-
-// ==========================================
-// AI 景點補充
-// ==========================================
-
-export const suggestAttractionSchema = z.object({
-  name: z.string().min(1, '請提供景點名稱'),
-  city: z.string().optional(),
-  country: z.string().optional(),
-  category: z.string().optional(),
-  existingData: z
-    .object({
-      latitude: z.number().optional(),
-      longitude: z.number().optional(),
-      duration_minutes: z.number().optional(),
-      ticket_price: z.string().optional(),
-      opening_hours: z.string().optional(),
-      description: z.string().optional(),
-    })
-    .optional(),
-})
-
-// ==========================================
-// AI 圖片編輯
-// ==========================================
-
-export const editImageSchema = z.object({
-  imageUrl: z.string().min(1, '請提供圖片 URL'),
-  action: z.string().optional(),
-  customPrompt: z.string().optional(),
 })
 
 // ==========================================
@@ -196,39 +112,8 @@ export const fetchImageSchema = z.object({
 })
 
 // ==========================================
-// Bot 開票狀態
+// 員工
 // ==========================================
-
-export const ticketStatusPostSchema = z.object({
-  workspace_id: z.string().uuid('workspace_id 需為 UUID'),
-  channel_id: z.string().optional(),
-  notify_sales: z.boolean().default(true),
-  days: z.number().int().positive().default(14),
-})
-
-export const ticketStatusPatchSchema = z.object({
-  workspace_id: z.string().uuid('workspace_id 需為 UUID'),
-  member_ids: z.array(z.string()).optional(),
-  order_id: z.string().optional(),
-  flight_self_arranged: z.boolean(),
-})
-
-// ==========================================
-// 租戶 / 員工 / 任務
-// ==========================================
-
-export const createWorkspaceSchema = z.object({
-  name: z.string().min(1).max(100),
-  code: z
-    .string()
-    .min(2)
-    .max(20)
-    .regex(/^[A-Za-z0-9_-]+$/, 'code 只允許英數 / _ / -'),
-  type: z.enum(['travel_agency', 'tour_operator', 'other']).optional(),
-  adminName: z.string().min(1).max(50).optional(),
-  adminEmail: z.string().email().max(255).optional(),
-  adminEmployeeNumber: z.string().min(1).max(20).optional(),
-})
 
 export const createEmployeeSchema = z.object({
   // employee_number 由 server 內呼叫 generate_employee_number RPC 配發
@@ -265,13 +150,6 @@ export const createEmployeeSchema = z.object({
   tourism_join_date: z.string().date().nullable().optional(),
   labor_insurance_date: z.string().date().nullable().optional(),
   // 不收受信任欄位（must_change_password / workspace_id / user_id 由 server 強塞）
-})
-
-export const createTaskSchema = z.object({
-  title: z.string().min(1).max(200),
-  description: z.string().max(5000).optional().nullable(),
-  priority: z.enum(['P0', 'P1', 'P2', 'P3']).optional(),
-  assignees: z.array(z.string().uuid()).max(20).optional(),
 })
 
 // ==========================================
