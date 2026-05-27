@@ -17,6 +17,7 @@ import { Loader2, CheckSquare, XCircle, AlertTriangle, Building2 } from 'lucide-
 import { LABELS, BatchData } from './types'
 import { AmountRow, BankRow, MemberRow, ReceiptHistoryRow } from './PaymentDisplayComponents'
 import { PayFormDialog } from './PayFormDialog'
+import { getScaledLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 
 export default function PublicPayPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params)
@@ -107,12 +108,18 @@ export default function PublicPayPage({ params }: { params: Promise<{ token: str
         {/* Header */}
         <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-3 shadow-sm">
           {workspace?.logo_url ? (
-            <img
-              src={workspace.logo_url}
-              alt={workspace.name}
-              className="h-10 w-auto object-contain"
-              style={{ maxWidth: '160px' }}
-            />
+            <div style={getScaledLogoBoxStyle(workspace, { maxHeight: 56 })}>
+              <img
+                src={workspace.logo_url}
+                alt={workspace.name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'left center',
+                }}
+              />
+            </div>
           ) : (
             <Building2 className="h-8 w-8 text-morandi-gold" />
           )}

@@ -113,6 +113,39 @@ export function getPrintLogoBoxStyle(
 }
 
 /**
+ * 取得「正常流」logo box 樣式（吃 logo_scale + 可選位移 + 可選最大高度上限）。
+ *
+ * 跟 getPrintLogoBoxStyle（絕對定位版）的差別：這個保持正常流、用 transform 套位移、
+ * 不會擠壓相鄰內容（如收據 logo 下方緊接的公司名）。base 120×40、scale 1.0 = 100%。
+ *
+ * - 列印文件（收據）：{ applyOffset: true }、不設 maxHeight（A4 容得下大倍率）
+ * - 網頁 UI（付款頁 / 頁尾）：設 maxHeight 防列印用的大倍率撐爆版面；
+ *   網頁多為置中 / flex 佈局、列印微調用的位移套上去會讓 logo 偏出容器、故預設不套位移
+ */
+export function getScaledLogoBoxStyle(
+  ws: { logo_scale?: number | null; logo_offset_x?: number | null; logo_offset_y?: number | null },
+  opts?: { maxHeight?: number; applyOffset?: boolean }
+): React.CSSProperties {
+  const BASE_W = 120
+  const BASE_H = 40
+  const scale = typeof ws.logo_scale === 'number' && ws.logo_scale > 0 ? ws.logo_scale : 1.0
+  let width = BASE_W * scale
+  let height = BASE_H * scale
+  // 網頁場景：超過上限就等比例縮回（高度封頂、寬度跟著比例縮）
+  if (opts?.maxHeight && height > opts.maxHeight) {
+    width = width * (opts.maxHeight / height)
+    height = opts.maxHeight
+  }
+  const style: React.CSSProperties = { width: `${width}px`, height: `${height}px` }
+  if (opts?.applyOffset) {
+    const offsetX = typeof ws.logo_offset_x === 'number' ? ws.logo_offset_x : 0
+    const offsetY = typeof ws.logo_offset_y === 'number' ? ws.logo_offset_y : 0
+    style.transform = `translate(${offsetX}px, ${offsetY}px)`
+  }
+  return style
+}
+
+/**
  * 取得目前 workspace 的公司設定（銀行資訊、電話、地址、logo 等）
  *
  * SWR cache 策略(2026-05-20 加):

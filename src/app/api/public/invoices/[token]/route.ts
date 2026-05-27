@@ -76,7 +76,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
         s
           .from('workspaces')
           .select(
-            'id, name, logo_url, bank_code, bank_name, bank_branch, bank_account, bank_account_name'
+            'id, name, logo_url, logo_scale, logo_offset_x, logo_offset_y, bank_code, bank_name, bank_branch, bank_account, bank_account_name'
           )
           .eq('id', batch.workspace_id)
           .maybeSingle(),
@@ -237,6 +237,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ toke
         ? {
             name: workspace.name,
             logo_url: workspace.logo_url,
+            logo_scale: workspace.logo_scale,
+            logo_offset_x: workspace.logo_offset_x,
+            logo_offset_y: workspace.logo_offset_y,
             bank: workspace.bank_account
               ? {
                   bank_name: workspace.bank_name,

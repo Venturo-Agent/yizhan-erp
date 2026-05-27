@@ -102,6 +102,9 @@ export interface BatchData {
   workspace: {
     name: string
     logo_url: string | null
+    logo_scale: number | null
+    logo_offset_x: number | null
+    logo_offset_y: number | null
     bank: {
       bank_name: string | null
       bank_code: string | null
