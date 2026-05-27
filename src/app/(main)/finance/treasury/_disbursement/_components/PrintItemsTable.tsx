@@ -228,11 +228,12 @@ export function PrintItemsTable({
                         isFirstInGroup && groupIdx > 0 ? `1px solid ${COLORS.gold}` : 'none',
                     }}
                   >
-                    {/* 2026-05-21 William 拍板：金額 = item.amount + 手續費、註記「(含 X 元手續費)」 */}
-                    {(item.amount + item.feeAmount).toLocaleString()}
+                    {/* 2026-05-27 William 拍板：金額 = 純應付額；手續費分攤在本列下方小字、
+                        含進右邊「小計」欄（group.total = 金額 + 手續費）。不丟到底部獨立行。 */}
+                    {item.amount.toLocaleString()}
                     {item.feeAmount > 0 && (
                       <div style={{ fontSize: '8px', color: COLORS.gray, marginTop: '1px' }}>
-                        （含 {Math.round(item.feeAmount).toLocaleString()} 手續費）
+                        手續費 {Math.round(item.feeAmount).toLocaleString()}
                       </div>
                     )}
                   </td>

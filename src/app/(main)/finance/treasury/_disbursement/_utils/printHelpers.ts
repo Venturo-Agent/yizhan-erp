@@ -60,25 +60,40 @@ export function processItems(
     // 3. 一般供應商 → 廠商名
     const itemExt = item as unknown as {
       advanced_by_name?: string | null
+      advanced_by_employee?:
+        | { chinese_name?: string | null; display_name?: string | null }
+        | { chinese_name?: string | null; display_name?: string | null }[]
+        | null
+      suppliers?: { name?: string | null } | { name?: string | null }[] | null
       payee_employee_id?: string | null
       payee_employee?:
         | { chinese_name?: string | null; display_name?: string | null }
         | { chinese_name?: string | null; display_name?: string | null }[]
         | null
     }
-    const advancedBy = itemExt.advanced_by_name || undefined
+    // 代墊人名：優先即時 join 員工表（display_name ?? chinese_name）、退回存死的 advanced_by_name。
+    // 2026-05-27 William 抓出：員工改名（William→簡瑋廷）後 advanced_by_name 快照沒更新、列印顯示舊名。
+    const abRaw = itemExt.advanced_by_employee
+    const abObj = Array.isArray(abRaw) ? abRaw[0] : abRaw
+    const advancedBy =
+      abObj?.display_name || abObj?.chinese_name || itemExt.advanced_by_name || undefined
+    // 供應商名：優先即時 join 供應商表、退回存死的 supplier_name。
+    // 2026-05-27 William 抓出：新流程建單沒寫 supplier_name 快照（8 筆空白）、列印誤顯示「無供應商」、其實 supplier_id 都在。
+    const supRaw = itemExt.suppliers
+    const supObj = Array.isArray(supRaw) ? supRaw[0] : supRaw
+    const liveSupplierName = supObj?.name || item.supplier_name || null
     // payee_employee 從 PostgREST join 可能是 object 或 array、取第一個
     const peRaw = itemExt.payee_employee
     const peObj = Array.isArray(peRaw) ? peRaw[0] : peRaw
     const payeeEmployeeName = peObj?.display_name || peObj?.chinese_name || undefined
 
-    const supplierName = item.supplier_name || '未指定供應商'
+    const supplierName = liveSupplierName || '未指定供應商'
     let payFor: string
     if (isCompany && payeeEmployeeName) {
       // 公司請款 + 員工受款人 → 直接顯示員工名
       payFor = payeeEmployeeName
     } else if (advancedBy) {
-      payFor = `${advancedBy}（${item.supplier_name || '無供應商'}）`
+      payFor = `${advancedBy}（${liveSupplierName || '無供應商'}）`
     } else {
       payFor = supplierName
     }
@@ -108,7 +123,8 @@ export function groupByPayFor(items: ProcessedItem[]): PayForGroup[] {
     grouped.get(item.payFor)!.push(item)
   }
 
-  // 2026-05-21 William 拍板：小計 = sum(amount + feeAmount)、跟各 item 顯示的「含手續費金額」對得上
+  // 2026-05-27 William 拍板：小計 = sum(amount + feeAmount)、手續費分攤在上面各列、含進小計。
+  // 金額欄顯示純額、下方小字分攤手續費、小計欄為兩者合計。
   const groups: PayForGroup[] = Array.from(grouped.entries()).map(([payFor, groupItems]) => ({
     payFor,
     items: groupItems,

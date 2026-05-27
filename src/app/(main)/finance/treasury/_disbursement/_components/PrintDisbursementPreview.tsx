@@ -139,8 +139,10 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
     )
     const tourGroups = useMemo(() => splitLargeGroups(groupByPayFor(tourItems), 5), [tourItems])
 
-    const companyTotal = companyItems.reduce((sum, item) => sum + item.amount, 0)
-    const tourTotal = tourItems.reduce((sum, item) => sum + item.amount, 0)
+    // 2026-05-27 William 拍板：小計 = 應付額 + 分攤手續費、跟各列「小計」欄（group.total）同口徑。
+    // 手續費分攤在上面、含進小計；總計 = order.amount(純) + bankFee，數字一致。
+    const companyTotal = companyItems.reduce((sum, item) => sum + item.amount + item.feeAmount, 0)
+    const tourTotal = tourItems.reduce((sum, item) => sum + item.amount + item.feeAmount, 0)
     const totalAmount = order.amount || 0
     // 銀行手續費 2026-05-21 加（disbursement_orders.total_fee、generated types 可能還沒 regen、cast 過去）
     const bankFee = Number((order as unknown as { total_fee?: number | null }).total_fee || 0)

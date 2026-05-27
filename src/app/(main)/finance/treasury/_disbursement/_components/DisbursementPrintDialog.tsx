@@ -81,7 +81,7 @@ export function DisbursementPrintDialog({
         const { data: items } = await supabase
           .from('payment_request_items')
           .select(
-            'id, request_id, description, quantity, unit_price, subtotal, category, tour_id, supplier_name, sort_order, item_number, notes, workspace_id, advanced_by, advanced_by_name, payee_employee_id, payee_employee:employees!payment_request_items_payee_employee_id_fkey(chinese_name, display_name)'
+            'id, request_id, description, quantity, unit_price, subtotal, category, tour_id, supplier_id, supplier_name, suppliers:supplier_id(name), sort_order, item_number, notes, workspace_id, advanced_by, advanced_by_name, advanced_by_employee:employees!payment_request_items_advanced_by_fkey(chinese_name, display_name), payee_employee_id, payee_employee:employees!payment_request_items_payee_employee_id_fkey(chinese_name, display_name)'
           )
           .in('request_id', requestIds)
           .limit(500)

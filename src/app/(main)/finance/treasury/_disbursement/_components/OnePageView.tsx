@@ -56,21 +56,8 @@ export function OnePageView({
                 <span className="text-morandi-secondary">
                   {b.items.length} 筆 / {totalAmount.toLocaleString()}
                 </span>
-                {/* 2026-05-21 William 拍板 A：砍 input、強制 settings SSOT、user 不能改
-                    系統按 bank_accounts.cross_bank_fee × unique payer 自動算
-                    = 0 時顯示警告引導 user 去設定 */}
-                {b.total_fee > 0 ? (
-                  <span className="text-morandi-secondary">
-                    手續費 {b.total_fee.toLocaleString()}
-                  </span>
-                ) : (
-                  <span
-                    className="text-status-danger text-xs"
-                    title="該帳戶未設跨行手續費、請到「公司設定 → 銀行帳戶」填寫"
-                  >
-                    ⚠ 未設手續費
-                  </span>
-                )}
+                {/* 2026-05-27 William 拍板：wizard 批次不顯示手續費（易誤解同行/跨行）。
+                    手續費於存檔時按 SSOT 計算、列印預覽「跨行手續費」行才顯示。 */}
                 <button
                   type="button"
                   className="p-0.5 text-morandi-secondary hover:text-status-danger"

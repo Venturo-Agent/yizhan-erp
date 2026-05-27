@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { distributeFees, type DistributionItem } from '../fee-distribution'
+import { distributeFees, isCrossBankTransfer, type DistributionItem } from '../fee-distribution'
 
 const itemsCross = (count: number, amount = 1000): DistributionItem[] =>
   Array.from({ length: count }, (_, i) => ({
@@ -202,5 +202,34 @@ describe('distributeFees - edge cases', () => {
     })
     const fees = Array.from(result.per_item_fees.values())
     expect(fees).toEqual([10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
+  })
+})
+
+// ─── concept A SSOT：同行/跨行判定（2026-05-27 William 拍板）───────────────────
+
+describe('isCrossBankTransfer - 同行/跨行判定', () => {
+  it('收款對象與公司同一家銀行 → 同行、不收費', () => {
+    expect(isCrossBankTransfer({ payeeBankCode: '013', fromBankCode: '013' })).toBe(false)
+  })
+
+  it('收款對象與公司不同銀行 → 跨行、收費（員工開別家也算）', () => {
+    expect(isCrossBankTransfer({ payeeBankCode: '822', fromBankCode: '013' })).toBe(true)
+  })
+
+  it('收款對象沒填銀行 → 視同跨行照收（選項 A、保守）', () => {
+    expect(isCrossBankTransfer({ payeeBankCode: null, fromBankCode: '013' })).toBe(true)
+  })
+
+  it('公司帳戶沒 bank_code → 視同跨行照收', () => {
+    expect(isCrossBankTransfer({ payeeBankCode: '013', fromBankCode: null })).toBe(true)
+  })
+
+  it('cash / check 不走轉帳 → 一律不收（即使跨行）', () => {
+    expect(
+      isCrossBankTransfer({ payeeBankCode: '822', fromBankCode: '013', itemKind: 'cash' })
+    ).toBe(false)
+    expect(
+      isCrossBankTransfer({ payeeBankCode: '822', fromBankCode: '013', itemKind: 'check' })
+    ).toBe(false)
   })
 })

@@ -163,40 +163,20 @@ export function CreateDisbursementWizardDialog({
       // 新增模式：吸入勾選 items 進 stagedBatches、清勾選
       // 2026-05-22 William 拍板：購物車合併 — 同帳戶 batch 已存在 → 追加 items、不建新 batch
       const pickedItemsNow = pickedItems
-      const crossBankFee = Number(bank.cross_bank_fee || 0)
-
-      const payerKeyOf = (it: (typeof pickedItemsNow)[0]): string =>
-        it.advanced_by
-          ? `e:${it.advanced_by}`
-          : it.payee_employee_id
-            ? `e:${it.payee_employee_id}`
-            : it.supplier_id
-              ? `s:${it.supplier_id}`
-              : `i:${it.id}`
-
+      // 2026-05-27 William 拍板：wizard 不預估、不顯示手續費（同行/跨行在此判斷易誤解）。
+      // 真正的手續費於存檔（batch-create）按 SSOT isCrossBankTransfer 計算、列印預覽「跨行手續費」行才顯示。
+      // 這裡 total_fee 一律帶 0、不影響存檔結果（per-payer mode 由 batch-create 自行重算）。
       setStagedBatches(prev => {
         const existing = prev.find(b => b.from_bank_account_id === bank.id)
         if (existing) {
-          // 合併：追加 items 進原 batch、重算 estimatedFee
+          // 合併：追加 items 進原 batch
           const mergedItems = [...existing.items, ...pickedItemsNow]
           const mergedItemIds = [...existing.item_ids, ...pickedItemIds]
-          let newFee = 0
-          if (crossBankFee > 0) {
-            const uniquePayers = new Set<string>()
-            for (const it of mergedItems) uniquePayers.add(payerKeyOf(it))
-            newFee = uniquePayers.size * crossBankFee
-          }
           return prev.map(b =>
             b.batch_id === existing.batch_id
-              ? { ...b, items: mergedItems, item_ids: mergedItemIds, total_fee: newFee }
+              ? { ...b, items: mergedItems, item_ids: mergedItemIds }
               : b
           )
-        }
-        let estimatedFee = 0
-        if (crossBankFee > 0) {
-          const uniquePayers = new Set<string>()
-          for (const it of pickedItemsNow) uniquePayers.add(payerKeyOf(it))
-          estimatedFee = uniquePayers.size * crossBankFee
         }
         const batch: import('./disbursement-wizard-types').StagedBatch = {
           batch_id: crypto.randomUUID(),
@@ -205,7 +185,7 @@ export function CreateDisbursementWizardDialog({
           from_bank_code: bank.bank_code,
           item_ids: [...pickedItemIds],
           items: [...pickedItemsNow],
-          total_fee: estimatedFee,
+          total_fee: 0,
           fee_distribution: 'equal',
         }
         return [...prev, batch]

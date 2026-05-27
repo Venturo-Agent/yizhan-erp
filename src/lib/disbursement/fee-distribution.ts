@@ -13,6 +13,30 @@
 
 export type FeeMode = 'average' | 'unified' | 'per-payer'
 
+/**
+ * 同行 / 跨行判定 — 單一真相（concept A SSOT、2026-05-27 William 拍板）
+ *
+ * 過去這條規則散在三個地方各寫一份（wizard 預估 / batch-create 存檔 / preview-fees），
+ * 且彼此不一致（員工同行還被收費）。收進這裡、所有人共用。
+ *
+ * 規則：
+ * - cash / check 不走銀行轉帳 → 不收（William 2026-05-22 拍板）
+ * - 收款對象銀行 === 公司轉出帳戶銀行 → 同行、0 費
+ * - 沒填銀行 → 視同跨行、照收（保守、選項 A、William 2026-05-27 拍板）
+ *
+ * ⚠️「收款對象銀行」要帶**實際收款人**的銀行（代墊員工 / 受款員工 → 員工銀行；
+ *    一般供應商 → 供應商銀行）、由 caller 自己解析後傳入、不是一律供應商。
+ */
+export function isCrossBankTransfer(params: {
+  payeeBankCode: string | null
+  fromBankCode: string | null
+  itemKind?: string | null
+}): boolean {
+  if (params.itemKind === 'cash' || params.itemKind === 'check') return false
+  const { payeeBankCode, fromBankCode } = params
+  return !payeeBankCode || !fromBankCode || payeeBankCode !== fromBankCode
+}
+
 export interface DistributionItem {
   id: string
   /** 該品項金額 */
