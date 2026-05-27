@@ -60,4 +60,9 @@ export interface EmployeeInfo {
 export interface CompanyInfo {
   name: string
   phone: string
+  // 公司 Logo（行程頁尾顯示用；optional 因 CompanyInfo 別處只給 name/phone）
+  logo_url?: string | null
+  logo_scale?: number | null
+  logo_offset_x?: number | null
+  logo_offset_y?: number | null
 }

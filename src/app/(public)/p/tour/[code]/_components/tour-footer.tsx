@@ -5,6 +5,7 @@
  */
 
 import { Phone, Mail, User } from 'lucide-react'
+import { getScaledLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
 import type { EmployeeInfo, CompanyInfo } from './tour-types'
 
 interface TourFooterProps {
@@ -61,7 +62,22 @@ export function TourFooter({ employee, companyInfo }: TourFooterProps) {
 
         {/* Company Info */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-lg font-bold text-public-primary">{companyInfo.name}</div>
+          {companyInfo.logo_url ? (
+            <div style={getScaledLogoBoxStyle(companyInfo, { maxHeight: 48 })}>
+              <img
+                src={companyInfo.logo_url}
+                alt={companyInfo.name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  objectPosition: 'left center',
+                }}
+              />
+            </div>
+          ) : (
+            <div className="text-lg font-bold text-public-primary">{companyInfo.name}</div>
+          )}
           {companyInfo.phone && (
             <a
               href={`tel:${companyInfo.phone}`}
