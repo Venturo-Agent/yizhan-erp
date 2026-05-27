@@ -267,15 +267,6 @@ export const createEmployeeSchema = z.object({
   // 不收受信任欄位（must_change_password / workspace_id / user_id 由 server 強塞）
 })
 
-// 分公司 CRUD（對齊既有 schema：name / code / display_order / is_active / is_default / tax_id）
-export const createBranchSchema = z.object({
-  name: z.string().min(1).max(100),
-  code: z.string().max(50).optional().nullable(),
-  display_order: z.number().int().optional(),
-  /** 分公司統一編號、8 碼數字、必填（DB CHECK 已建） */
-  tax_id: z.string().regex(/^\d{8}$/, '統一編號必須為 8 碼數字'),
-})
-
 export const createTaskSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().max(5000).optional().nullable(),

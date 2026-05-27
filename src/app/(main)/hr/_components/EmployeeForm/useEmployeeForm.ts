@@ -16,7 +16,7 @@ import { useEmployee } from '@/data/entities/employees'
 import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 import { isHrFullEnabled } from '@/lib/permissions/subscription-plans'
 import { EmployeeFull } from '@/stores/types'
-import { alertSuccess, alertError, prompt } from '@/lib/ui/alert-dialog'
+import { alertSuccess, alertError } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 
 type ScopeOption = { id: string; name: string }
@@ -60,7 +60,7 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
   const { update: updateEmployee } = useUserStore()
   const workspaceId = useWorkspaceId()
   const { roles: cachedRoles } = useRoles()
-  const { branches: cachedBranches, mutate: mutateBranches } = useBranches()
+  const { branches: cachedBranches } = useBranches()
   const { isFeatureEnabled } = useWorkspaceFeatures()
 
   // 完整人資（hr_full）feature gate：薪資結算 + 獎金結算「兩個都開」才算完整 HR
@@ -192,22 +192,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
       setAvatarPreview(employee.avatar_url || null)
     }
   }, [employee])
-
-  const handleCreateBranch = async () => {
-    const name = await prompt('輸入新分公司名稱', {
-      title: '新增分公司',
-      placeholder: '例如：台北分公司',
-    })
-    if (!name?.trim()) return
-    try {
-      const created = await apiPost<ScopeOption>('/api/branches', { name: name.trim() })
-      await mutateBranches()
-      setFormData(prev => ({ ...prev, branch_id: created.id }))
-    } catch (err) {
-      logger.error('新增分公司失敗', err)
-      await alertError('新增分公司失敗')
-    }
-  }
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -400,7 +384,6 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
     roles,
     branches,
     hrFullEnabled,
-    handleCreateBranch,
     handleAvatarChange,
     handleSubmit,
   }
