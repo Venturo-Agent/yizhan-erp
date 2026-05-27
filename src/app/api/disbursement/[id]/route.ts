@@ -35,8 +35,6 @@ import {
   validatePatchBody,
   checkCrossWorkspaceItems,
   checkOccupiedByOthers,
-  computeFeeShares,
-  type FeeAllocationItem,
   type ItemRow,
 } from './disbursement-id-validation'
 import {
@@ -46,7 +44,10 @@ import {
   fetchOccupiedDoi,
   fetchFinalItems,
   fetchSuppliers,
-  fetchBankAccount,
+  fetchBankAccounts,
+  fetchEmployeeBanks,
+  fetchPaymentMethodKinds,
+  fetchWorkspaceFeeMode,
   deleteRemovedDoiItems,
   fetchAllItemsInRequests,
   countRemainingDoiForRequest,
@@ -58,6 +59,7 @@ import {
   fetchDoiFinalAmount,
   updateDisbursementOrder,
 } from './disbursement-id-queries'
+import { computeBatchFees } from '@/lib/disbursement/fee-distribution'
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ctx = await getApiContext({ capabilityCode: 'finance.disbursement.write' })
@@ -101,10 +103,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: '已出帳的出納單不能編輯' }, { status: 400 })
   }
 
+  // ─── 把 batches 攤平成 item → from_bank_account_id 對照 ───
+  const itemBankMap = new Map<string, string>()
+  for (const b of body.batches) {
+    for (const itemId of b.payment_request_item_ids) itemBankMap.set(itemId, b.from_bank_account_id)
+  }
+
   // ─── 取既有 disbursement_order_items + 算 diff ───
   const existingDoi = await fetchExistingDoiItems(disbursementId)
   const existingItemIds = new Set(existingDoi.map(d => d.payment_request_item_id))
-  const newItemIds = new Set(body.item_ids)
+  const newItemIds = new Set(itemBankMap.keys())
 
   const removedItemIds = [...existingItemIds].filter(id => !newItemIds.has(id))
   const addedItemIds = [...newItemIds].filter(id => !existingItemIds.has(id))
@@ -129,23 +137,40 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const finalItems = await fetchFinalItems(finalItemIds)
   const finalItemsMap = new Map(finalItems.map((i: ItemRow) => [i.id, i]))
 
-  // 取 supplier bank_code（算 cross-bank）
+  // ─── 撈手續費算法（computeBatchFees / SSOT、與 batch-create 共用）需要的 lookup ───
   const supplierIds = Array.from(
     new Set(finalItems.map((i: ItemRow) => i.supplier_id).filter(Boolean) as string[])
   )
   const supplierRows = await fetchSuppliers(supplierIds)
-  const supplierMap = new Map(supplierRows.map(s => [s.id, s.bank_code]))
+  const supplierBankById = new Map(supplierRows.map(s => [s.id, s.bank_code]))
 
-  // bank_code of from bank
-  const targetBankId = body.from_bank_account_id ?? order.bank_account_id
-  let fromBankCode: string | null = null
-  if (targetBankId) {
-    const bank = await fetchBankAccount(targetBankId)
-    if (bank && bank.workspace_id !== workspaceId) {
-      return NextResponse.json({ error: '出帳帳戶不屬於目前工作空間' }, { status: 403 })
-    }
-    fromBankCode = bank?.bank_code ?? null
+  const employeeIds = Array.from(
+    new Set(
+      finalItems
+        .flatMap((i: ItemRow) => [i.advanced_by, i.payee_employee_id])
+        .filter(Boolean) as string[]
+    )
+  )
+  const employeeBankById = await fetchEmployeeBanks(employeeIds)
+
+  const paymentMethodIds = Array.from(
+    new Set(finalItems.map((i: ItemRow) => i.payment_method_id).filter(Boolean) as string[])
+  )
+  const pmKindById = await fetchPaymentMethodKinds(paymentMethodIds)
+
+  // 各 batch 的出帳帳戶 bank_code + cross_bank_fee（多 batch）+ workspace 驗證
+  const bankAccountIds = Array.from(new Set(body.batches.map(b => b.from_bank_account_id)))
+  const banks = await fetchBankAccounts(bankAccountIds)
+  if (banks.length !== bankAccountIds.length) {
+    return NextResponse.json({ error: '部分出帳帳戶不存在' }, { status: 400 })
   }
+  const crossWsBank = banks.find(b => b.workspace_id !== workspaceId)
+  if (crossWsBank) {
+    return NextResponse.json({ error: '出帳帳戶不屬於目前工作空間' }, { status: 403 })
+  }
+  const bankCodeById = new Map(banks.map(b => [b.id, b.bank_code]))
+  const bankFeeById = new Map(banks.map(b => [b.id, Number(b.cross_bank_fee ?? 0)]))
+  const feeMode = await fetchWorkspaceFeeMode(workspaceId)
 
   // ─── 移除：刪 disbursement_order_items + 清舊 link ───
   if (removedItemIds.length > 0) {
@@ -156,17 +181,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     // 找被移除 items 的 request_id
-    // fetchFinalItems 接受 item ids、回傳含 request_id 欄位
     const removedItemDetails = await fetchFinalItems(removedItemIds)
     const affectedReqIds = Array.from(new Set(removedItemDetails.map(r => r.request_id)))
 
     for (const reqId of affectedReqIds) {
-      // 取該 request 下所有 item id
       const itemsInReq = await fetchAllItemsInRequests([reqId])
       const itemIdsInReq = itemsInReq.map(r => r.id)
       if (itemIdsInReq.length === 0) continue
 
-      // 看還剩幾筆 link 本 disbursement
       const remaining = await countRemainingDoiForRequest(disbursementId, itemIdsInReq)
       if (remaining === 0) {
         await clearPaymentRequestLink(reqId)
@@ -174,7 +196,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
   }
 
-  // ─── 新增：fork partial + INSERT disbursement_order_items + 設舊 link ───
+  // ─── 新增：fork partial（被選 item 的 request_id 改成 fork 後新 id）───
   if (addedItemIds.length > 0) {
     const addedReqIds = Array.from(
       new Set(addedItemIds.map(id => finalItemsMap.get(id)!.request_id))
@@ -188,7 +210,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       itemsByReq.set(r.request_id, arr)
     }
 
-    // fork partial
     for (const reqId of addedReqIds) {
       const selectedInReq = addedItemIds.filter(id => finalItemsMap.get(id)?.request_id === reqId)
       const allInReq = itemsByReq.get(reqId) ?? []
@@ -205,46 +226,61 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         const t = translateDbError(forkErr)
         return NextResponse.json({ error: t.message }, { status: t.httpStatus })
       }
-      // fork 後被選 item 的 request_id 變 new
       for (const itemId of selectedInReq) {
         const it = finalItemsMap.get(itemId)
         if (it) it.request_id = newReqId
       }
     }
+  }
 
-    // 算分攤（整張單級、kept + added 一起算）
-    const buildFeeItem = (id: string): FeeAllocationItem => {
-      const item = finalItemsMap.get(id)!
-      const supplierBankCode = item.supplier_id ? (supplierMap.get(item.supplier_id) ?? null) : null
-      const isCross = !supplierBankCode || !fromBankCode || supplierBankCode !== fromBankCode
-      return {
+  // ─── 手續費自動算（per batch、走 computeBatchFees SSOT）+ 寫 DOI ───
+  // 每個 batch 獨立算（fromBankCode / cross_bank_fee per batch）、再依 add/kept 決定 INSERT or UPDATE。
+  let grandTotalFee = 0
+  const addedSet = new Set(addedItemIds)
+  for (const batch of body.batches) {
+    const fromBankCode = bankCodeById.get(batch.from_bank_account_id) ?? null
+    const batchItems = batch.payment_request_item_ids
+      .map(id => finalItemsMap.get(id))
+      .filter((i): i is ItemRow => Boolean(i))
+
+    const { perItem, total_fee: batchFee } = computeBatchFees(
+      batchItems.map(item => ({
         id: item.id,
-        subtotal: item.subtotal,
+        amount: Number(item.subtotal ?? 0),
         supplier_id: item.supplier_id,
-        supplier_bank_code: supplierBankCode,
-        is_cross_bank: isCross,
+        advanced_by: item.advanced_by,
+        payee_employee_id: item.payee_employee_id,
+        payment_method_id: item.payment_method_id,
+      })),
+      {
+        fromBankCode,
+        fromBankUnifiedAmount: bankFeeById.get(batch.from_bank_account_id) ?? 0,
+        supplierBankById,
+        employeeBankById,
+        pmKindById,
+        feeMode,
       }
-    }
+    )
+    grandTotalFee += batchFee
 
-    const allItemsForFee = [...keptItemIds.map(buildFeeItem), ...addedItemIds.map(buildFeeItem)]
-
-    const totalFee = body.total_fee ?? order.total_fee ?? 0
-    const feeDistribution = body.fee_distribution ?? 'proportional'
-    const feeShares = computeFeeShares(allItemsForFee, totalFee, feeDistribution)
-
-    // INSERT new disbursement_order_items
-    const addedItemsForFee = addedItemIds.map(buildFeeItem)
-    if (addedItemsForFee.length > 0) {
-      const insertRows = addedItemsForFee.map(d => ({
-        disbursement_order_id: disbursementId,
-        payment_request_item_id: d.id,
-        amount: Number(finalItemsMap.get(d.id)?.subtotal ?? 0),
-        supplier_bank_code: d.supplier_bank_code,
-        fee_amount: feeShares.get(d.id) ?? 0,
-        has_cross_bank_fee: d.is_cross_bank,
-        workspace_id: workspaceId,
-        created_by: employeeId,
-      }))
+    // INSERT added items（帶 from_bank_account_id + 自動算的 fee）
+    const insertRows = batchItems
+      .filter(item => addedSet.has(item.id))
+      .map(item => {
+        const fee = perItem.get(item.id)!
+        return {
+          disbursement_order_id: disbursementId,
+          payment_request_item_id: item.id,
+          from_bank_account_id: batch.from_bank_account_id,
+          amount: Number(item.subtotal ?? 0),
+          supplier_bank_code: fee.supplier_bank_code,
+          fee_amount: fee.fee_amount,
+          has_cross_bank_fee: fee.is_cross_bank,
+          workspace_id: workspaceId,
+          created_by: employeeId,
+        }
+      })
+    if (insertRows.length > 0) {
       const { error: insErr } = await insertDoiItems(insertRows)
       if (insErr) {
         const t2 = translateDbError(insErr)
@@ -255,28 +291,37 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       }
     }
 
-    // UPDATE kept items 的 fee_amount + has_cross_bank_fee（user 可能改 total_fee）
-    const keptItemsForFee = keptItemIds.map(buildFeeItem)
-    for (const d of keptItemsForFee) {
-      await updateDoiItemFee(disbursementId, d.id, feeShares.get(d.id) ?? 0, d.is_cross_bank)
+    // UPDATE kept items（重算 fee + has_cross_bank + from_bank_account_id 可能被改）
+    for (const item of batchItems) {
+      if (addedSet.has(item.id)) continue
+      const fee = perItem.get(item.id)!
+      await updateDoiItemFee(
+        disbursementId,
+        item.id,
+        fee.fee_amount,
+        fee.is_cross_bank,
+        batch.from_bank_account_id
+      )
     }
+  }
 
-    // 把 added items 的 payment_requests link 到本 disbursement（含 fork 後新 id）
+  // 把 added items 的 payment_requests link 到本 disbursement（含 fork 後新 id）
+  if (addedItemIds.length > 0) {
     const finalAddedReqIds = Array.from(
       new Set(addedItemIds.map(id => finalItemsMap.get(id)!.request_id))
     )
     await linkPaymentRequestsToDisbursement(finalAddedReqIds, disbursementId)
   }
 
-  // ─── UPDATE disbursement_order metadata + 重算 amount ───
+  // ─── UPDATE disbursement_order metadata + 重算 amount + total_fee（自動算）───
   const finalAmount = await fetchDoiFinalAmount(disbursementId)
 
-  const orderUpdate: Record<string, unknown> = { amount: finalAmount }
+  const orderUpdate: Record<string, unknown> = { amount: finalAmount, total_fee: grandTotalFee }
   if (body.disbursement_date !== undefined) orderUpdate.disbursement_date = body.disbursement_date
   if (body.payment_method_id !== undefined) orderUpdate.payment_method_id = body.payment_method_id
-  if (body.from_bank_account_id !== undefined)
-    orderUpdate.bank_account_id = body.from_bank_account_id
-  if (body.total_fee !== undefined) orderUpdate.total_fee = body.total_fee
+  // Phase 7 對齊 batch-create：多 batch → order.bank_account_id 設 null（由 DOI 各帶 from_bank_account_id）；
+  // 單一 batch → 設該帳戶（向下相容舊報表）
+  orderUpdate.bank_account_id = bankAccountIds.length === 1 ? bankAccountIds[0] : null
 
   // ── 紅線 D guard：檢查 disbursement_date 所屬區間是否已關帳 ──
   if (body.disbursement_date !== undefined) {

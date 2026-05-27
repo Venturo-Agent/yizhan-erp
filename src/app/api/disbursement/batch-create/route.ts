@@ -22,7 +22,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { generateDisbursementNo } from '@/lib/codes'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { translateDbError } from '@/lib/db-error-translate'
-import { distributeFees, isCrossBankTransfer } from '@/lib/disbursement/fee-distribution'
+import { computeBatchFees } from '@/lib/disbursement/fee-distribution'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 interface BatchInput {
@@ -359,66 +359,48 @@ export async function POST(request: NextRequest) {
 
   for (const batch of body.batches) {
     const fromBankCode = bankCodeById.get(batch.from_bank_account_id) ?? null
+    const batchItems = batch.payment_request_item_ids.map(id => itemById.get(id)!)
 
-    const batchItemRows = batch.payment_request_item_ids.map(id => {
-      const item = itemById.get(id)!
-      const supplier = item.supplier_id ? supplierMap.get(item.supplier_id) : null
-      const supplierBankCode = supplier?.bank_code ?? null
-      // 2026-05-27 William 拍板：同行判定吃「收款對象真實銀行」、不是只看供應商。
-      // 優先序（對齊下方 payer_key）：代墊員工 > 受款員工 > 供應商。員工也可能不同行、照查真實銀行。
-      const payeeBankCode = item.advanced_by
-        ? (employeeBankById.get(item.advanced_by) ?? null)
-        : item.payee_employee_id
-          ? (employeeBankById.get(item.payee_employee_id) ?? null)
-          : supplierBankCode
-      // 同行/跨行判定走 SSOT（concept A）：cash/check 不收、同行 0、沒填銀行視同跨行照收（選項 A）
-      const itemKind = item.payment_method_id ? pmKindById.get(item.payment_method_id) : null
-      const isCrossBank = isCrossBankTransfer({ payeeBankCode, fromBankCode, itemKind })
-      return {
+    const batchTotalAmount = batchItems.reduce((s, item) => s + Number(item.subtotal ?? 0), 0)
+    grandTotalAmount += batchTotalAmount
+
+    // 手續費算法走 SSOT helper computeBatchFees（與 disbursement [id] PATCH 共用同一套）
+    // 規則：收款對象真實銀行優先序（代墊員工 > 受款員工 > 供應商）+ isCrossBankTransfer + per-payer 分攤
+    const supplierBankById = new Map<string, string | null>(
+      Array.from(supplierMap.values()).map(s => [s.id, s.bank_code])
+    )
+    const { perItem, total_fee: batchSystemFee } = computeBatchFees(
+      batchItems.map(item => ({
+        id: item.id,
+        amount: Number(item.subtotal ?? 0),
+        supplier_id: item.supplier_id,
+        advanced_by: item.advanced_by,
+        payee_employee_id: item.payee_employee_id,
+        payment_method_id: item.payment_method_id,
+      })),
+      {
+        fromBankCode,
+        fromBankUnifiedAmount: bankFeeById.get(batch.from_bank_account_id) ?? 0,
+        supplierBankById,
+        employeeBankById,
+        pmKindById,
+        feeMode,
+        bankActualFee: batch.total_fee,
+        averageStrategy: batch.fee_distribution,
+      }
+    )
+
+    grandTotalFee += batchSystemFee
+
+    for (const item of batchItems) {
+      const fee = perItem.get(item.id)!
+      allItemRowsEnriched.push({
         item,
         from_bank_account_id: batch.from_bank_account_id,
         amount: Number(item.subtotal ?? 0),
-        supplier_bank_code: supplierBankCode,
-        is_cross_bank: isCrossBank,
-      }
-    })
-
-    const batchTotalAmount = batchItemRows.reduce((s, r) => s + r.amount, 0)
-    grandTotalAmount += batchTotalAmount
-
-    // 分攤手續費（走 SSOT helper、每個 bank group 獨立分攤）
-    // 2026-05-21 William 拍板：用 'per-payer' mode、每個 unique 收款對象 × cross_bank_fee
-    // payer_key 推導順序：advanced_by（代墊優先）> payee_employee_id（公司請款發員工）> supplier_id > item.id（unique）
-    // 同 key = 視為同一收款人、合併 1 筆手續費、組內 equal 整數平均餘加最後
-    // 2026-05-21 補：feeMode 若是 'average' / 'unified' 還沿用舊邏輯（向後兼容）
-    const batchUnifiedAmount = bankFeeById.get(batch.from_bank_account_id) ?? 0
-    const effectiveMode = batchUnifiedAmount > 0 ? 'per-payer' : feeMode
-    const { per_item_fees: feeShares, total_collected: batchSystemFee } = distributeFees({
-      mode: effectiveMode,
-      bank_actual_fee: batch.total_fee,
-      unified_amount_per_item: batchUnifiedAmount,
-      items: batchItemRows.map(r => ({
-        id: r.item.id,
-        amount: r.amount,
-        is_cross_bank: r.is_cross_bank,
-        payer_key: r.item.advanced_by
-          ? `e:${r.item.advanced_by}`
-          : r.item.payee_employee_id
-            ? `e:${r.item.payee_employee_id}`
-            : r.item.supplier_id
-              ? `s:${r.item.supplier_id}`
-              : r.item.id, // 都沒設 → 該 item 自己一組（unique）
-      })),
-      average_strategy: batch.fee_distribution,
-    })
-
-    // per-payer mode：用系統算的 total（不再 user 手填）；其他 mode：沿用 user 填的 batch.total_fee
-    grandTotalFee += effectiveMode === 'per-payer' ? batchSystemFee : batch.total_fee
-
-    for (const r of batchItemRows) {
-      allItemRowsEnriched.push({
-        ...r,
-        fee_amount: feeShares.get(r.item.id) ?? 0,
+        supplier_bank_code: fee.supplier_bank_code,
+        is_cross_bank: fee.is_cross_bank,
+        fee_amount: fee.fee_amount,
       })
     }
   }

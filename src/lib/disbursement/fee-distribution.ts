@@ -74,6 +74,124 @@ export interface DistributionOutput {
 }
 
 /**
+ * 一個 batch（單一 from_bank_account）內、把品項算出 is_cross_bank + per-item fee_amount 的共用 helper。
+ *
+ * 2026-05-27：batch-create 跟 disbursement [id] PATCH 共用同一套手續費算法的 SSOT。
+ * 此 helper **不查 DB**、caller 把需要的 lookup map 先撈好傳進來（避免 helper 綁死某條查詢路徑）。
+ *
+ * 對齊規則（William 拍板）：
+ * - 收款對象真實銀行優先序：代墊員工 advanced_by > 受款員工 payee_employee_id > 供應商 supplier_id
+ * - isCrossBankTransfer 判同行/跨行（cash/check 不收、同行 0、沒填銀行視同跨行照收）
+ * - per-payer mode：同收款對象合併 1 筆 cross_bank_fee、組內 equal 整數平均餘加最後
+ *   payer_key 順序對齊優先序：advanced_by > payee_employee_id > supplier_id > item.id（unique）
+ * - 公司 feeMode='unified' 走 unified（每筆固定收）；'average' 在 fromBankUnifiedAmount=0 時退回（向後兼容）
+ */
+export interface ComputeBatchFeesItem {
+  id: string
+  amount: number
+  supplier_id: string | null
+  advanced_by: string | null
+  payee_employee_id: string | null
+  payment_method_id: string | null
+}
+
+export interface ComputeBatchFeesLookups {
+  /** from_bank_account 的 bank_code（公司轉出帳戶銀行） */
+  fromBankCode: string | null
+  /** 此 from_bank_account 的每筆跨行手續費（bank_accounts.cross_bank_fee） */
+  fromBankUnifiedAmount: number
+  /** supplier_id → bank_code */
+  supplierBankById: Map<string, string | null>
+  /** employee_id → bank_code（代墊 / 受款員工） */
+  employeeBankById: Map<string, string | null>
+  /** payment_method_id → kind（cash / check 不收） */
+  pmKindById: Map<string, string | null>
+  /** 公司分攤模式（average / unified）；average + fromBankUnifiedAmount=0 → 不收（向後兼容） */
+  feeMode: 'average' | 'unified'
+  /** average mode 才用：銀行實扣總額（unified / per-payer 忽略） */
+  bankActualFee?: number
+  /** average mode 才用：分攤策略 */
+  averageStrategy?: 'equal' | 'proportional'
+}
+
+export interface ComputeBatchFeesResult {
+  /** itemId → { is_cross_bank, fee_amount, supplier_bank_code }（caller 拿去 INSERT/UPDATE DOI） */
+  perItem: Map<
+    string,
+    { is_cross_bank: boolean; fee_amount: number; supplier_bank_code: string | null }
+  >
+  /** 此 batch 系統算的手續費總額（per-payer / unified mode 用；average mode = bankActualFee） */
+  total_fee: number
+}
+
+export function computeBatchFees(
+  items: ComputeBatchFeesItem[],
+  lookups: ComputeBatchFeesLookups
+): ComputeBatchFeesResult {
+  const {
+    fromBankCode,
+    fromBankUnifiedAmount,
+    supplierBankById,
+    employeeBankById,
+    pmKindById,
+    feeMode,
+    bankActualFee = 0,
+    averageStrategy = 'equal',
+  } = lookups
+
+  // 1. 每筆算 is_cross_bank（收款對象真實銀行優先序：代墊員工 > 受款員工 > 供應商）
+  const enriched = items.map(it => {
+    const supplierBankCode = it.supplier_id ? (supplierBankById.get(it.supplier_id) ?? null) : null
+    const payeeBankCode = it.advanced_by
+      ? (employeeBankById.get(it.advanced_by) ?? null)
+      : it.payee_employee_id
+        ? (employeeBankById.get(it.payee_employee_id) ?? null)
+        : supplierBankCode
+    const itemKind = it.payment_method_id ? (pmKindById.get(it.payment_method_id) ?? null) : null
+    const is_cross_bank = isCrossBankTransfer({ payeeBankCode, fromBankCode, itemKind })
+    return { it, supplierBankCode, is_cross_bank }
+  })
+
+  // 2. 走 distributeFees 算 per-item fee
+  const effectiveMode: FeeMode = fromBankUnifiedAmount > 0 ? 'per-payer' : feeMode
+  const { per_item_fees, total_collected } = distributeFees({
+    mode: effectiveMode,
+    bank_actual_fee: bankActualFee,
+    unified_amount_per_item: fromBankUnifiedAmount,
+    items: enriched.map(e => ({
+      id: e.it.id,
+      amount: e.it.amount,
+      is_cross_bank: e.is_cross_bank,
+      payer_key: e.it.advanced_by
+        ? `e:${e.it.advanced_by}`
+        : e.it.payee_employee_id
+          ? `e:${e.it.payee_employee_id}`
+          : e.it.supplier_id
+            ? `s:${e.it.supplier_id}`
+            : e.it.id,
+    })),
+    average_strategy: averageStrategy,
+  })
+
+  const perItem = new Map<
+    string,
+    { is_cross_bank: boolean; fee_amount: number; supplier_bank_code: string | null }
+  >()
+  for (const e of enriched) {
+    perItem.set(e.it.id, {
+      is_cross_bank: e.is_cross_bank,
+      fee_amount: per_item_fees.get(e.it.id) ?? 0,
+      supplier_bank_code: e.supplierBankCode,
+    })
+  }
+
+  return {
+    perItem,
+    total_fee: effectiveMode === 'per-payer' ? total_collected : bankActualFee,
+  }
+}
+
+/**
  * 主分攤函式
  */
 export function distributeFees(input: DistributionInput): DistributionOutput {
