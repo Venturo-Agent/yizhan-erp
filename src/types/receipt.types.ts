@@ -175,24 +175,6 @@ export const RECEIPT_STATUS_LABELS: Record<ReceiptStatus, string> = {
   refunded: '已退款',
 }
 
-export const RECEIPT_STATUS_COLORS: Record<ReceiptStatus, string> = {
-  pending: 'text-morandi-gold',
-  pending_verify: 'text-status-warning',
-  confirmed: 'text-status-success',
-  rejected: 'text-status-danger',
-  cancelled: 'text-morandi-secondary',
-  refunded: 'text-status-danger',
-}
-
-export const RECEIPT_STATUS_ICONS: Record<ReceiptStatus, string> = {
-  pending: '🟡',
-  pending_verify: '🕒',
-  confirmed: '✅',
-  rejected: '❌',
-  cancelled: '🚫',
-  refunded: '↩️',
-}
-
 // ============================================
 // 輔助函數
 // ============================================
@@ -202,20 +184,6 @@ export const RECEIPT_STATUS_ICONS: Record<ReceiptStatus, string> = {
  */
 export function getReceiptTypeName(type: ReceiptType): string {
   return RECEIPT_TYPE_LABELS[type] || '未知'
-}
-
-/**
- * 取得收款狀態名稱
- */
-export function getReceiptStatusName(status: ReceiptStatus | string): string {
-  return RECEIPT_STATUS_LABELS[status as ReceiptStatus] || '未知'
-}
-
-/**
- * 取得收款狀態顏色
- */
-export function getReceiptStatusColor(status: ReceiptStatus | string): string {
-  return RECEIPT_STATUS_COLORS[status as ReceiptStatus] || 'text-morandi-secondary'
 }
 
 // ============================================
