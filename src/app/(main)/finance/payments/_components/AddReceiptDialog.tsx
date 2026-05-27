@@ -98,7 +98,7 @@ export function AddReceiptDialog({
   // 實收金額：只有核帳權限（canConfirmCheck = finance.payments-confirm.write）才看得到
   const receiptColumns: InlineEditColumn<PaymentItem>[] = [
     { key: 'method', label: t('receiptColMethod'), width: '7rem', render: () => null },
-    { key: 'date', label: t('receiptColDate'), width: '9.5rem', render: () => null },
+    { key: 'date', label: t('receiptColDate'), width: '12.5rem', render: () => null }, // 2026-05-27 William：9.5rem 太窄、日期「年」被切 → 加寬到塞得下整串日期
     { key: 'detail', label: t('receiptColDetail'), width: '11rem', render: () => null },
     { key: 'remarks', label: t('receiptColRemarks'), render: () => null },
     { key: 'amount', label: '收款金額', width: '7.5rem', align: 'right', render: () => null },

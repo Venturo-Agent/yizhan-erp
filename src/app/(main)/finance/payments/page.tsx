@@ -251,13 +251,13 @@ export default function PaymentsPage() {
       },
     },
     {
-      // 訂單號 column(2026-05-26 加):同一團底下可能多張訂單、只看團名分不出是哪張單
-      key: 'order_number',
-      label: '訂單號',
+      // 2026-05-27 William 拍板:拿掉訂單號、改顯示「收款明細」(receipt_account、常是匯款後三碼/付款人，對帳用)
+      key: 'receipt_account' as keyof Receipt,
+      label: '收款明細',
       sortable: true,
-      width: '130px',
+      width: '150px',
       render: value => (
-        <div className="text-sm text-morandi-primary">
+        <div className="text-sm text-morandi-primary truncate">
           {(value as string) || <span className="text-morandi-muted">—</span>}
         </div>
       ),

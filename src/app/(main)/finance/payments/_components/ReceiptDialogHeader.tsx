@@ -106,14 +106,16 @@ export function ReceiptDialogHeader({
         {/* 批量收款：日期 / 收款方式 / 總金額（跟 tab 同排、無 Label、之間加垂直分隔線） */}
         {activeTab === 'batch' && (
           <>
-            <div className="relative z-[10018] w-[11.5rem]">
+            {/* 2026-05-27 William 反饋：外層 w-[11.5rem] 太窄、日期「年」被卡 → 加寬到 13.5rem
+                （共用 DateInput 本身沒問題、是這裡外框擠到、只動這個畫面） */}
+            <div className="relative z-[10018] w-[13.5rem]">
               <DatePicker
                 value={batchReceiptDate}
                 onChange={date => onBatchReceiptDateChange(date)}
               />
             </div>
             <div className="w-px h-8 bg-border/60 self-center" />
-            <div className="relative z-[10017] w-[11.5rem]">
+            <div className="relative z-[10017] w-[13.5rem]">
               <Select value={batchPaymentMethod} onValueChange={onBatchPaymentMethodChange}>
                 <SelectTrigger>
                   <SelectValue placeholder={t('receiptColMethod')} />
