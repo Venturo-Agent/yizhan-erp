@@ -8,6 +8,13 @@ import { Button } from '@/components/ui/button'
 import { EnhancedTable, TableColumn } from '@/components/ui/enhanced-table'
 import { FormDialog } from '@/components/dialog/form-dialog'
 import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+import {
   useCustomerDocumentApplications,
   useDocumentTypes,
   useApplicationServiceTypes,
@@ -17,6 +24,9 @@ import {
 } from '@/data'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
+
+// Radix Select 不允許 SelectItem value=""，用哨兵值代表「未選 / 全部」（原 <option value="">），onValueChange 換回 ''
+const SELECT_NONE = '__none__'
 
 type ApplicationStatus =
   | 'pending'
@@ -220,18 +230,22 @@ export default function VisasPage() {
     <ContentPageLayout title={PAGE_LABELS.TITLE}>
       {/* Toolbar */}
       <div className="mb-4 flex items-center gap-3">
-        <select
-          className="rounded-md border border-morandi-gray-300 bg-white px-3 py-1.5 text-sm"
-          value={filterStatus}
-          onChange={e => setFilterStatus(e.target.value)}
+        <Select
+          value={filterStatus || SELECT_NONE}
+          onValueChange={v => setFilterStatus(v === SELECT_NONE ? '' : v)}
         >
-          <option value="">全部狀態</option>
-          {statusOptions.map(opt => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="h-auto w-auto rounded-md border-morandi-gray-300 bg-white px-3 py-1.5 text-sm">
+            <SelectValue placeholder="全部狀態" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={SELECT_NONE}>全部狀態</SelectItem>
+            {statusOptions.map(opt => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button variant="default" size="sm" onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="mr-1 h-4 w-4" />
           {PAGE_LABELS.NEW_APPLICATION}
@@ -261,14 +275,20 @@ export default function VisasPage() {
           <label className="text-sm font-medium text-morandi-gray-700">
             客戶證件 <span className="text-status-danger">*</span>
           </label>
-          <select
-            className="w-full rounded-md border border-morandi-gray-300 px-3 py-2 text-sm"
-            value={addFormData.customer_document_id}
-            onChange={e => setAddFormData(p => ({ ...p, customer_document_id: e.target.value }))}
+          <Select
+            value={addFormData.customer_document_id || SELECT_NONE}
+            onValueChange={v =>
+              setAddFormData(p => ({ ...p, customer_document_id: v === SELECT_NONE ? '' : v }))
+            }
           >
-            <option value="">選擇證件...</option>
-            {/* TODO: populate from customer_documents entity with customer name */}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="選擇證件..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={SELECT_NONE}>選擇證件...</SelectItem>
+              {/* TODO: populate from customer_documents entity with customer name */}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Service type selector */}
@@ -276,21 +296,28 @@ export default function VisasPage() {
           <label className="text-sm font-medium text-morandi-gray-700">
             服務類型 <span className="text-status-danger">*</span>
           </label>
-          <select
-            className="w-full rounded-md border border-morandi-gray-300 px-3 py-2 text-sm"
-            value={addFormData.application_service_type_id}
-            onChange={e =>
-              setAddFormData(p => ({ ...p, application_service_type_id: e.target.value }))
+          <Select
+            value={addFormData.application_service_type_id || SELECT_NONE}
+            onValueChange={v =>
+              setAddFormData(p => ({
+                ...p,
+                application_service_type_id: v === SELECT_NONE ? '' : v,
+              }))
             }
           >
-            <option value="">選擇服務...</option>
-            {serviceTypes.map(st => (
-              <option key={st.id} value={st.id}>
-                {st.label}
-                {st.is_urgent ? ' [急件]' : ''}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="選擇服務..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={SELECT_NONE}>選擇服務...</SelectItem>
+              {serviceTypes.map(st => (
+                <SelectItem key={st.id} value={st.id}>
+                  {st.label}
+                  {st.is_urgent ? ' [急件]' : ''}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Notes */}

@@ -15,6 +15,7 @@
 
 import { useEffect, useState, use } from 'react'
 import { Loader2, CheckSquare, XCircle, ExternalLink, Lock } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 
 interface VerifyResult {
   valid: boolean
@@ -215,16 +216,14 @@ export default function SetupPage({ params }: { params: Promise<{ token: string 
                 return (
                   <div key={field.key} className="space-y-1">
                     <label className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={isChecked}
-                        onChange={e =>
+                        onCheckedChange={checked =>
                           setFormData(prev => ({
                             ...prev,
-                            [field.key]: e.target.checked ? 'true' : 'false',
+                            [field.key]: checked === true ? 'true' : 'false',
                           }))
                         }
-                        className="w-4 h-4 rounded border-border"
                       />
                       <span className="text-sm font-medium text-morandi-primary">
                         {field.label}

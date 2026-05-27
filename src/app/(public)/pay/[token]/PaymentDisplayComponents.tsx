@@ -7,6 +7,7 @@
 
 import { useMemo } from 'react'
 import { CheckSquare, XCircle, Loader2 } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { LABELS, InvoiceItem, ReceiptRowData } from './types'
 
 export function AmountRow({
@@ -71,12 +72,10 @@ export function MemberRow({
       }`}
     >
       <div className="flex items-center gap-2 min-w-0 flex-1">
-        <input
-          type="checkbox"
+        <Checkbox
           checked={isPaid || !!pendingSubmit ? true : checked}
-          onChange={onToggle}
+          onCheckedChange={() => onToggle()}
           disabled={disabled}
-          className="h-4 w-4 rounded border-border text-morandi-gold focus:ring-morandi-gold/40 disabled:opacity-50"
         />
         <span className="text-sm font-medium text-morandi-primary truncate">
           {invoice.member_name}

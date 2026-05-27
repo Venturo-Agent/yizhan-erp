@@ -15,6 +15,13 @@ import { Calculator, RefreshCw } from 'lucide-react'
 import { FormDialog } from '@/components/dialog/form-dialog'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import type { EmployeeFull } from '@/stores/types'
 import {
   calcAnnualLeave,
@@ -218,29 +225,34 @@ export function SeveranceCalculatorDialog({
               <label className="text-xs text-morandi-muted block mb-1">
                 資遣費制度（公司預設、可單筆覆寫）
               </label>
-              <select
+              <Select
                 value={pensionSystem}
-                onChange={e => setPensionSystem(e.target.value as PensionSystem)}
-                className="w-full h-9 px-3 rounded-md border border-morandi-border bg-morandi-surface text-sm"
+                onValueChange={v => setPensionSystem(v as PensionSystem)}
               >
-                <option value="new">新制</option>
-                <option value="old">舊制</option>
-                <option value="mixed">跨制</option>
-              </select>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">新制</SelectItem>
+                  <SelectItem value="old">舊制</SelectItem>
+                  <SelectItem value="mixed">跨制</SelectItem>
+                </SelectContent>
+              </Select>
               <p className="text-[0.647rem] text-morandi-muted mt-1">
                 {PENSION_LABEL[pensionSystem]}
               </p>
             </div>
             <div>
               <label className="text-xs text-morandi-muted block mb-1">特休制度</label>
-              <select
-                value={leavePolicy}
-                onChange={e => setLeavePolicy(e.target.value as LeavePolicy)}
-                className="w-full h-9 px-3 rounded-md border border-morandi-border bg-morandi-surface text-sm"
-              >
-                <option value="hire_anniversary">週年制</option>
-                <option value="calendar_year">年度制</option>
-              </select>
+              <Select value={leavePolicy} onValueChange={v => setLeavePolicy(v as LeavePolicy)}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hire_anniversary">週年制</SelectItem>
+                  <SelectItem value="calendar_year">年度制</SelectItem>
+                </SelectContent>
+              </Select>
               <p className="text-[0.647rem] text-morandi-muted mt-1">{LEAVE_LABEL[leavePolicy]}</p>
             </div>
           </div>

@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Building2, Network, Edit, Trash2, Star, CheckSquare } from 'lucide-react'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -174,11 +175,11 @@ export function BranchesSection() {
             </div>
           </div>
           <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={branchForm.isDefault}
-              onChange={e => setBranchForm({ ...branchForm, isDefault: e.target.checked })}
-              className="h-4 w-4"
+              onCheckedChange={checked =>
+                setBranchForm({ ...branchForm, isDefault: checked === true })
+              }
             />
             設為預設分公司（之前的預設會被自動取消）
           </label>

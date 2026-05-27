@@ -14,6 +14,7 @@
 
 import * as React from 'react'
 import { Sparkles, X, ChevronRight, Check } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import type { Canvas } from '@/components/canvas-renderer/types'
 import {
   analyzeCanvasForAi,
@@ -279,11 +280,10 @@ function SelectStep({
                 cursor: 'pointer',
               }}
             >
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={on}
-                onChange={() => onToggle(s.id)}
-                style={{ marginTop: 2, accentColor: COPPER, flexShrink: 0 }}
+                onCheckedChange={() => onToggle(s.id)}
+                style={{ marginTop: 2, flexShrink: 0 }}
               />
               <div>
                 <div style={{ fontSize: 14, fontWeight: 500, color: '#2D1F18' }}>{s.label}</div>
@@ -356,11 +356,10 @@ function ReviewStep({
                   cursor: 'pointer',
                 }}
               >
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={on}
-                  onChange={() => onToggle(patch.id)}
-                  style={{ accentColor: COPPER, marginTop: 1 }}
+                  onCheckedChange={() => onToggle(patch.id)}
+                  style={{ marginTop: 1 }}
                 />
                 <span style={{ fontSize: 13, fontWeight: 500, color: '#2D1F18' }}>
                   {patch.label}

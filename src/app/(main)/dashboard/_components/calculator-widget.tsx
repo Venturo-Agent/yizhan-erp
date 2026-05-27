@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Calculator } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
@@ -198,11 +199,10 @@ export function CalculatorWidget() {
               </div>
             </div>
             <label className="flex items-center gap-1.5 cursor-pointer group">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={sequentialMode}
-                onChange={e => setSequentialMode(e.target.checked)}
-                className="w-3.5 h-3.5 rounded border-morandi-gold/30 text-morandi-gold focus:ring-morandi-gold/20 cursor-pointer"
+                onCheckedChange={checked => setSequentialMode(checked === true)}
+                className="h-3.5 w-3.5 cursor-pointer"
               />
               <span className="text-xs text-morandi-secondary/90 group-hover:text-morandi-primary transition-colors font-medium">
                 {t('sequentialMode')}

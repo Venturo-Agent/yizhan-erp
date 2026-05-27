@@ -12,7 +12,17 @@ import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
 import { ImageUploadField, LogoHeaderPreview } from './ImageUploadField'
 import { invalidateWorkspaceSettings } from '@/hooks/useWorkspaceSettings'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import type { CompanyFormData, BankAccountOption } from '../types'
+
+// Radix Select 不允許 SelectItem value=""，用此哨兵值代表「不指定 / 請選擇」（送出時對應 null）
+const SELECT_NONE = '__none__'
 
 const PAGE_LABELS = {
   WEEKDAY_SUNDAY: '週日',
@@ -352,25 +362,31 @@ export function CompanyInfoCard({
           {/* 預設出帳日期 */}
           <div id="field-default_billing_day_of_week" className="scroll-mt-24 max-w-xs">
             <Label className="text-sm font-medium text-morandi-primary">預設出帳日期</Label>
-            <select
-              value={form.default_billing_day_of_week ?? ''}
-              onChange={e =>
-                updateField(
-                  'default_billing_day_of_week',
-                  e.target.value === '' ? null : Number(e.target.value)
-                )
+            <Select
+              value={
+                form.default_billing_day_of_week === null ||
+                form.default_billing_day_of_week === undefined
+                  ? SELECT_NONE
+                  : String(form.default_billing_day_of_week)
               }
-              className="mt-1.5 w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              onValueChange={v =>
+                updateField('default_billing_day_of_week', v === SELECT_NONE ? null : Number(v))
+              }
             >
-              <option value="">不指定（不區分正常/特殊出帳）</option>
-              <option value={0}>{PAGE_LABELS.WEEKDAY_SUNDAY}</option>
-              <option value={1}>{PAGE_LABELS.WEEKDAY_MONDAY}</option>
-              <option value={2}>{PAGE_LABELS.WEEKDAY_TUESDAY}</option>
-              <option value={3}>{PAGE_LABELS.WEEKDAY_WEDNESDAY}</option>
-              <option value={4}>{PAGE_LABELS.WEEKDAY_THURSDAY}</option>
-              <option value={5}>{PAGE_LABELS.WEEKDAY_FRIDAY}</option>
-              <option value={6}>{PAGE_LABELS.WEEKDAY_SATURDAY}</option>
-            </select>
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={SELECT_NONE}>不指定（不區分正常/特殊出帳）</SelectItem>
+                <SelectItem value="0">{PAGE_LABELS.WEEKDAY_SUNDAY}</SelectItem>
+                <SelectItem value="1">{PAGE_LABELS.WEEKDAY_MONDAY}</SelectItem>
+                <SelectItem value="2">{PAGE_LABELS.WEEKDAY_TUESDAY}</SelectItem>
+                <SelectItem value="3">{PAGE_LABELS.WEEKDAY_WEDNESDAY}</SelectItem>
+                <SelectItem value="4">{PAGE_LABELS.WEEKDAY_THURSDAY}</SelectItem>
+                <SelectItem value="5">{PAGE_LABELS.WEEKDAY_FRIDAY}</SelectItem>
+                <SelectItem value="6">{PAGE_LABELS.WEEKDAY_SATURDAY}</SelectItem>
+              </SelectContent>
+            </Select>
             <p className="text-xs text-morandi-muted mt-1">
               {form.default_billing_day_of_week === null
                 ? '未指定：請款 dialog 不區分正常 / 特殊出帳、所有日期視為一般請款'
@@ -460,21 +476,25 @@ export function CompanyInfoCard({
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-morandi-primary">差額入賬帳戶</Label>
-                  <select
-                    value={form.transfer_fee_overflow_account_id ?? ''}
-                    onChange={e =>
-                      updateField('transfer_fee_overflow_account_id', e.target.value || null)
+                  <Select
+                    value={form.transfer_fee_overflow_account_id ?? SELECT_NONE}
+                    onValueChange={v =>
+                      updateField('transfer_fee_overflow_account_id', v === SELECT_NONE ? null : v)
                     }
-                    className="mt-1.5 w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
                   >
-                    <option value="">請選擇...</option>
-                    {bankAccounts.map(b => (
-                      <option key={b.id} value={b.id}>
-                        {b.name}
-                        {b.bank_name ? `（${b.bank_name}）` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="mt-1.5">
+                      <SelectValue placeholder="請選擇..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={SELECT_NONE}>請選擇...</SelectItem>
+                      {bankAccounts.map(b => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.name}
+                          {b.bank_name ? `（${b.bank_name}）` : ''}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <p className="text-xs text-morandi-muted mt-1">
                     差額收款單會自動入到這個 bank_account（公司收入）。
                   </p>

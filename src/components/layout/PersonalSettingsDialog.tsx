@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { ThemeSwitcher } from '@/components/ui/theme-switcher'
 import { FontScaleSwitcher } from '@/components/ui/font-scale-switcher'
 import { useAuthStore } from '@/stores/auth-store'
@@ -302,11 +303,9 @@ export function PersonalSettingsDialog({
             />
           </div>
           <label className="flex items-center gap-2 text-sm text-morandi-primary">
-            <input
-              type="checkbox"
+            <Checkbox
               checked={showPwdText}
-              onChange={e => setShowPwdText(e.target.checked)}
-              className="rounded border-morandi-container/30 accent-[var(--morandi-gold)]"
+              onCheckedChange={checked => setShowPwdText(checked === true)}
             />
             {LABELS.SHOW_PASSWORD}
           </label>

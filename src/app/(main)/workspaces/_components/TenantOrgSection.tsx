@@ -6,6 +6,7 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Trash2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { DimensionRow, FormData } from './create-tenant-types'
@@ -35,11 +36,10 @@ export function TenantOrgSection({
       {/* 多分公司 */}
       <div className="space-y-2">
         <label className="flex items-start gap-2 cursor-pointer">
-          <input
-            type="checkbox"
+          <Checkbox
             checked={isMultiBranch}
-            onChange={e => onToggleMultiBranch(e.target.checked)}
-            className="mt-1 h-4 w-4 rounded border-morandi-muted"
+            onCheckedChange={checked => onToggleMultiBranch(checked === true)}
+            className="mt-1"
           />
           <div>
             <div className="text-sm font-medium text-morandi-primary">

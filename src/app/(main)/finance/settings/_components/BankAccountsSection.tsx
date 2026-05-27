@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { FormDialog } from '@/components/dialog'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Edit, Trash2 } from 'lucide-react'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { COMMON_MESSAGES } from '@/constants/messages'
@@ -298,22 +299,18 @@ function BankDialog({
           />
         </div>
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
+          <Checkbox
             id="isDefault"
             checked={isDefault}
-            onChange={e => setIsDefault(e.target.checked)}
-            className="h-4 w-4 rounded border-morandi-muted"
+            onCheckedChange={checked => setIsDefault(checked === true)}
           />
           <Label htmlFor="isDefault">{PAGE_LABELS.SET_AS_DEFAULT}</Label>
         </div>
         <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
+          <Checkbox
             id="isDisbursementEligible"
             checked={isDisbursementEligible}
-            onChange={e => setIsDisbursementEligible(e.target.checked)}
-            className="h-4 w-4 rounded border-morandi-muted"
+            onCheckedChange={checked => setIsDisbursementEligible(checked === true)}
           />
           <Label htmlFor="isDisbursementEligible">
             可作為出帳帳戶

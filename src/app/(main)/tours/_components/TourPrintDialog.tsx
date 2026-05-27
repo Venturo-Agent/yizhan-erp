@@ -17,6 +17,7 @@ import { Printer, X, Plane, Hotel, Users, Check, FileSpreadsheet } from 'lucide-
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Checkbox } from '@/components/ui/checkbox'
 import { useReferenceData } from '@/lib/pnr'
 import type { Tour } from '@/stores/types'
 import type {
@@ -295,12 +296,7 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
                   key={key}
                   className="flex items-center gap-2 p-2 rounded hover:bg-morandi-bg cursor-pointer"
                 >
-                  <input
-                    type="checkbox"
-                    checked={columns[key]}
-                    onChange={() => toggleColumn(key)}
-                    className="rounded border-border"
-                  />
+                  <Checkbox checked={columns[key]} onCheckedChange={() => toggleColumn(key)} />
                   <span className="text-sm">{COLUMN_LABELS[key]}</span>
                 </label>
               ))}

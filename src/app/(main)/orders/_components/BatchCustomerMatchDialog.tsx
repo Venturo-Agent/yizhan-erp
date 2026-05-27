@@ -23,6 +23,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { Check, AlertTriangle, UserPlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { BatchMatchRow, BatchResolution } from '../_hooks/useBatchCustomerMatch'
@@ -147,23 +154,27 @@ export function BatchCustomerMatchDialog({
                             {t('batchMatchAutoLink')}
                           </span>
                         ) : (
-                          <select
-                            className="w-full max-w-[190px] rounded border px-2 py-1 text-xs"
+                          <Select
                             value={resolutionToValue(row.resolution)}
                             disabled={isApplying}
-                            onChange={e =>
-                              onChangeResolution(row.member.id, valueToResolution(e.target.value))
+                            onValueChange={v =>
+                              onChangeResolution(row.member.id, valueToResolution(v))
                             }
                           >
-                            {/* 候選既有顧客（撞名時才有） */}
-                            {row.candidates.map(c => (
-                              <option key={c.id} value={`link:${c.id}`}>
-                                {t('batchMatchOptLink', { name: c.name, code: c.code || '' })}
-                              </option>
-                            ))}
-                            <option value="create">{t('batchMatchOptCreate')}</option>
-                            <option value="skip">{t('batchMatchOptSkip')}</option>
-                          </select>
+                            <SelectTrigger className="w-full max-w-[190px] h-auto py-1 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {/* 候選既有顧客（撞名時才有） */}
+                              {row.candidates.map(c => (
+                                <SelectItem key={c.id} value={`link:${c.id}`}>
+                                  {t('batchMatchOptLink', { name: c.name, code: c.code || '' })}
+                                </SelectItem>
+                              ))}
+                              <SelectItem value="create">{t('batchMatchOptCreate')}</SelectItem>
+                              <SelectItem value="skip">{t('batchMatchOptSkip')}</SelectItem>
+                            </SelectContent>
+                          </Select>
                         )}
                       </td>
                     </tr>

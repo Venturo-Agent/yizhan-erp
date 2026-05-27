@@ -11,9 +11,19 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import type { OrderMember } from '../../_types/order-member.types'
 import type { SignerType } from './contract-dialog.types'
 import { CONTRACT_LABELS as L } from '@/app/(main)/orders/_contracts/constants/labels'
+
+// Radix Select 不允許 SelectItem value=""，用哨兵值代表「未選代表人」（原 <option value="">），onValueChange 換回 ''
+const REP_NONE = '__none__'
 
 interface NewContractFormProps {
   availableMembers: OrderMember[]
@@ -118,19 +128,23 @@ export function NewContractForm({
       {/* 代表人（從勾選的人裡選）*/}
       <div className="space-y-2">
         <Label>{L.BATCH_REP}</Label>
-        <select
-          value={repMemberId}
-          onChange={e => onSelectRep(e.target.value)}
+        <Select
+          value={repMemberId || REP_NONE}
+          onValueChange={v => onSelectRep(v === REP_NONE ? '' : v)}
           disabled={selectedMembers.length === 0}
-          className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm disabled:opacity-50"
         >
-          <option value="">{L.BATCH_REP_PLACEHOLDER}</option>
-          {selectedMembers.map(m => (
-            <option key={m.id} value={m.id}>
-              {m.chinese_name || m.passport_name || m.id}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={L.BATCH_REP_PLACEHOLDER} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={REP_NONE}>{L.BATCH_REP_PLACEHOLDER}</SelectItem>
+            {selectedMembers.map(m => (
+              <SelectItem key={m.id} value={m.id}>
+                {m.chinese_name || m.passport_name || m.id}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <p className="text-xs text-morandi-secondary">{L.BATCH_REP_HINT}</p>
       </div>
 

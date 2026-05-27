@@ -14,10 +14,20 @@
 import React, { useEffect, useState } from 'react'
 import type { EditFormData } from '../MemberEditDialog'
 import { useTranslations } from 'next-intl'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 
 const COMPONENT_LABELS = {
   PRINT_LABEL: '(列印)',
 } as const
+
+// Radix Select 不允許 SelectItem value=""，用哨兵值代表「未選性別」（原 <option value="">），commit 時換回 ''
+const GENDER_NONE = '__none__'
 
 interface MemberInfoFormProps {
   formData: EditFormData
@@ -68,15 +78,19 @@ export function MemberInfoForm({ formData, onChange }: MemberInfoFormProps) {
         </div>
         <div>
           <label className={labelClass}>{t('memberEditGender')}</label>
-          <select
-            value={draft.gender || ''}
-            onChange={e => commitNow({ ...draft, gender: e.target.value })}
-            className={inputClass}
+          <Select
+            value={draft.gender || GENDER_NONE}
+            onValueChange={v => commitNow({ ...draft, gender: v === GENDER_NONE ? '' : v })}
           >
-            <option value="">-</option>
-            <option value="M">{t('memberEditMale')}</option>
-            <option value="F">{t('memberEditFemale')}</option>
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="-" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={GENDER_NONE}>-</SelectItem>
+              <SelectItem value="M">{t('memberEditMale')}</SelectItem>
+              <SelectItem value="F">{t('memberEditFemale')}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

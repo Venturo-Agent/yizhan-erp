@@ -4,9 +4,19 @@ import React from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { DatePicker } from '@/components/ui/date-picker'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 
 // 小標題統一樣式：比照公司設定（CompanyInfoCard）的 Label，不再各頁散刻
 const LABEL_CLASS = 'text-sm font-medium text-morandi-primary'
+
+// 職務「請選擇」哨兵值：Radix Select 不允許 SelectItem value=""，用此值代表「尚未選」
+const ROLE_NONE = '__none__'
 
 const LABELS = {
   CHINESE_NAME: '中文姓名',
@@ -103,18 +113,22 @@ export function BasicInfoSection({
               <span className="ml-2 text-xs text-morandi-muted">{LABELS.ROLE_NOTE}</span>
             </div>
           ) : (
-            <select
-              value={formData.role_id}
-              onChange={e => onChange({ role_id: e.target.value })}
-              className="w-full px-3 py-2 border border-input rounded-lg focus:border-morandi-gold focus:outline-none bg-card text-morandi-primary"
+            <Select
+              value={formData.role_id || ROLE_NONE}
+              onValueChange={v => onChange({ role_id: v === ROLE_NONE ? '' : v })}
             >
-              <option value="">{LABELS.SELECT_ROLE}</option>
-              {roles.map(role => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder={LABELS.SELECT_ROLE} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ROLE_NONE}>{LABELS.SELECT_ROLE}</SelectItem>
+                {roles.map(role => (
+                  <SelectItem key={role.id} value={role.id}>
+                    {role.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </div>
 
@@ -137,17 +151,21 @@ export function BasicInfoSection({
                 {branches[0].name}
               </div>
             ) : (
-              <select
+              <Select
                 value={formData.branch_id || (branches[0]?.id ?? '')}
-                onChange={e => onChange({ branch_id: e.target.value })}
-                className="w-full px-3 py-2 border border-input rounded-lg focus:border-morandi-gold focus:outline-none bg-card text-morandi-primary"
+                onValueChange={v => onChange({ branch_id: v })}
               >
-                {branches.map(b => (
-                  <option key={b.id} value={b.id}>
-                    {b.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {branches.map(b => (
+                    <SelectItem key={b.id} value={b.id}>
+                      {b.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
           </div>
         )}

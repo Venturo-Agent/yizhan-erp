@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, X, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { AttractionSelector } from '@/components/editor/attraction-selector'
 import type { DailyScheduleItem, SimpleActivity } from './types'
 
@@ -152,7 +153,15 @@ export function TimelineEditor({
           {/* 餐食（三欄，勾選框在左側） */}
           <div className="grid grid-cols-3 gap-2">
             {/* 早餐 */}
-            <div className="relative">
+            <label className="flex items-center gap-1.5">
+              {idx > 0 && (
+                <Checkbox
+                  checked={day.hotelBreakfast}
+                  onCheckedChange={checked => onUpdateDay(idx, 'hotelBreakfast', checked === true)}
+                  className="h-4 w-4 shrink-0"
+                  title={t('itineraryHotelBreakfast')}
+                />
+              )}
               <input
                 type="text"
                 value={
@@ -161,59 +170,56 @@ export function TimelineEditor({
                 onChange={e => onUpdateDay(idx, 'meals.breakfast', e.target.value)}
                 placeholder={t('itineraryBreakfast')}
                 disabled={day.hotelBreakfast}
-                className="w-full h-8 pl-7 pr-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
+                className="flex-1 min-w-0 h-8 px-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
               />
-              {idx > 0 && (
-                <input
-                  type="checkbox"
-                  checked={day.hotelBreakfast}
-                  onChange={e => onUpdateDay(idx, 'hotelBreakfast', e.target.checked)}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
-                  title={t('itineraryHotelBreakfast')}
-                />
-              )}
-            </div>
+            </label>
             {/* 午餐 */}
-            <div className="relative">
+            <label className="flex items-center gap-1.5">
+              <Checkbox
+                checked={day.lunchSelf || false}
+                onCheckedChange={checked => onUpdateDay(idx, 'lunchSelf', checked === true)}
+                className="h-4 w-4 shrink-0"
+                title={t('itineraryFreeService')}
+              />
               <input
                 type="text"
                 value={day.lunchSelf ? t('itineraryFreeService') : day.meals.lunch || ''}
                 onChange={e => onUpdateDay(idx, 'meals.lunch', e.target.value)}
                 placeholder={t('itineraryLunch')}
                 disabled={day.lunchSelf}
-                className="w-full h-8 pl-7 pr-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
+                className="flex-1 min-w-0 h-8 px-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
               />
-              <input
-                type="checkbox"
-                checked={day.lunchSelf || false}
-                onChange={e => onUpdateDay(idx, 'lunchSelf', e.target.checked)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
+            </label>
+            {/* 晚餐 */}
+            <label className="flex items-center gap-1.5">
+              <Checkbox
+                checked={day.dinnerSelf || false}
+                onCheckedChange={checked => onUpdateDay(idx, 'dinnerSelf', checked === true)}
+                className="h-4 w-4 shrink-0"
                 title={t('itineraryFreeService')}
               />
-            </div>
-            {/* 晚餐 */}
-            <div className="relative">
               <input
                 type="text"
                 value={day.dinnerSelf ? '敬請自理' : day.meals.dinner || ''}
                 onChange={e => onUpdateDay(idx, 'meals.dinner', e.target.value)}
                 placeholder={t('itineraryDinner')}
                 disabled={day.dinnerSelf}
-                className="w-full h-8 pl-7 pr-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
+                className="flex-1 min-w-0 h-8 px-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
               />
-              <input
-                type="checkbox"
-                checked={day.dinnerSelf || false}
-                onChange={e => onUpdateDay(idx, 'dinnerSelf', e.target.checked)}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
-                title={t('itineraryFreeService')}
-              />
-            </div>
+            </label>
           </div>
 
           {/* 住宿（獨立一行，勾選框在左側） */}
           {idx < dailySchedule.length - 1 && (
-            <div className="relative">
+            <label className="flex items-center gap-1.5">
+              {idx > 0 && (
+                <Checkbox
+                  checked={day.sameAsPrevious}
+                  onCheckedChange={checked => onUpdateDay(idx, 'sameAsPrevious', checked === true)}
+                  className="h-4 w-4 shrink-0"
+                  title={t('itineraryContinueStay')}
+                />
+              )}
               <input
                 type="text"
                 value={
@@ -224,18 +230,9 @@ export function TimelineEditor({
                 onChange={e => onUpdateDay(idx, 'accommodation', e.target.value)}
                 placeholder={t('itineraryHotelAccommodation')}
                 disabled={day.sameAsPrevious}
-                className="w-full h-8 pl-7 pr-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
+                className="flex-1 min-w-0 h-8 px-3 text-xs border border-border rounded-lg bg-transparent focus:outline-none focus:ring-1 focus:ring-morandi-gold disabled:text-morandi-secondary"
               />
-              {idx > 0 && (
-                <input
-                  type="checkbox"
-                  checked={day.sameAsPrevious}
-                  onChange={e => onUpdateDay(idx, 'sameAsPrevious', e.target.checked)}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
-                  title={t('itineraryContinueStay')}
-                />
-              )}
-            </div>
+            </label>
           )}
         </div>
 

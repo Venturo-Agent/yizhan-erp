@@ -5,6 +5,7 @@
 
 import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import type { DailyScheduleItem } from './types'
 
 interface DailyScheduleEditorProps {
@@ -55,64 +56,73 @@ export function DailyScheduleEditor({
             {/* 表格式餐食（三欄） */}
             <div className="grid grid-cols-3 gap-2 text-xs">
               {/* 早餐 */}
-              <div className="relative">
+              <label className="flex items-center gap-1.5">
+                {!isFirst && (
+                  <Checkbox
+                    checked={day.hotelBreakfast}
+                    onCheckedChange={checked =>
+                      onUpdateDay(idx, 'hotelBreakfast', checked === true)
+                    }
+                    className="h-4 w-4 shrink-0"
+                    title={t('itineraryHotelBreakfast')}
+                  />
+                )}
                 <Input
                   value={
                     day.hotelBreakfast ? t('itineraryHotelBreakfast') : day.meals.breakfast || ''
                   }
                   onChange={e => onUpdateDay(idx, 'meals.breakfast', e.target.value)}
                   placeholder={t('itineraryBreakfast')}
-                  className="h-8 text-xs pl-7"
+                  className="h-8 text-xs flex-1 min-w-0"
                   disabled={day.hotelBreakfast}
                 />
-                {!isFirst && (
-                  <input
-                    type="checkbox"
-                    checked={day.hotelBreakfast}
-                    onChange={e => onUpdateDay(idx, 'hotelBreakfast', e.target.checked)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
-                    title={t('itineraryHotelBreakfast')}
-                  />
-                )}
-              </div>
+              </label>
               {/* 午餐 */}
-              <div className="relative">
+              <label className="flex items-center gap-1.5">
+                <Checkbox
+                  checked={day.lunchSelf || false}
+                  onCheckedChange={checked => onUpdateDay(idx, 'lunchSelf', checked === true)}
+                  className="h-4 w-4 shrink-0"
+                  title={t('itineraryFreeService')}
+                />
                 <Input
                   value={day.lunchSelf ? t('itineraryFreeService') : day.meals.lunch || ''}
                   onChange={e => onUpdateDay(idx, 'meals.lunch', e.target.value)}
                   placeholder={t('itineraryLunch')}
-                  className="h-8 text-xs pl-7"
+                  className="h-8 text-xs flex-1 min-w-0"
                   disabled={day.lunchSelf}
                 />
-                <input
-                  type="checkbox"
-                  checked={day.lunchSelf || false}
-                  onChange={e => onUpdateDay(idx, 'lunchSelf', e.target.checked)}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
+              </label>
+              {/* 晚餐 */}
+              <label className="flex items-center gap-1.5">
+                <Checkbox
+                  checked={day.dinnerSelf || false}
+                  onCheckedChange={checked => onUpdateDay(idx, 'dinnerSelf', checked === true)}
+                  className="h-4 w-4 shrink-0"
                   title={t('itineraryFreeService')}
                 />
-              </div>
-              {/* 晚餐 */}
-              <div className="relative">
                 <Input
                   value={day.dinnerSelf ? '敬請自理' : day.meals.dinner || ''}
                   onChange={e => onUpdateDay(idx, 'meals.dinner', e.target.value)}
                   placeholder={t('itineraryDinner')}
-                  className="h-8 text-xs pl-7"
+                  className="h-8 text-xs flex-1 min-w-0"
                   disabled={day.dinnerSelf}
                 />
-                <input
-                  type="checkbox"
-                  checked={day.dinnerSelf || false}
-                  onChange={e => onUpdateDay(idx, 'dinnerSelf', e.target.checked)}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
-                  title={t('itineraryFreeService')}
-                />
-              </div>
+              </label>
             </div>
             {/* 住宿（獨立一行） */}
             {!isLast && (
-              <div className="relative mt-1.5">
+              <label className="flex items-center gap-1.5 mt-1.5">
+                {idx > 0 && (
+                  <Checkbox
+                    checked={day.sameAsPrevious}
+                    onCheckedChange={checked =>
+                      onUpdateDay(idx, 'sameAsPrevious', checked === true)
+                    }
+                    className="h-4 w-4 shrink-0"
+                    title={t('itineraryContinueStay')}
+                  />
+                )}
                 <Input
                   value={
                     day.sameAsPrevious
@@ -121,19 +131,10 @@ export function DailyScheduleEditor({
                   }
                   onChange={e => onUpdateDay(idx, 'accommodation', e.target.value)}
                   placeholder={t('itineraryHotelAccommodation')}
-                  className="h-8 text-xs pl-7"
+                  className="h-8 text-xs flex-1 min-w-0"
                   disabled={day.sameAsPrevious}
                 />
-                {idx > 0 && (
-                  <input
-                    type="checkbox"
-                    checked={day.sameAsPrevious}
-                    onChange={e => onUpdateDay(idx, 'sameAsPrevious', e.target.checked)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded border-border text-morandi-gold focus:ring-morandi-gold cursor-pointer"
-                    title={t('itineraryContinueStay')}
-                  />
-                )}
-              </div>
+              </label>
             )}
           </div>
         )

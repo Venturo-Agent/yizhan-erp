@@ -2,6 +2,17 @@
 
 import { Check, X, AlertTriangle, Users, UserPlus } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+
+// Radix Select 不允許 SelectItem value=""，placeholder 用哨兵；這個下拉是「選了就套用到全體」的指令式操作、
+// 套用後 value 維持哨兵（顯示 placeholder）、讓使用者可重複套用同一張訂單（原生 select 選同值不會再觸發、此為改善）
+const QUICK_SET_NONE = '__none__'
 
 interface OrderInfo {
   id: string
@@ -80,17 +91,23 @@ export function PnrMatchStats({
       {isTourMode && stats.withSuggestions > 0 && (
         <div className="flex items-center gap-2 p-2 bg-morandi-container/20 rounded-lg">
           <span className="text-xs text-morandi-secondary">{t('quickSetAllOrders')}</span>
-          <select
-            onChange={e => onSetAllOrders(e.target.value)}
-            className="text-xs border rounded px-2 py-1"
+          <Select
+            value={QUICK_SET_NONE}
+            onValueChange={v => {
+              if (v !== QUICK_SET_NONE) onSetAllOrders(v)
+            }}
           >
-            <option value="">{t('pleaseSelect')}</option>
-            {orders.map(o => (
-              <option key={o.id} value={o.id}>
-                {o.order_number} - {o.contact_person || t('noContact')}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="h-auto w-auto px-2 py-1 text-xs">
+              <SelectValue placeholder={t('pleaseSelect')} />
+            </SelectTrigger>
+            <SelectContent>
+              {orders.map(o => (
+                <SelectItem key={o.id} value={o.id}>
+                  {o.order_number} - {o.contact_person || t('noContact')}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
     </>

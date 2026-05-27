@@ -2,8 +2,21 @@
 
 import { Check, X, AlertTriangle, UserPlus } from 'lucide-react'
 import { EmptyValue } from '@/components/ui/empty-value'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
+
+// Radix Select 不允許 SelectItem value=""，用哨兵值代表原本的空字串選項（送回 handler 時換回 ''）
+// 注意：'__NONE__'（取消配對）是業務既有值、原樣保留、不是哨兵
+const AUTO_MATCH = '__AUTO_MATCH__' // 手動選擇欄的「自動配對」（原 value=""）
+const SELECT_CUSTOMER = '__SELECT_CUSTOMER__' // 建議客戶欄的「請選擇」（原 value=""）
+const SELECT_ORDER = '__SELECT_ORDER__' // 選擇訂單欄的「請選擇」（原 value=""）
 
 interface TourMember {
   id: string
@@ -129,65 +142,85 @@ export function PnrMatchTable({
                 {result.matchedMember?.chinese_name || <EmptyValue />}
               </td>
               <td className="px-3 py-2">
-                <select
+                <Select
                   value={
                     manualMatches[result.pnrPassenger] === '__NONE__'
                       ? '__NONE__'
-                      : manualMatches[result.pnrPassenger] || result.matchedMember?.id || ''
+                      : manualMatches[result.pnrPassenger] || result.matchedMember?.id || AUTO_MATCH
                   }
-                  onChange={e => onManualMatch(result.pnrPassenger, e.target.value)}
-                  className="text-xs border rounded px-2 py-1 w-full max-w-[150px]"
+                  onValueChange={v => onManualMatch(result.pnrPassenger, v === AUTO_MATCH ? '' : v)}
                   disabled={!!result.selectedCustomerId}
                 >
-                  <option value="">{t('autoMatch')}</option>
-                  <option value="__NONE__">{t('cancelMatch')}</option>
-                  {members.map(m => (
-                    <option key={m.id} value={m.id}>
-                      {m.chinese_name || m.passport_name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="text-xs h-auto py-1 w-full max-w-[150px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={AUTO_MATCH}>{t('autoMatch')}</SelectItem>
+                    <SelectItem value="__NONE__">{t('cancelMatch')}</SelectItem>
+                    {members.map(m => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.chinese_name || m.passport_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </td>
               <td className="px-3 py-2">
                 {result.suggestedCustomers.length > 0 ? (
-                  <select
-                    value={result.selectedCustomerId || ''}
-                    onChange={e => onSelectCustomer(result.pnrPassenger, e.target.value)}
-                    className={cn(
-                      'text-xs border rounded px-2 py-1 w-full max-w-[180px]',
-                      result.selectedCustomerId && 'border-morandi-secondary bg-morandi-container'
-                    )}
+                  <Select
+                    value={result.selectedCustomerId || SELECT_CUSTOMER}
+                    onValueChange={v =>
+                      onSelectCustomer(result.pnrPassenger, v === SELECT_CUSTOMER ? '' : v)
+                    }
                     disabled={!!result.matchedMember && !result.selectedCustomerId}
                   >
-                    <option value="">{t('selectCustomer')}</option>
-                    {result.suggestedCustomers.map(c => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} ({c.passport_name}) {c.score}%
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger
+                      className={cn(
+                        'text-xs h-auto py-1 w-full max-w-[180px]',
+                        result.selectedCustomerId && 'border-morandi-secondary bg-morandi-container'
+                      )}
+                    >
+                      <SelectValue placeholder={t('selectCustomer')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={SELECT_CUSTOMER}>{t('selectCustomer')}</SelectItem>
+                      {result.suggestedCustomers.map(c => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name} ({c.passport_name}) {c.score}%
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <span className="text-xs text-morandi-muted">{t('noSuggestion')}</span>
                 )}
               </td>
               {isTourMode && (
                 <td className="px-3 py-2">
-                  <select
-                    value={selectedOrderIds[result.pnrPassenger] || ''}
-                    onChange={e => onSelectOrder(result.pnrPassenger, e.target.value)}
-                    className={cn(
-                      'text-xs border rounded px-2 py-1 w-full max-w-[150px]',
-                      selectedOrderIds[result.pnrPassenger] &&
-                        'border-status-info bg-status-info/10'
-                    )}
+                  <Select
+                    value={selectedOrderIds[result.pnrPassenger] || SELECT_ORDER}
+                    onValueChange={v =>
+                      onSelectOrder(result.pnrPassenger, v === SELECT_ORDER ? '' : v)
+                    }
                   >
-                    <option value="">{t('selectOrderPlaceholder')}</option>
-                    {orders.map(o => (
-                      <option key={o.id} value={o.id}>
-                        {o.order_number} - {o.contact_person || t('noContact')}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger
+                      className={cn(
+                        'text-xs h-auto py-1 w-full max-w-[150px]',
+                        selectedOrderIds[result.pnrPassenger] &&
+                          'border-status-info bg-status-info/10'
+                      )}
+                    >
+                      <SelectValue placeholder={t('selectOrderPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={SELECT_ORDER}>{t('selectOrderPlaceholder')}</SelectItem>
+                      {orders.map(o => (
+                        <SelectItem key={o.id} value={o.id}>
+                          {o.order_number} - {o.contact_person || t('noContact')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </td>
               )}
             </tr>

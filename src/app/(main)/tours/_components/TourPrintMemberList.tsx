@@ -9,6 +9,7 @@
 import React from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import type { OrderMember } from '@/app/(main)/orders/_types/order-member.types'
 
 interface TourPrintMemberListProps {
@@ -48,11 +49,9 @@ export function TourPrintMemberList({
             key={member.id}
             className="flex items-center gap-3 p-3 hover:bg-morandi-bg cursor-pointer border-b border-border/50 last:border-b-0"
           >
-            <input
-              type="checkbox"
+            <Checkbox
               checked={selectedMembers.has(member.id)}
-              onChange={() => toggleMember(member.id)}
-              className="rounded border-border"
+              onCheckedChange={() => toggleMember(member.id)}
             />
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate">

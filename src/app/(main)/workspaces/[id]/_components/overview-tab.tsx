@@ -3,6 +3,13 @@
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { alert as showAlert } from '@/lib/ui/alert-dialog'
 import { apiMutate } from '@/lib/swr/api-mutate'
 import { Users, Check, CheckSquare } from 'lucide-react'
@@ -389,31 +396,39 @@ export function OverviewTab({
         <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="text-sm text-morandi-secondary block mb-2">特休制度</label>
-            <select
+            <Select
               value={leavePolicy}
-              onChange={e =>
-                onSetLeavePolicy(e.target.value as 'calendar_year' | 'hire_anniversary')
-              }
-              className="w-full h-10 px-3 rounded-md border border-morandi-border bg-white text-sm"
+              onValueChange={v => onSetLeavePolicy(v as 'calendar_year' | 'hire_anniversary')}
             >
-              <option value="hire_anniversary">週年制（以到職日週年計）</option>
-              <option value="calendar_year">年度制（曆年 1/1 重算）</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hire_anniversary">週年制（以到職日週年計）</SelectItem>
+                <SelectItem value="calendar_year">年度制（曆年 1/1 重算）</SelectItem>
+              </SelectContent>
+            </Select>
             <p className="text-xs text-morandi-secondary mt-1">
               勞基法第 38 條、公司全員工統一適用。
             </p>
           </div>
           <div>
             <label className="text-sm text-morandi-secondary block mb-2">資遣費制度</label>
-            <select
+            <Select
               value={pensionSystem}
-              onChange={e => onSetPensionSystem(e.target.value as 'old' | 'new' | 'mixed')}
-              className="w-full h-10 px-3 rounded-md border border-morandi-border bg-white text-sm"
+              onValueChange={v => onSetPensionSystem(v as 'old' | 'new' | 'mixed')}
             >
-              <option value="new">新制（勞退條例第 12 條、1 年 0.5 月、上限 6 月）</option>
-              <option value="old">舊制（勞基法第 17 條、1 年 1 月、無上限）</option>
-              <option value="mixed">跨制（2005/7/1 前舊制 + 之後新制）</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="new">
+                  新制（勞退條例第 12 條、1 年 0.5 月、上限 6 月）
+                </SelectItem>
+                <SelectItem value="old">舊制（勞基法第 17 條、1 年 1 月、無上限）</SelectItem>
+                <SelectItem value="mixed">跨制（2005/7/1 前舊制 + 之後新制）</SelectItem>
+              </SelectContent>
+            </Select>
             <p className="text-xs text-morandi-secondary mt-1">
               資遣試算預設用此制度、單筆可在資遣試算 dialog 內覆寫。
             </p>

@@ -399,18 +399,22 @@ export function PaymentItemRow({
                   <label className="block text-[0.65rem] text-morandi-secondary mb-1">
                     連結有效
                   </label>
-                  <select
-                    value={linkDays}
-                    onChange={e => setLinkDays(Number(e.target.value))}
+                  <Select
+                    value={String(linkDays)}
+                    onValueChange={v => setLinkDays(Number(v))}
                     disabled={linkGenerating}
-                    className="w-full h-8 px-2 rounded-md border border-input bg-background text-sm"
                   >
-                    {PAYMENT_LINK_EXPIRY_DAYS.map(d => (
-                      <option key={d} value={d}>
-                        {d} 天
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PAYMENT_LINK_EXPIRY_DAYS.map(d => (
+                        <SelectItem key={d} value={String(d)}>
+                          {d} 天
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button
                   type="button"

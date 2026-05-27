@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { Combobox } from '@/components/ui/combobox'
+import { Checkbox } from '@/components/ui/checkbox'
 import { ArrowRightLeft, CheckSquare, X } from 'lucide-react'
 
 const COMPONENT_LABELS = {
@@ -407,10 +408,9 @@ export function CostTransferDialog({
               key={item.id}
               className="flex items-center gap-3 px-3 py-2 hover:bg-morandi-gold/5 cursor-pointer border-b border-border/30 last:border-b-0"
             >
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={selectedItems.has(item.id)}
-                onChange={() => {
+                onCheckedChange={() => {
                   setSelectedItems(prev => {
                     const next = new Set(prev)
                     if (next.has(item.id)) next.delete(item.id)
@@ -418,7 +418,6 @@ export function CostTransferDialog({
                     return next
                   })
                 }}
-                className="rounded border-morandi-secondary w-4 h-4"
               />
               <div className="flex-1 min-w-0 overflow-hidden">
                 <div className="text-xs truncate">

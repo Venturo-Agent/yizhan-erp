@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
@@ -230,14 +231,12 @@ export function TourEditDialog({ isOpen, onClose, tour, onSuccess }: TourEditDia
             {/* 選項 */}
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="edit-enableCheckin"
                   checked={formData.enable_checkin}
-                  onChange={e =>
-                    setFormData(prev => ({ ...prev, enable_checkin: e.target.checked }))
+                  onCheckedChange={checked =>
+                    setFormData(prev => ({ ...prev, enable_checkin: checked === true }))
                   }
-                  className="rounded"
                 />
                 <label htmlFor="edit-enableCheckin" className="text-sm text-morandi-primary">
                   {t('editTourCheckinEnable')}

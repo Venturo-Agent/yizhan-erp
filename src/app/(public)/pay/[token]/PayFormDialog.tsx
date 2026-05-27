@@ -7,6 +7,13 @@
 import { useState } from 'react'
 import { Loader2, CheckSquare, AlertTriangle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
 import { LABELS, PaymentMethodOption } from './types'
 import { apiMutate } from '@/lib/swr/api-mutate'
 import { isGatewayProvider } from '@/constants/payment-provider'
@@ -184,20 +191,23 @@ export function PayFormDialog({
                   {LABELS.NO_PAYMENT_METHODS}
                 </div>
               ) : (
-                <select
+                <Select
                   value={paymentMethodId}
-                  onChange={e => setPaymentMethodId(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-morandi-gold/40"
+                  onValueChange={setPaymentMethodId}
                   disabled={submitting}
-                  required
                 >
-                  {paymentMethods.map(pm => (
-                    <option key={pm.id} value={pm.id}>
-                      {pm.name}
-                      {pm.description ? `（${pm.description}）` : ''}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {paymentMethods.map(pm => (
+                      <SelectItem key={pm.id} value={pm.id}>
+                        {pm.name}
+                        {pm.description ? `（${pm.description}）` : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             </div>
 

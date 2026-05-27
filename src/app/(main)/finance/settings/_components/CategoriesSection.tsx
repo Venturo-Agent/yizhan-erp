@@ -10,6 +10,13 @@ import { Input } from '@/components/ui/input'
 import { FormDialog } from '@/components/dialog'
 import { Label } from '@/components/ui/label'
 import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select'
+import {
   DndContext,
   closestCenter,
   PointerSensor,
@@ -30,6 +37,9 @@ import { apiMutate } from '@/lib/swr/api-mutate'
 import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 
 type CategoryType = 'expense' | 'company_expense' | 'company_income'
+
+// 借/貸科目「請選擇」哨兵值：Radix Select 不允許 SelectItem value=""，用此值代表「未選」（送出時對應 null）
+const ACCOUNT_NONE = '__none__'
 
 interface CategoriesSectionProps {
   /** 'category' = 團體請款類別、'company' = 公司收支項目（支出+收入合併、2026-05-26） */
@@ -393,19 +403,23 @@ function CategoryDialog({
                 </span>
               </p>
             ) : (
-              <select
+              <Select
                 value={typeChoice}
-                onChange={e => {
-                  setTypeChoice(e.target.value as CategoryType)
+                onValueChange={v => {
+                  setTypeChoice(v as CategoryType)
                   // 切換收支 → 借貸科目選項不同、清掉已選避免殘留無效值
                   setDebitAccountId('')
                   setCreditAccountId('')
                 }}
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
               >
-                <option value="company_expense">{PAGE_LABELS.TYPE_EXPENSE}</option>
-                <option value="company_income">{PAGE_LABELS.TYPE_INCOME}</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="company_expense">{PAGE_LABELS.TYPE_EXPENSE}</SelectItem>
+                  <SelectItem value="company_income">{PAGE_LABELS.TYPE_INCOME}</SelectItem>
+                </SelectContent>
+              </Select>
             )}
           </div>
         )}
@@ -423,35 +437,43 @@ function CategoryDialog({
               <Label>
                 {showTypeChoice ? PAGE_LABELS.COL_DEBIT_ACCOUNT : t('debitAccountExpense')}
               </Label>
-              <select
-                value={debitAccountId}
-                onChange={e => setDebitAccountId(e.target.value)}
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              <Select
+                value={debitAccountId || ACCOUNT_NONE}
+                onValueChange={v => setDebitAccountId(v === ACCOUNT_NONE ? '' : v)}
               >
-                <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
-                {debitAccounts.map(account => (
-                  <option key={account.id} value={account.id}>
-                    {account.code} {account.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder={PAGE_LABELS.PLEASE_SELECT} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ACCOUNT_NONE}>{PAGE_LABELS.PLEASE_SELECT}</SelectItem>
+                  {debitAccounts.map(account => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.code} {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>
                 {showTypeChoice ? PAGE_LABELS.COL_CREDIT_ACCOUNT : t('creditAccountLiability')}
               </Label>
-              <select
-                value={creditAccountId}
-                onChange={e => setCreditAccountId(e.target.value)}
-                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              <Select
+                value={creditAccountId || ACCOUNT_NONE}
+                onValueChange={v => setCreditAccountId(v === ACCOUNT_NONE ? '' : v)}
               >
-                <option value="">{PAGE_LABELS.PLEASE_SELECT}</option>
-                {creditAccounts.map(account => (
-                  <option key={account.id} value={account.id}>
-                    {account.code} {account.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder={PAGE_LABELS.PLEASE_SELECT} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ACCOUNT_NONE}>{PAGE_LABELS.PLEASE_SELECT}</SelectItem>
+                  {creditAccounts.map(account => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.code} {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}

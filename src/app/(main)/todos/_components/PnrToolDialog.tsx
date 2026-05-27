@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
 import { Copy, Check, Plane } from 'lucide-react'
 import { useMembers, useToursSlim } from '@/data'
@@ -243,10 +244,9 @@ export function PnrToolContent({ todo }: { todo: Todo }) {
                   key={m.id}
                   className="flex items-center gap-2 text-xs cursor-pointer hover:bg-morandi-container/30 rounded px-1 py-0.5"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selectedIds.has(m.id)}
-                    onChange={() => toggleMember(m.id)}
+                    onCheckedChange={() => toggleMember(m.id)}
                     className="cursor-pointer"
                   />
                   <span

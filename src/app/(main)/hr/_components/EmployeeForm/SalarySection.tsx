@@ -3,6 +3,7 @@
 import React from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { DatePicker } from '@/components/ui/date-picker'
 import { BankCombobox } from '@/components/bank-combobox'
 import { EmptyValue } from '@/components/ui/empty-value'
@@ -210,11 +211,9 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
           <div className="space-y-2">
             {/* 勞保是否在本公司 */}
             <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={formData.labor_insured_here}
-                onChange={e => onChange({ labor_insured_here: e.target.checked })}
-                className="w-4 h-4"
+                onCheckedChange={checked => onChange({ labor_insured_here: checked === true })}
               />
               <span className="text-morandi-primary">勞保在本公司投保</span>
               <span className="text-xs text-morandi-muted">
@@ -223,11 +222,9 @@ export function SalarySection({ formData, salaryHistory, onChange }: SalarySecti
             </label>
             {/* 健保是否在本公司 */}
             <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={formData.health_insured_here}
-                onChange={e => onChange({ health_insured_here: e.target.checked })}
-                className="w-4 h-4"
+                onCheckedChange={checked => onChange({ health_insured_here: checked === true })}
               />
               <span className="text-morandi-primary">健保在本公司投保</span>
               <span className="text-xs text-morandi-muted">（未勾選 = 員工健保在他處）</span>
