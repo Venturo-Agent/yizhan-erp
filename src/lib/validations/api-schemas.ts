@@ -246,6 +246,24 @@ export const createEmployeeSchema = z.object({
   hire_date: z.string().optional().nullable(),
   // Phase A 加：scope 欄位（branch）
   branch_id: z.string().uuid().optional().nullable(),
+  // 2026-05-27 補：對齊 updateEmployeeSchema 的業務資料欄位。
+  // 修 bug：原本新增只收基本 10 欄、前端送的薪資/銀行/個資被 zod 靜默 strip 掉、
+  //        員工建好但這些資料憑空消失（要事後再編輯一次才存得進去）。
+  avatar_url: z.string().url().nullable().optional(),
+  job_title: z.string().nullable().optional(),
+  monthly_salary: z.number().nullable().optional(),
+  // jsonb 結構欄位（電話/地址/緊急聯絡人 / 職務資訊 / 薪資結構）
+  personal_info: z.record(z.string(), z.unknown()).optional(),
+  job_info: z.record(z.string(), z.unknown()).optional(),
+  salary_info: z.record(z.string(), z.unknown()).optional(),
+  // 銀行（薪資匯款用）
+  bank_code: z.string().max(20).nullable().optional(),
+  bank_name: z.string().max(100).nullable().optional(),
+  bank_account_number: z.string().max(50).nullable().optional(),
+  bank_account_name: z.string().max(100).nullable().optional(),
+  // 旅行社業界日期
+  tourism_join_date: z.string().date().nullable().optional(),
+  labor_insurance_date: z.string().date().nullable().optional(),
   // 不收受信任欄位（must_change_password / workspace_id / user_id 由 server 強塞）
 })
 
