@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>行程展示頁 · 三版面比較 — 蟲點子名古屋</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; }
+  body { font-family:"Noto Sans TC","PingFang TC",sans-serif; background:#111; display:flex; flex-direction:column; }
+  .bar {
+    flex:0 0 auto; display:flex; align-items:center; gap:8px;
+    padding:10px 16px; background:#1a1a1a; color:#fff;
+    box-shadow:0 2px 12px rgba(0,0,0,.3); z-index:10;
+  }
+  .bar .title { font-size:13px; letter-spacing:.1em; color:rgba(255,255,255,.55); margin-right:6px; white-space:nowrap; }
+  .bar button {
+    border:0; cursor:pointer; padding:9px 18px; border-radius:8px;
+    background:transparent; color:rgba(255,255,255,.6); font-size:14px; font-weight:500;
+    font-family:inherit; transition:all .2s; white-space:nowrap;
+  }
+  .bar button:hover { color:#fff; background:rgba(255,255,255,.08); }
+  .bar button.active { background:#fff; color:#1a1a1a; }
+  .bar .hint { margin-left:auto; font-size:12px; color:rgba(255,255,255,.35); }
+  iframe { flex:1 1 auto; width:100%; border:0; background:#fff; }
+  @media(max-width:640px){ .bar .hint{display:none;} .bar .title{display:none;} }
+</style>
+</head>
+<body>
+<nav class="bar">
+  <span class="title">行程展示 · 三版面</span>
+  <button data-f="行程展示-A-編輯雜誌.html" class="active">A · 編輯雜誌</button>
+  <button data-f="行程展示-B-探索預訂.html">B · 探索預訂</button>
+  <button data-f="行程展示-C-優雅landing.html">C · 優雅 landing</button>
+  <span class="hint">蟲點子名古屋 · 同一份真實行程 · 三種完全不同的呈現</span>
+</nav>
+<iframe id="frame" title="行程展示"></iframe>
+<script>
+  const frame = document.getElementById('frame');
+  const btns = [...document.querySelectorAll('.bar button')];
+  function load(f, btn){
+    frame.src = encodeURI(f);
+    btns.forEach(b=>b.classList.toggle('active', b===btn));
+    localStorage.setItem('proto-tpl', f);
+  }
+  btns.forEach(b => b.addEventListener('click', ()=>load(b.dataset.f, b)));
+  const saved = localStorage.getItem('proto-tpl');
+  const start = btns.find(b=>b.dataset.f===saved) || btns[0];
+  load(start.dataset.f, start);
+</script>
+</body>
+</html>

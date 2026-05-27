@@ -34,7 +34,7 @@ import type {
   EmployeeInfo,
   CompanyInfo,
 } from '@/app/(public)/p/tour/[code]/_components/tour-types'
-import { getHotelDataForDay } from './enrich-itinerary'
+import { getHotelDataForDay, type EnrichedAttractionMeta } from './enrich-itinerary'
 
 // ============ Adapter 入口 ============
 
@@ -225,14 +225,25 @@ function buildRouteCardBlock(
 
   // 取前 3（3up 超過 3 個會截斷）
   const take = layout === '3up' ? 3 : count
-  const attractions: CanvasAttraction[] = activities.slice(0, take).map((a, i) => ({
-    id: `d${dayIndex}-attr-${i}`,
-    name: a.title,
-    // 描述 enrich 後會有值（attractions 表的 description）、原本 daily 的 activity.description 都是空字串
-    description: a.description || undefined,
-    // 圖優先用 day.images[i]（enrich 把 attraction.images[0] 收集進來）
-    image: images[i] ? { url: images[i] } : undefined,
-  }))
+  const attractions: CanvasAttraction[] = activities.slice(0, take).map((a, i) => {
+    // enrich 把景點庫的料藏在 a._attraction（分類 / 亮點標籤 / 建議時長 / 圖）
+    const meta = (a as Activity & { _attraction?: EnrichedAttractionMeta })._attraction
+    return {
+      id: `d${dayIndex}-attr-${i}`,
+      name: a.title,
+      // 描述 enrich 後會有值（attractions 表的 description）、原本 daily 的 activity.description 都是空字串
+      description: a.description || undefined,
+      // 圖優先用景點自己帶的（_attraction.image_url、精確對應）、fallback day.images[i]（舊行為相容）
+      image: meta?.image_url ? { url: meta.image_url } : images[i] ? { url: images[i] } : undefined,
+      // 分類 → eyebrow 標籤、「歷史文化 / History & Culture」取中文部分
+      category: meta?.category ? cleanCategory(meta.category) : undefined,
+      // 亮點清單 → 取景點庫 tags 前 4 個（一筆 8 個太多、卡片放不下）
+      highlights: meta?.tags && meta.tags.length > 0 ? meta.tags.slice(0, 4) : undefined,
+      // 建議停留 → 分鐘轉「約 X 小時 / 分鐘」
+      suggested_duration:
+        meta?.duration_minutes != null ? formatDuration(meta.duration_minutes) : undefined,
+    }
+  })
 
   return {
     id: `d${dayIndex}-routes`,
@@ -242,6 +253,26 @@ function buildRouteCardBlock(
       attractions,
     },
   }
+}
+
+/**
+ * 景點分類「歷史文化 / History & Culture」→ 取中文「歷史文化」當 eyebrow 標籤
+ * 標籤要簡潔、中英全塞會太長
+ */
+function cleanCategory(category: string): string {
+  return category.split('/')[0].trim()
+}
+
+/**
+ * 建議停留分鐘數 → 業務語言（句末不收句號、依排印規範）
+ * < 60 分 →「建議停留約 45 分鐘」；>= 60 →「建議停留約 2.5 小時」（整數不帶小數）
+ */
+function formatDuration(minutes: number): string {
+  if (minutes < 60) return `建議停留約 ${minutes} 分鐘`
+  const hours = minutes / 60
+  return Number.isInteger(hours)
+    ? `建議停留約 ${hours} 小時`
+    : `建議停留約 ${hours.toFixed(1)} 小時`
 }
 
 function buildStayItem(hotel: HotelInfo, index: number): CanvasStayItem {

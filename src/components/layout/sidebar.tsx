@@ -288,7 +288,7 @@ export function Sidebar() {
       onMouseLeave={handleMouseLeave}
     >
       {/* Logo區域：flex layout、Logo 永遠在 w-10 + 邊距固定位置、不隨 sidebar 寬度晃動 */}
-      <div className="shrink-0 border-b border-border">
+      <div className="shrink-0">
         <div className="h-18 flex items-center">
           <div className="w-16 flex justify-center shrink-0">
             <div className="w-10 h-10 rounded-lg bg-morandi-gold flex items-center justify-center shadow-sm opacity-90">
@@ -301,6 +301,8 @@ export function Sidebar() {
             </div>
           )}
         </div>
+        {/* 分隔線左右留 inset、不貼邊（獨立元素、不擠壓上方 logo 佈局）*/}
+        <div className="mx-3 border-b border-border" />
       </div>
 
       {/* 統一導航選單 */}
@@ -333,7 +335,9 @@ export function Sidebar() {
 
       {/* 底部使用者區：名字 + 登出 */}
       {user && (
-        <div className="shrink-0 border-t border-border">
+        <div className="shrink-0">
+          {/* 分隔線左右留 inset、不貼邊（獨立元素、不擠壓下方 user 佈局）*/}
+          <div className="mx-3 border-t border-border" />
           <div className="h-14 flex items-center">
             <div className="w-16 flex justify-center shrink-0">
               <User size="1.375em" strokeWidth={1.5} className="text-sidebar-fg" />

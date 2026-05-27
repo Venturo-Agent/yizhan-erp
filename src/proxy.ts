@@ -64,7 +64,6 @@ const PREFIX_PUBLIC_PATHS: readonly string[] = [
   // === 頁面子路由（帶斜線避開 /login-x 這類誤中）===
   '/login/',
   '/public/',
-  '/view/',
   '/p/',
   '/game/',
   '/setup/',
@@ -76,7 +75,6 @@ const PREFIX_PUBLIC_PATHS: readonly string[] = [
   // === Cron (Vercel internal) ===
   '/api/cron/',
   // === 分享連結 ===
-  '/api/itineraries/',
   '/api/d/',
   '/api/setup-tokens/',
   // 客戶自助付款 API（token + admin client 守門、不靠 session）
