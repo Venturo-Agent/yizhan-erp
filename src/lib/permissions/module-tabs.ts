@@ -322,24 +322,6 @@ export const MODULES: ModuleDefinition[] = [
     tabs: [],
   },
   {
-    code: 'addon_data_attractions',
-    name: '景點資料庫',
-    description: '購買後可讀漫途整理的景點公共池資料',
-    tabs: [],
-  },
-  {
-    code: 'addon_data_hotels',
-    name: '飯店資料庫',
-    description: '購買後可讀漫途整理的飯店公共池資料',
-    tabs: [],
-  },
-  {
-    code: 'addon_data_restaurants',
-    name: '餐廳資料庫',
-    description: '購買後可讀漫途整理的餐廳公共池資料',
-    tabs: [],
-  },
-  {
     code: 'hr_salary_settlement',
     name: '薪資結算',
     description: 'HR 月度薪資批次結算、產出請款單',
