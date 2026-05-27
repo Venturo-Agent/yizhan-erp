@@ -271,6 +271,7 @@ export function AddRequestDialog({
       setSelectedRequestId,
       onOpenChange,
       setIsSubmitting,
+      onSuccess: onSuccess ?? (() => {}),
     })
   }
 

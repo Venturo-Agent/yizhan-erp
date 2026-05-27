@@ -139,15 +139,6 @@ export const CAPABILITIES = {
   // ── platform_integrations ──
   PLATFORM_INTEGRATIONS_READ: 'platform_integrations.read',
   PLATFORM_INTEGRATIONS_WRITE: 'platform_integrations.write',
-  // ── addon_data_attractions ──
-  ADDON_DATA_ATTRACTIONS_READ: 'addon_data_attractions.read',
-  ADDON_DATA_ATTRACTIONS_WRITE: 'addon_data_attractions.write',
-  // ── addon_data_hotels ──
-  ADDON_DATA_HOTELS_READ: 'addon_data_hotels.read',
-  ADDON_DATA_HOTELS_WRITE: 'addon_data_hotels.write',
-  // ── addon_data_restaurants ──
-  ADDON_DATA_RESTAURANTS_READ: 'addon_data_restaurants.read',
-  ADDON_DATA_RESTAURANTS_WRITE: 'addon_data_restaurants.write',
   // ── hr_salary_settlement ──
   HR_SALARY_SETTLEMENT_READ: 'hr_salary_settlement.read',
   HR_SALARY_SETTLEMENT_WRITE: 'hr_salary_settlement.write',

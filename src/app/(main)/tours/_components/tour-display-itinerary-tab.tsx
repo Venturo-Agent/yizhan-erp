@@ -556,8 +556,10 @@ function EditorView({
         <AiAssistDialog
           code={code}
           canvas={canvas}
-          onApply={(patches: AiPatch[]) => {
-            let next = canvas
+          onApply={(workingCanvas: Canvas, patches: AiPatch[]) => {
+            // workingCanvas 已含「亮點升級」的結構改動（沒升級就 === 原 canvas）
+            // 在它之上依序套 AI 文案 patch、一次更新頁面 canvas state
+            let next = workingCanvas
             for (const patch of patches) {
               next = applyAiPatch(next, patch)
             }

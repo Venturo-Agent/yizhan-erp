@@ -28,10 +28,6 @@ import { TourAttributesModule } from './tour_attributes'
 import { WorkspacesModule } from './workspaces'
 import { SharedDataManagementModule } from './shared_data_management'
 import { PlatformIntegrationsModule } from './platform_integrations'
-// 2026-05-15 附加服務（addon category）— 客戶單獨購買的加值包、跟月費 module 分開
-import { AddonDataAttractionsModule } from './addon_data_attractions'
-import { AddonDataHotelsModule } from './addon_data_hotels'
-import { AddonDataRestaurantsModule } from './addon_data_restaurants'
 // 2026-05-15 HR 子功能
 import { HrSalarySettlementModule } from './hr_salary_settlement'
 import { HrBonusSettlementModule } from './hr_bonus_settlement'
@@ -74,10 +70,6 @@ export const ALL_MODULES = [
   WorkspacesModule,
   SharedDataManagementModule,
   PlatformIntegrationsModule,
-  // ===== Addon（附加服務、可單獨販售、不暴露 HR / sidebar）=====
-  AddonDataAttractionsModule,
-  AddonDataHotelsModule,
-  AddonDataRestaurantsModule,
   // ===== HR 子功能 =====
   HrSalarySettlementModule,
   HrBonusSettlementModule,

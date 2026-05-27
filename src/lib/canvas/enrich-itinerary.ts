@@ -25,6 +25,8 @@ interface AttractionRow {
   images: string[] | null
   category: string | null
   address: string | null
+  tags: string[] | null
+  duration_minutes: number | null
 }
 
 interface HotelRow {
@@ -93,7 +95,7 @@ export async function enrichDailyItinerary(
     attractionIds.length > 0
       ? supabase
           .from('attractions')
-          .select('id, name, description, images, category, address')
+          .select('id, name, description, images, category, address, tags, duration_minutes')
           .in('id', attractionIds)
       : Promise.resolve({ data: [] as AttractionRow[], error: null }),
     hotelIds.length > 0
@@ -123,10 +125,19 @@ export async function enrichDailyItinerary(
           const att = attractionMap.get(a.attraction_id)
           if (!att) return a
           // 用 attraction 表的內容補空 / fallback
+          // _attraction：把景點庫的分類 / 亮點標籤 / 建議時長 / 自己的圖一起帶下去
+          // 給 adapter 拼景點卡用（underscore 前綴避免跟 source schema 欄位衝突、跟 _hotelData 同模式）
+          // 圖跟著 activity 走、不靠 day.images 位置對應、避免「沒圖的被 filter 掉害後面錯位」
           return {
             ...a,
             title: a.title || att.name || '',
             description: a.description || att.description || '',
+            _attraction: {
+              category: att.category ?? undefined,
+              tags: att.tags ?? undefined,
+              duration_minutes: att.duration_minutes ?? undefined,
+              image_url: att.images?.[0] ?? undefined,
+            },
           }
         })
       : (day.activities ?? [])
@@ -178,6 +189,17 @@ export async function enrichDailyItinerary(
  *   const enriched = await enrichDailyItinerary(supabase, daily)
  *   const hotelData = getHotelDataForDay(enriched[0])  // 拿 Day 1 的飯店完整資訊
  */
+/**
+ * Enrich 後從景點庫帶下來的景點 meta（給 adapter 拼景點卡）
+ * 藏在 activity._attraction、由 buildRouteCardBlock 取出接進 CanvasAttraction
+ */
+export interface EnrichedAttractionMeta {
+  category?: string
+  tags?: string[]
+  duration_minutes?: number
+  image_url?: string
+}
+
 export interface EnrichedHotelData {
   name: string
   description?: string

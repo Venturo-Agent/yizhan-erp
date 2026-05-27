@@ -144,7 +144,9 @@ function useBootstrap(code: string): BootstrapState {
         // Step 2: 兩步查 itinerary
         const { data: rawItinerary } = await supabase
           .from('itineraries')
-          .select('id, title, subtitle, daily_itinerary, hotels')
+          .select(
+            'id, title, subtitle, daily_itinerary, hotels, show_hotels, leader, meeting_info, show_leader_meeting'
+          )
           .eq('tour_id', tourRes.data.id)
           .maybeSingle()
 
@@ -421,8 +423,10 @@ function EditorReady({
         <AiAssistDialog
           code={code}
           canvas={canvas}
-          onApply={(patches: AiPatch[]) => {
-            let next = canvas
+          onApply={(workingCanvas: Canvas, patches: AiPatch[]) => {
+            // workingCanvas 已含「亮點升級」的結構改動（沒升級就 === 原 canvas）
+            // 在它之上依序套 AI 文案 patch、一次更新頁面 canvas state
+            let next = workingCanvas
             for (const patch of patches) {
               next = applyAiPatch(next, patch)
             }

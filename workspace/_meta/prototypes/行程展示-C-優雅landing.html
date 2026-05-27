@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>蟲點子名古屋・角落旅行社 CORNER TRAVEL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#F5A623;          /* 主 accent */
+    --orange-deep:#E8930C;
+    --orange-soft:#FDF4E3;
+    --ink:#1C1B19;             /* 標題深墨 */
+    --ink-2:#3A3935;
+    --muted:#8A867E;
+    --line:#ECE9E3;
+    --bg:#FFFFFF;
+    --cream:#FBFAF7;
+    --dark:#1E1C1A;            /* 深色 CTA band */
+    --dark-2:#2A2723;
+    --radius:18px;
+    --shadow:0 18px 50px rgba(28,27,25,.10);
+    --shadow-sm:0 8px 24px rgba(28,27,25,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Noto Sans TC","Inter",-apple-system,sans-serif;
+    color:var(--ink-2);
+    background:var(--bg);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .serif{font-family:"Playfair Display","Noto Serif TC",serif;}
+  .serif-tc{font-family:"Noto Serif TC",serif;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+  .orange{color:var(--orange);}
+  .eyebrow{
+    font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--orange);font-weight:700;
+    display:inline-flex;align-items:center;gap:9px;
+  }
+  .eyebrow::before{content:"";width:26px;height:1.5px;background:var(--orange);display:inline-block;}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--orange);color:#fff;font-weight:700;
+    padding:13px 26px;border-radius:40px;border:none;cursor:pointer;
+    font-size:14px;transition:.2s;box-shadow:0 8px 22px rgba(245,166,35,.32);
+  }
+  .btn:hover{background:var(--orange-deep);transform:translateY(-2px);}
+
+  /* ============ NAV ============ */
+  nav{
+    position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:74px;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;color:var(--ink);letter-spacing:.01em;}
+  .logo .dot{width:11px;height:11px;border-radius:50%;background:var(--orange);}
+  .logo small{font-size:11px;letter-spacing:.16em;color:var(--muted);font-weight:600;}
+  .nav-links{display:flex;gap:30px;font-size:14px;font-weight:500;color:var(--ink-2);}
+  .nav-links a{position:relative;padding:4px 0;}
+  .nav-links a:hover{color:var(--orange);}
+  .nav-right{display:flex;align-items:center;gap:18px;}
+  .nav-lang{font-size:13px;color:var(--muted);font-weight:600;}
+  @media(max-width:860px){.nav-links{display:none;}}
+
+  /* ============ HERO ============ */
+  .hero{padding:64px 0 56px;position:relative;overflow:hidden;}
+  .hero::before{
+    content:"";position:absolute;right:-180px;top:-120px;width:520px;height:520px;
+    background:radial-gradient(circle,rgba(245,166,35,.10),transparent 65%);z-index:0;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.04fr 1fr;gap:54px;align-items:stretch;position:relative;z-index:1;}
+  .hero h1{
+    font-family:"Playfair Display","Noto Serif TC",serif;
+    font-size:60px;line-height:1.06;color:var(--ink);font-weight:700;
+    letter-spacing:-.01em;margin:22px 0 0;
+  }
+  .hero h1 .cn{font-family:"Noto Serif TC",serif;font-weight:700;}
+  .hero h1 .light{color:var(--muted);font-weight:500;font-style:italic;}
+  .hero-sub{margin:22px 0 6px;font-size:16px;color:var(--ink-2);max-width:440px;}
+  .hero-sub b{color:var(--ink);font-weight:700;}
+  .hero-meta{font-size:14px;color:var(--muted);margin-bottom:26px;}
+  .hero-cta{display:flex;gap:14px;align-items:center;margin-bottom:38px;flex-wrap:wrap;}
+  .stats{display:flex;gap:38px;}
+  .stat .n{font-family:"Playfair Display",serif;font-size:34px;font-weight:700;color:var(--ink);line-height:1;}
+  .stat .n .u{font-size:15px;color:var(--orange);font-weight:700;margin-left:3px;}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:7px;letter-spacing:.04em;}
+
+  /* hero photo + floating cards */
+  .hero-photo{position:relative;min-height:480px;}
+  .hero-photo .main-img{
+    border-radius:24px;width:100%;height:100%;object-fit:cover;box-shadow:var(--shadow);
+  }
+  .float-card{
+    position:absolute;background:#fff;border-radius:14px;box-shadow:var(--shadow);
+    padding:13px 16px;display:flex;align-items:center;gap:11px;
+  }
+  .float-card.tl{top:26px;left:-26px;}
+  .float-card.br{bottom:26px;right:-22px;flex-direction:column;align-items:flex-start;gap:2px;padding:14px 18px;}
+  .fc-avatar{width:40px;height:40px;border-radius:10px;object-fit:cover;}
+  .fc-name{font-weight:700;font-size:13.5px;color:var(--ink);}
+  .fc-sub{font-size:11px;color:var(--muted);}
+  .fc-tag{font-size:10.5px;letter-spacing:.14em;color:var(--orange);font-weight:700;text-transform:uppercase;}
+  .fc-title{font-weight:700;font-size:14px;color:var(--ink);}
+  .fc-pin{font-size:11.5px;color:var(--muted);}
+  @media(max-width:920px){
+    .hero-grid{grid-template-columns:1fr;gap:60px;}
+    .hero h1{font-size:46px;}
+    .hero-photo{min-height:0;}
+    .hero-photo .main-img{height:380px;}
+    .float-card.tl{left:0;}.float-card.br{right:0;}
+  }
+
+  /* search/summary bar */
+  .summary-bar{
+    background:#fff;border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow-sm);padding:8px;display:flex;align-items:center;
+    margin-top:4px;
+  }
+  .sb-item{padding:10px 18px;border-right:1px solid var(--line);flex:1;}
+  .sb-item:last-of-type{border-right:none;}
+  .sb-item .k{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700;}
+  .sb-item .v{font-size:14px;color:var(--ink);font-weight:600;margin-top:2px;white-space:nowrap;}
+
+  /* ============ SECTION HEAD ============ */
+  section{padding:78px 0;}
+  .sec-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;gap:24px;flex-wrap:wrap;}
+  .sec-head h2{
+    font-family:"Playfair Display","Noto Serif TC",serif;font-size:40px;font-weight:700;
+    color:var(--ink);line-height:1.1;letter-spacing:-.01em;
+  }
+  .sec-head h2 .cn{font-family:"Noto Serif TC",serif;}
+  .sec-head p{color:var(--muted);font-size:14.5px;max-width:440px;margin-top:12px;}
+
+  /* ============ OVERVIEW (route days) ============ */
+  .overview{background:var(--cream);}
+  .route-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+  .route-card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 18px;
+    transition:.2s;position:relative;overflow:hidden;
+  }
+  .route-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:transparent;}
+  .route-card .day{font-family:"Playfair Display",serif;font-size:13px;font-weight:700;color:var(--orange);letter-spacing:.08em;}
+  .route-card .date{font-size:12px;color:var(--muted);margin:3px 0 12px;}
+  .route-card .stops{font-size:13.5px;color:var(--ink-2);line-height:1.75;}
+  .route-card .stops b{color:var(--ink);font-weight:600;}
+  @media(max-width:920px){.route-grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* ============ FLIGHTS ============ */
+  .flight-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .flight-card{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px 32px;
+    display:flex;align-items:center;gap:26px;box-shadow:var(--shadow-sm);
+  }
+  .flight-card .leg-tag{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange);font-weight:700;}
+  .flight-card .airline{font-size:13px;color:var(--muted);margin-top:4px;font-weight:600;}
+  .flight-route{display:flex;align-items:center;gap:18px;margin-top:14px;}
+  .fr-end{text-align:center;}
+  .fr-end .ap{font-family:"Playfair Display",serif;font-size:24px;font-weight:700;color:var(--ink);}
+  .fr-end .tm{font-size:13px;color:var(--ink-2);margin-top:2px;font-weight:600;}
+  .fr-mid{flex:1;display:flex;flex-direction:column;align-items:center;color:var(--muted);}
+  .fr-line{width:100%;height:1.5px;background:var(--line);position:relative;}
+  .fr-line::after{content:"";position:absolute;right:-3px;top:-3px;width:7px;height:7px;border-radius:50%;background:var(--orange);}
+  .fr-flight{font-size:11.5px;letter-spacing:.06em;margin-bottom:5px;font-weight:600;}
+  @media(max-width:760px){.flight-grid{grid-template-columns:1fr;}}
+
+  /* ============ DAILY (mosaic + cards) ============ */
+  .daily{background:var(--cream);}
+  .day-block{margin-bottom:60px;}
+  .day-block:last-child{margin-bottom:0;}
+  .day-head{display:flex;align-items:baseline;gap:18px;margin-bottom:22px;flex-wrap:wrap;}
+  .day-head .num{
+    font-family:"Playfair Display",serif;font-size:15px;font-weight:700;color:#fff;
+    background:var(--orange);border-radius:30px;padding:5px 16px;letter-spacing:.06em;flex:none;
+  }
+  .day-head .title{font-family:"Noto Serif TC",serif;font-size:23px;font-weight:700;color:var(--ink);}
+  .day-head .date{font-size:13px;color:var(--muted);}
+  .meal-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;}
+  .meal{
+    font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:30px;
+    padding:6px 15px;color:var(--ink-2);display:inline-flex;gap:7px;align-items:center;
+  }
+  .meal .ml{color:var(--orange);font-weight:700;}
+  .meal.stay{background:var(--orange-soft);border-color:transparent;}
+
+  /* mosaic */
+  .mosaic{display:grid;gap:14px;grid-template-columns:repeat(4,1fr);grid-auto-rows:200px;}
+  .tile{position:relative;border-radius:16px;overflow:hidden;background:#eee;cursor:pointer;}
+  .tile img{width:100%;height:100%;object-fit:cover;transition:.5s;}
+  .tile:hover img{transform:scale(1.06);}
+  .tile::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(20,18,16,.62),transparent 52%);}
+  .tile-label{position:absolute;left:16px;bottom:14px;z-index:2;color:#fff;}
+  .tile-label .nm{font-family:"Noto Serif TC",serif;font-weight:700;font-size:17px;text-shadow:0 1px 8px rgba(0,0,0,.4);}
+  .tile-label .ds{font-size:12px;opacity:.85;margin-top:2px;line-height:1.5;max-width:280px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  /* span helpers */
+  .t-2x1{grid-column:span 2;}
+  .t-2x2{grid-column:span 2;grid-row:span 2;}
+  .t-1x2{grid-row:span 2;}
+  @media(max-width:920px){
+    .mosaic{grid-template-columns:repeat(2,1fr);grid-auto-rows:170px;}
+    .t-2x2,.t-2x1{grid-column:span 2;}.t-2x2{grid-row:span 1;}.t-1x2{grid-row:span 1;}
+  }
+
+  /* extra route stops (clean, single-line) */
+  .text-stops{margin-top:14px;display:flex;gap:12px;flex-wrap:wrap;}
+  .text-stop{
+    display:flex;align-items:center;gap:11px;padding:13px 20px;background:#fff;
+    border:1px solid var(--line);border-radius:12px;
+  }
+  .text-stop .ts-dot{width:8px;height:8px;border-radius:50%;background:var(--orange);flex:none;}
+  .text-stop .ts-nm{font-family:"Noto Serif TC",serif;font-weight:700;font-size:16px;color:var(--ink);}
+
+  /* ============ HOTELS (text list, honest no-image) ============ */
+  .hotel-list{display:flex;flex-direction:column;gap:14px;}
+  .hotel-row{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px 28px;display:flex;align-items:center;gap:24px;box-shadow:var(--shadow-sm);
+  }
+  .hotel-icon{
+    width:58px;height:58px;border-radius:14px;background:var(--orange-soft);color:var(--orange-deep);
+    display:flex;align-items:center;justify-content:center;flex:none;font-weight:700;
+    font-family:"Playfair Display",serif;font-size:13px;letter-spacing:.04em;text-align:center;line-height:1.2;
+  }
+  .hotel-row .hr-name{font-family:"Noto Serif TC",serif;font-size:19px;font-weight:700;color:var(--ink);}
+  .hotel-row .hr-meta{font-size:13px;color:var(--muted);margin-top:3px;}
+  .hotel-row .hr-nights{margin-left:auto;text-align:right;flex:none;}
+  .hotel-row .hr-nights .n{font-family:"Playfair Display",serif;font-size:26px;font-weight:700;color:var(--orange);}
+  .hotel-row .hr-nights .l{font-size:11.5px;color:var(--muted);}
+
+  /* ============ DARK CTA BAND ============ */
+  .cta-band{background:var(--dark);color:#fff;border-radius:26px;padding:56px 60px;
+    display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap;position:relative;overflow:hidden;}
+  .cta-band::before{content:"";position:absolute;right:-100px;bottom:-140px;width:380px;height:380px;
+    background:radial-gradient(circle,rgba(245,166,35,.18),transparent 60%);}
+  .cta-band .ct-l{position:relative;z-index:1;}
+  .cta-band .eyebrow{color:var(--orange);}
+  .cta-band h2{font-family:"Playfair Display","Noto Serif TC",serif;font-size:38px;font-weight:700;line-height:1.12;margin:14px 0 0;}
+  .cta-band h2 .cn{font-family:"Noto Serif TC",serif;}
+  .cta-band p{color:rgba(255,255,255,.66);font-size:14.5px;margin-top:14px;max-width:420px;}
+  .cta-band .ct-r{position:relative;z-index:1;text-align:right;}
+  .cta-band .ct-r .dates{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:16px;letter-spacing:.04em;}
+  .cta-band .ct-r .dates b{color:#fff;font-weight:700;}
+  @media(max-width:760px){.cta-band{padding:42px 32px;}.cta-band .ct-r{text-align:left;}}
+
+  /* ============ FEATURES (honest, from itinerary) ============ */
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;}
+  .feat-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:32px 30px;}
+  .feat-card .fnum{font-family:"Playfair Display",serif;font-size:14px;color:var(--orange);font-weight:700;letter-spacing:.1em;}
+  .feat-card h3{font-family:"Noto Serif TC",serif;font-size:20px;color:var(--ink);font-weight:700;margin:14px 0 10px;}
+  .feat-card p{font-size:13.5px;color:var(--muted);line-height:1.7;}
+  @media(max-width:760px){.feat-grid{grid-template-columns:1fr;}}
+
+  /* ============ FOOTER ============ */
+  footer{background:var(--cream);border-top:1px solid var(--line);padding:60px 0 36px;}
+  .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:44px;}
+  .foot-brand .logo{margin-bottom:14px;}
+  .foot-brand p{font-size:13.5px;color:var(--muted);max-width:280px;}
+  .foot-col h4{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);font-weight:700;margin-bottom:16px;}
+  .foot-col a{display:block;font-size:13.5px;color:var(--muted);margin-bottom:11px;}
+  .foot-col a:hover{color:var(--orange);}
+  .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);flex-wrap:wrap;gap:12px;}
+  @media(max-width:760px){.foot-grid{grid-template-columns:1fr 1fr;}}
+
+  /* ============ ★ 本團亮點（焦點卡 hero）============ */
+  .hl-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;}
+  .hl-card{position:relative;border-radius:20px;overflow:hidden;min-height:300px;cursor:pointer;}
+  .hl-main{grid-row:span 2;}
+  .hl-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;transition:.5s;}
+  .hl-card:hover img{transform:scale(1.05);}
+  .hl-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,18,16,.80),rgba(20,18,16,.04) 62%);z-index:1;}
+  .hl-text{position:absolute;left:24px;right:24px;bottom:22px;z-index:2;color:#fff;}
+  .hl-tag{display:inline-block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:#fff;background:var(--orange);padding:5px 12px;border-radius:30px;margin-bottom:11px;}
+  .hl-nm{font-family:"Noto Serif TC",serif;font-size:23px;font-weight:700;text-shadow:0 1px 10px rgba(0,0,0,.4);}
+  .hl-main .hl-nm{font-size:32px;}
+  .hl-why{font-size:13px;opacity:.92;margin-top:7px;line-height:1.65;max-width:460px;}
+  @media(max-width:760px){.hl-grid{grid-template-columns:1fr;}.hl-main{grid-row:span 1;}}
+
+  /* ============ 👤 領隊 + 集合 ============ */
+  .lm-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:24px;align-items:stretch;}
+  .leader-card,.meet-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px 32px;box-shadow:var(--shadow-sm);}
+  .leader-card{display:flex;gap:22px;align-items:center;}
+  .lc-photo{width:96px;height:96px;border-radius:50%;object-fit:cover;flex:none;border:3px solid var(--orange-soft);}
+  .lc-role{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;}
+  .lc-name{font-family:"Noto Serif TC",serif;font-size:24px;font-weight:700;color:var(--ink);margin:4px 0 8px;}
+  .lc-bio{font-size:13.5px;color:var(--muted);line-height:1.7;}
+  .mc-title{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);font-weight:700;margin-bottom:18px;}
+  .meet-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .mi-k{font-size:11px;color:var(--muted);letter-spacing:.06em;}
+  .mi-v{font-size:15.5px;color:var(--ink);font-weight:600;margin-top:4px;font-family:"Noto Serif TC",serif;}
+  @media(max-width:760px){.lm-grid{grid-template-columns:1fr;}}
+
+  /* ============ 🍽 美食亮點（米其林版型）============ */
+  .dining-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+  .dish-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);}
+  .dc-img{height:200px;width:100%;object-fit:cover;}
+  .dc-body{padding:22px 26px;}
+  .dc-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:11px;}
+  .badge-michelin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#fff;background:var(--orange);padding:4px 12px;border-radius:30px;}
+  .badge-bib{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--orange-deep);background:var(--orange-soft);padding:4px 12px;border-radius:30px;}
+  .dc-name{font-family:"Noto Serif TC",serif;font-size:21px;font-weight:700;color:var(--ink);}
+  .dc-meta{font-size:12.5px;color:var(--muted);margin-top:3px;}
+  .dc-chef{font-size:13px;color:var(--ink-2);margin-top:12px;line-height:1.65;}
+  .dc-chef b{color:var(--ink);font-weight:700;}
+  .dc-sig{margin-top:13px;display:flex;gap:8px;flex-wrap:wrap;}
+  .dc-sig .sig{font-size:12px;background:var(--cream);border:1px solid var(--line);border-radius:8px;padding:5px 11px;color:var(--ink-2);}
+  @media(max-width:760px){.dining-grid{grid-template-columns:1fr;}}
+
+  /* ============ 💰 報價梯次表 ============ */
+  .price-table{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);}
+  .pt-row{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;align-items:center;}
+  .pt-head{background:var(--ink);color:rgba(255,255,255,.85);font-size:12px;letter-spacing:.06em;font-weight:700;}
+  .pt-head>div{padding:16px 24px;}
+  .pt-body .pt-row{border-top:1px solid var(--line);}
+  .pt-body .pt-row:hover{background:var(--orange-soft);}
+  .pt-body .pt-row>div{padding:22px 24px;}
+  .pt-depart{font-family:"Noto Serif TC",serif;font-size:16px;font-weight:700;color:var(--ink);}
+  .pt-depart small{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:3px;font-family:"Noto Sans TC",sans-serif;}
+  .pt-price{font-family:"Playfair Display",serif;font-size:22px;font-weight:700;color:var(--ink);}
+  .pt-price .cur{font-size:13px;color:var(--muted);margin-right:3px;font-family:"Noto Sans TC",sans-serif;}
+  .pt-price.add{color:var(--orange-deep);font-size:18px;}
+  .price-note{font-size:12.5px;color:var(--muted);margin-top:16px;line-height:1.7;}
+  @media(max-width:760px){.pt-row{grid-template-columns:1fr 1fr;}.pt-head{display:none;}.pt-body .pt-row>div{padding:14px 16px;}}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="wrap nav-in">
+    <div class="logo"><span class="dot"></span>角落旅行社<small>CORNER TRAVEL</small></div>
+    <div class="nav-links">
+      <a href="#overview">行程總覽</a>
+      <a href="#flights">航班</a>
+      <a href="#daily">每日行程</a>
+      <a href="#hotels">飯店</a>
+      <a href="#cta">洽詢</a>
+    </div>
+    <div class="nav-right">
+      <span class="nav-lang">繁中・EN</span>
+      <a href="#cta" class="btn">立即洽詢</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ ① HERO ============ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <span class="eyebrow">CORNER TRAVEL・2026 秋季精選</span>
+      <h1>
+        Find Your <span class="orange">Corner</span><br>
+        <span class="cn">蟲點子<span class="orange">名古屋</span></span>
+      </h1>
+      <p class="hero-sub">
+        <b>童趣・藝術・懷舊</b> —— 從美術館到合掌村，從樂高樂園到山城天守，
+        我們把名古屋的角落，留給願意慢下來的旅人。
+      </p>
+      <p class="hero-meta">5 天行程・2026.10.17 – 10.21・名古屋（NGO）進出</p>
+      <div class="hero-cta">
+        <a href="#daily" class="btn">開始探索</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">5<span class="u">天</span></div><div class="l">行程天數</div></div>
+        <div class="stat"><div class="n">10<span class="u">個</span></div><div class="l">精選景點</div></div>
+        <div class="stat"><div class="n">2<span class="u">間</span></div><div class="l">入住飯店</div></div>
+        <div class="stat"><div class="n">NGO</div><div class="l">名古屋進出</div></div>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <img class="main-img" src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/city-backgrounds/airport/NGO_1775741139104_lqqm7d.webp" alt="名古屋封面" />
+      <div class="float-card tl">
+        <img class="fc-avatar" src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/b9250dc3-9d63-458d-9866-301dbda5f49e/1775740808597_jxclylhs5pp.png" alt="" />
+        <div>
+          <div class="fc-name">親子・藝術主題</div>
+          <div class="fc-sub">適合全家共遊</div>
+        </div>
+      </div>
+      <div class="float-card br">
+        <div class="fc-tag">NEXT DEPARTURE・10.17</div>
+        <div class="fc-title">名古屋 Nagoya</div>
+        <div class="fc-pin">星宇航空直飛・名古屋進出</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 摘要 bar -->
+  <div class="wrap" style="margin-top:42px;">
+    <div class="summary-bar">
+      <div class="sb-item"><div class="k">出發</div><div class="v">2026.10.17</div></div>
+      <div class="sb-item"><div class="k">天數</div><div class="v">5 天 4 夜</div></div>
+      <div class="sb-item"><div class="k">航空</div><div class="v">星宇 JX838 / JX839</div></div>
+      <div class="sb-item"><div class="k">進出</div><div class="v">名古屋 NGO</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ ② OVERVIEW ============ -->
+<section class="overview" id="overview">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Itinerary Overview</span>
+        <h2 style="margin-top:14px;">五日<span class="cn">路線</span>總覽</h2>
+      </div>
+      <p>從名古屋市區一路深入岐阜山城與白川鄉合掌村，每一天都是一個獨立的角落主題。</p>
+    </div>
+    <div class="route-grid">
+      <div class="route-card">
+        <div class="day">DAY 1</div><div class="date">10.17 週五</div>
+        <div class="stops"><b>飯店入住</b><br>21世紀美術館</div>
+      </div>
+      <div class="route-card">
+        <div class="day">DAY 2</div><div class="date">10.18 週六</div>
+        <div class="stops"><b>東山動植物園</b><br>三鷹吉卜力美術館</div>
+      </div>
+      <div class="route-card">
+        <div class="day">DAY 3</div><div class="date">10.19 週日</div>
+        <div class="stops"><b>樂高樂園</b><br>樂高水族館<br>郡上八幡城</div>
+      </div>
+      <div class="route-card">
+        <div class="day">DAY 4</div><div class="date">10.20 週一</div>
+        <div class="stops"><b>白川鄉合掌村</b><br>和田家・荻町展望台<br>明善寺・高山古街</div>
+      </div>
+      <div class="route-card">
+        <div class="day">DAY 5</div><div class="date">10.21 週二</div>
+        <div class="stops"><b>犬山城</b><br>賦歸</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ★ 本團亮點（焦點卡 hero）============ -->
+<section class="highlight" id="highlight" style="background:var(--bg);">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Trip Highlights</span>
+        <h2 style="margin-top:14px;">本團最想帶你看的<span class="cn">角落</span></h2>
+      </div>
+      <p>從每日行程裡，特別挑出三個最不該錯過的亮點，放大來看。</p>
+    </div>
+    <div class="hl-grid">
+      <div class="hl-card hl-main">
+        <img src="https://pfqvdacxowpgfamuvnsn.supabase.co/storage/v1/object/public/attractions/japan/46b21270-534c-40d7-832b-a906802fab10-1.jpeg" alt="白川鄉合掌村" />
+        <div class="hl-overlay"></div>
+        <div class="hl-text">
+          <span class="hl-tag">世界遺產</span>
+          <div class="hl-nm">白川鄉合掌村</div>
+          <div class="hl-why">日本三大祕境之一，合掌造民家錯落山谷。登荻町展望台俯瞰，秋日稻浪與茅草屋頂宛如童話——整趟最值得慢下來的一站。</div>
+        </div>
+      </div>
+      <div class="hl-card hl-side">
+        <img src="https://images.pexels.com/photos/1308648/pexels-photo-1308648.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="三鷹吉卜力美術館" />
+        <div class="hl-overlay"></div>
+        <div class="hl-text">
+          <span class="hl-tag">需提前預約</span>
+          <div class="hl-nm">吉卜力美術館</div>
+          <div class="hl-why">宮崎駿親自設計、需提前一個月官網預約的夢幻殿堂。</div>
+        </div>
+      </div>
+      <div class="hl-card hl-side">
+        <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/city-backgrounds/airport/NGO_1775741139104_lqqm7d.webp" alt="界 奧飛驒溫泉" />
+        <div class="hl-overlay"></div>
+        <div class="hl-text">
+          <span class="hl-tag">連住兩晚</span>
+          <div class="hl-nm">界 奧飛驒溫泉</div>
+          <div class="hl-why">星野集團溫泉旅館，連住兩晚含會席晚宴，把山區舟車化為療癒夜晚。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ③ FLIGHTS ============ -->
+<section id="flights">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Flights</span>
+        <h2 style="margin-top:14px;">去回<span class="cn">航班</span></h2>
+      </div>
+      <p>星宇航空（STARLUX）直飛名古屋，去回皆無轉機。</p>
+    </div>
+    <div class="flight-grid">
+      <div class="flight-card">
+        <div style="flex:none;text-align:center;">
+          <div class="leg-tag">去程 OUTBOUND</div>
+          <div class="airline">星宇航空 JX838</div>
+        </div>
+        <div style="flex:1;">
+          <div class="flight-route">
+            <div class="fr-end"><div class="ap">TPE</div><div class="tm">14:55</div></div>
+            <div class="fr-mid"><div class="fr-flight">2026.10.17</div><div class="fr-line"></div></div>
+            <div class="fr-end"><div class="ap">NGO</div><div class="tm">18:45</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="flight-card">
+        <div style="flex:none;text-align:center;">
+          <div class="leg-tag">回程 RETURN</div>
+          <div class="airline">星宇航空 JX839</div>
+        </div>
+        <div style="flex:1;">
+          <div class="flight-route">
+            <div class="fr-end"><div class="ap">NGO</div><div class="tm">19:55</div></div>
+            <div class="fr-mid"><div class="fr-flight">2026.10.21</div><div class="fr-line"></div></div>
+            <div class="fr-end"><div class="ap">TPE</div><div class="tm">22:00</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 👤 領隊 + 集合 ============ -->
+<section id="leader" style="background:var(--cream);">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Tour Leader &amp; Meeting</span>
+        <h2 style="margin-top:14px;">領隊與<span class="cn">集合資訊</span></h2>
+      </div>
+      <p>出發當天，您的隨團領隊與集合方式。</p>
+    </div>
+    <div class="lm-grid">
+      <div class="leader-card">
+        <img class="lc-photo" src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&amp;cs=tinysrgb&amp;h=200&amp;w=200" alt="領隊" />
+        <div>
+          <div class="lc-role">隨團領隊</div>
+          <div class="lc-name">王國誠</div>
+          <div class="lc-bio">日本線資深領隊，帶團逾 200 梯次，專精中部北陸。熟悉合掌村與奧飛驒在地文化，擅長親子節奏掌握。</div>
+        </div>
+      </div>
+      <div class="meet-card">
+        <div class="mc-title">集合資訊</div>
+        <div class="meet-grid">
+          <div class="meet-item"><div class="mi-k">集合時間</div><div class="mi-v">2026.10.17（五）12:00</div></div>
+          <div class="meet-item"><div class="mi-k">集合地點</div><div class="mi-v">桃園機場 第二航廈</div></div>
+          <div class="meet-item"><div class="mi-k">航空櫃台</div><div class="mi-v">星宇航空 團體櫃台</div></div>
+          <div class="meet-item"><div class="mi-k">辨識方式</div><div class="mi-v">領隊舉「角落旅行社」立牌</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ④ DAILY ============ -->
+<section class="daily" id="daily">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Day by Day・Highlights</span>
+        <h2 style="margin-top:14px;">每日<span class="cn">行程</span>．景點巡禮</h2>
+      </div>
+    </div>
+
+    <!-- DAY 1 -->
+    <div class="day-block">
+      <div class="day-head">
+        <span class="num">DAY 1</span>
+        <span class="title">飯店入住・21世紀美術館</span>
+        <span class="date">2026.10.17 週五</span>
+      </div>
+      <div class="meal-row">
+        <span class="meal"><span class="ml">晚</span>機上餐食</span>
+        <span class="meal" style="opacity:.55;"><span class="ml">早 / 午</span>無</span>
+        <span class="meal stay"><span class="ml">宿</span>名古屋日航尚格酒店</span>
+      </div>
+      <div class="mosaic">
+        <div class="tile t-2x2" style="grid-row:span 2;">
+          <img src="https://pfqvdacxowpgfamuvnsn.supabase.co/storage/v1/object/public/workspace-files/attractions/1767157412737_2wa8eo.jpg" alt="21世紀美術館" />
+          <div class="tile-label"><div class="nm">21世紀美術館</div>
+            <div class="ds">圓形玻璃建築、自然光線充足。Leandro Erlich「游泳池」最有名，James Turrell 的光藝術精彩。</div></div>
+        </div>
+        <div class="tile t-2x1" style="grid-column:span 2;display:flex;align-items:center;justify-content:center;background:var(--orange-soft);">
+          <div style="text-align:center;color:var(--ink);padding:0 26px;">
+            <div class="serif" style="font-size:30px;color:var(--orange);font-weight:700;">Day 1</div>
+            <div style="font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.7;">抵達名古屋、辦理入住，<br>傍晚走進金澤21世紀美術館，<br>以一場現代藝術揭開旅程。</div>
+          </div>
+        </div>
+        <div class="tile t-2x1" style="grid-column:span 2;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/city-backgrounds/airport/NGO_1775741139104_lqqm7d.webp" alt="名古屋" />
+          <div class="tile-label"><div class="nm">抵達名古屋 NGO</div><div class="ds">星宇航空 JX838・18:45 落地</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="day-block">
+      <div class="day-head">
+        <span class="num">DAY 2</span>
+        <span class="title">東山動植物園・三鷹吉卜力美術館</span>
+        <span class="date">2026.10.18 週六</span>
+      </div>
+      <div class="meal-row">
+        <span class="meal"><span class="ml">早</span>飯店早餐</span>
+        <span class="meal"><span class="ml">午</span>敬請自理</span>
+        <span class="meal"><span class="ml">晚</span>日式定食</span>
+        <span class="meal stay"><span class="ml">宿</span>名古屋日航尚格酒店（連住）</span>
+      </div>
+      <div class="mosaic">
+        <div class="tile t-2x2" style="grid-row:span 2;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/b1ee8947-472c-4efb-82c5-0ddf4b775c03/1775740739681_4q6us651rru.jpg" alt="東山動植物園" />
+          <div class="tile-label"><div class="nm">東山動植物園</div>
+            <div class="ds">日本規模最大的動植物園之一，飼養動物物種數居日本之首，適合全家共遊。</div></div>
+        </div>
+        <div class="tile t-2x2" style="grid-column:span 2;grid-row:span 2;">
+          <img src="https://images.pexels.com/photos/1308648/pexels-photo-1308648.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="三鷹吉卜力美術館" />
+          <div class="tile-label"><div class="nm">三鷹吉卜力美術館</div>
+            <div class="ds">宮崎駿吉卜力工作室主題美術館，展示動畫製作過程、原畫、龍貓巴士。建築由宮崎駿設計，處處童趣。需提前一個月官網預約。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="day-block">
+      <div class="day-head">
+        <span class="num">DAY 3</span>
+        <span class="title">樂高樂園・樂高水族館・郡上八幡城</span>
+        <span class="date">2026.10.19 週日</span>
+      </div>
+      <div class="meal-row">
+        <span class="meal"><span class="ml">早</span>飯店早餐</span>
+        <span class="meal"><span class="ml">午</span>敬請自理</span>
+        <span class="meal"><span class="ml">晚</span>飯店晚宴</span>
+        <span class="meal stay"><span class="ml">宿</span>界 奧飛驒（溫泉旅館）</span>
+      </div>
+      <div class="mosaic">
+        <div class="tile t-2x1" style="grid-column:span 2;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/b9250dc3-9d63-458d-9866-301dbda5f49e/1775740808597_jxclylhs5pp.png" alt="樂高樂園" />
+          <div class="tile-label"><div class="nm">樂高樂園</div>
+            <div class="ds">專為 2–12 歲兒童設計的夢幻樂園，逾 40 種設施、1,700 萬塊積木場景。</div></div>
+        </div>
+        <div class="tile t-2x1" style="grid-column:span 2;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/536fb93f-9311-4ade-b156-d3a3cd533b53/1775740872869_159hhgn585q.png" alt="樂高水族館" />
+          <div class="tile-label"><div class="nm">樂高水族館</div>
+            <div class="ds">全球最大樂高主題水族館，結合大量樂高模型與互動科技，親子同遊首選。</div></div>
+        </div>
+        <div class="tile t-2x2" style="grid-column:span 4;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/8688b730-6a7e-4785-8953-6c1ebc72521f/1775740909606_4cfw59ud2qx.webp" alt="郡上八幡城" />
+          <div class="tile-label"><div class="nm">郡上八幡城</div>
+            <div class="ds">被譽為「日本最美山城」，現存最古老的木造重建天守，海拔約 350 公尺俯瞰「水之町」城下町。</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div class="day-block">
+      <div class="day-head">
+        <span class="num">DAY 4</span>
+        <span class="title">白川鄉合掌村・和田家・荻町展望台</span>
+        <span class="date">2026.10.20 週一</span>
+      </div>
+      <div class="meal-row">
+        <span class="meal"><span class="ml">早</span>飯店早餐</span>
+        <span class="meal"><span class="ml">午</span>白川料理</span>
+        <span class="meal"><span class="ml">晚</span>飯店晚宴</span>
+        <span class="meal stay"><span class="ml">宿</span>界 奧飛驒（連住）</span>
+      </div>
+      <div class="mosaic">
+        <div class="tile t-2x2" style="grid-column:span 2;grid-row:span 2;">
+          <img src="https://pfqvdacxowpgfamuvnsn.supabase.co/storage/v1/object/public/attractions/japan/46b21270-534c-40d7-832b-a906802fab10-1.jpeg" alt="白川鄉合掌村" />
+          <div class="tile-label"><div class="nm">白川鄉合掌村</div>
+            <div class="ds">日本知名世界遺產聚落，合掌造民家錯落於山谷之間，值得細細造訪體驗。</div></div>
+        </div>
+        <div class="tile t-2x1" style="grid-column:span 2;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/aeacbec4-5b4b-4a3f-83ae-f90383fdbf0d/1775740943798_zf55hhf7ig.jpg" alt="和田家" />
+          <div class="tile-label"><div class="nm">和田家</div>
+            <div class="ds">白川鄉最大的合掌造民家，江戶時代庄屋住宅，可入內看囲炉裏與古農具。</div></div>
+        </div>
+        <div class="tile t-2x1" style="grid-column:span 2;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/3a13b7fd-54e2-4cea-be2d-124c65231d7a/1775740962722_7757jlpbnvj.jpg" alt="荻町城跡展望台" />
+          <div class="tile-label"><div class="nm">荻町城跡展望台</div>
+            <div class="ds">俯瞰整個荻町聚落，合掌造屋頂、稻田如童話世界。</div></div>
+        </div>
+      </div>
+      <div class="text-stops">
+        <div class="text-stop">
+          <span class="ts-dot"></span>
+          <span class="ts-nm">明善寺</span>
+        </div>
+        <div class="text-stop">
+          <span class="ts-dot"></span>
+          <span class="ts-nm">高山古街</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 5 -->
+    <div class="day-block">
+      <div class="day-head">
+        <span class="num">DAY 5</span>
+        <span class="title">犬山城・賦歸</span>
+        <span class="date">2026.10.21 週二</span>
+      </div>
+      <div class="meal-row">
+        <span class="meal"><span class="ml">早</span>飯店早餐</span>
+        <span class="meal"><span class="ml">午</span>日式定食</span>
+        <span class="meal" style="opacity:.55;"><span class="ml">晚</span>無</span>
+      </div>
+      <div class="mosaic">
+        <div class="tile t-2x2" style="grid-column:span 3;">
+          <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/e66fc4bb-f5d8-494d-931b-3ecdf77ce3dd/1775740997960_yqu9qmqlq2b.webp" alt="犬山城" />
+          <div class="tile-label"><div class="nm">犬山城</div>
+            <div class="ds">愛知縣充滿歷史底蘊的古城，日本現存最古老的天守之一，為旅程畫下句點。</div></div>
+        </div>
+        <div class="tile t-1x2" style="display:flex;align-items:center;justify-content:center;background:var(--dark);color:#fff;">
+          <div style="text-align:center;padding:0 18px;">
+            <div class="fr-flight" style="color:var(--orange);">RETURN・10.21</div>
+            <div class="serif" style="font-size:23px;font-weight:700;">名古屋　返　台北</div>
+            <div style="font-size:12px;opacity:.7;margin-top:6px;">星宇 JX839・19:55 起飛</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============ ⑤ HOTELS ============ -->
+<section id="hotels">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Accommodation</span>
+        <h2 style="margin-top:14px;">全程<span class="cn">住宿</span></h2>
+      </div>
+      <p>名古屋市區與奧飛驒溫泉旅館，各連住兩晚，舒適安排不奔波。</p>
+    </div>
+    <div class="hotel-list">
+      <div class="hotel-row">
+        <div class="hotel-icon">DAY<br>1–2</div>
+        <div>
+          <div class="hr-name">名古屋日航尚格酒店</div>
+          <div class="hr-meta">名古屋市區・連住 2 晚・Day 1 與 Day 2 同飯店</div>
+        </div>
+        <div class="hr-nights"><div class="n">2</div><div class="l">晚</div></div>
+      </div>
+      <div class="hotel-row">
+        <div class="hotel-icon">DAY<br>3–4</div>
+        <div>
+          <div class="hr-name">界 奧飛驒</div>
+          <div class="hr-meta">岐阜奧飛驒溫泉旅館・連住 2 晚・含飯店晚宴</div>
+        </div>
+        <div class="hr-nights"><div class="n">2</div><div class="l">晚</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 🍽 特色美食 ============ -->
+<section id="dining">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Cuisine</span>
+        <h2 style="margin-top:14px;">特色<span class="cn">美食</span></h2>
+      </div>
+      <p>在地名物與主廚精選，有什麼亮點就標什麼、不限米其林（以下為版型示範料）</p>
+    </div>
+    <div class="dining-grid">
+      <div class="dish-card">
+        <img class="dc-img" src="https://images.pexels.com/photos/2098085/pexels-photo-2098085.jpeg?auto=compress&amp;cs=tinysrgb&amp;h=400&amp;w=600" alt="鰻魚飯" />
+        <div class="dc-body">
+          <div class="dc-badges"><span class="badge-bib">● 名古屋名物</span></div>
+          <div class="dc-name">あつた蓬莱軒（範例）</div>
+          <div class="dc-meta">名古屋名物・ひつまぶし 鰻魚飯</div>
+          <div class="dc-chef">創業逾百年的鰻魚飯名店，<b>三吃</b>吃法發源地。</div>
+          <div class="dc-sig"><span class="sig">招牌 ひつまぶし</span><span class="sig">炭火鰻魚</span></div>
+        </div>
+      </div>
+      <div class="dish-card">
+        <img class="dc-img" src="https://images.pexels.com/photos/1267320/pexels-photo-1267320.jpeg?auto=compress&amp;cs=tinysrgb&amp;h=400&amp;w=600" alt="會席料理" />
+        <div class="dc-body">
+          <div class="dc-badges"><span class="badge-michelin">★ 米其林一星（範例）</span></div>
+          <div class="dc-name">界 奧飛驒 會席晚宴</div>
+          <div class="dc-meta">溫泉旅館・飛驒會席料理</div>
+          <div class="dc-chef">主廚 <b>佐藤健一</b>，以飛驒牛與當季山菜入饌。</div>
+          <div class="dc-sig"><span class="sig">飛驒牛朴葉燒</span><span class="sig">當季山菜</span><span class="sig">季節甜點</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ 行前資訊：資料全空，整段不渲染（無任何提示、無空殼） -->
+
+<!-- ============ 💰 報價梯次表 ============ -->
+<section id="pricing" style="background:var(--cream);">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Pricing</span>
+        <h2 style="margin-top:14px;">出發梯次與<span class="cn">報價</span></h2>
+      </div>
+      <p>每人費用依房型而定，多個出發梯次可選。（以下為範例報價）</p>
+    </div>
+    <div class="price-table">
+      <div class="pt-row pt-head">
+        <div>出發梯次</div><div>雙人房 / 每人</div><div>單人房差價</div><div>兒童不佔床</div>
+      </div>
+      <div class="pt-body">
+        <div class="pt-row">
+          <div class="pt-depart">2026.10.17<small>週五・名古屋進出</small></div>
+          <div class="pt-price"><span class="cur">NT$</span>58,900</div>
+          <div class="pt-price add">+12,000</div>
+          <div class="pt-price"><span class="cur">NT$</span>42,000</div>
+        </div>
+        <div class="pt-row">
+          <div class="pt-depart">2026.11.14<small>週五・名古屋進出</small></div>
+          <div class="pt-price"><span class="cur">NT$</span>56,900</div>
+          <div class="pt-price add">+12,000</div>
+          <div class="pt-price"><span class="cur">NT$</span>41,000</div>
+        </div>
+      </div>
+    </div>
+    <p class="price-note">＊ 報價含機票、稅金、住宿、行程表列餐食與門票；不含小費與個人消費。實際售價以出團通知為準。</p>
+  </div>
+</section>
+
+<!-- ============ DARK CTA BAND（honest，取代假折扣）============ -->
+<section id="cta">
+  <div class="wrap">
+    <div class="cta-band">
+      <div class="ct-l">
+        <span class="eyebrow">Departure Info</span>
+        <h2>洽詢<span class="cn">出發日期</span><br>與開團資訊</h2>
+        <p>本行程目前開放 2026.10.17 出發團期報名。名額有限，歡迎來電或線上洽詢可售狀況與報價。</p>
+      </div>
+      <div class="ct-r">
+        <div class="dates">確認出發・<b>2026.10.17（週五）</b><br>名古屋進出・星宇航空直飛</div>
+        <a href="#" class="btn">洽詢開團資訊</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES（honest，從真實行程萃取，取代假見證）============ -->
+<section style="background:var(--cream);">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <span class="eyebrow">Why This Trip</span>
+        <h2 style="margin-top:14px;">這趟行程的<span class="cn">特色</span></h2>
+      </div>
+      <p>不誇飾、不堆砌 —— 三個從真實路線萃取出來的角落主題。</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="fnum">01・ART</div>
+        <h3>藝術與童趣並行</h3>
+        <p>從金澤21世紀美術館的當代藝術，到三鷹吉卜力美術館的動畫世界，再到樂高樂園與水族館，一趟串起大人與孩子都著迷的角落。</p>
+      </div>
+      <div class="feat-card">
+        <div class="fnum">02・HERITAGE</div>
+        <h3>山城與合掌村懷舊</h3>
+        <p>郡上八幡城、犬山城是日本現存最古老的木造天守之一；白川鄉合掌村則是世界遺產級的聚落，登荻町展望台俯瞰如童話。</p>
+      </div>
+      <div class="feat-card">
+        <div class="fnum">03・ONSEN</div>
+        <h3>溫泉旅館深度住</h3>
+        <p>奧飛驒溫泉旅館「界 奧飛驒」連住兩晚、含飯店晚宴，把舟車勞頓的山區行程，化為慢下來泡湯的療癒夜晚。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo"><span class="dot"></span>角落旅行社<small>CORNER TRAVEL</small></div>
+        <p>把世界的角落，留給願意慢下來的旅人。蟲點子名古屋・2026 秋季精選行程。</p>
+      </div>
+      <div class="foot-col">
+        <h4>行程</h4>
+        <a href="#overview">五日總覽</a>
+        <a href="#flights">去回航班</a>
+        <a href="#daily">每日行程</a>
+        <a href="#hotels">全程住宿</a>
+      </div>
+      <div class="foot-col">
+        <h4>目的地</h4>
+        <a href="#">名古屋市區</a>
+        <a href="#">岐阜山城</a>
+        <a href="#">白川鄉合掌村</a>
+        <a href="#">奧飛驒溫泉</a>
+      </div>
+      <div class="foot-col">
+        <h4>洽詢</h4>
+        <a href="#cta">開團資訊</a>
+        <a href="#">線上諮詢</a>
+        <a href="#">客服專線</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 角落旅行社 CORNER TRAVEL・蟲點子名古屋</span>
+      <span>本頁為行程展示原型・資料以實際報價為準</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // 平滑捲動由 CSS scroll-behavior 處理；腳本保持最小，避免任何 console error。
+  document.addEventListener('DOMContentLoaded', function(){
+    // 圖片載入失敗時套柔和底色，避免破圖
+    document.querySelectorAll('img').forEach(function(img){
+      img.addEventListener('error', function(){
+        this.style.background = 'var(--orange-soft)';
+        this.style.objectFit = 'contain';
+      });
+    });
+  });
+</script>
+</body>
+</html>

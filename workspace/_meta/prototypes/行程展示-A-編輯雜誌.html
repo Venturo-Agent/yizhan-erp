@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>蟲點子名古屋 — CORNER TRAVEL ISSUE 02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Noto+Serif+TC:wght@300;400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f0e8;        /* 奶油底 */
+    --paper-2:#ece6da;      /* 次層底 */
+    --ink:#1a1714;          /* 黑墨 */
+    --ink-soft:#3a352e;
+    --ink-mute:#7c7468;     /* 灰墨 */
+    --gold:#a8884e;         /* 燙金 */
+    --gold-deep:#8c6d39;
+    --hair:#cdc4b4;         /* 細線 */
+    --hair-dark:#b3a892;
+    --dark:#16130f;         /* manifesto 暗底 */
+    --serif:"Noto Serif TC","Newsreader",Georgia,"Times New Roman",serif;
+    --serif-en:"Newsreader",Georgia,serif;
+    --sans:"Noto Sans TC","Helvetica Neue",Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.7;
+    overflow-x:hidden;
+  }
+  /* 中文不偽斜體 */
+  :lang(zh-Hant) em, :lang(zh-Hant) i, .zh em, .zh i{font-style:normal}
+
+  .wrap{max-width:1220px;margin:0 auto;padding:0 48px;position:relative}
+  .label{font-family:var(--sans);font-weight:500;text-transform:uppercase;letter-spacing:.28em;font-size:10.5px;color:var(--ink-mute)}
+  .label-ink{color:var(--ink)}
+  .gold{color:var(--gold)}
+  .rule{height:1px;background:var(--hair-dark);border:0}
+
+  /* ════════ MASTHEAD 刊頭導覽列 ════════ */
+  .masthead{border-bottom:1.5px solid var(--ink);position:sticky;top:0;z-index:60;background:var(--paper);backdrop-filter:saturate(1.1)}
+  .masthead-top{display:flex;justify-content:space-between;align-items:center;padding:9px 48px;border-bottom:1px solid var(--hair);font-family:var(--sans);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-mute)}
+  .masthead-top .center{color:var(--ink);font-weight:500}
+  .masthead-main{display:flex;justify-content:space-between;align-items:baseline;padding:14px 48px;gap:24px}
+  .brand{font-family:var(--serif-en);font-weight:500;font-size:23px;letter-spacing:.04em}
+  .brand small{font-family:var(--sans);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-mute);font-weight:400;margin-left:14px}
+  .issueline{display:flex;gap:26px;align-items:baseline;font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute)}
+  .issueline b{color:var(--ink);font-weight:600}
+  .navbar{display:flex;gap:30px;align-items:center}
+  .navbar a{font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;padding-bottom:2px;border-bottom:1px solid transparent;transition:border-color .25s,color .25s}
+  .navbar a:hover{color:var(--ink);border-color:var(--gold)}
+
+
+  /* ════════ 側邊直排 marginalia ════════ */
+  .marginalia{position:fixed;top:50%;transform:translateY(-50%);z-index:40;font-family:var(--sans);font-size:10px;letter-spacing:.42em;text-transform:uppercase;color:var(--ink-mute);writing-mode:vertical-rl;user-select:none;pointer-events:none}
+  .marginalia.left{left:14px;transform:translateY(-50%) rotate(180deg)}
+  .marginalia.right{right:14px}
+  @media(max-width:1100px){.marginalia{display:none}}
+
+  /* ════════ ① 封面 HERO ════════ */
+  .hero{position:relative;background:var(--dark);color:var(--paper);overflow:hidden;padding:70px 0 84px}
+  .hero-bg{position:absolute;inset:0;z-index:0}
+  .hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.32;filter:grayscale(.35) contrast(1.05)}
+  .hero-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,rgba(15,13,10,.95) 0%,rgba(15,13,10,.78) 42%,rgba(15,13,10,.5) 100%)}
+  .hero .wrap{position:relative;z-index:2}
+  .hero-kicker{display:flex;gap:18px;align-items:center;font-family:var(--sans);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:rgba(244,240,232,.7);border-bottom:1px solid rgba(244,240,232,.22);padding-bottom:14px;margin-bottom:30px}
+  .hero-kicker .sep{color:var(--gold)}
+  .hero-kicker .right{margin-left:auto;color:var(--gold)}
+  .hero-title{font-weight:700;font-size:clamp(52px,8.4vw,122px);line-height:.99;letter-spacing:.01em;margin:0 0 6px}
+  .hero-title .ln{display:block}
+  .hero-title .gld{color:var(--gold);position:relative}
+  .hero-sub{font-family:var(--serif);font-weight:300;font-size:clamp(20px,2.4vw,30px);letter-spacing:.34em;color:rgba(244,240,232,.92);margin:30px 0 16px}
+  .hero-lead{max-width:560px;font-weight:300;font-size:16.5px;line-height:1.95;color:rgba(244,240,232,.78);position:relative;padding-left:20px}
+  .hero-lead::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;background:var(--gold)}
+  .hero-meta{display:flex;gap:24px;margin-top:22px;font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,240,232,.62);flex-wrap:wrap}
+  .hero-meta b{color:var(--paper);font-weight:600}
+  .hero-cta{display:flex;gap:16px;margin-top:38px;flex-wrap:wrap}
+  .btn-sq{font-family:var(--sans);font-size:11px;letter-spacing:.2em;text-transform:uppercase;padding:15px 30px;border:1px solid rgba(244,240,232,.5);color:var(--paper);background:transparent;text-decoration:none;cursor:pointer;transition:background .25s,color .25s,border-color .25s}
+  .btn-sq:hover{background:var(--paper);color:var(--dark);border-color:var(--paper)}
+  .btn-sq.solid{background:var(--paper);color:var(--dark);border-color:var(--paper)}
+  .btn-sq.solid:hover{background:var(--gold);border-color:var(--gold);color:var(--dark)}
+
+  /* ════════ ② 主編序 + 目錄 ════════ */
+  .editorial{padding:74px 0 70px;background:var(--paper)}
+  .editorial-grid{display:grid;grid-template-columns:0.82fr 1.18fr;gap:64px}
+  .ed-left .ed-mast{font-family:var(--sans);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:18px}
+  .ed-left h2{font-weight:600;font-size:38px;line-height:1.1;letter-spacing:.04em;margin-bottom:26px}
+  .ed-left h2 .dot{color:var(--gold)}
+  .ed-byline{font-family:var(--sans);font-size:11px;letter-spacing:.14em;color:var(--ink-mute);text-transform:uppercase;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);padding:14px 0;margin-bottom:30px}
+  .ed-byline b{display:block;color:var(--ink);font-size:12px;margin-bottom:3px}
+  .toc-head{font-family:var(--sans);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:14px}
+  .toc{list-style:none}
+  .toc li{display:flex;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--hair)}
+  .toc li:hover .toc-t{color:var(--gold-deep)}
+  .toc .num{font-family:var(--serif-en);font-size:13px;color:var(--gold);min-width:26px;letter-spacing:.05em}
+  .toc-t{font-size:16px;color:var(--ink-soft);transition:color .2s}
+  .toc .toc-day{margin-left:auto;font-family:var(--sans);font-size:10px;letter-spacing:.1em;color:var(--ink-mute);text-transform:uppercase}
+  .ed-right{border-left:1px solid var(--hair);padding-left:64px}
+  .ed-dropcap{font-weight:300;font-size:clamp(21px,2.4vw,29px);line-height:1.78;color:var(--ink-soft);letter-spacing:.01em}
+  .ed-dropcap .cap{float:left;font-family:var(--serif);font-weight:700;font-size:88px;line-height:.74;margin:8px 16px -4px 0;color:var(--ink)}
+  .ed-sign{margin-top:34px;font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute);display:flex;gap:14px;align-items:center}
+  .ed-sign::before{content:"";width:42px;height:1px;background:var(--gold)}
+
+  /* ════════ section header 共用 ════════ */
+  .sec-head{display:flex;align-items:flex-end;gap:24px;padding:64px 0 8px}
+  .sec-head .lines{flex:1}
+  .sec-head .kick{font-family:var(--sans);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:8px}
+  .sec-head h2{font-weight:600;font-size:clamp(34px,5vw,58px);line-height:1.02;letter-spacing:.02em}
+  .sec-head h2 .g{color:var(--gold)}
+  .sec-head .seeall{font-family:var(--sans);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-mute);white-space:nowrap;padding-bottom:10px;display:flex;align-items:center;gap:10px}
+  .sec-head .seeall::before{content:"";width:54px;height:1px;background:var(--hair-dark)}
+  .sec-divider{height:1.5px;background:var(--ink);margin:14px 0 0}
+
+  /* ② 總覽 路線表 */
+  .overview{padding:0 0 30px}
+  .ov-stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin:34px 0 10px}
+  .ov-stat{padding:24px 8px 22px;border-right:1px solid var(--hair);text-align:center}
+  .ov-stat:last-child{border-right:0}
+  .ov-stat .n{font-family:var(--serif-en);font-weight:400;font-size:46px;line-height:1;color:var(--ink)}
+  .ov-stat .n .u{font-size:18px;color:var(--gold);margin-left:3px}
+  .ov-stat .t{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-mute);margin-top:8px}
+  .route-list{margin-top:30px}
+  .route-row{display:grid;grid-template-columns:120px 92px 1fr;gap:18px;align-items:baseline;padding:22px 4px;border-bottom:1px solid var(--hair);transition:background .2s}
+  .route-row:hover{background:var(--paper-2)}
+  .route-row .rd{font-family:var(--serif-en);font-size:24px;color:var(--gold);letter-spacing:.02em}
+  .route-row .rdate{font-family:var(--sans);font-size:11px;letter-spacing:.12em;color:var(--ink-mute);text-transform:uppercase}
+  .route-row .rpath{font-size:20px;color:var(--ink-soft);line-height:1.5}
+  .route-row .rpath .arrow{display:inline-block;width:18px;height:1px;background:var(--gold);margin:0 11px;vertical-align:middle}
+  .route-row .rpath .soft{color:var(--ink-mute)}
+
+  /* ③ 航班 */
+  .flights{padding:0 0 20px}
+  .flight-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid var(--ink);margin-top:34px}
+  .flight-card{padding:34px 38px;position:relative}
+  .flight-card.depart{border-right:1px solid var(--hair-dark)}
+  .flight-card .ftag{font-family:var(--sans);font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:20px;display:flex;justify-content:space-between}
+  .flight-card .ftag .air{color:var(--gold-deep);font-weight:500}
+  .flight-route{display:flex;align-items:flex-end;gap:18px}
+  .fr-port{flex:0 0 auto}
+  .fr-port .code{font-family:var(--serif-en);font-weight:500;font-size:46px;line-height:.92;letter-spacing:.02em}
+  .fr-port .time{font-family:var(--sans);font-size:13px;letter-spacing:.06em;color:var(--ink-soft);margin-top:6px}
+  .fr-mid{flex:1;text-align:center;padding-bottom:14px}
+  .fr-mid .lineflight{position:relative;height:1px;background:var(--hair-dark);margin:0 6px}
+  .fr-mid .lineflight .toword{position:absolute;left:50%;top:-9px;transform:translateX(-50%);background:var(--paper);padding:0 8px;font-family:var(--sans);font-size:9.5px;letter-spacing:.24em;color:var(--gold-deep);text-transform:uppercase}
+  .fr-mid .fno{font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:var(--ink-mute);text-transform:uppercase;margin-top:10px}
+  .flight-card .fdate{font-family:var(--sans);font-size:11px;letter-spacing:.12em;color:var(--ink-mute);margin-top:18px;text-transform:uppercase}
+
+  /* ④ 每日行程 雜誌章節 */
+  .days{padding:10px 0 40px}
+  .day-chapter{position:relative;padding:70px 0;border-top:1px solid var(--hair)}
+  .day-chapter:first-of-type{border-top:0}
+  .day-headrow{display:flex;align-items:baseline;gap:22px;margin-bottom:8px}
+  .day-headrow .dnum{font-family:var(--serif-en);font-weight:300;font-size:clamp(54px,9vw,108px);line-height:.8;color:var(--gold);letter-spacing:-.01em}
+  .day-headrow .dmeta{padding-bottom:8px}
+  .day-headrow .dmeta .dk{font-family:var(--sans);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:6px}
+  .day-headrow .dmeta .dt{font-weight:600;font-size:clamp(24px,3.2vw,36px);line-height:1.15;letter-spacing:.02em}
+  .day-meals{margin:16px 0 40px;display:flex;gap:0;flex-wrap:wrap;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+  .meal{padding:14px 26px 13px 0;margin-right:26px;border-right:1px solid var(--hair);font-family:var(--sans);font-size:12px;color:var(--ink-soft);letter-spacing:.04em}
+  .meal:last-child{border-right:0;margin-right:0}
+  .meal .ml{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:3px;display:block}
+  .meal.none{color:var(--ink-mute)}
+  .meal.none .ml{color:var(--ink-mute)}
+
+  /* 景點 entry，圖文交錯 */
+  .spot{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;padding:42px 0;border-bottom:1px solid var(--hair)}
+  .spot:last-of-type{border-bottom:0}
+  .spot.flip .spot-media{order:2}
+  .spot.flip .spot-text{order:1}
+  .spot-media{position:relative;overflow:hidden;background:var(--paper-2)}
+  .spot-media img{width:100%;height:420px;object-fit:cover;display:block;filter:contrast(1.02) saturate(.96);transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+  .spot-media:hover img{transform:scale(1.04)}
+  .spot-media .plate{position:absolute;left:0;bottom:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:8px 14px}
+  .spot-text .sp-idx{font-family:var(--serif-en);font-size:15px;color:var(--gold);letter-spacing:.06em;margin-bottom:12px}
+  .spot-text h3{font-weight:600;font-size:clamp(28px,3.6vw,40px);line-height:1.12;letter-spacing:.02em;margin-bottom:18px}
+  .spot-text p{font-weight:300;font-size:16px;line-height:1.95;color:var(--ink-soft)}
+  .spot-text .sp-rule{width:48px;height:2px;background:var(--gold);margin:22px 0 0}
+
+
+  /* ⑤ 飯店 文字清單 */
+  .hotels{padding:0 0 30px}
+  .hotel-list{margin-top:34px}
+  .hotel-row{display:grid;grid-template-columns:64px 1fr auto;gap:24px;align-items:baseline;padding:30px 4px;border-bottom:1px solid var(--hair)}
+  .hotel-row:first-child{border-top:1.5px solid var(--ink)}
+  .hotel-row .hn{font-family:var(--serif-en);font-size:22px;color:var(--gold)}
+  .hotel-row .hname{font-weight:600;font-size:clamp(24px,3vw,32px);line-height:1.2;letter-spacing:.02em}
+  .hotel-row .hsub{font-family:var(--sans);font-size:11.5px;letter-spacing:.08em;color:var(--ink-mute);margin-top:7px}
+  .hotel-row .hstay{font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);text-align:right;white-space:nowrap}
+  .hotel-row .hstay b{display:block;font-family:var(--serif);font-size:18px;color:var(--ink);font-weight:600;letter-spacing:0}
+
+  /* manifesto 暗區 */
+  .manifesto{background:var(--dark);color:var(--paper);padding:96px 0;margin-top:70px}
+  .manifesto .label{color:rgba(244,240,232,.5)}
+  .mani-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;margin-top:36px}
+  .mani-text{font-weight:300;font-size:clamp(22px,2.8vw,34px);line-height:1.65;letter-spacing:.02em;color:rgba(244,240,232,.92)}
+  .mani-text .g{color:var(--gold)}
+  .mani-nums{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(244,240,232,.16);border:1px solid rgba(244,240,232,.16)}
+  .mani-num{background:var(--dark);padding:32px 26px}
+  .mani-num .n{font-family:var(--serif-en);font-weight:300;font-size:58px;line-height:1;color:var(--gold)}
+  .mani-num .t{font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,240,232,.6);margin-top:12px}
+
+  /* footer */
+  .footer{background:var(--dark);color:var(--paper);padding:0 0 50px}
+  .foot-meta{display:flex;justify-content:space-between;font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(244,240,232,.55);padding:22px 0;border-bottom:1px solid rgba(244,240,232,.16)}
+  .foot-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;padding:40px 0 60px}
+  .foot-col .fch{font-family:var(--sans);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+  .foot-col p{font-size:14px;color:rgba(244,240,232,.78);line-height:2;font-weight:300}
+  .foot-brand{font-family:var(--serif-en);font-weight:400;font-size:clamp(60px,15vw,200px);line-height:.86;letter-spacing:.01em;color:var(--paper)}
+  .foot-brand .l2{color:var(--gold);display:block}
+  .foot-bottom{display:flex;justify-content:space-between;font-family:var(--sans);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:rgba(244,240,232,.4);padding-top:34px;margin-top:30px;border-top:1px solid rgba(244,240,232,.16)}
+
+  @media(max-width:880px){
+    .wrap{padding:0 24px}
+    .masthead-top,.masthead-main{padding-left:24px;padding-right:24px}
+    .navbar{display:none}
+    .editorial-grid,.mani-grid{grid-template-columns:1fr;gap:40px}
+    .ed-right{border-left:0;padding-left:0;border-top:1px solid var(--hair);padding-top:34px}
+    .flight-grid{grid-template-columns:1fr}
+    .flight-card.depart{border-right:0;border-bottom:1px solid var(--hair-dark)}
+    .spot{grid-template-columns:1fr;gap:24px}
+    .spot.flip .spot-media{order:0}.spot.flip .spot-text{order:0}
+    .spot-media img{height:300px}
+    .ov-stats{grid-template-columns:1fr 1fr}
+    .ov-stat:nth-child(2){border-right:0}
+    .route-row{grid-template-columns:1fr;gap:6px}
+    .hotel-row{grid-template-columns:1fr;gap:8px}
+    .hotel-row .hstay{text-align:left}
+    .foot-cols{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body class="zh">
+
+<!-- 側邊直排 marginalia -->
+<div class="marginalia left">CORNER TRAVEL · ISSUE 02 · 名古屋 NAGOYA</div>
+<div class="marginalia right">蟲點子 · 童趣 藝術 懷舊 · 2026 AUTUMN</div>
+
+<!-- ════════ MASTHEAD ════════ -->
+<header class="masthead">
+  <div class="masthead-top">
+    <span>角落旅行社 出品</span>
+    <span class="center">A QUARTERLY ON JUST TRAVEL · 季刊</span>
+    <span>建議閱讀時間 · 8 分鐘</span>
+  </div>
+  <div class="masthead-main">
+    <div class="brand">CORNER TRAVEL<small>角落旅行社</small></div>
+    <div class="issueline">
+      <span>VOL.<b>01</b></span>
+      <span>ISSUE <b>02</b></span>
+      <span>名古屋 <b>NGO</b></span>
+      <span>AUTUMN <b>2026</b></span>
+    </div>
+    <nav class="navbar">
+      <a href="#overview">序</a>
+      <a href="#flights">航班</a>
+      <a href="#days">行程</a>
+      <a href="#hotels">住宿</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ════════ ① 封面 HERO ════════ -->
+<section class="hero" id="cover">
+  <div class="hero-bg">
+    <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/city-backgrounds/airport/NGO_1775741139104_lqqm7d.webp" alt="名古屋 中部國際機場">
+  </div>
+  <div class="wrap">
+    <div class="hero-kicker">
+      <span>ISSUE 02</span><span class="sep">·</span>
+      <span>名古屋 NAGOYA</span><span class="sep">·</span>
+      <span>01 / 05</span>
+      <span class="right">THE COVER STORY</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="ln">蟲點子</span>
+      <span class="ln"><span class="gld">名古屋</span></span>
+    </h1>
+    <div class="hero-sub">童趣　藝術　懷舊</div>
+    <p class="hero-lead">
+      一條五天的軌跡，從圓形玻璃的美術館，到合掌造的雪村，到日本現存最古老的天守。
+      我們把名古屋拆成十個精選的角落，慢慢走，慢慢看。
+    </p>
+    <div class="hero-meta">
+      <span><b>5</b> 天行程</span>
+      <span><b>10</b> 個精選景點</span>
+      <span><b>2</b> 間入住飯店</span>
+      <span><b>NGO</b> 名古屋進出</span>
+      <span><b>2026.10.17–10.21</b></span>
+    </div>
+    <div class="hero-cta">
+      <a href="#overview" class="btn-sq solid">瀏覽本期行程</a>
+      <a href="#days" class="btn-sq">讀每日故事</a>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ ② 主編序 + 目錄 ════════ -->
+<section class="editorial" id="overview">
+  <div class="wrap">
+    <div class="editorial-grid">
+      <div class="ed-left">
+        <div class="ed-mast">EDITOR'S LETTER · 主編親述</div>
+        <h2>主編<br>親述<span class="dot">。</span></h2>
+        <div class="ed-byline">
+          <b>角落旅行社 2026</b>
+          CORNER TRAVEL · NAGOYA EDITION
+        </div>
+        <div class="toc-head">ISSUE 02 · THIS ISSUE</div>
+        <ul class="toc">
+          <li><span class="num">01</span><span class="toc-t">飯店入住・21世紀美術館</span><span class="toc-day">Day 1</span></li>
+          <li><span class="num">02</span><span class="toc-t">東山動植物園・吉卜力</span><span class="toc-day">Day 2</span></li>
+          <li><span class="num">03</span><span class="toc-t">樂高樂園・郡上八幡城</span><span class="toc-day">Day 3</span></li>
+          <li><span class="num">04</span><span class="toc-t">白川鄉合掌村・荻町</span><span class="toc-day">Day 4</span></li>
+          <li><span class="num">05</span><span class="toc-t">犬山城・回程</span><span class="toc-day">Day 5</span></li>
+        </ul>
+      </div>
+      <div class="ed-right">
+        <p class="ed-dropcap">
+          <span class="cap">名</span>古屋這座城，常被旅人略過，當成往來京阪的中轉站。
+          但這一期我們決定在這裡停留五天——不趕路、不打卡，一天只走一到三個地方。
+          從圓形玻璃的二十一世紀美術館，到一千七百萬塊積木堆成的樂園，再到合掌造的雪白村落，
+          最後落腳在日本現存最古老的天守。這是一段關於童趣、藝術與懷舊的軌跡。
+        </p>
+        <div class="ed-sign">CORNER TRAVEL · ISSUE 02 · 名古屋</div>
+      </div>
+    </div>
+
+    <!-- 路線總覽 -->
+    <div class="sec-head">
+      <div class="lines">
+        <div class="kick">THE ITINERARY · 本期路線</div>
+        <h2>五天的軌跡，<br><span class="g">十個角落</span>。</h2>
+      </div>
+      <div class="seeall">5 DAYS · 名古屋進出</div>
+    </div>
+    <div class="sec-divider"></div>
+
+    <div class="overview">
+      <div class="ov-stats">
+        <div class="ov-stat"><div class="n">5<span class="u">天</span></div><div class="t">Days 行程天數</div></div>
+        <div class="ov-stat"><div class="n">10<span class="u">處</span></div><div class="t">Spots 精選景點</div></div>
+        <div class="ov-stat"><div class="n">2<span class="u">間</span></div><div class="t">Hotels 入住飯店</div></div>
+        <div class="ov-stat"><div class="n">NGO</div><div class="t">名古屋進出</div></div>
+      </div>
+      <div class="route-list">
+        <div class="route-row"><span class="rd">Day 1</span><span class="rdate">10.17 週五</span><span class="rpath">飯店入住<span class="arrow"></span>21世紀美術館</span></div>
+        <div class="route-row"><span class="rd">Day 2</span><span class="rdate">10.18 週六</span><span class="rpath">東山動植物園<span class="arrow"></span>三鷹吉卜力美術館</span></div>
+        <div class="route-row"><span class="rd">Day 3</span><span class="rdate">10.19 週日</span><span class="rpath">樂高樂園<span class="arrow"></span>樂高水族館<span class="arrow"></span>郡上八幡城</span></div>
+        <div class="route-row"><span class="rd">Day 4</span><span class="rdate">10.20 週一</span><span class="rpath">白川鄉合掌村<span class="arrow"></span>和田家<span class="arrow"></span>荻町城跡展望台<span class="arrow"></span>明善寺<span class="arrow"></span>高山古街</span></div>
+        <div class="route-row"><span class="rd">Day 5</span><span class="rdate">10.21 週二</span><span class="rpath">犬山城<span class="arrow"></span>回程</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ ③ 航班 ════════ -->
+<section id="flights">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lines">
+        <div class="kick">THE FLIGHTS · 往返航班</div>
+        <h2>去與回，<br><span class="g">星宇航空</span>。</h2>
+      </div>
+      <div class="seeall">STARLUX · 名古屋進出</div>
+    </div>
+    <div class="sec-divider"></div>
+
+    <div class="flights">
+      <div class="flight-grid">
+        <div class="flight-card depart">
+          <div class="ftag"><span>DEPARTURE · 去程</span><span class="air">星宇航空 JX838</span></div>
+          <div class="flight-route">
+            <div class="fr-port"><div class="code">TPE</div><div class="time">14:55 台北</div></div>
+            <div class="fr-mid"><div class="lineflight"><span class="toword">飛往</span></div><div class="fno">JX838</div></div>
+            <div class="fr-port"><div class="code">NGO</div><div class="time">18:45 名古屋</div></div>
+          </div>
+          <div class="fdate">2026.10.17 · 週五 · 桃園 至 中部國際</div>
+        </div>
+        <div class="flight-card return">
+          <div class="ftag"><span>RETURN · 回程</span><span class="air">星宇航空 JX839</span></div>
+          <div class="flight-route">
+            <div class="fr-port"><div class="code">NGO</div><div class="time">19:55 名古屋</div></div>
+            <div class="fr-mid"><div class="lineflight"><span class="toword">飛往</span></div><div class="fno">JX839</div></div>
+            <div class="fr-port"><div class="code">TPE</div><div class="time">22:00 台北</div></div>
+          </div>
+          <div class="fdate">2026.10.21 · 週二 · 中部國際 至 桃園</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ ④ 每日行程 ════════ -->
+<section id="days">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lines">
+        <div class="kick">THE JOURNAL · 每日紀事</div>
+        <h2>五個段落，<br><span class="g">五種步調</span>。</h2>
+      </div>
+      <div class="seeall">DAY 01 — DAY 05</div>
+    </div>
+    <div class="sec-divider"></div>
+
+    <div class="days">
+
+      <!-- Day 1 -->
+      <article class="day-chapter">
+        <div class="day-headrow">
+          <div class="dnum">01</div>
+          <div class="dmeta"><div class="dk">2026.10.17 · 週五</div><div class="dt">飯店入住・21世紀美術館</div></div>
+        </div>
+        <div class="day-meals">
+          <div class="meal none"><span class="ml">早餐 Breakfast</span>無</div>
+          <div class="meal none"><span class="ml">午餐 Lunch</span>無</div>
+          <div class="meal"><span class="ml">晚餐 Dinner</span>機上餐食</div>
+          <div class="meal"><span class="ml">住宿 Stay</span>名古屋日航尚格酒店</div>
+        </div>
+        <div class="spot">
+          <div class="spot-media">
+            <img src="https://pfqvdacxowpgfamuvnsn.supabase.co/storage/v1/object/public/workspace-files/attractions/1767157412737_2wa8eo.jpg" alt="21世紀美術館">
+            <div class="plate">SPOT 01</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 01 / 名古屋的第一站</div>
+            <h3>21世紀美術館</h3>
+            <p>金澤21世紀美術館，現代美術館，建於 2004 年。圓形玻璃建築、自然光線充足、免費開放區域廣闊。Leandro Erlich 的「游泳池」最有名，從上往下看似有人在水中。James Turrell 的光藝術、Anish Kapoor 的雕塑都很精彩。常設展免費，特展需門票。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Day 2 -->
+      <article class="day-chapter">
+        <div class="day-headrow">
+          <div class="dnum">02</div>
+          <div class="dmeta"><div class="dk">2026.10.18 · 週六</div><div class="dt">東山動植物園・三鷹吉卜力美術館</div></div>
+        </div>
+        <div class="day-meals">
+          <div class="meal"><span class="ml">早餐 Breakfast</span>飯店早餐</div>
+          <div class="meal none"><span class="ml">午餐 Lunch</span>敬請自理</div>
+          <div class="meal"><span class="ml">晚餐 Dinner</span>日式定食</div>
+          <div class="meal"><span class="ml">住宿 Stay</span>名古屋日航尚格酒店（連住）</div>
+        </div>
+        <div class="spot">
+          <div class="spot-media">
+            <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/b1ee8947-472c-4efb-82c5-0ddf4b775c03/1775740739681_4q6us651rru.jpg" alt="東山動植物園">
+            <div class="plate">SPOT 02</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 02 / 日本最大級</div>
+            <h3>東山動植物園</h3>
+            <p>位於名古屋市的東山動植物園是日本規模最大的動植物園之一，飼養動物物種數居日本之首。園區由動物園、植物園、遊樂園及東山天空塔組成，是一處適合全家共遊的綜合性休閒場所。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+        <div class="spot flip">
+          <div class="spot-media">
+            <img src="https://images.pexels.com/photos/1308648/pexels-photo-1308648.jpeg?auto=compress&cs=tinysrgb&h=650&w=940" alt="三鷹吉卜力美術館">
+            <div class="plate">SPOT 03</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 03 / 動畫迷的朝聖地</div>
+            <h3>三鷹吉卜力美術館</h3>
+            <p>東京三鷹吉卜力美術館，宮崎駿吉卜力工作室主題美術館。展示動畫製作過程、原畫、龍貓巴士、短篇動畫放映。建築由宮崎駿設計，處處是巧思與童趣。這是吉卜力迷朝聖地，也是認識動畫藝術的好地方。需提前一個月官網預約。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Day 3 -->
+      <article class="day-chapter">
+        <div class="day-headrow">
+          <div class="dnum">03</div>
+          <div class="dmeta"><div class="dk">2026.10.19 · 週日</div><div class="dt">樂高樂園・樂高水族館・郡上八幡城</div></div>
+        </div>
+        <div class="day-meals">
+          <div class="meal"><span class="ml">早餐 Breakfast</span>飯店早餐</div>
+          <div class="meal none"><span class="ml">午餐 Lunch</span>敬請自理</div>
+          <div class="meal"><span class="ml">晚餐 Dinner</span>飯店晚宴</div>
+          <div class="meal"><span class="ml">住宿 Stay</span>界 奧飛驒</div>
+        </div>
+        <div class="spot">
+          <div class="spot-media">
+            <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/b9250dc3-9d63-458d-9866-301dbda5f49e/1775740808597_jxclylhs5pp.png" alt="樂高樂園">
+            <div class="plate">SPOT 04</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 04 / 1700 萬塊積木</div>
+            <h3>樂高樂園</h3>
+            <p>位於名古屋的日本樂高樂園（LEGOLAND Japan）是專為 2 至 12 歲兒童及其家庭設計的夢幻樂園。園內不僅有超過 40 種遊樂設施，還有由 1,700 萬塊積木打造的壯觀場景。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+        <div class="spot flip">
+          <div class="spot-media">
+            <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/536fb93f-9311-4ade-b156-d3a3cd533b53/1775740872869_159hhgn585q.png" alt="樂高水族館">
+            <div class="plate">SPOT 05</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 05 / 全球最大樂高主題水族館</div>
+            <h3>樂高水族館</h3>
+            <p>位於樂高樂園對面的 SEA LIFE 名古屋水族館，是全球最大的樂高主題水族館連鎖品牌。這裡不只是看魚，更結合了大量樂高模型與互動科技，非常適合親子同遊。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+        <div class="spot">
+          <div class="spot-media">
+            <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/8688b730-6a7e-4785-8953-6c1ebc72521f/1775740909606_4cfw59ud2qx.webp" alt="郡上八幡城">
+            <div class="plate">SPOT 06</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 06 / 日本最美山城</div>
+            <h3>郡上八幡城</h3>
+            <p>位於岐阜縣的郡上八幡城被譽為「日本最美山城」，也是日本現存最古老的木造重建天守。整座城聳立於海拔約 350 公尺的八幡山頂，是俯瞰這座「水之町」城下町的最佳地點。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Day 4 -->
+      <article class="day-chapter">
+        <div class="day-headrow">
+          <div class="dnum">04</div>
+          <div class="dmeta"><div class="dk">2026.10.20 · 週一</div><div class="dt">白川鄉合掌村・和田家・荻町城跡展望台・明善寺・高山古街</div></div>
+        </div>
+        <div class="day-meals">
+          <div class="meal"><span class="ml">早餐 Breakfast</span>飯店早餐</div>
+          <div class="meal"><span class="ml">午餐 Lunch</span>白川料理</div>
+          <div class="meal"><span class="ml">晚餐 Dinner</span>飯店晚宴</div>
+          <div class="meal"><span class="ml">住宿 Stay</span>界 奧飛驒（連住）</div>
+        </div>
+        <div class="spot">
+          <div class="spot-media">
+            <img src="https://pfqvdacxowpgfamuvnsn.supabase.co/storage/v1/object/public/attractions/japan/46b21270-534c-40d7-832b-a906802fab10-1.jpeg" alt="白川鄉合掌村">
+            <div class="plate">SPOT 07</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 07 / 世界遺產</div>
+            <h3>白川鄉合掌村</h3>
+            <p>白川鄉合掌村，日本知名景點，值得造訪體驗。合掌造的茅草屋頂錯落在山谷之間，是世界文化遺產，也是名古屋近郊最具代表性的雪鄉風景。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+        <div class="spot flip">
+          <div class="spot-media">
+            <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/aeacbec4-5b4b-4a3f-83ae-f90383fdbf0d/1775740943798_zf55hhf7ig.jpg" alt="和田家">
+            <div class="plate">SPOT 08</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 08 / 江戶庄屋住宅</div>
+            <h3>和田家</h3>
+            <p>白川鄉合掌村和田家，白川鄉最大的合掌造民家，江戶時代庄屋住宅。可進入參觀內部、看囲炉裏、展示古老農具與生活用品。門票 300 日圓，建議預留 1 小時。冬季點燈活動最夢幻。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+        <div class="spot">
+          <div class="spot-media">
+            <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/3a13b7fd-54e2-4cea-be2d-124c65231d7a/1775740962722_7757jlpbnvj.jpg" alt="荻町城跡展望台">
+            <div class="plate">SPOT 09</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 09 / 俯瞰整個聚落</div>
+            <h3>荻町城跡展望台</h3>
+            <p>白川鄉荻町城跡展望台，可俯瞰整個荻町聚落。合掌造屋頂、稻田、雪景，如童話世界。是把這座村落一次收進眼底的最佳角度。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Day 5 -->
+      <article class="day-chapter">
+        <div class="day-headrow">
+          <div class="dnum">05</div>
+          <div class="dmeta"><div class="dk">2026.10.21 · 週二</div><div class="dt">犬山城</div></div>
+        </div>
+        <div class="day-meals">
+          <div class="meal"><span class="ml">早餐 Breakfast</span>飯店早餐</div>
+          <div class="meal"><span class="ml">午餐 Lunch</span>日式定食</div>
+          <div class="meal none"><span class="ml">晚餐 Dinner</span>無</div>
+        </div>
+        <div class="spot flip">
+          <div class="spot-media">
+            <img src="https://wzvwmawpkapcmkfmkvav.supabase.co/storage/v1/object/public/resources/attractions/e66fc4bb-f5d8-494d-931b-3ecdf77ce3dd/1775740997960_yqu9qmqlq2b.webp" alt="犬山城">
+            <div class="plate">SPOT 10</div>
+          </div>
+          <div class="spot-text">
+            <div class="sp-idx">SPOT 10 / 旅程的最後一站</div>
+            <h3>犬山城</h3>
+            <p>位於日本愛知縣的犬山城（Inuyama-jō）是一座充滿歷史底蘊的古城，也是日本現存最古老的天守之一。以這座天守作為五天旅程的句點，再返回名古屋登機。</p>
+            <div class="sp-rule"></div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ════════ ⑤ 飯店 — 全程住宿 ════════ -->
+<section id="hotels">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="lines">
+        <div class="kick">THE STAY · 全程住宿</div>
+        <h2>兩間飯店，<br><span class="g">四晚停留</span>。</h2>
+      </div>
+      <div class="seeall">2 HOTELS · 連住安排</div>
+    </div>
+    <div class="sec-divider"></div>
+
+    <div class="hotels">
+      <div class="hotel-list">
+        <div class="hotel-row">
+          <span class="hn">01</span>
+          <div>
+            <div class="hname">名古屋日航尚格酒店</div>
+            <div class="hsub">NIKKO STYLE NAGOYA · 市區商務飯店</div>
+          </div>
+          <div class="hstay"><b>Day 1–2</b>連住 2 晚</div>
+        </div>
+        <div class="hotel-row">
+          <span class="hn">02</span>
+          <div>
+            <div class="hname">界 奧飛驒</div>
+            <div class="hsub">KAI OKUHIDA · 溫泉旅館</div>
+          </div>
+          <div class="hstay"><b>Day 3–4</b>連住 2 晚</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ MANIFESTO 暗區 ════════ -->
+<section class="manifesto">
+  <div class="wrap">
+    <div class="label">MANIFESTO · 本期主張</div>
+    <div class="mani-grid">
+      <div class="mani-text">
+        我們不把名古屋當成中轉站。<br>
+        五天，<span class="g">十個角落</span>，<br>
+        一天只走一到三個地方——<br>
+        慢，才看得見童趣、藝術與懷舊。
+      </div>
+      <div class="mani-nums">
+        <div class="mani-num"><div class="n">5</div><div class="t">天的軌跡 Days</div></div>
+        <div class="mani-num"><div class="n">10</div><div class="t">精選景點 Spots</div></div>
+        <div class="mani-num"><div class="n">2</div><div class="t">入住飯店 Hotels</div></div>
+        <div class="mani-num"><div class="n">3</div><div class="t">座最古老天守 Castles</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ FOOTER ════════ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="foot-meta">
+      <span>VOL.01 · ISSUE 02</span>
+      <span>AUTUMN 2026 · 名古屋</span>
+      <span>角落旅行社 出品</span>
+    </div>
+    <div class="foot-cols">
+      <div class="foot-col">
+        <div class="fch">FOOTNOTES · 行程</div>
+        <p>5 天 · 名古屋進出<br>2026.10.17 – 10.21<br>星宇航空 JX838 / JX839</p>
+      </div>
+      <div class="foot-col">
+        <div class="fch">EDITORIAL · 編輯室</div>
+        <p>主編 / Eva Wang<br>企劃 / Logan Chien<br>攝影 / William Wu</p>
+      </div>
+      <div class="foot-col">
+        <div class="fch">CONTACT · 聯絡</div>
+        <p>台北市 · 角落旅行社<br>02-2345-6789<br>hello@cornertravel.tw</p>
+      </div>
+    </div>
+    <div class="foot-brand">CORNER<span class="l2">TRAVEL</span></div>
+    <div class="foot-bottom">
+      <span>© 2026 CORNER TRAVEL · 角落旅行社</span>
+      <span>A QUARTERLY ON JUST TRAVEL · PRINTED IN TAIPEI</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

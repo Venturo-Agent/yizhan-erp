@@ -303,7 +303,7 @@ export function AiSettingsTab({ workspaceId }: AiSettingsTabProps) {
             <Textarea
               value={settings.prompt_template}
               onChange={e => setSettings(prev => ({ ...prev, prompt_template: e.target.value }))}
-              placeholder="例如：你是漫途旅行社的 AI 助理、回答客戶旅遊相關問題、語氣親切..."
+              placeholder="例如：你是貴公司的 AI 助理、回答客戶旅遊相關問題、語氣親切..."
               rows={6}
             />
           </div>

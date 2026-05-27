@@ -67,11 +67,14 @@ jobs:
     name: E2E Smoke (login + create-tenant 路徑守門)
     runs-on: ubuntu-latest
     needs: build
-    # 需要 GitHub Secrets：
-    #   NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY
-    #   TEST_PASSWORD (TESTUX 的 E001 密碼)
-    # 沒設 secret 時此 job 會在 build step skip secret 注入而失敗、屬預期
-    if: ${{ vars.E2E_SMOKE_ENABLED == 'true' || true }}
+    # ⏸ 2026-05-27 停用（William 拍板）：此 E2E 守門需 Supabase 連線 secrets + 隔離 test DB。
+    #   開發階段（漫途自用、員工少、改動可人工驗、RLS 已有獨立 CI 守門兜底）暫不需要，
+    #   且 repo 從沒配 secrets → 一直 fail 誤導。先停用、保留 job 定義不刪。
+    #   未來 SaaS 化要啟用：設 repo variable E2E_SMOKE_ENABLED=true + 照 backlog 卡建 test DB。
+    #   backlog 卡：workspace/_meta/backlog/2026-05-27-e2e-login守門待建.md
+    # 啟用時需要的 GitHub Secrets：
+    #   NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY / SUPABASE_SERVICE_ROLE_KEY / TEST_PASSWORD
+    if: ${{ vars.E2E_SMOKE_ENABLED == 'true' }}
 
     steps:
       - uses: actions/checkout@v4

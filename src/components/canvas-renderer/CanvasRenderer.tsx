@@ -22,6 +22,7 @@ import { CanvasDayHeader } from './sections/CanvasDayHeader'
 import { CanvasFlightCard } from './sections/CanvasFlightCard'
 import { CanvasHotelCard } from './sections/CanvasHotelCard'
 import { CanvasJpNote } from './sections/CanvasJpNote'
+import { CanvasLeaderMeeting } from './sections/CanvasLeaderMeeting'
 import { CanvasOverviewTimeline } from './sections/CanvasOverviewTimeline'
 import { CanvasRestaurantCard } from './sections/CanvasRestaurantCard'
 import { CanvasRouteCard } from './sections/CanvasRouteCard'
@@ -36,6 +37,8 @@ interface CanvasRendererProps {
 // ============ Day section block 分流 ============
 
 function renderDayBlock(block: CanvasDayBlock): React.ReactNode {
+  // 工單3 積木開關：hidden=true 跳過渲染（資料保留、可逆）
+  if (block.hidden) return null
   switch (block.type) {
     case 'day_header':
       return <CanvasDayHeader key={block.id} data={block.data} />
@@ -222,6 +225,8 @@ function renderSection(
   isBleed: boolean,
   brand: Canvas['brand']
 ): React.ReactNode {
+  // 工單3 積木開關：hidden=true 跳過渲染（資料保留、可逆）
+  if (section.hidden) return null
   switch (section.type) {
     case 'cover':
       return <CanvasCover key="cover" data={section.data} brand={brand} />
@@ -231,6 +236,8 @@ function renderSection(
       return renderDaySection(section, eyebrowNum, isBleed)
     case 'stays':
       return <CanvasStaysSection key="stays" section={section} eyebrow={eyebrowNum} />
+    case 'leader_meeting':
+      return <CanvasLeaderMeeting key="leader-meeting" section={section} />
     case 'appendix':
       return <CanvasAppendix key="appendix" section={section} brand={brand} />
     default: {

@@ -18,7 +18,29 @@ export interface TourData {
     subtitle: string | null
     daily_itinerary: DailyItinerary[] | null
     hotels: HotelInfo[] | null
+    // 工單3 D2-A：舊系統「是否顯示飯店」設定、生成器拿來當 stays section hidden 初值（只讀一次、不雙向同步）
+    show_hotels?: boolean | null
+    // 工單2：領隊 + 集合資訊（jsonb）、生成器有料才生 leader_meeting section
+    // 欄位結構對齊 src/types/tour/itinerary.types.ts 的 LeaderInfo / MeetingInfo
+    leader?: LeaderInfo | null
+    meeting_info?: MeetingInfo | null
+    // 工單3 D2-A：舊系統「是否顯示領隊集合」設定、當 leader_meeting section hidden 初值（只讀一次、不雙向同步）
+    show_leader_meeting?: boolean | null
   } | null
+}
+
+// 領隊資訊（itineraries.leader jsonb）、欄位對齊 src/types/tour/itinerary.types.ts LeaderInfo
+export interface LeaderInfo {
+  name?: string
+  englishName?: string | null
+  domesticPhone?: string
+  overseasPhone?: string
+}
+
+// 集合資訊（itineraries.meeting_info jsonb）、欄位對齊 src/types/tour/itinerary.types.ts MeetingInfo
+export interface MeetingInfo {
+  time?: string
+  location?: string
 }
 
 export interface DailyItinerary {
