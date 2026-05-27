@@ -30,7 +30,6 @@ interface PaymentMethodsSectionProps {
   type: 'receipt' | 'payment'
   paymentMethods: PaymentMethod[]
   chartOfAccounts: ChartOfAccount[]
-  workspaceId: string | undefined
   reload: () => Promise<void>
   setPaymentMethods: React.Dispatch<React.SetStateAction<PaymentMethod[]>>
   // dialog control 由 parent 持有、好讓 primaryAction 「新增」按鈕可開
@@ -44,7 +43,6 @@ export function PaymentMethodsSection({
   type,
   paymentMethods,
   chartOfAccounts,
-  workspaceId,
   reload,
   setPaymentMethods,
   isDialogOpen,
@@ -110,7 +108,6 @@ export function PaymentMethodsSection({
       body: {
         ...method,
         id: editingMethod?.id,
-        workspace_id: workspaceId,
         type,
         // code 是純內部識別碼、不讓使用者填（表單沒這欄）。
         // 新增時自動產生唯一 code、否則後端 schema 擋 400。
