@@ -26,11 +26,6 @@ interface SupplierRow {
   bank_code: string | null
 }
 
-interface BankAccountRow {
-  bank_code: string | null
-  workspace_id: string | null
-}
-
 // ============================================================================
 // 查詢函數（使用 typed Supabase client、不用 as any）
 // ============================================================================
@@ -83,7 +78,9 @@ export async function fetchAddedItems(addedItemIds: string[]): Promise<ItemRow[]
   const { data } = await (admin.from as unknown as (t: string) => ItemFetchChain)(
     'payment_request_items'
   )
-    .select('id, request_id, subtotal, supplier_id, workspace_id')
+    .select(
+      'id, request_id, subtotal, supplier_id, workspace_id, advanced_by, payee_employee_id, payment_method_id'
+    )
     .in('id', addedItemIds)
   return data ?? null
 }
@@ -121,7 +118,9 @@ export async function fetchFinalItems(finalItemIds: string[]): Promise<ItemRow[]
   const { data } = await (admin.from as unknown as (t: string) => FinalItemChain)(
     'payment_request_items'
   )
-    .select('id, request_id, subtotal, supplier_id, workspace_id')
+    .select(
+      'id, request_id, subtotal, supplier_id, workspace_id, advanced_by, payee_employee_id, payment_method_id'
+    )
     .in('id', safeIds)
   return data ?? []
 }
@@ -140,23 +139,102 @@ export async function fetchSuppliers(supplierIds: string[]): Promise<SupplierRow
   return data ?? []
 }
 
-export async function fetchBankAccount(bankAccountId: string): Promise<BankAccountRow | null> {
+// 多帳戶一次撈 bank_code + cross_bank_fee + workspace（編輯多 batch 用）
+export async function fetchBankAccounts(bankAccountIds: string[]): Promise<
+  {
+    id: string
+    bank_code: string | null
+    workspace_id: string | null
+    cross_bank_fee: number | null
+  }[]
+> {
+  if (bankAccountIds.length === 0) return []
   const admin = getSupabaseAdminClient()
-  type BankSingleChain = {
+  type BankChain = {
+    select: (c: string) => {
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{
+        data:
+          | {
+              id: string
+              bank_code: string | null
+              workspace_id: string | null
+              cross_bank_fee: number | null
+            }[]
+          | null
+      }>
+    }
+  }
+  const { data } = await (admin.from as unknown as (t: string) => BankChain)('bank_accounts')
+    .select('id, bank_code, workspace_id, cross_bank_fee')
+    .in('id', bankAccountIds)
+  return data ?? []
+}
+
+// 收款對象若是員工（代墊 advanced_by / 公司請款 payee_employee_id）、拿員工真實銀行判同行。
+export async function fetchEmployeeBanks(
+  employeeIds: string[]
+): Promise<Map<string, string | null>> {
+  const result = new Map<string, string | null>()
+  if (employeeIds.length === 0) return result
+  const admin = getSupabaseAdminClient()
+  type EmpChain = {
+    select: (c: string) => {
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{ data: { id: string; bank_code: string | null }[] | null }>
+    }
+  }
+  const { data } = await (admin.from as unknown as (t: string) => EmpChain)('employees')
+    .select('id, bank_code')
+    .in('id', employeeIds)
+  for (const e of data ?? []) result.set(e.id, e.bank_code)
+  return result
+}
+
+// 撈 payment_methods.kind（cash / check 不收跨行手續費）
+export async function fetchPaymentMethodKinds(
+  paymentMethodIds: string[]
+): Promise<Map<string, string | null>> {
+  const result = new Map<string, string | null>()
+  if (paymentMethodIds.length === 0) return result
+  const admin = getSupabaseAdminClient()
+  type PmChain = {
+    select: (c: string) => {
+      in: (
+        k: string,
+        v: string[]
+      ) => Promise<{ data: { id: string; kind: string | null }[] | null }>
+    }
+  }
+  const { data } = await (admin.from as unknown as (t: string) => PmChain)('payment_methods')
+    .select('id, kind')
+    .in('id', paymentMethodIds)
+  for (const pm of data ?? []) result.set(pm.id, pm.kind)
+  return result
+}
+
+// 公司分攤模式（average / unified）— 對齊 batch-create
+export async function fetchWorkspaceFeeMode(workspaceId: string): Promise<'average' | 'unified'> {
+  const admin = getSupabaseAdminClient()
+  type WsChain = {
     select: (c: string) => {
       eq: (
         k: string,
         v: string
       ) => {
-        maybeSingle: () => Promise<{ data: BankAccountRow | null }>
+        maybeSingle: () => Promise<{ data: { transfer_fee_mode: string | null } | null }>
       }
     }
   }
-  const { data } = await (admin.from as unknown as (t: string) => BankSingleChain)('bank_accounts')
-    .select('bank_code, workspace_id')
-    .eq('id', bankAccountId)
+  const { data } = await (admin.from as unknown as (t: string) => WsChain)('workspaces')
+    .select('transfer_fee_mode')
+    .eq('id', workspaceId)
     .maybeSingle()
-  return data ?? null
+  return data?.transfer_fee_mode === 'unified' ? 'unified' : 'average'
 }
 
 export async function deleteRemovedDoiItems(
@@ -264,6 +342,7 @@ export async function insertDoiItems(
   rows: {
     disbursement_order_id: string
     payment_request_item_id: string
+    from_bank_account_id: string
     amount: number
     supplier_bank_code: string | null
     fee_amount: number
@@ -286,7 +365,8 @@ export async function updateDoiItemFee(
   disbursementId: string,
   itemId: string,
   feeAmount: number,
-  hasCrossBank: boolean
+  hasCrossBank: boolean,
+  fromBankAccountId: string
 ): Promise<void> {
   const admin = getSupabaseAdminClient()
   type DoiUpdChain = {
@@ -300,7 +380,11 @@ export async function updateDoiItemFee(
     }
   }
   await (admin.from as unknown as (t: string) => DoiUpdChain)('disbursement_order_items')
-    .update({ fee_amount: feeAmount, has_cross_bank_fee: hasCrossBank })
+    .update({
+      fee_amount: feeAmount,
+      has_cross_bank_fee: hasCrossBank,
+      from_bank_account_id: fromBankAccountId,
+    })
     .eq('disbursement_order_id', disbursementId)
     .eq('payment_request_item_id', itemId)
 }

@@ -26,8 +26,6 @@ interface OnePageViewProps {
   alreadyPaidByTourId?: Map<string, number>
   onChangePicked: (ids: string[]) => void
   onRemoveStaged: (id: string) => void
-  /** 編輯模式不傳（編輯時手續費在 header 改、不在 chips 內）*/
-  onUpdateStagedFee?: (batchId: string, fee: number) => void
 }
 
 export function OnePageView({
@@ -38,7 +36,6 @@ export function OnePageView({
   alreadyPaidByTourId,
   onChangePicked,
   onRemoveStaged,
-  onUpdateStagedFee,
 }: OnePageViewProps) {
   return (
     <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden">

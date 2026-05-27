@@ -33,12 +33,11 @@ export function getInitialDisbursementDate() {
 
 export interface PreFilledData {
   bankAccounts: BankAccountOption[]
-  pickedItemIds: string[]
-  currentBank: BankAccountOption | null
-  currentFee: number
-  feeDistribution: 'equal' | 'proportional'
+  /** 本單已 link 的品項 id（編輯模式預載成 stagedBatches 用） */
+  linkedItemIds: string[]
+  /** 本單每個已 link 品項對應的出帳帳戶（itemId → from_bank_account_id），用來分組成 stagedBatches */
+  linkedItemBankMap: Record<string, string | null>
   disbursementDate: string
-  paymentMethodId: string
 }
 
 interface UseWizardDataOptions {
@@ -70,12 +69,17 @@ export function useWizardData({
     setLoading(true)
     void (async () => {
       try {
-        // editing 模式多撈一次：本 order 已 link 的 items
+        // editing 模式多撈一次：本 order 已 link 的 items（含 from_bank_account_id、分組成 stagedBatches 用）
         const linkedDoiRowsPromise = editingOrder
           ? dynamicFrom('disbursement_order_items')
-              .select('payment_request_item_id')
+              .select('payment_request_item_id, from_bank_account_id')
               .eq('disbursement_order_id', editingOrder.id)
-          : Promise.resolve({ data: [] as { payment_request_item_id: string }[] })
+          : Promise.resolve({
+              data: [] as {
+                payment_request_item_id: string
+                from_bank_account_id: string | null
+              }[],
+            })
 
         const [{ data: banks }, { data: items }, { data: lockedDoiRows }, { data: linkedDoiRows }] =
           await Promise.all([
@@ -106,12 +110,16 @@ export function useWizardData({
             linkedDoiRowsPromise,
           ])
 
-        // editing：本單 link 的 item ids（要預勾）
-        const inCurrentLinked = new Set(
-          ((linkedDoiRows ?? []) as { payment_request_item_id: string }[]).map(
-            r => r.payment_request_item_id
-          )
-        )
+        // editing：本單 link 的 item ids（要預載成 stagedBatches）+ 每筆對應出帳帳戶
+        const linkedRows = (linkedDoiRows ?? []) as {
+          payment_request_item_id: string
+          from_bank_account_id: string | null
+        }[]
+        const inCurrentLinked = new Set(linkedRows.map(r => r.payment_request_item_id))
+        const linkedItemBankMap: Record<string, string | null> = {}
+        for (const r of linkedRows) {
+          linkedItemBankMap[r.payment_request_item_id] = r.from_bank_account_id
+        }
         // 被其他 DOI 佔用的 item ids（不能勾）
         const lockedInOtherDoi = new Set(
           (
@@ -242,23 +250,20 @@ export function useWizardData({
           })
         )
 
-        // editing 模式：回填現有出納單資料
+        // editing 模式：回填現有出納單資料（品項預載成 stagedBatches、依 from_bank_account_id 分組）
         if (editingOrder && onPreFill) {
-          const extra = editingOrder as unknown as {
-            bank_account_id?: string | null
-            payment_method_id?: string | null
-            total_fee?: number | null
-            fee_distribution?: 'equal' | 'proportional' | null
+          // 舊資料 DOI 可能沒 from_bank_account_id（null）→ fallback 用 order.bank_account_id
+          const extra = editingOrder as unknown as { bank_account_id?: string | null }
+          const fallbackBankId = extra.bank_account_id ?? null
+          const resolvedBankMap: Record<string, string | null> = {}
+          for (const [itemId, bankId] of Object.entries(linkedItemBankMap)) {
+            resolvedBankMap[itemId] = bankId ?? fallbackBankId
           }
-          const matchedBank = parsedBanks.find(b => b.id === extra.bank_account_id) ?? null
           onPreFill({
             bankAccounts: parsedBanks,
-            pickedItemIds: [...inCurrentLinked],
-            currentBank: matchedBank,
-            currentFee: Number(extra.total_fee ?? 0),
-            feeDistribution: extra.fee_distribution ?? 'proportional',
+            linkedItemIds: [...inCurrentLinked],
+            linkedItemBankMap: resolvedBankMap,
             disbursementDate: editingOrder.disbursement_date ?? '',
-            paymentMethodId: extra.payment_method_id ?? '',
           })
         }
       } catch (err) {

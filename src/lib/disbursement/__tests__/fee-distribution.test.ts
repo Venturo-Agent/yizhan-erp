@@ -5,7 +5,14 @@
  */
 
 import { describe, it, expect } from 'vitest'
-import { distributeFees, isCrossBankTransfer, type DistributionItem } from '../fee-distribution'
+import {
+  distributeFees,
+  isCrossBankTransfer,
+  computeBatchFees,
+  type DistributionItem,
+  type ComputeBatchFeesItem,
+  type ComputeBatchFeesLookups,
+} from '../fee-distribution'
 
 const itemsCross = (count: number, amount = 1000): DistributionItem[] =>
   Array.from({ length: count }, (_, i) => ({
@@ -231,5 +238,98 @@ describe('isCrossBankTransfer - 同行/跨行判定', () => {
     expect(
       isCrossBankTransfer({ payeeBankCode: '822', fromBankCode: '013', itemKind: 'check' })
     ).toBe(false)
+  })
+})
+
+// ─── computeBatchFees SSOT（batch-create 與 [id] PATCH 共用、2026-05-27）──────────────
+
+describe('computeBatchFees - is_cross_bank 收款對象真實銀行優先序', () => {
+  const baseLookups = (over: Partial<ComputeBatchFeesLookups> = {}): ComputeBatchFeesLookups => ({
+    fromBankCode: '013', // 公司轉出帳戶 = 國泰
+    fromBankUnifiedAmount: 30, // 每筆跨行 30
+    supplierBankById: new Map(),
+    employeeBankById: new Map(),
+    pmKindById: new Map(),
+    feeMode: 'average',
+    ...over,
+  })
+
+  const item = (over: Partial<ComputeBatchFeesItem> = {}): ComputeBatchFeesItem => ({
+    id: 'i1',
+    amount: 1000,
+    supplier_id: null,
+    advanced_by: null,
+    payee_employee_id: null,
+    payment_method_id: null,
+    ...over,
+  })
+
+  it('代墊員工銀行優先：員工開玉山(跨)、供應商開國泰(同) → 看員工=跨行收費', () => {
+    const r = computeBatchFees(
+      [item({ advanced_by: 'EMP1', supplier_id: 'SUP1' })],
+      baseLookups({
+        employeeBankById: new Map([['EMP1', '822']]), // 玉山、跨行
+        supplierBankById: new Map([['SUP1', '013']]), // 國泰、同行（但代墊優先、不看這個）
+      })
+    )
+    expect(r.perItem.get('i1')?.is_cross_bank).toBe(true)
+    expect(r.perItem.get('i1')?.fee_amount).toBe(30)
+  })
+
+  it('受款員工(payee_employee_id)同行 → 免費（不誤收）', () => {
+    const r = computeBatchFees(
+      [item({ payee_employee_id: 'EMP2' })],
+      baseLookups({ employeeBankById: new Map([['EMP2', '013']]) }) // 員工=國泰、同行
+    )
+    expect(r.perItem.get('i1')?.is_cross_bank).toBe(false)
+    expect(r.perItem.get('i1')?.fee_amount).toBe(0)
+    expect(r.total_fee).toBe(0)
+  })
+
+  it('純供應商跨行 → 收費', () => {
+    const r = computeBatchFees(
+      [item({ supplier_id: 'SUP1' })],
+      baseLookups({ supplierBankById: new Map([['SUP1', '822']]) })
+    )
+    expect(r.perItem.get('i1')?.is_cross_bank).toBe(true)
+    expect(r.perItem.get('i1')?.fee_amount).toBe(30)
+  })
+
+  it('cash 付款 → 不收（即使收款對象跨行）', () => {
+    const r = computeBatchFees(
+      [item({ supplier_id: 'SUP1', payment_method_id: 'PM_CASH' })],
+      baseLookups({
+        supplierBankById: new Map([['SUP1', '822']]),
+        pmKindById: new Map([['PM_CASH', 'cash']]),
+      })
+    )
+    expect(r.perItem.get('i1')?.is_cross_bank).toBe(false)
+    expect(r.perItem.get('i1')?.fee_amount).toBe(0)
+  })
+
+  it('per-payer 合併：同一供應商 2 筆 → 只收 1 筆 30（組內 equal 平均餘加最後）', () => {
+    const r = computeBatchFees(
+      [item({ id: 'a', supplier_id: 'SUP1' }), item({ id: 'b', supplier_id: 'SUP1' })],
+      baseLookups({ supplierBankById: new Map([['SUP1', '822']]) })
+    )
+    // 30 / 2 = 15 + 15
+    expect(r.perItem.get('a')?.fee_amount).toBe(15)
+    expect(r.perItem.get('b')?.fee_amount).toBe(15)
+    expect(r.total_fee).toBe(30) // 合併成 1 筆收款對象、只收 30
+  })
+
+  it('per-payer 分組：2 個不同供應商各跨行 → 各收 1 筆、共 60', () => {
+    const r = computeBatchFees(
+      [item({ id: 'a', supplier_id: 'SUP1' }), item({ id: 'b', supplier_id: 'SUP2' })],
+      baseLookups({
+        supplierBankById: new Map([
+          ['SUP1', '822'],
+          ['SUP2', '700'],
+        ]),
+      })
+    )
+    expect(r.perItem.get('a')?.fee_amount).toBe(30)
+    expect(r.perItem.get('b')?.fee_amount).toBe(30)
+    expect(r.total_fee).toBe(60)
   })
 })
