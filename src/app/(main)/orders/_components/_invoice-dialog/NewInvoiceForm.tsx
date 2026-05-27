@@ -36,21 +36,13 @@ export function NewInvoiceForm({
   setCosts,
   setDescriptions,
   onToggle,
-  onSelectAll,
   onFillRow,
   onFillItem,
 }: NewInvoiceFormProps) {
   return (
     <>
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={onSelectAll}>
-          {selected.size === availableMembers.length ? '取消全選' : '全選'}
-        </Button>
-        <span className="text-sm text-morandi-secondary">
-          已選 {selected.size} / {availableMembers.length} 人
-        </span>
-      </div>
-
+      {/* 2026-05-27 William 拍板：拔掉「全選 + 已選 N 人」、右側標頭跟左側歷史帳單對齊；
+          成員仍可逐一勾選（個別 checkbox 不變）。 */}
       <div className="border border-border rounded-lg overflow-hidden">
         <div className="grid grid-cols-[28px_120px_1fr_100px_100px_80px_60px] gap-2 px-3 py-2 text-xs font-medium text-morandi-secondary bg-morandi-container border-b border-border">
           <div></div>
