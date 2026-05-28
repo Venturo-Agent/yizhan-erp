@@ -73,6 +73,7 @@ const userStep: Step = {
   showSkip: true,
   pointerPadding: 4,
   pointerRadius: 8,
+  disableInteraction: true,
 }
 
 /**
@@ -98,6 +99,7 @@ export function useSidebarTour(): Tour[] {
     showSkip: true,
     pointerPadding: 4,
     pointerRadius: 8,
+    disableInteraction: true,
   }))
 
   // 公司設定：選單最下方的「設定」項目（需 settings.company.read，跟 sidebar 一致）
@@ -114,6 +116,7 @@ export function useSidebarTour(): Tour[] {
           showSkip: true,
           pointerPadding: 4,
           pointerRadius: 8,
+          disableInteraction: true,
         },
       ]
     : []

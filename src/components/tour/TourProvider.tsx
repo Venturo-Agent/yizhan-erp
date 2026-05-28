@@ -2,7 +2,7 @@
 
 import { NextStepProvider, NextStep, useNextStep } from 'nextstepjs'
 import type { Step } from 'nextstepjs'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useSidebarTour } from '@/lib/tours/sidebar-tour'
 import { getVisibleSettingsSteps } from '@/lib/tours/settings-tour'
@@ -20,6 +20,7 @@ import { addReceiptTour } from '@/lib/tours/add-receipt-tour'
 import { addRequestTour } from '@/lib/tours/add-request-tour'
 import { createDisbursementTour } from '@/lib/tours/create-disbursement-tour'
 import { isTourEnabled, markTourSeen } from '@/lib/tours/tour-preferences'
+import { toast } from 'sonner'
 import { TourCard } from './TourCard'
 
 /**
@@ -262,7 +263,6 @@ function TourAutoStart({
 
 export function TourProvider({ children }: { children: React.ReactNode }) {
   const sidebarTour = useSidebarTour()
-  const router = useRouter()
   const [settingsSteps, setSettingsSteps] = useState<Step[]>([])
 
   const steps = [
@@ -283,9 +283,9 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     ...createDisbursementTour,
   ]
 
-  // tours 工具列導覽跑完 → 自動觸發「開團」dialog，接續 open-tour 教學
-  // hr-roles 跑完  → 派 event 設旗標 + 切到 /hr、由 hr-employees 接續
-  //（透過 CustomEvent 解耦、不直接 import handler）
+  // tours 工具列導覽跑完 → 自動觸發「開團」dialog、接續 open-tour 教學
+  // hr-roles 跑完  → toast 提醒、不自動切頁（之前 router.push 體驗太突兀「跳掉」）
+  //   user 自己切去「員工列表」tab、進去 hr-employees 教學自動接續（仍透過 event 設旗標）
   // 任何 tour 跑完 → markTourSeen(name)、下次進不再自動跑（除非 user 在個人偏好勾回來）
   const handleTourComplete = (tourName: string | null) => {
     if (tourName) {
@@ -295,8 +295,9 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
       window.dispatchEvent(new CustomEvent('venturo:open-tour-dialog'))
     }
     if (tourName === 'hr-roles') {
+      // pendingHrEmployees flag 還是設好、user 主動切到 /hr 時 hr-employees 自動跑
       window.dispatchEvent(new CustomEvent('venturo:hr-roles-done'))
-      router.push('/hr')
+      toast.info('職務管理教學完成、切到「員工列表」tab 看員工新增。', { duration: 5000 })
     }
   }
 
