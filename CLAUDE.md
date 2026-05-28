@@ -522,6 +522,27 @@ mcp__supabase__execute_sql: "SELECT c.relname, pol.polname FROM pg_policy pol JO
 - 第一個被抓的：`expense_categories`（2026-05-21）
 - 未來 5 維度矩陣涵蓋每張業務表、會自動 catch 這類
 
+### I. 失效快取只走「單參數 revalidate」、永不把 cache 寫成 undefined（William 2026-05-26 拍板）
+
+**白話**：刷新清單只能用 `globalMutate(key)`（單參數、保留現值邊背景刷新）。**絕不准** `globalMutate(key, undefined, …)`——第 2 參數傳 `undefined` 會把 SWR cache 清成 undefined、畫面瞬間 fallback 到 idb「載入時讀一次」的舊快照 → **已刪/已改的資料整批閃現一輪**。
+
+**不變式**：畫面資料永遠不會在 session 中途變成 undefined。唯一能清空 cache 的時機是登入/登出（`clearAllSwrCacheKeys`、紅線 G）。
+
+- ❌ `globalMutate(key, undefined, { revalidate: true })` / `mutate(key, undefined, …)`（清空 footgun）
+- ✅ `globalMutate(key)`（純刷新）／要寫 cache 一定傳真實 data 或 updater function（樂觀更新、登入預寫 layout-context 都合法）
+- ✅ realtime handler、entityHookCrud、apiMutate 全部對齊單參數
+
+**為什麼這條重要**：
+
+- 這個 footgun 是「刪除/新增後閃舊資料、反覆修了又復發」的根因——它被複製貼上散在 8 處（2026-05-26 全盤盤點抓出 countries/dashboard/useOrderMembers×4/core-table-adapter/AiRetrospectiveTab，已全清）
+- 過去只修撞到的那一個、沒立不變式 → 換個畫面又踩到
+
+**code 層偵測（已落地）**：
+
+- `npm run lint` → `venturo/no-mutate-clear`（error）：擋 `mutate/globalMutate(key, undefined, …)`、放行單參數 / function / object
+- 全盤盤點 + 收斂計畫（A/B/C 層）：`workspace/健檢/pending/2026-05-26-讀取快取同步-全盤盤點.md`
+- ⚠️ 注意：讀取側其實還不是單一 SSOT（4–6 套引擎、見盤點 doc）；本紅線先守「失效行為」這一條不變式
+
 ---
 
 ## 開發品管 8 維度（每次動手前對照 checklist、5/12 William 拍板）

@@ -83,6 +83,9 @@ export default tseslint.config(
       'venturo/no-direct-supabase-writes': 'error',
       // 2026-05-26 夜間：UI SSOT D1 守門——禁止散刻原生 <input>（warn、不擋 CI、漸進清）
       'venturo/no-raw-input': 'warn',
+      // 2026-05-26 紅線 I：禁止 mutate/globalMutate(key, undefined, ...) 清空 cache 的 footgun
+      // 全盤盤點發現此 pattern 曾散在 8 處、是「刪除/新增後閃舊資料」反覆復發的根因
+      'venturo/no-mutate-clear': 'error',
 
       // 5/21 William 拍板：禁止在迴圈內 await 單筆編號 RPC、會撞 unique
       // 必用批次 wrapper（譬如 nextPaymentRequestItemNumbers）

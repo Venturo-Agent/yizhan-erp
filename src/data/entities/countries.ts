@@ -84,7 +84,7 @@ export function useCountries(_options?: UseCountriesOptions): ListResult {
 }
 
 export const invalidateCountries = async (): Promise<void> => {
-  await globalMutate(CACHE_KEY, undefined, { revalidate: true })
+  await globalMutate(CACHE_KEY)
 }
 
 // ref_countries 是 ISO 標準表、不該由 user 端 create / update / delete

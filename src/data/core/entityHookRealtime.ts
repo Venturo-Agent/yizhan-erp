@@ -52,12 +52,16 @@ export function useRealtimeSync(tableName: string, cacheKeyPrefix: string): void
       const channel = supabase
         .channel(channelName)
         .on('postgres_changes', { event: '*', schema: 'public', table: tableName }, () => {
-          // 有人異動了這張表 → 刷新所有相關 SWR 快取
-          globalMutate(
-            (key: string) => typeof key === 'string' && key.startsWith(cacheKeyPrefix),
-            undefined,
-            { revalidate: true }
-          )
+          // 有人異動了這張表 → 刷新所有相關 SWR 快取（純 revalidate、保留現有 data）。
+          //
+          // ⚠️ 必須單 arg、不可寫 (matcher, undefined, { revalidate: true })：
+          //   SWR v2 internalMutate 對 key-filter 走 outer args.length 判斷（args.length < 3
+          //   才 startRevalidate）。傳 3 個 arg + data=undefined → 落入 populateCache 分支、
+          //   把每個 matched key 的 data set 成 undefined、useSWR 隨即 fallback 到
+          //   useIdbFallback「mount 時讀一次」的舊快照 → 剛刪掉的資料整批閃現一輪才被 refetch 蓋掉。
+          //   單 arg → args.length < 3 → startRevalidate()、邊刷新邊保留現值、無閃爍。
+          //   （跟 invalidateEntity 的 globalMutate(key) 同模式。）
+          globalMutate((key: string) => typeof key === 'string' && key.startsWith(cacheKeyPrefix))
           // 同步清 IndexedDB 快取
           invalidate_cache_pattern(cacheKeyPrefix)
         })

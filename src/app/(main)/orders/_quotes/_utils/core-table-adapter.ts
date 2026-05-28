@@ -274,9 +274,7 @@ export async function writePricingToCore(
 
   // Invalidate cache after all updates/inserts
   globalMutate(
-    (key: string) => typeof key === 'string' && key.startsWith('entity:tour_itinerary_items'),
-    undefined,
-    { revalidate: true }
+    (key: string) => typeof key === 'string' && key.startsWith('entity:tour_itinerary_items')
   )
   invalidate_cache_pattern('entity:tour_itinerary_items')
 

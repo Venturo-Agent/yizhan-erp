@@ -87,11 +87,7 @@ export function AiRetrospectiveTab() {
       }
       toast.success(`復盤完成、新增 ${json.topicCount ?? 0} 個主題`)
       // refresh list (all status filters)
-      await mutate(
-        key => typeof key === 'string' && key.startsWith('/api/ai/retrospective/topics'),
-        undefined,
-        { revalidate: true }
-      )
+      await mutate(key => typeof key === 'string' && key.startsWith('/api/ai/retrospective/topics'))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : '復盤失敗')
     } finally {

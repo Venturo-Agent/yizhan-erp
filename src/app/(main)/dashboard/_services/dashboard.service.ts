@@ -14,11 +14,7 @@ export async function deleteUserNotes(userId: string): Promise<void> {
     logger.warn('[dashboard.service] 刪除筆記失敗:', error.message)
     throw error
   }
-  globalMutate(
-    (key: string) => typeof key === 'string' && key.startsWith('entity:notes'),
-    undefined,
-    { revalidate: true }
-  )
+  globalMutate((key: string) => typeof key === 'string' && key.startsWith('entity:notes'))
   invalidate_cache_pattern('entity:notes')
 }
 
@@ -38,11 +34,7 @@ export async function insertNotes(
     logger.warn('[dashboard.service] 插入筆記失敗:', error.message)
     throw error
   }
-  globalMutate(
-    (key: string) => typeof key === 'string' && key.startsWith('entity:notes'),
-    undefined,
-    { revalidate: true }
-  )
+  globalMutate((key: string) => typeof key === 'string' && key.startsWith('entity:notes'))
   invalidate_cache_pattern('entity:notes')
 }
 
