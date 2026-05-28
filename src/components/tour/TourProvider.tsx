@@ -3,7 +3,7 @@
 import { NextStepProvider, NextStep, useNextStep } from 'nextstepjs'
 import type { Step } from 'nextstepjs'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSidebarTour } from '@/lib/tours/sidebar-tour'
 import { getVisibleSettingsSteps } from '@/lib/tours/settings-tour'
 import { toursTour } from '@/lib/tours/tours-tour'
@@ -261,9 +261,46 @@ function TourAutoStart({
   return null
 }
 
+/**
+ * Viewport-aware side override
+ *
+ * nextstepjs Step.side 是靜態 enum、沒 auto-flip → 寫死 side 在小視窗 / element
+ * 靠邊時會把氣泡推出 viewport（William 2026-05-29 抓出 *-header bottom-right
+ * 跑出右、settings tour 連續同 side 上下跳等）。
+ *
+ * 方案：在 onStepChange 觸發後 measure element、計算 4 邊可用空間、改 step.side
+ * via setState、NextStep 用 enhancedSteps（含 override）re-render 時 reposition。
+ * 原 side 仍 fit 就不動、避免不必要 flicker。
+ *
+ * BUBBLE_W/H 是 TourCard 估計尺寸（含 margin），調寬以防誤判。
+ */
+const BUBBLE_W = 380
+const BUBBLE_H = 300
+const SIDE_PREFERENCES = ['bottom', 'top', 'right', 'left'] as const
+type BaseSide = (typeof SIDE_PREFERENCES)[number]
+
+function computeBestSide(el: HTMLElement, currentSide?: string): BaseSide | null {
+  const rect = el.getBoundingClientRect()
+  const vp = { w: window.innerWidth, h: window.innerHeight }
+  const fits: Record<BaseSide, boolean> = {
+    top: rect.top > BUBBLE_H + 20,
+    bottom: vp.h - rect.bottom > BUBBLE_H + 20,
+    left: rect.left > BUBBLE_W + 20,
+    right: vp.w - rect.right > BUBBLE_W + 20,
+  }
+  // 原 side 還有空間 → 不改、保留原設計意圖
+  const currentBase = (currentSide?.split('-')[0] ?? 'bottom') as BaseSide
+  if (currentBase in fits && fits[currentBase]) return null
+  // 找空間最大的方向
+  const candidate = SIDE_PREFERENCES.find(s => fits[s])
+  return candidate ?? null
+}
+
 export function TourProvider({ children }: { children: React.ReactNode }) {
   const sidebarTour = useSidebarTour()
   const [settingsSteps, setSettingsSteps] = useState<Step[]>([])
+  // viewport-aware side overrides: key = "tourName:stepIndex"、value = new side
+  const [sideOverrides, setSideOverrides] = useState<Record<string, string>>({})
 
   const steps = [
     ...sidebarTour,
@@ -308,27 +345,68 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // enhanced steps：套 viewport-aware side override
+  const enhancedSteps = useMemo(
+    () =>
+      steps.map(t => ({
+        ...t,
+        steps: t.steps.map((s, i) => {
+          const key = `${t.tour}:${i}`
+          return sideOverrides[key] ? ({ ...s, side: sideOverrides[key] } as Step) : s
+        }),
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [steps, sideOverrides]
+  )
+
   // 公司設定導覽：每步切換時自己「瞬間定位」把欄位帶到視野中央。
   // 為什麼自己帶：NextStep 內建是「平滑捲動」（動畫），高亮框跟不上而錯位；
   // 改成 behavior:'auto'（瞬間）讓欄位先到位、框才算得準。
   // 只對 settings tour、且「不在畫面上」的欄位捲（已在畫面的不亂動）。
+  //
+  // 2026-05-29 擴充：所有 tour 都做 viewport-aware side measure、避免氣泡跑出邊框。
   const handleStepChange = (step: number, tourName: string | null) => {
-    if (tourName !== 'settings') return
-    const selector = settingsSteps[step]?.selector
-    if (!selector) return
-    const el = document.querySelector(selector)
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const fullyInView = rect.top >= 0 && rect.bottom <= window.innerHeight
-    if (!fullyInView) {
-      el.scrollIntoView({ block: 'center', behavior: 'auto' })
+    // 1. settings tour 專屬：scroll 帶欄位進視野（原邏輯保留）
+    if (tourName === 'settings') {
+      const selector = settingsSteps[step]?.selector
+      if (selector) {
+        const el = document.querySelector(selector)
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          const fullyInView = rect.top >= 0 && rect.bottom <= window.innerHeight
+          if (!fullyInView) {
+            el.scrollIntoView({ block: 'center', behavior: 'auto' })
+          }
+        }
+      }
     }
+
+    // 2. 所有 tour：等 scroll / NextStep mount 完成、measure element、必要時改 side
+    if (!tourName || step == null) return
+    const tour = enhancedSteps.find(t => t.tour === tourName)
+    if (!tour) return
+    const stepDef = tour.steps[step]
+    if (!stepDef?.selector) return
+    const selector = stepDef.selector
+
+    const timer = setTimeout(() => {
+      const el = document.querySelector(selector)
+      if (!(el instanceof HTMLElement)) return
+      const best = computeBestSide(el, stepDef.side)
+      if (!best) return // 原 side 還 fit
+      setSideOverrides(prev => {
+        const key = `${tourName}:${step}`
+        if (prev[key] === best) return prev
+        return { ...prev, [key]: best }
+      })
+    }, 350)
+    return () => clearTimeout(timer)
   }
 
   return (
     <NextStepProvider>
       <NextStep
-        steps={steps}
+        steps={enhancedSteps}
         cardComponent={TourCard}
         displayArrow={false}
         shadowRgb="44, 40, 36"
