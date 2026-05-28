@@ -29,6 +29,8 @@ interface OrderOption {
 interface AddRequestDialogHeaderProps {
   activeTab: RequestMode
   isEditMode: boolean
+  /** 團號 Combobox 是否唯讀（編輯模式不准改團）— parent 傳 isEditMode 進來 */
+  tourReadonly: boolean
   canCreateCompanyPayment: boolean
   currentRequest: PaymentRequest | null
   isEditBatch: boolean
@@ -48,6 +50,7 @@ interface AddRequestDialogHeaderProps {
 export function AddRequestDialogHeader({
   activeTab,
   isEditMode,
+  tourReadonly,
   canCreateCompanyPayment,
   currentRequest,
   isEditBatch,
@@ -96,7 +99,7 @@ export function AddRequestDialogHeader({
                   emptyMessage={t('receiptTourNotFound')}
                   className="w-[19rem]"
                   maxHeight="18rem"
-                  disabled={isEditMode}
+                  disabled={tourReadonly}
                 />
               </div>
               <div className="flex flex-col gap-1 relative z-[10019]">

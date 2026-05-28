@@ -56,7 +56,6 @@ export function AddRequestDialog({
     setFormData,
     requestItems,
     filteredOrders,
-    total_amount,
     addNewEmptyItem,
     updateItem,
     removeItem,
@@ -146,6 +145,14 @@ export function AddRequestDialog({
 
   const isEditBatch = editBatchRequests.length > 1
   const canEdit = isEditMode ? !readOnly && currentRequest?.status === 'pending' : true
+
+  // === 統一 active items / handlers（取代 EditableRequestItemList 多處 isEditMode 三元）===
+  // 編輯模式用 localItems + edit handlers（保留 dirty / deletedIds / newIds 追蹤）
+  // 新增模式用 requestItems + form handlers（直接動 formData state）
+  const activeItems = isEditMode ? localItems : requestItems
+  const activeUpdateItem = isEditMode ? handleEditUpdateItem : updateItem
+  const activeRemoveItem = isEditMode ? handleEditRemoveItem : removeItem
+  const activeAddItem = isEditMode ? handleEditAddItem : addNewEmptyItem
 
   // === 計算值 ===
   const activeTours = useMemo(() => {
@@ -392,6 +399,7 @@ export function AddRequestDialog({
             <AddRequestDialogHeader
               activeTab={activeTab}
               isEditMode={isEditMode}
+              tourReadonly={isEditMode}
               canCreateCompanyPayment={canCreateCompanyPayment}
               currentRequest={currentRequest}
               isEditBatch={isEditBatch}
@@ -422,20 +430,18 @@ export function AddRequestDialog({
               className="flex-1 overflow-y-auto pt-4 border-t border-morandi-container/30 space-y-6"
             >
               <EditableRequestItemList
-                items={isEditMode ? localItems : requestItems}
+                items={activeItems}
                 suppliers={suppliers}
-                updateItem={isEditMode ? handleEditUpdateItem : updateItem}
-                removeItem={isEditMode ? handleEditRemoveItem : removeItem}
-                addNewEmptyItem={isEditMode ? handleEditAddItem : addNewEmptyItem}
+                updateItem={activeUpdateItem}
+                removeItem={activeRemoveItem}
+                addNewEmptyItem={activeAddItem}
                 onCreateSupplier={handleCreateSupplier}
                 tourId={formData.tour_id || null}
-                disabled={isEditMode && !canEdit}
+                disabled={!canEdit}
                 paymentMethods={paymentMethods}
-                hideDateColumn={isEditMode}
+                hideDateColumn={false}
                 onTransfer={
-                  isEditMode && !canEdit && currentRequest
-                    ? () => setCostTransferOpen(true)
-                    : undefined
+                  !canEdit && currentRequest ? () => setCostTransferOpen(true) : undefined
                 }
               />
             </TabsContent>
@@ -468,14 +474,14 @@ export function AddRequestDialog({
                 className="flex-1 overflow-y-auto pt-4 border-t border-morandi-container/30 space-y-6"
               >
                 <EditableRequestItemList
-                  items={isEditMode ? localItems : requestItems}
+                  items={activeItems}
                   suppliers={suppliers}
-                  updateItem={isEditMode ? handleEditUpdateItem : updateItem}
-                  removeItem={isEditMode ? handleEditRemoveItem : removeItem}
-                  addNewEmptyItem={isEditMode ? handleEditAddItem : addNewEmptyItem}
+                  updateItem={activeUpdateItem}
+                  removeItem={activeRemoveItem}
+                  addNewEmptyItem={activeAddItem}
                   onCreateSupplier={handleCreateSupplier}
                   tourId={formData.tour_id || null}
-                  disabled={isEditMode && !canEdit}
+                  disabled={!canEdit}
                   paymentMethods={paymentMethods}
                   hideDateColumn={false}
                   expenseTypeMode
@@ -493,11 +499,10 @@ export function AddRequestDialog({
             activeTab={activeTab}
             isSubmitting={isSubmitting}
             isDirty={isDirty}
-            localItems={localItems}
+            activeItems={activeItems}
             totalAllocatedAmount={totalAllocatedAmount}
             importFromRequests={importFromRequests}
             selectedRequestTotal={selectedRequestTotal}
-            total_amount={total_amount}
             tourAllocations={tourAllocations}
             batchCategory={batchCategoryId}
             requestItems={requestItems}
