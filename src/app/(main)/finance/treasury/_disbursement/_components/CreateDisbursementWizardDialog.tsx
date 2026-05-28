@@ -120,9 +120,7 @@ export function CreateDisbursementWizardDialog({
         batch = {
           batch_id: crypto.randomUUID(),
           from_bank_account_id: bankId,
-          from_bank_label: bank
-            ? bank.name + (bank.bank_name ? `(${bank.bank_name})` : '')
-            : '(未知帳戶)',
+          from_bank_label: bank ? bank.name : '未知帳戶',
           from_bank_code: bank?.bank_code ?? null,
           item_ids: [],
           items: [],
@@ -178,10 +176,8 @@ export function CreateDisbursementWizardDialog({
     return new Set(stagedBatches.flatMap(b => b.item_ids))
   }, [stagedBatches])
 
-  // 可選的 items（排除已 staged）
-  const availableItems = useMemo(() => {
-    return unbilledItems.filter(it => !stagedItemIds.has(it.id))
-  }, [unbilledItems, stagedItemIds])
+  // 可選的 items（William 2026-05-28 拍板：分配後不從列表消失、留著顯示為「分配到 X」）
+  const availableItems = useMemo(() => unbilledItems, [unbilledItems])
 
   // 當前勾選的 items 細節
   const pickedItems = useMemo(() => {
@@ -210,8 +206,10 @@ export function CreateDisbursementWizardDialog({
         const existing = prev.find(b => b.from_bank_account_id === bank.id)
         if (existing) {
           // 合併：追加 items 進原 batch
-          const mergedItems = [...existing.items, ...pickedItemsNow]
-          const mergedItemIds = [...existing.item_ids, ...pickedItemIds]
+          // 分配後勾保留、再點同帳戶可能含已 staged 的 itemIds → 用 Map by id 去重
+          const itemMap = new Map([...existing.items, ...pickedItemsNow].map(it => [it.id, it]))
+          const mergedItems = Array.from(itemMap.values())
+          const mergedItemIds = mergedItems.map(it => it.id)
           return prev.map(b =>
             b.batch_id === existing.batch_id
               ? { ...b, items: mergedItems, item_ids: mergedItemIds }
@@ -221,7 +219,7 @@ export function CreateDisbursementWizardDialog({
         const batch: import('./disbursement-wizard-types').StagedBatch = {
           batch_id: crypto.randomUUID(),
           from_bank_account_id: bank.id,
-          from_bank_label: bank.name + (bank.bank_name ? `(${bank.bank_name})` : ''),
+          from_bank_label: bank.name,
           from_bank_code: bank.bank_code,
           item_ids: [...pickedItemIds],
           items: [...pickedItemsNow],
@@ -230,7 +228,7 @@ export function CreateDisbursementWizardDialog({
         }
         return [...prev, batch]
       })
-      setPickedItemIds([])
+      // 2026-05-28 William 拍板：分配後保留勾選、不清空（item 留列表、checkbox 仍勾）
     },
     [bankAccounts, pickedItemIds, pickedItems]
   )
@@ -238,6 +236,28 @@ export function CreateDisbursementWizardDialog({
   const handleRemoveStaged = useCallback((batchId: string) => {
     setStagedBatches(prev => prev.filter(b => b.batch_id !== batchId))
   }, [])
+
+  // 2026-05-28 William 拍板：取消勾單筆 → 自動從 batch 退出（不用整批解除）
+  // batch 退空 → 整批移除
+  const handleChangePicked = useCallback(
+    (newPickedIds: string[]) => {
+      const newSet = new Set(newPickedIds)
+      const removedIds = pickedItemIds.filter(id => !newSet.has(id))
+      if (removedIds.length > 0) {
+        setStagedBatches(prev =>
+          prev
+            .map(b => ({
+              ...b,
+              item_ids: b.item_ids.filter(id => !removedIds.includes(id)),
+              items: b.items.filter(it => !removedIds.includes(it.id)),
+            }))
+            .filter(b => b.item_ids.length > 0)
+        )
+      }
+      setPickedItemIds(newPickedIds)
+    },
+    [pickedItemIds]
+  )
 
   // ─── submit ───
   const handleSubmit = useCallback(async () => {
@@ -411,7 +431,7 @@ export function CreateDisbursementWizardDialog({
               pickedItemIds={pickedItemIds}
               incomeByTourId={incomeByTourId}
               alreadyPaidByTourId={alreadyPaidByTourId}
-              onChangePicked={setPickedItemIds}
+              onChangePicked={handleChangePicked}
               onRemoveStaged={handleRemoveStaged}
               onViewRequest={handleViewRequest}
             />
