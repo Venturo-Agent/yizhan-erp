@@ -81,6 +81,26 @@ export const TOUR_DEFINITIONS: TourDefinition[] = [
     label: '請款管理',
     description: '進 /finance/requests 時、介紹團體請款 / 公司請款 / 薪資的差別',
   },
+  {
+    name: 'tour-orders',
+    label: '團詳情 — 訂單分頁',
+    description: '進團詳情頁時、介紹一團多訂單概念 + 6 個操作按鈕用途',
+  },
+  {
+    name: 'order-members',
+    label: '訂單成員 dialog',
+    description: '點訂單「成員」按鈕開啟 dialog 時、介紹 toolbar + PNR 配對概念',
+  },
+  {
+    name: 'add-receipt',
+    label: '新增收款 dialog',
+    description: '點訂單「收款」/ 列表「新增收款」開 dialog 時、介紹 5 元素 + 確認流程',
+  },
+  {
+    name: 'add-request',
+    label: '新增請款 dialog',
+    description: '點訂單「請款」/ 列表「新增請款」開 dialog 時、介紹流程 + 後續出納鏈',
+  },
 ]
 
 // ============ localStorage layer ============

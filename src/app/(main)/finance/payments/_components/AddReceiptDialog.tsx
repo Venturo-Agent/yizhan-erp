@@ -309,9 +309,20 @@ export function AddReceiptDialog({
       }
     : undefined
 
+  // open=true 時派 event、TourProvider 監聽 → 觸發 add-receipt 教學
+  useEffect(() => {
+    if (open) {
+      window.dispatchEvent(new CustomEvent('venturo:add-receipt-opened'))
+    }
+  }, [open])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent level={level} className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col">
+      <DialogContent
+        level={level}
+        data-tutorial="add-receipt-dialog"
+        className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col"
+      >
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}

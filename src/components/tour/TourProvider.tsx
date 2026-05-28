@@ -14,6 +14,10 @@ import { hrEmployeesTour } from '@/lib/tours/hr-employees-tour'
 import { disbursementTour } from '@/lib/tours/disbursement-tour'
 import { financePaymentsTour } from '@/lib/tours/finance-payments-tour'
 import { financeRequestsTour } from '@/lib/tours/finance-requests-tour'
+import { tourOrdersTour } from '@/lib/tours/tour-orders-tour'
+import { orderMembersTour } from '@/lib/tours/order-members-tour'
+import { addReceiptTour } from '@/lib/tours/add-receipt-tour'
+import { addRequestTour } from '@/lib/tours/add-request-tour'
 import { isTourEnabled, markTourSeen } from '@/lib/tours/tour-preferences'
 import { TourCard } from './TourCard'
 
@@ -47,6 +51,11 @@ const isHrEmployeesPath = (pathname: string) => HR_EMPLOYEES_PATHS.includes(path
 const isDisbursementPath = (pathname: string) => DISBURSEMENT_PATHS.includes(pathname)
 const isPaymentsPath = (pathname: string) => PAYMENTS_PATHS.includes(pathname)
 const isRequestsPath = (pathname: string) => REQUESTS_PATHS.includes(pathname)
+// 團詳情頁 pattern：/tours/<code>（含中文 / 編號）、排除 /tours 列表本身跟 /tours/<code>/display-editor 子頁
+const isTourDetailPath = (pathname: string) =>
+  pathname.startsWith('/tours/') &&
+  !TOURS_PATHS.includes(pathname) &&
+  !pathname.includes('/display-editor')
 
 function TourAutoStart({
   settingsReady,
@@ -73,6 +82,12 @@ function TourAutoStart({
   const startedDisbursement = useRef(false)
   const startedPayments = useRef(false)
   const startedRequests = useRef(false)
+  const startedTourOrders = useRef(false)
+  // order-members 由 dialog open event 觸發、不靠 pathname（dialog 是 modal、URL 不變）
+  // 每次 dialog 重開都 reset、讓 user 重看（除非偏好已關）
+  const startedOrderMembers = useRef(false)
+  const startedAddReceipt = useRef(false)
+  const startedAddRequest = useRef(false)
 
   // 首頁：側邊欄導覽
   useEffect(() => {
@@ -163,6 +178,50 @@ function TourAutoStart({
     }
   }, [pathname, startNextStep])
 
+  // 團詳情訂單 tab：預設 activeTab='orders'、進去後 tour-orders-content 錨點就在 DOM
+  // 1500ms delay 等 OrderListView 動態 import + useOrdersSlim SWR
+  useEffect(() => {
+    if (isTourDetailPath(pathname) && !startedTourOrders.current) {
+      startedTourOrders.current = true
+      const timer = setTimeout(() => startIfEnabled('tour-orders'), 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [pathname, startNextStep])
+
+  // 訂單成員 dialog 開啟：由 OrderMembersDialog 派 event 觸發
+  // 1000ms delay 等 OrderMembersExpandable lazy import + toolbar 投影到 DialogHeader
+  useEffect(() => {
+    const handler = () => {
+      if (startedOrderMembers.current) return
+      startedOrderMembers.current = true
+      setTimeout(() => startIfEnabled('order-members'), 1000)
+    }
+    window.addEventListener('venturo:order-members-opened', handler)
+    return () => window.removeEventListener('venturo:order-members-opened', handler)
+  }, [])
+
+  // 新增收款 dialog 開啟
+  useEffect(() => {
+    const handler = () => {
+      if (startedAddReceipt.current) return
+      startedAddReceipt.current = true
+      setTimeout(() => startIfEnabled('add-receipt'), 800)
+    }
+    window.addEventListener('venturo:add-receipt-opened', handler)
+    return () => window.removeEventListener('venturo:add-receipt-opened', handler)
+  }, [])
+
+  // 新增請款 dialog 開啟
+  useEffect(() => {
+    const handler = () => {
+      if (startedAddRequest.current) return
+      startedAddRequest.current = true
+      setTimeout(() => startIfEnabled('add-request'), 800)
+    }
+    window.addEventListener('venturo:add-request-opened', handler)
+    return () => window.removeEventListener('venturo:add-request-opened', handler)
+  }, [])
+
   return null
 }
 
@@ -182,6 +241,10 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     ...disbursementTour,
     ...financePaymentsTour,
     ...financeRequestsTour,
+    ...tourOrdersTour,
+    ...orderMembersTour,
+    ...addReceiptTour,
+    ...addRequestTour,
   ]
 
   // tours 工具列導覽跑完 → 自動觸發「開團」dialog，接續 open-tour 教學

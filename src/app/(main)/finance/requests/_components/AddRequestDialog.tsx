@@ -350,12 +350,20 @@ export function AddRequestDialog({
     })
   }
 
+  // open=true 時派 event、TourProvider 監聽 → 觸發 add-request 教學
+  useEffect(() => {
+    if (open) {
+      window.dispatchEvent(new CustomEvent('venturo:add-request-opened'))
+    }
+  }, [open])
+
   // === 渲染 ===
   return (
     <>
       <Dialog open={open} onOpenChange={isEditMode ? handleDialogOpenChange : onOpenChange}>
         <DialogContent
           level={level}
+          data-tutorial="add-request-dialog"
           className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col overflow-hidden"
         >
           <Tabs
