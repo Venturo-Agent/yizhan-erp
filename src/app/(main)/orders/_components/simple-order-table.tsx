@@ -3,7 +3,6 @@
 import React, { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { useAuthStore } from '@/stores'
 import { deleteOrder } from '@/data'
 import { supabase } from '@/lib/supabase/client'
 import { recalculateParticipants } from '@/app/(main)/tours/_services/tour-stats.service'
@@ -13,7 +12,6 @@ import { User, Trash2, FileText, Edit, Plus, HandCoins, Wallet } from 'lucide-re
 import { cn } from '@/lib/utils'
 import { Order, Tour } from '@/stores/types'
 import { confirm, alert } from '@/lib/ui/alert-dialog'
-import { OrderMembersExpandable } from '@/app/(main)/orders/_components/OrderMembersExpandable'
 import { OrderStatusBadge } from '@/app/(main)/orders/_components/OrderStatusBadge'
 import { OrderStatusChangeDialog } from '@/app/(main)/orders/_components/OrderStatusChangeDialog'
 import { EnhancedTable } from '@/components/ui/enhanced-table'
@@ -31,6 +29,8 @@ interface SimpleOrderTableProps {
   onQuickPaymentRequest?: (order: Order) => void
   onQuickInvoice?: (order: Order) => void
   onEdit?: (order: Order) => void
+  /** 點「成員」→ 由 parent 彈出 OrderMembersDialog（取代舊的 inline 展開）*/
+  onOpenMembers?: (order: Order) => void
   onAdd?: () => void
   /** Server-side 分頁（給 /orders 頁用、tour-orders 子頁不用、傳就生效）*/
   serverPagination?: {
@@ -43,20 +43,20 @@ interface SimpleOrderTableProps {
 
 export const SimpleOrderTable = React.memo(function SimpleOrderTable({
   orders,
-  tours = [],
+  // tours：保留在 props 介面（parent 仍傳入、語意上是此表所屬團清單），
+  // 舊 inline 成員面板移除後此組件本體不再讀取、成員面板改由 OrderMembersDialog 自行 useTour 抓團。
   showTourInfo = false,
   className,
   onQuickReceipt,
   onQuickPaymentRequest,
   onQuickInvoice,
   onEdit,
+  onOpenMembers,
   onAdd,
   serverPagination,
 }: SimpleOrderTableProps) {
   const t = useTranslations('orders')
   const router = useRouter()
-  const workspaceId = useAuthStore(state => state.user?.workspace_id) || ''
-  const [expanded, setExpanded] = useState<string[]>([])
   const [statusDialog, setStatusDialog] = useState<{
     order: Order
     newStatus: OrderStatus
@@ -137,12 +137,6 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
     },
     [t]
   )
-
-  const handleToggleExpand = useCallback((orderId: string) => {
-    setExpanded(prev =>
-      prev.includes(orderId) ? prev.filter(x => x !== orderId) : [...prev, orderId]
-    )
-  }, [])
 
   const columns: TableColumn<Order>[] = [
     {
@@ -241,22 +235,6 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
             <p className="text-sm">{t('noOrders')}</p>
           </div>
         }
-        expandable={{
-          expanded,
-          onExpand: handleToggleExpand,
-          renderExpanded: order => (
-            <OrderMembersExpandable
-              orderId={order.id}
-              tourId={order.tour_id || ''}
-              workspaceId={workspaceId}
-              onClose={() => handleToggleExpand(order.id)}
-              embedded
-              tour={
-                tours.find(t => t.id === order.tour_id) as import('@/stores/types').Tour | undefined
-              }
-            />
-          ),
-        }}
         actions={order => (
           <div
             className="flex items-center gap-1 justify-start whitespace-nowrap"
@@ -277,22 +255,20 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
               </Button>
             )}
 
-            {/* 展開成員（展開時保持 active 高亮、ActionCell 不支援此互動、故此頁不遷移）*/}
-            <Button
-              variant="ghost"
-              onClick={e => {
-                e.stopPropagation()
-                handleToggleExpand(order.id)
-              }}
-              className={cn(
-                ACTION_BUTTON_BASE,
-                ACTION_BUTTON_DEFAULT_TONE,
-                expanded.includes(order.id) && 'text-morandi-primary bg-morandi-gold-light'
-              )}
-            >
-              <User size="0.95em" />
-              {t('simpleOrderMembers')}
-            </Button>
+            {/* 成員（點開彈出 OrderMembersDialog、由 parent 控制）*/}
+            {onOpenMembers && (
+              <Button
+                variant="ghost"
+                onClick={e => {
+                  e.stopPropagation()
+                  onOpenMembers(order)
+                }}
+                className={cn(ACTION_BUTTON_BASE, ACTION_BUTTON_DEFAULT_TONE)}
+              >
+                <User size="0.95em" />
+                {t('simpleOrderMembers')}
+              </Button>
+            )}
 
             {/* 收款（語意綠：收進款項）*/}
             <Button

@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { createOrder } from '@/data'
+import { createOrder, invalidateTours } from '@/data'
 import { useToursSlim } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import { generateOrderNumber } from '@/lib/codes'
@@ -58,7 +58,11 @@ export default function OrdersPage() {
 
   // Server-side 分頁 + 搜尋 + 業務員視角過濾
   // 「全部」/「只看我的」共用 server-side pagination + .or() filter（見 useOrdersListView）
-  const { items: orders, totalCount } = useOrdersListView({
+  const {
+    items: orders,
+    totalCount,
+    refresh: refreshOrders,
+  } = useOrdersListView({
     page,
     pageSize: PAGE_SIZE,
     search: searchQuery.trim() || undefined,
@@ -66,6 +70,13 @@ export default function OrdersPage() {
     sortBy: 'departure_date',
     sortOrder: 'desc',
   })
+
+  // 成員管理彈窗「關閉」時整理一次：刷訂單列表自訂分頁 key（人數/金額）+ 團（current_participants）。
+  // 編輯過程不刷、避免畫面一直跳（William 2026-05-28 拍板：關閉才整理、不一直變）。
+  const handleMembersClose = useCallback(async () => {
+    await refreshOrders()
+    await invalidateTours()
+  }, [refreshOrders])
 
   const addOrder = createOrder
   const sortedOrders = orders
@@ -152,6 +163,7 @@ export default function OrdersPage() {
         orders={sortedOrders}
         tours={tours}
         showTourInfo={true}
+        onMembersClose={handleMembersClose}
         serverPagination={{
           currentPage: page,
           pageSize: PAGE_SIZE,
