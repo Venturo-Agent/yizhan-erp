@@ -20,6 +20,7 @@ const baseStep = {
   showSkip: true,
   pointerPadding: 6,
   pointerRadius: 8,
+  disableInteraction: true,
 }
 
 // 候選步驟（對應公司設定頁現有欄位）。順序照頁面由上到下。

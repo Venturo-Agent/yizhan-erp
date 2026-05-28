@@ -20,6 +20,7 @@ const baseStep = {
   showSkip: true,
   pointerPadding: 6,
   pointerRadius: 8,
+  disableInteraction: true,
 }
 
 const CREATE_DISBURSEMENT_TOUR_STEPS: Step[] = [

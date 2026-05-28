@@ -19,6 +19,7 @@ const baseStep = {
   showSkip: true,
   pointerPadding: 6,
   pointerRadius: 8,
+  disableInteraction: true,
 }
 
 const FINANCE_REQUESTS_TOUR_STEPS: Step[] = [

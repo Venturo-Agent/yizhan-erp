@@ -17,6 +17,7 @@ const baseStep = {
   showSkip: true,
   pointerPadding: 4,
   pointerRadius: 8,
+  disableInteraction: true,
 }
 
 const OPEN_TOUR_STEPS: Step[] = [
