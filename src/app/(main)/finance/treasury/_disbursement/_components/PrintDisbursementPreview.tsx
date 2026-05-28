@@ -163,44 +163,58 @@ export const PrintDisbursementPreview = forwardRef<HTMLDivElement, PrintDisburse
           boxSizing: 'border-box',
         }}
       >
-        <PrintHeader order={order} logoUrl={logoUrl} />
+        {/* 用 table thead/tbody 包、列印多頁時 PrintHeader 自動每頁重複（瀏覽器原生 table-header-group 機制） */}
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead style={{ display: 'table-header-group' }}>
+            <tr>
+              <td style={{ padding: 0 }}>
+                <PrintHeader order={order} logoUrl={logoUrl} />
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ padding: 0 }}>
+                {tourGroups.length > 0 && (
+                  <PrintItemsTable
+                    sectionLabel={t('printTourExpenses')}
+                    groups={tourGroups}
+                    subtotalLabel={t('printTourSubtotal')}
+                    subtotalAmount={tourTotal}
+                    thirdColHeader={t('printTourName')}
+                  />
+                )}
 
-        {tourGroups.length > 0 && (
-          <PrintItemsTable
-            sectionLabel={t('printTourExpenses')}
-            groups={tourGroups}
-            subtotalLabel={t('printTourSubtotal')}
-            subtotalAmount={tourTotal}
-            thirdColHeader={t('printTourName')}
-          />
-        )}
+                {companyGroups.length > 0 && (
+                  <PrintItemsTable
+                    sectionLabel={t('printCompanyExpenses')}
+                    groups={companyGroups}
+                    subtotalLabel={t('printCompanySubtotal')}
+                    subtotalAmount={companyTotal}
+                    thirdColHeader={t('printType')}
+                  />
+                )}
 
-        {companyGroups.length > 0 && (
-          <PrintItemsTable
-            sectionLabel={t('printCompanyExpenses')}
-            groups={companyGroups}
-            subtotalLabel={t('printCompanySubtotal')}
-            subtotalAmount={companyTotal}
-            thirdColHeader={t('printType')}
-          />
-        )}
+                {tourGroups.length === 0 && companyGroups.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
+                    {t('printNoItems')}
+                  </div>
+                )}
 
-        {tourGroups.length === 0 && companyGroups.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
-            {t('printNoItems')}
-          </div>
-        )}
+                <PrintCostTransfer transferPairs={transferPairs} orphanPairIds={orphanPairIds} />
 
-        <PrintCostTransfer transferPairs={transferPairs} orphanPairIds={orphanPairIds} />
-
-        <PrintFooter
-          totalAmount={totalAmount}
-          bankFee={bankFee}
-          paymentMethod={paymentMethod}
-          bankAccount={bankAccount}
-          subtitle={subtitle}
-          companyFullName={companyFullName}
-        />
+                <PrintFooter
+                  totalAmount={totalAmount}
+                  bankFee={bankFee}
+                  paymentMethod={paymentMethod}
+                  bankAccount={bankAccount}
+                  subtitle={subtitle}
+                  companyFullName={companyFullName}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     )
   }
