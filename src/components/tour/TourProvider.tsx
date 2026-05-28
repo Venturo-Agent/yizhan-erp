@@ -18,6 +18,7 @@ import { tourOrdersTour } from '@/lib/tours/tour-orders-tour'
 import { orderMembersTour } from '@/lib/tours/order-members-tour'
 import { addReceiptTour } from '@/lib/tours/add-receipt-tour'
 import { addRequestTour } from '@/lib/tours/add-request-tour'
+import { createDisbursementTour } from '@/lib/tours/create-disbursement-tour'
 import { isTourEnabled, markTourSeen } from '@/lib/tours/tour-preferences'
 import { TourCard } from './TourCard'
 
@@ -88,6 +89,7 @@ function TourAutoStart({
   const startedOrderMembers = useRef(false)
   const startedAddReceipt = useRef(false)
   const startedAddRequest = useRef(false)
+  const startedCreateDisbursement = useRef(false)
 
   // 首頁：側邊欄導覽
   useEffect(() => {
@@ -222,6 +224,17 @@ function TourAutoStart({
     return () => window.removeEventListener('venturo:add-request-opened', handler)
   }, [])
 
+  // 新增出納單 wizard 開啟（CreateDisbursementWizardDialog 內部資料載入要時間、1000ms delay）
+  useEffect(() => {
+    const handler = () => {
+      if (startedCreateDisbursement.current) return
+      startedCreateDisbursement.current = true
+      setTimeout(() => startIfEnabled('create-disbursement'), 1000)
+    }
+    window.addEventListener('venturo:create-disbursement-opened', handler)
+    return () => window.removeEventListener('venturo:create-disbursement-opened', handler)
+  }, [])
+
   // dialog 關閉時：強制關 tour、避免 NextStepjs 內部 state 殘留
   // （user 中途按 ESC / 點外關 dialog 而非按「完成」、tour 不會自動結束、
   //   下次 dialog 開時 selector 又在 DOM、overlay 殘留出現「空視窗」）
@@ -238,6 +251,7 @@ function TourAutoStart({
       if (tourName === 'add-request') startedAddRequest.current = false
       if (tourName === 'add-receipt') startedAddReceipt.current = false
       if (tourName === 'order-members') startedOrderMembers.current = false
+      if (tourName === 'create-disbursement') startedCreateDisbursement.current = false
     }
     window.addEventListener('venturo:dialog-closed', handler)
     return () => window.removeEventListener('venturo:dialog-closed', handler)
@@ -266,6 +280,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     ...orderMembersTour,
     ...addReceiptTour,
     ...addRequestTour,
+    ...createDisbursementTour,
   ]
 
   // tours 工具列導覽跑完 → 自動觸發「開團」dialog，接續 open-tour 教學

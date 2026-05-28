@@ -101,6 +101,11 @@ export const TOUR_DEFINITIONS: TourDefinition[] = [
     label: '新增請款 dialog',
     description: '點訂單「請款」/ 列表「新增請款」開 dialog 時、介紹流程 + 後續出納鏈',
   },
+  {
+    name: 'create-disbursement',
+    label: '新增出納單 wizard',
+    description: '點「新增出納單」開 wizard 時、介紹流程（勾請款 → 選帳戶 → 暫存 → 預覽 → 儲存）',
+  },
 ]
 
 // ============ localStorage layer ============

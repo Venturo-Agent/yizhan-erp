@@ -36,8 +36,6 @@ interface GroupedDisbursementItemsTableProps {
   incomeByTourId?: Map<string, number>
   /** 每團累計已付支出 map（過去出納單已付的部分） */
   alreadyPaidByTourId?: Map<string, number>
-  /** 每個 item 已分到哪個銀行（itemId → from_bank_label）— 行內 chip + 背景變色用、2026-05-28 加 */
-  itemBankLabelMap?: Map<string, string>
   onChangePicked: (ids: string[]) => void
   /** 點某張請款單列 → 開該請款單唯讀檢視（傳 request_id），不傳則點列無動作 */
   onViewRequest?: (requestId: string) => void
@@ -48,7 +46,6 @@ export function GroupedDisbursementItemsTable({
   pickedItemIds,
   incomeByTourId,
   alreadyPaidByTourId,
-  itemBankLabelMap,
   onChangePicked,
   onViewRequest,
 }: GroupedDisbursementItemsTableProps) {
@@ -169,19 +166,7 @@ export function GroupedDisbursementItemsTable({
             <tbody>
               {groups.map((g, idx) => {
                 const picked = isGroupPicked(g)
-                // 2026-05-28 William 拍板：整張請款單只要有一個 item 在某 batch、視為「已分配到該銀行」
-                // （現流程一張單一次整批分、不會跨銀行）→ 取第一個 item 的 bank label
-                const assignedBank = itemBankLabelMap
-                  ? (g.items.map(i => itemBankLabelMap.get(i.id)).find(v => !!v) ?? null)
-                  : null
-                const isAssigned = !!assignedBank
-                // 已分配行：輕背景變色（design token 強制、不 Tailwind 預設色）
-                // 未分配行：維持原 striped
-                const stripedBg = isAssigned
-                  ? 'bg-morandi-gold/5'
-                  : idx % 2 === 0
-                    ? 'bg-morandi-container/20'
-                    : 'bg-card'
+                const stripedBg = idx % 2 === 0 ? 'bg-morandi-container/20' : 'bg-card'
                 // 超支警示用「整團」已勾金額
                 const pickedAmount = g.tourId ? (pickedAmountByTourId.get(g.tourId) ?? 0) : 0
                 const income =
@@ -212,11 +197,6 @@ export function GroupedDisbursementItemsTable({
                         <span className="font-semibold text-morandi-primary truncate">
                           {g.tourName || (g.tourId ? '未命名團' : '公司請款')}
                         </span>
-                        {isAssigned && (
-                          <span className="text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded bg-morandi-gold/10 text-morandi-gold font-medium whitespace-nowrap">
-                            已分到：{assignedBank}
-                          </span>
-                        )}
                         {isOverspend && (
                           <span className="text-xs inline-flex items-center gap-1 px-2 py-0.5 rounded bg-status-danger/10 text-status-danger font-medium whitespace-nowrap">
                             <AlertTriangle size={12} />

@@ -120,8 +120,9 @@ export function CreateDisbursementWizardDialog({
         batch = {
           batch_id: crypto.randomUUID(),
           from_bank_account_id: bankId,
-          // 2026-05-28 William 拍板：帳戶名統一不帶括號（無 bank_name 後綴）
-          from_bank_label: bank ? bank.name : '(未知帳戶)',
+          from_bank_label: bank
+            ? bank.name + (bank.bank_name ? `(${bank.bank_name})` : '')
+            : '(未知帳戶)',
           from_bank_code: bank?.bank_code ?? null,
           item_ids: [],
           items: [],
@@ -133,10 +134,7 @@ export function CreateDisbursementWizardDialog({
       batch.item_ids.push(itemId)
       batch.items.push(item)
     }
-    // 編輯模式：把已 link 品項預先填入勾選（讓 checkbox 顯示為已選、可取消勾退出 batch）
-    const preloadedIds = preload.linkedItemIds.filter(id => itemById.has(id))
     setStagedBatches(Array.from(batchesByBank.values()))
-    setPickedItemIds(preloadedIds)
     preloadedRef.current = true
   }, [editingOrder, bankAccounts, unbilledItems])
 
@@ -180,114 +178,66 @@ export function CreateDisbursementWizardDialog({
     return new Set(stagedBatches.flatMap(b => b.item_ids))
   }, [stagedBatches])
 
-  // 2026-05-28 William 拍板：列表不再隱藏已分配 item、永遠列出全部 unbilledItems。
-  // 已分配的行用行內 chip + 輕背景表示「已分到 X 銀行」、取消勾選 → 從 batch 退出（見下方 handleChangePicked）
-  const availableItems = unbilledItems
+  // 可選的 items（排除已 staged）
+  const availableItems = useMemo(() => {
+    return unbilledItems.filter(it => !stagedItemIds.has(it.id))
+  }, [unbilledItems, stagedItemIds])
 
-  // 每個 item 屬於哪個 batch（itemId → from_bank_label）— 給列表行內 chip 用
-  const itemBankLabelMap = useMemo(() => {
-    const map = new Map<string, string>()
-    for (const b of stagedBatches) {
-      for (const id of b.item_ids) {
-        map.set(id, b.from_bank_label)
-      }
-    }
-    return map
-  }, [stagedBatches])
-
-  // 當前勾選的 items 細節（從全部 unbilledItems 取、排除已 staged 的、避免重複加入 batch）
+  // 當前勾選的 items 細節
   const pickedItems = useMemo(() => {
     const set = new Set(pickedItemIds)
-    return unbilledItems.filter(it => set.has(it.id) && !stagedItemIds.has(it.id))
-  }, [unbilledItems, pickedItemIds, stagedItemIds])
+    return availableItems.filter(it => set.has(it.id))
+  }, [availableItems, pickedItemIds])
 
   // ─── step transitions ───
   const handleSelectBank = useCallback(
     (bankId: string) => {
-      // 只吸入「尚未分配」的勾選 items（已分配的不重複塞）
-      const newPickedItems = pickedItems
-      if (newPickedItems.length === 0) {
-        void alert('請先勾選尚未分配的請款品項', 'warning')
+      if (pickedItemIds.length === 0) {
+        void alert('請先勾選要從這個帳戶付款的請款品項', 'warning')
         return
       }
       const bank = bankAccounts.find(b => b.id === bankId)
       if (!bank) return
 
       // 新增 / 編輯共用同一條路徑（2026-05-27 William 拍板：編輯 = 新增、不再有 edit-only 分支）
+      // 吸入勾選 items 進 stagedBatches、清勾選
       // 2026-05-22 William 拍板：購物車合併 — 同帳戶 batch 已存在 → 追加 items、不建新 batch
-      // 2026-05-28 William 拍板：分配後保留勾選狀態（讓用戶可隨時取消勾 = 退出 batch）
-      const newItemIds = newPickedItems.map(it => it.id)
+      const pickedItemsNow = pickedItems
+      // 2026-05-27 William 拍板：wizard 不預估、不顯示手續費（同行/跨行在此判斷易誤解）。
+      // 真正的手續費於存檔（batch-create）按 SSOT isCrossBankTransfer 計算、列印預覽「跨行手續費」行才顯示。
+      // 這裡 total_fee 一律帶 0、不影響存檔結果（per-payer mode 由 batch-create 自行重算）。
       setStagedBatches(prev => {
         const existing = prev.find(b => b.from_bank_account_id === bank.id)
         if (existing) {
           // 合併：追加 items 進原 batch
+          const mergedItems = [...existing.items, ...pickedItemsNow]
+          const mergedItemIds = [...existing.item_ids, ...pickedItemIds]
           return prev.map(b =>
             b.batch_id === existing.batch_id
-              ? {
-                  ...b,
-                  items: [...existing.items, ...newPickedItems],
-                  item_ids: [...existing.item_ids, ...newItemIds],
-                }
+              ? { ...b, items: mergedItems, item_ids: mergedItemIds }
               : b
           )
         }
         const batch: import('./disbursement-wizard-types').StagedBatch = {
           batch_id: crypto.randomUUID(),
           from_bank_account_id: bank.id,
-          // 2026-05-28 William 拍板：帳戶名統一不帶括號（無 bank_name 後綴）
-          from_bank_label: bank.name,
+          from_bank_label: bank.name + (bank.bank_name ? `(${bank.bank_name})` : ''),
           from_bank_code: bank.bank_code,
-          item_ids: [...newItemIds],
-          items: [...newPickedItems],
+          item_ids: [...pickedItemIds],
+          items: [...pickedItemsNow],
           total_fee: 0,
           fee_distribution: 'equal',
         }
         return [...prev, batch]
       })
-      // 分配後不清空 pickedItemIds、保留勾選狀態（取消勾 → 退出 batch）
+      setPickedItemIds([])
     },
-    [bankAccounts, pickedItems]
+    [bankAccounts, pickedItemIds, pickedItems]
   )
 
-  // 2026-05-28 William 拍板：取消勾選 = 自動從 batch 退出
-  // checkbox 變動由此 wrapper 處理；若某 item 已在 staged 但被取消勾、同步從 batch 移除；batch 空 → 整批移除
-  const handleChangePicked = useCallback(
-    (nextIds: string[]) => {
-      const nextSet = new Set(nextIds)
-      // 找出「原本 staged 但這次被取消勾」的 ids
-      const removedFromStaged: string[] = []
-      for (const sid of stagedItemIds) {
-        if (!nextSet.has(sid)) removedFromStaged.push(sid)
-      }
-      if (removedFromStaged.length > 0) {
-        const removedSet = new Set(removedFromStaged)
-        setStagedBatches(prev =>
-          prev
-            .map(b => ({
-              ...b,
-              item_ids: b.item_ids.filter(id => !removedSet.has(id)),
-              items: b.items.filter(it => !removedSet.has(it.id)),
-            }))
-            .filter(b => b.item_ids.length > 0)
-        )
-      }
-      setPickedItemIds(nextIds)
-    },
-    [stagedItemIds]
-  )
-
-  const handleRemoveStaged = useCallback(
-    (batchId: string) => {
-      // 同步把該 batch 內的 items 從 pickedItemIds 移除（保持 checkbox 狀態跟 staged 一致）
-      const batch = stagedBatches.find(b => b.batch_id === batchId)
-      if (batch) {
-        const removeSet = new Set(batch.item_ids)
-        setPickedItemIds(prev => prev.filter(id => !removeSet.has(id)))
-      }
-      setStagedBatches(prev => prev.filter(b => b.batch_id !== batchId))
-    },
-    [stagedBatches]
-  )
+  const handleRemoveStaged = useCallback((batchId: string) => {
+    setStagedBatches(prev => prev.filter(b => b.batch_id !== batchId))
+  }, [])
 
   // ─── submit ───
   const handleSubmit = useCallback(async () => {
@@ -407,8 +357,8 @@ export function CreateDisbursementWizardDialog({
                       variant="soft-gold"
                       size="sm"
                       onClick={() => handleSelectBank(bank.id)}
-                      title={bank.name}
-                      disabled={pickedItems.length === 0}
+                      title={`${bank.name}${bank.bank_name ? `(${bank.bank_name})` : ''}`}
+                      disabled={pickedItemIds.length === 0}
                     >
                       {bank.name}
                     </Button>
@@ -419,7 +369,7 @@ export function CreateDisbursementWizardDialog({
                     取消
                   </Button>
                   <Button
-                    variant="header-outline"
+                    variant="morandi-gold"
                     size="sm"
                     onClick={handleSubmit}
                     disabled={isSubmitting || stagedBatches.length === 0}
@@ -444,12 +394,10 @@ export function CreateDisbursementWizardDialog({
             <OnePageView
               availableItems={availableItems}
               stagedBatches={stagedBatches}
-              bankAccounts={bankAccounts}
-              itemBankLabelMap={itemBankLabelMap}
               pickedItemIds={pickedItemIds}
               incomeByTourId={incomeByTourId}
               alreadyPaidByTourId={alreadyPaidByTourId}
-              onChangePicked={handleChangePicked}
+              onChangePicked={setPickedItemIds}
               onRemoveStaged={handleRemoveStaged}
               onViewRequest={handleViewRequest}
             />
