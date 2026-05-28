@@ -283,6 +283,14 @@ export const ToursPage: React.FC = () => {
     handleOpenCreateDialog()
   }, [handleOpenCreateDialog])
 
+  // 教學接續：tours-tour 跑完 → TourProvider 發 'venturo:open-tour-dialog' event → 自動開「開團」dialog
+  // dialog 一開、TourFormShell 內 useEffect 自動跑 'open-tour' 接續教學
+  useEffect(() => {
+    const handler = () => handleOpenTourDialog()
+    window.addEventListener('venturo:open-tour-dialog', handler)
+    return () => window.removeEventListener('venturo:open-tour-dialog', handler)
+  }, [handleOpenTourDialog])
+
   // 提案（客戶詢價）
   const handleOpenProposalDialog = useCallback(() => {
     setNewTour({

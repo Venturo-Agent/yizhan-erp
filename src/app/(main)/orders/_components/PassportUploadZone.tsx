@@ -157,10 +157,7 @@ export function PassportUploadZone({
               className="w-full"
             >
               {isUploading ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  {t('recognizing')}
-                </>
+                <>{t('recognizing')}</>
               ) : (
                 <>
                   <Upload size={16} className="mr-2" />
