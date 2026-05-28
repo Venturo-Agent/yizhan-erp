@@ -28,9 +28,10 @@ export default function OrdersPage() {
   const PAGE_SIZE = 15
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
-  // 業務員視角 toggle：'all' = 全部訂單（需 cross_branch.read）、'mine' = 只看我的
-  // 預設「只看我的」、切換記住偏好（localStorage）
-  const [viewMode, setViewMode] = useState<OrdersViewMode>('mine')
+  // 業務員視角 toggle：'all' = 全部（分公司隔離由 RLS 自動處理）、'mine' = 只看我負責的
+  // 預設「全部」：系統主管看到全集團、店長看到自己分公司、業務員看到自己分公司
+  // 業務員想只看自己負責的可手動切換、localStorage 記住偏好
+  const [viewMode, setViewMode] = useState<OrdersViewMode>('all')
 
   // hydrate localStorage 偏好（必 useEffect、避免 SSR mismatch）
   useEffect(() => {
@@ -39,9 +40,9 @@ export default function OrdersPage() {
       if (saved === 'mine' || saved === 'all') {
         setViewMode(saved)
       }
-      // 沒有 localStorage 紀錄 → 維持預設 'mine'
+      // 沒有 localStorage 紀錄 → 維持預設 'all'
     } catch {
-      // localStorage 不可用（隱私模式）→ 用預設值 'mine'
+      // localStorage 不可用（隱私模式）→ 用預設值 'all'
     }
   }, [])
 
