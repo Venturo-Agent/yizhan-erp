@@ -64,6 +64,7 @@ export function OrderMembersExpandable({
   embedded = false,
   forceShowPnr = false,
   tour,
+  headerLabel,
   onChildDialogChange: _onChildDialogChange,
   showPnrMatchDialog: parentShowPnrMatchDialog,
   onPnrMatchDialogChange,
@@ -325,6 +326,7 @@ export function OrderMembersExpandable({
       <OrderMembersToolbar
         mode={mode}
         embedded={embedded}
+        headerLabel={headerLabel}
         memberCount={sortedMembers.length}
         isAllEditMode={isAllEditMode}
         onToggleEditMode={handleToggleEditMode}

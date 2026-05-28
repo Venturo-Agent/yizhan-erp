@@ -28,6 +28,8 @@ import { CONTRACT_LABELS } from '@/app/(main)/orders/_contracts/constants/labels
 interface OrderMembersToolbarProps {
   mode: 'order' | 'tour'
   embedded: boolean
+  /** 彈窗模式頂部標題文字（取代「團員名單」）；undefined = 顯示「團員名單」 */
+  headerLabel?: string
   memberCount: number
   isAllEditMode: boolean
   onToggleEditMode: () => void
@@ -51,6 +53,7 @@ interface OrderMembersToolbarProps {
 export function OrderMembersToolbar({
   mode,
   embedded,
+  headerLabel,
   memberCount,
   isAllEditMode,
   onToggleEditMode,
@@ -75,7 +78,9 @@ export function OrderMembersToolbar({
       className={`flex-shrink-0 flex items-center justify-between px-4 py-2 ${embedded ? 'bg-morandi-gold-header border-b border-morandi-gold/20' : 'bg-morandi-gold-header border-b border-border/60'}`}
     >
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-morandi-primary">{t('memberList')}</span>
+        <span className="text-sm font-medium text-morandi-primary">
+          {headerLabel ?? t('memberList')}
+        </span>
         <span className="text-sm text-morandi-secondary">
           ({memberCount} {t('personUnit')})
         </span>

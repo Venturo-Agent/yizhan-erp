@@ -45,7 +45,7 @@ export function OrderMembersDialog({
         size="full"
         className="h-[90vh] max-h-[90vh] flex flex-col overflow-hidden p-6"
       >
-        <DialogHeader className="shrink-0">
+        <DialogHeader className="sr-only">
           <DialogTitle>
             {t('membersDialogTitle')}
             {order?.order_number ? (
@@ -66,6 +66,7 @@ export function OrderMembersDialog({
               tourId={order.tour_id || ''}
               workspaceId={workspaceId}
               embedded={false}
+              headerLabel={`${t('membersDialogTitle')}${order.order_number ? `　${order.order_number}` : ''}`}
               tour={tour}
               onClose={() => onOpenChange(false)}
             />

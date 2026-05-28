@@ -140,6 +140,8 @@ export interface OrderMembersExpandableProps {
   onPnrMatchDialogChange?: (show: boolean) => void
   /** PNR 配對成功回調 */
   onPnrMatchSuccess?: () => void
+  /** 彈窗模式（embedded=false）的頂部標題文字（如「成員管理 訂單號」）；toolbar 用它取代「團員名單」。團詳情 inline 不傳、維持原樣 */
+  headerLabel?: string
 }
 
 interface _MemberRowProps {
