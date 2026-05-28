@@ -145,7 +145,16 @@ const nextConfig: NextConfig = {
   output: 'standalone',
 
   // Next.js 16 使用 Turbopack 作為預設打包工具
-  turbopack: {},
+  turbopack: {
+    // pagedjs（A4 列印預覽分頁）：package.json exports 沒列 dist/paged.esm.js 這個 sub-path、
+    // Turbopack 嚴格依 exports map → import sub-path 會炸「Cannot find module」。
+    // 主入口 src/index.js 在 webpack/turbopack 跑 contains.call 報錯（pagedjs 0.4.3 已知 bug、
+    // 用 ESM 純源碼進 bundler 會掛）。
+    // 改 alias 整個 'pagedjs' → 預先打包好的 dist/paged.esm.js（rollup 出的、單檔可用）。
+    resolveAlias: {
+      pagedjs: './node_modules/pagedjs/dist/paged.esm.js',
+    },
+  },
 }
 
 // Sentry 設定選項

@@ -15,6 +15,7 @@ import { Printer } from 'lucide-react'
 import type { DisbursementOrder, PaymentRequest, PaymentRequestItem } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
 import { PrintDisbursementPreview } from './PrintDisbursementPreview'
+import { PagedPreview } from '@/lib/print/PagedPreview'
 import { logger } from '@/lib/utils/logger'
 import { useTranslations } from 'next-intl'
 
@@ -250,14 +251,7 @@ export function DisbursementPrintDialog({
               <span className="ml-2 text-morandi-secondary">{t('disbursementLoading')}</span>
             </div>
           ) : (
-            <div
-              className="shadow-lg bg-card"
-              style={{
-                width: '210mm',
-                minHeight: '297mm',
-                maxWidth: '100%',
-              }}
-            >
+            <PagedPreview>
               <PrintDisbursementPreview
                 ref={printRef}
                 order={order}
@@ -267,7 +261,7 @@ export function DisbursementPrintDialog({
                 paymentMethod={paymentMethod}
                 bankAccount={bankAccount}
               />
-            </div>
+            </PagedPreview>
           )}
         </div>
       </DialogContent>
