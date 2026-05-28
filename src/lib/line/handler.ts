@@ -27,7 +27,6 @@
  */
 
 import { replyToLine } from '@/lib/line/reply-client'
-import { isHappyWorkspace, handleHappyQuery } from '@/lib/line/happy-rag-handler'
 import {
   botCreateOrder,
   botEnsureCustomer,
@@ -83,26 +82,8 @@ export async function processIncomingTextMessage(
     return { replyText: '', llmUsed: false, debugReason: 'empty user text' }
   }
 
-  // 2026-05-22 Phase 0：漫途 LINE@ = 員工專用 HAPPY ERP RAG
-  // by workspace 分流（William 拍板：員工直接問、不用 /happy 前綴）
-  // 漫途 workspace → HAPPY、其他 workspace（譬如角落 LINE@）→ 原本客戶旅遊 flow
-  if (isHappyWorkspace(ctx.workspaceId)) {
-    const result = await handleHappyQuery(userText)
-    await sendReply(ctx, replyToken, result.replyText)
-    // 2026-05-22 補：寫 outbound 紀錄、AI Hub 對話收件夾才看得到 HAPPY 的回覆
-    await botRecordMessage(ctx, {
-      direction: 'outbound',
-      senderType: 'bot',
-      content: result.replyText,
-      messageType: 'text',
-    })
-    return {
-      replyText: result.replyText,
-      llmUsed: result.llmUsed,
-      debugReason: `happy:${result.chunksUsed}chunks${result.debugReason ? ':' + result.debugReason : ''}`,
-    }
-  }
-
+  // 2026-05-28 William 拍板「白痴起點」：所有 workspace（含漫途、角落）走統一 flow、
+  // 不再有特例 routing。RAG / 知識庫之後重建、現在 AI 退化為「LLM 自身常識 + system prompt」。
   if (!ctx.botEmployeeId) {
     // bot 還沒被自助開通完成（沒系統員工）= 不能跑業務邏輯
     const msg = '系統設定尚未完成、請聯繫管理員啟用 LINE Bot 自助開通流程。'
