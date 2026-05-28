@@ -368,6 +368,8 @@ export function EditableRequestItemList({
       canRemove={() => items.length > 1}
       readonly={disabled}
       addLabel={t('requestItemsAddItem')}
+      addButtonDataTutorial="add-request-add-item"
+      wrapperDataTutorial="add-request-items-table"
       headerExtra={
         disabled && onTransfer ? (
           <Button

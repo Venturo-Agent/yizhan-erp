@@ -126,6 +126,7 @@ export function AddRequestDialogFooter({
             onClick={onSubmit}
             disabled={submitDisabled}
             variant="header-outline"
+            data-tutorial="add-request-submit"
             className="rounded-md gap-2"
           >
             <CheckSquare size={16} />
