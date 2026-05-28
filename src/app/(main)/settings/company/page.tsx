@@ -31,6 +31,8 @@ export default function CompanySettingsPage() {
   const { user } = useAuthStore()
   const { can } = useCapabilities()
   const [form, setForm] = useState<CompanyFormData>(INITIAL_FORM)
+  // H：載入後的快照、用來判斷是否有未儲存變更（2026-05-26 William 拍板）
+  const [savedForm, setSavedForm] = useState<CompanyFormData>(INITIAL_FORM)
   const [loading, setLoading] = useState(true)
   const [bankAccounts, setBankAccounts] = useState<BankAccountOption[]>([])
   const [bonusCalculationOrder, setBonusCalculationOrder] =
@@ -68,7 +70,7 @@ export default function CompanySettingsPage() {
       if (error) throw error
       if (data) {
         const d = data as unknown as Record<string, string | number | null>
-        setForm({
+        const loaded: CompanyFormData = {
           name: (d.name as string) ?? '',
           logo_url: (d.logo_url as string) ?? '',
           legal_name: (d.legal_name as string) ?? '',
@@ -112,7 +114,10 @@ export default function CompanySettingsPage() {
                 : 1.0,
           logo_offset_x: typeof d.logo_offset_x === 'number' ? d.logo_offset_x : 0,
           logo_offset_y: typeof d.logo_offset_y === 'number' ? d.logo_offset_y : 0,
-        })
+        }
+        setForm(loaded)
+        // H：載入完成後設定快照、後續用來判斷 isDirty
+        setSavedForm(loaded)
         const ord = d.bonus_calculation_order as string | null
         setBonusCalculationOrder(ord === 'op_first' || ord === 'sales_first' ? ord : 'independent')
       }
@@ -161,6 +166,20 @@ export default function CompanySettingsPage() {
     return () => clearTimeout(timer)
   }, [loading])
 
+  // H：是否有未儲存變更（跟載入快照比對）
+  const isDirty = JSON.stringify(form) !== JSON.stringify(savedForm)
+
+  // H：有未儲存變更時、關閉 / 重新整理頁面前瀏覽器原生警告
+  useEffect(() => {
+    if (!isDirty) return
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [isDirty])
+
   const { isSubmitting: saving, execute: handleSave } = useAsyncSubmit(
     async () => {
       if (!workspaceId) return
@@ -171,6 +190,8 @@ export default function CompanySettingsPage() {
         .eq('id', workspaceId)
       if (error) throw error
       invalidateWorkspaceSettings(workspaceId)
+      // H：存檔成功後更新快照、清除 isDirty 狀態
+      setSavedForm(form)
       toast.success(t('companySaveSuccess'))
     },
     {
@@ -233,6 +254,13 @@ export default function CompanySettingsPage() {
       contentClassName="flex-1 overflow-y-auto min-h-0 flex flex-col"
     >
       <div className="relative space-y-6">
+        {/* H：未儲存變更提示條（2026-05-26 William 拍板） */}
+        {isDirty && (
+          <div className="sticky top-0 z-10 flex items-center gap-2 px-3 py-2 rounded-md bg-morandi-gold/10 border border-morandi-gold/30 text-sm text-morandi-primary">
+            <AlertTriangle className="h-4 w-4 text-morandi-gold shrink-0" />
+            有未儲存的變更，請按右上角「{t('companySave')}」儲存
+          </div>
+        )}
         {/* 公司資料卡（基本 + 聯絡 + Logo + 結帳設定 + 印章） */}
         <CompanyInfoCard
           form={form}
