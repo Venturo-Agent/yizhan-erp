@@ -15,7 +15,7 @@
  * - 團詳情頁（/tours/[code]?tab=orders 的成員 tab）走 inline、不經此殼、不受影響。
  */
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { OrderMembersExpandable } from '@/app/(main)/orders/_components/OrderMembersExpandable'
@@ -38,6 +38,8 @@ export function OrderMembersDialog({
   tour,
 }: OrderMembersDialogProps) {
   const t = useTranslations('orders')
+  // 按鈕投影容器：成員面板的 toolbar 投影到主標題那行右側（跟「公司設定 儲存」位置一樣）
+  const [toolbarHost, setToolbarHost] = useState<HTMLDivElement | null>(null)
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -45,16 +47,18 @@ export function OrderMembersDialog({
         size="full"
         className="h-[90vh] max-h-[90vh] flex flex-col overflow-hidden p-6"
       >
-        <DialogHeader className="sr-only">
-          <DialogTitle>
-            {t('membersDialogTitle')}
-            {order?.order_number ? (
-              <span className="ml-2 text-sm font-normal text-morandi-secondary">
-                {order.order_number}
-                {order.contact_person ? `・${order.contact_person}` : ''}
+        <DialogHeader className="shrink-0 border-b border-border pb-3">
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="flex items-center gap-2">
+              {/* 標題欄 = 團號 + 訂單號（William 2026-05-28：不要「成員管理」、不要人數統計）*/}
+              {order?.tour_name ? <span>{order.tour_name}</span> : null}
+              <span className="text-sm font-normal text-morandi-secondary">
+                {order?.order_number || t('membersDialogTitle')}
               </span>
-            ) : null}
-          </DialogTitle>
+            </DialogTitle>
+            {/* 按鈕投影點：toolbar 投影到這、跟主標題同行靠右 */}
+            <div ref={setToolbarHost} className="flex items-center shrink-0" />
+          </div>
         </DialogHeader>
 
         {/* 只有實際選到訂單才掛載成員面板；key 綁 order.id 確保切換訂單時重新掛載、不殘留上一張單的 state */}
@@ -66,7 +70,7 @@ export function OrderMembersDialog({
               tourId={order.tour_id || ''}
               workspaceId={workspaceId}
               embedded={false}
-              headerLabel={`${t('membersDialogTitle')}${order.order_number ? `　${order.order_number}` : ''}`}
+              toolbarPortalTarget={toolbarHost}
               tour={tour}
               onClose={() => onOpenChange(false)}
             />
