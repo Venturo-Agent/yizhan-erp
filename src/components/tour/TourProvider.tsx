@@ -11,6 +11,10 @@ import { openTourTour } from '@/lib/tours/open-tour-tour'
 import { openProposalTour } from '@/lib/tours/open-proposal-tour'
 import { hrRolesTour } from '@/lib/tours/hr-roles-tour'
 import { hrEmployeesTour } from '@/lib/tours/hr-employees-tour'
+import { disbursementTour } from '@/lib/tours/disbursement-tour'
+import { financePaymentsTour } from '@/lib/tours/finance-payments-tour'
+import { financeRequestsTour } from '@/lib/tours/finance-requests-tour'
+import { isTourEnabled, markTourSeen } from '@/lib/tours/tour-preferences'
 import { TourCard } from './TourCard'
 
 /**
@@ -32,11 +36,17 @@ const SETTINGS_PATHS = ['/settings/company', '/settings']
 const TOURS_PATHS = ['/tours']
 const HR_ROLES_PATHS = ['/hr/roles']
 const HR_EMPLOYEES_PATHS = ['/hr']
+const DISBURSEMENT_PATHS = ['/finance/treasury/disbursement']
+const PAYMENTS_PATHS = ['/finance/payments']
+const REQUESTS_PATHS = ['/finance/requests']
 
 const isSettingsPath = (pathname: string) => SETTINGS_PATHS.includes(pathname)
 const isToursPath = (pathname: string) => TOURS_PATHS.includes(pathname)
 const isHrRolesPath = (pathname: string) => HR_ROLES_PATHS.includes(pathname)
 const isHrEmployeesPath = (pathname: string) => HR_EMPLOYEES_PATHS.includes(pathname)
+const isDisbursementPath = (pathname: string) => DISBURSEMENT_PATHS.includes(pathname)
+const isPaymentsPath = (pathname: string) => PAYMENTS_PATHS.includes(pathname)
+const isRequestsPath = (pathname: string) => REQUESTS_PATHS.includes(pathname)
 
 function TourAutoStart({
   settingsReady,
@@ -47,6 +57,11 @@ function TourAutoStart({
 }) {
   const { startNextStep } = useNextStep()
   const pathname = usePathname()
+
+  // 包裝：只有教學偏好開著才真的觸發、否則跳過（看過 + 還沒勾回來 = 不煩）
+  const startIfEnabled = (name: string) => {
+    if (isTourEnabled(name)) startNextStep(name)
+  }
   const startedSidebar = useRef(false)
   const startedSettings = useRef(false)
   const startedTours = useRef(false)
@@ -55,12 +70,15 @@ function TourAutoStart({
   // 用旗標：收到 event 才允許下一次進 /hr 時起跑。
   const pendingHrEmployees = useRef(false)
   const startedHrEmployees = useRef(false)
+  const startedDisbursement = useRef(false)
+  const startedPayments = useRef(false)
+  const startedRequests = useRef(false)
 
   // 首頁：側邊欄導覽
   useEffect(() => {
     if ((pathname === '/' || pathname === '/dashboard') && !startedSidebar.current) {
       startedSidebar.current = true
-      const timer = setTimeout(() => startNextStep('sidebar'), 1000)
+      const timer = setTimeout(() => startIfEnabled('sidebar'), 1000)
       return () => clearTimeout(timer)
     }
   }, [pathname, startNextStep])
@@ -77,7 +95,7 @@ function TourAutoStart({
   useEffect(() => {
     if (settingsReady && !startedSettings.current && isSettingsPath(pathname)) {
       startedSettings.current = true
-      startNextStep('settings')
+      startIfEnabled('settings')
     }
   }, [settingsReady, pathname, startNextStep])
 
@@ -85,7 +103,7 @@ function TourAutoStart({
   useEffect(() => {
     if (isToursPath(pathname) && !startedTours.current) {
       startedTours.current = true
-      const timer = setTimeout(() => startNextStep('tours'), 800)
+      const timer = setTimeout(() => startIfEnabled('tours'), 800)
       return () => clearTimeout(timer)
     }
   }, [pathname, startNextStep])
@@ -94,7 +112,7 @@ function TourAutoStart({
   useEffect(() => {
     if (isHrRolesPath(pathname) && !startedHrRoles.current) {
       startedHrRoles.current = true
-      const timer = setTimeout(() => startNextStep('hr-roles'), 1000)
+      const timer = setTimeout(() => startIfEnabled('hr-roles'), 1000)
       return () => clearTimeout(timer)
     }
   }, [pathname, startNextStep])
@@ -113,7 +131,34 @@ function TourAutoStart({
     if (isHrEmployeesPath(pathname) && pendingHrEmployees.current && !startedHrEmployees.current) {
       startedHrEmployees.current = true
       pendingHrEmployees.current = false
-      const timer = setTimeout(() => startNextStep('hr-employees'), 800)
+      const timer = setTimeout(() => startIfEnabled('hr-employees'), 800)
+      return () => clearTimeout(timer)
+    }
+  }, [pathname, startNextStep])
+
+  // 出納管理頁：步驟固定（無動態欄位）、直接觸發
+  useEffect(() => {
+    if (isDisbursementPath(pathname) && !startedDisbursement.current) {
+      startedDisbursement.current = true
+      const timer = setTimeout(() => startIfEnabled('disbursement'), 800)
+      return () => clearTimeout(timer)
+    }
+  }, [pathname, startNextStep])
+
+  // 收款管理頁
+  useEffect(() => {
+    if (isPaymentsPath(pathname) && !startedPayments.current) {
+      startedPayments.current = true
+      const timer = setTimeout(() => startIfEnabled('finance-payments'), 800)
+      return () => clearTimeout(timer)
+    }
+  }, [pathname, startNextStep])
+
+  // 請款管理頁
+  useEffect(() => {
+    if (isRequestsPath(pathname) && !startedRequests.current) {
+      startedRequests.current = true
+      const timer = setTimeout(() => startIfEnabled('finance-requests'), 800)
       return () => clearTimeout(timer)
     }
   }, [pathname, startNextStep])
@@ -134,12 +179,19 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     ...openProposalTour,
     ...hrRolesTour,
     ...hrEmployeesTour,
+    ...disbursementTour,
+    ...financePaymentsTour,
+    ...financeRequestsTour,
   ]
 
   // tours 工具列導覽跑完 → 自動觸發「開團」dialog，接續 open-tour 教學
   // hr-roles 跑完  → 派 event 設旗標 + 切到 /hr、由 hr-employees 接續
   //（透過 CustomEvent 解耦、不直接 import handler）
+  // 任何 tour 跑完 → markTourSeen(name)、下次進不再自動跑（除非 user 在個人偏好勾回來）
   const handleTourComplete = (tourName: string | null) => {
+    if (tourName) {
+      markTourSeen(tourName)
+    }
     if (tourName === 'tours') {
       window.dispatchEvent(new CustomEvent('venturo:open-tour-dialog'))
     }

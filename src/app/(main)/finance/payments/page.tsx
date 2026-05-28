@@ -436,6 +436,8 @@ export default function PaymentsPage() {
             </SelectContent>
           </Select>
         }
+        rootDataTutorial="payments-header"
+        tableDataTutorial="payments-table"
       />
 
       {/* 新增/編輯收款對話框 */}

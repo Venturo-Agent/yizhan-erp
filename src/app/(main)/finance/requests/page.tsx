@@ -197,6 +197,8 @@ export default function RequestsPage() {
             </SelectContent>
           </Select>
         }
+        rootDataTutorial="requests-header"
+        tableDataTutorial="requests-table"
       />
 
       <AddRequestDialog
