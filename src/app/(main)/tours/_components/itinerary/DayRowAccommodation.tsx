@@ -34,7 +34,7 @@ export function DayRowAccommodation({
   return (
     <tr className={idx % 2 === 1 ? 'bg-muted/5' : ''}>
       <td
-        className={`px-2 py-0 ${CELL} align-middle text-center text-xs text-morandi-gold font-medium`}
+        className={`px-2 py-0 ${CELL} align-middle text-center text-xs text-muted-foreground font-medium bg-card`}
       >
         飯店
       </td>

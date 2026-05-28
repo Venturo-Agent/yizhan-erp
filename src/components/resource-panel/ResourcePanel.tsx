@@ -225,7 +225,7 @@ export function ResourcePanel({
   return (
     <div className={cn('flex flex-col bg-card border-b border-border', className)}>
       {/* 大標題：景點庫 */}
-      <div className="h-9 bg-morandi-gold-header px-3 flex items-center border-b border-border">
+      <div className="h-9 bg-card px-3 flex items-center border-b border-border">
         <h2 className="text-sm font-semibold">{COMPONENT_LABELS.ATTRACTION_LIBRARY}</h2>
       </div>
 

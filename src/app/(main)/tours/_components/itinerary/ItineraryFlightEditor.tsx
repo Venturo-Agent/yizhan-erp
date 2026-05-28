@@ -15,7 +15,6 @@ import { DatePicker } from '@/components/ui/date-picker'
 import { useIsIntegrationEnabled } from '@/lib/permissions/useIntegrationEnabled'
 import type { FlightInfo, FlightSegmentInfo } from '@/types/flight.types'
 
-const AIRLINE_PLACEHOLDER = '長榮'
 const FLIGHT_NUMBER_SEARCH_PLACEHOLDER = '航班號搜尋'
 
 interface ItineraryFlightEditorProps {
@@ -148,7 +147,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.airline || ''}
-            placeholder={AIRLINE_PLACEHOLDER}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) => (i === index ? { ...f, airline: e.target.value } : f))
@@ -160,7 +158,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.flightNumber || ''}
-            placeholder={direction === 'outbound' ? 'BR123' : 'BR124'}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) =>
@@ -174,7 +171,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.departureAirportName || ''}
-            placeholder={direction === 'outbound' ? '桃園機場' : '成田機場'}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) =>
@@ -188,7 +184,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.departureAirport || ''}
-            placeholder={direction === 'outbound' ? 'TPE' : 'NRT'}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) =>
@@ -202,7 +197,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.departureTime || ''}
-            placeholder={direction === 'outbound' ? '08:00' : '14:00'}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) => (i === index ? { ...f, departureTime: e.target.value } : f))
@@ -214,7 +208,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.arrivalAirportName || ''}
-            placeholder={direction === 'outbound' ? '成田機場' : '桃園機場'}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) => (i === index ? { ...f, arrivalAirportName: e.target.value } : f))
@@ -226,7 +219,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.arrivalAirport || ''}
-            placeholder={direction === 'outbound' ? 'NRT' : 'TPE'}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) =>
@@ -240,7 +232,6 @@ export function ItineraryFlightEditor({
         <td className="px-2 py-1 table-divider">
           <Input
             value={flight.arrivalTime || ''}
-            placeholder={direction === 'outbound' ? '12:00' : '17:00'}
             onChange={e =>
               setFlights(prev =>
                 prev.map((f, i) => (i === index ? { ...f, arrivalTime: e.target.value } : f))

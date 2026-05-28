@@ -28,7 +28,7 @@ export function DayRowNote({ note, idx, isTableBottom, updateDaySchedule }: DayR
   return (
     <tr className={idx % 2 === 1 ? 'bg-muted/5' : ''}>
       <td
-        className={`px-2 py-0 ${leftCls} align-middle text-[0.588rem] text-morandi-gold font-medium`}
+        className={`px-2 py-0 ${leftCls} align-middle text-[0.588rem] text-muted-foreground font-medium bg-card`}
       >
         PS
       </td>

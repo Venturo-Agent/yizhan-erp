@@ -28,6 +28,7 @@ interface MealCellProps {
   onClear: (mealKey: MealKey) => void
   onTogglePreset: (mealKey: 'lunch' | 'dinner', which: 'self' | 'airline') => void
   onToggleHotelBreakfast: () => void
+  onToggleBreakfastSelf: () => void
   onToggleBreakfastAirline: () => void
 }
 
@@ -43,6 +44,7 @@ export function MealCell({
   onClear,
   onTogglePreset,
   onToggleHotelBreakfast,
+  onToggleBreakfastSelf,
   onToggleBreakfastAirline,
 }: MealCellProps) {
   const t = useTranslations('tour')
@@ -83,6 +85,20 @@ export function MealCell({
                 <button
                   type="button"
                   onClick={onToggleBreakfastAirline}
+                  className="hover:text-destructive"
+                >
+                  <X size={10} />
+                </button>
+              </div>
+            </div>
+          ) : /* Breakfast: self preset chip */
+          mealKey === 'breakfast' && day.breakfastSelf ? (
+            <div className="flex items-center justify-center px-2">
+              <div className="inline-flex items-center gap-1 bg-morandi-gold/10 text-morandi-gold border border-morandi-gold/30 rounded-full px-2 py-0.5 text-xs">
+                <span>{t('itineraryFreeService')}</span>
+                <button
+                  type="button"
+                  onClick={onToggleBreakfastSelf}
                   className="hover:text-destructive"
                 >
                   <X size={10} />
@@ -140,7 +156,7 @@ export function MealCell({
               restaurants={restaurantOptions}
               onPick={r => onPick(mealKey, r)}
               onPlainText={t => onPlainText(mealKey, t)}
-              extraRightPadding={mealKey !== 'breakfast' || !isFirst}
+              extraRightPadding
             />
           )}
 
@@ -148,61 +164,62 @@ export function MealCell({
           {(() => {
             const hasContent =
               !!mealText ||
-              (mealKey === 'breakfast' && (day.hotelBreakfast || day.breakfastAirline)) ||
+              (mealKey === 'breakfast' &&
+                (day.hotelBreakfast || day.breakfastSelf || day.breakfastAirline)) ||
               (mealKey === 'lunch' && (day.lunchSelf || day.lunchAirline)) ||
               (mealKey === 'dinner' && (day.dinnerSelf || day.dinnerAirline))
             if (hasContent) return null
 
             return (
               <>
-                {/* Breakfast toggle (hotel + airline) */}
-                {mealKey === 'breakfast' && !isFirst && (
-                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                {/* Breakfast toggle (hotel + airline) — PS 樣式按鈕、第一天也顯示 */}
+                {mealKey === 'breakfast' && (
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0">
                     <button
                       type="button"
                       onClick={onToggleHotelBreakfast}
                       title={t('itineraryHotelBreakfast')}
+                      className="px-0.5 py-0.5 rounded text-muted-foreground hover:bg-morandi-gold/20 transition-colors"
                     >
-                      <Check
-                        size={12}
-                        className="text-muted-foreground opacity-30 hover:opacity-60 transition-opacity"
-                      />
+                      <Check size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onToggleBreakfastSelf}
+                      title={t('itineraryFreeService')}
+                      className="px-0.5 py-0.5 rounded text-muted-foreground hover:bg-morandi-gold/20 transition-colors"
+                    >
+                      <X size={12} />
                     </button>
                     <button
                       type="button"
                       onClick={onToggleBreakfastAirline}
                       title={t('itineraryInFlightMeal')}
+                      className="px-0.5 py-0.5 rounded text-muted-foreground hover:bg-morandi-gold/20 transition-colors"
                     >
-                      <Plane
-                        size={12}
-                        className="text-muted-foreground opacity-30 hover:opacity-60 transition-opacity"
-                      />
+                      <Plane size={12} />
                     </button>
                   </div>
                 )}
 
-                {/* Lunch / Dinner toggles (self + airline) */}
+                {/* Lunch / Dinner toggles (self + airline) — PS 樣式按鈕 */}
                 {(mealKey === 'lunch' || mealKey === 'dinner') && (
-                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                  <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0">
                     <button
                       type="button"
                       onClick={() => onTogglePreset(mealKey, 'self')}
                       title={t('itineraryFreeService')}
+                      className="px-0.5 py-0.5 rounded text-muted-foreground hover:bg-morandi-gold/20 transition-colors"
                     >
-                      <Check
-                        size={12}
-                        className="text-muted-foreground opacity-30 hover:opacity-60 transition-opacity"
-                      />
+                      <X size={12} />
                     </button>
                     <button
                       type="button"
                       onClick={() => onTogglePreset(mealKey, 'airline')}
                       title={t('itineraryInFlightMeal')}
+                      className="px-0.5 py-0.5 rounded text-muted-foreground hover:bg-morandi-gold/20 transition-colors"
                     >
-                      <Plane
-                        size={12}
-                        className="text-muted-foreground opacity-30 hover:opacity-60 transition-opacity"
-                      />
+                      <Plane size={12} />
                     </button>
                   </div>
                 )}
