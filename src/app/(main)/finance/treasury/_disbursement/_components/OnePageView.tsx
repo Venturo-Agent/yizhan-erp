@@ -52,10 +52,8 @@ export function OnePageView({
                 key={b.batch_id}
                 className="inline-flex items-center gap-2 px-2 py-1 border border-morandi-border rounded bg-morandi-gold/10 text-xs"
               >
-                <span className="font-medium text-morandi-primary">{b.from_bank_label}</span>
-                <span className="text-morandi-secondary">
-                  {b.items.length} 筆 / {totalAmount.toLocaleString()}
-                </span>
+                <span className="font-medium text-morandi-primary">分配到 {b.from_bank_label}</span>
+                <span className="text-morandi-secondary">：{totalAmount.toLocaleString()}</span>
                 {/* 2026-05-27 William 拍板：wizard 批次不顯示手續費（易誤解同行/跨行）。
                     手續費於存檔時按 SSOT 計算、列印預覽「跨行手續費」行才顯示。 */}
                 <button
