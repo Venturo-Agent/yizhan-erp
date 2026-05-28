@@ -24,6 +24,7 @@
 // eslint-disable-next-line venturo/no-direct-useswr-in-pages -- OR filter（sales_person OR created_by）entity hook 不支援；架構說明見 file header
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
+import { useRealtimeSync } from '@/data/core/entityHookRealtime'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
 import { filterActive } from '@/lib/data/filter-active'
@@ -134,6 +135,11 @@ export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersLis
       keepPreviousData: true,
     }
   )
+
+  // 同事改任何訂單 → 訂閱 orders 表變更、刷新本列表自訂分頁 key（北極星 V2「同事改自動同步」）。
+  // 複用 entity hook 同款 realtime 機制（orders 已在 realtime publication）；prefix 比對走自訂 cache。
+  // 效能：server 分頁、一次只 revalidate 當前頁 15 筆、跟 entity hook tours/orders 同模式、不全表重抓。
+  useRealtimeSync('orders', 'orders-list-view')
 
   return {
     items: data?.items || [],
