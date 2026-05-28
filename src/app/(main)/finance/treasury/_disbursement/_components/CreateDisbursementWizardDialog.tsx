@@ -132,7 +132,11 @@ export function CreateDisbursementWizardDialog({
       batch.item_ids.push(itemId)
       batch.items.push(item)
     }
-    setStagedBatches(Array.from(batchesByBank.values()))
+    const batches = Array.from(batchesByBank.values())
+    setStagedBatches(batches)
+    // 2026-05-28 William bug fix：編輯模式預填 stagedBatches 後同步 pickedItemIds
+    // （Phase 2「分配後保留勾」設計、checkbox 狀態 = pickedItemIds、跳出再回來時要對齊 stagedBatches）
+    setPickedItemIds(batches.flatMap(b => b.item_ids))
     preloadedRef.current = true
   }, [editingOrder, bankAccounts, unbilledItems])
 
