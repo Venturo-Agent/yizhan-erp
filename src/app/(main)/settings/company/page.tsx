@@ -167,7 +167,15 @@ export default function CompanySettingsPage() {
   }, [loading])
 
   // H：是否有未儲存變更（跟載入快照比對）
-  const isDirty = JSON.stringify(form) !== JSON.stringify(savedForm)
+  // 2026-05-29：array 欄位（如 enabled_tour_categories）的 toggle 機制會改變 array 順序
+  //   （勾掉再勾回會跑到陣列尾端），純 JSON.stringify 比對會誤判 dirty → 比對前統一排序。
+  const isDirty = (() => {
+    const normalize = (f: CompanyFormData) => ({
+      ...f,
+      enabled_tour_categories: f.enabled_tour_categories.slice().sort(),
+    })
+    return JSON.stringify(normalize(form)) !== JSON.stringify(normalize(savedForm))
+  })()
 
   // H：有未儲存變更時、關閉 / 重新整理頁面前瀏覽器原生警告
   useEffect(() => {
