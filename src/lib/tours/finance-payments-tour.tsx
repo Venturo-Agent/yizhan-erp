@@ -43,7 +43,7 @@ const FINANCE_PAYMENTS_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="payments-header"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
   {
     ...baseStep,
@@ -65,7 +65,7 @@ const FINANCE_PAYMENTS_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="payments-header"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
 ]
 

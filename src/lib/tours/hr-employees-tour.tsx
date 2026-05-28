@@ -33,7 +33,7 @@ const HR_EMPLOYEES_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="hr-header"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
 ]
 

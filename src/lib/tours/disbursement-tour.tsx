@@ -39,7 +39,7 @@ const DISBURSEMENT_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="disbursement-header"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
   {
     ...baseStep,
@@ -91,7 +91,7 @@ const DISBURSEMENT_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="disbursement-header"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
 ]
 

@@ -56,7 +56,7 @@ const ORDER_MEMBERS_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="order-members-toolbar"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
   {
     ...baseStep,
@@ -75,7 +75,7 @@ const ORDER_MEMBERS_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="order-members-pnr"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
 ]
 

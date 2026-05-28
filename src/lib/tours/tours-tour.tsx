@@ -69,7 +69,7 @@ const TOURS_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="tour-add-button"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
 ]
 

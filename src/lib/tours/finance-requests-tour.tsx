@@ -46,7 +46,7 @@ const FINANCE_REQUESTS_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="requests-header"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
   {
     ...baseStep,
@@ -68,7 +68,7 @@ const FINANCE_REQUESTS_TOUR_STEPS: Step[] = [
       </div>
     ),
     selector: '[data-tutorial="requests-header"]',
-    side: 'bottom-right',
+    side: 'bottom',
   },
 ]
 
