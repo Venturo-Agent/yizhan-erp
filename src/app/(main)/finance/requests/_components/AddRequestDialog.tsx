@@ -3,7 +3,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { useResetOnTabChange } from '@/hooks/useResetOnTabChange'
 import { EditableRequestItemList } from './RequestItemList'
-import { RequestDateInput } from './RequestDateInput'
 import { CreateSupplierDialog } from './CreateSupplierDialog'
 import { CostTransferDialog } from './CostTransferDialog'
 import { BatchTabContent } from './AddRequestDialog.batch-tab'
@@ -258,6 +257,18 @@ export function AddRequestDialog({
       setDeletedItemIds,
       setNewItemIds,
       setIsSubmitting,
+      // 2026-05-28：自動拆單 — 編輯模式存檔依品項日期分組、原單留主組、其他組各開新單
+      defaultBillingDay,
+      currentUserName: currentUser?.display_name || currentUser?.chinese_name || '',
+      createRequest: createRequest as unknown as (
+        formData: Record<string, unknown>,
+        items: RequestItem[],
+        tourName: string,
+        tourCode: string,
+        orderNumber: string | undefined,
+        userName: string,
+        code?: string
+      ) => Promise<{ id: string } | null>,
     })
   }
 
@@ -390,27 +401,6 @@ export function AddRequestDialog({
               onSelectRequestId={id => setSelectedRequestId(id)}
             />
 
-            {/* 2026-05-27 修：編輯模式隱藏了品項日期欄、header 日期框又一直沒放 → 請款日期改不了的洞。
-                補上 header 級請款日期輸入；未付款(pending)可改、已付款鎖住（紅線 D）。 */}
-            {isEditMode && (
-              <div className="flex items-center gap-3 px-1 pt-3">
-                <label className="text-sm text-morandi-secondary whitespace-nowrap">請款日期</label>
-                <div className="w-44">
-                  <RequestDateInput
-                    value={formData.request_date || ''}
-                    onChange={(date, special) =>
-                      setFormData(prev => ({
-                        ...prev,
-                        request_date: date,
-                        is_special_billing: special,
-                      }))
-                    }
-                    disabled={!canEdit}
-                  />
-                </div>
-              </div>
-            )}
-
             {/* 團體請款 */}
             <TabsContent
               value="tour"
@@ -472,7 +462,7 @@ export function AddRequestDialog({
                   tourId={formData.tour_id || null}
                   disabled={isEditMode && !canEdit}
                   paymentMethods={paymentMethods}
-                  hideDateColumn={isEditMode}
+                  hideDateColumn={false}
                   expenseTypeMode
                   payeeIsEmployee={
                     formData.expense_type === 'BNS' || formData.expense_type === 'SAL'
