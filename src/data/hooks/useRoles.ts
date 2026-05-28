@@ -1,6 +1,8 @@
 import useSWR from 'swr'
 import { useAuthStore } from '@/stores/auth-store'
 
+export type RoleReadScope = 'self' | 'department' | 'branch' | 'group'
+
 export interface Role {
   id: string
   name: string
@@ -8,6 +10,7 @@ export interface Role {
   is_admin: boolean
   sort_order: number
   workspace_id: string
+  read_scope: RoleReadScope
 }
 
 const fetcher = async (url: string): Promise<Role[]> => {

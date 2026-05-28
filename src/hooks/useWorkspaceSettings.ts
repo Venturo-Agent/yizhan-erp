@@ -28,6 +28,9 @@ interface WorkspaceSettings {
   logo_scale: number
   logo_offset_x: number
   logo_offset_y: number
+  // 組織結構 flags（影響職務管理 read_scope 選項顯示）
+  is_multi_branch: boolean
+  is_multi_department: boolean
 }
 
 const EMPTY_SETTINGS: WorkspaceSettings = {
@@ -51,10 +54,12 @@ const EMPTY_SETTINGS: WorkspaceSettings = {
   logo_scale: 1.0,
   logo_offset_x: 0,
   logo_offset_y: 0,
+  is_multi_branch: false,
+  is_multi_department: false,
 }
 
 const SELECT_FIELDS =
-  'name, phone, address, bank_name, bank_branch, bank_account, bank_account_name, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, logo_scale, logo_offset_x, logo_offset_y' as const
+  'name, phone, address, bank_name, bank_branch, bank_account, bank_account_name, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, logo_scale, logo_offset_x, logo_offset_y, is_multi_branch, is_multi_department' as const
 
 // SWR cache key (給 invalidateWorkspaceSettings 用)
 const SWR_KEY_PREFIX = 'workspace-settings'
@@ -199,6 +204,8 @@ export function useWorkspaceSettings(): WorkspaceSettings {
               : 1.0,
         logo_offset_x: typeof rawOffsetX === 'number' ? rawOffsetX : 0,
         logo_offset_y: typeof rawOffsetY === 'number' ? rawOffsetY : 0,
+        is_multi_branch: Boolean((data as Record<string, unknown>).is_multi_branch),
+        is_multi_department: Boolean((data as Record<string, unknown>).is_multi_department),
       }
     },
     {

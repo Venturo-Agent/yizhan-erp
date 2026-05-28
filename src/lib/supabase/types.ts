@@ -8,6 +8,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      _shared_data_ownership_backup_20260527: {
+        Row: {
+          id: string
+          tbl: string
+        }
+        Insert: {
+          id: string
+          tbl: string
+        }
+        Update: {
+          id?: string
+          tbl?: string
+        }
+        Relationships: []
+      }
       accounting_period_closings: {
         Row: {
           closed_at: string | null
@@ -100,71 +115,88 @@ export type Database = {
           },
         ]
       }
-      airport_images: {
+      ai_knowledge_gaps: {
         Row: {
-          airport_code: string
-          created_at: string | null
-          display_order: number | null
+          ai_response: string | null
+          conversation_id: string | null
+          created_at: string
+          created_by: string | null
+          customer_name: string | null
+          external_user_id: string | null
           id: string
-          image_url: string
-          is_default: boolean | null
-          label: string | null
-          season: string | null
-          updated_at: string | null
-          uploaded_by: string | null
-          workspace_id: string | null
+          notes: string | null
+          question_text: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          topic_hint: string | null
+          updated_at: string
+          workspace_id: string
         }
         Insert: {
-          airport_code: string
-          created_at?: string | null
-          display_order?: number | null
+          ai_response?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string | null
+          external_user_id?: string | null
           id?: string
-          image_url: string
-          is_default?: boolean | null
-          label?: string | null
-          season?: string | null
-          updated_at?: string | null
-          uploaded_by?: string | null
-          workspace_id?: string | null
+          notes?: string | null
+          question_text: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          topic_hint?: string | null
+          updated_at?: string
+          workspace_id: string
         }
         Update: {
-          airport_code?: string
-          created_at?: string | null
-          display_order?: number | null
+          ai_response?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_name?: string | null
+          external_user_id?: string | null
           id?: string
-          image_url?: string
-          is_default?: boolean | null
-          label?: string | null
-          season?: string | null
-          updated_at?: string | null
-          uploaded_by?: string | null
-          workspace_id?: string | null
+          notes?: string | null
+          question_text?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          topic_hint?: string | null
+          updated_at?: string
+          workspace_id?: string
         }
-        Relationships: []
-      }
-      api_usage: {
-        Row: {
-          api_name: string
-          id: string
-          month: string
-          updated_at: string | null
-          usage_count: number | null
-        }
-        Insert: {
-          api_name: string
-          id?: string
-          month: string
-          updated_at?: string | null
-          usage_count?: number | null
-        }
-        Update: {
-          api_name?: string
-          id?: string
-          month?: string
-          updated_at?: string | null
-          usage_count?: number | null
-        }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'ai_knowledge_gaps_conversation_id_fkey'
+            columns: ['conversation_id']
+            isOneToOne: false
+            referencedRelation: 'inbox_conversations'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ai_knowledge_gaps_created_by_fkey'
+            columns: ['created_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ai_knowledge_gaps_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ai_knowledge_gaps_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
       }
       ai_products: {
         Row: {
@@ -254,6 +286,72 @@ export type Database = {
             referencedColumns: ['id']
           },
         ]
+      }
+      airport_images: {
+        Row: {
+          airport_code: string
+          created_at: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          is_default: boolean | null
+          label: string | null
+          season: string | null
+          updated_at: string | null
+          uploaded_by: string | null
+          workspace_id: string | null
+        }
+        Insert: {
+          airport_code: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          is_default?: boolean | null
+          label?: string | null
+          season?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          workspace_id?: string | null
+        }
+        Update: {
+          airport_code?: string
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          is_default?: boolean | null
+          label?: string | null
+          season?: string | null
+          updated_at?: string | null
+          uploaded_by?: string | null
+          workspace_id?: string | null
+        }
+        Relationships: []
+      }
+      api_usage: {
+        Row: {
+          api_name: string
+          id: string
+          month: string
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          api_name: string
+          id?: string
+          month: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          api_name?: string
+          id?: string
+          month?: string
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: []
       }
       application_service_types: {
         Row: {
@@ -8166,6 +8264,207 @@ export type Database = {
           },
         ]
       }
+      scrape_candidates: {
+        Row: {
+          address: string | null
+          approved_attraction_id: string | null
+          category: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          description_polished: boolean
+          duration_minutes: number | null
+          english_name: string | null
+          google_maps_url: string | null
+          id: string
+          image_source: string | null
+          images: string[] | null
+          latitude: number | null
+          local_name: string | null
+          longitude: number | null
+          name: string
+          notes: string | null
+          opening_hours: string | null
+          phone: string | null
+          region: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_agency: string
+          source_tour: string | null
+          status: string
+          tags: string[] | null
+          ticket_price: string | null
+          type: string
+          updated_at: string
+          website: string | null
+          wikidata_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          address?: string | null
+          approved_attraction_id?: string | null
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          description_polished?: boolean
+          duration_minutes?: number | null
+          english_name?: string | null
+          google_maps_url?: string | null
+          id?: string
+          image_source?: string | null
+          images?: string[] | null
+          latitude?: number | null
+          local_name?: string | null
+          longitude?: number | null
+          name: string
+          notes?: string | null
+          opening_hours?: string | null
+          phone?: string | null
+          region?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_agency: string
+          source_tour?: string | null
+          status?: string
+          tags?: string[] | null
+          ticket_price?: string | null
+          type?: string
+          updated_at?: string
+          website?: string | null
+          wikidata_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          address?: string | null
+          approved_attraction_id?: string | null
+          category?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          description_polished?: boolean
+          duration_minutes?: number | null
+          english_name?: string | null
+          google_maps_url?: string | null
+          id?: string
+          image_source?: string | null
+          images?: string[] | null
+          latitude?: number | null
+          local_name?: string | null
+          longitude?: number | null
+          name?: string
+          notes?: string | null
+          opening_hours?: string | null
+          phone?: string | null
+          region?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_agency?: string
+          source_tour?: string | null
+          status?: string
+          tags?: string[] | null
+          ticket_price?: string | null
+          type?: string
+          updated_at?: string
+          website?: string | null
+          wikidata_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'scrape_candidates_approved_attraction_id_fkey'
+            columns: ['approved_attraction_id']
+            isOneToOne: false
+            referencedRelation: 'attractions'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'scrape_candidates_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'scrape_candidates_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      scrape_products: {
+        Row: {
+          country: string | null
+          created_at: string
+          departures: string[] | null
+          destinations: string[] | null
+          duration_days: number | null
+          id: string
+          last_checked_at: string | null
+          last_scrape_at: string | null
+          price_from: number | null
+          price_text: string | null
+          source_agency: string
+          source_code: string | null
+          source_url: string | null
+          status: string
+          title: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          departures?: string[] | null
+          destinations?: string[] | null
+          duration_days?: number | null
+          id?: string
+          last_checked_at?: string | null
+          last_scrape_at?: string | null
+          price_from?: number | null
+          price_text?: string | null
+          source_agency: string
+          source_code?: string | null
+          source_url?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          departures?: string[] | null
+          destinations?: string[] | null
+          duration_days?: number | null
+          id?: string
+          last_checked_at?: string | null
+          last_scrape_at?: string | null
+          price_from?: number | null
+          price_text?: string | null
+          source_agency?: string
+          source_code?: string | null
+          source_url?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'scrape_products_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       selector_field_roles: {
         Row: {
           field_id: string
@@ -11021,6 +11320,56 @@ export type Database = {
           },
         ]
       }
+      workspace_line_usage: {
+        Row: {
+          billing_month: string
+          created_at: string
+          id: string
+          last_error_at: string | null
+          last_error_code: string | null
+          monthly_limit: number
+          plan: string
+          push_fail_count: number
+          push_success_count: number
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          billing_month: string
+          created_at?: string
+          id?: string
+          last_error_at?: string | null
+          last_error_code?: string | null
+          monthly_limit?: number
+          plan?: string
+          push_fail_count?: number
+          push_success_count?: number
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          billing_month?: string
+          created_at?: string
+          id?: string
+          last_error_at?: string | null
+          last_error_code?: string | null
+          monthly_limit?: number
+          plan?: string
+          push_fail_count?: number
+          push_success_count?: number
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'workspace_line_usage_workspace_id_fkey'
+            columns: ['workspace_id']
+            isOneToOne: false
+            referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       workspace_roles: {
         Row: {
           created_at: string | null
@@ -11029,6 +11378,7 @@ export type Database = {
           is_admin: boolean | null
           is_system_bot: boolean
           name: string
+          read_scope: string
           sort_order: number | null
           updated_at: string | null
           workspace_id: string | null
@@ -11040,6 +11390,7 @@ export type Database = {
           is_admin?: boolean | null
           is_system_bot?: boolean
           name: string
+          read_scope?: string
           sort_order?: number | null
           updated_at?: string | null
           workspace_id?: string | null
@@ -11051,6 +11402,7 @@ export type Database = {
           is_admin?: boolean | null
           is_system_bot?: boolean
           name?: string
+          read_scope?: string
           sort_order?: number | null
           updated_at?: string | null
           workspace_id?: string | null
@@ -11275,6 +11627,7 @@ export type Database = {
           invoice_seal_image_url: string | null
           is_active: boolean | null
           is_multi_branch: boolean
+          is_multi_department: boolean
           leave_policy: string
           legal_name: string | null
           logo_offset_x: number
@@ -11340,6 +11693,7 @@ export type Database = {
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
           is_multi_branch?: boolean
+          is_multi_department?: boolean
           leave_policy?: string
           legal_name?: string | null
           logo_offset_x?: number
@@ -11405,6 +11759,7 @@ export type Database = {
           invoice_seal_image_url?: string | null
           is_active?: boolean | null
           is_multi_branch?: boolean
+          is_multi_department?: boolean
           leave_policy?: string
           legal_name?: string | null
           logo_offset_x?: number
@@ -11984,10 +12339,10 @@ export type Database = {
       }
       increment_line_usage: {
         Args: {
-          p_workspace_id: string
           p_billing_month: string
+          p_error_code?: string
           p_success: boolean
-          p_error_code?: string | null
+          p_workspace_id: string
         }
         Returns: undefined
       }

@@ -7,7 +7,14 @@ import { Switch } from '@/components/ui/switch'
 import { Shield, CheckSquare, Loader2 } from 'lucide-react'
 import { ChevronRight, ChevronDown } from 'lucide-react'
 import { type ModuleDefinition, type TabPermission } from '@/lib/permissions'
-import type { Role } from '@/data/hooks/useRoles'
+import type { Role, RoleReadScope } from '@/data/hooks/useRoles'
+
+const READ_SCOPE_LABELS = {
+  self: { title: '只看自己', desc: '只能看到自己負責 / 經手的資料（業務員工）' },
+  department: { title: '看自己部門', desc: '可看自己所屬部門全部成員資料（部門主管）' },
+  branch: { title: '看自己分公司', desc: '可看自己所屬分公司資料（分公司主管）' },
+  group: { title: '看全集團', desc: '可看全公司全部資料（系統主管級）' },
+} as const
 
 interface RoleCapabilityTableProps {
   selectedRole: Role | null
@@ -15,6 +22,10 @@ interface RoleCapabilityTableProps {
   permissions: TabPermission[]
   expandedModules: string[]
   saving: boolean
+  readScope: RoleReadScope
+  onReadScopeChange: (scope: RoleReadScope) => void
+  isMultiBranch: boolean
+  isMultiDepartment: boolean
   onToggleExpand: (moduleCode: string) => void
   onToggleModuleAll: (module: ModuleDefinition, field: 'can_read' | 'can_write') => void
   onToggleTabPermission: (
@@ -34,6 +45,10 @@ export function RoleCapabilityTable({
   permissions: _permissions,
   expandedModules,
   saving,
+  readScope,
+  onReadScopeChange,
+  isMultiBranch,
+  isMultiDepartment,
   onToggleExpand,
   onToggleModuleAll,
   onToggleTabPermission,
@@ -42,6 +57,13 @@ export function RoleCapabilityTable({
   isModuleFullyEnabled,
   isModulePartiallyEnabled,
 }: RoleCapabilityTableProps) {
+  // 根據租戶設定決定哪些 scope 可選；self / group 永遠顯示
+  const visibleScopes: RoleReadScope[] = [
+    'self',
+    ...(isMultiDepartment ? (['department'] as const) : []),
+    ...(isMultiBranch ? (['branch'] as const) : []),
+    'group',
+  ]
   const renderModuleRow = (module: ModuleDefinition) => {
     const hasTabs = module.tabs.length > 0
     const isExpanded = expandedModules.includes(module.code)
@@ -172,7 +194,7 @@ export function RoleCapabilityTable({
         </div>
         {selectedRole && (
           <Button
-            variant="morandi-gold"
+            variant="header-outline"
             onClick={onSavePermissions}
             disabled={saving}
             size="sm"
@@ -191,6 +213,57 @@ export function RoleCapabilityTable({
       <div className="flex-1 overflow-y-auto">
         {selectedRole ? (
           <div>
+            {/* 讀取範圍（scope） — 控制此職務看資料的「廣度」 */}
+            <div className="p-4 bg-morandi-bg/20 border-b border-border space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-morandi-primary">讀取範圍</p>
+                  <p className="text-xs text-morandi-secondary mt-0.5">
+                    決定此職務能看多大範圍的資料（修改後請按下方「儲存」生效）
+                  </p>
+                </div>
+              </div>
+              <div
+                className={`grid grid-cols-1 gap-2 ${
+                  visibleScopes.length === 2
+                    ? 'md:grid-cols-2'
+                    : visibleScopes.length === 3
+                      ? 'md:grid-cols-3'
+                      : 'md:grid-cols-4'
+                }`}
+              >
+                {visibleScopes.map(scope => {
+                  const label = READ_SCOPE_LABELS[scope]
+                  const checked = readScope === scope
+                  return (
+                    <label
+                      key={scope}
+                      className={`flex flex-col gap-1 p-3 border rounded cursor-pointer transition ${
+                        checked
+                          ? 'border-morandi-gold bg-morandi-gold/10'
+                          : 'border-border hover:bg-morandi-container/30'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="read_scope"
+                          value={scope}
+                          checked={checked}
+                          onChange={() => onReadScopeChange(scope)}
+                          className="accent-morandi-gold"
+                        />
+                        <span className="font-medium text-sm text-morandi-primary">
+                          {label.title}
+                        </span>
+                      </div>
+                      <p className="text-xs text-morandi-muted ml-6">{label.desc}</p>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+
             {/* 表頭 */}
             <div className="flex items-center bg-card sticky top-0 z-20 border-b border-border shadow-sm">
               <div className="flex-1 p-4 font-semibold text-morandi-primary">功能模組</div>
