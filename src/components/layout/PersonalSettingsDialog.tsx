@@ -1,7 +1,17 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Camera, Lock, RotateCcw } from 'lucide-react'
+import {
+  Camera,
+  Lock,
+  RotateCcw,
+  ImageIcon,
+  Palette,
+  Type,
+  ShieldCheck,
+  BookOpen,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
@@ -58,6 +68,17 @@ const MSG = {
 
 const SECTION_TITLE = 'text-sm font-medium text-morandi-primary mb-2'
 
+/** 左側 nav 5 項定義（icon + label + key）*/
+const NAV_SECTIONS = [
+  { key: 'photo', label: LABELS.PHOTO, icon: ImageIcon },
+  { key: 'theme', label: LABELS.THEME, icon: Palette },
+  { key: 'fontSize', label: LABELS.FONT_SIZE, icon: Type },
+  { key: 'security', label: LABELS.ACCOUNT_SECURITY, icon: ShieldCheck },
+  { key: 'tours', label: LABELS.TOURS, icon: BookOpen },
+] as const
+
+type SectionKey = (typeof NAV_SECTIONS)[number]['key']
+
 export function PersonalSettingsDialog({
   open,
   onOpenChange,
@@ -69,6 +90,9 @@ export function PersonalSettingsDialog({
   const workspaceId = useWorkspaceId()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { isEnabled, setEnabled, resetAll, definitions } = useTourPreferences()
+
+  // 左側 nav 選中的 section
+  const [activeSection, setActiveSection] = useState<SectionKey>('photo')
 
   // 頭像
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar_url ?? null)
@@ -181,111 +205,147 @@ export function PersonalSettingsDialog({
         open={open}
         onOpenChange={onOpenChange}
         title={LABELS.TITLE}
-        maxWidth="md"
+        maxWidth="4xl"
         showFooter={false}
         loading={false}
       >
-        <div className="space-y-6 py-2">
-          {/* 上傳照片 */}
-          <section>
-            <h4 className={SECTION_TITLE}>{LABELS.PHOTO}</h4>
-            <div className="flex items-center gap-4">
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="w-16 h-16 rounded-xl bg-morandi-gold/10 border-2 border-dashed border-morandi-gold/30 flex items-center justify-center overflow-hidden cursor-pointer hover:border-morandi-gold transition-all"
-              >
-                {avatarPreview ? (
-                  <img
-                    src={avatarPreview}
-                    alt={LABELS.AVATAR_ALT}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Camera className="w-6 h-6 text-morandi-secondary" />
-                )}
-              </div>
-              <Button
-                type="button"
-                variant="header-outline"
-                size="sm"
-                disabled={avatarUploading}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {avatarUploading ? LABELS.UPLOADING : LABELS.UPLOAD}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarChange}
-                className="hidden"
-              />
-            </div>
-          </section>
-
-          {/* 主題 */}
-          <section>
-            <h4 className={SECTION_TITLE}>{LABELS.THEME}</h4>
-            <ThemeSwitcher showLabel={false} />
-          </section>
-
-          {/* 字體大小 */}
-          <section>
-            <h4 className={SECTION_TITLE}>{LABELS.FONT_SIZE}</h4>
-            <FontScaleSwitcher showLabel={false} />
-          </section>
-
-          {/* 修改密碼 */}
-          <section>
-            <h4 className={SECTION_TITLE}>{LABELS.ACCOUNT_SECURITY}</h4>
-            <Button
-              type="button"
-              variant="header-outline"
-              size="sm"
-              onClick={() => setShowPassword(true)}
-            >
-              <Lock className="w-4 h-4 mr-1.5" />
-              {LABELS.CHANGE_PASSWORD}
-            </Button>
-          </section>
-
-          {/* 教學提示開關 */}
-          <section>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className={SECTION_TITLE + ' mb-0'}>{LABELS.TOURS}</h4>
-              <Button
-                type="button"
-                variant="header-outline"
-                size="sm"
-                onClick={() => {
-                  resetAll()
-                  toast.success(LABELS.TOURS_RESET_OK)
-                }}
-              >
-                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                {LABELS.TOURS_RESET_ALL}
-              </Button>
-            </div>
-            <p className="text-xs text-morandi-muted mb-3">{LABELS.TOURS_HINT}</p>
-            <div className="space-y-2.5 rounded-lg border border-morandi-border bg-morandi-surface p-3">
-              {definitions.map(tour => (
-                <label
-                  key={tour.name}
-                  className="flex items-start gap-2.5 cursor-pointer hover:bg-morandi-bg/40 -mx-1.5 px-1.5 py-1 rounded transition-colors"
+        {/* 左右分欄：左 nav 200px、右 content flex-1 */}
+        <div className="grid grid-cols-[200px_1fr] gap-6 py-2 min-h-[480px]">
+          {/* ─── 左側 nav ─── */}
+          <nav className="border-r border-morandi-border pr-4">
+            <div className="space-y-1">
+              {NAV_SECTIONS.map(({ key, label, icon: Icon }) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setActiveSection(key)}
+                  className={cn(
+                    'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors',
+                    activeSection === key
+                      ? 'bg-morandi-gold/10 text-morandi-primary font-medium'
+                      : 'text-morandi-secondary hover:bg-morandi-bg/60 hover:text-morandi-primary'
+                  )}
                 >
-                  <Checkbox
-                    checked={isEnabled(tour.name)}
-                    onCheckedChange={checked => setEnabled(tour.name, checked === true)}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-morandi-primary">{tour.label}</div>
-                    <div className="text-xs text-morandi-muted">{tour.description}</div>
-                  </div>
-                </label>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{label}</span>
+                </button>
               ))}
             </div>
-          </section>
+          </nav>
+
+          {/* ─── 右側 content ─── */}
+          <div className="min-w-0">
+            {/* 上傳照片 */}
+            {activeSection === 'photo' && (
+              <section>
+                <h4 className={SECTION_TITLE}>{LABELS.PHOTO}</h4>
+                <div className="flex items-center gap-4">
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-20 h-20 rounded-xl bg-morandi-gold/10 border-2 border-dashed border-morandi-gold/30 flex items-center justify-center overflow-hidden cursor-pointer hover:border-morandi-gold transition-all"
+                  >
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview}
+                        alt={LABELS.AVATAR_ALT}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Camera className="w-7 h-7 text-morandi-secondary" />
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="header-outline"
+                    size="sm"
+                    disabled={avatarUploading}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {avatarUploading ? LABELS.UPLOADING : LABELS.UPLOAD}
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </div>
+              </section>
+            )}
+
+            {/* 主題 */}
+            {activeSection === 'theme' && (
+              <section>
+                <h4 className={SECTION_TITLE}>{LABELS.THEME}</h4>
+                <ThemeSwitcher showLabel={false} />
+              </section>
+            )}
+
+            {/* 字體大小 */}
+            {activeSection === 'fontSize' && (
+              <section>
+                <h4 className={SECTION_TITLE}>{LABELS.FONT_SIZE}</h4>
+                <FontScaleSwitcher showLabel={false} />
+              </section>
+            )}
+
+            {/* 修改密碼 */}
+            {activeSection === 'security' && (
+              <section>
+                <h4 className={SECTION_TITLE}>{LABELS.ACCOUNT_SECURITY}</h4>
+                <Button
+                  type="button"
+                  variant="header-outline"
+                  size="sm"
+                  onClick={() => setShowPassword(true)}
+                >
+                  <Lock className="w-4 h-4 mr-1.5" />
+                  {LABELS.CHANGE_PASSWORD}
+                </Button>
+              </section>
+            )}
+
+            {/* 教學提示開關 */}
+            {activeSection === 'tours' && (
+              <section>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className={SECTION_TITLE + ' mb-0'}>{LABELS.TOURS}</h4>
+                  <Button
+                    type="button"
+                    variant="header-outline"
+                    size="sm"
+                    onClick={() => {
+                      resetAll()
+                      toast.success(LABELS.TOURS_RESET_OK)
+                    }}
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                    {LABELS.TOURS_RESET_ALL}
+                  </Button>
+                </div>
+                <p className="text-xs text-morandi-muted mb-3">{LABELS.TOURS_HINT}</p>
+                <div className="space-y-2.5 rounded-lg border border-morandi-border bg-morandi-surface p-3 max-h-[380px] overflow-y-auto">
+                  {definitions.map(tour => (
+                    <label
+                      key={tour.name}
+                      className="flex items-start gap-2.5 cursor-pointer hover:bg-morandi-bg/40 -mx-1.5 px-1.5 py-1 rounded transition-colors"
+                    >
+                      <Checkbox
+                        checked={isEnabled(tour.name)}
+                        onCheckedChange={checked => setEnabled(tour.name, checked === true)}
+                        className="mt-0.5"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-morandi-primary">{tour.label}</div>
+                        <div className="text-xs text-morandi-muted">{tour.description}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
         </div>
       </FormDialog>
 
