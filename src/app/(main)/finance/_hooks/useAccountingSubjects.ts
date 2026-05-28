@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
+// eslint-disable-next-line venturo/no-direct-useswr-in-pages -- 走 API endpoint（內部 account_type → type mapping）、entity hook 不適用；字典型長快取、SSOT 遷移排後（紅線 F 過渡）
 import useSWR from 'swr'
 import { useAuthStore } from '@/stores/auth-store'
 import { apiGet } from '@/lib/api/client'
