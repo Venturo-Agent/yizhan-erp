@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import useSWR from 'swr'
 import { useAuthStore } from '@/stores/auth-store'
-import { logger } from '@/lib/utils/logger'
 import { apiGet } from '@/lib/api/client'
 
 interface AccountingSubject {
@@ -22,27 +22,17 @@ export function useAccountingSubjects(
   filterType?: 'expense' | 'cost' | 'asset' | 'liability' | 'revenue'
 ) {
   const workspaceId = useAuthStore(s => s.user?.workspace_id)
-  const [items, setItems] = useState<AccountingSubject[]>([])
-  const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (!workspaceId) return
-    let cancelled = false
-    setLoading(true)
-    apiGet<AccountingSubject[]>(`/api/finance/accounting-subjects?workspace_id=${workspaceId}`)
-      .then(data => {
-        if (!cancelled) setItems(Array.isArray(data) ? data : [])
-      })
-      .catch(err => {
-        if (!cancelled) logger.error('[useAccountingSubjects] load failed', err)
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [workspaceId])
+  // 會計科目是「字典型」資料（很少變、只有改科目表才動）→ 長快取、不每次開「新增請款」都重撈整本。
+  // 30 分鐘內多次掛載共用快取（效能 #2：省 Supabase egress）。走 API endpoint（內部 mapping account_type）、非 entity table。
+  // eslint-disable-next-line venturo/no-direct-useswr-in-pages -- 走 API endpoint、entity hook 不適用；字典型長快取、比照其他自訂查詢 hook
+  const { data, isLoading: loading } = useSWR(
+    workspaceId ? `accounting-subjects:${workspaceId}` : null,
+    () =>
+      apiGet<AccountingSubject[]>(`/api/finance/accounting-subjects?workspace_id=${workspaceId}`),
+    { revalidateOnFocus: false, dedupingInterval: 30 * 60 * 1000 }
+  )
+  const items = useMemo<AccountingSubject[]>(() => (Array.isArray(data) ? data : []), [data])
 
   // 根據 filterType 過濾
   const subjects: AccountingSubject[] = useMemo(() => {
