@@ -26,7 +26,6 @@ export function useAccountingSubjects(
 
   // 會計科目是「字典型」資料（很少變、只有改科目表才動）→ 長快取、不每次開「新增請款」都重撈整本。
   // 30 分鐘內多次掛載共用快取（效能 #2：省 Supabase egress）。走 API endpoint（內部 mapping account_type）、非 entity table。
-  // eslint-disable-next-line venturo/no-direct-useswr-in-pages -- 走 API endpoint、entity hook 不適用；字典型長快取、比照其他自訂查詢 hook
   const { data, isLoading: loading } = useSWR(
     workspaceId ? `accounting-subjects:${workspaceId}` : null,
     () =>
