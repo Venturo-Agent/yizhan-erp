@@ -14,14 +14,8 @@ import { X, CheckSquare } from 'lucide-react'
 import { NewTourData } from '../_types'
 import type { OrderFormData } from '@/app/(main)/orders/_components/add-order-form'
 import { TourBasicInfo, TourSettings, TourOrderSection } from './tour-form'
-import { Input } from '@/components/ui/input'
 import { TOUR_FORM } from '../_constants'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
-
-const COMPONENT_LABELS = {
-  REMARKS: '備註',
-  REMARKS_PLACEHOLDER: '內部備註，客人看不到',
-} as const
 
 interface TourFormShellProps {
   isOpen: boolean
@@ -152,36 +146,11 @@ export function TourFormShell({
               <div className="space-y-4">
                 <TourBasicInfo newTour={newTour} setNewTour={setNewTour} />
 
-                {/* 備註 + 團控 一半一半（提案/模板不顯示團控）*/}
-                {!isProposalOrTemplate ? (
-                  <div className="grid grid-cols-2 gap-4 items-start">
-                    <div>
-                      <label className="text-sm font-medium text-morandi-primary">
-                        {COMPONENT_LABELS.REMARKS}
-                      </label>
-                      <Input
-                        value={newTour.description || ''}
-                        onChange={e =>
-                          setNewTour(prev => ({ ...prev, description: e.target.value }))
-                        }
-                        placeholder={COMPONENT_LABELS.REMARKS_PLACEHOLDER}
-                        className="mt-1"
-                      />
-                    </div>
-                    <TourSettings newTour={newTour} setNewTour={setNewTour} />
-                  </div>
-                ) : (
-                  <div>
-                    <label className="text-sm font-medium text-morandi-primary">
-                      {COMPONENT_LABELS.REMARKS}
-                    </label>
-                    <Input
-                      value={newTour.description || ''}
-                      onChange={e => setNewTour(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder={COMPONENT_LABELS.REMARKS_PLACEHOLDER}
-                      className="mt-1"
-                    />
-                  </div>
+                {/* 備註欄位已隱藏（William 2026-05-28：內部備註沒意義、先藏）。
+                    description state 保留、DB 欄位不動，要恢復見此 commit 的 git history。
+                    團控（TourSettings）仍顯示、僅正式團。*/}
+                {!isProposalOrTemplate && (
+                  <TourSettings newTour={newTour} setNewTour={setNewTour} />
                 )}
               </div>
             </div>

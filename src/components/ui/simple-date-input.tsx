@@ -221,7 +221,7 @@ export function SimpleDateInput({
             align="start"
             side="bottom"
             sideOffset={4}
-            avoidCollisions={false}
+            avoidCollisions
           >
             <Calendar
               mode="single"
