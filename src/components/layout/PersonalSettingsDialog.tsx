@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Camera, Lock } from 'lucide-react'
+import { Camera, Lock, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useWorkspaceId } from '@/lib/workspace-context'
 import { logger } from '@/lib/utils/logger'
 import { COMMON_MESSAGES } from '@/constants/messages'
+import { useTourPreferences } from '@/lib/tours/tour-preferences'
 
 /**
  * 個人偏好 dialog（側邊欄底部「扳手」開啟）
@@ -37,6 +38,10 @@ const LABELS = {
   SHOW_PASSWORD: '顯示密碼',
   CONFIRM: '確認修改',
   CANCEL: '取消',
+  TOURS: '教學提示',
+  TOURS_HINT: '勾起來 = 進對應頁面會自動跑教學氣泡；跑完自動取消勾、之後不再煩。',
+  TOURS_RESET_ALL: '全部重看',
+  TOURS_RESET_OK: '已重置、所有教學重新開啟',
 } as const
 
 const MSG = {
@@ -63,6 +68,7 @@ export function PersonalSettingsDialog({
   const { user } = useAuthStore()
   const workspaceId = useWorkspaceId()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const { isEnabled, setEnabled, resetAll, definitions } = useTourPreferences()
 
   // 頭像
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar_url ?? null)
@@ -241,6 +247,44 @@ export function PersonalSettingsDialog({
               <Lock className="w-4 h-4 mr-1.5" />
               {LABELS.CHANGE_PASSWORD}
             </Button>
+          </section>
+
+          {/* 教學提示開關 */}
+          <section>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className={SECTION_TITLE + ' mb-0'}>{LABELS.TOURS}</h4>
+              <Button
+                type="button"
+                variant="header-outline"
+                size="sm"
+                onClick={() => {
+                  resetAll()
+                  toast.success(LABELS.TOURS_RESET_OK)
+                }}
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                {LABELS.TOURS_RESET_ALL}
+              </Button>
+            </div>
+            <p className="text-xs text-morandi-muted mb-3">{LABELS.TOURS_HINT}</p>
+            <div className="space-y-2.5 rounded-lg border border-morandi-border bg-morandi-surface p-3">
+              {definitions.map(tour => (
+                <label
+                  key={tour.name}
+                  className="flex items-start gap-2.5 cursor-pointer hover:bg-morandi-bg/40 -mx-1.5 px-1.5 py-1 rounded transition-colors"
+                >
+                  <Checkbox
+                    checked={isEnabled(tour.name)}
+                    onCheckedChange={checked => setEnabled(tour.name, checked === true)}
+                    className="mt-0.5"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-morandi-primary">{tour.label}</div>
+                    <div className="text-xs text-morandi-muted">{tour.description}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
           </section>
         </div>
       </FormDialog>

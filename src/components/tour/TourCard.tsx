@@ -27,6 +27,7 @@ export function TourCard({
 
   return (
     <div
+      data-tour-card="true"
       className="w-80 max-w-[90vw] rounded-xl border border-morandi-gold/20 bg-morandi-cream p-5 shadow-lg"
       style={bottomAnchoredStyle}
     >

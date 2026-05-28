@@ -53,7 +53,7 @@ export function RoleCapabilityTable({
     const writePartial = isModulePartiallyEnabled(module, 'can_write')
 
     return (
-      <div key={module.code}>
+      <div key={module.code} data-tutorial={`role-module-${module.code}`}>
         {/* 模組行 */}
         <div
           className={`flex items-center border-t border-border ${hasTabs ? 'bg-morandi-bg/30' : 'bg-card'}`}

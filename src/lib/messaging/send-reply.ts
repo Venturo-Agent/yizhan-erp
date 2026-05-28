@@ -146,9 +146,14 @@ async function sendViaLine(
     return { ok: false, error: 'LINE token 未設定、請重新跑 LINE Bot 自助開通' }
   }
 
+  // external_user_id 帶 group:/room: 前綴（inbox 內部約定、區分群組 vs 個人）；
+  // LINE push 的 to 只認純 ID（C.../R.../U...），帶前綴會被回 400「property 'to' is invalid」。
+  // 跟 refresh-group-profiles 既有去前綴寫法對齊。log 表維持帶前綴（接收端也這樣存）。
+  const lineTargetId = conv.external_user_id.replace(/^(group|room):/, '')
+
   const result = await pushLineText({
     channelAccessToken: accessToken,
-    toUserId: conv.external_user_id,
+    toUserId: lineTargetId,
     text: input.text,
   })
 

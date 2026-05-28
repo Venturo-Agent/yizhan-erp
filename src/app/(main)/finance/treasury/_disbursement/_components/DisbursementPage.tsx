@@ -377,6 +377,8 @@ export function DisbursementPage() {
               }
             : undefined
         }
+        rootDataTutorial="disbursement-header"
+        tableDataTutorial="disbursement-table"
       />
 
       {/* Dialogs — 新增 / 編輯共用同一個 wizard（2026-05-15 William 拍板統一） */}

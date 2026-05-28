@@ -122,7 +122,10 @@ export async function saveEditedRequest({
     // ═══════════════════════════════════════════════════════════════════════
 
     // === 1. 依品項日期分組 ===
-    const originalDate = currentRequest.request_date || ''
+    // 2026-05-28 修：originalDate 優先讀 formData.request_date（使用者在 dialog 改的、單一真相）；
+    // 否則 fallback 到 currentRequest.request_date（改之前 / 從 DB 來的）。
+    // 之前 c883a6c 只讀 currentRequest 忽略 formData → 使用者改日期沒效果、外面列表也不刷新。
+    const originalDate = formData.request_date || currentRequest.request_date || ''
     const groups = new Map<string, RequestItem[]>()
     for (const item of localItems) {
       const d = item.custom_request_date || originalDate

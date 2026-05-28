@@ -11,7 +11,6 @@ import { Plus, ChevronUp, ChevronDown, ImageIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FormDialog } from '@/components/dialog'
-import { PassportUploadZone } from './PassportUploadZone'
 import type { ProcessedFile } from '../_types/order-member.types'
 import type { PendingConfirmation } from '../_hooks/usePassportUpload'
 import { usePassportImageUrl } from '@/lib/passport-storage/usePassportImageUrl'
@@ -211,26 +210,9 @@ export function AddMemberDialog({
           </div>
         </div>
 
-        {passportOcrEnabled && (
-          <>
-            <div className="border-t border-border" />
-
-            {/* 護照批次上傳（使用共用組件，支援圖片增強） */}
-            <PassportUploadZone
-              processedFiles={processedFiles}
-              isUploading={isUploading}
-              isDragging={isDragging}
-              isProcessing={isProcessing}
-              onFileChange={onFileChange}
-              onDragOver={onDragOver}
-              onDragLeave={onDragLeave}
-              onDrop={onDrop}
-              onRemoveFile={onRemoveFile}
-              onBatchUpload={onBatchUpload}
-              onUpdateFilePreview={onUpdateFilePreview}
-            />
-          </>
-        )}
+        {/* 護照批次辨識 OCR 區塊（2026-05-28 William 拍板移除）
+            原本在這的 <PassportUploadZone /> 已拿掉；PassportUploadZone.tsx 與
+            usePassportUpload.ts 變孤兒、檔保留以備未來重啟，code 路徑未進 bundle。 */}
 
         {/* 重複成員確認區 — 圖片比對 */}
         {pendingConfirmations && pendingConfirmations.length > 0 && (

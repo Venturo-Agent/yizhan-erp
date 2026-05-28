@@ -128,6 +128,12 @@ interface ListPageLayoutProps<T extends object> {
   // ========== 樣式 ==========
   /** 容器 className */
   className?: string
+
+  // ========== 導覽錨點 ==========
+  /** 透傳給 ResponsiveHeader 的 data-tutorial 錨點（給 NextStepjs 導覽用、可選） */
+  rootDataTutorial?: string
+  /** 表格區域外層 data-tutorial 錨點（給 NextStepjs 框「資料表本體」用、可選） */
+  tableDataTutorial?: string
 }
 
 /**
@@ -191,6 +197,8 @@ export function ListPageLayout<T extends object>({
   badge,
   headerChildren,
   className,
+  rootDataTutorial,
+  tableDataTutorial,
 }: ListPageLayoutProps<T>) {
   // ========== 內部狀態管理 ==========
   const [searchQuery, setSearchQuery] = useState('')
@@ -245,6 +253,7 @@ export function ListPageLayout<T extends object>({
         primaryAction={primaryAction}
         actions={headerActions}
         badge={badge}
+        rootDataTutorial={rootDataTutorial}
       >
         {headerChildren}
       </ResponsiveHeader>
@@ -253,7 +262,7 @@ export function ListPageLayout<T extends object>({
       {beforeTable}
 
       {/* 表格區域 */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden" data-tutorial={tableDataTutorial}>
         <div className="h-full">
           <EnhancedTable
             columns={columns as TableColumn[]}

@@ -86,6 +86,10 @@ interface ContentPageLayoutProps {
   className?: string
   /** 內容區域 className */
   contentClassName?: string
+
+  // ========== 導覽錨點 ==========
+  /** 透傳給 ResponsiveHeader 的 data-tutorial 錨點（給 NextStepjs 導覽用、可選） */
+  rootDataTutorial?: string
 }
 
 /**
@@ -140,6 +144,7 @@ export function ContentPageLayout({
   children,
   className,
   contentClassName,
+  rootDataTutorial,
 }: ContentPageLayoutProps) {
   return (
     <div className={className || 'flex-1 min-h-0 flex flex-col'}>
@@ -170,6 +175,7 @@ export function ContentPageLayout({
         filters={filters}
         showClearFilters={showClearFilters}
         onClearFilters={onClearFilters}
+        rootDataTutorial={rootDataTutorial}
       >
         {headerChildren}
       </ResponsiveHeader>

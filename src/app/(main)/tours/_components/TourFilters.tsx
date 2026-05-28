@@ -47,6 +47,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({
 
   return (
     <ResponsiveHeader
+      rootDataTutorial="tours-header"
       title={TOUR_FILTERS.page_title}
       icon={MapPin}
       breadcrumb={[{ label: TOUR_FILTERS.breadcrumb_tours, href: '/tours' }]}
@@ -61,7 +62,7 @@ export const TourFilters: React.FC<TourFiltersProps> = ({
         // Dropdown trigger 不能塞進結構化 primaryAction、走 headerActions escape hatch、Trigger 用 header-outline 統一視覺
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="header-outline" size="sm">
+            <Button variant="header-outline" size="sm" data-tutorial="tour-add-button">
               <Plus />
               {t('filterAddProject')}
             </Button>

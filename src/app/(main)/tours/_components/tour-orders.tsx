@@ -28,7 +28,7 @@ export function TourOrders({ tour }: TourOrdersProps) {
 
   // 「新增訂單」入口在 /tours 列表的「報名」按鈕、此分頁只負責顯示+操作既有訂單
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" data-tutorial="tour-orders-content">
       <OrderListView
         orders={orders as OrderType[]}
         showTourInfo={false}

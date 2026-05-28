@@ -75,6 +75,7 @@ export function OrderMembersToolbar({
   const t = useTranslations('orders')
   return (
     <div
+      data-tutorial="order-members-toolbar"
       className={
         inHeader
           ? 'flex items-center gap-1'
@@ -98,6 +99,7 @@ export function OrderMembersToolbar({
           size="sm"
           className="h-7 px-2 text-xs text-morandi-secondary"
           onClick={onOpenPnrDialog}
+          data-tutorial="order-members-pnr"
         >
           <Plane size={12} className="mr-1" />
           {t('pnrMatch')}
@@ -331,6 +333,7 @@ export function OrderMembersToolbar({
             size="sm"
             className="h-7 px-2 gap-1 text-xs text-morandi-secondary"
             onClick={onAddMember}
+            data-tutorial="order-members-add"
           >
             <Plus size={12} />
             {t('add')}

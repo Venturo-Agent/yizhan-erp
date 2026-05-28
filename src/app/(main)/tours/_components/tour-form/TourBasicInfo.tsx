@@ -124,7 +124,7 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
 
   // 團類型下拉 JSX（兩處可能用到）
   const tourTypeSelect = enabledTourCategories.length > 1 && (
-    <div>
+    <div data-tutorial="open-tour-type">
       <label className="text-sm font-medium text-morandi-primary">
         {t('tourFormTourType')} <span className="text-status-danger">*</span>
       </label>
@@ -266,14 +266,16 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
       {/* 國家/機場選擇 - 使用共用組件
           外丟團 / 簽證 / 網卡 三類不需選地點、tour code 走 OUT / VISA / ESIM 固定 prefix */}
       {!isNoDestinationType && (
-        <CountryAirportSelector
-          countryName={newTour.countryName}
-          airportCode={newTour.cityCode}
-          onCountryChange={handleCountryChange}
-          onAirportChange={handleAirportChange}
-          disablePortal
-          showLabels
-        />
+        <div data-tutorial="open-tour-destination">
+          <CountryAirportSelector
+            countryName={newTour.countryName}
+            airportCode={newTour.cityCode}
+            onCountryChange={handleCountryChange}
+            onAirportChange={handleAirportChange}
+            disablePortal
+            showLabels
+          />
+        </div>
       )}
 
       {isProposalOrTemplate ? (

@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
+import { useNextStep } from 'nextstepjs'
 import {
   Dialog,
   DialogContent,
@@ -51,6 +52,25 @@ export function TourFormShell({
   // SSOT：航班屬於旅遊團「行程編輯」分頁，開團時不再選填航班
   const isProposalOrTemplate =
     newTour.status === TOUR_STATUS.PROPOSAL || newTour.status === TOUR_STATUS.TEMPLATE
+
+  // 新建模式導覽：dialog 開啟 + create 模式才跑、依 status 切不同 tour
+  // - 正式團 create → 'open-tour'（寬版、有右欄訂單）
+  // - 提案 / 模板 → 'open-proposal'（窄版、只左欄）
+  // edit 模式不跑。
+  const { startNextStep } = useNextStep()
+  const tourStartedRef = useRef(false)
+  useEffect(() => {
+    if (!isOpen) {
+      tourStartedRef.current = false // dialog 關閉重設、下次開能再觸發
+      return
+    }
+    if (mode !== 'create' || tourStartedRef.current) return
+    tourStartedRef.current = true
+    const tourName = isProposalOrTemplate ? 'open-proposal' : 'open-tour'
+    // 延遲讓 dialog DOM mount + 子組件載入（TourSettings 等可能 async）
+    const timer = setTimeout(() => startNextStep(tourName), 200)
+    return () => clearTimeout(timer)
+  }, [isOpen, mode, isProposalOrTemplate, startNextStep])
 
   // 決定標題
   const getTitle = () => {
@@ -111,18 +131,27 @@ export function TourFormShell({
     >
       <DialogContent
         level={dialogLevel}
+        data-tutorial="open-tour-dialog"
         className={`${dialogWidth} w-[90vw] h-[80vh] overflow-hidden`}
         aria-describedby={undefined}
         onInteractOutside={e => {
           const target = e.target as HTMLElement
-          if (target.closest('[role="listbox"]') || target.closest('select')) {
+          if (
+            target.closest('[role="listbox"]') ||
+            target.closest('select') ||
+            target.closest('[data-tour-card]')
+          ) {
             e.preventDefault()
           }
         }}
         onPointerDownOutside={e => {
           const target = e.target as HTMLElement
-          // 允許點擊下拉選單（Combobox、Select 等）
-          if (target.closest('[role="listbox"]') || target.closest('select')) {
+          // 允許點擊下拉選單（Combobox / Select）+ 點導覽卡片（教學中按下一步不關 dialog）
+          if (
+            target.closest('[role="listbox"]') ||
+            target.closest('select') ||
+            target.closest('[data-tour-card]')
+          ) {
             e.preventDefault()
           }
         }}
@@ -137,6 +166,7 @@ export function TourFormShell({
         <div className="flex h-full overflow-hidden">
           {/* Left side - Tour info */}
           <div
+            data-tutorial="open-tour-info"
             className={`flex-1 ${mode === 'create' && !isProposalOrTemplate ? 'pr-6 border-r border-border' : ''}`}
           >
             <div className="h-full overflow-y-auto">
@@ -158,7 +188,7 @@ export function TourFormShell({
 
           {/* Right side - Order info (只在正式團新增模式顯示) */}
           {mode === 'create' && !isProposalOrTemplate && (
-            <div className="flex-1 pl-6">
+            <div data-tutorial="open-tour-order" className="flex-1 pl-6">
               <div className="h-full overflow-y-auto">
                 <TourOrderSection newOrder={newOrder} setNewOrder={setNewOrder} />
               </div>
@@ -172,7 +202,12 @@ export function TourFormShell({
             <X size={16} />
             {TOUR_FORM.cancel}
           </Button>
-          <Button variant="morandi-gold" onClick={onSubmit} disabled={isSubmitDisabled()}>
+          <Button
+            variant="header-outline"
+            onClick={onSubmit}
+            disabled={isSubmitDisabled()}
+            data-tutorial="open-tour-submit"
+          >
             <CheckSquare size="1em" />
             {getSubmitLabel()}
           </Button>

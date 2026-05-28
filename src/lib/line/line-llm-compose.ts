@@ -9,7 +9,6 @@ import { dispatchLLM } from '@/lib/ai/llm-dispatcher'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { filterActive } from '@/lib/data/filter-active'
 import { logger } from '@/lib/utils/logger'
-import { searchKnowledgeByKeywords, buildRagBlock } from '@/lib/rag/keyword-search'
 import { buildProductBlock } from '@/lib/ai/product-context'
 import { getCompanyName } from '@/lib/ai/get-company-name'
 import { getTaipeiToday, normalizeDatesInText } from '@/lib/line/date-normalizer'
@@ -127,28 +126,8 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     ? await fetchMemoryBlock(ctx.workspaceId, conversationId)
     : null
 
-  // RAG keyword 檢索（William 2026-05-19 拍板、Phase 1 不接 embedding 先 keyword）：
-  // 從客戶最新訊息抽地區 / 國家 / 客群 / 季節 / 風格、SQL ILIKE + jsonb tag 篩 knowledge_chunks。
-  // miss 全空 → 不注入、走純對話；命中 → 把片段組成 system prompt 給 LLM 參考。
-  let ragBlock: string | null = null
-  try {
-    const matches = await searchKnowledgeByKeywords({
-      workspaceId: ctx.workspaceId,
-      userText,
-      limit: 5,
-    })
-    ragBlock = buildRagBlock(matches)
-    if (ragBlock) {
-      logger.info(`${HANDLER}: rag matched`, {
-        workspaceId: ctx.workspaceId,
-        matchCount: matches.length,
-        regions: [...new Set(matches.map(m => m.region))],
-      })
-    }
-  } catch (err) {
-    // RAG 失敗不擋對話、走純 LLM
-    logger.warn(`${HANDLER}: rag search failed (ignored)`, { err })
-  }
+  // 2026-05-28 William 拍板「白痴起點」：舊的 RAG keyword 抽詞 + knowledge_chunks
+  // 接到錯料庫（查不到 attractions）、已整段拆掉。下階段重建 per-workspace RAG。
 
   // 商品注入（William 2026-05-26 拍板）：從 ai_products 正本表全量注入上架中商品。
   // 商品不繞 knowledge_chunks（那條 keyword 檢索是旅遊字典 + 地區 inner join、撈不到商品）、
@@ -170,7 +149,6 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
   const systemParts: string[] = [filledSystemPrompt, todayBlock]
   if (customerName) systemParts.push(`客戶顯示名：${customerName}`)
   if (memoryBlock) systemParts.push(memoryBlock)
-  if (ragBlock) systemParts.push(ragBlock)
   if (productBlock) systemParts.push(productBlock)
 
   const messages: LLMChatMessage[] = [
