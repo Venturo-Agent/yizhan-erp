@@ -7,11 +7,11 @@ import type { Tour, Step } from 'nextstepjs'
  *
  * 觸發：AddRequestDialog open 時 dispatch 'venturo:add-request-opened'
  *
- * 4 步（按 William 2026-05-28 要求、拆步框對應 UI、不丟 1 大卡）：
- *   1. DialogHeader — 整體說明 + 流程
- *   2. 明細表 — 4 個動作（日期 / 付款方式類別供應商 / 代墊人 / 單價數量）+ 建供應商
- *   3. 新增項目按鈕 — 單筆 vs 多筆
- *   4. 送出按鈕 — 儲存後流程 + 沖正紅線
+ * 3 步（5/28 William 拍板拆步框對應 UI、原 4 步因 selector 框大塊 wrapper
+ * 導致 card 跑到 dialog 外、合 step 2+3、用「新增項目」按鈕當小 anchor）：
+ *   1. DialogHeader — 整體說明
+ *   2. 新增項目按鈕 — 4 個動作 + 單筆/多筆指引（user 視線下移看明細表）
+ *   3. 送出按鈕 — 儲存後流程 + 沖正紅線
  */
 
 const baseStep = {
@@ -40,7 +40,7 @@ const ADD_REQUEST_TOUR_STEPS: Step[] = [
   },
   {
     ...baseStep,
-    title: '填明細的 4 個動作',
+    title: '填明細：4 個動作 + 一次 key 多筆',
     content: (
       <div className="space-y-2.5">
         <p>下方明細表每一列代表一筆要付的款、從左到右填：</p>
@@ -67,28 +67,18 @@ const ADD_REQUEST_TOUR_STEPS: Step[] = [
             <strong>填單價跟數量</strong> — 小計自動算（單價 × 數量）
           </li>
         </ol>
-      </div>
-    ),
-    selector: '[data-tutorial="add-request-items-table"]',
-    side: 'top',
-  },
-  {
-    ...baseStep,
-    title: '幾筆？一張單可放多筆',
-    content: (
-      <div className="space-y-2">
-        <ul className="list-disc pl-5 space-y-1">
-          <li>
-            <strong>單筆請款</strong>（譬如就一張飯店帳）→ 預設那 1 列填完就好、不用按這顆
-          </li>
-          <li>
-            <strong>多筆請款</strong>（譬如同團同一天有飯店 + 餐廳 + 司機）→ 點「
-            <strong>新增項目</strong>」加列、一張單一次 key 完
-          </li>
-        </ul>
-        <p className="text-xs text-morandi-muted pt-1">
-          多筆放一張 = 少 key、少對帳工作量；別每筆都各開一張單。
-        </p>
+        <div className="pt-1 border-t border-morandi-border/40 mt-2">
+          <p className="font-semibold">幾筆？一張單可放多筆：</p>
+          <ul className="list-disc pl-5 space-y-0.5">
+            <li>
+              <strong>單筆</strong>（一張飯店帳）→ 預設那 1 列填完、不用按這顆按鈕
+            </li>
+            <li>
+              <strong>多筆</strong>（同團同天飯店 + 餐廳 + 司機）→ 點「
+              <strong>新增項目</strong>」加列、一張單一次 key 完
+            </li>
+          </ul>
+        </div>
       </div>
     ),
     selector: '[data-tutorial="add-request-add-item"]',
