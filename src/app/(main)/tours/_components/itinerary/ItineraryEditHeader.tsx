@@ -53,7 +53,7 @@ export function ItineraryEditHeader({
     <table className="w-full border-collapse border-b border-border">
       <tbody>
         <tr>
-          <td className="px-2 py-1 text-xs text-center text-muted-foreground table-divider whitespace-nowrap w-[80px] bg-morandi-gold-header/40">
+          <td className="px-2 py-1 text-xs text-center text-muted-foreground table-divider whitespace-nowrap w-[80px] bg-card">
             行程標題
           </td>
           <td className="px-2 py-1 table-divider">
@@ -64,7 +64,7 @@ export function ItineraryEditHeader({
               className={inputCls}
             />
           </td>
-          <td className="px-2 py-1 text-xs text-center text-muted-foreground table-divider whitespace-nowrap w-[64px] bg-morandi-gold-header/40">
+          <td className="px-2 py-1 text-xs text-center text-muted-foreground table-divider whitespace-nowrap w-[64px] bg-card">
             {t('itineraryEditAdjustDays')}
           </td>
           <td className="px-2 py-1 table-divider w-[64px]">

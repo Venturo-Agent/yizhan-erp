@@ -25,6 +25,7 @@ export interface DailyScheduleItem {
   meals: { breakfast: string; lunch: string; dinner: string }
   accommodation: string
   hotelBreakfast?: boolean
+  breakfastSelf?: boolean
   breakfastAirline?: boolean
   lunchSelf?: boolean
   dinnerSelf?: boolean
@@ -108,6 +109,7 @@ export function DayRow({
       updateDaySchedule(idx, `mealIds.${mealKey}`, r.id)
       if (mealKey === 'breakfast') {
         updateDaySchedule(idx, 'hotelBreakfast', false)
+        updateDaySchedule(idx, 'breakfastSelf', false)
         updateDaySchedule(idx, 'breakfastAirline', false)
       } else if (mealKey === 'lunch') {
         updateDaySchedule(idx, 'lunchSelf', false)
@@ -157,15 +159,26 @@ export function DayRow({
   const handleToggleHotelBreakfast = React.useCallback(() => {
     const next = !day.hotelBreakfast
     updateDaySchedule(idx, 'hotelBreakfast', next)
+    updateDaySchedule(idx, 'breakfastSelf', false)
     updateDaySchedule(idx, 'breakfastAirline', false)
     updateDaySchedule(idx, 'meals.breakfast', '')
     updateDaySchedule(idx, 'mealIds.breakfast', '')
   }, [idx, day.hotelBreakfast, updateDaySchedule])
 
+  const handleToggleBreakfastSelf = React.useCallback(() => {
+    const next = !day.breakfastSelf
+    updateDaySchedule(idx, 'breakfastSelf', next)
+    updateDaySchedule(idx, 'hotelBreakfast', false)
+    updateDaySchedule(idx, 'breakfastAirline', false)
+    updateDaySchedule(idx, 'meals.breakfast', '')
+    updateDaySchedule(idx, 'mealIds.breakfast', '')
+  }, [idx, day.breakfastSelf, updateDaySchedule])
+
   const handleToggleBreakfastAirline = React.useCallback(() => {
     const next = !day.breakfastAirline
     updateDaySchedule(idx, 'breakfastAirline', next)
     updateDaySchedule(idx, 'hotelBreakfast', false)
+    updateDaySchedule(idx, 'breakfastSelf', false)
     updateDaySchedule(idx, 'meals.breakfast', '')
     updateDaySchedule(idx, 'mealIds.breakfast', '')
   }, [idx, day.breakfastAirline, updateDaySchedule])
@@ -234,6 +247,7 @@ export function DayRow({
     onClear: handleClearMeal,
     onTogglePreset: handleTogglePreset,
     onToggleHotelBreakfast: handleToggleHotelBreakfast,
+    onToggleBreakfastSelf: handleToggleBreakfastSelf,
   }
 
   return (
@@ -241,9 +255,9 @@ export function DayRow({
       <tr className={`${idx % 2 === 1 ? 'bg-muted/5' : ''} group`}>
         {/* Day + date */}
         <td className={`px-2 py-1 ${c} align-middle text-center`}>
-          <div className="font-semibold text-morandi-gold text-xs">Day {day.day}</div>
+          <div className="font-semibold text-muted-foreground text-xs">Day {day.day}</div>
           {getDateLabel(idx) && (
-            <div className="text-[0.588rem] text-muted-foreground">{getDateLabel(idx)}</div>
+            <div className="text-xs text-muted-foreground">{getDateLabel(idx)}</div>
           )}
         </td>
         {/* Route — 文字輸入 + 景點標籤在下排 */}
@@ -256,13 +270,7 @@ export function DayRow({
                   type="text"
                   value={day.route || ''}
                   onChange={e => handleRouteChange(e.target.value)}
-                  placeholder={
-                    isFirst
-                      ? t('itineraryArriveDestination')
-                      : isLast
-                        ? t('itineraryReturnTaiwan')
-                        : t('itineraryDayTitle')
-                  }
+                  placeholder={`${t('itineraryDayTitle')}（${t('itineraryDragAttractionHere')}）`}
                   className="h-8 flex-1 text-sm border-0 shadow-none focus-visible:ring-1 focus-visible:ring-morandi-gold/30 rounded px-2 bg-transparent outline-none min-w-0 placeholder:text-muted-foreground/70"
                 />
               </div>
@@ -300,49 +308,9 @@ export function DayRow({
             </div>
           </DroppableZone>
         </td>
-        {/* Tools — 插入箭頭 / 飛機 / 備註 */}
+        {/* PS 入口 — 緊鄰早餐左側的一小格、toggle 備註行顯示/隱藏 */}
         <td className={`px-1 py-0 ${c} align-middle`}>
-          <div className="flex items-center justify-center gap-1">
-            <button
-              type="button"
-              onClick={() => {
-                const input = routeInputRef.current
-                if (input) {
-                  const pos = input.selectionStart || input.value.length
-                  const val = input.value
-                  const newVal = val.slice(0, pos) + ' → ' + val.slice(pos)
-                  handleRouteChange(newVal)
-                  setTimeout(() => {
-                    input.focus()
-                    input.setSelectionRange(pos + 3, pos + 3)
-                  }, 0)
-                }
-              }}
-              className="px-1 py-0.5 text-[0.588rem] hover:bg-morandi-gold/20 rounded text-muted-foreground"
-              title={t('insertArrow')}
-            >
-              →
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const input = routeInputRef.current
-                if (input) {
-                  const pos = input.selectionStart || input.value.length
-                  const val = input.value
-                  const newVal = val.slice(0, pos) + ' ✈ ' + val.slice(pos)
-                  handleRouteChange(newVal)
-                  setTimeout(() => {
-                    input.focus()
-                    input.setSelectionRange(pos + 3, pos + 3)
-                  }, 0)
-                }
-              }}
-              className="px-1 py-0.5 text-[0.588rem] hover:bg-morandi-gold/20 rounded text-muted-foreground"
-              title={t('insertPlane')}
-            >
-              ✈
-            </button>
+          <div className="flex items-center justify-center">
             <button
               type="button"
               onClick={() => {

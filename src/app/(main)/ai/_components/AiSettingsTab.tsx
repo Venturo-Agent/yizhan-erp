@@ -58,7 +58,7 @@ export function AiSettingsTab() {
   return (
     <div className="p-6 space-y-8 max-w-3xl">
       <BotsSection />
-      <div className="border-t border-morandi-muted/15" />
+      <div className="mx-6 border-t border-morandi-muted/15" />
       <PostbackTemplatesSection />
     </div>
   )

@@ -46,11 +46,9 @@ export function formatDailyItinerary({
       dateLabel = `${date.getMonth() + 1}/${date.getDate()} (${weekdays[date.getDay()]})`
     }
 
-    const isFirst = idx === 0
-    const isLast = idx === dailySchedule.length - 1
-    const defaultTitle = isFirst ? '抵達目的地' : isLast ? '返回台灣' : `第 ${day.day} 天行程`
-    // 路線標題 = route 文字（已包含景點名稱）
-    const title = day.route?.trim() || defaultTitle
+    // 標題直接用使用者填的行程標題（route，已含景點名稱）；
+    // 沒填時用中性的「今日行程標題」、不再加「抵達目的地/返回台灣」前綴
+    const title = day.route?.trim() || '今日行程標題'
     const breakfast = day.hotelBreakfast ? '飯店早餐' : day.meals.breakfast
     const lunch = day.lunchSelf ? '敬請自理' : day.meals.lunch
     const dinner = day.dinnerSelf ? '敬請自理' : day.meals.dinner
@@ -110,11 +108,9 @@ export function getPreviewDailyData(
       const weekdays = ['日', '一', '二', '三', '四', '五', '六']
       dateLabel = `${date.getMonth() + 1}/${date.getDate()} (${weekdays[date.getDay()]})`
     }
-    const isFirst = idx === 0
-    const isLast = idx === dailySchedule.length - 1
-    const defaultTitle = isFirst ? '抵達目的地' : isLast ? '返回台灣' : `第 ${day.day} 天行程`
-    // 路線標題 = route 文字（已包含景點名稱）
-    const title = day.route?.trim() || defaultTitle
+    // 標題直接用使用者填的行程標題（route，已含景點名稱）；
+    // 沒填時用中性的「今日行程標題」、不再加「抵達目的地/返回台灣」前綴
+    const title = day.route?.trim() || '今日行程標題'
     const breakfast = day.hotelBreakfast ? '飯店早餐' : day.meals.breakfast
     const lunch = day.lunchSelf ? '敬請自理' : day.meals.lunch
     const dinner = day.dinnerSelf ? '敬請自理' : day.meals.dinner
@@ -134,7 +130,7 @@ export function getPreviewDailyData(
       title,
       note: day.note || undefined,
       meals: { breakfast, lunch, dinner },
-      accommodation: isLast ? '' : accommodation,
+      accommodation: idx === dailySchedule.length - 1 ? '' : accommodation,
     }
   })
 }

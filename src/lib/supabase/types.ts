@@ -11982,6 +11982,15 @@ export type Database = {
         Args: { _code: string; _workspace_id: string }
         Returns: boolean
       }
+      increment_line_usage: {
+        Args: {
+          p_workspace_id: string
+          p_billing_month: string
+          p_success: boolean
+          p_error_code?: string | null
+        }
+        Returns: undefined
+      }
       increment_points: {
         Args: { customer_id_param: string; points_param: number }
         Returns: undefined

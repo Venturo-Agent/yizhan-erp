@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRealtimeReload } from '@/hooks/use-realtime-reload'
 import { useRouter } from 'next/navigation'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Badge } from '@/components/ui/badge'
@@ -154,6 +155,9 @@ export default function AccountsPage() {
       setIsLoading(false)
     }
   }
+
+  // 同事改科目表 → 自動重載（北極星 V2「同事改同步」）。chart_of_accounts 已在 realtime publication。
+  useRealtimeReload('chart_of_accounts', loadAccounts)
 
   const toggleFavorite = async (accountId: string, currentFavorite: boolean) => {
     try {

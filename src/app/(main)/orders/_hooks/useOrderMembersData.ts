@@ -24,6 +24,10 @@ import { useOrderMembersRealtime } from './useOrderMembersRealtime'
 // 快取已同步的顧客 ID，避免重複同步
 const syncedCustomerIds = new Set<string>()
 
+// 成員列表 client 快取：關掉彈窗重開時先「秒顯示」上次的、背景再更新（stale-while-revalidate）。
+// key 帶 workspaceId 防跨租戶污染（紅線 G 精神）。過渡做法、正解是遷進 entity hook。
+const membersCache = new Map<string, OrderMember[]>()
+
 interface UseOrderMembersDataParams {
   orderId?: string
   tourId: string
@@ -77,7 +81,15 @@ export function useOrderMembersData({
    * - 團體模式：載入該旅遊團所有訂單的成員
    */
   const loadMembers = useCallback(async () => {
-    setLoading(true)
+    // 快取 key 帶 workspaceId（防跨租戶污染）
+    const cacheKey = `${workspaceId}:${mode === 'tour' ? `tour:${tourId}` : `order:${orderId ?? ''}`}`
+    // 有上次的就先秒顯示、不轉圈；沒有才顯示 loading（關掉重開免空等）
+    const cached = membersCache.get(cacheKey)
+    if (cached) {
+      setMembers(cached)
+    } else {
+      setLoading(true)
+    }
     try {
       let membersData: OrderMember[] = []
       let orderCodeMap: Record<string, string> = {}
@@ -270,13 +282,14 @@ export function useOrderMembersData({
         })()
       }
 
+      membersCache.set(cacheKey, membersWithStatus)
       setMembers(membersWithStatus)
     } catch (error) {
       logger.error('載入成員失敗:', error)
     } finally {
       setLoading(false)
     }
-  }, [mode, tourId, orderId])
+  }, [mode, tourId, orderId, workspaceId])
 
   /**
    * 初始載入

@@ -5,7 +5,6 @@ import { Building2, Landmark, Stamp } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { BankCombobox } from '@/components/bank-combobox'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
@@ -150,21 +149,12 @@ export function CompanyInfoCard({
         <h2 className="text-base font-semibold">公司資料</h2>
       </div>
 
-      {/* 基本資料 + 聯絡資訊 + Logo + 描述 */}
+      {/* 區塊一：公司識別 */}
+      <div className="mb-2.5 text-sm font-medium text-morandi-secondary">公司識別</div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-4">
         <div>
           <Label className="text-sm font-medium text-morandi-primary">{t('companyName')}</Label>
           <Input value={form.name} disabled className="mt-1.5 bg-morandi-container/30" />
-        </div>
-        <div id="field-tax_id" className="scroll-mt-24">
-          <Label className="text-sm font-medium text-morandi-primary">{t('companyTaxId')}</Label>
-          <Input
-            value={form.tax_id}
-            onChange={e => updateField('tax_id', e.target.value)}
-            placeholder={t('companyTaxIdPlaceholder')}
-            className="mt-1.5"
-            maxLength={8}
-          />
         </div>
         <div id="field-legal_name" className="scroll-mt-24">
           <Label className="text-sm font-medium text-morandi-primary">
@@ -177,7 +167,17 @@ export function CompanyInfoCard({
             className="mt-1.5"
           />
         </div>
-        <div className="md:col-span-3">
+        <div id="field-tax_id" className="scroll-mt-24">
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyTaxId')}</Label>
+          <Input
+            value={form.tax_id}
+            onChange={e => updateField('tax_id', e.target.value)}
+            placeholder={t('companyTaxIdPlaceholder')}
+            className="mt-1.5"
+            maxLength={8}
+          />
+        </div>
+        <div id="field-subtitle" className="md:col-span-3 scroll-mt-24">
           <Label className="text-sm font-medium text-morandi-primary">
             {t('companySubtitleLabel')}
           </Label>
@@ -188,12 +188,26 @@ export function CompanyInfoCard({
             className="mt-1.5"
           />
         </div>
+      </div>
+
+      {/* 區塊二：聯絡資訊 */}
+      <div className="mt-6 mb-2.5 text-sm font-medium text-morandi-secondary">聯絡資訊</div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-4">
         <div id="field-address" className="md:col-span-2 scroll-mt-24">
           <Label className="text-sm font-medium text-morandi-primary">{t('companyAddress')}</Label>
           <Input
             value={form.address}
             onChange={e => updateField('address', e.target.value)}
             placeholder={t('companyAddressPlaceholder')}
+            className="mt-1.5"
+          />
+        </div>
+        <div id="field-website" className="scroll-mt-24">
+          <Label className="text-sm font-medium text-morandi-primary">{t('companyWebsite')}</Label>
+          <Input
+            value={form.website}
+            onChange={e => updateField('website', e.target.value)}
+            placeholder={t('companyWebsitePlaceholder')}
             className="mt-1.5"
           />
         </div>
@@ -206,7 +220,7 @@ export function CompanyInfoCard({
             className="mt-1.5"
           />
         </div>
-        <div>
+        <div id="field-fax" className="scroll-mt-24">
           <Label className="text-sm font-medium text-morandi-primary">{t('companyFax')}</Label>
           <Input
             value={form.fax}
@@ -225,43 +239,13 @@ export function CompanyInfoCard({
             className="mt-1.5"
           />
         </div>
-        <div>
-          <Label className="text-sm font-medium text-morandi-primary">{t('companyWebsite')}</Label>
-          <Input
-            value={form.website}
-            onChange={e => updateField('website', e.target.value)}
-            placeholder={t('companyWebsitePlaceholder')}
-            className="mt-1.5"
-          />
-        </div>
-        <div
-          id="field-logo_url"
-          className="md:col-span-3 scroll-mt-24 pt-4 border-t border-border/40"
-        >
-          {/* 並排 layout:左欄上傳框、右欄編輯器(只有 logo 上傳後才顯示) */}
-          {form.logo_url ? (
-            <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-start">
-              <ImageUploadField
-                label={t('companyLogo')}
-                hint={t('companyLogoHint')}
-                value={form.logo_url}
-                onChange={url => updateField('logo_url', url)}
-                fieldName="logo"
-                workspaceId={workspaceId}
-              />
-              <LogoHeaderPreview
-                logoUrl={form.logo_url}
-                scale={form.logo_scale}
-                offsetX={form.logo_offset_x}
-                offsetY={form.logo_offset_y}
-                onScaleChange={v => updateField('logo_scale', v)}
-                onOffsetXChange={v => updateField('logo_offset_x', v)}
-                onOffsetYChange={v => updateField('logo_offset_y', v)}
-                onCommit={handleLogoLayoutCommit}
-                saving={savingLogoLayout}
-              />
-            </div>
-          ) : (
+      </div>
+
+      {/* Logo（公司識別 + 聯絡之後，獨立一區） */}
+      <div id="field-logo_url" className="mt-6 pt-4 border-t border-border/40 scroll-mt-24">
+        {/* 並排 layout:左欄上傳框、右欄編輯器(只有 logo 上傳後才顯示) */}
+        {form.logo_url ? (
+          <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6 items-start">
             <ImageUploadField
               label={t('companyLogo')}
               hint={t('companyLogoHint')}
@@ -270,20 +254,28 @@ export function CompanyInfoCard({
               fieldName="logo"
               workspaceId={workspaceId}
             />
-          )}
-        </div>
-        <div className="md:col-span-3">
-          <Label className="text-sm font-medium text-morandi-primary">
-            {t('companyDescription')}
-          </Label>
-          <Textarea
-            value={form.description}
-            onChange={e => updateField('description', e.target.value)}
-            placeholder={t('companyDescriptionPlaceholder')}
-            className="mt-1.5"
-            rows={2}
+            <LogoHeaderPreview
+              logoUrl={form.logo_url}
+              scale={form.logo_scale}
+              offsetX={form.logo_offset_x}
+              offsetY={form.logo_offset_y}
+              onScaleChange={v => updateField('logo_scale', v)}
+              onOffsetXChange={v => updateField('logo_offset_x', v)}
+              onOffsetYChange={v => updateField('logo_offset_y', v)}
+              onCommit={handleLogoLayoutCommit}
+              saving={savingLogoLayout}
+            />
+          </div>
+        ) : (
+          <ImageUploadField
+            label={t('companyLogo')}
+            hint={t('companyLogoHint')}
+            value={form.logo_url}
+            onChange={url => updateField('logo_url', url)}
+            fieldName="logo"
+            workspaceId={workspaceId}
           />
-        </div>
+        )}
       </div>
 
       {/* 結帳設定（border-t 分區） */}

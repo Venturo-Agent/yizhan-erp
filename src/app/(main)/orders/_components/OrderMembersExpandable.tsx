@@ -41,6 +41,7 @@ import {
   useBatchCustomerMatch,
 } from '../_hooks'
 import { MemberRow, MemberTableHeader } from './'
+import { createPortal } from 'react-dom'
 import { OrderMembersToolbar } from './OrderMembersExpandable.toolbar'
 import { OrderMembersDialogs } from './OrderMembersExpandable.dialogs'
 import type {
@@ -64,6 +65,7 @@ export function OrderMembersExpandable({
   embedded = false,
   forceShowPnr = false,
   tour,
+  toolbarPortalTarget,
   onChildDialogChange: _onChildDialogChange,
   showPnrMatchDialog: parentShowPnrMatchDialog,
   onPnrMatchDialogChange,
@@ -321,28 +323,34 @@ export function OrderMembersExpandable({
     <div
       className={`flex flex-col h-full overflow-hidden ${embedded ? 'bg-morandi-gold-light/40 rounded-lg border border-morandi-gold/30' : 'border border-border rounded-xl bg-card'}`}
     >
-      {/* 工具列 */}
-      <OrderMembersToolbar
-        mode={mode}
-        embedded={embedded}
-        memberCount={sortedMembers.length}
-        isAllEditMode={isAllEditMode}
-        onToggleEditMode={handleToggleEditMode}
-        effectiveOrderId={effectiveOrderId}
-        tourId={tourId}
-        customCostFields={customCostFields}
-        setCustomCostFields={setCustomCostFields}
-        onOpenPnrDialog={() => setShowPnrMatchDialog(true)}
-        onOpenInvoiceDialog={() => setShowInvoiceDialog(true)}
-        onOpenContractDialog={canContract ? () => setShowContractDialog(true) : undefined}
-        onOpenExportDialog={() => memberExport.setIsExportDialogOpen(true)}
-        onOpenBatchMatch={batchMatch.openBatchMatch}
-        onAddMember={membersData.handleAddMember}
-        columnVisibility={columnVisibility}
-        onToggleColumnVisibility={toggleColumnVisibility}
-        showRoomColumn={roomVehicle.showRoomColumn}
-        showVehicleColumn={roomVehicle.showVehicleColumn}
-      />
+      {/* 工具列：彈窗模式投影到 DialogHeader（按鈕跟主標題同行靠右）；團詳情頁原地 render */}
+      {(() => {
+        const toolbarNode = (
+          <OrderMembersToolbar
+            mode={mode}
+            embedded={embedded}
+            inHeader={!!toolbarPortalTarget}
+            memberCount={sortedMembers.length}
+            isAllEditMode={isAllEditMode}
+            onToggleEditMode={handleToggleEditMode}
+            effectiveOrderId={effectiveOrderId}
+            tourId={tourId}
+            customCostFields={customCostFields}
+            setCustomCostFields={setCustomCostFields}
+            onOpenPnrDialog={() => setShowPnrMatchDialog(true)}
+            onOpenInvoiceDialog={() => setShowInvoiceDialog(true)}
+            onOpenContractDialog={canContract ? () => setShowContractDialog(true) : undefined}
+            onOpenExportDialog={() => memberExport.setIsExportDialogOpen(true)}
+            onOpenBatchMatch={batchMatch.openBatchMatch}
+            onAddMember={membersData.handleAddMember}
+            columnVisibility={columnVisibility}
+            onToggleColumnVisibility={toggleColumnVisibility}
+            showRoomColumn={roomVehicle.showRoomColumn}
+            showVehicleColumn={roomVehicle.showVehicleColumn}
+          />
+        )
+        return toolbarPortalTarget ? createPortal(toolbarNode, toolbarPortalTarget) : toolbarNode
+      })()}
 
       {/* 表格 */}
       <div className="flex-1 overflow-auto">

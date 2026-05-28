@@ -258,9 +258,6 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[0.588rem] text-morandi-muted mt-1">
-                團控控整團、必填。權限系統依此判斷誰能看到全團團員 / 訂單。
-              </p>
             </div>
           )}
         </div>

@@ -25,6 +25,7 @@
 // eslint-disable-next-line venturo/no-direct-useswr-in-pages -- tab 範圍需 OR / IS NULL 條件、entity hook 不支援；比照 useOrdersListView、架構說明見 file header
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
+import { useRealtimeSync } from '@/data/core/entityHookRealtime'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
 import { filterActive } from '@/lib/data/filter-active'
@@ -103,6 +104,10 @@ export function useReceiptsListView(params: UseReceiptsListViewParams): UseRecei
         sortOrder,
       })}`
     : null
+
+  // 同事改 → 訂閱 receipts 表變更、刷新本列表自訂分頁 key（北極星 V2「同事改自動同步」）。
+  // 複用 entity hook realtime（receipts 已在 publication）；server 分頁只 revalidate 當前頁。
+  useRealtimeSync('receipts', 'receipts-list-view')
 
   const { data, error, isLoading, mutate } = useSWR(
     swrKey,

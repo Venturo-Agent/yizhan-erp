@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { A4Page } from './A4Page'
 import { PrintHeader } from './PrintHeader'
 import { PrintFooter } from './PrintFooter'
 import { PrintControls } from './PrintControls'
@@ -217,13 +218,18 @@ export const PrintableWrapper: React.FC<PrintableWrapperProps> = ({
             <PrintFooter />
           </div>
 
-          {/* 螢幕版本 */}
+          {/* 螢幕版本：William 2026-05-28 拍板包 A4Page、修「螢幕沒呈現 A4」的 bug */}
           <div className="screen-only">
-            <PrintHeader logoUrl={logoUrl} title={title} subtitle={subtitle} />
-            {children}
-            <div className="text-center mt-8 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-              <PrintFooter />
-            </div>
+            <A4Page>
+              <PrintHeader logoUrl={logoUrl} title={title} subtitle={subtitle} />
+              {children}
+              <div
+                className="text-center mt-8 pt-4"
+                style={{ borderTop: '1px solid var(--border)' }}
+              >
+                <PrintFooter />
+              </div>
+            </A4Page>
           </div>
         </div>
       </div>

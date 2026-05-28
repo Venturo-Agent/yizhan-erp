@@ -47,7 +47,12 @@ export interface SaveEditParams {
   newItemIds: string[]
   suppliers: Array<{ id: string; name?: string | null }>
   localPaymentMethodId: string | null
-  formData: { order_id?: string; request_date?: string; is_special_billing?: boolean }
+  formData: {
+    order_id?: string
+    request_date?: string
+    is_special_billing?: boolean
+    created_by?: string
+  }
   orders: Array<{ id: string; order_number?: string | null }>
   refreshRequestItems: () => Promise<void>
   onSuccess: () => void
@@ -56,6 +61,21 @@ export interface SaveEditParams {
   setDeletedItemIds: (v: string[]) => void
   setNewItemIds: (v: string[]) => void
   setIsSubmitting: (v: boolean) => void
+  // 2026-05-28：編輯模式自動拆單（mirror 新增模式的 group-by-date）
+  /** 公司預設出帳星期幾（0=日…6=六）；null = 未設、不區分正常/特殊 */
+  defaultBillingDay: number | null
+  /** 當前使用者顯示名稱（給拆出來的新單 created_by_name 用）*/
+  currentUserName: string
+  /** 走 useRequestOperations.createRequest、處理 tour / company 編號 + 失敗回滾 */
+  createRequest: (
+    formData: Record<string, unknown>,
+    items: RequestItem[],
+    tourName: string,
+    tourCode: string,
+    orderNumber: string | undefined,
+    userName: string,
+    code?: string
+  ) => Promise<{ id: string } | null>
 }
 
 export async function saveEditedRequest({
@@ -74,6 +94,9 @@ export async function saveEditedRequest({
   setDeletedItemIds,
   setNewItemIds,
   setIsSubmitting,
+  defaultBillingDay,
+  currentUserName,
+  createRequest,
 }: SaveEditParams): Promise<void> {
   // 付款方式軟提醒（B 方案）— 用 localItems 跟 localPaymentMethodId 對齊
   const itemsForCheck = localItems.map(i => ({
@@ -88,19 +111,66 @@ export async function saveEditedRequest({
 
   setIsSubmitting(true)
   try {
-    // 1. Delete removed items
+    // ═══════════════════════════════════════════════════════════════════════
+    // 2026-05-28：編輯模式自動拆單
+    // ─────────────────────────────────────────────────────────────────────
+    // 跟新增模式（submit.ts submitTour / submitCompany）同一個 group-by-date 概念：
+    //   - 1 組 → 原單就是這個日期（不拆、可能改自身 request_date）
+    //   - N 組（N≥2）→ 原單留主組、其他組各開新單
+    //     主組 = 原 request_date 還有人 → 留那組（最自然）；
+    //          否則 = 任一組（取第一個）→ 原單採用那組的日期
+    // ═══════════════════════════════════════════════════════════════════════
+
+    // === 1. 依品項日期分組 ===
+    const originalDate = currentRequest.request_date || ''
+    const groups = new Map<string, RequestItem[]>()
+    for (const item of localItems) {
+      const d = item.custom_request_date || originalDate
+      if (!groups.has(d)) groups.set(d, [])
+      groups.get(d)!.push(item)
+    }
+
+    if (groups.size === 0) {
+      void alertFn('請至少保留一個品項才能存檔', 'warning')
+      return
+    }
+
+    // === 2. 決定 primary date（原單留哪一組）===
+    const primaryDate = groups.has(originalDate)
+      ? originalDate
+      : (groups.keys().next().value as string)
+    const primaryItems = groups.get(primaryDate) || []
+    const otherGroupEntries = Array.from(groups.entries()).filter(([d]) => d !== primaryDate)
+
+    // === 3. 工具：依公司預設出帳日算 is_special_billing ===
+    const computeSpecial = (date: string): boolean => {
+      if (defaultBillingDay === null || !date) return false
+      return new Date(date + 'T00:00:00').getDay() !== defaultBillingDay
+    }
+
+    // === 4. 主組處理：留在原單 ===
+    // 4a. 識別「被搬走的既有品項」（不在 primary、且不是新加）→ 等下要從原單刪除
+    const primaryItemIds = new Set(primaryItems.map(i => i.id))
+    const movedExistingItems = localItems.filter(
+      i => !primaryItemIds.has(i.id) && !newItemIds.includes(i.id)
+    )
+
+    // 4b. 刪除：使用者明確 remove 的 + 搬到別組的既有品項
     for (const id of deletedItemIds) {
       await paymentRequestService.deleteItem(currentRequest.id, id)
     }
+    for (const item of movedExistingItems) {
+      await paymentRequestService.deleteItem(currentRequest.id, item.id)
+    }
 
-    // 2. Insert new items — 用 RPC 拿 item_number（advisory lock 防撞號）
-    // 不再用 `${currentRequest.code}-${length + idx + 1}` 硬算、刪過 item 後 length 對不上會撞
-    const newItems = localItems.filter(i => newItemIds.includes(i.id))
-    if (newItems.length > 0) {
-      // 批次拿 N 個編號（單一 transaction + advisory lock + 內部遞增）
-      // 修原 in-loop 呼叫 single RPC 撞 unique 的 bug（5/21 William 拍板）
-      const itemNumbers = await nextPaymentRequestItemNumbers(currentRequest.id, newItems.length)
-      const rows = newItems.map((item, idx) => ({
+    // 4c. 新加且落在 primary 的品項 → insert 進原單
+    const newItemsInPrimary = primaryItems.filter(i => newItemIds.includes(i.id))
+    if (newItemsInPrimary.length > 0) {
+      const itemNumbers = await nextPaymentRequestItemNumbers(
+        currentRequest.id,
+        newItemsInPrimary.length
+      )
+      const rows = newItemsInPrimary.map((item, idx) => ({
         request_id: currentRequest.id,
         category: item.category || null,
         supplier_id: item.supplier_id || null,
@@ -109,10 +179,10 @@ export async function saveEditedRequest({
         unit_price: item.unit_price,
         quantity: item.quantity,
         subtotal: item.unit_price * item.quantity,
-        sort_order: localItems.indexOf(item) + 1,
+        sort_order: primaryItems.indexOf(item) + 1,
         payment_method_id: item.payment_method_id || null,
-        // SSOT：item 不存日期、header.request_date 才是真相
-        custom_request_date: null,
+        // 解除「強制 null」（2026-05-27 那層 SSOT 已不適用、改 group-by-date 後品項日期是真相）
+        custom_request_date: item.custom_request_date || null,
         advanced_by: item.advanced_by === '_pending' ? null : item.advanced_by || null,
         advanced_by_name: item.advanced_by_name || null,
         item_number: itemNumbers[idx],
@@ -124,8 +194,8 @@ export async function saveEditedRequest({
       }
     }
 
-    // 3. Update existing items
-    for (const item of localItems.filter(i => !newItemIds.includes(i.id))) {
+    // 4d. 既有且落在 primary 的品項 → update 原單
+    for (const item of primaryItems.filter(i => !newItemIds.includes(i.id))) {
       const dbUpdates: Record<string, unknown> = {
         category: item.category,
         supplier_id: item.supplier_id || null,
@@ -135,8 +205,7 @@ export async function saveEditedRequest({
         quantity: item.quantity,
         subtotal: item.unit_price * item.quantity,
         payment_method_id: item.payment_method_id || null,
-        // SSOT：item 不存日期、header.request_date 才是真相
-        custom_request_date: null,
+        custom_request_date: item.custom_request_date || null,
         advanced_by: item.advanced_by === '_pending' ? null : item.advanced_by || null,
         advanced_by_name: item.advanced_by_name || null,
       }
@@ -157,41 +226,79 @@ export async function saveEditedRequest({
       }
     }
 
-    // 4. Update request total + payment method + order (edit 模式允許改訂單)
-    const newTotal = localItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0)
+    // 4e. 更新原單 header（金額 / 日期 / 付款方式 / 訂單 / is_special_billing）
+    const primaryTotal = primaryItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0)
     const editedOrder = formData.order_id ? orders.find(o => o.id === formData.order_id) : undefined
     const { error: amountError } = await supabase
       .from('payment_requests')
       .update({
-        amount: newTotal,
-        total_amount: newTotal,
+        amount: primaryTotal,
+        total_amount: primaryTotal,
         payment_method_id: localPaymentMethodId || null,
         order_id: formData.order_id || null,
         order_number: editedOrder?.order_number ?? null,
-        // 2026-05-27 修：編輯模式存回 header 請款日期（之前漏存、所以日期改了不會生效）
-        request_date: formData.request_date ?? currentRequest.request_date,
-        is_special_billing: formData.is_special_billing ?? false,
+        // primary 可能 = 原日期（不變）、也可能 = 全搬到新日期（原單自身改日期）
+        request_date: primaryDate,
+        is_special_billing: computeSpecial(primaryDate),
       })
       .eq('id', currentRequest.id)
     if (amountError) {
       logger.error('更新請款單金額失敗:', amountError)
+      throw amountError
     }
 
-    // 5. Refresh caches
+    // === 5. 其他組各開新單（走 useRequestOperations.createRequest）===
+    // createRequest 自己處理：tour vs company 編號（generateRequestNo / generateCompanyPaymentRequestCode）
+    // + 失敗回滾 + recalculateExpenseStats
+    const splitCount = otherGroupEntries.length
+    for (const [groupDate, groupItems] of otherGroupEntries) {
+      const formDataForNew: Record<string, unknown> = {
+        request_category: currentRequest.request_category,
+        tour_id: currentRequest.tour_id ?? '',
+        order_id: formData.order_id || '',
+        request_date: groupDate,
+        notes: currentRequest.notes ?? '',
+        is_special_billing: computeSpecial(groupDate),
+        payment_method_id: localPaymentMethodId || undefined,
+        created_by: formData.created_by || undefined,
+        // 公司請款補（tour 模式這兩個會被 createRequest 忽略）
+        expense_category_id:
+          (currentRequest as unknown as { expense_category_id?: string }).expense_category_id ?? '',
+        expense_type: (currentRequest as unknown as { expense_type?: string }).expense_type ?? '',
+      }
+      await createRequest(
+        formDataForNew,
+        groupItems,
+        currentRequest.tour_name ?? '',
+        currentRequest.tour_code ?? '',
+        editedOrder?.order_number ?? undefined,
+        currentUserName,
+        undefined // 不傳 code、createRequest 自己生
+      )
+    }
+
+    // === 6. Refresh + alert ===
     await refreshRequestItems()
     await invalidatePaymentRequests()
     if (currentRequest.tour_id) {
       await recalculateExpenseStats(currentRequest.tour_id)
     }
-    // 2026-05-27 修（P0-1）：觸發 page 的 refreshAll（= invalidatePaymentRequests + refreshListView）。
-    // invalidatePaymentRequests 只刷 entity key、刷不到列表頁 useRequestsListView 的自訂分頁 key；
-    // 此處之前漏呼叫 onSuccess → 編輯請款後列表金額卡舊值（紅線 F）。
+    // 2026-05-27（P0-1）：觸發列表頁的 refreshAll（紅線 F：cache 失效 SSOT）
     _onSuccess?.()
 
     setIsDirty(false)
     setDeletedItemIds([])
     setNewItemIds([])
-    await alert(COMPONENT_LABELS.ALERT_SAVE_SUCCESS, 'success')
+
+    // 拆超過 1 張 → 跟新增模式一樣跳訊息
+    if (splitCount > 0) {
+      await alert(
+        `已儲存、且依日期自動拆成 ${splitCount + 1} 張請款單（同日期合併、不同日期各一張）`,
+        'success'
+      )
+    } else {
+      await alert(COMPONENT_LABELS.ALERT_SAVE_SUCCESS, 'success')
+    }
     onOpenChange(false)
   } catch (error) {
     logger.error('儲存失敗:', error)

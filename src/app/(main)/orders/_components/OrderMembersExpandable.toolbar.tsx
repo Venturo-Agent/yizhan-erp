@@ -28,6 +28,8 @@ import { CONTRACT_LABELS } from '@/app/(main)/orders/_contracts/constants/labels
 interface OrderMembersToolbarProps {
   mode: 'order' | 'tour'
   embedded: boolean
+  /** 投影到 DialogHeader 內（彈窗模式）：去掉自己的背景/邊框/padding、純按鈕靠右 */
+  inHeader?: boolean
   memberCount: number
   isAllEditMode: boolean
   onToggleEditMode: () => void
@@ -51,6 +53,7 @@ interface OrderMembersToolbarProps {
 export function OrderMembersToolbar({
   mode,
   embedded,
+  inHeader,
   memberCount,
   isAllEditMode,
   onToggleEditMode,
@@ -72,14 +75,21 @@ export function OrderMembersToolbar({
   const t = useTranslations('orders')
   return (
     <div
-      className={`flex-shrink-0 flex items-center justify-between px-4 py-2 ${embedded ? 'bg-morandi-gold-header border-b border-morandi-gold/20' : 'bg-morandi-gold-header border-b border-border/60'}`}
+      className={
+        inHeader
+          ? 'flex items-center gap-1'
+          : `flex-shrink-0 flex items-center px-4 py-2 ${embedded ? 'justify-between bg-morandi-gold-header border-b border-morandi-gold/20' : 'justify-end bg-morandi-gold-header border-b border-border/60'}`
+      }
     >
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-morandi-primary">{t('memberList')}</span>
-        <span className="text-sm text-morandi-secondary">
-          ({memberCount} {t('personUnit')})
-        </span>
-      </div>
+      {/* 團員名單 + 人數：只在團詳情頁(embedded)顯示；訂單彈窗的標題/訂單號已在 DialogHeader、人數統計拿掉（William 2026-05-28）*/}
+      {embedded && (
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-morandi-primary">{t('memberList')}</span>
+          <span className="text-sm text-morandi-secondary">
+            ({memberCount} {t('personUnit')})
+          </span>
+        </div>
+      )}
       <div className="flex items-center gap-1">
         {/* PNR 配對按鈕：tour / order 兩種模式都顯示
             PnrMatchDialog 接的 members 跟著當前 expandable 走、訂單模式下也能用 */}

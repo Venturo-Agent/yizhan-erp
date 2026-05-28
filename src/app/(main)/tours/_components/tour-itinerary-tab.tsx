@@ -366,7 +366,7 @@ export function TourItineraryTab({ tour }: TourItineraryTabProps) {
                     <colgroup>
                       <col style={{ width: '80px' }} />
                       <col />
-                      <col style={{ width: '96px' }} />
+                      <col style={{ width: '40px' }} />
                       <col style={{ width: '120px' }} />
                       <col style={{ width: '120px' }} />
                       <col style={{ width: '120px' }} />
@@ -380,7 +380,7 @@ export function TourItineraryTab({ tour }: TourItineraryTabProps) {
                           {t('itineraryTabContent')}
                         </th>
                         <th className="px-1 py-1.5 text-center font-medium table-divider">
-                          {t('itineraryTabTools')}
+                          {t('noteLabel')}
                         </th>
                         <th className="px-1 py-1.5 text-center font-medium table-divider">
                           {t('itineraryTabBreakfastHeader')}

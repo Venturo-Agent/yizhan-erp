@@ -11,6 +11,7 @@
 import { forwardRef, useCallback, useRef } from 'react'
 import { Money } from '@/components/ui/money'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { A4Page } from '@/lib/print/A4Page'
 import { Button } from '@/components/ui/button'
 import { Printer } from 'lucide-react'
 import { useWorkspaceSettings, getScaledLogoBoxStyle } from '@/hooks/useWorkspaceSettings'
@@ -143,253 +144,259 @@ const ReceiptPreview = forwardRef<HTMLDivElement, PreviewProps>(function Receipt
     '-'
 
   return (
-    <div
-      ref={ref}
-      style={{
-        padding: '20mm 18mm',
-        fontFamily:
-          '-apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif',
-        color: COLORS.brown,
-        fontSize: '13px',
-        lineHeight: 1.6,
-      }}
-    >
-      {/* 標題列 */}
+    <A4Page>
       <div
+        ref={ref}
         style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          borderBottom: `2px solid ${COLORS.gold}`,
-          paddingBottom: '12px',
-          marginBottom: '20px',
+          fontFamily:
+            '-apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif',
+          color: COLORS.brown,
+          fontSize: '13px',
+          lineHeight: 1.6,
         }}
       >
-        <div>
-          {workspace.logo_url && (
-            <div style={getScaledLogoBoxStyle(workspace, { applyOffset: true })}>
-              <img
-                src={workspace.logo_url}
-                alt="logo"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  objectPosition: 'left top',
-                }}
-              />
-            </div>
-          )}
-          <div style={{ marginTop: '6px', fontSize: '14px', fontWeight: 600 }}>
-            {workspace.legal_name || workspace.name}
-          </div>
-          {workspace.tax_id && (
-            <div style={{ fontSize: '11px', color: COLORS.gray }}>
-              {COMPONENT_LABELS.TAX_ID_PREFIX}
-              {workspace.tax_id}
-            </div>
-          )}
-          {workspace.address && (
-            <div style={{ fontSize: '11px', color: COLORS.gray }}>{workspace.address}</div>
-          )}
-          {workspace.phone && (
-            <div style={{ fontSize: '11px', color: COLORS.gray }}>
-              {COMPONENT_LABELS.PHONE_PREFIX}
-              {workspace.phone}
-            </div>
-          )}
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <div
-            style={{
-              fontSize: '28px',
-              fontWeight: 700,
-              letterSpacing: '8px',
-              color: isRefund ? '#B84C4C' : COLORS.brown,
-            }}
-          >
-            {isRefund ? COMPONENT_LABELS.TITLE_REFUND : COMPONENT_LABELS.TITLE_RECEIPT}
-          </div>
-          <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
-            {COMPONENT_LABELS.CODE_PREFIX}
-            {receipt.receipt_number}
-          </div>
-          <div style={{ fontSize: '11px', color: COLORS.gray }}>
-            {COMPONENT_LABELS.DATE_PREFIX}
-            {date || '-'}
-          </div>
-        </div>
-      </div>
-
-      {/* 客戶 */}
-      <div
-        style={{
-          marginBottom: '14px',
-          padding: '8px 12px',
-          background: COLORS.lightBrown,
-          borderLeft: `3px solid ${COLORS.gold}`,
-        }}
-      >
-        <span style={{ color: COLORS.gray, marginRight: '12px' }}>
-          {COMPONENT_LABELS.PAYER_LABEL}
-        </span>
-        <span style={{ fontWeight: 600 }}>{receipt.customer_name || '-'}</span>
-      </div>
-
-      {/* 收款明細 */}
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          marginBottom: '20px',
-          border: `1px solid ${COLORS.lightGray}`,
-        }}
-      >
-        <thead>
-          <tr style={{ background: COLORS.lightBrown }}>
-            <th
-              style={{
-                padding: '10px',
-                textAlign: 'left',
-                borderBottom: `1px solid ${COLORS.lightGray}`,
-              }}
-            >
-              {COMPONENT_LABELS.COL_ITEM}
-            </th>
-            <th
-              style={{
-                padding: '10px',
-                textAlign: 'left',
-                borderBottom: `1px solid ${COLORS.lightGray}`,
-              }}
-            >
-              {COMPONENT_LABELS.COL_DESCRIPTION}
-            </th>
-            <th
-              style={{
-                padding: '10px',
-                textAlign: 'right',
-                borderBottom: `1px solid ${COLORS.lightGray}`,
-              }}
-            >
-              {COMPONENT_LABELS.COL_AMOUNT}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ padding: '10px', borderBottom: `1px solid ${COLORS.lightGray}` }}>
-              {isRefund ? COMPONENT_LABELS.ITEM_REFUND : COMPONENT_LABELS.ITEM_TOUR_PAYMENT}
-            </td>
-            <td style={{ padding: '10px', borderBottom: `1px solid ${COLORS.lightGray}` }}>
-              {receipt.tour_name || receipt.order_number || '-'}
-              {isRefund && receipt.refund_notes && (
-                <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
-                  {receipt.refund_notes}
-                </div>
-              )}
-            </td>
-            <td
-              style={{
-                padding: '10px',
-                textAlign: 'right',
-                fontFamily: 'monospace',
-                borderBottom: `1px solid ${COLORS.lightGray}`,
-              }}
-            >
-              <Money amount={amount} />
-            </td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr style={{ background: COLORS.lightBrown }}>
-            <td colSpan={2} style={{ padding: '10px', textAlign: 'right', fontWeight: 600 }}>
-              {COMPONENT_LABELS.TOTAL}
-            </td>
-            <td
-              style={{
-                padding: '10px',
-                textAlign: 'right',
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                fontSize: '15px',
-              }}
-            >
-              <Money amount={amount} />
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-
-      {/* 大寫金額 + 收款方式 */}
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
-        <div>
-          <span style={{ color: COLORS.gray }}>{COMPONENT_LABELS.AMOUNT_IN_WORDS_PREFIX}</span>
-          <span style={{ fontWeight: 600, fontSize: '14px' }}>{numberToChinese(amount)}</span>
-        </div>
-        <div>
-          <span style={{ color: COLORS.gray }}>
-            {isRefund ? COMPONENT_LABELS.REFUND_METHOD : COMPONENT_LABELS.RECEIPT_METHOD}：
-          </span>
-          <span>{methodName}</span>
-        </div>
-      </div>
-
-      {/* 收款帳戶（如果有 transfer） */}
-      {receipt.receipt_account && (
-        <div style={{ marginBottom: '16px', fontSize: '12px', color: COLORS.gray }}>
-          {isRefund
-            ? COMPONENT_LABELS.REFUND_ACCOUNT_PREFIX
-            : COMPONENT_LABELS.RECEIPT_ACCOUNT_PREFIX}
-          {COMPONENT_LABELS.ACCOUNT_SUFFIX}
-          {receipt.receipt_account}
-        </div>
-      )}
-
-      {/* 印章 + 簽名區 */}
-      <div
-        style={{
-          marginTop: '40px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-        }}
-      >
-        <div style={{ width: '40%' }}>
-          <div style={{ borderBottom: `1px solid ${COLORS.gray}`, height: '36px' }} />
-          <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
-            {COMPONENT_LABELS.HANDLER}
-          </div>
-        </div>
+        {/* 標題列 */}
         <div
           style={{
-            width: '40%',
-            position: 'relative',
-            textAlign: 'center',
-            minHeight: '80px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            borderBottom: `2px solid ${COLORS.gold}`,
+            paddingBottom: '12px',
+            marginBottom: '20px',
           }}
         >
-          <SealImage url={workspace.invoice_seal_image_url} size={110} rotate={-6} opacity={0.85} />
-          <div
-            style={{
-              borderBottom: `1px solid ${COLORS.gray}`,
-              marginTop: '8px',
-            }}
-          />
-          <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
-            {COMPONENT_LABELS.COMPANY_SEAL}
+          <div>
+            {workspace.logo_url && (
+              <div style={getScaledLogoBoxStyle(workspace, { applyOffset: true })}>
+                <img
+                  src={workspace.logo_url}
+                  alt="logo"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    objectPosition: 'left top',
+                  }}
+                />
+              </div>
+            )}
+            <div style={{ marginTop: '6px', fontSize: '14px', fontWeight: 600 }}>
+              {workspace.legal_name || workspace.name}
+            </div>
+            {workspace.tax_id && (
+              <div style={{ fontSize: '11px', color: COLORS.gray }}>
+                {COMPONENT_LABELS.TAX_ID_PREFIX}
+                {workspace.tax_id}
+              </div>
+            )}
+            {workspace.address && (
+              <div style={{ fontSize: '11px', color: COLORS.gray }}>{workspace.address}</div>
+            )}
+            {workspace.phone && (
+              <div style={{ fontSize: '11px', color: COLORS.gray }}>
+                {COMPONENT_LABELS.PHONE_PREFIX}
+                {workspace.phone}
+              </div>
+            )}
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div
+              style={{
+                fontSize: '28px',
+                fontWeight: 700,
+                letterSpacing: '8px',
+                color: isRefund ? '#B84C4C' : COLORS.brown,
+              }}
+            >
+              {isRefund ? COMPONENT_LABELS.TITLE_REFUND : COMPONENT_LABELS.TITLE_RECEIPT}
+            </div>
+            <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
+              {COMPONENT_LABELS.CODE_PREFIX}
+              {receipt.receipt_number}
+            </div>
+            <div style={{ fontSize: '11px', color: COLORS.gray }}>
+              {COMPONENT_LABELS.DATE_PREFIX}
+              {date || '-'}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* 備註 */}
-      {receipt.notes && !isRefund && (
-        <div style={{ marginTop: '24px', fontSize: '11px', color: COLORS.gray }}>
-          {COMPONENT_LABELS.NOTES_PREFIX}
-          {receipt.notes}
+        {/* 客戶 */}
+        <div
+          style={{
+            marginBottom: '14px',
+            padding: '8px 12px',
+            background: COLORS.lightBrown,
+            borderLeft: `3px solid ${COLORS.gold}`,
+          }}
+        >
+          <span style={{ color: COLORS.gray, marginRight: '12px' }}>
+            {COMPONENT_LABELS.PAYER_LABEL}
+          </span>
+          <span style={{ fontWeight: 600 }}>{receipt.customer_name || '-'}</span>
         </div>
-      )}
-    </div>
+
+        {/* 收款明細 */}
+        <table
+          style={{
+            width: '100%',
+            borderCollapse: 'collapse',
+            marginBottom: '20px',
+            border: `1px solid ${COLORS.lightGray}`,
+          }}
+        >
+          <thead>
+            <tr style={{ background: COLORS.lightBrown }}>
+              <th
+                style={{
+                  padding: '10px',
+                  textAlign: 'left',
+                  borderBottom: `1px solid ${COLORS.lightGray}`,
+                }}
+              >
+                {COMPONENT_LABELS.COL_ITEM}
+              </th>
+              <th
+                style={{
+                  padding: '10px',
+                  textAlign: 'left',
+                  borderBottom: `1px solid ${COLORS.lightGray}`,
+                }}
+              >
+                {COMPONENT_LABELS.COL_DESCRIPTION}
+              </th>
+              <th
+                style={{
+                  padding: '10px',
+                  textAlign: 'right',
+                  borderBottom: `1px solid ${COLORS.lightGray}`,
+                }}
+              >
+                {COMPONENT_LABELS.COL_AMOUNT}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style={{ padding: '10px', borderBottom: `1px solid ${COLORS.lightGray}` }}>
+                {isRefund ? COMPONENT_LABELS.ITEM_REFUND : COMPONENT_LABELS.ITEM_TOUR_PAYMENT}
+              </td>
+              <td style={{ padding: '10px', borderBottom: `1px solid ${COLORS.lightGray}` }}>
+                {receipt.tour_name || receipt.order_number || '-'}
+                {isRefund && receipt.refund_notes && (
+                  <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
+                    {receipt.refund_notes}
+                  </div>
+                )}
+              </td>
+              <td
+                style={{
+                  padding: '10px',
+                  textAlign: 'right',
+                  fontFamily: 'monospace',
+                  borderBottom: `1px solid ${COLORS.lightGray}`,
+                }}
+              >
+                <Money amount={amount} />
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr style={{ background: COLORS.lightBrown }}>
+              <td colSpan={2} style={{ padding: '10px', textAlign: 'right', fontWeight: 600 }}>
+                {COMPONENT_LABELS.TOTAL}
+              </td>
+              <td
+                style={{
+                  padding: '10px',
+                  textAlign: 'right',
+                  fontFamily: 'monospace',
+                  fontWeight: 700,
+                  fontSize: '15px',
+                }}
+              >
+                <Money amount={amount} />
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+        {/* 大寫金額 + 收款方式 */}
+        <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
+          <div>
+            <span style={{ color: COLORS.gray }}>{COMPONENT_LABELS.AMOUNT_IN_WORDS_PREFIX}</span>
+            <span style={{ fontWeight: 600, fontSize: '14px' }}>{numberToChinese(amount)}</span>
+          </div>
+          <div>
+            <span style={{ color: COLORS.gray }}>
+              {isRefund ? COMPONENT_LABELS.REFUND_METHOD : COMPONENT_LABELS.RECEIPT_METHOD}：
+            </span>
+            <span>{methodName}</span>
+          </div>
+        </div>
+
+        {/* 收款帳戶（如果有 transfer） */}
+        {receipt.receipt_account && (
+          <div style={{ marginBottom: '16px', fontSize: '12px', color: COLORS.gray }}>
+            {isRefund
+              ? COMPONENT_LABELS.REFUND_ACCOUNT_PREFIX
+              : COMPONENT_LABELS.RECEIPT_ACCOUNT_PREFIX}
+            {COMPONENT_LABELS.ACCOUNT_SUFFIX}
+            {receipt.receipt_account}
+          </div>
+        )}
+
+        {/* 印章 + 簽名區 */}
+        <div
+          style={{
+            marginTop: '40px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-end',
+          }}
+        >
+          <div style={{ width: '40%' }}>
+            <div style={{ borderBottom: `1px solid ${COLORS.gray}`, height: '36px' }} />
+            <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
+              {COMPONENT_LABELS.HANDLER}
+            </div>
+          </div>
+          <div
+            style={{
+              width: '40%',
+              position: 'relative',
+              textAlign: 'center',
+              minHeight: '80px',
+            }}
+          >
+            <SealImage
+              url={workspace.invoice_seal_image_url}
+              size={110}
+              rotate={-6}
+              opacity={0.85}
+            />
+            <div
+              style={{
+                borderBottom: `1px solid ${COLORS.gray}`,
+                marginTop: '8px',
+              }}
+            />
+            <div style={{ fontSize: '11px', color: COLORS.gray, marginTop: '4px' }}>
+              {COMPONENT_LABELS.COMPANY_SEAL}
+            </div>
+          </div>
+        </div>
+
+        {/* 備註 */}
+        {receipt.notes && !isRefund && (
+          <div style={{ marginTop: '24px', fontSize: '11px', color: COLORS.gray }}>
+            {COMPONENT_LABELS.NOTES_PREFIX}
+            {receipt.notes}
+          </div>
+        )}
+      </div>
+    </A4Page>
   )
 })
 

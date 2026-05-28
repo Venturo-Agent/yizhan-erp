@@ -42,9 +42,7 @@ export function CountryDropdown({
         id="country-dropdown-btn"
         className={cn(
           'w-full h-full flex flex-col items-center justify-center py-2 text-xs font-medium transition-colors',
-          resolvedCountryId
-            ? 'text-morandi-primary bg-morandi-gold/10'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
+          'text-muted-foreground hover:text-foreground hover:bg-muted/30'
         )}
       >
         <div className="flex items-center gap-1">

@@ -1,22 +1,21 @@
 /**
  * POST /api/tours/[code]/ai-assist
  *
- * 展示行程 AI 助理 — 呼叫 MiniMax 生成指定 block 的文案
+ * 展示行程 AI 助理 — 呼叫總機 dispatchLLM 生成指定 block 的文案
  *
  * 設計原則（成本控制）：
  * - 一次 call 生成所有勾選項目，不做多次 round-trip
  * - 送給 AI 的是壓縮過的行程摘要，不是完整 canvas JSON
- * - 使用 abab6.5s-chat（最便宜），預期每次 0.05-0.1 台幣
- *
- * 需要環境變數：
- *   MINIMAX_API_KEY   — MiniMax API Key
- *   MINIMAX_GROUP_ID  — MiniMax Group ID（選填，部分 endpoint 需要）
+ * - 走 dispatchLLM：自動查該 workspace 的 LLM 設定（provider / model / 加密 token）→
+ *   解密 → 按 provider 分派 → 沒設定就 fallback 平台 MiniMax → 計費歸租戶 → 簡轉繁
  */
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
+import { dispatchLLM } from '@/lib/ai/llm-dispatcher'
+import type { LLMChatMessage } from '@/types/line.types'
 import { logger } from '@/lib/utils/logger'
 
 // ── Request schema ────────────────────────────────────────────
@@ -36,80 +35,12 @@ const bodySchema = z.object({
   requests: z.array(requestItemSchema).min(1).max(20),
 })
 
-// ── MiniMax 呼叫 ──────────────────────────────────────────────
-
-interface MiniMaxMessage {
-  role: 'system' | 'user' | 'assistant'
-  content: string
-}
-
-interface MiniMaxResponse {
-  choices?: { message?: { content?: string } }[]
-}
-
-async function callMiniMax(messages: MiniMaxMessage[]): Promise<string> {
-  const apiKey = process.env.MINIMAX_API_KEY
-  if (!apiKey) {
-    throw new Error('MINIMAX_API_KEY 尚未設定，請聯絡系統管理員')
-  }
-
-  const groupId = process.env.MINIMAX_GROUP_ID
-  const url = groupId
-    ? `https://api.minimax.chat/v1/text/chatcompletion_pro?GroupId=${groupId}`
-    : 'https://api.minimax.chat/v1/chat/completions'
-
-  const body = groupId
-    ? {
-        // chatcompletion_pro 格式（需要 GroupId）
-        model: 'abab6.5s-chat',
-        messages,
-        tokens_to_generate: 1000,
-        // 潤色比創作更要穩、降到 0.5 收斂亂編空間（D5 護欄精神）
-        temperature: 0.5,
-        reply_constraints: { sender_type: 'BOT', sender_name: 'AI' },
-        bot_setting: [{ bot_name: 'AI', content: messages[0]?.content ?? '' }],
-      }
-    : {
-        // OpenAI-compatible 格式
-        model: 'abab6.5s-chat',
-        messages,
-        max_tokens: 1000,
-        // 潤色比創作更要穩、降到 0.5 收斂亂編空間（D5 護欄精神）
-        temperature: 0.5,
-      }
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  })
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => '')
-    logger.error('MiniMax API error', { status: res.status, body: errText })
-    throw new Error(`MiniMax 回應錯誤 ${res.status}`)
-  }
-
-  const data = (await res.json()) as MiniMaxResponse
-
-  // chatcompletion_pro 和 chat/completions 的回傳結構一樣
-  const content = data.choices?.[0]?.message?.content
-  if (!content) {
-    throw new Error('MiniMax 沒有回傳內容')
-  }
-
-  return content
-}
-
 // ── Prompt 組裝 ───────────────────────────────────────────────
 
 function buildPrompt(
   canvasSummary: string,
   requests: { id: string; label: string; instruction: string; source_material?: string }[]
-): MiniMaxMessage[] {
+): LLMChatMessage[] {
   const itemsText = requests
     .map((r, i) => {
       const lines = [`${i + 1}. [id: ${r.id}] ${r.label}：${r.instruction}`]
@@ -272,7 +203,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ cod
 
   try {
     const messages = buildPrompt(body.canvas_summary, body.requests)
-    const raw = await callMiniMax(messages)
+    // 走總機 dispatchLLM：依 capCheck.workspaceId 查租戶 LLM 設定、按 provider 分派、
+    // 沒設定 fallback 平台 MiniMax、計費歸租戶、簡轉繁。
+    // 潤色比創作更要穩、temperature 保留 0.5 收斂亂編空間（D5 護欄精神）。
+    // 不傳 model — 讓 dispatchLLM 用租戶設定的 model（沒設定才用平台預設）。
+    const res = await dispatchLLM({
+      messages,
+      workspaceId: capCheck.workspaceId,
+      temperature: 0.5,
+      caller: 'tour-ai-assist',
+    })
+    if (!res.ok) {
+      return NextResponse.json({ error: res.error || 'AI 生成失敗' }, { status: 502 })
+    }
+    const raw = res.content
     const rawPatches = parsePatches(raw)
 
     // 把 AI 回傳的 patch 跟原始 request 的 target 合併，並跑零幻覺事後護欄

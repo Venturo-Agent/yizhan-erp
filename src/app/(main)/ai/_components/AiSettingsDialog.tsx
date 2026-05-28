@@ -61,9 +61,9 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
         className="max-h-[95vh] h-[95vh] flex flex-col p-0 gap-0"
       >
         {/* 標題 + 分頁同一排 */}
-        <DialogHeader className="px-6 h-[calc(3.75rem_-_1px)] border-b border-border flex flex-row items-center gap-4 space-y-0 shrink-0">
+        <DialogHeader className="px-6 h-[calc(3.75rem_-_1px)] flex flex-row items-center gap-4 space-y-0 shrink-0">
           <DialogTitle className="text-base shrink-0">AI Hub 設定</DialogTitle>
-          <div className="flex items-center gap-1 overflow-x-auto">
+          <div className="ml-auto flex items-center gap-1 overflow-x-auto">
             {TABS.map(tab => {
               const Icon = tab.icon
               const isActive = activeTab === tab.value
@@ -73,10 +73,10 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
                   type="button"
                   onClick={() => setActiveTab(tab.value)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-colors shrink-0',
+                    'relative flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium transition-colors shrink-0',
                     isActive
-                      ? 'bg-morandi-gold-light text-morandi-primary font-medium'
-                      : 'text-morandi-secondary hover:bg-morandi-gold-light/50 hover:text-morandi-primary'
+                      ? 'text-morandi-primary after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-morandi-gold'
+                      : 'text-morandi-secondary hover:text-morandi-primary'
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -86,6 +86,9 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
             })}
           </div>
         </DialogHeader>
+
+        {/* 標題列與內容的分隔線：左右留邊距、不貼邊（公司風格） */}
+        <div className="mx-6 border-t border-border shrink-0" />
 
         {/* 內容 */}
         <div className="flex-1 min-h-0 overflow-auto">

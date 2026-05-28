@@ -140,6 +140,8 @@ export interface OrderMembersExpandableProps {
   onPnrMatchDialogChange?: (show: boolean) => void
   /** PNR 配對成功回調 */
   onPnrMatchSuccess?: () => void
+  /** 彈窗模式：把 toolbar 投影到 DialogHeader 容器（按鈕跟主標題同行）。團詳情 inline 不傳 */
+  toolbarPortalTarget?: HTMLElement | null
 }
 
 interface _MemberRowProps {

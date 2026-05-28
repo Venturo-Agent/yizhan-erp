@@ -14,8 +14,10 @@
 import React, { useCallback, useState } from 'react'
 import dynamic from 'next/dynamic'
 import type { Order, Tour } from '@/stores/types'
+import { useAuthStore } from '@/stores'
 import { SimpleOrderTable } from '@/app/(main)/orders/_components/simple-order-table'
 import { OrderEditDialog } from '@/app/(main)/orders/_components/order-edit-dialog'
+import { OrderMembersDialog } from '@/app/(main)/orders/_components/OrderMembersDialog'
 import { AddReceiptDialog } from '@/app/(main)/finance/payments'
 
 const AddRequestDialog = dynamic(
@@ -36,6 +38,8 @@ interface OrderListViewProps {
   onReceiptSuccess?: () => void
   /** 請款成功後的額外動作（例如 toast） */
   onRequestSuccess?: () => void
+  /** 成員管理彈窗「關閉」時呼叫（William 2026-05-28：關閉才整理一次、刷訂單列表人數/金額；編輯過程不刷、不一直跳）*/
+  onMembersClose?: () => void
   /** Server-side 分頁（給 /orders 主頁用、tour-orders 子頁不傳）*/
   serverPagination?: {
     currentPage: number
@@ -52,12 +56,16 @@ export function OrderListView({
   className,
   onReceiptSuccess,
   onRequestSuccess,
+  onMembersClose,
   serverPagination,
 }: OrderListViewProps) {
+  const workspaceId = useAuthStore(state => state.user?.workspace_id) || ''
+
   // Dialog 狀態（集中管）
   const [receiptOpen, setReceiptOpen] = useState(false)
   const [requestOpen, setRequestOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  const [membersOpen, setMembersOpen] = useState(false)
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
 
@@ -73,9 +81,13 @@ export function OrderListView({
     setSelectedOrder(order)
     setEditOpen(true)
   }, [])
+  const openMembers = useCallback((order: Order) => {
+    setSelectedOrder(order)
+    setMembersOpen(true)
+  }, [])
 
-  const clearIfAllClosed = useCallback((r: boolean, q: boolean, e: boolean) => {
-    if (!r && !q && !e) setSelectedOrder(null)
+  const clearIfAllClosed = useCallback((r: boolean, q: boolean, e: boolean, m: boolean) => {
+    if (!r && !q && !e && !m) setSelectedOrder(null)
   }, [])
 
   return (
@@ -89,13 +101,14 @@ export function OrderListView({
         onQuickReceipt={openReceipt}
         onQuickPaymentRequest={openRequest}
         onEdit={openEdit}
+        onOpenMembers={openMembers}
       />
 
       <AddReceiptDialog
         open={receiptOpen}
         onOpenChange={open => {
           setReceiptOpen(open)
-          clearIfAllClosed(open, requestOpen, editOpen)
+          clearIfAllClosed(open, requestOpen, editOpen, membersOpen)
         }}
         defaultTourId={selectedOrder?.tour_id || undefined}
         defaultOrderId={selectedOrder?.id}
@@ -106,7 +119,7 @@ export function OrderListView({
         open={requestOpen}
         onOpenChange={open => {
           setRequestOpen(open)
-          clearIfAllClosed(receiptOpen, open, editOpen)
+          clearIfAllClosed(receiptOpen, open, editOpen, membersOpen)
         }}
         defaultTourId={selectedOrder?.tour_id || undefined}
         defaultOrderId={selectedOrder?.id}
@@ -118,11 +131,23 @@ export function OrderListView({
           open={editOpen}
           onOpenChange={open => {
             setEditOpen(open)
-            clearIfAllClosed(receiptOpen, requestOpen, open)
+            clearIfAllClosed(receiptOpen, requestOpen, open, membersOpen)
           }}
           order={selectedOrder}
         />
       )}
+
+      <OrderMembersDialog
+        open={membersOpen}
+        onOpenChange={open => {
+          setMembersOpen(open)
+          clearIfAllClosed(receiptOpen, requestOpen, editOpen, open)
+          // 關閉成員管理彈窗 → 整理一次：刷訂單列表人數/金額（編輯過程不刷、不一直跳）
+          if (!open) onMembersClose?.()
+        }}
+        order={selectedOrder}
+        workspaceId={workspaceId}
+      />
     </>
   )
 }

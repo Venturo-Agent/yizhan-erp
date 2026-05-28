@@ -26,6 +26,7 @@
 // eslint-disable-next-line venturo/no-direct-useswr-in-pages -- tab 範圍 + 未付為複合條件、entity hook .eq chain 不支援；比照 useReceiptsListView、架構說明見 file header
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
+import { useRealtimeSync } from '@/data/core/entityHookRealtime'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
 import { filterActive } from '@/lib/data/filter-active'
@@ -113,6 +114,10 @@ export function useRequestsListView(params: UseRequestsListViewParams): UseReque
         sortOrder,
       })}`
     : null
+
+  // 同事改 → 訂閱 payment_requests 表變更、刷新本列表自訂分頁 key（北極星 V2「同事改自動同步」）。
+  // P0-1 已補「自己改」走 refreshAll；這條補「同事改」。複用 entity hook realtime、表已在 publication。
+  useRealtimeSync('payment_requests', 'requests-list-view')
 
   const { data, error, isLoading, mutate } = useSWR(
     swrKey,

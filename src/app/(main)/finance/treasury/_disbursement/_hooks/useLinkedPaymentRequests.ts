@@ -22,6 +22,7 @@
 // eslint-disable-next-line venturo/no-direct-useswr-in-pages -- 需「disbursement_order_id IS NOT NULL」條件、entity hook .eq chain 不支援；比照 useReceiptsListView、架構說明見 file header
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
+import { useRealtimeSync } from '@/data/core/entityHookRealtime'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
 import { filterActive } from '@/lib/data/filter-active'
@@ -47,6 +48,10 @@ export function useLinkedPaymentRequests(): UseLinkedPaymentRequestsResult {
   const isReady = hasHydrated && isAuthenticated
 
   const swrKey = isReady ? 'disbursement-linked-payment-requests' : null
+
+  // 同事改 → 訂閱 payment_requests 表變更、刷新撥款頁連動清單（北極星 V2「同事改自動同步」）。
+  // 複用 entity hook realtime（payment_requests 已在 publication）。
+  useRealtimeSync('payment_requests', 'disbursement-linked-payment-requests')
 
   const { data, error, isLoading, mutate } = useSWR(
     swrKey,

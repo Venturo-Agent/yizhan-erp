@@ -202,7 +202,10 @@ export function splitLargeGroups(groups: PayForGroup[], maxSize = 5): PayForGrou
       payeeGroups.set(payee, { total: 0, indices: [] })
     }
     const pg = payeeGroups.get(payee)!
-    pg.total += group.total
+    // 2026-05-28 修 bug：拆分後每個 chunk 的 total 都是「同一個 group.total」(line 189 設這樣是為了
+    // 最後 chunk 顯示全 group 小計)。若這裡 `pg.total += group.total` 會把同 group 的 total 加 N 次
+    // (拆幾個 chunk 加幾次)→ 重複 N 倍。改用該 chunk 自己 items 加總、永遠不重複。
+    pg.total += group.items.reduce((sum, item) => sum + item.amount + item.feeAmount, 0)
     pg.indices.push(idx)
   })
 

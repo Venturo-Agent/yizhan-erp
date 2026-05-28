@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRealtimeReload } from '@/hooks/use-realtime-reload'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { StatusBadge, type StatusTone } from '@/components/ui/status-badge'
 import { Button } from '@/components/ui/button'
@@ -110,6 +111,9 @@ export default function VouchersPage() {
       setIsLoading(false)
     }
   }
+
+  // 同事改傳票（新增/反沖/過帳）→ 自動重載（北極星 V2「同事改同步」）。journal_vouchers 已補 realtime publication（5/28）。
+  useRealtimeReload('journal_vouchers', loadVouchers)
 
   // 當篩選條件改變時重新載入
   useEffect(() => {

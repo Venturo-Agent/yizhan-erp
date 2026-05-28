@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRealtimeReload } from '@/hooks/use-realtime-reload'
 import { ListPageLayout } from '@/components/layout/list-page-layout'
 import { Badge } from '@/components/ui/badge'
 import { Plus, CheckSquare, XCircle } from 'lucide-react'
@@ -70,6 +71,9 @@ export default function ChecksPage() {
       setIsLoading(false)
     }
   }
+
+  // 同事改支票（兌現/作廢/新增）→ 自動重載（北極星 V2「同事改同步」）。checks 已在 realtime publication（5/28 補）。
+  useRealtimeReload('checks', loadChecks)
 
   const columns: TableColumn<Check>[] = [
     {
