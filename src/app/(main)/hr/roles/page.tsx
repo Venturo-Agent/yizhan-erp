@@ -26,7 +26,7 @@ import { confirm } from '@/lib/ui/alert-dialog'
 import { RoleListPanel } from './_components/RoleListPanel'
 import { RoleCapabilityTable } from './_components/RoleCapabilityTable'
 import { apiMutate } from '@/lib/swr/api-mutate'
-import { useWorkspaceSettings } from '@/hooks/useWorkspaceSettings'
+import { supabase } from '@/lib/supabase/client'
 
 const PAGE_LABELS = {
   ADD_ROLE: '新增職務',
@@ -37,9 +37,11 @@ const PAGE_LABELS = {
 export default function RolesPage() {
   const t = useTranslations('hrPage')
   const router = useRouter()
-  const { user: _user } = useAuthStore()
+  const { user } = useAuthStore()
   const { can } = useCapabilities()
   const { isFeatureEnabled, isTabEnabled, loading: _featuresLoading } = useWorkspaceFeatures()
+  const workspaceId = user?.workspace_id
+  const [branchesCount, setBranchesCount] = useState(0)
 
   // 只顯示這個 workspace 已啟用的模組、且過濾掉 workspace 沒開通的 tab
   const visibleModules = useMemo(
@@ -52,7 +54,6 @@ export default function RolesPage() {
   )
 
   const { roles, loading, mutate: mutateRoles } = useRoles()
-  const workspaceSettings = useWorkspaceSettings()
   const [selectedRole, setSelectedRole] = useState<Role | null>(null)
   const [permissions, setPermissions] = useState<TabPermission[]>([])
   const [readScope, setReadScope] = useState<RoleReadScope>('branch')
@@ -72,6 +73,19 @@ export default function RolesPage() {
   useEffect(() => {
     setReadScope(selectedRole?.read_scope ?? 'branch')
   }, [selectedRole])
+
+  // 拿當前 workspace 實際分公司數（決定「看分公司」radio 是否顯示）
+  useEffect(() => {
+    if (!workspaceId) return
+    void (async () => {
+      const { count } = await supabase
+        .from('branches')
+        .select('id', { count: 'exact', head: true })
+        .eq('workspace_id', workspaceId)
+        .eq('is_active', true)
+      setBranchesCount(typeof count === 'number' ? count : 0)
+    })()
+  }, [workspaceId])
 
   // 載入選中角色的權限
   useEffect(() => {
@@ -405,8 +419,7 @@ export default function RolesPage() {
               saving={saving}
               readScope={readScope}
               onReadScopeChange={setReadScope}
-              isMultiBranch={workspaceSettings.is_multi_branch}
-              isMultiDepartment={workspaceSettings.is_multi_department}
+              branchesCount={branchesCount}
               onToggleExpand={toggleExpand}
               onToggleModuleAll={toggleModuleAll}
               onToggleTabPermission={toggleTabPermission}
