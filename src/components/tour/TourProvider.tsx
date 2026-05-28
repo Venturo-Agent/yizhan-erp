@@ -64,7 +64,7 @@ function TourAutoStart({
   settingsReady: boolean
   onPrepareSettings: (steps: Step[]) => void
 }) {
-  const { startNextStep } = useNextStep()
+  const { startNextStep, closeNextStep, currentTour } = useNextStep()
   const pathname = usePathname()
 
   // 包裝：只有教學偏好開著才真的觸發、否則跳過（看過 + 還沒勾回來 = 不煩）
@@ -222,6 +222,27 @@ function TourAutoStart({
     return () => window.removeEventListener('venturo:add-request-opened', handler)
   }, [])
 
+  // dialog 關閉時：強制關 tour、避免 NextStepjs 內部 state 殘留
+  // （user 中途按 ESC / 點外關 dialog 而非按「完成」、tour 不會自動結束、
+  //   下次 dialog 開時 selector 又在 DOM、overlay 殘留出現「空視窗」）
+  // dialog 派的 close event 統一走這個監聽、不分哪個 tour、closeNextStep 任何 active tour
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ tour?: string }>).detail
+      const tourName = detail?.tour
+      // 只關「該 dialog 對應的 tour」、避免誤殺別的 tour
+      if (tourName && currentTour === tourName) {
+        closeNextStep()
+      }
+      // 重置 ref、讓下次 dialog 重開時可重跑（仍受 isTourEnabled 限制）
+      if (tourName === 'add-request') startedAddRequest.current = false
+      if (tourName === 'add-receipt') startedAddReceipt.current = false
+      if (tourName === 'order-members') startedOrderMembers.current = false
+    }
+    window.addEventListener('venturo:dialog-closed', handler)
+    return () => window.removeEventListener('venturo:dialog-closed', handler)
+  }, [currentTour, closeNextStep])
+
   return null
 }
 
@@ -264,6 +285,13 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  // user 按「跳過」也算「看過了」、下次不再煩（除非偏好勾回來）
+  const handleTourSkip = (_step: number, tourName: string | null) => {
+    if (tourName) {
+      markTourSeen(tourName)
+    }
+  }
+
   // 公司設定導覽：每步切換時自己「瞬間定位」把欄位帶到視野中央。
   // 為什麼自己帶：NextStep 內建是「平滑捲動」（動畫），高亮框跟不上而錯位；
   // 改成 behavior:'auto'（瞬間）讓欄位先到位、框才算得準。
@@ -293,6 +321,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
         noInViewScroll={true}
         onStepChange={handleStepChange}
         onComplete={handleTourComplete}
+        onSkip={handleTourSkip}
         overlayZIndex={9999}
       >
         <TourAutoStart

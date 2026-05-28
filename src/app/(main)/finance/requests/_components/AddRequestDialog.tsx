@@ -353,9 +353,14 @@ export function AddRequestDialog({
   // open=true 時派 event、TourProvider 監聽 → 觸發 add-request 教學
   // 只在「真的新增」跑、isEditMode（編輯）/ readOnly（唯讀檢視、譬如出納精靈 level=2 巢狀）都不跑、
   // 避免氣泡跑到不該跑的場合
+  // open=false 時派 close event、TourProvider 強制 closeNextStep、避免 NextStepjs state 殘留
   useEffect(() => {
     if (open && !isEditMode && !readOnly) {
       window.dispatchEvent(new CustomEvent('venturo:add-request-opened'))
+    } else if (!open) {
+      window.dispatchEvent(
+        new CustomEvent('venturo:dialog-closed', { detail: { tour: 'add-request' } })
+      )
     }
   }, [open, isEditMode, readOnly])
 

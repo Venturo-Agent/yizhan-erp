@@ -43,9 +43,14 @@ export function OrderMembersDialog({
 
   // open=true 時派 event、TourProvider 監聽 → 觸發 order-members 教學
   // 用 event 解耦、不直接 import useNextStep（dialog 是薄殼、不該知道 tour 系統）
+  // open=false 時派 close event、TourProvider 強制 closeNextStep、避免 NextStepjs state 殘留
   useEffect(() => {
     if (open) {
       window.dispatchEvent(new CustomEvent('venturo:order-members-opened'))
+    } else {
+      window.dispatchEvent(
+        new CustomEvent('venturo:dialog-closed', { detail: { tour: 'order-members' } })
+      )
     }
   }, [open])
 

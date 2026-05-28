@@ -311,9 +311,14 @@ export function AddReceiptDialog({
 
   // open=true 時派 event、TourProvider 監聽 → 觸發 add-receipt 教學
   // 只在「真的新增」跑、isEditMode（編輯既有收款單）時不跑、避免氣泡跑到不該跑的場合
+  // open=false 時派 close event、TourProvider 強制 closeNextStep、避免 NextStepjs state 殘留
   useEffect(() => {
     if (open && !isEditMode) {
       window.dispatchEvent(new CustomEvent('venturo:add-receipt-opened'))
+    } else if (!open) {
+      window.dispatchEvent(
+        new CustomEvent('venturo:dialog-closed', { detail: { tour: 'add-receipt' } })
+      )
     }
   }, [open, isEditMode])
 
