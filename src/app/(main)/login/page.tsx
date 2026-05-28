@@ -182,7 +182,6 @@ export default function LoginPage() {
             autoFocus
             className="login-input uppercase"
           />
-          <p className="text-[0.647rem] text-morandi-muted mt-1 ml-1">{t('codeHint')}</p>
           <input
             type="email"
             value={email}

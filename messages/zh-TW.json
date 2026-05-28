@@ -909,7 +909,7 @@
     "clickCameraToChange": "點擊相機圖示更換頭像",
     "supportedImageFormats": "支援 JPG、PNG、GIF、WebP（自動壓縮）",
     "changePassword": "修改密碼",
-    "saveChanges": "儲存變更",
+    "saveChanges": "儲存",
     "saving": "儲存中...",
     "passwordSecurityTip": "定期更換密碼以保護您的帳號安全",
     "collapse": "收合",

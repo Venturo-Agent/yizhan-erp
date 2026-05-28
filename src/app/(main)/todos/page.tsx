@@ -40,7 +40,6 @@ export default function TodosPage() {
   const [expandedTodo, setExpandedTodo] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [priorityFilter, setPriorityFilter] = useState<number | 'all'>('all')
-  const [memberFilter, setMemberFilter] = useState<string>('all')
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [quickAddColumn, setQuickAddColumn] = useState<string | null>(null)
   const { confirm, confirmDialogProps } = useConfirmDialog()
@@ -105,10 +104,9 @@ export default function TodosPage() {
       }
       if (searchTerm && !todo.title.toLowerCase().includes(searchTerm.toLowerCase())) return false
       if (priorityFilter !== 'all' && todo.priority !== priorityFilter) return false
-      if (memberFilter !== 'all' && todo.assignee !== memberFilter) return false
       return true
     })
-  }, [todos, searchTerm, priorityFilter, memberFilter, user?.id])
+  }, [todos, searchTerm, priorityFilter, user?.id])
 
   // 按 column_id 分組
   const todosByColumn = useMemo(() => {
@@ -172,13 +170,7 @@ export default function TodosPage() {
       searchPlaceholder={t('searchPlaceholder')}
       badge={undefined}
       headerActions={
-        <TodoFiltersBar
-          priorityFilter={priorityFilter}
-          memberFilter={memberFilter}
-          employees={employees}
-          onPriorityChange={setPriorityFilter}
-          onMemberChange={setMemberFilter}
-        />
+        <TodoFiltersBar priorityFilter={priorityFilter} onPriorityChange={setPriorityFilter} />
       }
       primaryAction={{
         label: t('addTask'),

@@ -253,7 +253,7 @@ export const SuppliersPage: React.FC = () => {
         // 主操作（新增供應商）走 primaryAction、輔助（匯入）走 escape hatch、樣式套 header-outline 維持視覺一致
         <Button variant="header-outline" size="sm" onClick={() => setIsImportDialogOpen(true)}>
           <FileSpreadsheet size={16} />
-          <span className="hidden sm:inline">{t('supplierImportBtnSelectFile')}</span>
+          <span>{t('supplierImportBtnSelectFile')}</span>
         </Button>
       }
       primaryAction={{

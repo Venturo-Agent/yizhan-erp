@@ -180,18 +180,21 @@ export const ResponsiveHeader = memo(function ResponsiveHeader(props: Responsive
 
       {/* 右側區域 - 功能、標籤頁和操作按鈕 - 統一無空白設計 */}
       <div className="flex items-center flex-shrink-0 pointer-events-auto gap-2">
-        {/* 搜尋功能 - 最左邊 - 手機模式隱藏 */}
+        {/* 彈性空間：把所有右側控制項推到最右邊集中 */}
+        <div className="flex-1" />
+
+        {/* 搜尋功能 - 手機模式隱藏 */}
         {props.showSearch && (
-          <div className="flex items-center mr-4">
+          <div className="flex items-center">
             <div className="relative">
               <input
                 type="text"
                 value={props.searchTerm || ''}
                 onChange={e => props.onSearchChange?.(e.target.value)}
                 placeholder={props.searchPlaceholder || COMP_LAYOUT_LABELS.搜尋_2}
-                className="block w-full text-sm h-10 px-4 pr-10 text-morandi-primary bg-gradient-to-br from-card to-morandi-container/20 rounded-lg border border-morandi-gold/30 appearance-none shadow-md hover:shadow-lg focus:border-morandi-gold/50 focus:outline-none focus:ring-1 focus:ring-morandi-gold/40 focus:shadow-lg transition-all placeholder:text-morandi-secondary placeholder:font-medium"
+                className="block w-full text-sm h-9 px-3 pr-9 text-morandi-primary bg-gradient-to-br from-card to-morandi-container/20 rounded-lg border border-morandi-gold/30 appearance-none shadow-md hover:shadow-lg focus:border-morandi-gold/50 focus:outline-none focus:ring-1 focus:ring-morandi-gold/40 focus:shadow-lg transition-all placeholder:text-morandi-secondary placeholder:font-medium"
               />
-              <div className="absolute top-1/2 -translate-y-1/2 right-3">
+              <div className="absolute top-1/2 -translate-y-1/2 right-2.5">
                 {props.searchTerm ? (
                   <button
                     onClick={() => props.onSearchChange?.('')}
@@ -241,7 +244,7 @@ export const ResponsiveHeader = memo(function ResponsiveHeader(props: Responsive
 
         {/* 篩選功能 */}
         {props.showFilter && props.filterOptions && (
-          <div className="flex items-center mr-4">
+          <div className="flex items-center">
             <Select
               value={props.filterValue || 'all'}
               onValueChange={value => props.onFilterChange?.(value)}
@@ -264,13 +267,13 @@ export const ResponsiveHeader = memo(function ResponsiveHeader(props: Responsive
         )}
 
         {/* 多個篩選器 */}
-        {props.filters && <div className="flex items-center gap-2 mr-4">{props.filters}</div>}
+        {props.filters && <div className="flex items-center gap-2">{props.filters}</div>}
 
         {/* 清除篩選按鈕 */}
         {props.showClearFilters && (
           <button
             onClick={props.onClearFilters}
-            className="px-3 py-1 text-sm text-morandi-secondary hover:text-morandi-primary border border-border rounded-md hover:bg-morandi-container/50 transition-colors mr-4"
+            className="px-3 py-1 text-sm text-morandi-secondary hover:text-morandi-primary border border-border rounded-md hover:bg-morandi-container/50 transition-colors"
           >
             {COMP_LAYOUT_LABELS.FILTER_4998}
           </button>
@@ -311,9 +314,6 @@ export const ResponsiveHeader = memo(function ResponsiveHeader(props: Responsive
             ))}
           </div>
         )}
-
-        {/* 彈性空間：把 actions / primaryAction 推到最右 */}
-        <div className="flex-1" />
 
         {/* 操作區（日期選擇等功能） */}
         {props.actions && <div className="flex items-center">{props.actions}</div>}

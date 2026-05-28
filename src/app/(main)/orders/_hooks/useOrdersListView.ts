@@ -5,15 +5,15 @@
  *
  * 為什麼存在：
  * - SSOT 的 useOrdersPaginated（entity hook）只支援 .eq filter chain（AND）、
- *   無法表達「業務員視角 = sales_person 是我 OR created_by 是我」這種 OR 條件。
+ *   無法表達「sales_person = 中文名 OR sales_person = 英文名」這種 OR 條件。
  * - 列表頁有「全部訂單 / 只看我的」toggle 需求（業務員視角過濾）。
  * - 在 page.tsx 直接打 supabase 會破壞「列表 hook 統一」這個 pattern。
  * - 參考 src/app/(main)/tours/_hooks/useToursPaginated.ts 同樣模式。
  *
  * 業務語意：
  * - viewMode='all'：列出 workspace 內所有未刪除訂單。
- * - viewMode='mine'：列出「我業務的（sales_person 比 user.display_name 或 english_name）
- *                   或 我建的（created_by 比 user.id）」訂單。最寬鬆 = 業務員直覺最大化。
+ * - viewMode='mine'：列出「我是業務員的」訂單（sales_person 比 user.display_name 或 english_name）。
+ *                   不包含 created_by（代建單不算「我的」、2026-05-26 William 拍板）。
  *
  * 紅線守門：
  * - workspace_id 過濾：透過 RLS（DB 層）保護、前端不刻 admin 特權。
@@ -21,7 +21,7 @@
  * - 排序、select 欄位、cache 行為跟 useOrdersPaginated 對齊、避免列表 UI 拿不到欄位。
  */
 
-// eslint-disable-next-line venturo/no-direct-useswr-in-pages -- OR filter（sales_person OR created_by）entity hook 不支援；架構說明見 file header
+// eslint-disable-next-line venturo/no-direct-useswr-in-pages -- OR filter（sales_person 中/英文名）entity hook 不支援；架構說明見 file header
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
 import { useRealtimeSync } from '@/data/core/entityHookRealtime'
@@ -51,17 +51,9 @@ interface UseOrdersListViewResult {
 
 // 跟 src/data/entities/orders.ts list.select 一致、確保列表 UI 拿到的欄位齊全
 // A1（5/13 拍板）：砍 orders.code、order_number 為 SSOT
+// 5/26：加 sales_id + sales:sales_id(...) JOIN、列表顯示走 employees.display_name canonical
 const LIST_SELECT =
-  'id,order_number,tour_id,tour_name,contact_person,contact_phone,contact_email,customer_id,sales_person,assistant,status,payment_status,paid_amount,remaining_amount,total_amount,member_count,adult_count,departure_date,is_active,workspace_id,created_at,created_by,updated_at,updated_by'
-
-// PostgREST .or() 內含逗號 / 括號的 value 需要包雙引號；display_name 通常沒這些、保險為要
-function escapeOrValue(value: string): string {
-  // 含逗號 / 括號 / 空白 → 用 PostgREST 雙引號包；其餘直接用
-  if (/[,()\s"']/.test(value)) {
-    return `"${value.replace(/"/g, '\\"')}"`
-  }
-  return value
-}
+  'id,order_number,tour_id,tour_name,contact_person,contact_phone,contact_email,customer_id,sales_person,sales_id,sales:sales_id(id,display_name,chinese_name,english_name),assistant,status,payment_status,paid_amount,remaining_amount,total_amount,member_count,adult_count,departure_date,is_active,workspace_id,created_at,created_by,updated_at,updated_by'
 
 export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersListViewResult {
   const { page, pageSize, search, viewMode, sortBy = 'departure_date', sortOrder = 'desc' } = params
@@ -97,17 +89,11 @@ export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersLis
         .order(sortBy, { ascending: sortOrder === 'asc' })
         .range(from, to)
 
-      // 「只看我的」server-side OR 過濾：sales_person 比中文名 / 英文名（add-order-form 寫入時兩者擇一）
-      // 加 created_by 比 user.id（紅線 B：created_by FK 指 employees.id、user.id = employee.id）
+      // 「只看我的」用 sales_id（FK to employees）直接比對、不靠字串
+      // 歷史單若只有 sales_person 沒 sales_id（5/13 前）→ 抓不到、需要另外回填、目前先不管
+      // 不查 created_by — 代建的單不算「我的」訂單（2026-05-26 William 拍板）
       if (viewMode === 'mine' && user?.id) {
-        const orParts: string[] = [`created_by.eq.${user.id}`]
-        if (user.display_name) {
-          orParts.push(`sales_person.eq.${escapeOrValue(user.display_name)}`)
-        }
-        if (user.english_name && user.english_name !== user.display_name) {
-          orParts.push(`sales_person.eq.${escapeOrValue(user.english_name)}`)
-        }
-        query = query.or(orParts.join(','))
+        query = query.eq('sales_id', user.id)
       }
 
       // server-side search（跟原 page.tsx 行為一致：團號 / 團名 ilike）
