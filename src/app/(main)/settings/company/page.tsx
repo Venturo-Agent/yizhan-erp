@@ -60,7 +60,7 @@ export default function CompanySettingsPage() {
       const { data, error } = await supabase
         .from('workspaces')
         .select(
-          'name, logo_url, logo_scale, logo_offset_x, logo_offset_y, legal_name, subtitle, address, phone, fax, email, website, tax_id, bank_code, bank_name, bank_branch, bank_account, bank_account_name, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order, finance_centralized, is_multi_branch, is_multi_department, enabled_tour_categories'
+          'name, logo_url, logo_scale, logo_offset_x, logo_offset_y, legal_name, subtitle, address, phone, fax, email, website, tax_id, bank_code, bank_name, bank_branch, bank_account, bank_account_name, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order, finance_centralized, enabled_tour_categories'
         )
         .eq('id', workspaceId)
         .single()
@@ -101,8 +101,6 @@ export default function CompanySettingsPage() {
                 : null,
           transfer_fee_overflow_account_id: (d.transfer_fee_overflow_account_id as string) ?? null,
           finance_centralized: Boolean(d.finance_centralized),
-          is_multi_branch: Boolean(d.is_multi_branch),
-          is_multi_department: Boolean(d.is_multi_department),
           enabled_tour_categories: Array.isArray(d.enabled_tour_categories)
             ? (d.enabled_tour_categories as string[])
             : ['tour_group', 'flight', 'flight_hotel', 'hotel', 'car_service', 'esim'],
@@ -273,40 +271,8 @@ export default function CompanySettingsPage() {
           onChange={cats => updateField('enabled_tour_categories', cats)}
         />
 
-        {/* 組織結構：是否啟用分公司 / 部門
-            影響「職務管理 → 讀取範圍」radio 是否顯示 branch / department 選項 */}
-        <Card className="rounded-xl shadow-sm border border-border p-4">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex-1">
-                <p className="text-base font-semibold text-morandi-primary">啟用分公司</p>
-                <p className="text-sm text-morandi-secondary mt-1">
-                  公司有多家分公司時開啟。開啟後職務管理會出現「分公司主管」讀取範圍選項、可建立只看自己分公司資料的職務。
-                </p>
-              </div>
-              <Switch
-                checked={form.is_multi_branch}
-                onCheckedChange={v => updateField('is_multi_branch', v)}
-                aria-label="啟用分公司"
-              />
-            </div>
-            <div className="flex items-center justify-between gap-4 pt-4 border-t border-border/40">
-              <div className="flex-1">
-                <p className="text-base font-semibold text-morandi-primary">啟用部門</p>
-                <p className="text-sm text-morandi-secondary mt-1">
-                  公司有部門劃分時開啟。開啟後職務管理會出現「部門主管」讀取範圍選項、可建立只看自己部門資料的職務。
-                </p>
-              </div>
-              <Switch
-                checked={form.is_multi_department}
-                onCheckedChange={v => updateField('is_multi_department', v)}
-                aria-label="啟用部門"
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* 分公司管理（有分公司才顯示；BranchesSection 內部判斷、無就 return null） */}
+        {/* 分公司管理（有分公司才顯示；BranchesSection 內部判斷、無就 return null）
+            註：職務管理「讀取範圍」radio 依據此處實際分公司數動態顯示、不再用 is_multi_branch flag */}
         <BranchesSection />
       </div>
     </ContentPageLayout>

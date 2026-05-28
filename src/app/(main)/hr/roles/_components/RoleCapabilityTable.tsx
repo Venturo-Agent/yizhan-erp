@@ -11,10 +11,12 @@ import type { Role, RoleReadScope } from '@/data/hooks/useRoles'
 
 const READ_SCOPE_LABELS = {
   self: { title: '只看自己', desc: '只能看到自己負責 / 經手的資料（業務員工）' },
-  department: { title: '看自己部門', desc: '可看自己所屬部門全部成員資料（部門主管）' },
   branch: { title: '看自己分公司', desc: '可看自己所屬分公司資料（分公司主管）' },
   group: { title: '看全集團', desc: '可看全公司全部資料（系統主管級）' },
 } as const
+
+// 「看部門」scope 暫不開放——departments 表尚未建立、未來真的有部門概念再加回
+type VisibleScope = Exclude<RoleReadScope, 'department'>
 
 interface RoleCapabilityTableProps {
   selectedRole: Role | null
@@ -24,8 +26,8 @@ interface RoleCapabilityTableProps {
   saving: boolean
   readScope: RoleReadScope
   onReadScopeChange: (scope: RoleReadScope) => void
-  isMultiBranch: boolean
-  isMultiDepartment: boolean
+  /** 當前 workspace 實際分公司數（含 HQ）：> 1 才出現「看分公司」radio */
+  branchesCount: number
   onToggleExpand: (moduleCode: string) => void
   onToggleModuleAll: (module: ModuleDefinition, field: 'can_read' | 'can_write') => void
   onToggleTabPermission: (
@@ -47,8 +49,7 @@ export function RoleCapabilityTable({
   saving,
   readScope,
   onReadScopeChange,
-  isMultiBranch,
-  isMultiDepartment,
+  branchesCount,
   onToggleExpand,
   onToggleModuleAll,
   onToggleTabPermission,
@@ -57,11 +58,11 @@ export function RoleCapabilityTable({
   isModuleFullyEnabled,
   isModulePartiallyEnabled,
 }: RoleCapabilityTableProps) {
-  // 根據租戶設定決定哪些 scope 可選；self / group 永遠顯示
-  const visibleScopes: RoleReadScope[] = [
+  // 「看分公司」只在實際分公司數 > 1 顯示（HQ 永遠存在、要 2 個以上才有意義）
+  // self / group 永遠顯示
+  const visibleScopes: VisibleScope[] = [
     'self',
-    ...(isMultiDepartment ? (['department'] as const) : []),
-    ...(isMultiBranch ? (['branch'] as const) : []),
+    ...(branchesCount > 1 ? (['branch'] as const) : []),
     'group',
   ]
   const renderModuleRow = (module: ModuleDefinition) => {
@@ -225,11 +226,7 @@ export function RoleCapabilityTable({
               </div>
               <div
                 className={`grid grid-cols-1 gap-2 ${
-                  visibleScopes.length === 2
-                    ? 'md:grid-cols-2'
-                    : visibleScopes.length === 3
-                      ? 'md:grid-cols-3'
-                      : 'md:grid-cols-4'
+                  visibleScopes.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'
                 }`}
               >
                 {visibleScopes.map(scope => {

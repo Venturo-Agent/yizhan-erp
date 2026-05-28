@@ -337,7 +337,12 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
         onStepChange={handleStepChange}
         onComplete={handleTourComplete}
         onSkip={handleTourSkip}
-        overlayZIndex={9999}
+        /**
+         * z-index 99999：必須蓋過所有 dropdown / combobox / popover
+         * 原本 9999 不夠 — AddRequestDialog 內 Combobox 用 z-[10020]、tour card 被遮住。
+         * 99999 對齊 Tailwind z 系統最高層、確保任何 dropdown 都壓不過教學氣泡。
+         */
+        overlayZIndex={99999}
       >
         <TourAutoStart
           settingsReady={settingsSteps.length > 0}

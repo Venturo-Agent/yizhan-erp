@@ -28,10 +28,6 @@ export interface CompanyFormData {
   transfer_fee_overflow_account_id: string | null
   /** 集團出帳：勾選後會計可看跨分公司 finance（請款 / 出納 / 收據 / 發票）、適合總公司集中處理 */
   finance_centralized: boolean
-  /** 是否啟用分公司（UI hint flag、影響職務管理 read_scope=branch 選項顯示） */
-  is_multi_branch: boolean
-  /** 是否啟用部門（UI hint flag、影響職務管理 read_scope=department 選項顯示） */
-  is_multi_department: boolean
   /** 旅行屬性：開團時可選的團類型 id 清單 */
   enabled_tour_categories: string[]
   /** Logo 在 PrintHeader 內的縮放比例（0.25-4.0、120×40 為 1.0） */
@@ -73,8 +69,6 @@ export const INITIAL_FORM: CompanyFormData = {
   transfer_fee_unified_amount: null,
   transfer_fee_overflow_account_id: null,
   finance_centralized: false,
-  is_multi_branch: false,
-  is_multi_department: false,
   enabled_tour_categories: ['tour_group', 'flight', 'flight_hotel', 'hotel', 'car_service', 'esim'],
   logo_scale: 1.0,
   logo_offset_x: 0,
