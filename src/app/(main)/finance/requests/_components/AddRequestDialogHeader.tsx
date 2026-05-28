@@ -70,7 +70,10 @@ export function AddRequestDialogHeader({
   return (
     <>
       {/* Header: Tab + 選擇器 + 標題 同一行 */}
-      <DialogHeader className="flex-row items-center justify-between pb-4">
+      <DialogHeader
+        data-tutorial="add-request-header"
+        className="flex-row items-center justify-between pb-4"
+      >
         {/* 左邊：Tab + 選擇器 */}
         <div className="flex items-end gap-4">
           <TabsList className="w-fit h-10">

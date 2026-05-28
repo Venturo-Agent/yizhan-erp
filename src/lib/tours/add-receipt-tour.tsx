@@ -64,8 +64,10 @@ const ADD_RECEIPT_TOUR_STEPS: Step[] = [
         </p>
       </div>
     ),
-    selector: '[data-tutorial="add-receipt-dialog"]',
-    side: 'left-top',
+    // 框 DialogHeader（小區、上方）、card 出現在 header 下方
+    // 不框整個 DialogContent（95vw / 90vh、card 會跑到中下面、視覺感「太低」）
+    selector: '[data-tutorial="add-receipt-header"]',
+    side: 'bottom',
   },
 ]
 

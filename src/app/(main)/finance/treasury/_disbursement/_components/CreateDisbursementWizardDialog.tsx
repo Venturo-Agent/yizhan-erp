@@ -360,7 +360,7 @@ export function CreateDisbursementWizardDialog({
         data-tutorial="create-disbursement-dialog"
         className="!max-w-[98vw] h-[94vh] overflow-hidden flex flex-col"
       >
-        <DialogHeader className="flex-shrink-0">
+        <DialogHeader className="flex-shrink-0" data-tutorial="create-disbursement-header">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <DialogTitle className="text-xl flex items-center gap-3">
               {editingOrder
