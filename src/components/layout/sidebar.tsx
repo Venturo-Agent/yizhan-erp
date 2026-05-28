@@ -13,6 +13,7 @@ import { COMP_LAYOUT_LABELS } from './constants/labels'
 import { ALL_MODULES } from '@/modules/_registry'
 import { SIDEBAR_ORDER, SIDEBAR_META, DEFAULT_SIDEBAR_ICON } from './sidebar-config'
 import { PersonalSettingsDialog } from './PersonalSettingsDialog'
+import { useNextStep } from 'nextstepjs'
 
 interface MenuItem {
   href: string
@@ -83,14 +84,16 @@ export function Sidebar() {
     }
   }
   const { canReadAnyInModule, has, loading: capsLoading } = useMyCapabilities()
+  const { isNextStepVisible } = useNextStep()
   const [mounted, setMounted] = useState(false)
   const [personalSettingsOpen, setPersonalSettingsOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false) // 點擊固定展開
   const [isHovered, setIsHovered] = useState(false) // 滑鼠懸停暫時展開
   const [expandedMenus, setExpandedMenus] = useState<string[]>([])
 
-  // 實際顯示狀態：固定展開 或 懸停展開
-  const showExpanded = isExpanded || isHovered
+  // 實際顯示狀態：固定展開 / 懸停展開 / 導覽進行中強制展開
+  // （導覽時鎖定展開，避免側邊欄伸縮動畫讓 spotlight 框對不準）
+  const showExpanded = isExpanded || isHovered || isNextStepVisible
 
   useEffect(() => {
     setMounted(true)
@@ -286,10 +289,11 @@ export function Sidebar() {
       )}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      data-tutorial="sidebar-root"
     >
       {/* Logo區域：flex layout、Logo 永遠在 w-10 + 邊距固定位置、不隨 sidebar 寬度晃動 */}
       <div className="shrink-0">
-        <div className="h-18 flex items-center">
+        <div className="h-18 flex items-center" data-tutorial="sidebar-logo">
           <div className="w-16 flex justify-center shrink-0">
             <div className="w-10 h-10 rounded-lg bg-morandi-gold flex items-center justify-center shadow-sm opacity-90">
               <span className="text-white font-semibold text-lg">V</span>
@@ -338,7 +342,7 @@ export function Sidebar() {
         <div className="shrink-0">
           {/* 分隔線左右留 inset、不貼邊（獨立元素、不擠壓下方 user 佈局）*/}
           <div className="mx-3 border-t border-border" />
-          <div className="h-14 flex items-center">
+          <div className="h-14 flex items-center" data-tutorial="sidebar-user">
             <div className="w-16 flex justify-center shrink-0">
               <User size="1.375em" strokeWidth={1.5} className="text-sidebar-fg" />
             </div>
