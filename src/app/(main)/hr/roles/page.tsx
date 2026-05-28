@@ -20,12 +20,13 @@ import { CAPABILITIES, useCapabilities } from '@/lib/permissions'
 import { logger } from '@/lib/utils/logger'
 import { useRouter } from 'next/navigation'
 import { HR_ADMIN_TABS } from '../components/hr-admin-tabs'
-import { useRoles, type Role } from '@/data/hooks/useRoles'
+import { useRoles, type Role, type RoleReadScope } from '@/data/hooks/useRoles'
 import { invalidateRoleCapabilities } from '@/data'
 import { confirm } from '@/lib/ui/alert-dialog'
 import { RoleListPanel } from './_components/RoleListPanel'
 import { RoleCapabilityTable } from './_components/RoleCapabilityTable'
 import { apiMutate } from '@/lib/swr/api-mutate'
+import { useWorkspaceSettings } from '@/hooks/useWorkspaceSettings'
 
 const PAGE_LABELS = {
   ADD_ROLE: '新增職務',
@@ -51,8 +52,10 @@ export default function RolesPage() {
   )
 
   const { roles, loading, mutate: mutateRoles } = useRoles()
+  const workspaceSettings = useWorkspaceSettings()
   const [selectedRole, setSelectedRole] = useState<Role | null>(null)
   const [permissions, setPermissions] = useState<TabPermission[]>([])
+  const [readScope, setReadScope] = useState<RoleReadScope>('branch')
   const [expandedModules, setExpandedModules] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -64,6 +67,11 @@ export default function RolesPage() {
       setSelectedRole(roles[0])
     }
   }, [roles, selectedRole])
+
+  // 選中職務變動時、同步本地 readScope 狀態
+  useEffect(() => {
+    setReadScope(selectedRole?.read_scope ?? 'branch')
+  }, [selectedRole])
 
   // 載入選中角色的權限
   useEffect(() => {
@@ -240,7 +248,7 @@ export default function RolesPage() {
     setSaving(false)
   }
 
-  // 儲存權限
+  // 儲存權限 + 讀取範圍
   const handleSavePermissions = async () => {
     if (!selectedRole) return
 
@@ -252,6 +260,7 @@ export default function RolesPage() {
         role_id: selectedRole.id,
         count: payload.length,
         permissions: payload,
+        read_scope: readScope,
       })
 
       const res = await apiMutate(`/api/roles/${selectedRole.id}/tab-permissions`, {
@@ -263,6 +272,22 @@ export default function RolesPage() {
         logger.error('[ROLES] Save failed', { status: res.status, body: res.data })
         toast.error('儲存失敗', { description: res.error || `HTTP ${res.status}` })
         return
+      }
+
+      // 讀取範圍若有變動、額外打 PUT /api/roles/[id] 更新 read_scope
+      if (readScope !== selectedRole.read_scope) {
+        const scopeRes = await apiMutate(`/api/roles/${selectedRole.id}`, {
+          method: 'PUT',
+          body: { read_scope: readScope },
+        })
+        if (!scopeRes.ok) {
+          logger.error('[ROLES] read_scope save failed', { status: scopeRes.status })
+          toast.error('讀取範圍儲存失敗', {
+            description: scopeRes.error || `HTTP ${scopeRes.status}`,
+          })
+        } else {
+          await mutateRoles()
+        }
       }
 
       // 5/24：職務能力改了 → 失效 role_capabilities 快取、讓「業務/團控/代墊」指派下拉即時反映
@@ -354,12 +379,13 @@ export default function RolesPage() {
         icon: Plus,
         onClick: () => setIsDialogOpen(true),
       }}
+      rootDataTutorial="hr-roles-header"
       contentClassName="flex-1 overflow-hidden flex flex-col min-h-0 p-0"
     >
       <>
         <div className="grid grid-cols-12 gap-6 flex-1 min-h-0 auto-rows-fr">
           {/* 左側：職務列表 */}
-          <div className="col-span-3 flex flex-col min-h-0">
+          <div className="col-span-3 flex flex-col min-h-0" data-tutorial="role-list-panel">
             <RoleListPanel
               roles={roles}
               loading={loading}
@@ -370,13 +396,17 @@ export default function RolesPage() {
           </div>
 
           {/* 右側：權限設定 */}
-          <div className="col-span-9 flex flex-col min-h-0">
+          <div className="col-span-9 flex flex-col min-h-0" data-tutorial="role-capability-panel">
             <RoleCapabilityTable
               selectedRole={selectedRole}
               visibleModules={visibleModules}
               permissions={permissions}
               expandedModules={expandedModules}
               saving={saving}
+              readScope={readScope}
+              onReadScopeChange={setReadScope}
+              isMultiBranch={workspaceSettings.is_multi_branch}
+              isMultiDepartment={workspaceSettings.is_multi_department}
               onToggleExpand={toggleExpand}
               onToggleModuleAll={toggleModuleAll}
               onToggleTabPermission={toggleTabPermission}

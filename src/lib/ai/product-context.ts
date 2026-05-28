@@ -1,10 +1,8 @@
 /**
  * 商品 context — 把客戶上架的商品（ai_products）組成 AI 客服 prompt block
  *
- * 為什麼不走 knowledge_chunks（RAG）：
- *   keyword-search 是寫死的旅遊字典 + knowledge_documents!inner join 篩地區、
- *   商品沒有「旅遊地區」概念、永遠 match 不到。所以商品改走「組答時全量注入」
- *   （William 2026-05-26 拍板）：直接把上架中商品塞 system prompt、保證 AI 查得到。
+ * 走「組答時全量注入」（William 2026-05-26 拍板）：直接把上架中商品塞 system prompt、
+ * 保證 AI 查得到。不走 RAG 抽詞（2026-05-28 William 拍板「白痴起點」、舊 RAG 已拆）。
  *
  * 防爆 prompt：只取上架中（is_active + 未軟刪）+ 在販售期內的商品、上限 MAX_PRODUCTS 筆。
  * 失敗策略：query 失敗 / 無商品 → 回 null、caller 不注入、不擋對話。

@@ -37,7 +37,7 @@ export async function recordLinePush(
   if (!workspaceId) return
   try {
     const supabase = getSupabaseAdminClient()
-    const errorCode = outcome.ok ? null : String(outcome.status ?? 'network')
+    const errorCode = outcome.ok ? undefined : String(outcome.status ?? 'network')
     const { error } = await supabase.rpc('increment_line_usage', {
       p_workspace_id: workspaceId,
       p_billing_month: currentBillingMonth(),

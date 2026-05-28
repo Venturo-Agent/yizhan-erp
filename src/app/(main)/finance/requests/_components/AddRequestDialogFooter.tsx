@@ -21,11 +21,11 @@ interface AddRequestDialogFooterProps {
   isDirty: boolean
 
   // 金額計算用
-  localItems: RequestItem[]
+  /** 當前作用中的品項（編輯模式 = localItems、新增模式 = requestItems）— 統一 reduce 來源 */
+  activeItems: RequestItem[]
   totalAllocatedAmount: number
   importFromRequests: boolean
   selectedRequestTotal: number
-  total_amount: number
   tourAllocations: TourAllocation[]
   batchCategory: string
   requestItems: RequestItem[]
@@ -44,11 +44,10 @@ export function AddRequestDialogFooter({
   activeTab,
   isSubmitting,
   isDirty,
-  localItems,
+  activeItems,
   totalAllocatedAmount,
   importFromRequests,
   selectedRequestTotal,
-  total_amount,
   tourAllocations,
   batchCategory,
   requestItems,
@@ -60,13 +59,16 @@ export function AddRequestDialogFooter({
 }: AddRequestDialogFooterProps) {
   const t = useTranslations('finance')
   // 計算顯示金額
-  const displayAmount = isEditMode
-    ? localItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0)
-    : activeTab === 'batch'
+  // - batch：tour allocations 加總
+  // - 新增 tour 且從既有請款匯入：被選請款的總額
+  // - 其他（含編輯所有模式 / 新增 tour 非匯入 / company）：當前 activeItems 加總
+  //   （activeItems 在編輯模式 = localItems、在新增模式 = requestItems = total_amount 來源、等價）
+  const displayAmount =
+    activeTab === 'batch'
       ? totalAllocatedAmount
-      : activeTab === 'tour' && importFromRequests
+      : !isEditMode && activeTab === 'tour' && importFromRequests
         ? selectedRequestTotal
-        : total_amount
+        : activeItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0)
 
   // 計算新增按鈕是否 disabled
   const submitDisabled =
@@ -123,7 +125,7 @@ export function AddRequestDialogFooter({
           <Button
             onClick={onSubmit}
             disabled={submitDisabled}
-            variant="morandi-gold"
+            variant="header-outline"
             className="rounded-md gap-2"
           >
             <CheckSquare size={16} />

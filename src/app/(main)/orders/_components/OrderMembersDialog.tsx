@@ -15,7 +15,7 @@
  * - 團詳情頁（/tours/[code]?tab=orders 的成員 tab）走 inline、不經此殼、不受影響。
  */
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { OrderMembersExpandable } from '@/app/(main)/orders/_components/OrderMembersExpandable'
@@ -40,6 +40,20 @@ export function OrderMembersDialog({
   const t = useTranslations('orders')
   // 按鈕投影容器：成員面板的 toolbar 投影到主標題那行右側（跟「公司設定 儲存」位置一樣）
   const [toolbarHost, setToolbarHost] = useState<HTMLDivElement | null>(null)
+
+  // open=true 時派 event、TourProvider 監聽 → 觸發 order-members 教學
+  // 用 event 解耦、不直接 import useNextStep（dialog 是薄殼、不該知道 tour 系統）
+  // open=false 時派 close event、TourProvider 強制 closeNextStep、避免 NextStepjs state 殘留
+  useEffect(() => {
+    if (open) {
+      window.dispatchEvent(new CustomEvent('venturo:order-members-opened'))
+    } else {
+      window.dispatchEvent(
+        new CustomEvent('venturo:dialog-closed', { detail: { tour: 'order-members' } })
+      )
+    }
+  }, [open])
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent

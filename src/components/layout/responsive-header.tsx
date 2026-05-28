@@ -84,6 +84,8 @@ interface ResponsiveHeaderProps {
   // 清除篩選按鈕
   showClearFilters?: boolean
   onClearFilters?: () => void
+  /** 在最外層 fixed 容器加 data-tutorial 屬性（給導覽錨點用、可選） */
+  rootDataTutorial?: string
 }
 
 export const ResponsiveHeader = memo(function ResponsiveHeader(props: ResponsiveHeaderProps) {
@@ -103,6 +105,7 @@ export const ResponsiveHeader = memo(function ResponsiveHeader(props: Responsive
 
   return (
     <div
+      data-tutorial={props.rootDataTutorial}
       className={cn(
         'fixed top-0 right-0 h-[4.5rem] bg-transparent z-[200] flex items-center justify-between px-6 print:hidden',
         'left-0',

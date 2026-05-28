@@ -315,11 +315,25 @@ export function CreateDisbursementWizardDialog({
     'preview-all': '預覽 & 確認儲存',
   }
 
+  // open=true 時派 event、TourProvider 監聽 → 觸發 create-disbursement 教學
+  // 只在「真的新增」跑、編輯模式（有 editingOrder）不跑
+  // open=false 時派 close event、強制收回 tour、避免 NextStepjs state 殘留
+  useEffect(() => {
+    if (open && !editingOrder) {
+      window.dispatchEvent(new CustomEvent('venturo:create-disbursement-opened'))
+    } else if (!open) {
+      window.dispatchEvent(
+        new CustomEvent('venturo:dialog-closed', { detail: { tour: 'create-disbursement' } })
+      )
+    }
+  }, [open, editingOrder])
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
         level={1}
         size="full"
+        data-tutorial="create-disbursement-dialog"
         className="!max-w-[98vw] h-[94vh] overflow-hidden flex flex-col"
       >
         <DialogHeader className="flex-shrink-0">

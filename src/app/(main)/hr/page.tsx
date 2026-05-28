@@ -310,6 +310,7 @@ export default function HRPage() {
           icon: Plus,
           onClick: () => setIsAddDialogOpen(true),
         }}
+        rootDataTutorial="hr-header"
       />
 
       {expandedEmployee && (

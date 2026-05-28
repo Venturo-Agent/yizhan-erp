@@ -285,6 +285,15 @@ export function useTourCreateOperation(params: UseTourCreateOperationParams) {
         resetForm()
         closeDialog()
 
+        // 正式團建好 → 跳 toast 提示「可以加報名」
+        // （新人 onboarding 教學提示：新建的團沒人、不提醒會卡在「不知道下一步點哪」）
+        if (!isProposalOrTemplate) {
+          toast.success(
+            '團建好了！接下來可以在團詳情頁幫這團加報名（行末「報名」按鈕、或進「訂單」分頁）',
+            { duration: 6000 }
+          )
+        }
+
         // onCreated callback 優先（嵌套場景如 todo dialog 用、抑制預設導航）
         if (onCreated) {
           onCreated({ id: createdTour.id, code, order: orderResult })

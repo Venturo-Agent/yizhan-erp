@@ -69,13 +69,11 @@ export function TourSettings({ newTour, setNewTour }: TourSettingsProps) {
     }))
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-4">
-        <Spinner size="md" className="text-morandi-secondary" />
-      </div>
-    )
-  }
+  // loading 中也 return null（不 render Spinner）：
+  // 因為 selectorFields 可能載入完是空、會 return null（下一行）；
+  // 若 loading 中 render Spinner、loading 完變 null，會出現「東西突然消失」的閃動。
+  // 改成全程 null（直到有東西才 render）——從使用者角度是「沒東西就沒東西」、不會閃。
+  if (loading) return null
 
   // 沒有設定任何團級選人欄位
   if (selectorFields.length === 0) return null
