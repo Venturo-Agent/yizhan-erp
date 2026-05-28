@@ -2,13 +2,15 @@
 
 import { NextStepProvider, NextStep, useNextStep } from 'nextstepjs'
 import type { Step } from 'nextstepjs'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useSidebarTour } from '@/lib/tours/sidebar-tour'
 import { getVisibleSettingsSteps } from '@/lib/tours/settings-tour'
 import { toursTour } from '@/lib/tours/tours-tour'
 import { openTourTour } from '@/lib/tours/open-tour-tour'
 import { openProposalTour } from '@/lib/tours/open-proposal-tour'
+import { hrRolesTour } from '@/lib/tours/hr-roles-tour'
+import { hrEmployeesTour } from '@/lib/tours/hr-employees-tour'
 import { TourCard } from './TourCard'
 
 /**
@@ -28,9 +30,13 @@ import { TourCard } from './TourCard'
 
 const SETTINGS_PATHS = ['/settings/company', '/settings']
 const TOURS_PATHS = ['/tours']
+const HR_ROLES_PATHS = ['/hr/roles']
+const HR_EMPLOYEES_PATHS = ['/hr']
 
 const isSettingsPath = (pathname: string) => SETTINGS_PATHS.includes(pathname)
 const isToursPath = (pathname: string) => TOURS_PATHS.includes(pathname)
+const isHrRolesPath = (pathname: string) => HR_ROLES_PATHS.includes(pathname)
+const isHrEmployeesPath = (pathname: string) => HR_EMPLOYEES_PATHS.includes(pathname)
 
 function TourAutoStart({
   settingsReady,
@@ -44,6 +50,11 @@ function TourAutoStart({
   const startedSidebar = useRef(false)
   const startedSettings = useRef(false)
   const startedTours = useRef(false)
+  const startedHrRoles = useRef(false)
+  // hr-employees 由 hr-roles 完成事件帶過來、不能直接看 pathname 自動跑、
+  // 用旗標：收到 event 才允許下一次進 /hr 時起跑。
+  const pendingHrEmployees = useRef(false)
+  const startedHrEmployees = useRef(false)
 
   // 首頁：側邊欄導覽
   useEffect(() => {
@@ -79,11 +90,40 @@ function TourAutoStart({
     }
   }, [pathname, startNextStep])
 
+  // 職務管理頁：進去後等 RoleListPanel 載入（roles SWR + 預設選中第一筆需時間）
+  useEffect(() => {
+    if (isHrRolesPath(pathname) && !startedHrRoles.current) {
+      startedHrRoles.current = true
+      const timer = setTimeout(() => startNextStep('hr-roles'), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [pathname, startNextStep])
+
+  // 監聽 hr-roles 完成事件：標記「下一次進 /hr 要跑 hr-employees」
+  useEffect(() => {
+    const handler = () => {
+      pendingHrEmployees.current = true
+    }
+    window.addEventListener('venturo:hr-roles-done', handler)
+    return () => window.removeEventListener('venturo:hr-roles-done', handler)
+  }, [])
+
+  // 員工列表頁：只有「pending 旗標 + 第一次進」才自動跑（不像 sidebar 是每次登入跑）
+  useEffect(() => {
+    if (isHrEmployeesPath(pathname) && pendingHrEmployees.current && !startedHrEmployees.current) {
+      startedHrEmployees.current = true
+      pendingHrEmployees.current = false
+      const timer = setTimeout(() => startNextStep('hr-employees'), 800)
+      return () => clearTimeout(timer)
+    }
+  }, [pathname, startNextStep])
+
   return null
 }
 
 export function TourProvider({ children }: { children: React.ReactNode }) {
   const sidebarTour = useSidebarTour()
+  const router = useRouter()
   const [settingsSteps, setSettingsSteps] = useState<Step[]>([])
 
   const steps = [
@@ -92,13 +132,20 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
     ...toursTour,
     ...openTourTour,
     ...openProposalTour,
+    ...hrRolesTour,
+    ...hrEmployeesTour,
   ]
 
   // tours 工具列導覽跑完 → 自動觸發「開團」dialog，接續 open-tour 教學
-  // （透過 CustomEvent 通知 ToursPage 開 dialog；解耦不直接 import handler）
+  // hr-roles 跑完  → 派 event 設旗標 + 切到 /hr、由 hr-employees 接續
+  //（透過 CustomEvent 解耦、不直接 import handler）
   const handleTourComplete = (tourName: string | null) => {
     if (tourName === 'tours') {
       window.dispatchEvent(new CustomEvent('venturo:open-tour-dialog'))
+    }
+    if (tourName === 'hr-roles') {
+      window.dispatchEvent(new CustomEvent('venturo:hr-roles-done'))
+      router.push('/hr')
     }
   }
 

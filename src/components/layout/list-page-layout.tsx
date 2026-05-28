@@ -128,6 +128,10 @@ interface ListPageLayoutProps<T extends object> {
   // ========== 樣式 ==========
   /** 容器 className */
   className?: string
+
+  // ========== 導覽錨點 ==========
+  /** 透傳給 ResponsiveHeader 的 data-tutorial 錨點（給 NextStepjs 導覽用、可選） */
+  rootDataTutorial?: string
 }
 
 /**
@@ -191,6 +195,7 @@ export function ListPageLayout<T extends object>({
   badge,
   headerChildren,
   className,
+  rootDataTutorial,
 }: ListPageLayoutProps<T>) {
   // ========== 內部狀態管理 ==========
   const [searchQuery, setSearchQuery] = useState('')
@@ -245,6 +250,7 @@ export function ListPageLayout<T extends object>({
         primaryAction={primaryAction}
         actions={headerActions}
         badge={badge}
+        rootDataTutorial={rootDataTutorial}
       >
         {headerChildren}
       </ResponsiveHeader>

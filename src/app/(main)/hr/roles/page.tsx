@@ -354,12 +354,13 @@ export default function RolesPage() {
         icon: Plus,
         onClick: () => setIsDialogOpen(true),
       }}
+      rootDataTutorial="hr-roles-header"
       contentClassName="flex-1 overflow-hidden flex flex-col min-h-0 p-0"
     >
       <>
         <div className="grid grid-cols-12 gap-6 flex-1 min-h-0 auto-rows-fr">
           {/* 左側：職務列表 */}
-          <div className="col-span-3 flex flex-col min-h-0">
+          <div className="col-span-3 flex flex-col min-h-0" data-tutorial="role-list-panel">
             <RoleListPanel
               roles={roles}
               loading={loading}
@@ -370,7 +371,7 @@ export default function RolesPage() {
           </div>
 
           {/* 右側：權限設定 */}
-          <div className="col-span-9 flex flex-col min-h-0">
+          <div className="col-span-9 flex flex-col min-h-0" data-tutorial="role-capability-panel">
             <RoleCapabilityTable
               selectedRole={selectedRole}
               visibleModules={visibleModules}
