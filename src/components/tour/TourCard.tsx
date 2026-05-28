@@ -19,9 +19,11 @@ export function TourCard({
 }: CardComponentProps) {
   const isFirst = currentStep === 0
   const isLast = currentStep === totalSteps - 1
-  // 最後一步（個人區）貼螢幕底：搭 userStep 的 side='right-top'，把卡片往上推、
-  // 讓底緣對齊錨點底緣（3.5rem = 個人區 h-14），做出「右側、往上長」不被切。
-  const bottomAnchoredStyle = isLast ? { transform: 'translateY(calc(-100% + 3.5rem))' } : undefined
+  // 用 side='right-top' 的步驟（如個人區、貼螢幕底）把卡片往上推、底緣對齊錨點
+  // （3.5rem = 錨點高），做出「右側、往上長」不被切。
+  // 改用 side 判斷、不綁「最後一步」——這樣別的導覽（如公司設定）最後一步不會被誤套。
+  const bottomAnchoredStyle =
+    step.side === 'right-top' ? { transform: 'translateY(calc(-100% + 3.5rem))' } : undefined
 
   return (
     <div

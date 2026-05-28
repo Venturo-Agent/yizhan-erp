@@ -329,9 +329,11 @@ interface CropDialogProps {
   imageSrc: string
   onConfirm: (croppedBlob: Blob) => void
   onCancel: () => void
+  /** 裁切框寬高比；發票章 15/13、其他預設 1（方形） */
+  aspect?: number
 }
 
-function CropDialog({ open, imageSrc, onConfirm, onCancel }: CropDialogProps) {
+function CropDialog({ open, imageSrc, onConfirm, onCancel, aspect = 1 }: CropDialogProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const [pixelCrop, setPixelCrop] = useState<Area | null>(null)
@@ -374,7 +376,7 @@ function CropDialog({ open, imageSrc, onConfirm, onCancel }: CropDialogProps) {
               image={imageSrc}
               crop={crop}
               zoom={zoom}
-              aspect={1}
+              aspect={aspect}
               cropShape="rect"
               showGrid
               onCropChange={setCrop}
@@ -590,6 +592,7 @@ export function ImageUploadField({
         imageSrc={cropSrc || ''}
         onConfirm={handleCropConfirm}
         onCancel={handleCropCancel}
+        aspect={fieldName === 'invoice-seal' ? 15 / 13 : undefined}
       />
     </div>
   )

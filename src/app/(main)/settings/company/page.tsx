@@ -14,7 +14,7 @@ import { logger } from '@/lib/utils/logger'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { TourAttributesSection } from './tour-features-section'
-import { OrganizationSection } from './_components/OrganizationSection'
+import { BranchesSection } from './_components/BranchesSection'
 import { CompanyInfoCard } from './_components/CompanyInfoCard'
 import { BonusPolicySection } from './_components/BonusPolicySection'
 import { ModuleLoading } from '@/components/module-loading'
@@ -60,7 +60,7 @@ export default function CompanySettingsPage() {
       const { data, error } = await supabase
         .from('workspaces')
         .select(
-          'name, description, logo_url, logo_scale, logo_offset_x, logo_offset_y, legal_name, subtitle, address, phone, fax, email, website, tax_id, bank_code, bank_name, bank_branch, bank_account, bank_account_name, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order, finance_centralized'
+          'name, logo_url, logo_scale, logo_offset_x, logo_offset_y, legal_name, subtitle, address, phone, fax, email, website, tax_id, bank_code, bank_name, bank_branch, bank_account, bank_account_name, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order, finance_centralized, enabled_tour_categories'
         )
         .eq('id', workspaceId)
         .single()
@@ -70,7 +70,6 @@ export default function CompanySettingsPage() {
         const d = data as unknown as Record<string, string | number | null>
         setForm({
           name: (d.name as string) ?? '',
-          description: (d.description as string) ?? '',
           logo_url: (d.logo_url as string) ?? '',
           legal_name: (d.legal_name as string) ?? '',
           subtitle: (d.subtitle as string) ?? '',
@@ -102,6 +101,9 @@ export default function CompanySettingsPage() {
                 : null,
           transfer_fee_overflow_account_id: (d.transfer_fee_overflow_account_id as string) ?? null,
           finance_centralized: Boolean(d.finance_centralized),
+          enabled_tour_categories: Array.isArray(d.enabled_tour_categories)
+            ? (d.enabled_tour_categories as string[])
+            : ['tour_group', 'flight', 'flight_hotel', 'hotel', 'car_service', 'esim'],
           logo_scale:
             typeof d.logo_scale === 'number'
               ? d.logo_scale
@@ -263,11 +265,14 @@ export default function CompanySettingsPage() {
         {/* 獎金政策（計算順序） */}
         <BonusPolicySection workspaceId={workspaceId} initialOrder={bonusCalculationOrder} />
 
-        {/* 旅行屬性功能設定（僅有 tour_attributes 功能的租戶顯示） */}
-        <TourAttributesSection workspaceId={workspaceId} />
+        {/* 旅行屬性功能設定（受 page form 控制、跟整體儲存一起存） */}
+        <TourAttributesSection
+          selectedCategories={form.enabled_tour_categories}
+          onChange={cats => updateField('enabled_tour_categories', cats)}
+        />
 
-        {/* 組織管理（品牌 / 分公司 / 部門 三維） */}
-        <OrganizationSection />
+        {/* 分公司管理（有分公司才顯示；BranchesSection 內部判斷、無就 return null） */}
+        <BranchesSection />
       </div>
     </ContentPageLayout>
   )

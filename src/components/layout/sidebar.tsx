@@ -84,16 +84,17 @@ export function Sidebar() {
     }
   }
   const { canReadAnyInModule, has, loading: capsLoading } = useMyCapabilities()
-  const { isNextStepVisible } = useNextStep()
+  const { isNextStepVisible, currentTour } = useNextStep()
   const [mounted, setMounted] = useState(false)
   const [personalSettingsOpen, setPersonalSettingsOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false) // 點擊固定展開
   const [isHovered, setIsHovered] = useState(false) // 滑鼠懸停暫時展開
   const [expandedMenus, setExpandedMenus] = useState<string[]>([])
 
-  // 實際顯示狀態：固定展開 / 懸停展開 / 導覽進行中強制展開
-  // （導覽時鎖定展開，避免側邊欄伸縮動畫讓 spotlight 框對不準）
-  const showExpanded = isExpanded || isHovered || isNextStepVisible
+  // 實際顯示狀態：固定展開 / 懸停展開 /「側邊欄導覽」進行中強制展開
+  // 只在 sidebar tour 鎖定展開；公司設定等別的導覽不去撐開側邊欄
+  // （否則側邊欄一展開、主內容左右位移，那些導覽的氣泡位置會跟著跑掉）
+  const showExpanded = isExpanded || isHovered || (isNextStepVisible && currentTour === 'sidebar')
 
   useEffect(() => {
     setMounted(true)
