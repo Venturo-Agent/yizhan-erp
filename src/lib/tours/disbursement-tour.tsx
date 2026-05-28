@@ -45,35 +45,32 @@ const DISBURSEMENT_TOUR_STEPS: Step[] = [
     title: '列表怎麼看',
     content: (
       <div className="space-y-2.5">
+        <p>建好出納單後、每筆會這樣呈現（目前沒資料 = 空表）：</p>
         <div>
-          <p className="font-semibold">排序固定：</p>
-          <p>**未付款在上**（舊的優先處理）、已付款在下（新的歷史在前）。</p>
-        </div>
-        <div>
-          <p className="font-semibold">銀行帳戶欄：</p>
-          <p>顯示「玉山 3 筆 / 台新 2 筆」這樣的群組摘要、一張出納單可跨多家銀行。</p>
-        </div>
-        <div>
-          <p className="font-semibold">每一列 4 顆操作鈕：</p>
+          <p className="font-semibold">欄位：</p>
           <ul className="list-disc pl-5 space-y-0.5">
             <li>
-              <strong>預覽</strong> — 看列印單（出去匯款時拿這張）
+              <strong>單號 / 日期 / 請款單數 / 總金額 / 狀態</strong>
             </li>
             <li>
-              <strong>編輯</strong> — 只有未付款才能改
-            </li>
-            <li>
-              <strong>出帳</strong> — 確認真的匯出去了、按下去鎖死
-            </li>
-            <li>
-              <strong>刪除</strong> — 只有未付款才能刪
+              <strong>銀行帳戶</strong> — 顯示「玉山 3 筆 / 台新 2 筆」群組摘要、跨銀行可彙整
             </li>
           </ul>
         </div>
+        <div>
+          <p className="font-semibold">排序固定：</p>
+          <p>未付款在上（舊優先處理）、已付款在下（新歷史在前）、不可自訂。</p>
+        </div>
+        <div>
+          <p className="font-semibold">每筆右側 4 顆操作鈕：</p>
+          <p>預覽 / 編輯 / 出帳 / 刪除（編輯、出帳、刪除只有「未付款」才能用）。</p>
+        </div>
       </div>
     ),
-    selector: '[data-tutorial="disbursement-table"]',
-    side: 'top',
+    // 框「表頭那一排」：EnhancedTable 的 thead 有 data-enhanced-table-header-row 屬性、
+    // 不論有沒有資料表頭永遠在、視覺穩定不會「跑到最下面」
+    selector: '[data-tutorial="disbursement-table"] [data-enhanced-table-header-row]',
+    side: 'bottom',
   },
   {
     ...baseStep,
