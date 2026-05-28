@@ -54,8 +54,10 @@ const CREATE_DISBURSEMENT_TOUR_STEPS: Step[] = [
         </p>
       </div>
     ),
-    selector: '[data-tutorial="create-disbursement-dialog"]',
-    side: 'left-top',
+    // 框 DialogHeader（小區、上方）、card 出現在 header 下方
+    // 不框整個 DialogContent（98vw / 94vh、card 會跑到中下面、視覺感「太低」）
+    selector: '[data-tutorial="create-disbursement-header"]',
+    side: 'bottom',
   },
 ]
 

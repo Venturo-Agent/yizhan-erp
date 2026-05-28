@@ -51,6 +51,10 @@ interface InlineEditTableProps<T> {
   variant?: 'default' | 'minimal'
   /** 每列額外 className（如要把特定列底色標出來、跟其他列做視覺區隔） */
   rowClassName?: (row: T, index: number) => string | undefined
+  /** 「新增項目」按鈕 data-tutorial 屬性（給 NextStepjs 導覽框定用） */
+  addButtonDataTutorial?: string
+  /** 整張表外層 data-tutorial 屬性（給 NextStepjs 導覽框定用） */
+  wrapperDataTutorial?: string
 }
 
 const alignClass: Record<NonNullable<InlineEditColumn<unknown>['align']>, string> = {
@@ -77,20 +81,28 @@ export function InlineEditTable<T>({
   className,
   variant = 'default',
   rowClassName,
+  addButtonDataTutorial,
+  wrapperDataTutorial,
 }: InlineEditTableProps<T>) {
   const showActionColumn = !!onRemove && !rowRender
   const totalCols = columns.length + (showActionColumn ? 1 : 0)
   const isMinimal = variant === 'minimal'
 
   return (
-    <div className={cn('flex flex-col min-h-0', className)}>
+    <div className={cn('flex flex-col min-h-0', className)} data-tutorial={wrapperDataTutorial}>
       {(title || onAdd || headerExtra) && (
         <div className="flex items-center justify-between mb-3">
           {title ? <h3 className="text-sm font-medium text-morandi-primary">{title}</h3> : <span />}
           <div className="flex items-center gap-2">
             {headerExtra}
             {onAdd && !readonly && (
-              <Button type="button" onClick={onAdd} size="sm" variant="morandi-gold">
+              <Button
+                type="button"
+                onClick={onAdd}
+                size="sm"
+                variant="header-outline"
+                data-tutorial={addButtonDataTutorial}
+              >
                 <Plus size="0.875em" className="mr-1" />
                 {addLabel}
               </Button>
