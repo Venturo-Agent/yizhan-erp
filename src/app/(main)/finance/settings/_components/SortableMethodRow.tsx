@@ -7,7 +7,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { useTranslations } from 'next-intl'
 import { PAGE_LABELS, type PaymentMethod } from './types'
-import { PROVIDER_LABELS, isGatewayProvider } from '@/constants/payment-provider'
+import { isGatewayProvider } from '@/constants/payment-provider'
 
 // 不用刻的 TableRow（要傳 ref/style 給 useSortable）、直接 <tr>
 export function SortableMethodRow({
@@ -18,6 +18,7 @@ export function SortableMethodRow({
   onToggleCustomerVisible,
   onDelete,
   showAccounting,
+  showProvider,
 }: {
   method: PaymentMethod
   loading: boolean
@@ -26,6 +27,7 @@ export function SortableMethodRow({
   onToggleCustomerVisible: () => void
   onDelete: () => void
   showAccounting: boolean
+  showProvider: boolean
 }) {
   const t = useTranslations('finance')
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -59,12 +61,12 @@ export function SortableMethodRow({
           {method.name}
         </span>
       </td>
-      {/* 金流商（B 方案 provider）— 純文字、統一黑色、不用色塊 */}
-      <td className="px-4 [padding-block:0.95em] text-sm text-morandi-primary">
-        {isGatewayProvider(method.provider)
-          ? (PROVIDER_LABELS[method.provider] ?? method.provider)
-          : PROVIDER_LABELS.manual}
-      </td>
+      {/* 處理方式：有接金流才顯示、純文字黑色「自動/手動」 */}
+      {showProvider && (
+        <td className="px-4 [padding-block:0.95em] text-sm text-morandi-primary">
+          {isGatewayProvider(method.provider) ? '自動' : '手動'}
+        </td>
+      )}
       {/* 借/貸方科目 — 僅開通會計功能顯示 */}
       {showAccounting && (
         <td className="px-4 [padding-block:0.95em] text-sm text-morandi-muted">

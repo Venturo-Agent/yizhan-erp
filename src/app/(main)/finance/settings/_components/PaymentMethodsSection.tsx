@@ -23,6 +23,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { PAGE_LABELS, type PaymentMethod, type ChartOfAccount } from './types'
 import { SortableMethodRow } from './SortableMethodRow'
 import { MethodDialog } from './MethodDialog'
+import { isGatewayProvider } from '@/constants/payment-provider'
 import { apiMutate } from '@/lib/swr/api-mutate'
 import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 
@@ -55,6 +56,8 @@ export function PaymentMethodsSection({
   const hasAccounting = isFeatureEnabled('accounting')
   // 先依 type filter
   const list = paymentMethods.filter(m => m.type === type)
+  // 有任何方式接線上金流才顯示「處理方式（自動/手動）」欄；全手動的公司隱藏此欄、畫面更乾淨
+  const hasGateway = list.some(m => isGatewayProvider(m.provider))
 
   // 防連點 per-row loading 狀態（key = method.id）
   const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({})
@@ -225,7 +228,11 @@ export function PaymentMethodsSection({
                 <TableRow>
                   <TableHead className="w-[40px]"></TableHead>
                   <TableHead className="w-[280px]">{PAGE_LABELS.COL_NAME}</TableHead>
-                  <TableHead className="w-[140px]">金流商</TableHead>
+                  {hasGateway && (
+                    <TableHead className="w-[100px]">
+                      <span title="自動＝線上金流系統自動收款；手動＝自行對帳">處理方式</span>
+                    </TableHead>
+                  )}
                   {hasAccounting && (
                     <TableHead className="w-[220px]">{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>
                   )}
@@ -245,7 +252,11 @@ export function PaymentMethodsSection({
                 {list.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={(hasAccounting ? 8 : 6) + (type === 'receipt' ? 1 : 0)}
+                      colSpan={
+                        (hasAccounting ? 8 : 6) +
+                        (type === 'receipt' ? 1 : 0) -
+                        (hasGateway ? 0 : 1)
+                      }
                       className="text-center py-8 text-morandi-muted"
                     >
                       {emptyText}
@@ -261,6 +272,7 @@ export function PaymentMethodsSection({
                         key={method.id}
                         method={method}
                         showAccounting={hasAccounting}
+                        showProvider={hasGateway}
                         loading={!!rowLoading[method.id]}
                         onEdit={() => {
                           setEditingMethod(method)
