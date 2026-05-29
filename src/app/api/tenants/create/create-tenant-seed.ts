@@ -214,7 +214,7 @@ export async function seedWorkspaceFeatures(
     // 2026-05-26 移除孤兒 'customers' feature：客戶收回 database module、客戶頁由 database feature 涵蓋
     'itinerary',
     'accounting',
-    'office',
+    // 2026-05-29 移除孤兒 'office' feature：office module 完全砍除（半成品、無路由/UI、零 caller）
     'channels',
     'esim',
     'documents',
@@ -223,7 +223,7 @@ export async function seedWorkspaceFeatures(
   // Determine which features are enabled based on the selected plan
   const isCustom = planId === 'custom'
 
-  // For custom: enable all except premium (office, accounting) — same as old default
+  // For custom: enable all except premium (accounting) — same as old default
   // For named plans: use getFeaturesForPlan + always-on baseline (workspace/quotes/itinerary)
   const ALWAYS_ENABLED = new Set(['workspace', 'quotes', 'itinerary'])
   const planFeatureSet: Set<string> = isCustom

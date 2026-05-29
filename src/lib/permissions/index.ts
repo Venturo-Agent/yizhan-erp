@@ -63,7 +63,6 @@ const ROUTE_TO_MODULE: Record<string, string> = {
   '/todos': 'todos',
   '/dashboard': 'dashboard',
   '/itinerary': 'itinerary',
-  '/office': 'office',
   '/library/customers': 'database', // 顧客在資料管理
   '/library/attractions': 'database',
   '/library/suppliers': 'database',

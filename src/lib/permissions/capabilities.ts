@@ -99,9 +99,6 @@ export const CAPABILITIES = {
   ACCOUNTING_CHECKS_WRITE: 'accounting.checks.write',
   ACCOUNTING_REPORTS_READ: 'accounting.reports.read',
   ACCOUNTING_REPORTS_WRITE: 'accounting.reports.write',
-  // ── office ──
-  OFFICE_READ: 'office.read',
-  OFFICE_WRITE: 'office.write',
   // ── hr ──
   HR_READ_EMPLOYEES: 'hr.employees.read',
   HR_MANAGE_EMPLOYEES: 'hr.employees.write',

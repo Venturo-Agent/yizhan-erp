@@ -98,13 +98,6 @@ export const FEATURES: FeatureDefinition[] = [
     ],
   },
   {
-    code: 'office',
-    name: '文件管理',
-    description: '文件編輯與儲存',
-    category: 'basic',
-    routes: [],
-  },
-  {
     code: 'hr',
     name: '人資管理',
     description: '員工 + 職務管理',

@@ -29,4 +29,4 @@ export const NO_SIDEBAR_PAGES = [
 // 5/15 William 拍板：/ai 從沉浸式拿掉、改用標準 ContentPageLayout
 // 2026-05-21 William 翻回沉浸式：跟 /channels 視覺統一、sidebar header 加齒輪 / 收側欄 / 新增
 //   設定本身走 sidebar header 的齒輪 → 滿版 dialog、不再需要主標題區
-export const CUSTOM_LAYOUT_PAGES = ['/editor', '/design/new', '/office/editor', '/channels', '/ai']
+export const CUSTOM_LAYOUT_PAGES = ['/editor', '/design/new', '/channels', '/ai']

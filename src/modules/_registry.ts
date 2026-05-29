@@ -12,7 +12,6 @@ import { ToursModule } from './tours'
 import { OrdersModule } from './orders'
 import { FinanceModule } from './finance'
 import { AccountingModule } from './accounting'
-import { OfficeModule } from './office'
 import { HrModule } from './hr'
 import { DatabaseModule } from './database'
 // 5/14 deprecated（保留檔案、不 rm／鐵律 #8）：line_bot / facebook_bot / instagram_bot / messaging_inbox
@@ -58,7 +57,6 @@ export const ALL_MODULES = [
   OrdersModule,
   FinanceModule,
   AccountingModule,
-  OfficeModule,
   HrModule,
   DatabaseModule,
   AiHubModule,
