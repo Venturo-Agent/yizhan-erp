@@ -159,6 +159,7 @@ export interface Todo {
   creator: string // 建立者（向後相容、新 code 用 created_by）
   created_by?: string | null // 建立者 employee id
   assignee?: string // 被指派者（可選）
+  linked_group_id?: string | null // 指派配對：建立者卡 + 被指派卡共用同一值（P4）
   visibility: string[] // 可見人員ID列表 = [creator, assignee]
   is_public?: boolean // 是否公開給全公司（只有建立者+共享者可編輯，其他人只能查看）
 

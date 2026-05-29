@@ -117,6 +117,8 @@ export default function TodosPage() {
     })
     const defaultCol = columns.find(c => c.mapped_status === 'pending') || columns[0]
     visibleTodos.forEach(todo => {
+      // 配對的「被指派卡」(linked + assignee≠建立者) 只在被指派者的「任務指派」虛擬欄顯示、不進一般欄
+      if (todo.linked_group_id && todo.assignee !== (todo.creator || todo.created_by)) return
       const colId = todo.column_id || defaultCol?.id
       if (colId && map[colId]) map[colId].push(todo)
     })

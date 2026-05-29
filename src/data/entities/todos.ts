@@ -18,7 +18,7 @@ const todoEntity = createEntityHook<Todo>('todos', {
   list: {
     // 對齊 src/lib/data/todos.ts:getAllTodos 既有 select
     select:
-      'id, title, status, priority, deadline, completed, assignee, tour_id, task_type, visibility, related_items, sub_tasks, notes, enabled_quick_actions, is_public, needs_creator_notification, column_id, workspace_id, created_at, created_by, updated_at',
+      'id, title, status, priority, deadline, completed, assignee, linked_group_id, tour_id, task_type, visibility, related_items, sub_tasks, notes, enabled_quick_actions, is_public, needs_creator_notification, column_id, workspace_id, created_at, created_by, updated_at',
     orderBy: { column: 'created_at', ascending: false },
   },
   slim: {
