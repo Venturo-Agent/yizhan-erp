@@ -17,6 +17,7 @@ import type { OrderFormData } from '@/app/(main)/orders/_components/add-order-fo
 import { TourBasicInfo, TourSettings, TourOrderSection } from './tour-form'
 import { TOUR_FORM } from '../_constants'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
+import { isTourEnabled } from '@/lib/tours/tour-preferences'
 
 interface TourFormShellProps {
   isOpen: boolean
@@ -65,8 +66,10 @@ export function TourFormShell({
       return
     }
     if (mode !== 'create' || tourStartedRef.current) return
-    tourStartedRef.current = true
     const tourName = isProposalOrTemplate ? 'open-proposal' : 'open-tour'
+    // 個人設定關掉此教學 → 不跑（修：原本沒檢查、關了還是跑）
+    if (!isTourEnabled(tourName)) return
+    tourStartedRef.current = true
     // 延遲讓 dialog DOM mount + 子組件載入（TourSettings 等可能 async）
     const timer = setTimeout(() => startNextStep(tourName), 200)
     return () => clearTimeout(timer)
