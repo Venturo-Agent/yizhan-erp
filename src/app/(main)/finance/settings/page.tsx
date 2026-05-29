@@ -7,7 +7,8 @@
 //   - activeSection / dialog open + editing 物件：留 page.tsx（給 primaryAction「新增」按鈕用）
 //   - mutation handler：搬進對應 section（每個 section 用 reload() 還回來）
 
-import { useState, useEffect } from 'react'
+import { useState, type Dispatch, type SetStateAction } from 'react'
+import useSWR from 'swr'
 import { UnauthorizedPage } from '@/components/unauthorized-page'
 import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
@@ -23,8 +24,6 @@ import {
   Award,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
-import { logger } from '@/lib/utils/logger'
-import { toast } from 'sonner'
 import { alert } from '@/lib/ui/alert-dialog'
 import {
   type PaymentMethod,
@@ -43,10 +42,6 @@ export default function FinanceSettingsPage() {
   const { can, loading: permLoading } = useCapabilities()
   // 2026-05-22 預設停留銀行帳戶 tab（順序首位）
   const [activeSection, setActiveSection] = useState<ActiveSection>('bank')
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
-  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
-  const [chartOfAccounts, setChartOfAccounts] = useState<ChartOfAccount[]>([])
-  const [expenseCategories, setExpenseCategories] = useState<ExpenseCategory[]>([])
 
   // 編輯對話框
   const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null)
@@ -58,39 +53,51 @@ export default function FinanceSettingsPage() {
 
   const workspaceId = useAuthStore(state => state.user?.workspace_id)
 
-  // 載入資料
-  useEffect(() => {
-    if (workspaceId) {
-      loadData()
-    }
-  }, [workspaceId])
+  // 2026-05-29：原本 useEffect 手動 fetch、每次進頁都重抓 + 空白閃爍（違反紅線 F）。
+  // 改 SWR：走全域 config（localStorage 持久化 + 5 分鐘 dedupe）、快取命中直接顯示、背景 revalidate。
+  // key 帶 workspaceId 隔離（紅線 G）。API 失敗回 {error}、用 Array.isArray type guard 防崩。
+  const jsonArray = async <T,>(url: string): Promise<T[]> => {
+    const res = await fetch(url)
+    const data = await res.json()
+    return Array.isArray(data) ? (data as T[]) : []
+  }
 
-  const loadData = async () => {
-    try {
-      // 2026-05-21 重構：4 個 fetch 改 Promise.all 並行（原本串行、無謂多 3 個 RTT）
-      // 也拿掉冗餘 ?workspace_id=（4 個 API 都從 session 取、不信 client）
-      const [methodsRes, banksRes, accountsRes, categoriesRes] = await Promise.all([
-        fetch('/api/finance/payment-methods?include_inactive=true'),
-        fetch('/api/bank-accounts'),
-        fetch('/api/finance/accounting-subjects'),
-        fetch('/api/finance/expense-categories'),
-      ])
-      const [methodsData, banksData, accountsData, categoriesData] = await Promise.all([
-        methodsRes.json(),
-        banksRes.json(),
-        accountsRes.json(),
-        categoriesRes.json(),
-      ])
-      // bug fix: API 失敗時回 {error: ...}、要 type guard 防止 setState 成 object 後 .filter 崩
-      setPaymentMethods(Array.isArray(methodsData) ? methodsData : [])
-      setBankAccounts(Array.isArray(banksData) ? banksData : [])
-      setChartOfAccounts(Array.isArray(accountsData) ? accountsData : [])
-      setExpenseCategories(Array.isArray(categoriesData) ? categoriesData : [])
-    } catch (error) {
-      logger.error('載入資料失敗:', error)
-      // 2026-05-21 加：失敗也要告訴 user、不再靜默
-      toast.error('財務設定載入失敗、請重新整理或聯絡管理員')
-    }
+  const { data: paymentMethods = [], mutate: mutatePaymentMethods } = useSWR<PaymentMethod[]>(
+    workspaceId ? `finance-payment-methods-${workspaceId}` : null,
+    () => jsonArray<PaymentMethod>('/api/finance/payment-methods?include_inactive=true')
+  )
+  const { data: bankAccounts = [], mutate: mutateBankAccounts } = useSWR<BankAccount[]>(
+    workspaceId ? `finance-bank-accounts-${workspaceId}` : null,
+    () => jsonArray<BankAccount>('/api/bank-accounts')
+  )
+  const { data: chartOfAccounts = [] } = useSWR<ChartOfAccount[]>(
+    workspaceId ? `finance-accounting-subjects-${workspaceId}` : null,
+    () => jsonArray<ChartOfAccount>('/api/finance/accounting-subjects')
+  )
+  const { data: expenseCategories = [], mutate: mutateExpenseCategories } = useSWR<
+    ExpenseCategory[]
+  >(workspaceId ? `finance-expense-categories-${workspaceId}` : null, () =>
+    jsonArray<ExpenseCategory>('/api/finance/expense-categories')
+  )
+
+  // section 仍用 setXxx 做樂觀更新、reload() 還原：adapter 寫進 SWR cache（不立即 revalidate）
+  const setPaymentMethods: Dispatch<SetStateAction<PaymentMethod[]>> = action => {
+    void mutatePaymentMethods(
+      prev =>
+        typeof action === 'function'
+          ? (action as (p: PaymentMethod[]) => PaymentMethod[])(prev ?? [])
+          : action,
+      { revalidate: false }
+    )
+  }
+  const setExpenseCategories: Dispatch<SetStateAction<ExpenseCategory[]>> = action => {
+    void mutateExpenseCategories(
+      prev =>
+        typeof action === 'function'
+          ? (action as (p: ExpenseCategory[]) => ExpenseCategory[])(prev ?? [])
+          : action,
+      { revalidate: false }
+    )
   }
 
   // 2026-05-22 William 拍板：tab 順序 — 銀行帳戶 → 收款 → 付款 → 類別 → 收支項目 → 獎金
@@ -171,7 +178,9 @@ export default function FinanceSettingsPage() {
             type={activeSection}
             paymentMethods={paymentMethods}
             chartOfAccounts={chartOfAccounts}
-            reload={loadData}
+            reload={async () => {
+              await mutatePaymentMethods()
+            }}
             setPaymentMethods={setPaymentMethods}
             isDialogOpen={isMethodDialogOpen}
             setIsDialogOpen={setIsMethodDialogOpen}
@@ -186,7 +195,9 @@ export default function FinanceSettingsPage() {
             expenseCategories={expenseCategories}
             chartOfAccounts={chartOfAccounts}
             workspaceId={workspaceId}
-            reload={loadData}
+            reload={async () => {
+              await mutateExpenseCategories()
+            }}
             setExpenseCategories={setExpenseCategories}
             isDialogOpen={isCategoryDialogOpen}
             setIsDialogOpen={setIsCategoryDialogOpen}
@@ -198,7 +209,9 @@ export default function FinanceSettingsPage() {
         {activeSection === 'bank' && (
           <BankAccountsSection
             bankAccounts={bankAccounts}
-            reload={loadData}
+            reload={async () => {
+              await mutateBankAccounts()
+            }}
             isDialogOpen={isBankDialogOpen}
             setIsDialogOpen={setIsBankDialogOpen}
             editingBank={editingBank}
