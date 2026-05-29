@@ -8,7 +8,7 @@
 import { createStore } from './core/create-store'
 
 // 從 @/types 匯入（使用 types/ 目錄下的標準定義）
-import type { Tour, Order, Employee } from '@/types'
+import type { Tour, Order } from '@/types'
 
 // 從本地 types 匯入
 import type { Quote } from './types'
@@ -55,15 +55,6 @@ export const useQuoteStore = createStore<Quote>({
   codePrefix: 'Q',
   workspaceScoped: true,
   listFields: 'id,tour_id,name,total_cost,group_size,status,workspace_id,created_at',
-})
-
-/**
- * 員工 Store
- * ⚠️ 不啟用 Workspace 隔離（全局共享基礎資料）
- */
-const _useEmployeeStore = createStore<Employee>({
-  tableName: 'employees',
-  workspaceScoped: false,
 })
 
 // ============================================

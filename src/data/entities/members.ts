@@ -47,20 +47,9 @@ export const useMembers = memberEntity.useList
 /** 精簡 Members 列表 */
 export const useMembersSlim = memberEntity.useListSlim
 
-/** 單筆 Member（支援 skip pattern）*/
-const _useMember = memberEntity.useDetail
-
-/** 分頁 Members */
-const _useMembersPaginated = memberEntity.usePaginated
-
-/** Member Dictionary */
-const _useMemberDictionary = memberEntity.useDictionary
-
 // ============================================
 // CRUD Export
 // ============================================
 
-const _createMember = memberEntity.create
 export const updateMember = memberEntity.update
 export const deleteMember = memberEntity.delete
-const _invalidateMembers = memberEntity.invalidate
