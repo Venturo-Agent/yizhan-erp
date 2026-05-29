@@ -293,11 +293,17 @@ export function AiConversationsTab({ hideList = false }: { hideList?: boolean } 
                   <p>還沒有對話進來</p>
                   <p className="text-xs">
                     到{' '}
-                    <a href="/bot/facebook-setup" className="text-morandi-gold underline">
+                    <a
+                      href="/ai?tab=setup&channel=facebook"
+                      className="text-morandi-gold underline"
+                    >
                       FB 設定
                     </a>{' '}
                     /{' '}
-                    <a href="/bot/instagram-setup" className="text-morandi-gold underline">
+                    <a
+                      href="/ai?tab=setup&channel=instagram"
+                      className="text-morandi-gold underline"
+                    >
                       IG 設定
                     </a>{' '}
                     跑嚮導開通
@@ -1732,7 +1738,7 @@ function QuickReplyDrawer({
           {!isLoading && templates.length === 0 && (
             <div className="text-xs text-morandi-muted py-2">
               尚未設定快捷回覆模板，
-              <a href="/bot/line-setup" className="text-morandi-gold underline">
+              <a href="/ai?tab=setup&channel=line" className="text-morandi-gold underline">
                 前往 LINE 設定
               </a>
               建立

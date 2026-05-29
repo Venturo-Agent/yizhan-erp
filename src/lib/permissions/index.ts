@@ -67,7 +67,6 @@ const ROUTE_TO_MODULE: Record<string, string> = {
   '/library/attractions': 'database',
   '/library/suppliers': 'database',
   '/library/archive-management': 'database',
-  '/bot': 'line_bot',
   '/workspaces': 'workspaces',
   '/platform': 'platform_integrations',
 }
