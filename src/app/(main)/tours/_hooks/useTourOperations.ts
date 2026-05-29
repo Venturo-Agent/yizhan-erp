@@ -3,7 +3,6 @@
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Tour } from '@/stores/types'
-import { tourService } from '@/app/(main)/tours/_services/tour.service'
 import { logger } from '@/lib/utils/logger'
 import { NewTourData } from '../_types'
 import { OrderFormData } from '@/app/(main)/orders/_components/add-order-form'
@@ -11,7 +10,7 @@ import type { CreateInput, UpdateInput } from '@/stores/core/types'
 import { createOrder } from '@/data/entities/orders'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
-import { generateOrderNumber } from '@/lib/codes'
+import { generateOrderNumber, generateTourCode } from '@/lib/codes'
 import { useAuthStore } from '@/stores/auth-store'
 import { softDelete } from '@/lib/data/soft-delete'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
@@ -174,7 +173,11 @@ export function useTourOperations(params: UseTourOperationsParams) {
           throw new Error('轉開團缺城市代碼、無法產生團號')
         }
         const departureDate = new Date(departure_date)
-        const code = await tourService.generateTourCode(cityCode, departureDate, false)
+        const workspaceId = currentUser?.workspace_id ?? params.workspaceId
+        if (!workspaceId) {
+          throw new Error('無法取得 workspace、請重新登入')
+        }
+        const code = await generateTourCode(workspaceId, cityCode, departureDate)
 
         let tourId = tour.id
 

@@ -13,7 +13,9 @@
 import { createStore } from './core/create-store'
 
 // 從 @/types 匯入（使用 types/ 目錄下的標準定義）
-import type { Tour } from '@/types'
+
+// 從本地 types 匯入
+import type { Quote } from './types'
 
 // Supplier 從標準 types 匯入
 import type {} from '@/types/supplier.types'
@@ -21,21 +23,6 @@ import type {} from '@/types/supplier.types'
 // ============================================
 // 仍有引用的 createStore Stores
 // ============================================
-
-/**
- * 旅遊團 Store
- * 🔒 啟用 Workspace 隔離
- * listFields: 列表頁只抓需要的欄位（詳情頁 fetchById 仍 select('*')）
- *
- * caller：src/app/(main)/tours/_services/tour.service.ts（同步 getState() 用）
- */
-export const useTourStore = createStore<Tour>({
-  tableName: 'tours',
-  codePrefix: 'T',
-  workspaceScoped: true,
-  listFields:
-    'id,code,name,status,departure_date,return_date,max_participants,current_participants,workspace_id,created_at',
-})
 
 
 // 報價單 Store 已於 2026-05-30 移除：
