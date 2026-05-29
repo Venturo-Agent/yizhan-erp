@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const guard = await requireCapability(CAPABILITIES.TOURS_CONTRACT_WRITE)
     if (!guard.ok) return guard.response
     const supabase = await createApiClient()
-    const workspaceId = await getCurrentWorkspaceId()
+    const workspaceId = await getCurrentWorkspaceIdServer()
 
     if (!workspaceId) {
       return NextResponse.json({ error: '未登入或無法取得租戶' }, { status: 401 })

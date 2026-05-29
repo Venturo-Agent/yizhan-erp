@@ -14,6 +14,7 @@
 import { useState, useEffect } from 'react'
 import { get_cache } from '@/lib/cache/indexeddb-cache'
 import type { UserRole } from '@/types/user.types'
+import { useAuthStore } from '@/stores/auth-store'
 
 // ============================================
 // UUID v4 生成（兼容瀏覽器）
@@ -34,11 +35,14 @@ export function generateUUID(): string {
 }
 
 // ============================================
-// Workspace / User context（從 localStorage 讀）
+// Workspace / User context（從 zustand auth store 讀）
 // ============================================
 
 /**
  * 取得當前使用者的 workspace_id 和 role
+ *
+ * B10 收斂：原本直讀 localStorage 手解 JSON、改為走 zustand store
+ * （`workspace-context.ts` 是 client 端 SSOT、本函式僅服務 entity hook cache scope）。
  *
  * userRole 僅供 SWR cache scoping、不用於權限決策。
  */
@@ -48,21 +52,13 @@ export function getCurrentUserContext(): {
   userId: string | null
 } {
   if (typeof window === 'undefined') return { workspaceId: null, userRole: null, userId: null }
-  try {
-    const authData = localStorage.getItem('auth-storage')
-    if (authData) {
-      const parsed = JSON.parse(authData)
-      const user = parsed?.state?.user
-      return {
-        workspaceId: user?.workspace_id || null,
-        userRole: 'staff' as UserRole,
-        userId: user?.id || null,
-      }
-    }
-  } catch {
-    // 忽略解析錯誤
+  const user = useAuthStore.getState().user
+  if (!user) return { workspaceId: null, userRole: null, userId: null }
+  return {
+    workspaceId: user.workspace_id || null,
+    userRole: 'staff' as UserRole,
+    userId: user.id || null,
   }
-  return { workspaceId: null, userRole: null, userId: null }
 }
 
 // ============================================

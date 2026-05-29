@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { hasCapabilityByCode } from '@/app/api/lib/check-capability'
@@ -40,7 +40,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const includeInactive = searchParams.get('include_inactive') === 'true'
 
   // 明確用 workspace_id 過濾（擁有平台管理資格時 RLS 會放行全部、所以不能只靠 RLS）
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
   let query = supabase
     .from('payment_methods')
     .select(
@@ -87,7 +87,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const guard = await requireCapability(CAPABILITIES.FINANCE_MANAGE_SETTINGS)
   if (!guard.ok) return guard.response
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
 
   if (!workspaceId) {
     return NextResponse.json({ error: '未登入' }, { status: 401 })

@@ -15,7 +15,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { hasCapabilityByCode } from '@/app/api/lib/check-capability'
@@ -48,7 +48,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   if (!auth.success) return NextResponse.json({ error: '請先登入' }, { status: 401 })
 
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
   if (!workspaceId) return NextResponse.json({ error: '無 workspace' }, { status: 401 })
 
   const scope = request.nextUrl.searchParams.get('scope') ?? 'mine'

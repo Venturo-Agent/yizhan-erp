@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
@@ -14,7 +14,7 @@ export const GET = apiHandler(async () => {
   const guard = await requireCapability(CAPABILITIES.HR_READ_ROLES)
   if (!guard.ok) return guard.response
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
 
   if (!workspaceId) {
     return NextResponse.json({ error: '未登入或無法取得租戶' }, { status: 401 })
@@ -62,7 +62,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const guard = await requireCapability(CAPABILITIES.HR_MANAGE_ROLES)
   if (!guard.ok) return guard.response
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
 
   if (!workspaceId) {
     return NextResponse.json({ error: '未登入或無法取得租戶' }, { status: 401 })

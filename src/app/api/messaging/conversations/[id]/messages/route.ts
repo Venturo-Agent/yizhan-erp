@@ -9,7 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { requireWorkspaceFeature } from '@/lib/auth/require-feature'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
@@ -40,7 +40,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     const feature = await requireWorkspaceFeature(guard.workspaceId, 'ai_hub', 'AI Hub')
     if (!feature.ok) return feature.response
 
-    const workspaceId = await getCurrentWorkspaceId()
+    const workspaceId = await getCurrentWorkspaceIdServer()
     if (!workspaceId) return ApiError.unauthorized('未登入')
 
     const { id: conversationId } = await params

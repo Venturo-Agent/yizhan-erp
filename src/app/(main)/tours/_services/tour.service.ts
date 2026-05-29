@@ -2,7 +2,7 @@ import { formatDate } from '@/lib/utils/format-date'
 import { BaseService, StoreOperations } from '@/lib/services/base.service'
 import { Tour } from '@/stores/types'
 import { ValidationError } from '@/lib/errors/app-errors'
-import { getCurrentWorkspaceId } from '@/lib/workspace-helpers'
+import { getCurrentWorkspaceId } from '@/lib/workspace-context'
 // workspace_id is now auto-set by DB trigger
 import { BaseEntity } from '@/types/core.types'
 import { supabase } from '@/lib/supabase/client'

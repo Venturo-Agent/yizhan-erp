@@ -46,10 +46,15 @@ export async function createApiClient() {
 }
 
 /**
- * 取得當前用戶的 workspace_id
- * 用於需要手動處理的情況
+ * 取得當前用戶的 workspace_id（**server side、API route 專用**）
+ *
+ * - 從 session cookie 解出 user、再查 employees 反推 workspace_id
+ * - **絕對不信任 client 傳的 workspace_id**（紅線 H）
+ *
+ * client 端取 workspace_id 走 `@/lib/workspace-context` 的 `getCurrentWorkspaceId`（同名但不同實作）。
+ * B10 將 server 版改名 `getCurrentWorkspaceIdServer` 避免混淆。
  */
-export async function getCurrentWorkspaceId(): Promise<string | null> {
+export async function getCurrentWorkspaceIdServer(): Promise<string | null> {
   const supabase = await createApiClient()
 
   // 本地 JWKS 驗簽（ES256）、省去打外部 GoTrue 的跨國 RTT
@@ -71,3 +76,9 @@ export async function getCurrentWorkspaceId(): Promise<string | null> {
   // 備用：從 user metadata 取得
   return (claims.user_metadata?.workspace_id as string | undefined) || null
 }
+
+/**
+ * @deprecated B10 收斂：請改用 `getCurrentWorkspaceIdServer`
+ * 與 client 版（`@/lib/workspace-context`）同名易混淆、過渡期保留。
+ */
+export const getCurrentWorkspaceId = getCurrentWorkspaceIdServer

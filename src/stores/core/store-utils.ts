@@ -8,6 +8,7 @@
 import { dynamicFrom } from '@/lib/supabase/typed-client'
 import { logger } from '@/lib/utils/logger'
 import type { UserRole } from '@/types/user.types'
+import { useAuthStore } from '@/stores/auth-store'
 
 // ============================================
 // UUID 工具
@@ -49,7 +50,9 @@ export function generateUUID(): string {
 
 /**
  * 取得當前使用者的 workspace_id 和 role
- * 從 localStorage 讀取 auth-store 的值，避免循環依賴
+ *
+ * B10 收斂：原本直讀 localStorage 手解 JSON、改為走 zustand auth store。
+ * `useAuthStore` 自己用 zustand persist middleware、SSR 安全。
  *
  * isAdmin flag 已從 auth-store 移除、userRole 一律回 'staff'。
  * 系統內沒有 user 特權概念、權限決策走 workspace_features + role_capabilities。
@@ -57,56 +60,30 @@ export function generateUUID(): string {
  */
 export function getCurrentUserContext(): { workspaceId: string | null; userRole: UserRole | null } {
   if (typeof window === 'undefined') return { workspaceId: null, userRole: null }
-  try {
-    const authData = localStorage.getItem('auth-storage')
-    if (authData) {
-      const parsed = JSON.parse(authData)
-      const user = parsed?.state?.user
-      return {
-        workspaceId: user?.workspace_id || null,
-        userRole: 'staff' as UserRole,
-      }
-    }
-  } catch {
-    // 忽略解析錯誤
+  const user = useAuthStore.getState().user
+  if (!user) return { workspaceId: null, userRole: null }
+  return {
+    workspaceId: user.workspace_id || null,
+    userRole: 'staff' as UserRole,
   }
-  return { workspaceId: null, userRole: null }
 }
 
 /**
  * 取得當前使用者的 workspace_id（向後相容）
- * 優先從 auth store 讀取，fallback 到 localStorage
+ *
+ * B10 收斂：re-export `@/lib/workspace-context` 的同名函式、確保 client 端單一實作 SSOT。
+ * 之前同名於三檔（workspace-helpers / store-utils / api-client(server)）各自實作、易撞名。
  */
-export function getCurrentWorkspaceId(): string | null {
-  try {
-    const authStorage = localStorage.getItem('auth-storage')
-    if (authStorage) {
-      const parsed = JSON.parse(authStorage)
-      const workspaceId = parsed?.state?.user?.workspace_id
-      if (workspaceId) return workspaceId
-    }
-  } catch {
-    // 忽略
-  }
-  // Fallback 到原始方法
-  return getCurrentUserContext().workspaceId
-}
+export { getCurrentWorkspaceId } from '@/lib/workspace-context'
 
 /**
  * 取得當前使用者的員工 ID（用於追蹤 created_by, updated_by）
+ *
+ * B10 收斂：原本直讀 localStorage、改為走 zustand store。
  */
 export function getCurrentEmployeeId(): string | null {
   if (typeof window === 'undefined') return null
-  try {
-    const authStorage = localStorage.getItem('auth-storage')
-    if (authStorage) {
-      const parsed = JSON.parse(authStorage)
-      return parsed?.state?.user?.id || null
-    }
-  } catch {
-    // 忽略
-  }
-  return null
+  return useAuthStore.getState().user?.id || null
 }
 
 // ============================================
