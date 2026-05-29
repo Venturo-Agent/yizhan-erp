@@ -53,19 +53,22 @@ export function BranchesSection() {
     }
   }
 
-  // 沒有分公司（或還在載入）→ 整個 section 不顯示
-  if (branchesLoading || branches.length === 0) return null
+  // 總部（type='headquarters'）是每租戶必有的 placeholder、不是真分公司、不列入「分公司管理」
+  const realBranches = branches.filter(b => b.type !== 'headquarters')
+
+  // 沒有真分公司（或還在載入）→ 整個 section 不顯示
+  if (branchesLoading || realBranches.length === 0) return null
 
   return (
     <Card className="rounded-xl shadow-sm border border-border p-6">
       <div className="flex items-center gap-3 text-base font-semibold text-morandi-primary mb-4">
         <Network className="h-5 w-5 text-morandi-gold" />
         分公司管理
-        <span className="text-sm font-normal text-morandi-muted">（{branches.length}）</span>
+        <span className="text-sm font-normal text-morandi-muted">（{realBranches.length}）</span>
       </div>
 
       <div className="space-y-3">
-        {branches.map(branch => (
+        {realBranches.map(branch => (
           <Card key={branch.id} className="border border-morandi-gold/15 rounded-lg p-4 bg-card">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

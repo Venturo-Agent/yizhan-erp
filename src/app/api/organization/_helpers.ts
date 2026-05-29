@@ -42,7 +42,7 @@ export async function listDimension(table: DimensionTable) {
   const supabase = getSupabaseAdminClient()
   const selectCols =
     table === 'branches'
-      ? 'id, code, name, is_default, is_active, display_order, tax_id, created_at, updated_at'
+      ? 'id, code, name, type, is_default, is_active, display_order, tax_id, created_at, updated_at'
       : 'id, code, name, is_default, is_active, display_order, created_at, updated_at'
   const { data, error } = await supabase
     .from(table)

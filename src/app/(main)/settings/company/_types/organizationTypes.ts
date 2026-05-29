@@ -17,6 +17,8 @@ export interface DimensionRow {
   updated_at: string
   /** 只有 branches 有、8 碼數字 */
   tax_id?: string | null
+  /** 只有 branches 有：'headquarters'（總部 placeholder）/ 'branch'（真分公司） */
+  type?: string | null
 }
 
 export const fetcher = async (url: string): Promise<DimensionRow[]> => {
