@@ -10,7 +10,7 @@ export const Table = ({
 }: {
   children: React.ReactNode
   className?: string
-}) => <table className={`w-full text-sm ${className || ''}`}>{children}</table>
+}) => <table className={`w-full text-sm table-fixed ${className || ''}`}>{children}</table>
 
 export const TableHeader = ({ children }: { children: React.ReactNode }) => (
   <thead className="sticky top-0 z-20 bg-card border-b border-border [&_tr]:bg-morandi-gold-header">
@@ -28,7 +28,7 @@ export const TableRow = ({
   className?: string
 }) => (
   <tr
-    className={`border-b border-border/50 hover:bg-morandi-container/20 transition-colors ${className || ''}`}
+    className={`border-b border-border/40 hover:bg-morandi-container/20 transition-colors ${className || ''}`}
   >
     {children}
   </tr>
@@ -42,7 +42,7 @@ export const TableHead = ({
   className?: string
 }) => (
   <th
-    className={`text-left py-2.5 px-4 text-xs font-medium text-morandi-primary ${className || ''}`}
+    className={`text-left [padding-block:0.95em] px-4 text-xs font-medium text-morandi-primary ${className || ''}`}
   >
     {children}
   </th>
@@ -57,7 +57,7 @@ export const TableCell = ({
   className?: string
   colSpan?: number
 }) => (
-  <td className={`px-4 py-3 text-sm ${className || ''}`} colSpan={colSpan}>
+  <td className={`px-4 [padding-block:0.95em] text-sm ${className || ''}`} colSpan={colSpan}>
     {children}
   </td>
 )

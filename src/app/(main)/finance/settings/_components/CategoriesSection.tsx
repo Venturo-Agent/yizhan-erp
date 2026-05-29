@@ -227,7 +227,7 @@ export function CategoriesSection({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[40px]"></TableHead>
-                  <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
+                  <TableHead className="w-[280px]">{PAGE_LABELS.COL_NAME}</TableHead>
                   {variant === 'company' && (
                     <TableHead className="w-[90px]">{PAGE_LABELS.COL_TYPE}</TableHead>
                   )}

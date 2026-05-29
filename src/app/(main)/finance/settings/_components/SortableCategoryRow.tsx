@@ -40,10 +40,10 @@ export function SortableCategoryRow({
     <tr
       ref={setNodeRef}
       style={style}
-      className="group border-b border-border/50 last:border-b-0 hover:bg-morandi-container/20 transition-colors"
+      className="group border-b border-border/40 last:border-b-0 hover:bg-morandi-container/20 transition-colors"
     >
       {/* 拖曳把手 */}
-      <td className="w-[40px] px-2 py-3 text-center">
+      <td className="w-[40px] px-2 [padding-block:0.95em] text-center">
         <button
           {...attributes}
           {...listeners}
@@ -54,10 +54,14 @@ export function SortableCategoryRow({
         </button>
       </td>
       {/* 名稱 */}
-      <td className="px-4 py-3 text-sm font-medium">{category.name}</td>
+      <td className="px-4 [padding-block:0.95em] text-sm font-medium">
+        <span className="block truncate" title={category.name}>
+          {category.name}
+        </span>
+      </td>
       {/* 類型（公司收支：支出/收入 badge）*/}
       {showType && (
-        <td className="px-4 py-3 text-sm w-[90px]">
+        <td className="px-4 [padding-block:0.95em] text-sm w-[90px]">
           <span
             className={`inline-flex items-center px-1.5 py-0.5 rounded text-[0.7rem] font-medium ${
               category.type === 'company_income'
@@ -73,25 +77,25 @@ export function SortableCategoryRow({
       )}
       {/* 借/貸方科目 — 僅開通會計功能顯示 */}
       {showAccounting && (
-        <td className="px-4 py-3 text-sm text-morandi-muted">
+        <td className="px-4 [padding-block:0.95em] text-sm text-morandi-muted">
           {category.debit_account
             ? `${category.debit_account.code} ${category.debit_account.name}`
             : PAGE_LABELS.NOT_SET}
         </td>
       )}
       {showAccounting && (
-        <td className="px-4 py-3 text-sm text-morandi-muted">
+        <td className="px-4 [padding-block:0.95em] text-sm text-morandi-muted">
           {category.credit_account
             ? `${category.credit_account.code} ${category.credit_account.name}`
             : PAGE_LABELS.NOT_SET}
         </td>
       )}
       {/* 狀態 — Switch、不撐高 */}
-      <td className="px-4 py-3 text-sm w-[60px]">
+      <td className="px-4 [padding-block:0.95em] text-sm w-[60px]">
         <Switch checked={category.is_active} onCheckedChange={onToggle} disabled={loading} />
       </td>
       {/* 操作（靠左對齊第一顆按鈕、比照訂單管理） */}
-      <td className="px-4 py-3 text-sm w-[100px]">
+      <td className="px-4 [padding-block:0.95em] text-sm w-[100px]">
         <div className="flex justify-start gap-0.5">
           <Button
             variant="ghost"

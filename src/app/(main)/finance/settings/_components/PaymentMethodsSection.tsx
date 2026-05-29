@@ -224,7 +224,7 @@ export function PaymentMethodsSection({
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[40px]"></TableHead>
-                  <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
+                  <TableHead className="w-[280px]">{PAGE_LABELS.COL_NAME}</TableHead>
                   <TableHead className="w-[140px]">金流商</TableHead>
                   {hasAccounting && (
                     <TableHead className="w-[220px]">{PAGE_LABELS.COL_DEBIT_ACCOUNT}</TableHead>

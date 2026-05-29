@@ -40,10 +40,10 @@ export function SortableMethodRow({
     <tr
       ref={setNodeRef}
       style={style}
-      className="group border-b border-border/50 last:border-b-0 hover:bg-morandi-container/20 transition-colors"
+      className="group border-b border-border/40 last:border-b-0 hover:bg-morandi-container/20 transition-colors"
     >
       {/* 拖曳把手（hover 時顯示） */}
-      <td className="w-[40px] px-2 py-3 text-center">
+      <td className="w-[40px] px-2 [padding-block:0.95em] text-center">
         <button
           {...attributes}
           {...listeners}
@@ -54,9 +54,13 @@ export function SortableMethodRow({
         </button>
       </td>
       {/* 名稱（對外/內部開關移到編輯框、列表不再展示標籤） */}
-      <td className="px-4 py-3 text-sm font-medium">{method.name}</td>
+      <td className="px-4 [padding-block:0.95em] text-sm font-medium">
+        <span className="block truncate" title={method.name}>
+          {method.name}
+        </span>
+      </td>
       {/* 金流商（B 方案 provider）*/}
-      <td className="px-4 py-3 text-sm">
+      <td className="px-4 [padding-block:0.95em] text-sm">
         {isGatewayProvider(method.provider) ? (
           <span className="inline-flex items-center px-2 py-0.5 rounded text-[0.7rem] font-medium bg-morandi-gold/15 text-morandi-gold">
             {PROVIDER_LABELS[method.provider] ?? method.provider}
@@ -67,24 +71,24 @@ export function SortableMethodRow({
       </td>
       {/* 借/貸方科目 — 僅開通會計功能顯示 */}
       {showAccounting && (
-        <td className="px-4 py-3 text-sm text-morandi-muted">
+        <td className="px-4 [padding-block:0.95em] text-sm text-morandi-muted">
           {method.debit_account ? `${method.debit_account.code} ${method.debit_account.name}` : '-'}
         </td>
       )}
       {showAccounting && (
-        <td className="px-4 py-3 text-sm text-morandi-muted">
+        <td className="px-4 [padding-block:0.95em] text-sm text-morandi-muted">
           {method.credit_account
             ? `${method.credit_account.code} ${method.credit_account.name}`
             : '-'}
         </td>
       )}
       {/* 狀態（純 Switch、不再加「啟用/停用」中文撐高） */}
-      <td className="px-4 py-3 text-sm w-[80px]">
+      <td className="px-4 [padding-block:0.95em] text-sm w-[80px]">
         <Switch checked={method.is_active} onCheckedChange={onToggle} disabled={loading} />
       </td>
       {/* 客戶收款（僅收款方式：開了才會出現在客人帳單自助付款頁）*/}
       {method.type === 'receipt' && (
-        <td className="px-4 py-3 text-sm w-[90px]">
+        <td className="px-4 [padding-block:0.95em] text-sm w-[90px]">
           <span title={PAGE_LABELS.CUSTOMER_VISIBLE_HINT}>
             <Switch
               checked={!!method.is_customer_visible}
@@ -95,7 +99,7 @@ export function SortableMethodRow({
         </td>
       )}
       {/* 操作（編輯 / 刪除、靠左對齊第一顆按鈕、比照訂單管理） */}
-      <td className="px-4 py-3 text-sm w-[100px]">
+      <td className="px-4 [padding-block:0.95em] text-sm w-[100px]">
         <div className="flex justify-start gap-0.5">
           <Button
             variant="ghost"

@@ -127,7 +127,7 @@ export function BankAccountsSection({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
+                <TableHead className="w-[280px]">{PAGE_LABELS.COL_NAME}</TableHead>
                 {hasBranches && (
                   <TableHead className="w-[140px] whitespace-nowrap">
                     {PAGE_LABELS.COL_BRANCH}
@@ -143,7 +143,7 @@ export function BankAccountsSection({
                 <TableHead className="w-[72px] text-center whitespace-nowrap">
                   {PAGE_LABELS.COL_QUOTE_DISPLAY}
                 </TableHead>
-                <TableHead className="w-[88px]">{PAGE_LABELS.COL_ACTION}</TableHead>
+                <TableHead className="w-[100px]">{PAGE_LABELS.COL_ACTION}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -156,7 +156,11 @@ export function BankAccountsSection({
               ) : (
                 bankAccounts.map(bank => (
                   <TableRow key={bank.id}>
-                    <TableCell className="font-medium">{bank.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <span className="block truncate" title={bank.name}>
+                        {bank.name}
+                      </span>
+                    </TableCell>
                     {hasBranches && (
                       <TableCell className="text-morandi-secondary">
                         {bank.branch_id
