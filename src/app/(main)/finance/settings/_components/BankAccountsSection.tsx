@@ -30,6 +30,17 @@ import { useBranches, type Branch } from '@/data/hooks/useBranches'
 
 // 全公司共用（branch_id = null）哨符
 const BRANCH_SHARED = '__shared__'
+// 分公司顯示名：總部(headquarters) 一律顯示「總公司」、真分公司顯示自身名稱
+const branchLabel = (b: Branch) => (b.type === 'headquarters' ? '總公司' : b.name)
+// 下拉/顯示排序：總公司排最前、其餘照 display_order
+const sortBranches = (list: Branch[]) =>
+  list
+    .slice()
+    .sort(
+      (a, b) =>
+        (a.type === 'headquarters' ? 0 : 1) - (b.type === 'headquarters' ? 0 : 1) ||
+        (a.display_order ?? 0) - (b.display_order ?? 0)
+    )
 
 interface BankAccountsSectionProps {
   bankAccounts: BankAccount[]
@@ -55,9 +66,10 @@ export function BankAccountsSection({
   // 分公司清單：有真分公司（御風/角落…）才顯示「分公司」欄與選單；單一總部的公司不顯示
   // 總部 placeholder type='headquarters'、真分公司 type='branch'/'custom'
   const { branches } = useBranches()
-  const realBranches = branches.filter(b => b.type !== 'headquarters')
-  const hasBranches = realBranches.length > 0
-  const branchNameById = new Map(branches.map(b => [b.id, b.name]))
+  // 有真分公司（非總部）才顯示「分公司」欄與選單；下拉選項含總公司+各分公司
+  const hasBranches = branches.some(b => b.type !== 'headquarters')
+  const branchOptions = sortBranches(branches) // 總公司在前、再各分公司
+  const branchNameById = new Map(branches.map(b => [b.id, branchLabel(b)]))
   const totalCols = hasBranches ? 9 : 8
 
   // 儲存銀行帳戶
@@ -121,8 +133,8 @@ export function BankAccountsSection({
                     {PAGE_LABELS.COL_BRANCH}
                   </TableHead>
                 )}
-                <TableHead className="w-[160px]">{PAGE_LABELS.COL_BANK}</TableHead>
-                <TableHead className="w-[180px]">{PAGE_LABELS.COL_ACCOUNT_NUMBER}</TableHead>
+                <TableHead>{PAGE_LABELS.COL_BANK}</TableHead>
+                <TableHead>{PAGE_LABELS.COL_ACCOUNT_NUMBER}</TableHead>
                 <TableHead className="w-[96px] text-right whitespace-nowrap">跨行手續費</TableHead>
                 <TableHead className="w-[64px] text-center whitespace-nowrap">
                   {PAGE_LABELS.COL_DEFAULT}
@@ -226,7 +238,7 @@ export function BankAccountsSection({
         }}
         bank={editingBank}
         onSave={handleSaveBank}
-        realBranches={realBranches}
+        branchOptions={branchOptions}
         hasBranches={hasBranches}
       />
     </>
@@ -239,14 +251,14 @@ function BankDialog({
   onOpenChange,
   bank,
   onSave,
-  realBranches,
+  branchOptions,
   hasBranches,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   bank: BankAccount | null
   onSave: (bank: Partial<BankAccount>) => Promise<void>
-  realBranches: Branch[]
+  branchOptions: Branch[]
   hasBranches: boolean
 }) {
   const t = useTranslations('finance')
@@ -333,9 +345,9 @@ function BankDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={BRANCH_SHARED}>{PAGE_LABELS.BRANCH_SHARED_LABEL}</SelectItem>
-                {realBranches.map(b => (
+                {branchOptions.map(b => (
                   <SelectItem key={b.id} value={b.id}>
-                    {b.name}
+                    {branchLabel(b)}
                   </SelectItem>
                 ))}
               </SelectContent>
