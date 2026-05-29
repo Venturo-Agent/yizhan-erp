@@ -14,8 +14,9 @@
  * ────────────────────────────────────────────────────────────────────
  * 遷移步驟（Vault 正式啟用後）
  * ────────────────────────────────────────────────────────────────────
- * 1. 確認 supabase/migrations/_pending_review/20260517210000_sec009_ai_api_keys_vault.sql
+ * 1. 確認 supabase/migrations-pending/_pending_review/20260517210000_sec009_ai_api_keys_vault.sql
  *    已 apply 到 production（需 William 確認 Vault extension 已啟用）
+ *    （2026-05-29 B13 草稿區合一、原 supabase/migrations/_pending_review 已搬到 migrations-pending 下）
  *
  * 2. 在 Supabase SQL Editor（service_role）執行：
  *    SELECT vault.create_secret('ANTHROPIC_API_KEY', 'sk-ant-...', 'description');
@@ -53,8 +54,8 @@ export async function getVaultSecret(
 ): Promise<string | null> {
   try {
     const supabase = getSupabaseAdminClient()
-    // get_ai_api_key は migration _pending_review に定義されているため、
-    // DB types に未反映。migration apply 後に types 再生成で外せる。
+    // get_ai_api_key 定義在 migrations-pending/_pending_review/20260517210000_sec009_ai_api_keys_vault.sql、
+    // 尚未 apply、DB types 未反映。migration apply 後跑 types 再生成可拿掉 as never。
     const { data, error } = await supabase
       .schema('public')
       .rpc('get_ai_api_key' as never, { key_name: vaultKeyName } as never)

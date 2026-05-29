@@ -1,170 +1,166 @@
-# 如何應用 User Data Migration
+# 如何 Apply Migration（對齊 Migration SOP）
 
-由於 Supabase REST API 不支援直接執行 DDL 語句，需要手動在 Dashboard 執行。
-
-## 方法：使用 Supabase Dashboard（最簡單）
-
-1. **登入 Supabase Dashboard**
-   - 前往：https://app.supabase.com
-   - 選擇專案：`<YOUR_SUPABASE_PROJECT_REF>`
-
-2. **打開 SQL Editor**
-   - 左側選單點選 "SQL Editor"
-   - 點擊 "New Query"
-
-3. **貼上並執行 SQL**
-   - 複製下方的完整 SQL
-   - 貼到 SQL Editor
-   - 點擊 "Run" 執行
-
-4. **確認結果**
-   - 執行後應該看到 "Success. No rows returned"
-   - 前往 "Table Editor" 確認新表格已建立：
-     - user_preferences
-     - notes
-     - manifestation_records
+> ⚠️ 本檔取代舊版「Studio SQL Editor 手跑 DDL」流程。
+> 舊流程跟 Migration SOP 矛盾、且會造成 code repo 跟 production 漂移。
+> 完整 SOP 請看 [`CLAUDE.md` § Migration SOP](../CLAUDE.md)。
 
 ---
 
-## 完整 SQL（直接複製貼上到 Supabase Dashboard）
+## 為什麼不准走 Studio SQL Editor 手跑
 
-\`\`\`sql
--- 建立使用者偏好設定表
-CREATE TABLE IF NOT EXISTS user_preferences (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-user_id UUID NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-preference_key TEXT NOT NULL,
-preference_value JSONB NOT NULL,
-created_at TIMESTAMPTZ DEFAULT NOW(),
-updated_at TIMESTAMPTZ DEFAULT NOW(),
-UNIQUE(user_id, preference_key)
+過去這份檔案教大家「複製 SQL 貼到 Supabase Dashboard SQL Editor 跑」。**這條路已封死**、原因：
+
+- SQL 直接打在 production、code repo 沒留 migration 檔 → 下個工程師 `git pull` 不知道 schema 真實狀況
+- 沒 commit trail → audit / rollback 都做不到
+- Schema 跟 code 不同步 → entity hook / types 對不上會炸
+
+---
+
+## 標準流程（必走）
+
+```
+1. 寫    →  supabase/migrations/YYYYMMDDHHMMSS_<purpose>.sql
+2. Commit →  git add migration 檔 + 相關 code 改動 → git commit
+3. Apply →  MCP mcp__supabase-aierp__apply_migration
+4. Reload →  動 column 時 NOTIFY pgrst, 'reload schema'
+5. 驗證 →  mcp__supabase-aierp__execute_sql 跑 SELECT/COUNT 確認
+6. Push  →  git push → GitHub → Coolify → Vultr 自動部署
+```
+
+### 1. 寫 migration 檔
+
+放在 `supabase/migrations/`、檔名格式 `YYYYMMDDHHMMSS_<purpose>.sql`：
+
+- 時間戳到秒（避免 ordering 衝突；同戳會退化為檔名次序、相依不可靠）
+- 開頭註解寫「**為什麼**」（不只是「做什麼」）
+- 用 `BEGIN; ... COMMIT;` 包圍
+- 加 `IF EXISTS` / `IF NOT EXISTS` / `ON CONFLICT` → 讓 migration idempotent、可重跑
+
+範例：
+
+```sql
+-- 2026-05-29: 加 user_preferences 表、跨裝置同步小工具設定
+-- 為什麼：原本只存 localStorage、換瀏覽器就丟、客戶抱怨好幾次
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS public.user_preferences (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES public.employees(id) ON DELETE CASCADE,
+  preference_key text NOT NULL,
+  preference_value jsonb NOT NULL,
+  workspace_id uuid NOT NULL REFERENCES public.workspaces(id),
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE(user_id, preference_key)
 );
 
--- 建立便條紙表
-CREATE TABLE IF NOT EXISTS notes (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-user_id UUID NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-tab_id TEXT NOT NULL,
-tab_name TEXT NOT NULL DEFAULT '筆記',
-content TEXT NOT NULL DEFAULT '',
-tab_order INTEGER NOT NULL DEFAULT 0,
-created_at TIMESTAMPTZ DEFAULT NOW(),
-updated_at TIMESTAMPTZ DEFAULT NOW(),
-UNIQUE(user_id, tab_id)
-);
+-- 走中央 RLS procedure、不散刻 CREATE POLICY
+SELECT setup_workspace_scoped_rls('user_preferences');
 
--- 建立顯化魔法記錄表
-CREATE TABLE IF NOT EXISTS manifestation_records (
-id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-user_id UUID NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
-record_date DATE NOT NULL,
-content TEXT,
-created_at TIMESTAMPTZ DEFAULT NOW(),
-updated_at TIMESTAMPTZ DEFAULT NOW(),
-UNIQUE(user_id, record_date)
-);
+COMMIT;
+```
 
--- 建立索引
-CREATE INDEX IF NOT EXISTS idx_user_preferences_user_id ON user_preferences(user_id);
-CREATE INDEX IF NOT EXISTS idx_notes_user_id ON notes(user_id);
-CREATE INDEX IF NOT EXISTS idx_manifestation_records_user_id ON manifestation_records(user_id);
-CREATE INDEX IF NOT EXISTS idx_manifestation_records_date ON manifestation_records(record_date);
+### 2. Commit migration 檔
 
--- 啟用 RLS
-ALTER TABLE user_preferences ENABLE ROW LEVEL SECURITY;
-ALTER TABLE notes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE manifestation_records ENABLE ROW LEVEL SECURITY;
+```bash
+git add supabase/migrations/20260529120000_add_user_preferences.sql
+git add src/data/entities/user-preferences.ts   # 相關 code
+git commit -m "feat(prefs): 加 user_preferences 跨裝置同步"
+```
 
--- RLS 政策：使用者只能存取自己的資料
-CREATE POLICY "Users can view own preferences"
-ON user_preferences FOR SELECT
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+### 3. Apply 到 production
 
-CREATE POLICY "Users can insert own preferences"
-ON user_preferences FOR INSERT
-WITH CHECK (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+用 MCP（**唯一通道**、不准走 Studio SQL Editor）：
 
-CREATE POLICY "Users can update own preferences"
-ON user_preferences FOR UPDATE
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+```
+mcp__supabase-aierp__apply_migration
+  project_id: aawrgygqgemgqssflfrx
+  name: 20260529120000_add_user_preferences
+  query: <SQL 內容>
+```
 
-CREATE POLICY "Users can delete own preferences"
-ON user_preferences FOR DELETE
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+### 4. 動 column 後 reload schema cache
 
--- Notes 政策
-CREATE POLICY "Users can view own notes"
-ON notes FOR SELECT
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+動到欄位（CREATE/ALTER/DROP COLUMN）後、client 查新欄位會炸「column does not exist」。
+要等 PostgREST 下一分鐘 auto-reload、或主動 NOTIFY：
 
-CREATE POLICY "Users can insert own notes"
-ON notes FOR INSERT
-WITH CHECK (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+```
+mcp__supabase-aierp__execute_sql query="NOTIFY pgrst, 'reload schema';"
+```
 
-CREATE POLICY "Users can update own notes"
-ON notes FOR UPDATE
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+### 5. 驗證 apply 結果
 
-CREATE POLICY "Users can delete own notes"
-ON notes FOR DELETE
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+```
+mcp__supabase-aierp__execute_sql query="SELECT count(*) FROM user_preferences;"
+mcp__supabase-aierp__execute_sql query="SELECT table_name FROM information_schema.tables WHERE table_name = 'user_preferences';"
+```
 
--- Manifestation 政策
-CREATE POLICY "Users can view own manifestation records"
-ON manifestation_records FOR SELECT
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+RLS migration 額外驗：用 service_role 模擬不同 user 視角看資料隔離有沒有過。
 
-CREATE POLICY "Users can insert own manifestation records"
-ON manifestation_records FOR INSERT
-WITH CHECK (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+### 6. Push 部署
 
-CREATE POLICY "Users can update own manifestation records"
-ON manifestation_records FOR UPDATE
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
+```bash
+git push origin main
+```
 
-CREATE POLICY "Users can delete own manifestation records"
-ON manifestation_records FOR DELETE
-USING (user_id = auth.uid() OR user_id IN (SELECT id FROM employees WHERE id = auth.uid()));
-\`\`\`
+→ GitHub 觸發 Coolify webhook → Coolify 在 Vultr 自動 build + deploy → erp.venturo.tw 上線
 
 ---
 
-## 執行完成後
+## 例外：緊急 hotfix
 
-Migration 執行完成後，以下功能將自動啟用跨裝置同步：
+production 現場壞、user 卡住、不能等正常流程：
 
-✅ **小工具順序** - 首頁小工具的啟用狀態和順序
-✅ **便條紙** - 所有分頁和內容
-✅ **顯化魔法** - 練習記錄、連續天數、每週曲線
-
----
-
-## 驗證 Migration
-
-執行以下查詢確認表格已建立：
-
-\`\`\`sql
-SELECT table_name
-FROM information_schema.tables
-WHERE table_schema = 'public'
-AND table_name IN ('user_preferences', 'notes', 'manifestation_records');
-\`\`\`
-
-應該看到三筆結果。
+1. 用 MCP `apply_migration` 立刻 apply 救命
+2. **當天**必補 migration 檔 commit（不可超過 24h）
+3. commit message 寫：`fix(hotfix): <what> — already applied to production at <time>`
 
 ---
 
-## 問題排查
+## 破壞性 migration：必附反向 SQL
 
-**Q: 執行時出現 "relation employees does not exist"**
-A: 確保之前的 migration 已執行，employees 表格已存在。
+砍欄位 / DROP POLICY / DROP TABLE / 改 NOT NULL → 必在 migration 末尾用註解寫 reverse SQL：
 
-**Q: RLS 政策無法正常工作**
-A: 確認用戶的 `auth.uid()` 與 `employees.id` 一致。
+```sql
+COMMIT;
 
-**Q: 資料沒有同步**
-A:
+-- ════ Rollback（萬一爆炸、複製貼上跑）════
+-- BEGIN;
+-- DROP TRIGGER IF EXISTS trg_xxx ON public.yyy;
+-- DROP FUNCTION IF EXISTS public.fn_xxx();
+-- COMMIT;
+```
 
-1. 檢查瀏覽器 Console 是否有錯誤
-2. 到 Table Editor 確認資料是否已儲存
-3. 確認用戶已登入（useAuthStore 的 user.id 存在）
+非破壞性（純加欄位、加 index、seed 資料）不強制寫 reverse。
+
+---
+
+## 違規模式（不要再犯）
+
+- ❌ MCP `execute_sql` 跑 DDL、檔案沒進 repo → production 動了但 code 不知道
+  - DDL 必走 `apply_migration`（會自動建立 migration record + 留檔）
+  - `execute_sql` 只跑 SELECT / 驗證 / 一次性資料 fix
+- ❌ Migration 檔在 code repo、但忘了 apply → 下個 dev 跑 `db push` 撞 collision
+- ❌ 直接 SQL editor 在 Supabase Studio 手動跑 → 沒檔案、沒 trace、就是這份檔案以前教的反模式
+- ❌ 同 14 位時間戳兩個 migration → ordering 退化為檔名次序、相依不可靠
+  - 走 `npm run audit:migration-timestamps` 偵測
+
+---
+
+## 草稿區（還沒準備好 apply 的 SQL）
+
+放 `supabase/migrations-pending/`、**不會**被 Supabase CLI 拿來跑。
+詳見該目錄的 README。**唯一**草稿入口、不要散在其他地方。
+
+---
+
+## 跑 audit 偵測 migration 健康度
+
+```bash
+npm run audit:rls                   # 6 層架構 / RLS 偏離偵測
+npm run audit:writes                # DB trigger × API 同表雙寫偵測
+npm run audit:migration             # rollback 覆蓋率
+npm run audit:migration-timestamps  # 同戳衝突偵測（B13 新加）
+```
+
+動表 / 動 RLS / 動中央 module 前必跑、新表上線前必綠。
