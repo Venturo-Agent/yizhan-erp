@@ -268,7 +268,7 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
 
   // 5a-2. upsert line_user_profiles（display name / picture url、之後 UI 顯示真名 + 頭像）
   // 第一次見到的 line user 才 fetch profile、避免每則訊息都打 LINE API
-  // line_user_profiles / line_conversation_overrides 尚未納入生成類型，用 unknown 中轉
+  // line_user_profiles / inbox_* 尚未納入生成類型，用 unknown 中轉
   const supabaseAny = supabase as unknown as SupabaseClient
   const { data: existingProfile } = await supabaseAny
     .from('line_user_profiles')
@@ -344,16 +344,19 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
   }
 
   // 5d. 檢查 agent 有沒有暫停這個對話的 bot 自動回覆（真人接管模式）
+  // P4（2026-05-29）：bot_paused SSOT 改讀 inbox_conversations（AI Hub PATCH 寫這張）。
+  // 舊 line_conversation_overrides 退役屬 P5。
   const { data: override } = await supabaseAny
-    .from('line_conversation_overrides')
-    .select('bot_paused, paused_until')
+    .from('inbox_conversations')
+    .select('bot_paused, bot_paused_until')
     .eq('workspace_id', workspaceId)
-    .eq('line_user_id', lineUserId)
+    .eq('channel_type', 'line')
+    .eq('external_user_id', lineUserId)
     .maybeSingle()
 
   if (override?.bot_paused) {
     // 沒過期就靜默：bot 不回、紀錄已寫、agent 自己處理
-    if (!override.paused_until || new Date(override.paused_until) > new Date()) {
+    if (!override.bot_paused_until || new Date(override.bot_paused_until) > new Date()) {
       return
     }
   }

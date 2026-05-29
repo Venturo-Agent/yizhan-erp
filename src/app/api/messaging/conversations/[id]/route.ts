@@ -62,40 +62,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       reason: 'update inbox conversation',
     })
 
-    // LINE synthetic id：寫到 line_conversation_overrides
-    if (conversationId.startsWith('line:')) {
-      const lineUserId = conversationId.slice('line:'.length)
-      const overrides: Record<string, unknown> = {
-        workspace_id: workspaceId,
-        line_user_id: lineUserId,
-      }
-      if (validation.data.bot_paused !== undefined) {
-        overrides.bot_paused = validation.data.bot_paused
-        overrides.paused_by = guard.employeeId
-        overrides.paused_at = new Date().toISOString()
-      }
-      if (validation.data.bot_paused_until !== undefined) {
-        overrides.paused_until = validation.data.bot_paused_until
-      }
-
-      const lineOverrideTable = supabase.from.bind(supabase) as unknown as (table: string) => {
-        upsert: (
-          values: Record<string, unknown>,
-          options: { onConflict: string }
-        ) => Promise<{ error: { message: string } | null }>
-      }
-      const { error: lineErr } = await lineOverrideTable('line_conversation_overrides').upsert(
-        overrides,
-        { onConflict: 'workspace_id,line_user_id' }
-      )
-      if (lineErr) {
-        logger.error('PATCH LINE override failed', { lineErr, conversationId })
-        return dbErrorResponse(lineErr)
-      }
-      return NextResponse.json({ success: true })
-    }
-
-    // FB / IG / LINE（走 UUID）：動態組 update payload
+    // 全 channel（LINE / FB / IG）走 inbox_conversations.id（UUID）：動態組 update payload
+    // P4（2026-05-29）：舊 synthetic 'line:' id 分支已退役（讀寫皆走統一 inbox_*）。
     const updates: Record<string, unknown> = {}
     if (validation.data.bot_paused !== undefined) updates.bot_paused = validation.data.bot_paused
     if (validation.data.bot_paused_until !== undefined)
