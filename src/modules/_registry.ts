@@ -14,9 +14,10 @@ import { FinanceModule } from './finance'
 import { AccountingModule } from './accounting'
 import { HrModule } from './hr'
 import { DatabaseModule } from './database'
-// 5/14 deprecated（保留檔案、不 rm／鐵律 #8）：line_bot / facebook_bot / instagram_bot / messaging_inbox
-// 全部整合進 AiHubModule、商業上賣一個 AI Hub 套餐、不再分通路 SKU。
-// 既有 capability caller 已批次改寫成 CAPABILITIES.AI_HUB_*。
+// 2026-05-29 William 拍板砍掉 bot / messaging / office 描述子
+// line_bot / facebook_bot / instagram_bot / messaging_inbox 全部整合進 AiHubModule、走一個 AI Hub SKU。
+// office 從未上線、實體路由不存在。
+// 鐵律 #8 凍住 pattern 不再適用：這些 module 描述子 + 實體 (main) 路由皆已物理移除、走 git history 取回。
 import { AiHubModule } from './ai_hub'
 import { SettingsModule } from './settings'
 import { DashboardModule } from './dashboard'

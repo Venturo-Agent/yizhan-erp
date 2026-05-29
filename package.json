@@ -36,6 +36,7 @@
     "audit:file-size": "./scripts/check-file-size.sh",
     "audit:any-usage": "./scripts/check-any-usage.sh",
     "audit:rls": "tsx scripts/audit-rls-blueprint.ts",
+    "audit:route-sidebar": "tsx scripts/audit-route-module-sidebar.ts",
     "audit:stale-refs": "tsx scripts/audit-stale-refs.ts",
     "audit:status": "tsx scripts/audit-status.ts",
     "audit:writes": "tsx scripts/audit-write-paths.ts",

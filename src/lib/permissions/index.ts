@@ -10,13 +10,7 @@ export {
   invalidateCapabilityCache,
 } from './useMyCapabilities'
 
-export interface PermissionConfig {
-  id: string
-  label: string
-  category: string
-  routes: string[]
-  description?: string
-}
+import { getFeatureByRoute } from './features'
 
 /**
  * 職務的分頁權限（role_tab_permissions 表的 row shape）
@@ -29,68 +23,20 @@ export interface TabPermission {
 }
 
 /**
- * 功能權限配置（給設定頁顯示用）
- * 權限決策不靠這個、統一從 role_tab_permissions 拿資格清單
- */
-export const FEATURE_PERMISSIONS: PermissionConfig[] = [
-  { id: 'calendar', label: '行事曆', category: '全部', routes: ['/calendar'] },
-  { id: 'workspace', label: '工作空間', category: '全部', routes: ['/workspace'] },
-  { id: 'todos', label: '待辦事項', category: '全部', routes: ['/todos'] },
-  { id: 'tours', label: '旅遊團', category: '核心', routes: ['/tours'] },
-  { id: 'orders', label: '訂單', category: '核心', routes: ['/orders'] },
-  { id: 'finance', label: '財務', category: '核心', routes: ['/finance', '/accounting'] },
-  { id: 'database', label: '資料管理', category: '核心', routes: ['/library'] },
-  { id: 'hr', label: '人資', category: '管理', routes: ['/hr'] },
-  { id: 'settings', label: '設定', category: '管理', routes: ['/settings'] },
-  // 2026-05-26 移除重複 'customers' 顯示設定：客戶收回 database（資料管理）、顧客管理走 database.customers
-  { id: 'fleet', label: '車隊管理', category: '企業', routes: ['/fleet', '/supplier/trips'] },
-]
-
-/**
- * 路由到模組的對應表
- * 用於將 URL 路由轉換成 module_code
- */
-const ROUTE_TO_MODULE: Record<string, string> = {
-  '/tours': 'tours',
-  '/orders': 'orders',
-  '/finance': 'finance',
-  '/accounting': 'accounting',
-  '/hr': 'hr',
-  '/library': 'database',
-  '/data-management': 'database',
-  '/settings': 'settings',
-  '/calendar': 'calendar',
-  '/todos': 'todos',
-  '/dashboard': 'dashboard',
-  '/itinerary': 'itinerary',
-  '/library/customers': 'database', // 顧客在資料管理
-  '/library/attractions': 'database',
-  '/library/suppliers': 'database',
-  '/library/archive-management': 'database',
-  '/workspaces': 'workspaces',
-  '/platform': 'platform_integrations',
-}
-
-/**
  * 從路由取得模組代碼
+ *
+ * 2026-05-29 William 拍板：路由 ↔ module 對應關係統一吃 features.ts 的 routes[]
+ * （由 src/modules/<code>.ts 為 SOURCE、codegen 衍生）。
+ * 之前手寫的 ROUTE_TO_MODULE 已砍、避免雙真相漂移。
+ *
+ * feature.code 即 module.code（同一套命名空間、見 codegen-permissions.ts genFeaturesTs）。
+ * sub-feature（如 channels.happy）的 code 含 '.'、回 '.' 之前的 module code 部分。
  */
 export function getModuleFromRoute(route: string): string | null {
-  // 移除開頭的 /
   const cleanRoute = route.startsWith('/') ? route : `/${route}`
-
-  // 找最長匹配的路由
-  for (const [routePrefix, moduleCode] of Object.entries(ROUTE_TO_MODULE)) {
-    if (cleanRoute === routePrefix || cleanRoute.startsWith(`${routePrefix}/`)) {
-      return moduleCode
-    }
-  }
-  return null
-}
-
-export function getPermissionCategories(): string[] {
-  return Array.from(new Set(FEATURE_PERMISSIONS.map(p => p.category)))
-}
-
-export function getPermissionsByCategory(category: string): PermissionConfig[] {
-  return FEATURE_PERMISSIONS.filter(p => p.category === category)
+  const feature = getFeatureByRoute(cleanRoute)
+  if (!feature) return null
+  // sub-feature 拆出 module code（'channels.happy' → 'channels'）
+  const dotIdx = feature.code.indexOf('.')
+  return dotIdx === -1 ? feature.code : feature.code.slice(0, dotIdx)
 }
