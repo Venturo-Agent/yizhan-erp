@@ -14,6 +14,7 @@ import type { Database } from '@/lib/supabase/types'
 type Account = Database['public']['Tables']['chart_of_accounts']['Row']
 
 const chartOfAccountsEntity = createEntityHook<Account>('chart_of_accounts', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     select: '*',
     orderBy: { column: 'account_code', ascending: true },

@@ -9,6 +9,7 @@ import { CACHE_PRESETS } from '../core/types'
 import type { Customer } from '@/stores/types'
 
 const customerEntity = createEntityHook<Customer>('customers', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // 排除 passport_image_url 以避免載入大量 base64 圖片資料
     // 護照圖片只在詳情頁面需要時才載入

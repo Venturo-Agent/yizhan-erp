@@ -33,18 +33,26 @@ export {
   invalidateOrders,
 } from './orders'
 
-// Members
-export { useMembers, useMembersSlim, deleteMember } from './members'
-
-// Order Members (5/19 補、原 125 處散刻 supabase.from('order_members'))
+// Members (order_members 表單一 SSOT；2026-05-29 B11 合一後唯一入口)
+// 老 useOrderMembers/useOrderMember/... 名稱以 alias 形式 re-export、保留向後相容
 export {
-  useOrderMembers,
-  useOrderMember,
-  createOrderMember,
-  updateOrderMember,
-  deleteOrderMember,
-  invalidateOrderMembers,
-} from './order-members'
+  useMembers,
+  useMembersSlim,
+  useMember,
+  createMember,
+  updateMember,
+  deleteMember,
+  invalidateMembers,
+} from './members'
+
+export {
+  useMembers as useOrderMembers,
+  useMember as useOrderMember,
+  createMember as createOrderMember,
+  updateMember as updateOrderMember,
+  deleteMember as deleteOrderMember,
+  invalidateMembers as invalidateOrderMembers,
+} from './members'
 
 // Customers
 export {

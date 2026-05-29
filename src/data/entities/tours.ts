@@ -20,6 +20,7 @@ import type { Tour } from '@/stores/types'
 // ============================================
 
 const tourEntity = createEntityHook<Tour>('tours', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // 2026-05-15 補 tour_service_type / country_code / 旅平險 / controller / quote_cost_structure / 航班 / 自訂成本 / 合約細節 / 修改理由 / checkin_qrcode / 軟刪
     select:

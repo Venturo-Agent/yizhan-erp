@@ -11,6 +11,7 @@ import type { Receipt } from '@/types/receipt.types'
 import { supabase } from '@/lib/supabase/client'
 
 const receiptEntity = createEntityHook<Receipt>('receipts', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // 2026-05-15 補 退款 5 欄 / 發票連動 / 驗證 / accounting_subject
     select:

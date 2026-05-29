@@ -3,12 +3,17 @@
  *
  * 此檔案使用 Zustand Store（舊架構、向後相容）
  * 新功能優先使用 @/data（SWR-based 統一資料層）
+ *
+ * 2026-05-29 B11：移除 useOrderStore（0 caller、純孤兒）；
+ *   useTourStore / useQuoteStore 仍被對應 service 用同步 getState() 取資料，
+ *   屬於 BaseService<T> + sync StoreOperations 架構、不能單純 swap 成 entity hook，
+ *   遷移需要先把 BaseService 改成 async-friendly、再逐步搬 caller，這條另案處理。
  */
 
 import { createStore } from './core/create-store'
 
 // 從 @/types 匯入（使用 types/ 目錄下的標準定義）
-import type { Tour, Order } from '@/types'
+import type { Tour } from '@/types'
 
 // 從本地 types 匯入
 import type { Quote } from './types'
@@ -24,6 +29,8 @@ import type {} from '@/types/supplier.types'
  * 旅遊團 Store
  * 🔒 啟用 Workspace 隔離
  * listFields: 列表頁只抓需要的欄位（詳情頁 fetchById 仍 select('*')）
+ *
+ * caller：src/app/(main)/tours/_services/tour.service.ts（同步 getState() 用）
  */
 export const useTourStore = createStore<Tour>({
   tableName: 'tours',
@@ -34,21 +41,11 @@ export const useTourStore = createStore<Tour>({
 })
 
 /**
- * 訂單 Store
- * 🔒 啟用 Workspace 隔離
- * listFields: 列表頁只抓需要的欄位（詳情頁 fetchById 仍 select('*')）
- */
-export const useOrderStore = createStore<Order>({
-  tableName: 'orders',
-  workspaceScoped: true,
-  listFields:
-    'id,order_number,tour_id,tour_name,contact_person,payment_status,total_amount,paid_amount,remaining_amount,member_count,workspace_id,created_at',
-})
-
-/**
  * 報價單 Store
  * 🔒 啟用 Workspace 隔離
  * listFields: 列表頁只抓需要的欄位（詳情頁 fetchById 仍 select('*')）
+ *
+ * caller：src/app/(main)/orders/_quotes/_services/quote.service.ts（同步 getState() 用、5 處）
  */
 export const useQuoteStore = createStore<Quote>({
   tableName: 'quotes',

@@ -4,12 +4,21 @@
  * Finance Summary RPC Hooks
  *
  * 將 cross-table aggregate（tour PL / treasury summary）的 RPC 呼叫
- * 封裝為 entity hook、避免 feature 層直接 import supabase。
+ * 封裝為 hook、避免 feature 層直接 import supabase。
+ *
+ * 2026-05-29 B11 邊界釐清（「報表引擎」例外）：
+ *   - 本檔不是 entity hook（無對應實體表、是 cross-table aggregate）。
+ *   - 不能用 createEntityHook 套（沒有單一 table 對應、是 PostgreSQL RPC）。
+ *   - 跟 `src/lib/swr/createReportHook.ts` 為同類「報表引擎」、屬合理紅線 F 例外：
+ *       * 報表引擎：跨表 join / RPC view / RPC function 返回的 aggregate。
+ *       * Entity hook：單一業務實體表。
+ *   - 未來重構：可考慮搬到 `src/data/reports/` 或改用 createReportHook 統一型態。
  *
  * 使用方式：
  * import { useTourPL, useTreasurySummary } from '@/data'
  */
 
+// 本檔屬「報表引擎」例外（見上方註解）、不是頁面散刻；無 ESLint 規則違反
 import useSWR from 'swr'
 import { supabase } from '@/lib/supabase/client'
 

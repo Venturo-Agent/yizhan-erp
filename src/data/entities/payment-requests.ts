@@ -10,6 +10,7 @@ import type { PaymentRequest } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
 
 const paymentRequestEntity = createEntityHook<PaymentRequest>('payment_requests', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // SELECT 必含 accounting_subject_id / accounting_voucher_id / budget_warning /
     // transferred_pair_id；下游（BatchReceiptDialog / PrintDisbursementPreview /

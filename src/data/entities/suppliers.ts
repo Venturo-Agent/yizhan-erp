@@ -11,6 +11,7 @@ import type { Supplier } from '@/stores/types'
 // 5/13 dev 環境發現：suppliers entity hook SELECT 跟 DB schema 大幅 drift、17 個欄位 hook 內有 DB 沒
 // 全清對齊 DB 真實 column（不含 password_hash、敏感不該 list 抓）
 const supplierEntity = createEntityHook<Supplier>('suppliers', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     select:
       'id,code,name,short_name,supplier_type_code,contact_person,phone,mobile,email,line_id,wechat_id,country,city,address,bank_name,bank_branch,bank_account,bank_account_name,is_domestic,bank_code,swift_code,is_active,workspace_id,created_at,updated_at,created_by,updated_by,tax_id,notes,usage_count',

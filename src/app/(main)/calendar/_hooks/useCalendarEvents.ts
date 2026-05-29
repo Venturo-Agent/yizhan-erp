@@ -13,7 +13,6 @@ import {
   useCalendarEvents as useCalendarEventList,
   invalidateCalendarEvents,
 } from '@/data'
-import { supabase } from '@/lib/supabase/client'
 import { FullCalendarEvent } from '../_types'
 import { useTourDisplayResolver } from '@/app/(main)/tours/_utils/tour-display'
 import type { CalendarEvent } from '@/types/calendar.types'
@@ -99,30 +98,8 @@ export function useCalendarEvents() {
     })
   }, [])
 
-  useEffect(() => {
-    const workspaceId = user?.workspace_id
-    if (!workspaceId) return
-
-    const channel = supabase
-      .channel(`calendar_events_realtime:${workspaceId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'calendar_events',
-          filter: `workspace_id=eq.${workspaceId}`,
-        },
-        () => {
-          invalidateCalendarEvents()
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [user?.workspace_id])
+  // 2026-05-29 B11：移除散刻 supabase.channel（calendar_events 已由 useCalendarEventList()
+  // 內建 useRealtimeSync 訂閱、entity hook 自動 invalidate cache、不需要這條重複訂閱）。
 
   // 根據類型取得顏色 - 使用莫蘭迪配色
   const getEventColor = useCallback((type: string, status?: string) => {

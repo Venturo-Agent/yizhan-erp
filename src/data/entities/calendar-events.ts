@@ -9,6 +9,7 @@ import { CACHE_PRESETS } from '../core/types'
 import type { CalendarEvent } from '@/types/calendar.types'
 
 const calendarEventEntity = createEntityHook<CalendarEvent>('calendar_events', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     select:
       'id,title,description,start,end,all_day,type,color,visibility,related_tour_id,related_order_id,attendees,reminder_minutes,recurring,recurring_until,owner_id,created_at,updated_at,created_by,updated_by,workspace_id',
