@@ -7,7 +7,10 @@ import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 /**
- * GET /api/todo-columns — 取得當前 workspace 的看板欄位
+ * GET /api/todo-columns — 取得當前使用者的個人看板欄位
+ *
+ * 2026-05-29 個人化：欄位改 per-user（owner_employee_id）。
+ * 過渡期相容：同時收 owner=我 + owner is null（舊共用欄、P3 backfill 後消失）、避免 backfill 前後出現空白。
  */
 export const GET = apiHandler(async () => {
   const guard = await requireCapability(CAPABILITIES.TODOS_READ)
@@ -20,6 +23,7 @@ export const GET = apiHandler(async () => {
     .from('todo_columns')
     .select('*')
     .eq('workspace_id', workspaceId)
+    .or(`owner_employee_id.eq.${guard.employeeId},owner_employee_id.is.null`)
     .order('sort_order')
 
   if (error) {
@@ -49,16 +53,17 @@ export const POST = apiHandler(async (request: NextRequest) => {
 
   if (!name) return NextResponse.json({ error: '需要 name' }, { status: 400 })
 
-  // 如果沒給 sort_order，放到最後
+  // 如果沒給 sort_order，放到最後（只看自己的欄）
   let finalSortOrder = sort_order
   if (typeof finalSortOrder !== 'number') {
     const { data: maxData } = await supabase
       .from('todo_columns')
       .select('sort_order')
       .eq('workspace_id', workspaceId)
+      .eq('owner_employee_id', guard.employeeId)
       .order('sort_order', { ascending: false })
       .limit(1)
-      .single()
+      .maybeSingle()
     finalSortOrder = (maxData?.sort_order || 0) + 1
   }
 
@@ -66,6 +71,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .from('todo_columns')
     .insert({
       workspace_id: workspaceId,
+      owner_employee_id: guard.employeeId, // 個人欄
       name,
       color,
       sort_order: finalSortOrder,
@@ -95,10 +101,14 @@ export const PUT = apiHandler(async (request: NextRequest) => {
   await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '更新看板欄位' })
   const body = await request.json()
 
-  // 批量重新排序
+  // 批量重新排序（只動自己的欄）
   if (body.reorder && Array.isArray(body.reorder)) {
     for (const item of body.reorder) {
-      await supabase.from('todo_columns').update({ sort_order: item.sort_order }).eq('id', item.id)
+      await supabase
+        .from('todo_columns')
+        .update({ sort_order: item.sort_order })
+        .eq('id', item.id)
+        .eq('owner_employee_id', guard.employeeId)
     }
     return NextResponse.json({ success: true })
   }
@@ -106,10 +116,12 @@ export const PUT = apiHandler(async (request: NextRequest) => {
   const { id, ...updates } = body
   if (!id) return NextResponse.json({ error: '需要 id' }, { status: 400 })
 
+  // 只能改自己的欄（個人化）
   const { data, error } = await supabase
     .from('todo_columns')
     .update(updates)
     .eq('id', id)
+    .eq('owner_employee_id', guard.employeeId)
     .select()
     .single()
 
@@ -139,7 +151,12 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     requestId: id,
   })
 
-  const { error } = await supabase.from('todo_columns').delete().eq('id', id)
+  // 只能刪自己的欄（個人化）
+  const { error } = await supabase
+    .from('todo_columns')
+    .delete()
+    .eq('id', id)
+    .eq('owner_employee_id', guard.employeeId)
   if (error) {
     const t = translateDbError(error)
     return NextResponse.json(
