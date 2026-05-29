@@ -114,7 +114,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       .from('employees')
       .select('id', { count: 'exact', head: true })
       .eq('workspace_id', workspaceId)
-      .eq('is_active', true)
+      .neq('status', 'terminated')
 
     return NextResponse.json({
       max_employees: (ws as { max_employees: number | null } | null)?.max_employees ?? null,

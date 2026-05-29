@@ -17,7 +17,7 @@ INSERT INTO public.todo_columns (workspace_id, owner_employee_id, name, color, s
 SELECT c.workspace_id, e.id, c.name, c.color, c.sort_order, false
 FROM public.todo_columns c
 JOIN public.employees e
-  ON e.workspace_id = c.workspace_id AND e.is_active = true
+  ON e.workspace_id = c.workspace_id AND COALESCE(e.status, '') <> 'terminated'
 WHERE c.owner_employee_id IS NULL
   AND NOT EXISTS (
     SELECT 1 FROM public.todo_columns x
@@ -28,14 +28,13 @@ WHERE c.owner_employee_id IS NULL
 -- 2. todos.column_id 重映到「建立者的個人欄」（同 workspace + 同名 + 同 sort_order）
 UPDATE public.todos t
 SET column_id = pc.id
-FROM public.todo_columns oldc
-JOIN public.todo_columns pc
-  ON pc.workspace_id = oldc.workspace_id
- AND pc.owner_employee_id = t.created_by
- AND pc.name = oldc.name
- AND pc.sort_order = oldc.sort_order
+FROM public.todo_columns oldc, public.todo_columns pc
 WHERE t.column_id = oldc.id
-  AND oldc.owner_employee_id IS NULL;
+  AND oldc.owner_employee_id IS NULL
+  AND pc.workspace_id = oldc.workspace_id
+  AND pc.owner_employee_id = t.created_by
+  AND pc.name = oldc.name
+  AND pc.sort_order = oldc.sort_order;
 
 -- 3. 仍指向共用欄的 todo（建立者非 active、無對應個人欄）→ column_id NULL（落未分欄）
 UPDATE public.todos
