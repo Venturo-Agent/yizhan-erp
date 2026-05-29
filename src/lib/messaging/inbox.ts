@@ -11,8 +11,8 @@
  *   - LINE bot reply（src/lib/line/erp-bridge.ts）寫 outbound
  *   - FB / IG webhook 之後接（同一份 helper）
  *
- * 過渡期：caller 同時也寫舊 line_conversation_messages（雙寫、向後相容）、
- * backfill migration apply 後可拔舊寫入路徑。
+ * P2 寫入收斂（2026-05-29）：LINE 已停寫 line_conversation_messages、所有通路唯一寫入路徑 = inbox_*（紅線 E）。
+ * 舊表退役（DROP）屬 P5。
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -44,6 +44,8 @@ export interface RecordInboxMessageInput {
   pictureUrl?: string | null
   /** LINE 圖片 / 影片下載後上傳到 line-media bucket 的 URL */
   mediaUrl?: string | null
+  /** LINE bot 建單後的反向連結（對映舊 line_conversation_messages.related_order_id） */
+  relatedOrderId?: string | null
 }
 
 interface InboxConversationRow {
@@ -73,6 +75,7 @@ export async function recordInboxMessage(
     displayName,
     pictureUrl,
     mediaUrl,
+    relatedOrderId = null,
   } = input
 
   const previewSource = content ?? ''
@@ -119,6 +122,7 @@ export async function recordInboxMessage(
     raw_event: (rawEvent ?? null) as never,
     source_id: sourceId,
     ...(mediaUrl !== undefined && { media_url: mediaUrl }),
+    ...(relatedOrderId != null && { related_order_id: relatedOrderId }),
   })
 
   if (msgErr) {

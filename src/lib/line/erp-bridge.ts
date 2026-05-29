@@ -20,6 +20,7 @@
  * 因為依賴 inbox 雙寫邏輯、體積適中、不拆。
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
 import { recordInboxMessage } from '@/lib/messaging/inbox'
@@ -60,33 +61,15 @@ interface RecordMessageInput {
 
 /**
  * 寫一筆對話訊息（webhook router 已寫 inbound、本 function 給 bot 回覆 / 真人接管用）
+ *
+ * P2 寫入收斂（2026-05-29）：唯一寫入路徑 = unified inbox（inbox_conversations + inbox_messages）。
+ * 不再雙寫 line_conversation_messages（紅線 E：同表寫入只一處）。related_order_id 直接帶進 inbox_messages。
  */
 export async function botRecordMessage(ctx: BotContext, input: RecordMessageInput): Promise<void> {
   assertCanRead(ctx, 'botRecordMessage')
 
   const supabase = getSupabaseAdminClient()
 
-  const { error } = await supabase.from('line_conversation_messages').insert({
-    workspace_id: ctx.workspaceId,
-    line_user_id: ctx.lineUserId,
-    direction: input.direction,
-    sender: input.senderType,
-    message_type: input.messageType ?? 'text',
-    content: input.content,
-    reply_token: input.replyToken ?? null,
-    related_order_id: input.relatedOrderId ?? null,
-    raw_event: (input.rawEvent ?? null) as never,
-  })
-
-  if (error) {
-    logger.error(`${HANDLER}: record message failed`, error, {
-      workspaceId: ctx.workspaceId,
-      direction: input.direction,
-    })
-    // 不 throw、訊息記不到不該整個流程炸
-  }
-
-  // 5/14 雙寫過渡：同時寫進 unified inbox（inbox_conversations + inbox_messages）
   // sender map：bot/ai → ai_agent / agent → agent / customer → contact
   const senderTypeMap: Record<string, 'contact' | 'agent' | 'ai_agent' | 'system'> = {
     customer: 'contact',
@@ -106,7 +89,21 @@ export async function botRecordMessage(ctx: BotContext, input: RecordMessageInpu
     messageType: input.messageType ?? 'text',
     content: input.content,
     rawEvent: input.rawEvent,
+    relatedOrderId: input.relatedOrderId ?? null,
   })
+}
+
+/** botGetRecentMessages 從 inbox_messages 撈出來、映射回 LineMessageRow 形狀前的中間 row */
+interface InboxMessageHistoryRow {
+  id: number
+  workspace_id: string
+  direction: string
+  sender_type: string
+  message_type: string
+  content: string | null
+  raw_event: LineMessageRow['raw_event']
+  related_order_id: string | null
+  created_at: string
 }
 
 /**
@@ -114,6 +111,10 @@ export async function botRecordMessage(ctx: BotContext, input: RecordMessageInpu
  *
  * - 預設 30 條、上限 100
  * - 回時序由舊到新（方便直接組 messages[]）
+ *
+ * P2 寫入收斂（2026-05-29）：來源從 line_conversation_messages 切到 unified inbox（inbox_messages）。
+ * botRecordMessage 停寫舊表後、bot 的 LLM history 必須讀同一張新表、否則 bot 看不到自己剛說的話、脈絡斷。
+ * 回傳維持 LineMessageRow 形狀（消費端 line-llm-compose / tryCreateOrderFromHistory 只用 direction + content）。
  */
 export async function botGetRecentMessages(
   ctx: BotContext,
@@ -122,13 +123,36 @@ export async function botGetRecentMessages(
   assertCanRead(ctx, 'botGetRecentMessages')
 
   const safeLimit = clamp(limit, 1, SAFETY.RECENT_MESSAGES_HARD_LIMIT)
-  const supabase = getSupabaseAdminClient()
+  // inbox_* 尚未進 generated types、用未綁 Database 的 client 查（與 messaging/inbox.ts、send-reply.ts 一致）
+  const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
 
-  const { data, error } = await supabase
-    .from('line_conversation_messages')
-    .select('*')
+  // 1. 反查 unified inbox conversation（workspace + channel=line + external_user_id）
+  const { data: conv, error: convErr } = await supabase
+    .from('inbox_conversations')
+    .select('id')
     .eq('workspace_id', ctx.workspaceId)
-    .eq('line_user_id', ctx.lineUserId)
+    .eq('channel_type', 'line')
+    .eq('external_user_id', ctx.lineUserId)
+    .maybeSingle<{ id: string }>()
+
+  if (convErr) {
+    logger.error(`${HANDLER}: lookup inbox conversation failed`, convErr, {
+      workspaceId: ctx.workspaceId,
+    })
+    throw convErr
+  }
+  if (!conv) {
+    // 首次互動、還沒有對話 thread → 空 history
+    return []
+  }
+
+  // 2. 撈最近 N 條訊息
+  const { data, error } = await supabase
+    .from('inbox_messages')
+    .select(
+      'id, workspace_id, direction, sender_type, message_type, content, raw_event, related_order_id, created_at'
+    )
+    .eq('conversation_id', conv.id)
     .order('created_at', { ascending: false })
     .limit(safeLimit)
 
@@ -139,6 +163,28 @@ export async function botGetRecentMessages(
     throw error
   }
 
+  // 3. 映射回 LineMessageRow 形狀。sender_type → sender：contact→customer / ai_agent→bot / agent→agent / system→system
+  const senderMap: Record<string, string> = {
+    contact: 'customer',
+    ai_agent: 'bot',
+    agent: 'agent',
+    system: 'system',
+  }
+  const rows = (data ?? []) as InboxMessageHistoryRow[]
+  const mapped: LineMessageRow[] = rows.map(m => ({
+    id: m.id,
+    workspace_id: m.workspace_id,
+    line_user_id: ctx.lineUserId,
+    direction: m.direction,
+    sender: senderMap[m.sender_type] ?? 'bot',
+    message_type: m.message_type,
+    content: m.content,
+    raw_event: m.raw_event,
+    related_order_id: m.related_order_id,
+    reply_token: null,
+    created_at: m.created_at,
+  }))
+
   // 由舊到新（方便直接餵 LLM）
-  return ((data ?? []) as LineMessageRow[]).slice().reverse()
+  return mapped.slice().reverse()
 }

@@ -10,7 +10,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { sendTextMessage } from '@/lib/facebook/reply-client'
 import { pushLineText } from '@/lib/line/push-client'
-import { recordOutboundMessage, upsertConversation } from '@/lib/inbox/inbox-service'
+import { recordOutboundMessage } from '@/lib/inbox/inbox-service'
 import { logger } from '@/lib/utils/logger'
 import type { ChannelType } from '@/lib/inbox/inbox-service'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -50,18 +50,8 @@ interface IgSettingsRow {
 }
 
 export async function sendAgentReply(input: AgentSendInput): Promise<AgentSendResult> {
-  // LINE synthetic id: line:<line_user_id>
-  if (input.conversationId.startsWith('line:')) {
-    const lineUserId = input.conversationId.slice('line:'.length)
-    const synthetic: ConversationLookupRow = {
-      id: input.conversationId,
-      workspace_id: input.workspaceId,
-      channel_type: 'line',
-      external_user_id: lineUserId,
-    }
-    return sendViaLine(synthetic, input)
-  }
-
+  // P2 寫入收斂（2026-05-29）：所有 channel（含 LINE）都用 inbox_conversations.id（UUID）反查。
+  // 舊 synthetic 'line:<id>' 路徑已隨統一收件匣退役（dead code 清除）。
   const supabase = getSupabaseAdminClient()
 
   // 反查 inbox_conversations（FB / IG）
@@ -161,41 +151,17 @@ async function sendViaLine(
     return { ok: false, error: result.error || 'LINE push 失敗' }
   }
 
-  // 1. 寫舊表 line_conversation_messages（保留既有流程）
-  const lineMsg = supabase as unknown as SupabaseClient
-  await lineMsg.from('line_conversation_messages').insert({
-    workspace_id: input.workspaceId,
-    line_user_id: conv.external_user_id,
-    direction: 'outbound',
-    sender: 'agent',
-    message_type: 'text',
+  // 寫 inbox_messages（唯一寫入路徑、AI Hub UI 讀這張表）。conv.id 必為 inbox_conversations.id（UUID）。
+  await recordOutboundMessage({
+    conversationId: conv.id,
+    workspaceId: input.workspaceId,
+    sourceId: null,
+    senderType: 'agent',
+    senderEmployeeId: input.senderEmployeeId,
+    messageType: 'text',
     content: input.text,
-    raw_event: { sent_via: 'line_push', agent_employee_id: input.senderEmployeeId },
+    rawEvent: { sent_via: 'line_push' },
   })
-
-  // 2. 寫 inbox_messages（AI Hub UI 讀這張表）
-  // conv.id 有可能是 synthetic（'line:xxx'），需要先確保 inbox_conversations 存在
-  let inboxConvId = conv.id.startsWith('line:') ? null : conv.id
-  if (!inboxConvId) {
-    // synthetic id path：確保 inbox_conversations 有這個對話（upsert 是 idempotent）
-    inboxConvId = await upsertConversation({
-      workspaceId: input.workspaceId,
-      channelType: 'line',
-      externalUserId: conv.external_user_id,
-    })
-  }
-  if (inboxConvId) {
-    await recordOutboundMessage({
-      conversationId: inboxConvId,
-      workspaceId: input.workspaceId,
-      sourceId: null,
-      senderType: 'agent',
-      senderEmployeeId: input.senderEmployeeId,
-      messageType: 'text',
-      content: input.text,
-      rawEvent: { sent_via: 'line_push' },
-    })
-  }
 
   return { ok: true }
 }

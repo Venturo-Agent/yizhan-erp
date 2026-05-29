@@ -45,6 +45,8 @@ export interface OutboundMessageInput {
   messageType?: string
   content: string | null
   rawEvent?: unknown
+  /** LINE bot 建單後的反向連結（對映舊 line_conversation_messages.related_order_id） */
+  relatedOrderId?: string | null
 }
 
 // generated types 還沒含 inbox_* 兩張新表、用 type assertion 繞過
@@ -80,6 +82,7 @@ interface MessageInsertPayload {
   raw_event: unknown
   source_id: string | null
   media_url?: string | null
+  related_order_id?: string | null
 }
 
 type AdminFromShape = (table: string) => {
@@ -223,6 +226,7 @@ export async function recordOutboundMessage(input: OutboundMessageInput): Promis
     content: input.content,
     raw_event: input.rawEvent ?? null,
     source_id: input.sourceId,
+    ...(input.relatedOrderId != null && { related_order_id: input.relatedOrderId }),
   })
 
   if (msgError && msgError.code !== '23505') {

@@ -9,7 +9,7 @@
  *   3. 用 destination 反查 workspace_line_settings → workspace_id + channel_secret + token
  *   4. 用該 workspace 的 channel_secret 驗 X-Line-Signature
  *   5. for each event：
- *      - 寫 line_conversation_messages（inbound）
+ *      - 寫 unified inbox（inbox_conversations + inbox_messages）inbound（P2 收斂、已停寫 line_conversation_messages）
  *      - 暫時 echo「收到您的訊息：xxx」（用 Reply API）
  *      - 寫 outbound 紀錄
  *   6. 200 OK
@@ -28,7 +28,6 @@ export const maxDuration = 60 // Vercel Hobby 最高 60s；背景 task 10s + LLM
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import type { Json } from '@/lib/supabase/types'
 import { verifyLineSignature } from '@/lib/line/verify-signature'
 import { decryptIntegrationSecret } from '@/lib/crypto/integration-encryption'
 import { processIncomingTextMessage } from '@/lib/line/handler'
@@ -237,23 +236,6 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
 
   const inboundType = event.type === 'postback' ? 'postback' : (event.message?.type ?? event.type)
 
-  const { error: insertErr } = await supabase.from('line_conversation_messages').insert({
-    workspace_id: workspaceId,
-    line_user_id: lineUserId,
-    direction: 'inbound',
-    sender: 'customer',
-    message_type: inboundType,
-    content: inboundContent,
-    raw_event: event as unknown as Json,
-    reply_token: event.replyToken ?? null,
-  })
-
-  if (insertErr) {
-    logger.error(`${HANDLER_NAME}: failed to write inbound message`, insertErr, {
-      workspaceId,
-    })
-  }
-
   // 圖片 / 媒體：下載後上傳到 line-media bucket
   let mediaUrl: string | null = null
   if (event.type === 'message' && event.message?.id) {
@@ -269,8 +251,8 @@ async function handleEvent(args: HandleEventArgs): Promise<void> {
     }
   }
 
-  // 5/14 雙寫過渡：同時寫進 unified inbox（inbox_conversations + inbox_messages）
-  // 過渡期 backfill apply 後可拔上面舊寫入路徑、code 改走純 inbox_*
+  // P2 寫入收斂（2026-05-29）：DM inbound 唯一寫入路徑 = unified inbox（inbox_conversations + inbox_messages）。
+  // 已停寫 line_conversation_messages（紅線 E）。source_id=event.message.id 去重 webhook 重送。
   await recordInboxMessage(supabase, {
     workspaceId,
     channelType: 'line',
@@ -813,22 +795,7 @@ async function handlePostbackAutoReply(args: PostbackAutoReplyArgs): Promise<voi
     return
   }
 
-  // 寫 outbound 到舊表
-  await supabaseAny.from('line_conversation_messages').insert({
-    workspace_id: workspaceId,
-    line_user_id: lineUserId,
-    direction: 'outbound',
-    sender: 'bot',
-    message_type: 'text',
-    content: template.response_text,
-    raw_event: {
-      sent_via: 'postback_template',
-      postback_data: postbackData,
-      template_id: template.id,
-    },
-  })
-
-  // 寫 outbound 到 inbox_messages
+  // P2 寫入收斂（2026-05-29）：postback outbound 唯一寫入路徑 = inbox_messages。已停寫 line_conversation_messages（紅線 E）。
   const { recordOutboundMessage, upsertConversation } = await import('@/lib/inbox/inbox-service')
   const convId = await upsertConversation({
     workspaceId,
