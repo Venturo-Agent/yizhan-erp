@@ -84,6 +84,7 @@ const OTHER_OPTIONAL_FEATURES: {
   { code: 'documents', name: '文件中心', kind: 'module' },
   { code: 'tours.contract', name: '電子合約系統', kind: 'tab' },
   { code: 'tours.display-itinerary', name: '展示行程', kind: 'tab' },
+  { code: 'hr.severance', name: '資遣試算', kind: 'tab' },
 ]
 
 // ─── Props ───────────────────────────────────────────────────────────────────

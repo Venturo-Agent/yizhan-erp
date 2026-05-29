@@ -105,6 +105,13 @@ export const FEATURES: FeatureDefinition[] = [
     routes: ['/hr', '/hr/roles', '/hr/organization'],
   },
   {
+    code: 'hr.severance',
+    name: '資遣試算',
+    description: '依年資 / 平均工資試算資遣費（勞退新舊制）',
+    category: 'premium',
+    routes: ['/hr', '/hr/roles', '/hr/organization'],
+  },
+  {
     code: 'database',
     name: '資料管理',
     description: '客戶、供應商、資源',

@@ -14,6 +14,7 @@ import { HR_ADMIN_TABS } from './components/hr-admin-tabs'
 import { Users, Edit, UserX, Plus, Trash2, Calculator } from 'lucide-react'
 import { useRoles } from '@/data/hooks'
 import { useBranches } from '@/data/hooks/useBranches'
+import { useWorkspaceFeatures } from '@/lib/permissions/hooks'
 import { TableColumn } from '@/components/ui/enhanced-table'
 import { DateCell, ActionCell } from '@/components/table-cells'
 import { StatusBadge, type StatusTone } from '@/components/ui/status-badge'
@@ -37,6 +38,9 @@ export default function HRPage() {
   // 職務列表走 useRoles SWR hook、跨頁共享 cache、不再自己 fetch
   const { roles: rolesData } = useRoles()
   const { branches: branchesData } = useBranches()
+  // 資遣試算 = 高級加購、租戶開通 hr.severance 才顯示（William 2026-05-29「他們看不懂」）
+  const { isFeatureEnabled } = useWorkspaceFeatures()
+  const severanceEnabled = isFeatureEnabled('hr.severance')
 
   useEffect(() => {
     fetchAll()
@@ -255,11 +259,16 @@ export default function HRPage() {
           },
           ...(employee.status !== 'terminated'
             ? [
-                {
-                  icon: Calculator,
-                  label: '資遣試算',
-                  onClick: () => setSeveranceEmployee(employee),
-                },
+                // 資遣試算只有開通 hr.severance 的租戶才有
+                ...(severanceEnabled
+                  ? [
+                      {
+                        icon: Calculator,
+                        label: '資遣試算',
+                        onClick: () => setSeveranceEmployee(employee),
+                      },
+                    ]
+                  : []),
                 {
                   icon: UserX,
                   label: t('actionTerminate'),
@@ -278,7 +287,7 @@ export default function HRPage() {
         ]}
       />
     ),
-    []
+    [severanceEnabled]
   )
 
   return (
