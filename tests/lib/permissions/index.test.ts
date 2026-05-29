@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  getModuleFromRoute,
-  getPermissionCategories,
-  getPermissionsByCategory,
-  FEATURE_PERMISSIONS,
-} from '@/lib/permissions'
+import { getModuleFromRoute } from '@/lib/permissions'
 
 /**
  * 權限 SSOT 的 pure helper 測試
@@ -31,10 +26,10 @@ describe('getModuleFromRoute', () => {
     expect(getModuleFromRoute('/hr/roles')).toBe('hr')
   })
 
-  it('/library/customers / /data-management / /library 都對應到 database module', () => {
+  it('/library/customers / /library 都對應到 database module', () => {
     expect(getModuleFromRoute('/library/customers')).toBe('database')
-    expect(getModuleFromRoute('/data-management')).toBe('database')
     expect(getModuleFromRoute('/library')).toBe('database')
+    // B6 (2026-05-29): /data-management 已廢、不在 features.ts 真相、test 移除
   })
 
   it('未知路由回 null', () => {
@@ -52,42 +47,5 @@ describe('getModuleFromRoute', () => {
   })
 })
 
-describe('getPermissionCategories', () => {
-  it('回傳唯一的 category 清單', () => {
-    const cats = getPermissionCategories()
-    expect(cats).toEqual(Array.from(new Set(cats))) // unique
-    expect(cats.length).toBeGreaterThan(0)
-  })
-
-  it('包含 FEATURE_PERMISSIONS 內所有 category', () => {
-    const cats = getPermissionCategories()
-    const expected = new Set(FEATURE_PERMISSIONS.map(p => p.category))
-    for (const c of expected) {
-      expect(cats).toContain(c)
-    }
-  })
-})
-
-describe('getPermissionsByCategory', () => {
-  it('回傳屬於指定 category 的 permission', () => {
-    const cats = getPermissionCategories()
-    for (const cat of cats) {
-      const items = getPermissionsByCategory(cat)
-      expect(items.length).toBeGreaterThan(0)
-      for (const item of items) {
-        expect(item.category).toBe(cat)
-      }
-    }
-  })
-
-  it('未知 category 回空陣列', () => {
-    expect(getPermissionsByCategory('does-not-exist')).toEqual([])
-  })
-
-  it('「核心」分類至少包含 tours / orders / finance', () => {
-    const items = getPermissionsByCategory('核心').map(p => p.id)
-    expect(items).toContain('tours')
-    expect(items).toContain('orders')
-    expect(items).toContain('finance')
-  })
-})
+// B6 (2026-05-29): getPermissionCategories / getPermissionsByCategory / FEATURE_PERMISSIONS / PermissionConfig 已砍
+// 路由真相收斂到 @generated features.ts、不再手寫 permission 分類
