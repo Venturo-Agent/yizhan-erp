@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { SimpleDateInput } from '@/components/ui/simple-date-input'
+import { DatePicker } from '@/components/ui/date-picker'
 import { CountryAirportSelector } from '@/components/selectors/CountryAirportSelector'
 import { useEmployeesSlim, useBrands } from '@/data'
 import { useEmployeesWithCapability } from '@/lib/permissions/useEmployeesWithCapability'
@@ -302,7 +302,7 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
             <label className="text-sm font-medium text-morandi-primary">
               {TOUR_BASIC_INFO.label_departure}
             </label>
-            <SimpleDateInput
+            <DatePicker
               value={newTour.departure_date}
               onChange={departure_date => {
                 setNewTour(prev => {
@@ -326,12 +326,12 @@ export function TourBasicInfo({ newTour, setNewTour }: TourBasicInfoProps) {
             <label className="text-sm font-medium text-morandi-primary">
               {TOUR_BASIC_INFO.label_return}
             </label>
-            <SimpleDateInput
+            <DatePicker
               value={newTour.return_date}
               onChange={return_date => {
                 setNewTour(prev => ({ ...prev, return_date }))
               }}
-              min={newTour.departure_date}
+              minDate={newTour.departure_date}
               defaultMonth={newTour.departure_date}
               className="mt-1"
               required

@@ -17,6 +17,7 @@ import { Plus, Loader2, Check, X, Edit, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -307,20 +308,17 @@ function ProductForm({
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label className={labelCls}>{L.validFrom}</Label>
-          <Input
-            type="date"
+          <DatePicker
             value={validFrom}
-            onChange={e => setValidFrom(e.target.value)}
-            className="h-8 text-sm"
+            onChange={setValidFrom}
           />
         </div>
         <div>
           <Label className={labelCls}>{L.validTo}</Label>
-          <Input
-            type="date"
+          <DatePicker
             value={validTo}
-            onChange={e => setValidTo(e.target.value)}
-            className="h-8 text-sm"
+            onChange={setValidTo}
+            minDate={validFrom}
           />
         </div>
       </div>

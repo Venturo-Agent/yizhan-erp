@@ -14,6 +14,7 @@ import { Calculator, RefreshCw } from 'lucide-react'
 
 import { FormDialog } from '@/components/dialog/form-dialog'
 import { Input } from '@/components/ui/input'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -208,15 +209,14 @@ export function SeveranceCalculatorDialog({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-morandi-muted block mb-1">離職 / 資遣日</label>
-              <Input
-                type="date"
+              <DatePicker
                 value={terminationDate}
-                onChange={e => setTerminationDate(e.target.value)}
+                onChange={setTerminationDate}
               />
             </div>
             <div>
               <label className="text-xs text-morandi-muted block mb-1">到職日（唯讀）</label>
-              <Input type="date" value={employee.job_info?.hire_date ?? ''} readOnly disabled />
+              <DatePicker value={employee.job_info?.hire_date ?? ''} disabled />
             </div>
           </div>
 

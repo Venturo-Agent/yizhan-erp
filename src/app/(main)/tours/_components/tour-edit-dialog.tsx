@@ -17,7 +17,7 @@ import { Tour } from '@/stores/types'
 import { useTourEdit } from '../_hooks/useTourEdit'
 import { CountryAirportSelector } from '@/components/selectors/CountryAirportSelector'
 import { Input } from '@/components/ui/input'
-import { SimpleDateInput } from '@/components/ui/simple-date-input'
+import { DatePicker } from '@/components/ui/date-picker'
 import { ItinerarySyncDialog } from './ItinerarySyncDialog'
 import { useAuthStore } from '@/stores/auth-store'
 import { supabase } from '@/lib/supabase/client'
@@ -197,7 +197,7 @@ export function TourEditDialog({ isOpen, onClose, tour, onSuccess }: TourEditDia
                 <label className="text-sm font-medium text-morandi-primary">
                   {COMPONENT_LABELS.DEPARTURE_DATE}
                 </label>
-                <SimpleDateInput
+                <DatePicker
                   value={formData.departure_date}
                   onChange={handleDepartureDateChange}
                   className="mt-1"
@@ -207,10 +207,10 @@ export function TourEditDialog({ isOpen, onClose, tour, onSuccess }: TourEditDia
                 <label className="text-sm font-medium text-morandi-primary">
                   {COMPONENT_LABELS.RETURN_DATE}
                 </label>
-                <SimpleDateInput
+                <DatePicker
                   value={formData.return_date}
                   onChange={return_date => setFormData(prev => ({ ...prev, return_date }))}
-                  min={formData.departure_date}
+                  minDate={formData.departure_date}
                   className="mt-1"
                 />
               </div>

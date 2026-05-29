@@ -336,6 +336,7 @@ export function MemberRow({
               {t('memberRowLabelTicketed')}
             </span>
           ) : isEditMode ? (
+            // 表格 cell inline 編輯：DatePicker 的 h-10 + 月曆 popover 會破壞 row 排版、此處沿用 raw input（合理例外、見 workspace/架構整理/2026-05-29-primitive-收斂規則.md § 2）
             <input
               type="date"
               value={member.ticketing_deadline ? member.ticketing_deadline.slice(0, 10) : ''}

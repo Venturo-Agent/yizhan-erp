@@ -13,10 +13,14 @@ interface DatePickerProps {
   buttonClassName?: string
   /** 日期格式：'YYYY-MM-DD' (預設) 或 'YYYY/MM/DD' — 影響 onChange 回傳格式 */
   format?: 'dash' | 'slash'
-  /** 最小可選日期 */
-  minDate?: Date
-  /** 最大可選日期 */
-  maxDate?: Date
+  /** 最小可選日期（Date 或 YYYY-MM-DD / YYYY/MM/DD 字串）*/
+  minDate?: Date | string
+  /** 最大可選日期（Date 或 YYYY-MM-DD / YYYY/MM/DD 字串）*/
+  maxDate?: Date | string
+  /** 日曆預設顯示月份（用於起訖日連動時、預設聚焦在起日的月） */
+  defaultMonth?: Date | string
+  /** HTML form 必填 */
+  required?: boolean
   /** 是否顯示清除按鈕（DateInput 內建支援） */
   clearable?: boolean
 }
@@ -49,6 +53,8 @@ export function DatePicker({
   format = 'dash',
   minDate,
   maxDate,
+  defaultMonth,
+  required,
 }: DatePickerProps) {
   const handleChange = (iso: string) => {
     if (!onChange) return
@@ -67,6 +73,8 @@ export function DatePicker({
       className={cn(className, buttonClassName)}
       min={toIsoString(minDate)}
       max={toIsoString(maxDate)}
+      defaultMonth={toIsoString(defaultMonth)}
+      required={required}
     />
   )
 }
