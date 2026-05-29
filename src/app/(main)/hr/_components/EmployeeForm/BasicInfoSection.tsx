@@ -46,6 +46,8 @@ interface Role {
 interface ScopeOption {
   id: string
   name: string
+  /** 'headquarters'（總部 placeholder）/ 'branch'（真分公司） */
+  type?: string | null
 }
 
 interface BasicInfoSectionProps {
@@ -80,11 +82,15 @@ export function BasicInfoSection({
   branches,
   onChange,
 }: BasicInfoSectionProps) {
+  // 只有真分公司（type!=='headquarters'）才顯示分公司欄；單一公司只有「總部」placeholder → 不顯示
+  // （branch_id 仍由 useEmployeeForm 自動帶總部 id、後端 FK 不受影響）
+  const hasRealBranches = branches.some(b => b.type !== 'headquarters')
+  const showBranch = mode === 'hr' && hasRealBranches
   return (
     <div className="space-y-5">
-      {/* 第一排：中文姓名 / 職務 / 職稱（HR 模式多一欄分公司）
+      {/* 第一排：中文姓名 / 職務 / 職稱（有真分公司時多一欄分公司）
           5/26 William 拍板：拔「顯示名稱」、全站統一用中文姓名（存檔時 display_name 鏡像 chinese_name） */}
-      <div className={`grid gap-4 ${mode === 'hr' ? 'grid-cols-4' : 'grid-cols-3'}`}>
+      <div className={`grid gap-4 ${showBranch ? 'grid-cols-4' : 'grid-cols-3'}`}>
         {/* 中文姓名（不顯示米字號；self 模式唯讀、不可自改） */}
         <div className="space-y-1.5" data-tutorial="field-chinese_name">
           <Label className={LABEL_CLASS}>{LABELS.CHINESE_NAME}</Label>
@@ -140,32 +146,25 @@ export function BasicInfoSection({
           />
         </div>
 
-        {/* 分公司（HR 模式才顯示；有分公司=第一排 4 欄、無=3 欄） */}
-        {mode === 'hr' && (
+        {/* 分公司（只有真分公司才顯示；單一公司只有總部 placeholder → 不顯示） */}
+        {showBranch && (
           <div className="space-y-1.5">
             <Label className={LABEL_CLASS}>{LABELS.BRANCH}</Label>
-            {/* 2026-05-14 William 拍板：單一公司直接顯示、不下拉、不寫未分配 */}
-            {branches.length === 1 ? (
-              <div className="w-full px-3 py-2 border border-input rounded-lg bg-morandi-background/50 text-morandi-primary">
-                {branches[0].name}
-              </div>
-            ) : (
-              <Select
-                value={formData.branch_id || (branches[0]?.id ?? '')}
-                onValueChange={v => onChange({ branch_id: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map(b => (
-                    <SelectItem key={b.id} value={b.id}>
-                      {b.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select
+              value={formData.branch_id || (branches[0]?.id ?? '')}
+              onValueChange={v => onChange({ branch_id: v })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {branches.map(b => (
+                  <SelectItem key={b.id} value={b.id}>
+                    {b.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
       </div>

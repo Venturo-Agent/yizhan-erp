@@ -6,6 +6,8 @@ export interface Branch {
   name: string
   code: string
   display_order: number
+  /** 'headquarters'（總部 placeholder）/ 'branch'（真分公司） */
+  type?: string | null
 }
 
 const fetcher = async (url: string): Promise<Branch[]> => {

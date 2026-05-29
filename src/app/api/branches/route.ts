@@ -25,7 +25,7 @@ export async function GET() {
     const supabase = await createApiClient()
     const { data, error } = await supabase
       .from('branches')
-      .select('id, name, code, display_order, tax_id')
+      .select('id, name, code, display_order, tax_id, type')
       .eq('is_active', true)
       .order('display_order', { ascending: true })
       .order('name', { ascending: true })

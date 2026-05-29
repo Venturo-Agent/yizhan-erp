@@ -19,7 +19,7 @@ import { EmployeeFull } from '@/stores/types'
 import { alertSuccess, alertError } from '@/lib/ui/alert-dialog'
 import { logger } from '@/lib/utils/logger'
 
-type ScopeOption = { id: string; name: string }
+type ScopeOption = { id: string; name: string; type?: string | null }
 
 interface Role {
   id: string
@@ -81,7 +81,11 @@ export function useEmployeeForm({ employeeId, mode = 'hr', onSubmit }: UseEmploy
   const [roles, setRoles] = useState<Role[]>([])
 
   // Phase A：分公司 scope（SWR cache、跨頁共享）
-  const branches: ScopeOption[] = cachedBranches.map(b => ({ id: b.id, name: b.name }))
+  const branches: ScopeOption[] = cachedBranches.map(b => ({
+    id: b.id,
+    name: b.name,
+    type: b.type,
+  }))
 
   const [formData, setFormData] = useState({
     chinese_name: employee?.chinese_name || '',
