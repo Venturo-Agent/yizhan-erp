@@ -25,6 +25,7 @@ import { apiMutate } from '@/lib/swr/api-mutate'
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd'
 import { TodoFiltersBar } from './_components/TodoFiltersBar'
 import { KanbanColumn } from './_components/KanbanColumn'
+import { TodoCard } from './_components/TodoCard'
 import { AddColumnInput } from './_components/AddColumnInput'
 import { useTodoColumns, TodoColumn } from './_hooks/useTodoColumns'
 import { useTodoActions } from './_hooks/useTodoActions'
@@ -125,11 +126,27 @@ export default function TodosPage() {
     return map
   }, [visibleTodos, columns])
 
+  // 「任務指派」虛擬欄：指派給我（且非我自己建）的卡；空就不顯示（William 2026-05-29 拍板）
+  const ASSIGNED_DROPPABLE = '__assigned__'
+  const assignedToMe = useMemo(() => {
+    const uid = user?.id
+    if (!uid) return []
+    return visibleTodos
+      .filter(todo => todo.assignee === uid && (todo.creator || todo.created_by) !== uid)
+      .sort((a, b) => (b.priority || 1) - (a.priority || 1))
+  }, [visibleTodos, user?.id])
+
   // 拖曳結束
   const handleDragEnd = useCallback(
     (result: DropResult) => {
       const { draggableId, destination, source, type } = result
       if (!destination) return
+      // 任務指派虛擬欄：不參與拖移（卡片固定在收件欄、各自完成才消失）
+      if (
+        source.droppableId === ASSIGNED_DROPPABLE ||
+        destination.droppableId === ASSIGNED_DROPPABLE
+      )
+        return
 
       if (type === 'column') {
         if (destination.index === source.index) return
@@ -239,6 +256,41 @@ export default function TodosPage() {
                       />
                     ))}
                     {provided.placeholder}
+                    {/* 任務指派虛擬欄（最右、空就不顯示、系統欄不可增刪） */}
+                    {assignedToMe.length > 0 && (
+                      <div className="flex flex-col w-[20rem] flex-shrink-0 max-h-full bg-morandi-container/40 rounded-xl border border-border/40 shadow-sm">
+                        <div className="flex items-center gap-2 px-3 py-3 border-b-2 border-morandi-gold rounded-t-xl">
+                          <span className="text-sm font-semibold text-morandi-primary">
+                            任務指派
+                          </span>
+                          <span className="text-xs text-morandi-muted">{assignedToMe.length}</span>
+                        </div>
+                        <Droppable droppableId={ASSIGNED_DROPPABLE} type="card" isDropDisabled>
+                          {dropProvided => (
+                            <div
+                              ref={dropProvided.innerRef}
+                              {...dropProvided.droppableProps}
+                              className="flex-1 overflow-y-auto space-y-2 p-2 min-h-[80px]"
+                            >
+                              {assignedToMe.map((todo, idx) => (
+                                <TodoCard
+                                  key={todo.id}
+                                  todo={todo}
+                                  index={idx}
+                                  assigneeName={getEmployeeName(todo.assignee)}
+                                  currentUserId={user?.id}
+                                  onClick={(id: string) => setExpandedTodo(id)}
+                                  onToggleComplete={handleToggleComplete}
+                                  onDelete={handleDeleteTodo}
+                                  onChangePriority={handleChangePriority}
+                                />
+                              ))}
+                              {dropProvided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </div>
+                    )}
                     <AddColumnInput
                       isAddingColumn={isAddingColumn}
                       newColumnName={newColumnName}
