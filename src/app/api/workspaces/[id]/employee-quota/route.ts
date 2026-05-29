@@ -104,7 +104,23 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       changed_by_employee: log.changed_by ? (employeeMap.get(log.changed_by) ?? null) : null,
     }))
 
-    return NextResponse.json(result)
+    // 目前配額 + 在職員工數（給編輯器顯示「目前 X / 上限 Y」）
+    const { data: ws } = await supabase
+      .from('workspaces')
+      .select('max_employees')
+      .eq('id', workspaceId)
+      .single()
+    const { count: employeeCount } = await supabase
+      .from('employees')
+      .select('id', { count: 'exact', head: true })
+      .eq('workspace_id', workspaceId)
+      .eq('is_active', true)
+
+    return NextResponse.json({
+      max_employees: (ws as { max_employees: number | null } | null)?.max_employees ?? null,
+      employee_count: employeeCount ?? 0,
+      logs: result,
+    })
   } catch (error) {
     logger.error('[employee-quota GET]', error)
     return NextResponse.json({ error: '系統錯誤' }, { status: 500 })
