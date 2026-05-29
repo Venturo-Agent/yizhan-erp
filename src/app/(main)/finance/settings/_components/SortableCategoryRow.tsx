@@ -94,6 +94,8 @@ export function SortableCategoryRow({
       <td className="px-4 [padding-block:0.95em] text-sm w-[60px]">
         <Switch checked={category.is_active} onCheckedChange={onToggle} disabled={loading} />
       </td>
+      {/* 彈性留白欄：吸收多餘寬度、名稱欄鎖 280px、操作欄靠右 */}
+      <td />
       {/* 操作（靠左對齊第一顆按鈕、比照訂單管理） */}
       <td className="px-4 [padding-block:0.95em] text-sm w-[100px]">
         <div className="flex justify-start gap-0.5">

@@ -236,6 +236,8 @@ export function PaymentMethodsSection({
                   {type === 'receipt' && (
                     <TableHead className="w-[90px]">{PAGE_LABELS.COL_CUSTOMER_VISIBLE}</TableHead>
                   )}
+                  {/* 彈性留白欄：吸收多餘寬度、讓名稱欄鎖死 280px、操作欄靠右、切 tab 不跳 */}
+                  <TableHead />
                   <TableHead className="w-[100px]">{PAGE_LABELS.COL_ACTION}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -243,7 +245,7 @@ export function PaymentMethodsSection({
                 {list.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={(hasAccounting ? 7 : 5) + (type === 'receipt' ? 1 : 0)}
+                      colSpan={(hasAccounting ? 8 : 6) + (type === 'receipt' ? 1 : 0)}
                       className="text-center py-8 text-morandi-muted"
                     >
                       {emptyText}

@@ -59,15 +59,11 @@ export function SortableMethodRow({
           {method.name}
         </span>
       </td>
-      {/* 金流商（B 方案 provider）*/}
-      <td className="px-4 [padding-block:0.95em] text-sm">
-        {isGatewayProvider(method.provider) ? (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-[0.7rem] font-medium bg-morandi-gold/15 text-morandi-gold">
-            {PROVIDER_LABELS[method.provider] ?? method.provider}
-          </span>
-        ) : (
-          <span className="text-morandi-muted text-xs">{PROVIDER_LABELS.manual}</span>
-        )}
+      {/* 金流商（B 方案 provider）— 純文字、統一黑色、不用色塊 */}
+      <td className="px-4 [padding-block:0.95em] text-sm text-morandi-primary">
+        {isGatewayProvider(method.provider)
+          ? (PROVIDER_LABELS[method.provider] ?? method.provider)
+          : PROVIDER_LABELS.manual}
       </td>
       {/* 借/貸方科目 — 僅開通會計功能顯示 */}
       {showAccounting && (
@@ -98,6 +94,8 @@ export function SortableMethodRow({
           </span>
         </td>
       )}
+      {/* 彈性留白欄：吸收多餘寬度、名稱欄鎖 280px、操作欄靠右 */}
+      <td />
       {/* 操作（編輯 / 刪除、靠左對齊第一顆按鈕、比照訂單管理） */}
       <td className="px-4 [padding-block:0.95em] text-sm w-[100px]">
         <div className="flex justify-start gap-0.5">

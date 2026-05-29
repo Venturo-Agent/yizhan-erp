@@ -238,6 +238,8 @@ export function CategoriesSection({
                     <TableHead className="w-[220px]">{PAGE_LABELS.COL_CREDIT_ACCOUNT}</TableHead>
                   )}
                   <TableHead className="w-[80px]">{PAGE_LABELS.COL_STATUS}</TableHead>
+                  {/* 彈性留白欄：吸收多餘寬度、名稱欄鎖 280px、操作欄靠右、切 tab 不跳 */}
+                  <TableHead />
                   <TableHead className="w-[100px]">{PAGE_LABELS.COL_ACTION}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -245,7 +247,7 @@ export function CategoriesSection({
                 {list.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={(hasAccounting ? 6 : 4) + (variant === 'company' ? 1 : 0)}
+                      colSpan={(hasAccounting ? 7 : 5) + (variant === 'company' ? 1 : 0)}
                       className="text-center py-8 text-morandi-muted"
                     >
                       {emptyText}
