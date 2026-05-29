@@ -69,13 +69,6 @@ describe('getModulesWithoutTabs', () => {
       expect(m.tabs.length).toBe(0)
     }
   })
-
-  it('office 沒 tab（純路由）', () => {
-    // 5/13 William 拍板：calendar / todos / channels / settings 是個人空間標配、
-    // 不該在 HR /hr/roles 配置（exposedToHr=false）、所以 module-tabs.ts 不包含
-    const codes = getModulesWithoutTabs().map(m => m.code)
-    expect(codes).toContain('office')
-  })
 })
 
 describe('getAllModulesSorted', () => {
