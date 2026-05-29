@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -8,16 +8,13 @@ import { createOrder, invalidateTours } from '@/data'
 import { useToursSlim } from '@/data'
 import { useAuthStore } from '@/stores/auth-store'
 import { generateOrderNumber } from '@/lib/codes'
-import { ShoppingCart, Plus, Users, User } from 'lucide-react'
+import { ShoppingCart, Plus } from 'lucide-react'
 import { OrderListView } from './_components/OrderListView'
 import { AddOrderForm } from './_components/add-order-form'
-import { useOrdersListView, type OrdersViewMode } from './_hooks/useOrdersListView'
+import { useOrdersListView } from './_hooks/useOrdersListView'
 import type { Order } from '@/stores/types'
 import { logger } from '@/lib/utils/logger'
 import { alert as showAlert } from '@/lib/ui/alert-dialog'
-
-// 業務員視角偏好（localStorage key）
-const VIEW_MODE_STORAGE_KEY = 'orders.viewMode'
 
 export default function OrdersPage() {
   const t = useTranslations('orders')
@@ -28,36 +25,10 @@ export default function OrdersPage() {
   const PAGE_SIZE = 15
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
-  // 業務員視角 toggle：'all' = 全部訂單（需 cross_branch.read）、'mine' = 只看我的
-  // 預設「只看我的」、切換記住偏好（localStorage）
-  const [viewMode, setViewMode] = useState<OrdersViewMode>('mine')
-
-  // hydrate localStorage 偏好（必 useEffect、避免 SSR mismatch）
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(VIEW_MODE_STORAGE_KEY)
-      if (saved === 'mine' || saved === 'all') {
-        setViewMode(saved)
-      }
-      // 沒有 localStorage 紀錄 → 維持預設 'mine'
-    } catch {
-      // localStorage 不可用（隱私模式）→ 用預設值 'mine'
-    }
-  }, [])
-
-  const handleViewModeChange = (mode: string) => {
-    if (mode !== 'all' && mode !== 'mine') return
-    setViewMode(mode)
-    setPage(1) // 切視角必歸第一頁、避免空頁
-    try {
-      window.localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode)
-    } catch {
-      // 隱私模式忽略
-    }
-  }
-
-  // Server-side 分頁 + 搜尋 + 業務員視角過濾
-  // 「全部」/「只看我的」共用 server-side pagination + .or() filter（見 useOrdersListView）
+  // 業務員視角：由 HR 權限自動決定（2026-05-30 William 拍板砍切換按鈕）
+  // - 有 cross_branch.read capability → useOrdersListView 內部不加 sales_id filter（顯示全部）
+  // - 沒有此 capability → useOrdersListView 內部自動加 sales_id = currentUserId（只看我的）
+  // 不再給 UI toggle、不再讀 localStorage 偏好；員工看到的範圍 = 該員工真正能看到的範圍。
   const {
     items: orders,
     totalCount,
@@ -66,7 +37,6 @@ export default function OrdersPage() {
     page,
     pageSize: PAGE_SIZE,
     search: searchQuery.trim() || undefined,
-    viewMode,
     sortBy: 'departure_date',
     sortOrder: 'desc',
   })
@@ -145,12 +115,6 @@ export default function OrdersPage() {
         setPage(1) // 搜尋變更必歸第一頁、避免分頁錯位
       }}
       searchPlaceholder="搜尋團號 / 團名"
-      tabs={[
-        { value: 'mine', label: '我的訂單', icon: User },
-        { value: 'all', label: '全部訂單', icon: Users },
-      ]}
-      activeTab={viewMode}
-      onTabChange={handleViewModeChange}
       primaryAction={{
         label: t('addOrder'),
         icon: Plus,
