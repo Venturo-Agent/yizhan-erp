@@ -25,7 +25,7 @@ import {
   TOUR_TYPE_CODE_PREFIX,
   isNoDestinationServiceType,
   needsControllerServiceType,
-} from '@/lib/constants/tour-service-types'
+} from '@/constants/tour-service-types'
 
 const COMPONENT_LABELS = {
   SELECT_TOUR_TYPE_PLACEHOLDER: '選擇團類型...',

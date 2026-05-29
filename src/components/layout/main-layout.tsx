@@ -9,7 +9,7 @@ import {
   NO_SIDEBAR_PAGES,
   CUSTOM_LAYOUT_PAGES,
   LAYOUT_TRANSITION_DURATION,
-} from '@/lib/constants/layout'
+} from '@/constants/layout'
 import { logger } from '@/lib/utils/logger'
 
 const STORAGE_KEY_LAST_VISITED = 'last-visited-path'

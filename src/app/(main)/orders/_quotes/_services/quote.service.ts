@@ -9,10 +9,10 @@
  * - 成本計算（calculateTotalCost）
  */
 
-import { BaseService, StoreOperations } from '@/core/services/base.service'
+import { BaseService, StoreOperations } from '@/lib/services/base.service'
 import { Quote } from '@/stores/types/quote.types'
 import { useQuoteStore } from '@/stores'
-import { ValidationError } from '@/core/errors/app-errors'
+import { ValidationError } from '@/lib/errors/app-errors'
 
 class QuoteService extends BaseService<Quote> {
   protected resourceName = 'quotes'

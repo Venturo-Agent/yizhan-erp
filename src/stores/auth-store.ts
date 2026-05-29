@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 import { EmployeeFull } from './types'
 import { logger } from '@/lib/utils/logger'
-import type { UserRole } from '@/lib/rbac-config'
+import type { UserRole } from '@/types/user.types'
 import type { Database } from '@/lib/supabase/types'
 import { ensureAuthSync, resetAuthSyncState } from '@/lib/auth/auth-sync'
 

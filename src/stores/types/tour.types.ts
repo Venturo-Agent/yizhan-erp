@@ -1,5 +1,5 @@
 // ============================
-// Re-export from canonical source: @/types/tour.types
+// Re-export from canonical source: @/types/tour
 // ============================
 
 export type {
@@ -17,4 +17,4 @@ export type {
   Itinerary,
   PriceTier,
   FAQ,
-} from '@/types/tour.types'
+} from '@/types/tour'

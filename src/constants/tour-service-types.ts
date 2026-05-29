@@ -18,7 +18,7 @@
  *   4. 完成 — UI 跟邏輯自動 pick up
  */
 
-import type { TourServiceType } from '@/types/tour.types'
+import type { TourServiceType } from '@/types/tour'
 
 export interface TourServiceTypeMeta {
   /** DB 內的 tour_service_type 值（chk_tour_service_type 約束的 id）*/

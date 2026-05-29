@@ -3,8 +3,13 @@
 // ============================
 // - Employee（models.types.ts）= DB row 真相
 // - EmployeeFull（本檔）= 全站用、含 personal_info 巢狀強型別 + workspace + permissions
+//
+// 2026-05-29 B8：UserRole 從 @/lib/rbac-config 併入此檔。
+// ⚠️ 權限判斷請用 role_tab_permissions + module:tab 格式（workspace_roles 表）。
+// UserRole 僅提供給 employees.roles 欄位做型別標註，不參與權限判斷。
 
-import type { UserRole } from '@/lib/rbac-config'
+/** employees.roles 欄位用的型別 */
+export type UserRole = 'admin' | 'sales' | 'accountant' | 'assistant' | 'staff' | 'bot'
 
 // ==================== 巢狀子型別（強型別、Employee.personal_info 等 Json 欄位 cast 用）====================
 

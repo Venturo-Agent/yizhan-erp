@@ -7,7 +7,7 @@
 
 import { dynamicFrom } from '@/lib/supabase/typed-client'
 import { logger } from '@/lib/utils/logger'
-import type { UserRole } from '@/lib/rbac-config'
+import type { UserRole } from '@/types/user.types'
 
 // ============================================
 // UUID 工具

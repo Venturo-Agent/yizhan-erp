@@ -1,6 +1,7 @@
 /**
  * 旅遊團型別 barrel export
- * 統一從此匯出，外部一律 import from '@/types/tour.types'（走主檔 re-export）
+ * 統一從此匯出，外部一律 import from '@/types/tour'。
+ * 2026-05-29 B8：刪除扁平 tour.types.ts，所有 importer 改吃此 barrel。
  */
 
 export type { FlightSegment, FlightInfo } from './flight.types'

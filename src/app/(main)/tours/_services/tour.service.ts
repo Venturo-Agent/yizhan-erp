@@ -1,10 +1,10 @@
 import { formatDate } from '@/lib/utils/format-date'
-import { BaseService, StoreOperations } from '@/core/services/base.service'
+import { BaseService, StoreOperations } from '@/lib/services/base.service'
 import { Tour } from '@/stores/types'
-import { ValidationError } from '@/core/errors/app-errors'
+import { ValidationError } from '@/lib/errors/app-errors'
 import { getCurrentWorkspaceId } from '@/lib/workspace-helpers'
 // workspace_id is now auto-set by DB trigger
-import { BaseEntity } from '@/core/types/common'
+import { BaseEntity } from '@/types/core.types'
 import { supabase } from '@/lib/supabase/client'
 import { generateTourCode as generateTourCodeShared } from '@/lib/codes'
 import { invalidateTours } from '@/data'

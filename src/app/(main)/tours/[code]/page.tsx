@@ -13,7 +13,7 @@ import { useTourDetails } from '@/app/(main)/tours/_hooks/useTours-advanced'
 import { useAuthStore } from '@/stores/auth-store'
 import { TOUR_TABS, TourTabContent } from '@/app/(main)/tours/_components/TourTabs'
 import { useVisibleModuleTabs } from '@/lib/permissions/hooks'
-import { needsItineraryServiceType } from '@/lib/constants/tour-service-types'
+import { needsItineraryServiceType } from '@/constants/tour-service-types'
 import { useTranslations } from 'next-intl'
 
 export default function TourDetailPage() {

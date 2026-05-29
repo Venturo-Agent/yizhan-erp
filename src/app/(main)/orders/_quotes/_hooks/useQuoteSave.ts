@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import { UI_DELAYS } from '@/lib/constants/timeouts'
+import { UI_DELAYS } from '@/constants/timeouts'
 import { logger } from '@/lib/utils/logger'
 import { CostCategory, ParticipantCounts, SellingPrices, TierPricing } from '../_types'
 import type { Quote } from '@/stores/types'

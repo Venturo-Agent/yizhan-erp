@@ -20,7 +20,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { formatMoney } from '@/lib/utils/format-currency'
 import { Badge } from '@/components/ui/badge'
 import { Loader2 } from 'lucide-react'
-import { ACTIVE_TOUR_STATUSES } from '@/lib/constants/tour-status'
+import { ACTIVE_TOUR_STATUSES } from '@/constants/tour-status'
 
 interface PnlRow {
   tour_id: string

@@ -13,7 +13,7 @@
 import { supabase } from '@/lib/supabase/client'
 import { createReportHook } from '@/lib/swr/createReportHook'
 import { filterActive } from '@/lib/data/filter-active'
-import { DRAFT_TOUR_STATUSES } from '@/lib/constants/tour-status'
+import { DRAFT_TOUR_STATUSES } from '@/constants/tour-status'
 
 const PAGE = 1000
 

@@ -9,7 +9,7 @@
 
 import { supabase } from '@/lib/supabase/client'
 import { createReportHook, agingBucket, daysBetween } from '@/lib/swr/createReportHook'
-import { isDraftTourStatus } from '@/lib/constants/tour-status'
+import { isDraftTourStatus } from '@/constants/tour-status'
 
 export interface ReceivableRow {
   order_id: string

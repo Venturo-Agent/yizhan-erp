@@ -12,7 +12,7 @@ import { createEntityHook } from '../core/createEntityHook'
 import { CACHE_PRESETS, type ListResult } from '../core/types'
 import { supabase } from '@/lib/supabase/client'
 import { useAuthStore } from '@/stores/auth-store'
-import type { UserRole } from '@/lib/rbac-config'
+import type { UserRole } from '@/types/user.types'
 import type { Tour } from '@/stores/types'
 
 // ============================================

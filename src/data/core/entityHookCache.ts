@@ -13,7 +13,7 @@
 
 import { useState, useEffect } from 'react'
 import { get_cache } from '@/lib/cache/indexeddb-cache'
-import type { UserRole } from '@/lib/rbac-config'
+import type { UserRole } from '@/types/user.types'
 
 // ============================================
 // UUID v4 生成（兼容瀏覽器）

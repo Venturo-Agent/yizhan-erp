@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Alert } from '@/components/ui/alert'
 import { X } from 'lucide-react'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
-import { needsControllerServiceType } from '@/lib/constants/tour-service-types'
+import { needsControllerServiceType } from '@/constants/tour-service-types'
 
 const COMPONENT_LABELS = {
   REMARKS: '備註',
