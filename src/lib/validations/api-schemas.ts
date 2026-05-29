@@ -228,7 +228,8 @@ export const updatePaymentMethodSchema = z
 export const upsertBankAccountSchema = z
   .object({
     id: z.string().uuid().optional(),
-    code: z.string().min(1).max(50),
+    // code 對使用者無意義（2026-05-29 砍 UI 欄位）；新建時 API 自動產生、編輯時沿用既有
+    code: z.string().min(1).max(50).optional(),
     name: z.string().min(1).max(100),
     bank_code: z.string().max(3).optional().nullable(), // FK to ref_banks.bank_code（onboarding fix pack）
     bank_name: z.string().max(100).optional().nullable(),

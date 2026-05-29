@@ -197,7 +197,6 @@ function BankDialog({
   onSave: (bank: Partial<BankAccount>) => Promise<void>
 }) {
   const t = useTranslations('finance')
-  const [code, setCode] = useState('')
   const [name, setName] = useState('')
   const [bankCode, setBankCode] = useState('') // ref_banks.bank_code（三碼）
   const [bankName, setBankName] = useState('')
@@ -209,7 +208,6 @@ function BankDialog({
 
   useEffect(() => {
     if (open) {
-      setCode(bank?.code || '')
       setName(bank?.name || '')
       setBankCode(bank?.bank_code || '')
       setBankName(bank?.bank_name || '')
@@ -222,14 +220,14 @@ function BankDialog({
   }, [open, bank])
 
   const handleSubmit = async () => {
-    if (!code || !name) {
-      await alert(t('pleaseFillCodeAndName'), 'warning')
+    if (!name) {
+      await alert(t('fieldNameRequired'), 'warning')
       return
     }
     setIsSubmitting(true)
     try {
+      // code 不再由使用者填、API 新建時自動產生、編輯時沿用既有
       await onSave({
-        code,
         name,
         bank_code: bankCode || null,
         bank_name: bankName || null,
@@ -251,27 +249,13 @@ function BankDialog({
       onSubmit={handleSubmit}
       submitLabel={isSubmitting ? t('saving') : t('saveLabel')}
       loading={isSubmitting}
-      submitDisabled={!code || !name}
+      submitDisabled={!name}
       maxWidth="md"
     >
       <div className="space-y-4 py-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>{t('fieldCodeRequired')}</Label>
-            <Input
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              placeholder={PAGE_LABELS.CODE_PLACEHOLDER}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>{t('fieldNameRequired')}</Label>
-            <Input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder={PAGE_LABELS.BANK_NAME_PLACEHOLDER}
-            />
-          </div>
+        <div className="space-y-2">
+          <Label>{t('fieldNameRequired')}</Label>
+          <Input value={name} onChange={e => setName(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>{PAGE_LABELS.BANK_FULL_NAME}</Label>
@@ -283,47 +267,35 @@ function BankDialog({
               if (ref) setBankName(ref.bank_name)
               else setBankName('')
             }}
-            placeholder={PAGE_LABELS.BANK_FULL_NAME_PLACEHOLDER}
+            placeholder=""
             disablePortal
           />
         </div>
         <div className="space-y-2">
           <Label>{PAGE_LABELS.ACCOUNT_NUMBER_LABEL}</Label>
-          <Input
-            value={accountNumber}
-            onChange={e => setAccountNumber(e.target.value)}
-            placeholder={PAGE_LABELS.ACCOUNT_NUMBER_PLACEHOLDER}
-          />
+          <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} />
         </div>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="isDefault"
-            checked={isDefault}
-            onCheckedChange={checked => setIsDefault(checked === true)}
-          />
-          <Label htmlFor="isDefault">{PAGE_LABELS.SET_AS_DEFAULT}</Label>
-        </div>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="isDisbursementEligible"
-            checked={isDisbursementEligible}
-            onCheckedChange={checked => setIsDisbursementEligible(checked === true)}
-          />
-          <Label htmlFor="isDisbursementEligible">
-            可作為出帳帳戶
-            <span className="ml-2 text-xs text-morandi-muted">
-              （取消勾選 = 此帳戶不會出現在出納單選項、譬如定存戶）
-            </span>
-          </Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isDefault"
+              checked={isDefault}
+              onCheckedChange={checked => setIsDefault(checked === true)}
+            />
+            <Label htmlFor="isDefault">{PAGE_LABELS.SET_AS_DEFAULT}</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isDisbursementEligible"
+              checked={isDisbursementEligible}
+              onCheckedChange={checked => setIsDisbursementEligible(checked === true)}
+            />
+            <Label htmlFor="isDisbursementEligible">可作為出帳帳戶</Label>
+          </div>
         </div>
         {isDisbursementEligible && (
           <div className="space-y-2">
-            <Label htmlFor="crossBankFee">
-              跨行匯款手續費（每筆）
-              <span className="ml-2 text-xs text-morandi-muted">
-                （從此帳戶匯款到其他銀行每筆扣的手續費、譬如 10 元；同行不收）
-              </span>
-            </Label>
+            <Label htmlFor="crossBankFee">跨行匯款手續費（每筆）</Label>
             <Input
               id="crossBankFee"
               type="number"
@@ -331,7 +303,6 @@ function BankDialog({
               step="1"
               value={crossBankFee}
               onChange={e => setCrossBankFee(e.target.value === '' ? 0 : Number(e.target.value))}
-              placeholder="例：10"
               className="w-32"
             />
           </div>

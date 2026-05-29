@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
@@ -75,10 +76,13 @@ export const POST = apiHandler(async (request: NextRequest) => {
       .eq('workspace_id', workspaceId)
   }
 
+  // code 對使用者無意義、UI 已拿掉欄位；沒帶就自動產生（滿足 NOT NULL + UNIQUE(workspace_id, code)）
+  const finalCode = code || `ACC${randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`
+
   const { data, error } = await supabase
     .from('bank_accounts')
     .insert({
-      code,
+      code: finalCode,
       name,
       bank_code,
       bank_name,
@@ -151,7 +155,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
   const { data, error } = await supabase
     .from('bank_accounts')
     .update({
-      code,
+      ...(code !== undefined ? { code } : {}), // UI 不再送 code、沿用既有
       name,
       bank_code,
       bank_name,
