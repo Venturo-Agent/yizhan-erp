@@ -12191,6 +12191,10 @@ export type Database = {
       }
     }
     Functions: {
+      get_workspace_country_usage: {
+        Args: Record<PropertyKey, never>
+        Returns: { country_code: string; usage_count: number }[]
+      }
       _recalc_one_batch: { Args: { p_batch_id: string }; Returns: undefined }
       _recalc_one_invoice: {
         Args: { p_invoice_id: string }

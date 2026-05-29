@@ -7,6 +7,7 @@ import { FormDialog } from '@/components/dialog/form-dialog'
 import { useAirports } from '@/app/(main)/tours/_hooks/useAirports'
 import { useCountries, invalidateCountries } from '@/data' // 🔧 核心表架構
 import { useCountryAirports } from '@/data/hooks/useCountryAirports'
+import { useCountryUsage } from '@/data/hooks/useCountryUsage'
 import { SELECTORS_LABELS } from './constants/labels'
 import { logger } from '@/lib/utils/logger'
 
@@ -54,6 +55,8 @@ export function CountryAirportSelector({
 }: CountryAirportSelectorProps) {
   // 🔧 核心表架構：用 useCountries 取得完整資料
   const { items: countriesData } = useCountries()
+  // 常用國家：各公司自己的 tours+quotes 使用次數、排序時常用浮上來（讀失敗回空→退字母序）
+  const countryUsage = useCountryUsage()
 
   const {
     countries: hookCountries,
@@ -85,27 +88,22 @@ export function CountryAirportSelector({
   const [newIataCode, setNewIataCode] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // 國家選項：優先用 countriesData（有完整 id），按 usage_count 排序（常用在前）
+  // 國家選項：優先用 countriesData（有完整 id），按「該公司常用次數」排序（常用在前、其餘維持字母序）
   const countryOptions = useMemo(() => {
     if (externalCountries) {
-      return externalCountries
-        .filter(c => c.is_active)
-        .sort(
-          (a, b) =>
-            ((b as { usage_count?: number }).usage_count || 0) -
-            ((a as { usage_count?: number }).usage_count || 0)
-        )
-        .map(c => ({ value: c.name, label: c.name }))
+      return externalCountries.filter(c => c.is_active).map(c => ({ value: c.name, label: c.name }))
     }
     // 優先用 countriesData（有 id），fallback 到 hookCountries
     if (countriesData.length > 0) {
       return countriesData
         .filter(c => c.is_active)
-        .sort((a, b) => (b.usage_count || 0) - (a.usage_count || 0))
+        .sort(
+          (a, b) => (countryUsage.get(b.code ?? '') ?? 0) - (countryUsage.get(a.code ?? '') ?? 0)
+        )
         .map(c => ({ value: c.name, label: c.name }))
     }
     return hookCountries.map(c => ({ value: c, label: c }))
-  }, [externalCountries, countriesData, hookCountries])
+  }, [externalCountries, countriesData, hookCountries, countryUsage])
 
   // 🔧 新架構：該國所有機場 + 沒機場的城市（同城多機場分開列）
   const availableAirports = useMemo(() => {
