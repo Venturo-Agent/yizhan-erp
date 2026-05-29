@@ -21,7 +21,7 @@ export const GET = apiHandler(async () => {
   const { data, error } = await supabase
     .from('bank_accounts')
     .select(
-      'id, code, name, bank_code, bank_name, account_number, is_default, is_active, is_disbursement_eligible, cross_bank_fee, workspace_id, created_at, updated_at'
+      'id, code, name, bank_code, bank_name, account_number, is_default, is_active, is_disbursement_eligible, cross_bank_fee, branch_id, is_quote_display, bank_branch, account_holder_name, workspace_id, created_at, updated_at'
     )
     .eq('is_active', true)
     .order('is_default', { ascending: false })
@@ -66,6 +66,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
     account_id,
     is_disbursement_eligible,
     cross_bank_fee,
+    branch_id,
+    is_quote_display,
+    bank_branch,
+    account_holder_name,
   } = validation.data
 
   // 🔒 設預設時必須限定 workspace_id、否則會清掉全平台所有租戶的預設標記
@@ -93,6 +97,10 @@ export const POST = apiHandler(async (request: NextRequest) => {
       is_active: true,
       ...(is_disbursement_eligible !== undefined ? { is_disbursement_eligible } : {}),
       ...(cross_bank_fee !== undefined ? { cross_bank_fee } : {}),
+      ...(branch_id !== undefined ? { branch_id } : {}),
+      ...(is_quote_display !== undefined ? { is_quote_display } : {}),
+      ...(bank_branch !== undefined ? { bank_branch } : {}),
+      ...(account_holder_name !== undefined ? { account_holder_name } : {}),
     } as never)
     .select()
     .single()
@@ -137,6 +145,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     account_id,
     is_disbursement_eligible,
     cross_bank_fee,
+    branch_id,
+    is_quote_display,
+    bank_branch,
+    account_holder_name,
   } = validation.data
 
   if (!id) {
@@ -164,6 +176,10 @@ export const PUT = apiHandler(async (request: NextRequest) => {
       is_default,
       ...(is_disbursement_eligible !== undefined ? { is_disbursement_eligible } : {}),
       ...(cross_bank_fee !== undefined ? { cross_bank_fee } : {}),
+      ...(branch_id !== undefined ? { branch_id } : {}),
+      ...(is_quote_display !== undefined ? { is_quote_display } : {}),
+      ...(bank_branch !== undefined ? { bank_branch } : {}),
+      ...(account_holder_name !== undefined ? { account_holder_name } : {}),
       updated_at: new Date().toISOString(),
     } as never)
     .eq('id', id)

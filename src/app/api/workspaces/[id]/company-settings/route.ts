@@ -10,11 +10,12 @@ import { BonusSettingType, BonusCalculationType } from '@/types/bonus.types'
 /**
  * PATCH /api/workspaces/[id]/company-settings
  *
- * 公司結帳設定 partial update：
- *   - transfer_fee_mode：寫進 workspaces 表
+ * 公司設定 partial update：
+ *   - workspaces 欄位（allowlist 白名單）：公司資料 / logo / 結帳設定 / 手續費 / 集團出帳 / 旅行屬性…
  *   - profit_tax_rate：upsert workspace_bonus_defaults 的 PROFIT_TAX row（null = 刪除 = 不扣稅）
  *
  * 2026-05-19 加：對齊紅線 F、client 不直接 supabase write、走 API route。
+ * 2026-05-29：公司設定主存檔（整份表單）也改走此 API（原 client 直存違反紅線 F），改用欄位白名單。
  */
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: workspaceId } = await params
@@ -33,13 +34,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     reason: '更新公司結帳設定',
   })
 
-  let body: {
-    transfer_fee_mode?: 'average' | 'unified'
-    profit_tax_rate?: number | null
-    logo_scale?: number
-    logo_offset_x?: number
-    logo_offset_y?: number
-  }
+  let body: Record<string, unknown>
   try {
     body = await request.json()
   } catch {
@@ -47,47 +42,80 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
 
   try {
-    // 1. transfer_fee_mode：直接寫 workspaces 表
-    if (body.transfer_fee_mode !== undefined) {
-      if (body.transfer_fee_mode !== 'average' && body.transfer_fee_mode !== 'unified') {
-        return NextResponse.json({ error: '無效的手續費模式' }, { status: 400 })
-      }
-      const { error } = await supabase
-        .from('workspaces')
-        .update({ transfer_fee_mode: body.transfer_fee_mode })
-        .eq('id', workspaceId)
-      if (error) {
-        const t = translateDbError(error)
-        return NextResponse.json({ error: t.message }, { status: t.httpStatus })
-      }
+    // A. workspaces 欄位 partial update
+    //    2026-05-29：公司設定主存檔改走此 API（原 client 直接 supabase.update 違反紅線 F）。
+    //    用 allowlist 白名單只收可編輯欄位、防任意欄位注入（如 subscription_plan / is_multi_branch / created_by）。
+    const ALLOWED_WORKSPACE_COLUMNS = [
+      'transfer_fee_mode',
+      'transfer_fee_unified_amount',
+      'transfer_fee_overflow_account_id',
+      'logo_url',
+      'logo_scale',
+      'logo_offset_x',
+      'logo_offset_y',
+      'legal_name',
+      'subtitle',
+      'address',
+      'phone',
+      'fax',
+      'email',
+      'website',
+      'tax_id',
+      'company_seal_url',
+      'personal_seal_url',
+      'invoice_seal_image_url',
+      'contract_seal_image_url',
+      'default_billing_day_of_week',
+      'finance_centralized',
+      'enabled_tour_categories',
+    ] as const
+
+    const patch: Record<string, unknown> = {}
+    for (const key of ALLOWED_WORKSPACE_COLUMNS) {
+      if (body[key] !== undefined) patch[key] = body[key]
     }
 
-    // 1b. logo_scale / logo_offset_x / logo_offset_y：Logo 在 PrintHeader 內的位置 + 縮放
-    // 範圍 logo_scale 0.25-4.0(DB 有 CHECK constraint 兜底)、offsetX/Y 容許負值
-    const logoPatch: Record<string, number> = {}
-    if (body.logo_scale !== undefined) {
-      const s = body.logo_scale
+    // 有約束欄位的型別/範圍驗證（DB 另有 CHECK/FK 兜底、這裡先擋掉明顯非法值）
+    if (
+      patch.transfer_fee_mode !== undefined &&
+      patch.transfer_fee_mode !== 'average' &&
+      patch.transfer_fee_mode !== 'unified'
+    ) {
+      return NextResponse.json({ error: '無效的手續費模式' }, { status: 400 })
+    }
+    if (patch.logo_scale !== undefined) {
+      const s = patch.logo_scale
       if (typeof s !== 'number' || !Number.isFinite(s) || s < 0.25 || s > 4.0) {
         return NextResponse.json({ error: 'logo_scale 範圍 0.25-4.0' }, { status: 400 })
       }
-      logoPatch.logo_scale = s
     }
-    if (body.logo_offset_x !== undefined) {
-      const x = body.logo_offset_x
+    if (patch.logo_offset_x !== undefined) {
+      const x = patch.logo_offset_x
       if (typeof x !== 'number' || !Number.isInteger(x) || x < -200 || x > 800) {
         return NextResponse.json({ error: 'logo_offset_x 範圍 -200 到 800' }, { status: 400 })
       }
-      logoPatch.logo_offset_x = x
     }
-    if (body.logo_offset_y !== undefined) {
-      const y = body.logo_offset_y
+    if (patch.logo_offset_y !== undefined) {
+      const y = patch.logo_offset_y
       if (typeof y !== 'number' || !Number.isInteger(y) || y < -100 || y > 200) {
         return NextResponse.json({ error: 'logo_offset_y 範圍 -100 到 200' }, { status: 400 })
       }
-      logoPatch.logo_offset_y = y
     }
-    if (Object.keys(logoPatch).length > 0) {
-      const { error } = await supabase.from('workspaces').update(logoPatch).eq('id', workspaceId)
+    if (patch.default_billing_day_of_week != null) {
+      const d = patch.default_billing_day_of_week
+      if (typeof d !== 'number' || !Number.isInteger(d) || d < 0 || d > 6) {
+        return NextResponse.json({ error: '出帳日須 0-6' }, { status: 400 })
+      }
+    }
+    if (patch.transfer_fee_unified_amount != null) {
+      const a = patch.transfer_fee_unified_amount
+      if (typeof a !== 'number' || a < 0) {
+        return NextResponse.json({ error: '固定收取金額須 >= 0' }, { status: 400 })
+      }
+    }
+
+    if (Object.keys(patch).length > 0) {
+      const { error } = await supabase.from('workspaces').update(patch).eq('id', workspaceId)
       if (error) {
         const t = translateDbError(error)
         return NextResponse.json({ error: t.message }, { status: t.httpStatus })

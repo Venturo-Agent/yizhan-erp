@@ -16,6 +16,8 @@ import { PrintableQuickQuoteHeader } from './PrintableQuickQuoteHeader'
 import { PrintableQuickQuoteInfoGrid } from './PrintableQuickQuoteInfoGrid'
 import { PrintableQuickQuoteCostTable } from './PrintableQuickQuoteCostTable'
 import { PrintableQuickQuotePayment } from './PrintableQuickQuotePayment'
+import { useQuoteBankAccount } from '../_hooks/useQuoteBankAccount'
+import { updateQuote } from '@/data/entities/quotes'
 
 interface PrintableQuickQuoteProps {
   quote: Quote
@@ -36,7 +38,23 @@ export const PrintableQuickQuote: React.FC<PrintableQuickQuoteProps> = ({
   const printContentRef = useRef<HTMLDivElement>(null)
   const ws = useWorkspaceSettings()
   const { legalName: companyFullName } = useCompanyInfo()
-  const hasBankInfo = !!(ws.bank_name || ws.bank_branch || ws.bank_account)
+  // 收款帳戶（SSOT 改為 bank_accounts、依報價單解析）2026-05-29
+  const { candidates, defaultId, resolveById } = useQuoteBankAccount(quote)
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
+    quote.bank_account_id ?? null
+  )
+  // 候選載入後、若尚未選擇就帶入預設解析帳戶
+  useEffect(() => {
+    setSelectedAccountId(prev => prev ?? defaultId)
+  }, [defaultId])
+  const resolvedAccount = resolveById(selectedAccountId ?? defaultId)
+  const handleSelectAccount = (id: string) => {
+    setSelectedAccountId(id)
+    // 記在報價單上、重印一致（best-effort、失敗不擋列印）
+    if (id && id !== quote.bank_account_id && quote.id) {
+      void updateQuote(quote.id, { bank_account_id: id }).catch(() => {})
+    }
+  }
   // Logo URL 直接用 workspace 設定:檔名本身已帶 timestamp(上傳時)、瀏覽器 cache 可放心生效
   // (2026-05-20 拔掉舊版 ?t=Date.now() 那個 cache busting hack、解「按列印太快 logo 還沒載入」race)
   const logoUrl = ws.logo_url || ''
@@ -124,7 +142,25 @@ export const PrintableQuickQuote: React.FC<PrintableQuickQuoteProps> = ({
         onClick={e => e.stopPropagation()}
       >
         {/* 控制按鈕 */}
-        <div className="flex justify-end gap-2 p-4 border-b">
+        <div className="flex justify-end items-center gap-2 p-4 border-b">
+          {/* 收款帳戶選擇（多個候選才出現；只有一個就不用選） */}
+          {candidates.length > 1 && (
+            <div className="flex items-center gap-2 mr-auto">
+              <span className="text-sm text-morandi-secondary">{'收款帳戶'}</span>
+              <select
+                value={selectedAccountId ?? defaultId ?? ''}
+                onChange={e => handleSelectAccount(e.target.value)}
+                className="h-9 rounded-md border border-border bg-card px-2 text-sm"
+              >
+                {candidates.map(c => (
+                  <option key={c.id} value={c.id}>
+                    {c.bank_name || '（未填銀行）'}
+                    {c.account_number ? ` · ${c.account_number}` : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <Button onClick={onClose} variant="soft-gold" className="gap-2">
             <X className="h-4 w-4" />
             {'關閉'}
@@ -159,11 +195,7 @@ export const PrintableQuickQuote: React.FC<PrintableQuickQuoteProps> = ({
           />
 
           {/* 付款資訊 + 收據資訊 */}
-          <PrintableQuickQuotePayment
-            companyFullName={companyFullName}
-            hasBankInfo={hasBankInfo}
-            ws={ws}
-          />
+          <PrintableQuickQuotePayment companyFullName={companyFullName} account={resolvedAccount} />
 
           {/* 頁腳 */}
           <PrintFooter />

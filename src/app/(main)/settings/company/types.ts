@@ -9,11 +9,6 @@ export interface CompanyFormData {
   email: string
   website: string
   tax_id: string
-  bank_code: string // onboarding fix pack 2026-05-10：三碼銀行代號（Combobox）
-  bank_name: string
-  bank_branch: string
-  bank_account: string
-  bank_account_name: string
   company_seal_url: string
   personal_seal_url: string
   invoice_seal_image_url: string
@@ -55,11 +50,6 @@ export const INITIAL_FORM: CompanyFormData = {
   email: '',
   website: '',
   tax_id: '',
-  bank_code: '',
-  bank_name: '',
-  bank_branch: '',
-  bank_account: '',
-  bank_account_name: '',
   company_seal_url: '',
   personal_seal_url: '',
   invoice_seal_image_url: '',

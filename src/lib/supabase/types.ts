@@ -754,10 +754,13 @@ export type Database = {
       }
       bank_accounts: {
         Row: {
+          account_holder_name: string | null
           account_id: string | null
           account_number: string | null
+          bank_branch: string | null
           bank_code: string | null
           bank_name: string | null
+          branch_id: string | null
           code: string
           created_at: string | null
           cross_bank_fee: number
@@ -765,15 +768,19 @@ export type Database = {
           is_active: boolean | null
           is_default: boolean | null
           is_disbursement_eligible: boolean
+          is_quote_display: boolean
           name: string
           updated_at: string | null
           workspace_id: string
         }
         Insert: {
+          account_holder_name?: string | null
           account_id?: string | null
           account_number?: string | null
+          bank_branch?: string | null
           bank_code?: string | null
           bank_name?: string | null
+          branch_id?: string | null
           code: string
           created_at?: string | null
           cross_bank_fee?: number
@@ -781,15 +788,19 @@ export type Database = {
           is_active?: boolean | null
           is_default?: boolean | null
           is_disbursement_eligible?: boolean
+          is_quote_display?: boolean
           name: string
           updated_at?: string | null
           workspace_id: string
         }
         Update: {
+          account_holder_name?: string | null
           account_id?: string | null
           account_number?: string | null
+          bank_branch?: string | null
           bank_code?: string | null
           bank_name?: string | null
+          branch_id?: string | null
           code?: string
           created_at?: string | null
           cross_bank_fee?: number
@@ -797,11 +808,20 @@ export type Database = {
           is_active?: boolean | null
           is_default?: boolean | null
           is_disbursement_eligible?: boolean
+          is_quote_display?: boolean
           name?: string
           updated_at?: string | null
           workspace_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'bank_accounts_branch_id_fkey'
+            columns: ['branch_id']
+            isOneToOne: false
+            referencedRelation: 'branches'
+            referencedColumns: ['id']
+          },
+        ]
       }
       bonus_pending: {
         Row: {
@@ -6843,6 +6863,7 @@ export type Database = {
           adult_count: number | null
           airport_code: string | null
           balance_amount: number | null
+          bank_account_id: string | null
           branch_id: string | null
           categories: Json | null
           child_count: number | null
@@ -6927,6 +6948,7 @@ export type Database = {
           adult_count?: number | null
           airport_code?: string | null
           balance_amount?: number | null
+          bank_account_id?: string | null
           branch_id?: string | null
           categories?: Json | null
           child_count?: number | null
@@ -7011,6 +7033,7 @@ export type Database = {
           adult_count?: number | null
           airport_code?: string | null
           balance_amount?: number | null
+          bank_account_id?: string | null
           branch_id?: string | null
           categories?: Json | null
           child_count?: number | null
@@ -7091,6 +7114,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'quotes_bank_account_id_fkey'
+            columns: ['bank_account_id']
+            isOneToOne: false
+            referencedRelation: 'bank_accounts'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'quotes_branch_id_fkey'
             columns: ['branch_id']

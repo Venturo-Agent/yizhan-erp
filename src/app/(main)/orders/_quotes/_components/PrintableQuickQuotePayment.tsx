@@ -1,26 +1,23 @@
 /**
  * PrintableQuickQuotePayment - 付款資訊 + 收據資訊區塊（純 render、無 state）
+ * 2026-05-29：收款帳戶 SSOT 由 workspaces.bank_* 改為 bank_accounts（依報價單解析），見遷移 spec。
  */
 import React from 'react'
-
-interface WorkspaceBankInfo {
-  bank_name?: string | null
-  bank_branch?: string | null
-  bank_account?: string | null
-  bank_account_name?: string | null
-}
+import type { QuoteBankDisplay } from '../_hooks/useQuoteBankAccount'
 
 interface PrintableQuickQuotePaymentProps {
   companyFullName: string
-  hasBankInfo: boolean
-  ws: WorkspaceBankInfo
+  account: QuoteBankDisplay | null
 }
 
 export const PrintableQuickQuotePayment: React.FC<PrintableQuickQuotePaymentProps> = ({
   companyFullName,
-  hasBankInfo,
-  ws,
+  account,
 }) => {
+  const hasBankInfo = !!(
+    account &&
+    (account.bank_name || account.bank_branch || account.account_number)
+  )
   return (
     <>
       {/* 付款資訊 */}
@@ -51,30 +48,30 @@ export const PrintableQuickQuotePayment: React.FC<PrintableQuickQuotePaymentProp
               <>
                 <div>
                   {'戶名：'}
-                  {ws.bank_account_name || companyFullName}
+                  {account?.account_holder_name || companyFullName}
                 </div>
-                {ws.bank_name && (
+                {account?.bank_name && (
                   <div>
                     {'銀行：'}
-                    {ws.bank_name}
+                    {account.bank_name}
                   </div>
                 )}
-                {ws.bank_branch && (
+                {account?.bank_branch && (
                   <div>
                     {'分行：'}
-                    {ws.bank_branch}
+                    {account.bank_branch}
                   </div>
                 )}
-                {ws.bank_account && (
+                {account?.account_number && (
                   <div>
                     {'帳號：'}
-                    {ws.bank_account}
+                    {account.account_number}
                   </div>
                 )}
               </>
             ) : (
               <div style={{ color: 'var(--morandi-muted)', fontStyle: 'italic' }}>
-                {'請至公司設定填寫銀行資訊'}
+                {'請至財務設定設定報價單收款帳戶'}
               </div>
             )}
           </div>

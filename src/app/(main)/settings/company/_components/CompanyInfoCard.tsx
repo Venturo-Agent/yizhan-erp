@@ -5,7 +5,6 @@ import { Building2, Landmark, Stamp } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { BankCombobox } from '@/components/bank-combobox'
 import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { logger } from '@/lib/utils/logger'
@@ -285,64 +284,9 @@ export function CompanyInfoCard({
             <Landmark className="h-5 w-5 text-morandi-gold" />
             <h2 className="text-base font-semibold">結帳設定</h2>
           </div>
-          <span className="text-xs text-morandi-muted">未來支援多帳戶切換（不同部門收帳）</span>
-        </div>
-
-        {/* 銀行資訊（報價單顯示） */}
-        <div className="space-y-2 mb-6">
-          <p className="text-xs font-semibold text-morandi-secondary uppercase tracking-wide">
-            銀行資訊（報價單顯示）
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label className="text-sm font-medium text-morandi-primary">
-                {t('companyBankName')}
-              </Label>
-              <div className="mt-1.5">
-                <BankCombobox
-                  value={form.bank_code}
-                  onChange={code => updateField('bank_code', code)}
-                  onSelect={ref => {
-                    updateField('bank_name', ref?.bank_name ?? '')
-                  }}
-                  placeholder={t('companyBankNamePlaceholder')}
-                />
-              </div>
-            </div>
-            <div>
-              <Label className="text-sm font-medium text-morandi-primary">
-                {t('companyBankBranch')}
-              </Label>
-              <Input
-                value={form.bank_branch}
-                onChange={e => updateField('bank_branch', e.target.value)}
-                placeholder={t('companyBankBranchPlaceholder')}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-medium text-morandi-primary">
-                {t('companyBankAccount')}
-              </Label>
-              <Input
-                value={form.bank_account}
-                onChange={e => updateField('bank_account', e.target.value)}
-                placeholder={t('companyBankAccountPlaceholder')}
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-medium text-morandi-primary">
-                {t('companyBankAccountName')}
-              </Label>
-              <Input
-                value={form.bank_account_name}
-                onChange={e => updateField('bank_account_name', e.target.value)}
-                placeholder={t('companyBankAccountNamePlaceholder')}
-                className="mt-1.5"
-              />
-            </div>
-          </div>
+          <span className="text-xs text-morandi-muted">
+            報價單收款帳戶請至「財務設定 → 帳戶」設定、勾選「綁報價單顯示」
+          </span>
         </div>
 
         {/* 結帳設定（實際結帳行為） */}
@@ -446,7 +390,7 @@ export function CompanyInfoCard({
 
             {/* Unified mode 額外設定 */}
             {form.transfer_fee_mode === 'unified' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 pl-3 border-l-2 border-morandi-gold/40">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 <div>
                   <Label className="text-sm font-medium text-morandi-primary">
                     每筆固定收取金額

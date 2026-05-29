@@ -11,6 +11,13 @@ import { Badge } from '@/components/ui/badge'
 import { FormDialog } from '@/components/dialog'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Edit, Trash2 } from 'lucide-react'
 import { alert, confirm } from '@/lib/ui/alert-dialog'
 import { COMMON_MESSAGES } from '@/constants/messages'
@@ -19,6 +26,10 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { PAGE_LABELS, type BankAccount } from './types'
 import { BankCombobox } from '@/components/bank-combobox'
 import { apiMutate } from '@/lib/swr/api-mutate'
+import { useBranches, type Branch } from '@/data/hooks/useBranches'
+
+// 全公司共用（branch_id = null）哨符
+const BRANCH_SHARED = '__shared__'
 
 interface BankAccountsSectionProps {
   bankAccounts: BankAccount[]
@@ -40,6 +51,14 @@ export function BankAccountsSection({
   const t = useTranslations('finance')
   const [rowLoading, setRowLoading] = useState<Record<string, boolean>>({})
   const setLoading = (id: string, v: boolean) => setRowLoading(prev => ({ ...prev, [id]: v }))
+
+  // 分公司清單：有真分公司（御風/角落…）才顯示「分公司」欄與選單；單一總部的公司不顯示
+  // 總部 placeholder type='headquarters'、真分公司 type='branch'/'custom'
+  const { branches } = useBranches()
+  const realBranches = branches.filter(b => b.type !== 'headquarters')
+  const hasBranches = realBranches.length > 0
+  const branchNameById = new Map(branches.map(b => [b.id, b.name]))
+  const totalCols = hasBranches ? 9 : 8
 
   // 儲存銀行帳戶
   const handleSaveBank = async (bank: Partial<BankAccount>) => {
@@ -97,18 +116,28 @@ export function BankAccountsSection({
             <TableHeader>
               <TableRow>
                 <TableHead>{PAGE_LABELS.COL_NAME}</TableHead>
-                <TableHead className="w-[180px]">{PAGE_LABELS.COL_BANK}</TableHead>
-                <TableHead className="w-[200px]">{PAGE_LABELS.COL_ACCOUNT_NUMBER}</TableHead>
-                <TableHead className="w-[110px] text-right">跨行手續費</TableHead>
-                <TableHead className="w-[70px] text-center">{PAGE_LABELS.COL_DEFAULT}</TableHead>
-                <TableHead className="w-[80px] text-center">可出帳</TableHead>
-                <TableHead className="w-[100px]">{PAGE_LABELS.COL_ACTION}</TableHead>
+                {hasBranches && (
+                  <TableHead className="w-[140px] whitespace-nowrap">
+                    {PAGE_LABELS.COL_BRANCH}
+                  </TableHead>
+                )}
+                <TableHead className="w-[160px]">{PAGE_LABELS.COL_BANK}</TableHead>
+                <TableHead className="w-[180px]">{PAGE_LABELS.COL_ACCOUNT_NUMBER}</TableHead>
+                <TableHead className="w-[96px] text-right whitespace-nowrap">跨行手續費</TableHead>
+                <TableHead className="w-[64px] text-center whitespace-nowrap">
+                  {PAGE_LABELS.COL_DEFAULT}
+                </TableHead>
+                <TableHead className="w-[64px] text-center whitespace-nowrap">可出帳</TableHead>
+                <TableHead className="w-[72px] text-center whitespace-nowrap">
+                  {PAGE_LABELS.COL_QUOTE_DISPLAY}
+                </TableHead>
+                <TableHead className="w-[88px]">{PAGE_LABELS.COL_ACTION}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {bankAccounts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-morandi-muted">
+                  <TableCell colSpan={totalCols} className="text-center py-8 text-morandi-muted">
                     {t('emptyBankAccounts')}
                   </TableCell>
                 </TableRow>
@@ -116,6 +145,13 @@ export function BankAccountsSection({
                 bankAccounts.map(bank => (
                   <TableRow key={bank.id}>
                     <TableCell className="font-medium">{bank.name}</TableCell>
+                    {hasBranches && (
+                      <TableCell className="text-morandi-secondary">
+                        {bank.branch_id
+                          ? (branchNameById.get(bank.branch_id) ?? '-')
+                          : PAGE_LABELS.BRANCH_SHARED_LABEL}
+                      </TableCell>
+                    )}
                     <TableCell>{bank.bank_name || '-'}</TableCell>
                     <TableCell className="font-mono">{bank.account_number || '-'}</TableCell>
                     <TableCell className="text-right font-mono">
@@ -127,16 +163,27 @@ export function BankAccountsSection({
                     </TableCell>
                     <TableCell className="text-center">
                       {bank.is_default && (
-                        <Badge className="bg-morandi-gold/20 text-morandi-gold">
+                        <Badge className="bg-morandi-gold/20 text-morandi-gold whitespace-nowrap">
                           {PAGE_LABELS.DEFAULT_BADGE}
                         </Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
                       {bank.is_disbursement_eligible !== false ? (
-                        <Badge className="bg-status-success/20 text-status-success">可</Badge>
+                        <Badge className="bg-status-success/20 text-status-success whitespace-nowrap">
+                          可
+                        </Badge>
                       ) : (
-                        <Badge className="bg-morandi-muted/20 text-morandi-muted">不可</Badge>
+                        <Badge className="bg-morandi-muted/20 text-morandi-muted whitespace-nowrap">
+                          不可
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {bank.is_quote_display === true && (
+                        <Badge className="bg-morandi-gold/20 text-morandi-gold whitespace-nowrap">
+                          顯示
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell>
@@ -179,6 +226,8 @@ export function BankAccountsSection({
         }}
         bank={editingBank}
         onSave={handleSaveBank}
+        realBranches={realBranches}
+        hasBranches={hasBranches}
       />
     </>
   )
@@ -190,11 +239,15 @@ function BankDialog({
   onOpenChange,
   bank,
   onSave,
+  realBranches,
+  hasBranches,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   bank: BankAccount | null
   onSave: (bank: Partial<BankAccount>) => Promise<void>
+  realBranches: Branch[]
+  hasBranches: boolean
 }) {
   const t = useTranslations('finance')
   const [name, setName] = useState('')
@@ -204,6 +257,10 @@ function BankDialog({
   const [isDefault, setIsDefault] = useState(false)
   const [isDisbursementEligible, setIsDisbursementEligible] = useState(true)
   const [crossBankFee, setCrossBankFee] = useState<number>(0)
+  const [bankBranch, setBankBranch] = useState('') // 銀行分行（報價單顯示用）
+  const [accountHolderName, setAccountHolderName] = useState('') // 戶名（報價單顯示用）
+  const [isQuoteDisplay, setIsQuoteDisplay] = useState(false) // 綁報價單顯示
+  const [branchId, setBranchId] = useState<string>(BRANCH_SHARED) // 所屬分公司（BRANCH_SHARED=全公司共用）
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
@@ -216,6 +273,10 @@ function BankDialog({
       // 新建預設 true、編輯保留既有（undefined 視為 true）
       setIsDisbursementEligible(bank?.is_disbursement_eligible !== false)
       setCrossBankFee(bank?.cross_bank_fee ?? 0)
+      setBankBranch(bank?.bank_branch || '')
+      setAccountHolderName(bank?.account_holder_name || '')
+      setIsQuoteDisplay(bank?.is_quote_display === true)
+      setBranchId(bank?.branch_id || BRANCH_SHARED)
     }
   }, [open, bank])
 
@@ -235,6 +296,11 @@ function BankDialog({
         is_default: isDefault,
         is_disbursement_eligible: isDisbursementEligible,
         cross_bank_fee: crossBankFee,
+        bank_branch: bankBranch || null,
+        account_holder_name: accountHolderName || null,
+        is_quote_display: isQuoteDisplay,
+        // 有真分公司才送 branch_id；無分公司的公司一律維持 null（全公司共用）
+        branch_id: hasBranches && branchId !== BRANCH_SHARED ? branchId : null,
       })
     } finally {
       setIsSubmitting(false)
@@ -257,6 +323,25 @@ function BankDialog({
           <Label>{t('fieldNameRequired')}</Label>
           <Input value={name} onChange={e => setName(e.target.value)} />
         </div>
+        {/* 所屬分公司：有真分公司才顯示；無分公司的公司一律全公司共用 */}
+        {hasBranches && (
+          <div className="space-y-2">
+            <Label>{PAGE_LABELS.BRANCH_LABEL}</Label>
+            <Select value={branchId} onValueChange={setBranchId}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={BRANCH_SHARED}>{PAGE_LABELS.BRANCH_SHARED_LABEL}</SelectItem>
+                {realBranches.map(b => (
+                  <SelectItem key={b.id} value={b.id}>
+                    {b.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="space-y-2">
           <Label>{PAGE_LABELS.BANK_FULL_NAME}</Label>
           <BankCombobox
@@ -276,6 +361,24 @@ function BankDialog({
           <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} />
         </div>
         <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>{PAGE_LABELS.BANK_BRANCH_LABEL}</Label>
+            <Input
+              value={bankBranch}
+              onChange={e => setBankBranch(e.target.value)}
+              placeholder={PAGE_LABELS.BANK_BRANCH_PLACEHOLDER}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>{PAGE_LABELS.ACCOUNT_HOLDER_LABEL}</Label>
+            <Input
+              value={accountHolderName}
+              onChange={e => setAccountHolderName(e.target.value)}
+              placeholder={PAGE_LABELS.ACCOUNT_HOLDER_PLACEHOLDER}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
             <Checkbox
               id="isDefault"
@@ -291,6 +394,14 @@ function BankDialog({
               onCheckedChange={checked => setIsDisbursementEligible(checked === true)}
             />
             <Label htmlFor="isDisbursementEligible">可作為出帳帳戶</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="isQuoteDisplay"
+              checked={isQuoteDisplay}
+              onCheckedChange={checked => setIsQuoteDisplay(checked === true)}
+            />
+            <Label htmlFor="isQuoteDisplay">{PAGE_LABELS.BIND_QUOTE_DISPLAY}</Label>
           </div>
         </div>
         {isDisbursementEligible && (

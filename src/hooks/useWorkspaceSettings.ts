@@ -10,10 +10,6 @@ interface WorkspaceSettings {
   name: string
   phone: string
   address: string
-  bank_name: string
-  bank_branch: string
-  bank_account: string
-  bank_account_name: string
   legal_name: string
   subtitle: string
   logo_url: string
@@ -34,10 +30,6 @@ const EMPTY_SETTINGS: WorkspaceSettings = {
   name: '',
   phone: '',
   address: '',
-  bank_name: '',
-  bank_branch: '',
-  bank_account: '',
-  bank_account_name: '',
   legal_name: '',
   subtitle: '',
   logo_url: '',
@@ -54,7 +46,7 @@ const EMPTY_SETTINGS: WorkspaceSettings = {
 }
 
 const SELECT_FIELDS =
-  'name, phone, address, bank_name, bank_branch, bank_account, bank_account_name, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, logo_scale, logo_offset_x, logo_offset_y' as const
+  'name, phone, address, legal_name, subtitle, logo_url, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, logo_scale, logo_offset_x, logo_offset_y' as const
 
 // SWR cache key (給 invalidateWorkspaceSettings 用)
 const SWR_KEY_PREFIX = 'workspace-settings'
@@ -177,10 +169,6 @@ export function useWorkspaceSettings(): WorkspaceSettings {
         name: data.name ?? '',
         phone: data.phone ?? '',
         address: data.address ?? '',
-        bank_name: data.bank_name ?? '',
-        bank_branch: data.bank_branch ?? '',
-        bank_account: data.bank_account ?? '',
-        bank_account_name: data.bank_account_name ?? '',
         legal_name: data.legal_name ?? '',
         subtitle: data.subtitle ?? '',
         logo_url: data.logo_url ?? '',

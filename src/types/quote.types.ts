@@ -53,6 +53,8 @@ export interface Quote extends BaseEntity {
   received_amount?: number // 已收金額
   balance_amount?: number // 應收餘額（自動計算）
   quick_quote_items?: QuickQuoteItem[] // 快速報價單的收費明細項目
+  branch_id?: string | null // 所屬分公司（報價單收款帳戶解析用）2026-05-29
+  bank_account_id?: string | null // 本報價單顯示的收款帳戶（NULL=即時解析候選）2026-05-29
 
   // 擴展欄位（用於詳細頁）
   categories?: QuoteCategory[] // 報價分類（臨時編輯狀態）

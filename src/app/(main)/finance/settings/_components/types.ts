@@ -56,6 +56,14 @@ export interface BankAccount {
   is_disbursement_eligible?: boolean
   /** 跨行匯款每筆手續費（譬如 10 元）、2026-05-21 William 拍板加 */
   cross_bank_fee?: number
+  /** 所屬分公司（NULL=全公司共用/總部）2026-05-29 報價單收款帳戶遷移；UI 暫不開放、先留 NULL */
+  branch_id?: string | null
+  /** 綁報價單顯示：可出現在報價單收款資訊 2026-05-29 */
+  is_quote_display?: boolean
+  /** 銀行分行（報價單顯示用，如「信義分行」）2026-05-29 */
+  bank_branch?: string | null
+  /** 戶名（報價單顯示用；空則退回公司全名）2026-05-29 */
+  account_holder_name?: string | null
 }
 
 export interface ChartOfAccount {
@@ -129,6 +137,15 @@ export const PAGE_LABELS = {
   ACCOUNT_NUMBER_LABEL: '帳號',
   ACCOUNT_NUMBER_PLACEHOLDER: '例：0000-1234-5678-90',
   SET_AS_DEFAULT: '設為預設帳戶',
+  BANK_BRANCH_LABEL: '分行',
+  BANK_BRANCH_PLACEHOLDER: '例：信義分行',
+  ACCOUNT_HOLDER_LABEL: '戶名',
+  ACCOUNT_HOLDER_PLACEHOLDER: '例：一棧旅行社股份有限公司',
+  BIND_QUOTE_DISPLAY: '綁報價單顯示',
+  COL_QUOTE_DISPLAY: '報價單',
+  COL_BRANCH: '分公司',
+  BRANCH_LABEL: '所屬分公司',
+  BRANCH_SHARED_LABEL: '全公司共用',
   CATEGORY_NAME_PLACEHOLDER: '例：住宿、交通、餐食',
   PLEASE_SELECT: '請選擇',
   SORT: '排序',

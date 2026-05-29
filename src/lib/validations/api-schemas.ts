@@ -238,6 +238,11 @@ export const upsertBankAccountSchema = z
     account_id: z.string().uuid().optional().nullable(),
     is_disbursement_eligible: z.boolean().optional(),
     cross_bank_fee: z.number().min(0).optional(), // 跨行匯款每筆手續費（2026-05-21 加）
+    // 2026-05-29 報價單收款帳戶遷移：所屬分公司（UI 暫不開放、先留 NULL）、報價單顯示旗標、報價單顯示用分行/戶名
+    branch_id: z.string().uuid().optional().nullable(),
+    is_quote_display: z.boolean().optional(),
+    bank_branch: z.string().max(100).optional().nullable(),
+    account_holder_name: z.string().max(100).optional().nullable(),
   })
   .strict()
 

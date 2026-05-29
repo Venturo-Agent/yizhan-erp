@@ -62,7 +62,7 @@ export default function CompanySettingsPage() {
       const { data, error } = await supabase
         .from('workspaces')
         .select(
-          'name, logo_url, logo_scale, logo_offset_x, logo_offset_y, legal_name, subtitle, address, phone, fax, email, website, tax_id, bank_code, bank_name, bank_branch, bank_account, bank_account_name, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order, finance_centralized, enabled_tour_categories'
+          'name, logo_url, logo_scale, logo_offset_x, logo_offset_y, legal_name, subtitle, address, phone, fax, email, website, tax_id, company_seal_url, personal_seal_url, invoice_seal_image_url, contract_seal_image_url, default_billing_day_of_week, transfer_fee_mode, transfer_fee_unified_amount, transfer_fee_overflow_account_id, bonus_calculation_order, finance_centralized, enabled_tour_categories'
         )
         .eq('id', workspaceId)
         .single()
@@ -81,11 +81,6 @@ export default function CompanySettingsPage() {
           email: (d.email as string) ?? '',
           website: (d.website as string) ?? '',
           tax_id: (d.tax_id as string) ?? '',
-          bank_code: (d.bank_code as string) ?? '',
-          bank_name: (d.bank_name as string) ?? '',
-          bank_branch: (d.bank_branch as string) ?? '',
-          bank_account: (d.bank_account as string) ?? '',
-          bank_account_name: (d.bank_account_name as string) ?? '',
           company_seal_url: (d.company_seal_url as string) ?? '',
           personal_seal_url: (d.personal_seal_url as string) ?? '',
           invoice_seal_image_url: (d.invoice_seal_image_url as string) ?? '',
@@ -191,12 +186,18 @@ export default function CompanySettingsPage() {
   const { isSubmitting: saving, execute: handleSave } = useAsyncSubmit(
     async () => {
       if (!workspaceId) return
+      // 2026-05-29：改走 API route（原 client 直接 supabase.update 違反紅線 F）；API 用欄位白名單。
+      // 銀行欄位已移除、報價單收款帳戶改由財務設定 bank_accounts 管理，原 bank_code 存檔 bug 隨之消失。
       const { name: _name, ...updateData } = form
-      const { error } = await supabase
-        .from('workspaces')
-        .update(updateData as Record<string, unknown>)
-        .eq('id', workspaceId)
-      if (error) throw error
+      const res = await fetch(`/api/workspaces/${workspaceId}/company-settings`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updateData),
+      })
+      if (!res.ok) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string }
+        throw new Error(j.error || t('companySaveFailed'))
+      }
       invalidateWorkspaceSettings(workspaceId)
       // H：存檔成功後更新快照、清除 isDirty 狀態
       setSavedForm(form)
