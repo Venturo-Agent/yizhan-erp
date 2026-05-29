@@ -255,7 +255,6 @@ export function ConvertToTourDialog({
                 airportCode={cityCode}
                 onCountryChange={data => setCountryName(data.name || '')}
                 onAirportChange={code => setCityCode(code || '')}
-                disablePortal
                 showLabels={false}
               />
               <p className="text-[0.588rem] text-morandi-muted mt-1">
