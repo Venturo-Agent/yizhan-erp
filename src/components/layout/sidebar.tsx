@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { COMP_LAYOUT_LABELS } from './constants/labels'
-import { ALL_MODULES } from '@/modules/_registry'
+import { ALL_MODULES, FEATURE_ONLY_MODULE_CODES } from '@/modules/_registry'
 import { SIDEBAR_ORDER, SIDEBAR_META, DEFAULT_SIDEBAR_ICON } from './sidebar-config'
 import { PersonalSettingsDialog } from './PersonalSettingsDialog'
 import { useNextStep } from 'nextstepjs'
@@ -169,6 +169,8 @@ export function Sidebar() {
             return null
           }
           if (!item.requiredPermission) return item
+          // 全開 / 個人標配 module：只看 feature（上面已過）、不卡角色 capability
+          if (FEATURE_ONLY_MODULE_CODES.has(item.requiredPermission)) return item
           // 模組層任一 capability：role_capabilities 中存在 ${module}.*.read 即顯示
           return canReadAnyInModule(item.requiredPermission) ? item : null
         })

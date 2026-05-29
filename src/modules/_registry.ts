@@ -100,3 +100,11 @@ export function getModule(code: string) {
 export function getHrExposedModules() {
   return ALL_MODULES.filter(m => m.exposedToHr !== false)
 }
+
+/**
+ * 全開 / 個人標配 module 的 code（featureOnly: true）
+ * sidebar + ModuleGuard 對這些只過 workspace_features、跳過 role_capabilities。
+ */
+export const FEATURE_ONLY_MODULE_CODES = new Set<string>(
+  ALL_MODULES.filter(m => (m as { featureOnly?: boolean }).featureOnly === true).map(m => m.code)
+)

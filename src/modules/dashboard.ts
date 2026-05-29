@@ -18,5 +18,6 @@ export const DashboardModule = defineModule({
   category: 'basic',
   routes: ['/dashboard'],
   exposedToHr: false,
+  featureOnly: true, // 個人空間、所有員工都該有、只看公司 feature、不卡角色 capability
   tabs: [],
 })

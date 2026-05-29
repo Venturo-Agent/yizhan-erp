@@ -94,6 +94,13 @@ export interface ModuleConfig {
    */
   exposedToHr?: boolean
   /**
+   * 全開 / 個人標配：只看 workspace_features（公司有沒有開通）、不看 role_capabilities。
+   * 用途：dashboard / calendar / todos 等個人空間、所有員工都該有、不該卡職務權限。
+   * 設 true → sidebar + ModuleGuard 對此 module 只過 feature gate、跳過 capability。
+   * 好處：未來新增全開模組設此旗標即可、不會再因角色漏 capability 而看不到（免 backfill）。
+   */
+  featureOnly?: boolean
+  /**
    * seed migration 預設給哪些 role 開通
    * 例：['admin', 'manager']
    * 空陣列 / 不寫 = 不自動 seed、admin 手動勾

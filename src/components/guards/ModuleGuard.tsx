@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useWorkspaceFeatures, getModuleFromRoute } from '@/lib/permissions'
 import { useMyCapabilities } from '@/lib/permissions/useMyCapabilities'
+import { FEATURE_ONLY_MODULE_CODES } from '@/modules/_registry'
 import { ModuleLoading } from '@/components/module-loading'
 
 interface ModuleGuardProps {
@@ -59,8 +60,13 @@ export function ModuleGuard({ children }: ModuleGuardProps) {
 
     // HR 職務權限：模組層 canReadAny（HR 沒給該模組任一 tab 權限就擋）
     // 細粒度 tab gate 由 page.tsx 自己用 canRead(module, tab) 守
+    // 全開 / 個人標配 module（featureOnly）：只看 feature（上面已過）、跳過 capability gate
     const moduleCode = getModuleFromRoute(pathname)
-    if (moduleCode && !canReadAnyInModule(moduleCode)) {
+    if (
+      moduleCode &&
+      !FEATURE_ONLY_MODULE_CODES.has(moduleCode) &&
+      !canReadAnyInModule(moduleCode)
+    ) {
       router.replace('/no-access')
       return
     }

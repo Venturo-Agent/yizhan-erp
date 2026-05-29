@@ -15,7 +15,9 @@ export const TodosModule = defineModule({
   category: 'basic',
   routes: ['/todos'],
   // 5/13 William 拍板：個人空間標配、HR 不該配置、強制給所有員工
+  // 2026-05-29：改 featureOnly、只看公司 feature、不卡角色 capability（免再因漏 cap 看不到）
   exposedToHr: false,
+  featureOnly: true,
   defaultRoles: ['admin', 'sales', 'manager'],
   tabs: [],
 })
