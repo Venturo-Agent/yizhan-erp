@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -35,8 +35,7 @@ export const GET = apiHandler(async () => {
     .eq('status', 'pending')
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   // 按 tour 聚合

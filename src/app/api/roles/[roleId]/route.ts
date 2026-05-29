@@ -3,7 +3,7 @@ import { createApiClient } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 const VALID_READ_SCOPES = ['self', 'department', 'branch', 'group'] as const
@@ -52,11 +52,7 @@ export async function PUT(
       .single()
 
     if (error) {
-      const t = translateDbError(error)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json(data)
@@ -103,11 +99,7 @@ export async function DELETE(
     const { error } = await supabase.from('workspace_roles').delete().eq('id', roleId)
 
     if (error) {
-      const t = translateDbError(error)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ success: true })

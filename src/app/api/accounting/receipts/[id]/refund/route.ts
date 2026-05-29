@@ -6,7 +6,7 @@ import { resolveEmployeeIdFromUser } from '@/app/api/lib/resolve-employee'
 import { z } from 'zod'
 import { logger } from '@/lib/utils/logger'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { generateVoucherNo, generateDisbursementNo } from '@/lib/codes'
 
 /**
@@ -285,10 +285,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       )
     }
 
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 }

@@ -17,11 +17,12 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
-import { getApiContext } from '@/lib/auth/get-api-context'
+import { requireCapability } from '@/lib/auth/require-capability'
+import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { generateDisbursementNo } from '@/lib/codes'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { computeBatchFees } from '@/lib/disbursement/fee-distribution'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -64,10 +65,8 @@ interface CreatedDisbursement {
 }
 
 export async function POST(request: NextRequest) {
-  const ctx = await getApiContext({ capabilityCode: 'finance.disbursement.write' })
-  if (!ctx.ok) {
-    return NextResponse.json({ error: ctx.error }, { status: ctx.status })
-  }
+  const ctx = await requireCapability(CAPABILITIES.FINANCE_MANAGE_DISBURSEMENT)
+  if (!ctx.ok) return ctx.response
 
   let body: BatchRequestBody
   try {
@@ -100,8 +99,8 @@ export async function POST(request: NextRequest) {
   }
 
   const admin = getSupabaseAdminClient()
-  const workspaceId = ctx.workspace_id
-  const employeeId = ctx.employee_id
+  const workspaceId = ctx.workspaceId
+  const employeeId = ctx.employeeId
   const batchUuid = randomUUID()
 
   await recordApiAuditContext(admin, {
@@ -316,8 +315,7 @@ export async function POST(request: NextRequest) {
     )
 
     if (forkErr || !newReqId) {
-      const t = translateDbError(forkErr)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(forkErr)
     }
 
     requestForkMap.set(origReqId, newReqId)
@@ -444,8 +442,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (orderErr || !orderRow) {
-    const t = translateDbError(orderErr)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(orderErr)
   }
 
   // INSERT disbursement_order_items（每筆帶各自的 from_bank_account_id）
@@ -480,8 +477,7 @@ export async function POST(request: NextRequest) {
       .delete()
       .eq('id', orderRow.id)
 
-    const t = translateDbError(doiErr)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(doiErr)
   }
 
   // UPDATE payment_requests.disbursement_order_id（舊 link，供舊報表向下相容）
@@ -502,8 +498,7 @@ export async function POST(request: NextRequest) {
     .in('id', allRequestIdsInOrder)
 
   if (updErr) {
-    const t = translateDbError(updErr)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(updErr)
   }
 
   const created: CreatedDisbursement[] = [

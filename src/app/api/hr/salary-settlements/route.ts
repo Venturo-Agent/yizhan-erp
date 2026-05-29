@@ -12,7 +12,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { apiHandler } from '@/lib/api/api-handler'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -56,8 +56,7 @@ export const GET = apiHandler(async () => {
     .order('period', { ascending: false })
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data: data ?? [] })
@@ -171,8 +170,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
         { status: 409 }
       )
     }
-    const t = translateDbError(settlementError)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(settlementError)
   }
 
   // 2. Auto-pull active employees（過濾掉 user 排除的員工）
@@ -286,8 +284,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (itemsError) {
     logger.error('Salary settlement: failed to insert items', itemsError)
     await supabase.from('salary_settlements').delete().eq('id', settlement.id)
-    const t = translateDbError(itemsError)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(itemsError)
   }
 
   // 4. 更新 batch 的聚合數據

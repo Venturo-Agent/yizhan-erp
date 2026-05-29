@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { validateBody } from '@/lib/api/validation'
 import { signContractSchema } from '@/lib/validations/api-schemas'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 /**
@@ -94,20 +94,12 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       logger.error('Contract sign update error:', updateError)
-      const t = translateDbError(updateError)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(updateError)
     }
 
     return NextResponse.json({ success: true })
   } catch (err) {
     logger.error('Contract sign error:', err)
-    const t = translateDbError(err)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(err)
   }
 }

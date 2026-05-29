@@ -3,7 +3,7 @@ import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 // GET: 列出會計科目（RLS 自動過濾）
@@ -77,11 +77,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -121,11 +117,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -163,11 +155,7 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
   const { error } = await supabase.from('chart_of_accounts').delete().eq('id', id)
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ success: true })

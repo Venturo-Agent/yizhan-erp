@@ -13,7 +13,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getApiContext } from '@/lib/auth/get-api-context'
+import { requireCapability } from '@/lib/auth/require-capability'
+import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { apiHandler } from '@/lib/api/api-handler'
 
@@ -73,13 +74,8 @@ interface PreviewResponse {
 }
 
 export const POST = apiHandler(async (request: NextRequest) => {
-  const ctx = await getApiContext({ capabilityCode: 'finance.disbursement.write' })
-  if (!ctx.ok) {
-    return NextResponse.json(
-      { error: ctx.status === 401 ? '請先登入' : '無權限' },
-      { status: ctx.status }
-    )
-  }
+  const ctx = await requireCapability(CAPABILITIES.FINANCE_MANAGE_DISBURSEMENT)
+  if (!ctx.ok) return ctx.response
 
   const body = await request.json()
   const { from_bank_account_id, payment_request_item_ids } = body as {
@@ -128,7 +124,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (!fromBank) {
     return NextResponse.json({ error: '找不到出帳帳戶' }, { status: 404 })
   }
-  if (fromBank.workspace_id !== ctx.workspace_id) {
+  if (fromBank.workspace_id !== ctx.workspaceId) {
     return NextResponse.json({ error: '出帳帳戶不屬於目前工作空間' }, { status: 403 })
   }
 
@@ -148,7 +144,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   if (!items?.length) {
     return NextResponse.json({ error: '找不到請款品項' }, { status: 404 })
   }
-  const crossWsItem = items.find(i => i.workspace_id !== ctx.workspace_id)
+  const crossWsItem = items.find(i => i.workspace_id !== ctx.workspaceId)
   if (crossWsItem) {
     return NextResponse.json({ error: '部分請款品項不屬於目前工作空間' }, { status: 403 })
   }

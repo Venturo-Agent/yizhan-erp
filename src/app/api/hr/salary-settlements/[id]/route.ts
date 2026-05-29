@@ -10,7 +10,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -35,8 +35,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .maybeSingle()
 
     if (settlementError) {
-      const t = translateDbError(settlementError)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(settlementError)
     }
     if (!settlement) {
       return NextResponse.json({ error: '找不到結算 batch' }, { status: 404 })
@@ -49,8 +48,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .order('employee_name')
 
     if (itemsError) {
-      const t = translateDbError(itemsError)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(itemsError)
     }
 
     return NextResponse.json({
@@ -102,8 +100,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       .eq('status', 'draft')
 
     if (error) {
-      const t = translateDbError(error)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ data: { id, deleted: true } })

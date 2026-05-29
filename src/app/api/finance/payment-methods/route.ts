@@ -7,7 +7,7 @@ import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
 import { createPaymentMethodSchema, updatePaymentMethodSchema } from '@/lib/validations/api-schemas'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 /**
@@ -69,11 +69,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const { data, error } = await query
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -106,11 +102,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -145,11 +137,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -191,11 +179,7 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
         { status: 409 }
       )
     }
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ success: true })

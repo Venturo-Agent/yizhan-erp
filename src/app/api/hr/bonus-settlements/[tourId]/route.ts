@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -49,8 +49,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .order('employee_name')
 
     if (error) {
-      const t = translateDbError(error)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({

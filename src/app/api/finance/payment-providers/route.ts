@@ -10,7 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { getServerAuth } from '@/lib/auth/server-auth'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 export const GET = apiHandler(async (request: NextRequest) => {
@@ -35,11 +35,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const { data, error } = await query
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data ?? [])

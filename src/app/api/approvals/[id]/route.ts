@@ -14,7 +14,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
 import { apiHandler } from '@/lib/api/api-handler'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { sendChannelNotification, NOTIFICATION_SOURCE_TYPES } from '@/lib/channels/send'
 import { dispatchApprovalSideEffect } from '@/lib/approvals/dispatch'
@@ -64,8 +64,7 @@ export const PATCH = apiHandler(
       }>()
 
     if (error) {
-      const t = translateDbError(error)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(error)
     }
     if (!data) {
       return NextResponse.json({ error: '審核請求不存在或已處理' }, { status: 404 })

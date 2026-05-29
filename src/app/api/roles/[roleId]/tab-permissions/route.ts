@@ -4,7 +4,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 import type { TabPermission } from '@/lib/permissions'
@@ -137,11 +137,7 @@ export async function PUT(
       .eq('role_id', roleId)
 
     if (readErr) {
-      const t = translateDbError(readErr)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(readErr)
     }
 
     const existingNonPlatform = (existing ?? [])
@@ -157,11 +153,7 @@ export async function PUT(
         .eq('role_id', roleId)
         .in('capability_code', toDelete)
       if (error) {
-        const t = translateDbError(error)
-        return NextResponse.json(
-          { error: t.message, code: t.code, field: t.field },
-          { status: t.httpStatus }
-        )
+        return dbErrorResponse(error)
       }
     }
 
@@ -176,11 +168,7 @@ export async function PUT(
         .from('role_capabilities')
         .upsert(rowsToUpsert, { onConflict: 'role_id,capability_code' })
       if (error) {
-        const t = translateDbError(error)
-        return NextResponse.json(
-          { error: t.message, code: t.code, field: t.field },
-          { status: t.httpStatus }
-        )
+        return dbErrorResponse(error)
       }
     }
 

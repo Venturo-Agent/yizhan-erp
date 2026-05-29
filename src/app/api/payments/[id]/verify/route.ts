@@ -17,7 +17,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { CAPABILITIES } from '@/lib/permissions'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import type { PostgrestError } from '@supabase/supabase-js'
 
@@ -95,8 +95,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
     if (updateErr) {
       logger.error('[payments/verify] update error:', updateErr)
-      const t = translateDbError(updateErr)
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(updateErr)
     }
 
     return NextResponse.json({ receipt: updated })

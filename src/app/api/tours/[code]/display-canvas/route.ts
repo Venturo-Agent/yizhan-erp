@@ -23,7 +23,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { resolveEmployeeIdFromUser } from '@/app/api/lib/resolve-employee'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 // PUT body schema — canvas 是 JSON object（內容由前端 canvas canvas 結構決定、這層不嚴格驗 shape）
@@ -104,11 +104,7 @@ export async function GET(
     })
   } catch (error) {
     logger.error('GET display-canvas error', error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 }
 
@@ -183,10 +179,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: '資料格式錯誤', details: error.issues }, { status: 400 })
     }
     logger.error('PUT display-canvas error', error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 }

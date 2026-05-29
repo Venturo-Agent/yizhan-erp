@@ -13,7 +13,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { logger } from '@/lib/utils/logger'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 
@@ -53,11 +53,7 @@ export async function listDimension(table: DimensionTable) {
 
   if (error) {
     logger.error(`[organization/${table}] list error:`, error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json({ data: data ?? [] })
 }
@@ -115,11 +111,7 @@ export async function createDimension(table: DimensionTable, request: NextReques
 
   if (error) {
     logger.error(`[organization/${table}] create error:`, error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data })
@@ -196,11 +188,7 @@ export async function updateDimension(table: DimensionTable, request: NextReques
 
   if (error) {
     logger.error(`[organization/${table}] update error:`, error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data })
@@ -233,11 +221,7 @@ export async function deleteDimension(table: DimensionTable, request: NextReques
 
   if (existErr) {
     logger.error(`[organization/${table}] check before delete error:`, existErr)
-    const t = translateDbError(existErr)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(existErr)
   }
   if (!existing) {
     return NextResponse.json({ error: '找不到資料' }, { status: 404 })
@@ -257,11 +241,7 @@ export async function deleteDimension(table: DimensionTable, request: NextReques
 
   if (error) {
     logger.error(`[organization/${table}] delete error:`, error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ success: true })

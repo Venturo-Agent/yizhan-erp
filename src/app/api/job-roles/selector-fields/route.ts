@@ -3,7 +3,7 @@ import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 /**
@@ -35,11 +35,7 @@ export const GET = apiHandler(async () => {
     .order('sort_order', { ascending: true })
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   // 整理格式：把 nested 的 roles 攤平
@@ -107,11 +103,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     if (error.code === '23505') {
       return NextResponse.json({ error: '此欄位名稱已存在' }, { status: 409 })
     }
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   // 建立映射
@@ -124,11 +116,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     const { error: mapError } = await supabase.from('selector_field_roles').insert(mappings)
 
     if (mapError) {
-      const t = translateDbError(mapError)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(mapError)
     }
   }
 

@@ -18,6 +18,9 @@ import { z } from 'zod'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { ApiError } from '@/lib/api/response'
+import { dbErrorResponse } from '@/lib/db-error-translate'
+import { createApiClient } from '@/lib/supabase/api-client'
+import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { logger } from '@/lib/utils/logger'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -82,6 +85,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: '輸入格式錯誤' }, { status: 400 })
     }
 
+    const auditClient = await createApiClient()
+    await recordApiAuditContext(auditClient, {
+      actorId: guard.employeeId,
+      reason: '更新 HAPPY 人格設定',
+      requestId: workspaceId,
+    })
+
     const supabase = getSupabaseAdminClient() as unknown as SupabaseClient
 
     // upsert by (workspace_id, channel_type='happy')
@@ -100,7 +110,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (error) {
       logger.error('PUT happy-persona error', { error })
-      return ApiError.internal('儲存 HAPPY 人格失敗')
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ success: true })

@@ -3,7 +3,7 @@ import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 /**
@@ -53,11 +53,7 @@ export async function PUT(
       if (error.code === '23505') {
         return NextResponse.json({ error: '此欄位名稱已存在' }, { status: 409 })
       }
-      const t = translateDbError(error)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
 
     // 重建映射（刪除舊的 + 插入新的）
@@ -73,11 +69,7 @@ export async function PUT(
         const { error: mapError } = await supabase.from('selector_field_roles').insert(mappings)
 
         if (mapError) {
-          const t = translateDbError(mapError)
-          return NextResponse.json(
-            { error: t.message, code: t.code, field: t.field },
-            { status: t.httpStatus }
-          )
+          return dbErrorResponse(mapError)
         }
       }
     }
@@ -121,11 +113,7 @@ export async function DELETE(
       .eq('workspace_id', workspaceId)
 
     if (error) {
-      const t = translateDbError(error)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ success: true })

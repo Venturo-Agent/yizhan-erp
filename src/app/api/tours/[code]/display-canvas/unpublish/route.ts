@@ -18,7 +18,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { resolveEmployeeIdFromUser } from '@/app/api/lib/resolve-employee'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 export async function POST(
@@ -76,10 +76,6 @@ export async function POST(
     return NextResponse.json({ ok: true })
   } catch (error) {
     logger.error('POST display-canvas unpublish error', error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 }

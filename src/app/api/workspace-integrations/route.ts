@@ -12,12 +12,13 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/utils/logger'
-import { getApiContext } from '@/lib/auth/get-api-context'
+import { requireCapability } from '@/lib/auth/require-capability'
+import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { createApiClient } from '@/lib/supabase/api-client'
-import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import {
   INTEGRATIONS,
   getIntegrationByCode,
@@ -39,17 +40,9 @@ async function requireTenantAdmin(): Promise<
   | { ok: true; workspaceId: string; employeeId: string | null }
   | { ok: false; response: NextResponse }
 > {
-  const ctx = await getApiContext({ capabilityCode: 'workspaces.write' })
-  if (!ctx.ok) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { error: ctx.status === 401 ? '請先登入' : '無權限管理 API 整合' },
-        { status: ctx.status }
-      ),
-    }
-  }
-  return { ok: true, workspaceId: ctx.workspace_id, employeeId: ctx.employee_id ?? null }
+  const ctx = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
+  if (!ctx.ok) return { ok: false, response: ctx.response }
+  return { ok: true, workspaceId: ctx.workspaceId, employeeId: ctx.employeeId }
 }
 
 /**
@@ -272,11 +265,7 @@ async function handlePut(request: NextRequest) {
   )
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ success: true })

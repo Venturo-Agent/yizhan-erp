@@ -3,7 +3,7 @@ import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 /**
@@ -27,11 +27,7 @@ export const GET = apiHandler(async () => {
     .order('sort_order')
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json(data || [])
 })
@@ -80,11 +76,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json(data)
 })
@@ -126,11 +118,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json(data)
 })
@@ -158,11 +146,7 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     .eq('id', id)
     .eq('owner_employee_id', guard.employeeId)
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json({ success: true })
 })

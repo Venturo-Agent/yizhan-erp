@@ -3,7 +3,7 @@ import { createApiClient } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 /**
@@ -44,20 +44,12 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       logger.error('Paper sign error:', error)
-      const t = translateDbError(error)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ success: true })
   } catch (err) {
     logger.error('Paper sign uncaught:', err)
-    const t = translateDbError(err)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(err)
   }
 }

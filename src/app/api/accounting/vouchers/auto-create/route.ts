@@ -6,7 +6,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
 import { autoCreateVoucherSchema } from '@/lib/validations/api-schemas'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import {
@@ -89,10 +89,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, voucher })
   } catch (error) {
     logger.error('自動產生傳票失敗:', error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 }

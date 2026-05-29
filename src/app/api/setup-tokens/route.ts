@@ -11,7 +11,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'node:crypto'
-import { getApiContext } from '@/lib/auth/get-api-context'
+import { requireCapability } from '@/lib/auth/require-capability'
+import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
@@ -25,17 +26,12 @@ import { apiHandler } from '@/lib/api/api-handler'
  * 回 { token, url, expires_at }
  */
 export const POST = apiHandler(async (request: NextRequest) => {
-  const ctx = await getApiContext({ capabilityCode: 'workspaces.write' })
-  if (!ctx.ok) {
-    return NextResponse.json(
-      { error: ctx.status === 401 ? '請先登入' : '無權限生成 setup link' },
-      { status: ctx.status }
-    )
-  }
+  const ctx = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
+  if (!ctx.ok) return ctx.response
 
   const auditClient = await createApiClient()
   await recordApiAuditContext(auditClient, {
-    actorId: ctx.employee_id ?? '',
+    actorId: ctx.employeeId,
     reason: '生成 integration setup token',
   })
 
@@ -80,7 +76,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
       workspace_id,
       integration_code,
       expires_at: expiresAt.toISOString(),
-      created_by: ctx.employee_id ?? null,
+      created_by: ctx.employeeId,
     })
     .select('id')
     .single()

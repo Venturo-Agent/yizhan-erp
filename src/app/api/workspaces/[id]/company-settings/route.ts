@@ -3,7 +3,7 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { BonusSettingType, BonusCalculationType } from '@/types/bonus.types'
 
@@ -117,8 +117,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (Object.keys(patch).length > 0) {
       const { error } = await supabase.from('workspaces').update(patch).eq('id', workspaceId)
       if (error) {
-        const t = translateDbError(error)
-        return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+        return dbErrorResponse(error)
       }
     }
 
@@ -146,8 +145,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
             .delete()
             .eq('id', existingId)
           if (error) {
-            const t = translateDbError(error)
-            return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+            return dbErrorResponse(error)
           }
         }
         return NextResponse.json({
@@ -163,8 +161,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           .update({ bonus: rate, bonus_type: BonusCalculationType.PERCENT })
           .eq('id', existingId)
         if (error) {
-          const t = translateDbError(error)
-          return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+          return dbErrorResponse(error)
         }
         return NextResponse.json({
           success: true,
@@ -186,8 +183,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         .select('id')
         .single()
       if (error) {
-        const t = translateDbError(error)
-        return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+        return dbErrorResponse(error)
       }
       return NextResponse.json({
         success: true,
