@@ -152,12 +152,12 @@
       "count": 1
     }
   },
-  "src/app/(main)/orders/_quotes/_hooks/useQuoteVisibility.ts": {
+  "src/app/(main)/tours/_quotes/_hooks/useQuoteVisibility.ts": {
     "venturo/no-direct-supabase-writes": {
       "count": 1
     }
   },
-  "src/app/(main)/orders/_quotes/_utils/core-table-adapter.ts": {
+  "src/app/(main)/tours/_quotes/_utils/core-table-adapter.ts": {
     "venturo/no-direct-supabase-writes": {
       "count": 5
     }

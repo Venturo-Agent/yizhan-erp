@@ -7,9 +7,9 @@
 
 import React, { useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { CostCategory } from '@/app/(main)/orders/_quotes/_types'
-import { CategorySection } from '@/app/(main)/orders/_quotes/_components'
-import { useCategoryOperations } from '@/app/(main)/orders/_quotes/_hooks/useCategoryOperations'
+import { CostCategory } from '@/app/(main)/tours/_quotes/_types'
+import { CategorySection } from '@/app/(main)/tours/_quotes/_components'
+import { useCategoryOperations } from '@/app/(main)/tours/_quotes/_hooks/useCategoryOperations'
 import { useTranslations } from 'next-intl'
 
 interface QuoteCostTableProps {

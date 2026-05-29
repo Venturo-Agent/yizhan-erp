@@ -29,9 +29,9 @@ import { softDelete } from '@/lib/data/soft-delete'
 import type { Tour } from '@/stores/types'
 import type { Quote } from '@/stores/types'
 import { createQuote } from '@/data'
-import { DEFAULT_CATEGORIES } from '@/app/(main)/orders/_quotes/_constants'
-import { QuoteDetailEmbed } from '@/app/(main)/orders/_quotes/_components/QuoteDetailEmbed'
-import { QuickQuoteDetail } from '@/app/(main)/orders/_quotes/_components/QuickQuoteDetail'
+import { DEFAULT_CATEGORIES } from '@/app/(main)/tours/_quotes/_constants'
+import { QuoteDetailEmbed } from '@/app/(main)/tours/_quotes/_components/QuoteDetailEmbed'
+import { QuickQuoteDetail } from '@/app/(main)/tours/_quotes/_components/QuickQuoteDetail'
 
 import { Spinner } from '@/components/ui/spinner'
 const COMPONENT_LABELS = {

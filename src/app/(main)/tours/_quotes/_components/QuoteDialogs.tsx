@@ -16,10 +16,10 @@ import {
   PrintableQuotation,
   LinkTourDialog,
   LocalPricingDialog,
-} from '@/app/(main)/orders/_quotes/_components'
-import type { LocalTier } from '@/app/(main)/orders/_quotes/_components/LocalPricingDialog'
-import type { MealDiff } from '@/app/(main)/orders/_quotes/_components'
-import { ParticipantCounts, SellingPrices, CostCategory } from '@/app/(main)/orders/_quotes/_types'
+} from '@/app/(main)/tours/_quotes/_components'
+import type { LocalTier } from '@/app/(main)/tours/_quotes/_components/LocalPricingDialog'
+import type { MealDiff } from '@/app/(main)/tours/_quotes/_components'
+import { ParticipantCounts, SellingPrices, CostCategory } from '@/app/(main)/tours/_quotes/_types'
 
 // 只取 QuoteDialogs 需要的 quote 欄位
 interface QuoteRef {

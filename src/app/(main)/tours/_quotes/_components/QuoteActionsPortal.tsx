@@ -8,8 +8,8 @@
 import { createPortal } from 'react-dom'
 import { CheckSquare, Printer, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { TierPricing, SellingPrices } from '@/app/(main)/orders/_quotes/_types'
-import { generateUniqueId } from '@/app/(main)/orders/_quotes/_utils/priceCalculations'
+import { TierPricing, SellingPrices } from '@/app/(main)/tours/_quotes/_types'
+import { generateUniqueId } from '@/app/(main)/tours/_quotes/_utils/priceCalculations'
 import { useTranslations } from 'next-intl'
 
 interface QuoteActionsPortalProps {
