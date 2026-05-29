@@ -133,7 +133,6 @@ export function useCalendarEvents() {
         pending_close: { bg: '#D4B896', border: '#C3A785' }, // 待結案
         closed: { bg: '#B8B3AE', border: '#A7A29D' }, // 結案
         cancelled: { bg: '#B8B3AE', border: '#A7A29D' }, // 已取消
-        special: { bg: '#D4A5A5', border: '#C39494' }, // 特殊團
       }
       return colors[status] || colors.draft
     }
@@ -146,10 +145,10 @@ export function useCalendarEvents() {
     return colors[type as keyof typeof colors] || { bg: '#B8B3AE', border: '#A7A29D' }
   }, [])
 
-  // 轉換旅遊團為日曆事件（過濾掉特殊團和已封存的）
+  // 轉換旅遊團為日曆事件（過濾掉已封存的）
   const tourEvents: FullCalendarEvent[] = useMemo(() => {
     return (tours || [])
-      .filter(tour => tour.status !== '特殊團' && !tour.archived) // 過濾掉特殊團、以及已封存的
+      .filter(tour => !tour.archived) // 過濾掉已封存的（特殊團 2026-05 已退役、無此狀態）
       .map(tour => {
         const color = getEventColor('tour', tour.status || '開團')
         // 🔧 優化：直接使用 tour.current_participants，不再遍歷 orders/members

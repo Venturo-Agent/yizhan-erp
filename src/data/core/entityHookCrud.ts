@@ -135,19 +135,33 @@ export async function createEntity<T extends BaseEntity>(
         .single()
 
       if (!error) {
-        // 樂觀 push 進 list / slim cache（避免 UI 跟 SWR refetch race、新增完不用等 refetch 就看得到）
+        // 用 server 回傳的真實 row 取代樂觀 row（避免 UI 跟 SWR refetch race、新增完不用等 refetch 就看得到）
         // 注意：list / slim select 欄位不同、push 同一個 row 進兩個 cache、Supplier slim 沒包的欄位不會被存取（caller 自我克制）
+        //
+        // ⚠️ 必須 by-id upsert、不可盲目 [...current, createdRow]：
+        //   step 1 的樂觀更新已經把 newItem push 進 cache、且 createdRow.id === newItem.id
+        //   （id 是 client 端 generateUUID() 後送進 insert 的）。再 append 一次 = 同 id 兩筆 → 代辦事項出現兩個。
+        //   下方 invalidateEntity 的 predicate revalidate 不保證觸發（見 line 153 註解）、
+        //   重複會卡著要 F5 才消失。改 upsert：有同 id 就替換成 server row、沒有才 append、cache 永不重複。
         const createdRow = created as unknown as T
+        const upsertById = (current: T[] | undefined): T[] => {
+          const arr = current || []
+          const idx = arr.findIndex(item => item.id === createdRow.id)
+          if (idx === -1) return [...arr, createdRow]
+          const next = arr.slice()
+          next[idx] = createdRow
+          return next
+        }
         globalMutate(
           (key: unknown) =>
             typeof key === 'string' &&
             (key === ctx.cacheKeyList || key.startsWith(ctx.cacheKeyList + ':')),
-          (current: T[] | undefined) => [...(current || []), createdRow],
+          upsertById,
           { revalidate: true }
         )
         globalMutate(
           (key: unknown) => typeof key === 'string' && key.startsWith(ctx.cacheKeyPrefix + ':slim'),
-          (current: T[] | undefined) => [...(current || []), createdRow],
+          upsertById,
           { revalidate: true }
         )
         // 5/18 修：樂觀更新 + globalMutate predicate 不可靠、補一次全 cache revalidate

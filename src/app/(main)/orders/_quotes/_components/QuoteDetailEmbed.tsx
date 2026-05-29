@@ -81,16 +81,15 @@ export function QuoteDetailEmbed({
     return itineraries.find(i => i.tour_id === quote.tour_id) || null
   }, [itineraries, quote?.tour_id])
 
-  // 檢查是否為特殊團報價單
+  // 關聯旅遊團（取出發日用）
   const relatedTour = quote?.tour_id ? tours.find(tour => tour.id === quote.tour_id) : null
-  const isSpecialTour = relatedTour?.status === '特殊團'
 
   // 定案後鎖定編輯（業務確認、客戶確認、已成交）
   const isConfirmed =
     quote?.confirmation_status === 'staff_confirmed' ||
     quote?.confirmation_status === 'customer_confirmed' ||
     quote?.confirmation_status === 'closed'
-  const isReadOnly = isSpecialTour || isConfirmed
+  const isReadOnly = isConfirmed
 
   // 報價單核心狀態（categories / participantCounts / sellingPrices / tierPricings / insurance）
   const [categories, setCategories] = useState<CostCategory[]>([])

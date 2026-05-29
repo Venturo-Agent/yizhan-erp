@@ -158,7 +158,7 @@ export function AddRequestDialog({
   const activeTours = useMemo(() => {
     return tours.filter(tour => {
       const t = tour as unknown as { is_active?: boolean | null }
-      return !tour.archived && t.is_active !== false && tour.status !== '特殊團'
+      return !tour.archived && t.is_active !== false
     })
   }, [tours])
 
