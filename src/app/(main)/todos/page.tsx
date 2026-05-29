@@ -275,9 +275,14 @@ export default function TodosPage() {
                 }
               }}
               onClose={() => setExpandedTodo(null)}
-              onDelete={() => {
+              onDelete={async () => {
+                // TodoSidebar 已自帶確認、這裡直接刪、不再二次確認（修雙重「刪除」彈窗 bug）
+                try {
+                  await removeTodo(todo.id)
+                } catch {
+                  /* useTodos 已處理回滾 */
+                }
                 setExpandedTodo(null)
-                handleDeleteTodo(todo)
               }}
             />
           )

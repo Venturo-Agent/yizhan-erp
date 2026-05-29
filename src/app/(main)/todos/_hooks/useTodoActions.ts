@@ -162,7 +162,7 @@ export function useTodoActions({
   const handleDeleteTodo = useCallback(
     async (todo: Todo) => {
       const confirmed = await confirm(`確定刪除「${todo.title}」？`, {
-        title: '刪除任務',
+        title: '刪除待辦事項',
         type: 'warning',
       })
       if (!confirmed) return
