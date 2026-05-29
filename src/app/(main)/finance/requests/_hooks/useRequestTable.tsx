@@ -3,7 +3,7 @@ import { TableColumn, useEnhancedTable } from '@/components/ui/enhanced-table'
 import { PaymentRequest } from '@/stores/types'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { DateCell, CurrencyCell } from '@/components/table-cells'
-import { getStatusLabelFor } from '@/lib/design/status-tone-map'
+import { getStatusLabelFor } from '@/lib/status'
 import { useTranslations } from 'next-intl'
 import { useBranches } from '@/data/hooks/useBranches'
 

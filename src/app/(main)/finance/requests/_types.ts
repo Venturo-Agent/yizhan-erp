@@ -60,7 +60,7 @@ export interface RequestItem {
 }
 
 // 2026-05-15 William 拍板：請款單 3 狀態（pending=未付款 / confirmed=待付款 / paid=已付款）
-// label / color 走 SSOT：src/lib/design/status-tone-map.ts STATUS_LABEL_MAP.payment_request
+// label / color 走 SSOT：src/lib/status/ STATUS_LABEL_MAP.payment_request（2026-05-29 B7 收斂）
 export type PaymentRequestStatus = 'pending' | 'confirmed' | 'paid'
 
 // 2026-05-21 Phase 2：寫死 categoryOptions 已退休。

@@ -1,7 +1,12 @@
 /**
- * 狀態值對照表
- * 用於將英文狀態值轉換為中文顯示
+ * 狀態值對照表 / 常數 SSOT
+ *
+ * 2026-05-29 B7 收斂：本檔保留為「**狀態值常數 + 業務判斷 helper**」SSOT
+ * （TOUR_STATUS / ORDER_STATUS_MAP / isTourLocked / canConfirmTour 等）、
+ * label 中文顯示 SSOT 已收進 @/lib/status/、本檔 getXxxStatusLabel 改為純委派。
  */
+
+import { getStatusLabelFor } from '@/lib/status'
 
 // ============================================
 // 旅遊團狀態對照表（DB 存英文、UI 顯示中文）
@@ -36,18 +41,6 @@ export const TOUR_STATUS = {
   RETURNED: 'returned',
   CLOSED: 'closed',
 } as const satisfies Record<string, TourStatusValue>
-
-/**
- * 狀態值 → 中文顯示 label
- */
-const TOUR_STATUS_LABELS: Record<TourStatusValue, string> = {
-  template: '模板',
-  proposal: '提案',
-  upcoming: '即將出發',
-  ongoing: '旅行中',
-  returned: '未結案',
-  closed: '已結案',
-}
 
 /**
  * 判斷團是否已鎖定（不可自由編輯）
@@ -203,14 +196,19 @@ type PaymentMethodValue = (typeof PAYMENT_METHOD_MAP)[PaymentMethodKey]
 /**
  * 取得旅遊團狀態的中文顯示（英文值 → 中文 label）
  * 過渡期：DB 若仍存中文值、fallback 直接回傳原字串。
+ *
+ * 2026-05-29 B7：label SSOT 統一委派至 @/lib/status
  */
 export function getTourStatusLabel(status: string | null | undefined): string {
-  if (!status) return ''
-  return TOUR_STATUS_LABELS[status as TourStatusValue] ?? status
+  return getStatusLabelFor('tour', status)
 }
 
 /**
  * 取得訂單狀態的中文顯示
+ *
+ * 註：ORDER_STATUS_MAP 是業務專用的訂單狀態（hk/kk/hl/lk/pending_review）、
+ * 跟 @/lib/status 的 order type（pending/confirmed/completed/cancelled）非同集合、
+ * 此 helper 保留走 ORDER_STATUS_MAP。
  */
 export function getOrderStatusLabel(status: OrderStatusKey | string): string {
   return ORDER_STATUS_MAP[status as OrderStatusKey] || status
@@ -218,16 +216,20 @@ export function getOrderStatusLabel(status: OrderStatusKey | string): string {
 
 /**
  * 取得付款狀態的中文顯示
+ *
+ * 2026-05-29 B7：label SSOT 統一委派至 @/lib/status（payment type）
  */
 export function getPaymentStatusLabel(status: PaymentStatusKey | string): string {
-  return PAYMENT_STATUS_MAP[status as PaymentStatusKey] || status
+  return getStatusLabelFor('payment', status)
 }
 
 /**
  * 取得報價單狀態的中文顯示
+ *
+ * 2026-05-29 B7：label SSOT 統一委派至 @/lib/status（quote type）
  */
 export function getQuoteStatusLabel(status: QuoteStatusKey | string): string {
-  return QUOTE_STATUS_MAP[status as QuoteStatusKey] || status
+  return getStatusLabelFor('quote', status)
 }
 
 /**

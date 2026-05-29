@@ -12,7 +12,7 @@
  */
 
 import { cn } from '@/lib/utils'
-import { getStatusTone, getStatusLabelFor, type StatusType } from '@/lib/design/status-tone-map'
+import { getStatusTone, getStatusLabelFor, type StatusType } from '@/lib/status'
 
 export type StatusTone =
   | 'pending' // 待處理 / 待確認 — 中性灰、不搶眼
@@ -42,7 +42,7 @@ interface StatusBadgePropsLegacy {
 
 // New API：type + status（內部 lookup tone + label）
 interface StatusBadgePropsNew {
-  type: string // StatusType from status-tone-map.ts、避免 import cycle 用 string
+  type: string // StatusType from @/lib/status/labels.ts、避免 import cycle 用 string
   status: string | null | undefined
   label?: string // override default label
   tone?: StatusTone // override default tone
@@ -56,7 +56,7 @@ export function StatusBadge(props: StatusBadgeProps) {
   let label: string
 
   if ('type' in props && props.type) {
-    // New API：top-level ESM import（status-tone-map 用 import type 引 StatusTone、無 runtime cycle）
+    // New API：top-level ESM import（@/lib/status/tone 用 import type 引 StatusTone、無 runtime cycle）
     // props.type 是 string（避開 import cycle 用），lookup 函式期待 StatusType union、強轉
     tone = props.tone ?? getStatusTone(props.type as StatusType, props.status)
     label = props.label ?? getStatusLabelFor(props.type as StatusType, props.status)

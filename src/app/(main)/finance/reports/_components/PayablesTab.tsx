@@ -5,7 +5,7 @@ import { CurrencyCell, DateCell } from '@/components/table-cells'
 import { Building } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { usePayables, type PayableRow } from '../_hooks/usePayables'
-import { getStatusLabelFor } from '@/lib/design/status-tone-map'
+import { getStatusLabelFor } from '@/lib/status'
 import { ReportStatCard } from './ReportStatCard'
 import { ReportSectionTitle } from './ReportSectionTitle'
 

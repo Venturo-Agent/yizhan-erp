@@ -7,10 +7,10 @@ import {
   getStatusLabel,
   getStatusBgColor,
   getStatusIcon,
-} from '@/lib/status-config'
+} from '@/lib/status'
 
 // ========== 類型定義 ==========
-
+// 只列 status/ 核心 11 type 中有 StatusConfig（含 icon + bgColor）的 type
 type StatusType =
   | 'payment'
   | 'disbursement'
