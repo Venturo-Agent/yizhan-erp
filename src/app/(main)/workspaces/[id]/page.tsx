@@ -34,8 +34,6 @@ import { BillingTab } from './_components/billing-tab'
 import { AddonsTab } from './_components/addons-tab'
 import { OverviewTab } from './_components/overview-tab'
 import { apiMutate } from '@/lib/swr/api-mutate'
-import { getFeaturesForPlan } from '@/lib/permissions/subscription-plans'
-import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 const TAB_VALUES = {
   OVERVIEW: 'overview',
@@ -66,7 +64,6 @@ interface Workspace {
   default_password?: string | null
   admin_id?: string | null
   admin_employee_number?: string | null
-  subscription_plan?: PlanId | null
 }
 
 interface WorkspaceFeature {
@@ -90,7 +87,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
   const [saving, setSaving] = useState(false)
   const [employeeCount, setEmployeeCount] = useState(0)
   const [adminName, setAdminName] = useState<string | null>(null)
-  const [subscriptionPlan, setSubscriptionPlan] = useState<PlanId>('custom')
 
   // 載入資料（總覽 tab 用）
   useEffect(() => {
@@ -114,10 +110,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
       }
       if (ws.pension_system && ['old', 'new', 'mixed'].includes(ws.pension_system)) {
         setPensionSystem(ws.pension_system)
-      }
-      const validPlans: PlanId[] = ['lite', 'standard', 'advance', 'premium', 'custom']
-      if (ws.subscription_plan && validPlans.includes(ws.subscription_plan)) {
-        setSubscriptionPlan(ws.subscription_plan)
       }
 
       // 取得功能權限
@@ -168,35 +160,7 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
     })
   }
 
-  // 查詢 tab 啟用狀態（給 Modal 用）
-  const isTabFeatureEnabled = (
-    moduleCode: string,
-    tabCode: string,
-    category?: 'basic' | 'premium'
-  ): boolean => {
-    const key = `${moduleCode}.${tabCode}`
-    const feature = features.find(f => f.feature_code === key)
-    if (category === 'premium') return feature?.enabled === true
-    return feature?.enabled !== false
-  }
-
-  // 切換訂閱方案（只更新 state、不立即 API call）
-  const handlePlanChange = (planId: PlanId) => {
-    setSubscriptionPlan(planId)
-    if (planId === 'custom') {
-      // custom 不自動配置 features
-      return
-    }
-    const featuresToEnable = getFeaturesForPlan(planId)
-    setFeatures(prev =>
-      prev.map(f => ({
-        ...f,
-        enabled: featuresToEnable.includes(f.feature_code),
-      }))
-    )
-  }
-
-  // 儲存（只在總覽 tab 顯示按鈕、用 features 寫入 + subscription_plan PATCH）
+  // 儲存功能開關（只存 features、各區塊分開存、不再順帶寫 subscription_plan）
   const handleSave = async () => {
     setSaving(true)
 
@@ -213,17 +177,6 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
 
       if (!res.ok) {
         toast.error('儲存失敗', { description: res.error || `HTTP ${res.status}` })
-        return
-      }
-
-      // 同步更新訂閱方案
-      const planRes = await apiMutate(`/api/workspaces/${id}`, {
-        method: 'PATCH',
-        body: { subscription_plan: subscriptionPlan },
-        invalidate: [`/api/workspaces/${id}`],
-      })
-      if (!planRes.ok) {
-        toast.error('方案儲存失敗', { description: planRes.error || `HTTP ${planRes.status}` })
         return
       }
 
@@ -304,14 +257,11 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
           leavePolicy={leavePolicy}
           pensionSystem={pensionSystem}
           savingHrPolicy={savingHrPolicy}
-          subscriptionPlan={subscriptionPlan}
           onToggleFeature={toggleFeature}
           onToggleTabFeature={toggleTabFeature}
-          onIsTabFeatureEnabled={isTabFeatureEnabled}
           onSetLeavePolicy={setLeavePolicy}
           onSetPensionSystem={setPensionSystem}
           onSaveHrPolicy={handleSaveHrPolicy}
-          onPlanChange={handlePlanChange}
         />
       )}
 
