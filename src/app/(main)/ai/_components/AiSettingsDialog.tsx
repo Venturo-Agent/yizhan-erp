@@ -8,6 +8,7 @@ import {
   Settings,
   Bot,
   Package,
+  GraduationCap,
   type LucideIcon,
 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -17,6 +18,7 @@ import { AiSettingsTab } from './AiSettingsTab'
 import { AiDashboardTab } from './AiDashboardTab'
 import { AiRetrospectiveTab } from './AiRetrospectiveTab'
 import { AiProductsTab } from './AiProductsTab'
+import { AiTrainingQueueTab } from './AiTrainingQueueTab'
 
 /**
  * AI Hub 設定 dialog — 從 sidebar header 齒輪打開
@@ -39,10 +41,18 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-type SettingsTab = 'dashboard' | 'retrospective' | 'setup' | 'bots' | 'products' | 'policy'
+type SettingsTab =
+  | 'dashboard'
+  | 'training'
+  | 'retrospective'
+  | 'setup'
+  | 'bots'
+  | 'products'
+  | 'policy'
 
 const TABS: Array<{ value: SettingsTab; label: string; icon: LucideIcon }> = [
   { value: 'dashboard', label: '總覽', icon: LayoutDashboard },
+  { value: 'training', label: '待訓練', icon: GraduationCap },
   { value: 'retrospective', label: '對話復盤', icon: BookOpenCheck },
   { value: 'setup', label: '通道設定', icon: Plug },
   { value: 'bots', label: 'AI 機器人', icon: Bot },
@@ -93,6 +103,7 @@ export function AiSettingsDialog({ open, onOpenChange }: Props) {
         {/* 內容 */}
         <div className="flex-1 min-h-0 overflow-auto">
           {activeTab === 'dashboard' && <AiDashboardTab />}
+          {activeTab === 'training' && <AiTrainingQueueTab />}
           {activeTab === 'retrospective' && <AiRetrospectiveTab />}
           {activeTab === 'setup' && <AiSetupTab />}
           {activeTab === 'bots' && <AiSettingsTab />}

@@ -295,6 +295,15 @@ export {
 } from './workspace-documents'
 export type { WorkspaceDocument } from './workspace-documents'
 
+// AI Knowledge Gaps（AI 答不出的問題、給業務 review 補料的清單）
+export {
+  useAiKnowledgeGaps,
+  useAiKnowledgeGap,
+  updateAiKnowledgeGap,
+  invalidateAiKnowledgeGaps,
+} from './ai-knowledge-gaps'
+export type { AiKnowledgeGap, KnowledgeGapStatus } from './ai-knowledge-gaps'
+
 // Workspace Seals（章印管理）
 export {
   useWorkspaceSeals,

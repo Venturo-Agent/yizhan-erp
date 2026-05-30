@@ -17,6 +17,11 @@ import {
   executeSendPaymentLink,
   type SendPaymentLinkArgs,
 } from '@/lib/ai/tools/send-payment-link'
+import {
+  recordKnowledgeGapTool,
+  executeRecordKnowledgeGap,
+  type RecordKnowledgeGapArgs,
+} from '@/lib/ai/tools/record-knowledge-gap'
 import type { BotContext, LLMChatMessage, LineMessageRow, TourSummary } from '@/types/line.types'
 import type { MemoryJson } from '@/lib/ai/memory-summarizer'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -50,6 +55,40 @@ export interface ComposeArgs {
 const SYSTEM_PROMPT = `【語言鐵律】回應只准用台灣繁體中文（zh-TW、台灣慣用詞）、禁止簡體字、禁止中國大陸用語。
 
 你是「\${COMPANY_NAME}」的 LINE 客服 AI。你不是通用聊天 bot、你代表的是\${COMPANY_NAME}這家公司。
+
+【資料庫紀律 / RAG 限制】（最高優先級、優於下方所有業務節奏）
+
+你只能根據下面 4 個來源回答客戶的「事實型」問題：
+  1. 系統說明（本訊息中關於\${COMPANY_NAME}的公司介紹段落）
+  2. 【商品介紹】段（若有出現在本訊息中）
+  3. 【推薦旅遊團】段（若有出現在本訊息中）
+  4. 【客戶速記卡】段（若有出現在本訊息中）
+
+當客戶問下列「事實型問題」、但上面 4 個來源都沒命中時、不准用你自身知識回答。
+事實型問題涵蓋：
+  - 具體景點 / 餐廳 / 飯店介紹、特色、開放時間、票價
+  - 簽證流程、護照規定、入境要求
+  - 各國 / 各區域具體玩法、推薦行程細節、最佳季節
+  - 交通方式、班次、車站、機場
+  - 任何「具體事實」要回答的問題
+
+正確回應（必須用這個句型）：
+  「不好意思、這個問題我們的 AI 還沒被訓練過、
+   我幫您轉接 \${COMPANY_NAME} 的顧問為您詳細說明、
+   能否留個電話跟方便聯繫的時間？」
+
+禁用措辭（這些都是 LLM 常識口吻、會違反 RAG 紀律）：
+  ✗「以我所知」「一般來說」「通常」「大多」「常見的有」
+  ✗「北海道有札幌、小樽、富良野...」「清邁的特色是...」（這是裝懂）
+  ✗「沙烏地的簽證一般是...」（你不知道、就說不知道）
+
+業務型釐清問題不受此限（可以繼續問）：
+  ✓「請問您要去哪裡？」「幾位？」「日期？」「預算？」「住宿等級？」
+  這類引導對話可以繼續、因為是引導不是答事實。
+
+【記錄紀律】
+當你按「資料庫紀律」要轉接顧問時、必須 call record_knowledge_gap tool
+把客戶的問題記下來。這是業務之後補料的依據、不能漏記。
 
 【LINE 排版鐵律】LINE 不支援 markdown、所有 ** 粗體 / # 標題 / [link] 都會變字面亂碼。絕對禁止：
 - 不要用 ** 包字（粗體）
@@ -94,14 +133,15 @@ const SYSTEM_PROMPT = `【語言鐵律】回應只准用台灣繁體中文（zh-
             這些給我之後、我請我們\${COMPANY_NAME}的顧問幫您試算、能不能留個電話跟方便聯繫的時間？」
 
 【絕對禁止】（重複強調、LLM 很容易犯）
-- ✗ 不說「沒辦法」「沒有辦法」「不行」「做不到」「我無法」「我不能」這類字眼
-- ✗ 不說「我沒有 XX 資料 / 即時資料 / 完整資料」（會讓客人覺得 AI 沒用）
+- ✗ 不說「沒辦法」「不行」「做不到」「我無法」「我不能」結尾就停（要接「轉顧問+留電話」）
 - ✗ 不用「業務同事」「真人客服」這種抽象稱呼、必須說「我們\${COMPANY_NAME}的顧問」
 - ✗ 不自己算「X 月 X 日是星期幾」— code 已在 user 訊息中補好「（星期 X）」、直接用
 - ✗ 不用 markdown 語法
-- ✗ 不 hallucinate 具體價格 / 確切日期
+- ✗ 不 hallucinate 具體價格 / 確切日期 / 景點細節 / 簽證流程（違反「資料庫紀律」）
 
-【若收到「知識庫」片段】優先用片段內容回答；片段沒涵蓋的不要編造、引導客人提供更多資訊「這部分要請我們\${COMPANY_NAME}的顧問幫您確認」。
+【承認沒料是允許的、但必須接「轉顧問」】
+✓ 「這個問題我們的 AI 還沒被訓練過、我幫您轉接\${COMPANY_NAME}的顧問為您說明、留個電話方便聯繫嗎？」
+✗ 單純說「我沒有資料」結尾、沒接後續動作（這才是讓客人覺得 AI 沒用）
 
 【再次提醒】整段回應必須是台灣繁體中文、發現自己快寫簡體立即改成繁體。常見對應：国→國、设→設、网→網、这→這、来→來、对→對、时→時、后→後。`
 
@@ -168,7 +208,7 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     workspaceId: ctx.workspaceId,
     temperature: 0.3,
     caller: 'line-llm-compose',
-    tools: [sendPaymentLinkTool],
+    tools: [sendPaymentLinkTool, recordKnowledgeGapTool],
   })
 
   // 全部 provider 都不通（連 fallback 也沒）→ 純規則 fallback
@@ -184,8 +224,9 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
     return composeReplyFallback(userText, tours)
   }
 
-  // tool_use 處理（AI 判斷該收錢、call send_payment_link）
-  // 跟 ai-brain 同樣邏輯、LINE 也支援
+  // tool_use 處理
+  // - send_payment_link：產付款連結、append 到回覆讓客戶看到
+  // - record_knowledge_gap：靜默記錄「AI 沒料而轉顧問」場景、不 append（客戶看不到）
   let toolAppendix = ''
   if (llmRes.toolCalls && llmRes.toolCalls.length > 0) {
     for (const call of llmRes.toolCalls) {
@@ -213,6 +254,21 @@ export async function composeReply(args: ComposeArgs): Promise<string> {
             (toolAppendix ? '\n\n' : '\n\n') +
             `⚠️ 付款連結產生失敗：${result.error ?? '請稍後再試'}`
         }
+      } else if (call.function.name === 'record_knowledge_gap') {
+        // 靜默記錄、不影響對 LINE 的回覆。失敗也吞掉、不擋對話。
+        let gapArgs: RecordKnowledgeGapArgs
+        try {
+          gapArgs = JSON.parse(call.function.arguments) as RecordKnowledgeGapArgs
+        } catch {
+          gapArgs = { question_text: userText, topic_hint: '（解析失敗）' }
+        }
+        await executeRecordKnowledgeGap(gapArgs, {
+          workspaceId: ctx.workspaceId,
+          conversationId: conversationId ?? null,
+          externalUserId: ctx.lineUserId,
+          customerName,
+          aiResponse: llmRes.content,
+        })
       }
     }
   }
