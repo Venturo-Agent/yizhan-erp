@@ -8,7 +8,7 @@
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
-import { CostCategory } from '@/app/(main)/orders/_quotes/_types'
+import { CostCategory } from '@/app/(main)/tours/_quotes/_types'
 
 const UPDATE_DISPLAY_STATUS_FAILED = '更新顯示狀態失敗'
 

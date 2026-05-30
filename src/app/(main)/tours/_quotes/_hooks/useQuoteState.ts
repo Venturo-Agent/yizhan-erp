@@ -14,8 +14,8 @@ import {
   CostItem,
   TierPricing,
   costCategories,
-} from '@/app/(main)/orders/_quotes/_types'
-import { coreItemsToCostCategories } from '@/app/(main)/orders/_quotes/_utils/core-table-adapter'
+} from '@/app/(main)/tours/_quotes/_types'
+import { coreItemsToCostCategories } from '@/app/(main)/tours/_quotes/_utils/core-table-adapter'
 import type { TourItineraryItem } from '@/app/(main)/tours/_types/tour-itinerary-item.types'
 
 // 只取 useQuoteState 需要的 quote 欄位

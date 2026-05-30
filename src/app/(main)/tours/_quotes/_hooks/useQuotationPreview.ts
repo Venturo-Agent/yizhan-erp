@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { ParticipantCounts, SellingPrices } from '@/app/(main)/orders/_quotes/_types'
+import { ParticipantCounts, SellingPrices } from '@/app/(main)/tours/_quotes/_types'
 
 interface UseQuotationPreviewReturn {
   showQuotationPreview: boolean

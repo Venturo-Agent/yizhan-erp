@@ -13,14 +13,14 @@ import {
   CostCategory,
   CostItem,
   TierPricing,
-} from '@/app/(main)/orders/_quotes/_types'
-import type { LocalTier } from '@/app/(main)/orders/_quotes/_components/LocalPricingDialog'
+} from '@/app/(main)/tours/_quotes/_types'
+import type { LocalTier } from '@/app/(main)/tours/_quotes/_components/LocalPricingDialog'
 import {
   calculateTierParticipantCounts,
   calculateTierCosts,
   calculateIdentityProfits,
   generateUniqueId,
-} from '@/app/(main)/orders/_quotes/_utils/priceCalculations'
+} from '@/app/(main)/tours/_quotes/_utils/priceCalculations'
 
 interface UseLocalPricingOptions {
   categories: CostCategory[]

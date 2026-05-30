@@ -15,9 +15,6 @@ import { createStore } from './core/create-store'
 // 從 @/types 匯入（使用 types/ 目錄下的標準定義）
 import type { Tour } from '@/types'
 
-// 從本地 types 匯入
-import type { Quote } from './types'
-
 // Supplier 從標準 types 匯入
 import type {} from '@/types/supplier.types'
 
@@ -40,19 +37,10 @@ export const useTourStore = createStore<Tour>({
     'id,code,name,status,departure_date,return_date,max_participants,current_participants,workspace_id,created_at',
 })
 
-/**
- * 報價單 Store
- * 🔒 啟用 Workspace 隔離
- * listFields: 列表頁只抓需要的欄位（詳情頁 fetchById 仍 select('*')）
- *
- * caller：src/app/(main)/orders/_quotes/_services/quote.service.ts（同步 getState() 用、5 處）
- */
-export const useQuoteStore = createStore<Quote>({
-  tableName: 'quotes',
-  codePrefix: 'Q',
-  workspaceScoped: true,
-  listFields: 'id,tour_id,name,total_cost,group_size,status,workspace_id,created_at',
-})
+
+// 報價單 Store 已於 2026-05-30 移除：
+// 業務讀取改走 @/data 的 useQuotes（SWR entity hook），寫入走 createQuote/updateQuote/deleteQuote。
+// quote.service.ts 從 BaseService 退化成純函式集，外部不再有 useQuoteStore caller。
 
 // ============================================
 // 地區型別 re-export（供既有 import 使用）
