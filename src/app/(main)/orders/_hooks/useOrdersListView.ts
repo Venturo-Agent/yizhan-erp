@@ -101,10 +101,10 @@ export function useOrdersListView(params: UseOrdersListViewParams): UseOrdersLis
         query = query.eq('sales_id', user.id)
       }
 
-      // server-side search（跟原 page.tsx 行為一致：團號 / 團名 ilike）
+      // server-side search（訂單編號 order_number / 團名 tour_name ilike；orders.code 已於 5/13 砍除、改 order_number SSOT）
       const searchTerm = search?.trim()
       if (searchTerm) {
-        query = query.or(`code.ilike.%${searchTerm}%,tour_name.ilike.%${searchTerm}%`)
+        query = query.or(`order_number.ilike.%${searchTerm}%,tour_name.ilike.%${searchTerm}%`)
       }
 
       const { data: rows, count, error: queryError } = await query
