@@ -38,7 +38,7 @@ const PLAN_INCREMENTAL: Record<
   standard: {
     base: '輕量版',
     features: [
-      { name: '顧客管理', code: 'customers', kind: 'module' },
+      { name: '顧客管理', code: 'database.customers', kind: 'tab' },
       { name: '護照辨識', note: '需設定 API' },
     ],
   },
