@@ -3,12 +3,9 @@
 /**
  * 租戶詳情頁面
  *
- * tabs：
- *   - 總覽（overview）：基本資料 + 系統主管 + 基本功能 + 付費加購（既有）
- *   - AI 模型（ai_settings）：per-workspace LLM 底盤（provider / model / token / data sources）
- *   - AI 健康度（ai_health）：訊息量 / 接管率 / LLM 用量（漫途 consulting 視角）
- *   - 附加服務（addons）：加值資料庫 + API 加值（航班 / 護照辨識）+ AI 加值（未來）
- *   - 費用紀錄（billing）：訂閱方案 + 歷史付款紀錄
+ * tabs（2026-05-30 由 5 併 2）：
+ *   - 總覽（overview）：租戶資訊 + 系統主管 + 功能開關 + 員工配額 + HR 政策 + 費用紀錄（最底部）
+ *   - AI 與加值（ai_addons）：AI 模型設定 + AI 健康度 + 附加服務 三合一
  */
 
 import { useState, useEffect, use } from 'react'
@@ -16,15 +13,7 @@ import { useRouter } from 'next/navigation'
 import { ContentPageLayout } from '@/components/layout/content-page-layout'
 import { toast } from 'sonner'
 import { COMMON_MESSAGES } from '@/constants/messages'
-import {
-  Building2,
-  Save,
-  Sparkles,
-  LayoutDashboard,
-  Wallet,
-  PackagePlus,
-  Activity,
-} from 'lucide-react'
+import { Building2, Save, Sparkles, LayoutDashboard } from 'lucide-react'
 import { ModuleLoading } from '@/components/module-loading'
 import { invalidateFeatureCache } from '@/lib/permissions/hooks'
 import { FEATURES } from '@/lib/permissions'
@@ -37,20 +26,14 @@ import { apiMutate } from '@/lib/swr/api-mutate'
 
 const TAB_VALUES = {
   OVERVIEW: 'overview',
-  AI_SETTINGS: 'ai_settings',
-  AI_HEALTH: 'ai_health',
-  ADDONS: 'addons',
-  BILLING: 'billing',
+  AI_ADDONS: 'ai_addons',
 } as const
 
 type TabValue = (typeof TAB_VALUES)[keyof typeof TAB_VALUES]
 
 const TABS = [
   { value: TAB_VALUES.OVERVIEW, label: '總覽', icon: LayoutDashboard },
-  { value: TAB_VALUES.AI_SETTINGS, label: 'AI 模型', icon: Sparkles },
-  { value: TAB_VALUES.AI_HEALTH, label: 'AI 健康度', icon: Activity },
-  { value: TAB_VALUES.ADDONS, label: '附加服務', icon: PackagePlus },
-  { value: TAB_VALUES.BILLING, label: '費用紀錄', icon: Wallet },
+  { value: TAB_VALUES.AI_ADDONS, label: 'AI 與加值', icon: Sparkles },
 ]
 
 interface Workspace {
@@ -248,30 +231,34 @@ export default function TenantDetailPage({ params }: { params: Promise<{ id: str
       primaryAction={primaryAction}
     >
       {activeTab === TAB_VALUES.OVERVIEW && workspace && (
-        <OverviewTab
-          workspace={workspace}
-          workspaceId={id}
-          features={features}
-          employeeCount={employeeCount}
-          adminName={adminName}
-          leavePolicy={leavePolicy}
-          pensionSystem={pensionSystem}
-          savingHrPolicy={savingHrPolicy}
-          onToggleFeature={toggleFeature}
-          onToggleTabFeature={toggleTabFeature}
-          onSetLeavePolicy={setLeavePolicy}
-          onSetPensionSystem={setPensionSystem}
-          onSaveHrPolicy={handleSaveHrPolicy}
-        />
+        <div className="space-y-6">
+          <OverviewTab
+            workspace={workspace}
+            workspaceId={id}
+            features={features}
+            employeeCount={employeeCount}
+            adminName={adminName}
+            leavePolicy={leavePolicy}
+            pensionSystem={pensionSystem}
+            savingHrPolicy={savingHrPolicy}
+            onToggleFeature={toggleFeature}
+            onToggleTabFeature={toggleTabFeature}
+            onSetLeavePolicy={setLeavePolicy}
+            onSetPensionSystem={setPensionSystem}
+            onSaveHrPolicy={handleSaveHrPolicy}
+          />
+          {/* 費用紀錄移到總覽 tab 最底部、不再單獨 tab */}
+          <BillingTab workspaceId={id} />
+        </div>
       )}
 
-      {activeTab === TAB_VALUES.AI_SETTINGS && <AiSettingsTab workspaceId={id} />}
-
-      {activeTab === TAB_VALUES.AI_HEALTH && <AiHealthTab workspaceId={id} />}
-
-      {activeTab === TAB_VALUES.ADDONS && <AddonsTab workspaceId={id} />}
-
-      {activeTab === TAB_VALUES.BILLING && <BillingTab workspaceId={id} />}
+      {activeTab === TAB_VALUES.AI_ADDONS && (
+        <div className="space-y-6">
+          <AiSettingsTab workspaceId={id} />
+          <AiHealthTab workspaceId={id} />
+          <AddonsTab workspaceId={id} />
+        </div>
+      )}
     </ContentPageLayout>
   )
 }
