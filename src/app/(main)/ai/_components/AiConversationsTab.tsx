@@ -34,6 +34,8 @@ import { formatDateTaipei } from '@/lib/utils/format-date'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { FormDialog } from '@/components/dialog'
 import {
   MessageCircle,
   Facebook,
@@ -878,25 +880,18 @@ function RetrospectiveModal({
     }
   }
 
-  const modal = (
-    <div
-      className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4"
-      onClick={e => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-morandi-muted/20">
-          <div>
-            <h3 className="font-semibold text-morandi-primary">對話復盤</h3>
-            <p className="text-xs text-morandi-muted">
-              {customerName} · 共 {history.length} 筆歷史
-            </p>
-          </div>
-          <button onClick={onClose} className="text-morandi-muted hover:text-morandi-primary">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+  return (
+    <Dialog open onOpenChange={open => !open && onClose()}>
+      <DialogContent
+        size="2xl"
+        className="max-h-[85vh] flex flex-col p-0 gap-0"
+      >
+        <DialogHeader className="px-5 py-4 border-b border-morandi-muted/20">
+          <DialogTitle>對話復盤</DialogTitle>
+          <p className="text-xs text-morandi-muted">
+            {customerName} · 共 {history.length} 筆歷史
+          </p>
+        </DialogHeader>
 
         {/* 跑新復盤 */}
         <div className="px-5 py-3 border-b border-morandi-muted/20 bg-morandi-container/10">
@@ -940,11 +935,9 @@ function RetrospectiveModal({
             />
           ))}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
-
-  return typeof document !== 'undefined' ? createPortal(modal, document.body) : null
 }
 
 function RetrospectiveEntry({
@@ -1532,56 +1525,33 @@ function SpeedCardEditor({
     }
   }
 
-  const modal = (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
-      onClick={onClose}
+  return (
+    <FormDialog
+      open
+      onOpenChange={open => !open && onClose()}
+      title="編輯速記卡（JSON）"
+      onSubmit={handleSave}
+      submitLabel="儲存"
+      loading={saving}
+      maxWidth="2xl"
     >
-      <div
-        className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] flex flex-col"
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="px-5 py-4 border-b border-morandi-muted/20 flex items-center justify-between">
-          <h3 className="font-semibold text-morandi-primary">編輯速記卡（JSON）</h3>
-          <button onClick={onClose} className="text-morandi-muted hover:text-morandi-primary">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="p-5 flex-1 overflow-auto">
-          <p className="text-xs text-morandi-muted mb-2">
-            手動編輯速記卡 JSON（persona / preferences / history / unanswered_questions /
-            summary_text）。 存檔後 AI 下次回覆會用這版。下次累積 20 則訊息會 AI
-            重生覆蓋、想保留就鎖住 ✋。
-          </p>
-          <textarea
-            value={text}
-            onChange={e => {
-              setText(e.target.value)
-              setParseErr(null)
-            }}
-            className="w-full h-96 text-xs font-mono px-3 py-2 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-            spellCheck={false}
-          />
-          {parseErr && <p className="text-xs text-status-danger mt-2">⚠️ {parseErr}</p>}
-        </div>
-        <div className="px-5 py-3 border-t border-morandi-muted/20 flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={onClose} disabled={saving}>
-            取消
-          </Button>
-          <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1">
-            {saving ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Check className="w-3.5 h-3.5" />
-            )}
-            儲存
-          </Button>
-        </div>
-      </div>
-    </div>
+      <p className="text-xs text-morandi-muted">
+        手動編輯速記卡 JSON（persona / preferences / history / unanswered_questions /
+        summary_text）。 存檔後 AI 下次回覆會用這版。下次累積 20 則訊息會 AI
+        重生覆蓋、想保留就鎖住 ✋。
+      </p>
+      <textarea
+        value={text}
+        onChange={e => {
+          setText(e.target.value)
+          setParseErr(null)
+        }}
+        className="w-full h-96 text-xs font-mono px-3 py-2 rounded-md border border-input bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+        spellCheck={false}
+      />
+      {parseErr && <p className="text-xs text-status-danger">⚠️ {parseErr}</p>}
+    </FormDialog>
   )
-
-  return typeof document !== 'undefined' ? createPortal(modal, document.body) : null
 }
 
 // ===== 業務紀錄（文字輸入 + 顯示歷史）=====
@@ -1890,6 +1860,7 @@ function ImageLightbox({ url, onClose }: { url: string; onClose: () => void }) {
   }, [onClose])
 
   return (
+    /* eslint-disable-next-line venturo/no-custom-modal -- 圖片 lightbox 合理例外、純展示、見 workspace/架構整理/2026-05-29-primitive-收斂規則.md § 3 */
     <div
       className="fixed inset-0 z-50 bg-black/85 flex items-center justify-center"
       onClick={onClose}

@@ -9,6 +9,7 @@ import { CACHE_PRESETS } from '../core/types'
 import type { AirportImage } from '@/stores/types'
 
 const airportImageEntity = createEntityHook<AirportImage>('airport_images', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     select:
       'id,airport_code,image_url,label,season,is_default,display_order,uploaded_by,workspace_id,created_at,updated_at',

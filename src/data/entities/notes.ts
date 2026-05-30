@@ -20,6 +20,7 @@ interface Note {
 }
 
 const noteEntity = createEntityHook<Note>('notes', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     select:
       'id,user_id,tab_id,tab_name,content,tab_order,created_at,updated_at,workspace_id,created_by,updated_by',

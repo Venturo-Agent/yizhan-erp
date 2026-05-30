@@ -11,7 +11,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { translateDbError } from '@/lib/db-error-translate'
+import { createApiClient } from '@/lib/supabase/api-client'
+import { recordApiAuditContext } from '@/lib/audit/audit-helper'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { apiHandler } from '@/lib/api/api-handler'
 
@@ -29,8 +31,7 @@ export const GET = apiHandler(async () => {
     .order('effective_from', { ascending: false })
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data: data ?? [] })
@@ -49,6 +50,12 @@ export const POST = apiHandler(async ({ req }) => {
       { status: 400 }
     )
   }
+
+  const auditClient = await createApiClient()
+  await recordApiAuditContext(auditClient, {
+    actorId: guard.employeeId,
+    reason: '新增供應商報價',
+  })
 
   const supabase = getSupabaseAdminClient()
 
@@ -76,8 +83,7 @@ export const POST = apiHandler(async ({ req }) => {
 
   if (error) {
     logger.error('建立 supplier_pricing 失敗:', error)
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data }, { status: 201 })

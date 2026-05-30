@@ -12,7 +12,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { translateDbError } from '@/lib/db-error-translate'
+import { createApiClient } from '@/lib/supabase/api-client'
+import { recordApiAuditContext } from '@/lib/audit/audit-helper'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { apiHandler } from '@/lib/api/api-handler'
 
@@ -30,8 +32,7 @@ export const GET = apiHandler(async ({ params }) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
   return NextResponse.json({ data })
 })
@@ -44,6 +45,13 @@ export const PATCH = apiHandler(async ({ params, req }) => {
 
   const { id } = params as { id: string }
   const body = await req.json()
+
+  const auditClient = await createApiClient()
+  await recordApiAuditContext(auditClient, {
+    actorId: guard.employeeId,
+    reason: '更新申辦記錄',
+    requestId: id,
+  })
 
   const supabase = getSupabaseAdminClient()
 
@@ -87,8 +95,7 @@ export const PATCH = apiHandler(async ({ params, req }) => {
 
   if (error) {
     logger.error('更新申辦失敗:', error)
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data })
@@ -99,6 +106,14 @@ export const DELETE = apiHandler(async ({ params }) => {
   if (!guard.ok) return guard.response
 
   const { id } = params as { id: string }
+
+  const auditClient = await createApiClient()
+  await recordApiAuditContext(auditClient, {
+    actorId: guard.employeeId,
+    reason: '取消申辦記錄',
+    requestId: id,
+  })
+
   const supabase = getSupabaseAdminClient()
 
   // 移除（設 status = cancelled）
@@ -109,8 +124,7 @@ export const DELETE = apiHandler(async ({ params }) => {
     .eq('workspace_id', guard.workspaceId)
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data: { id } })

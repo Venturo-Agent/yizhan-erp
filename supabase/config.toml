@@ -56,11 +56,16 @@ enabled = true
 schema_paths = []
 
 [db.seed]
-# If enabled, seeds the database after migrations during a db reset.
-enabled = true
-# Specifies an ordered list of seed files to load during db reset.
-# Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed.sql"]
+# Seed 機制（2026-05-29 B13 對齊）：
+#   本專案的 seed 已內建在 migrations 序列裡（檔名為 *_seed_*.sql、共 ~20 支）
+#   詳見 CLAUDE.md § Migration SOP、新 module 走 `npm run codegen:seed` 產生 seed migration
+#   `supabase db reset` 跑完 migrations 後就已包含所有 seed、不需再額外灌 ./seed.sql
+#
+# 因此這裡關閉 db.seed.enabled、避免找不到 ./seed.sql 報錯
+# 若未來改回「migrations 跟 seed 分流」、把 enabled 改 true 並維護 sql_paths
+enabled = false
+# 留空陣列、不再指向不存在的 ./seed.sql
+sql_paths = []
 
 [db.network_restrictions]
 # Enable management of network restrictions.

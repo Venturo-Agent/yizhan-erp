@@ -5,7 +5,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { resolveEmployeeIdFromUser } from '@/app/api/lib/resolve-employee'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { generateVoucherNo } from '@/lib/codes'
 
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -140,10 +140,6 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     })
   } catch (error) {
     logger.error('Reverse voucher error:', error)
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 }

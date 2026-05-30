@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase/client'
 import { invalidatePaymentRequests } from './payment-requests'
 
 const disbursementOrderEntity = createEntityHook<DisbursementOrder>('disbursement_orders', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // 2026-05-15 補 payment_method_id / total_fee（wizard 編輯模式必要）+ accounting_voucher_id + batch_uuid + 軟刪
     select:

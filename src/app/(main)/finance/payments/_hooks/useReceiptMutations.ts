@@ -99,7 +99,7 @@ export function useReceiptMutations() {
       // 守門：提案 / 模板狀態的旅遊團不可開立收款單（業務規則）
       // 譬喻：飯店不對「報價單客人」或「房型範本」開帳單、必須是已成立的訂單
       if (tourId) {
-        const { isDraftTourStatus } = await import('@/lib/constants/tour-status')
+        const { isDraftTourStatus } = await import('@/constants/tour-status')
         const { data: tourRow } = await supabase
           .from('tours')
           .select('status')

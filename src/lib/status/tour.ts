@@ -73,7 +73,7 @@ export const tourStatuses: Record<string, StatusConfig> = {
 export const orderStatuses: Record<string, StatusConfig> = {
   pending: {
     color: 'text-morandi-secondary',
-    label: '待確認',
+    label: '待處理',
     icon: Clock,
     bgColor: 'bg-morandi-secondary/15',
   },
@@ -163,7 +163,7 @@ export const todoStatuses: Record<string, StatusConfig> = {
   },
   in_progress: {
     color: 'text-morandi-primary',
-    label: '待出發',
+    label: '進行中',
     icon: Package,
     bgColor: 'bg-morandi-primary/15',
   },
@@ -190,7 +190,7 @@ export const todoStatuses: Record<string, StatusConfig> = {
 export const esimStatuses: Record<string, StatusConfig> = {
   0: {
     color: 'text-morandi-secondary',
-    label: '待確認',
+    label: '待處理',
     icon: Clock,
     bgColor: 'bg-morandi-secondary/15',
   },

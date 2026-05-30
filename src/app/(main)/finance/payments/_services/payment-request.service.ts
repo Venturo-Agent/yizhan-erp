@@ -1,6 +1,6 @@
-import { BaseService, StoreOperations } from '@/core/services/base.service'
+import { BaseService, StoreOperations } from '@/lib/services/base.service'
 import { PaymentRequest, PaymentRequestItem } from '@/stores/types'
-import { ValidationError } from '@/core/errors/app-errors'
+import { ValidationError } from '@/lib/errors/app-errors'
 import { logger } from '@/lib/utils/logger'
 import { supabase } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/types'
@@ -8,7 +8,7 @@ import { invalidatePaymentRequests } from '@/data'
 import { softDelete } from '@/lib/data/soft-delete'
 import { useAuthStore } from '@/stores/auth-store'
 import { recalculateExpenseStats } from '@/app/(main)/finance/payments/_services/expense-core.service'
-import { isDraftTourStatus } from '@/lib/constants/tour-status'
+import { isDraftTourStatus } from '@/constants/tour-status'
 import {
   addItem as itemsAddItem,
   addItems as itemsAddItems,

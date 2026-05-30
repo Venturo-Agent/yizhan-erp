@@ -7,6 +7,7 @@ import type { WorkspaceBonusDefault } from '@/types/bonus.types'
 const workspaceBonusDefaultEntity = createEntityHook<WorkspaceBonusDefault>(
   'workspace_bonus_defaults',
   {
+    workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
     list: {
       select: 'id,workspace_id,type,bonus,bonus_type,employee_id,description,created_at,updated_at',
       orderBy: { column: 'type', ascending: true },

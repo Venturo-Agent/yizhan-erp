@@ -28,7 +28,7 @@ export function usePaymentForm() {
       const workspaceId = useAuthStore.getState().user?.workspace_id
       if (!workspaceId) return
 
-      const { ACTIVE_TOUR_STATUSES } = await import('@/lib/constants/tour-status')
+      const { ACTIVE_TOUR_STATUSES } = await import('@/constants/tour-status')
       const { data } = await supabase
         .from('tours')
         .select('id, code, name')

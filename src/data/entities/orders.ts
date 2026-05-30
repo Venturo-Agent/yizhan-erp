@@ -18,6 +18,7 @@ import type { Order } from '@/stores/types'
 // A1（5/13 拍板）：砍 orders.code、留 order_number 為 SSOT
 // 此 entity hook 的 select 已對齊（不含 code）
 const orderEntity = createEntityHook<Order>('orders', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // 2026-05-15 補 notes / identity_options
     // 2026-05-29 補 sales relation：列表帶業務員「當前」資料（員工改暱稱跟著動、不靠 sales_person 字串 fallback）

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 /**
@@ -16,7 +16,7 @@ export const GET = apiHandler(async () => {
   const guard = await requireCapability(CAPABILITIES.TODOS_READ)
   if (!guard.ok) return guard.response
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
   if (!workspaceId) return NextResponse.json({ error: '未登入' }, { status: 401 })
 
   const { data, error } = await supabase
@@ -27,11 +27,7 @@ export const GET = apiHandler(async () => {
     .order('sort_order')
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json(data || [])
 })
@@ -43,7 +39,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const guard = await requireCapability(CAPABILITIES.TODOS_WRITE)
   if (!guard.ok) return guard.response
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
   if (!workspaceId) return NextResponse.json({ error: '未登入' }, { status: 401 })
 
   await recordApiAuditContext(supabase, { actorId: guard.employeeId, reason: '新增看板欄位' })
@@ -80,11 +76,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json(data)
 })
@@ -126,11 +118,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json(data)
 })
@@ -158,11 +146,7 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
     .eq('id', id)
     .eq('owner_employee_id', guard.employeeId)
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
   return NextResponse.json({ success: true })
 })

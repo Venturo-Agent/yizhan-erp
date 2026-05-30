@@ -18,6 +18,10 @@ interface DateInputProps {
   className?: string
   min?: string
   max?: string
+  /** 日曆預設顯示月份（YYYY-MM-DD）— 用於起訖日連動 */
+  defaultMonth?: string
+  /** HTML form 必填、3 段都會帶 required */
+  required?: boolean
 }
 
 export function DateInput({
@@ -28,6 +32,8 @@ export function DateInput({
   className,
   min,
   max,
+  defaultMonth,
+  required,
 }: DateInputProps) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   // 將 ISO 格式轉換為顯示格式
@@ -168,6 +174,19 @@ export function DateInput({
     min && min.match(/^\d{4}-\d{2}-\d{2}$/) ? parse(min, 'yyyy-MM-dd', new Date()) : undefined
   const maxDate =
     max && max.match(/^\d{4}-\d{2}-\d{2}$/) ? parse(max, 'yyyy-MM-dd', new Date()) : undefined
+  const defaultMonthDate =
+    defaultMonth && defaultMonth.match(/^\d{4}-\d{2}-\d{2}$/)
+      ? parse(defaultMonth, 'yyyy-MM-dd', new Date())
+      : undefined
+  // 日曆預設聚焦月：當前值 > defaultMonth > min > 今天
+  const calendarDefaultMonth =
+    dateValue && isValid(dateValue)
+      ? dateValue
+      : defaultMonthDate && isValid(defaultMonthDate)
+        ? defaultMonthDate
+        : minDate && isValid(minDate)
+          ? minDate
+          : undefined
 
   // 從日曆選擇日期
   const handleCalendarSelect = (date: Date | undefined) => {
@@ -181,7 +200,7 @@ export function DateInput({
   return (
     <div
       className={cn(
-        // 5/13 William 反饋同 SimpleDateInput：父層 grid 擠太窄時日期會超出 input border、加 min-w-fit 保 content
+        // 5/13 William 反饋：父層 grid 擠太窄時日期會超出 input border、加 min-w-fit 保 content
         'flex items-center h-10 w-full min-w-fit rounded-md border border-input bg-card px-3 text-sm transition-colors',
         'focus-within:outline-none focus-within:border-morandi-gold',
         disabled && 'cursor-not-allowed opacity-60 bg-input-disabled-bg',
@@ -197,6 +216,7 @@ export function DateInput({
         onKeyDown={handleYearKeyDown}
         placeholder="YYYY"
         disabled={disabled}
+        required={required}
         className="w-14 !h-auto !p-0 !border-0 !rounded-none !bg-transparent !outline-none !ring-0 !shadow-none placeholder:text-morandi-secondary/50 text-center"
         style={{ boxShadow: 'none' }}
         maxLength={4}
@@ -211,6 +231,7 @@ export function DateInput({
         onKeyDown={handleMonthKeyDown}
         placeholder="MM"
         disabled={disabled}
+        required={required}
         className="w-10 !h-auto !p-0 !border-0 !rounded-none !bg-transparent !outline-none !ring-0 !shadow-none placeholder:text-morandi-secondary/50 text-center"
         style={{ boxShadow: 'none' }}
         maxLength={2}
@@ -225,6 +246,7 @@ export function DateInput({
         onKeyDown={handleDayKeyDown}
         placeholder="DD"
         disabled={disabled}
+        required={required}
         className="w-10 !h-auto !p-0 !border-0 !rounded-none !bg-transparent !outline-none !ring-0 !shadow-none placeholder:text-morandi-secondary/50 text-center"
         style={{ boxShadow: 'none' }}
         maxLength={2}
@@ -267,7 +289,7 @@ export function DateInput({
               handleCalendarSelect as (date: Date | { from: Date; to?: Date } | undefined) => void
             }
             disabled={minDate || maxDate ? { before: minDate, after: maxDate } : undefined}
-            defaultMonth={dateValue && isValid(dateValue) ? dateValue : undefined}
+            defaultMonth={calendarDefaultMonth}
           />
         </PopoverContent>
       </Popover>

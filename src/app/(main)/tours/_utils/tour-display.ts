@@ -11,7 +11,7 @@
 import { useMemo } from 'react'
 import { useCountries } from '@/data'
 import { useAirports } from '@/app/(main)/tours/_hooks/useAirports'
-import type { Tour } from '@/types/tour.types'
+import type { Tour } from '@/types/tour'
 
 interface CountryLite {
   id: string

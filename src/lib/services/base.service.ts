@@ -1,5 +1,5 @@
-import { BaseEntity, PageRequest, PageResponse } from '@/core/types/common'
-import { NotFoundError } from '@/core/errors/app-errors'
+import { BaseEntity, PageRequest, PageResponse } from '@/types/core.types'
+import { NotFoundError } from '@/lib/errors/app-errors'
 
 /**
  * Store 操作介面（非同步版本）

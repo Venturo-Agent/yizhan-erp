@@ -11,8 +11,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getServerAuth } from '@/lib/auth/server-auth'
+import { createApiClient } from '@/lib/supabase/api-client'
+import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { logger } from '@/lib/utils/logger'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 
 type QuotaLogRow = {
   id: string
@@ -74,8 +76,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
       .order('created_at', { ascending: false })
 
     if (error) {
-      const t = translateDbError(error as Parameters<typeof translateDbError>[0])
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(error)
     }
 
     const logs = rawLogs ?? []
@@ -147,6 +148,13 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const body = (await request.json()) as { max_employees?: number | null; reason?: string }
     const newQuota = body.max_employees ?? null
 
+    const auditClient = await createApiClient()
+    await recordApiAuditContext(auditClient, {
+      actorId: auth.data.employeeId,
+      reason: '調整租戶員工配額',
+      requestId: workspaceId,
+    })
+
     const supabase = getSupabaseAdminClient()
 
     // 讀取目前配額（比較用）
@@ -170,8 +178,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .eq('id', workspaceId) as unknown as Promise<{ error: { message: string } | null }>)
 
     if (updateError) {
-      const t = translateDbError(updateError as Parameters<typeof translateDbError>[0])
-      return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+      return dbErrorResponse(updateError)
     }
 
     // 有變動才寫 log

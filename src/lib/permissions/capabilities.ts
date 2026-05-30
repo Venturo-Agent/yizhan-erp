@@ -179,6 +179,12 @@ export const CAPABILITIES = {
   CROSS_BRANCH_WRITE: 'cross_branch.write',
 
   // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════
+  //
+  // 2026-05-29 William 拍板砍 bot/messaging/office module SOURCE：
+  // - LINE_BOT_* 仍有 src/app/api/line/postback-templates/* 3 route 在用 → 留下
+  //   （B6 範圍只動 (main) 路由與 module 描述子、api/line 不在範圍內、未來 api/line 全砍時再清）
+  // - CHANNELS_MANAGE ('channels.manage') 仍有 ChannelView.tsx caller → 留下
+  // - MANAGE_ENV_SETTINGS ('settings.env.write') 仍有 api/settings/env caller → 留下
   CHANNELS_MANAGE: 'channels.manage',
   LINE_BOT_CONFIG: 'line_bot.config',
   LINE_BOT_READ: 'line_bot.read',

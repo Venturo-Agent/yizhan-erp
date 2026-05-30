@@ -20,6 +20,7 @@ import { formatDateTaipei } from '@/lib/utils/format-date'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
+import { DatePicker } from '@/components/ui/date-picker'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -314,18 +315,17 @@ export function BillingTab({ workspaceId }: BillingTabProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>週期起日</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={form.period_start}
-                onChange={e => setForm(prev => ({ ...prev, period_start: e.target.value }))}
+                onChange={period_start => setForm(prev => ({ ...prev, period_start }))}
               />
             </div>
             <div className="space-y-2">
               <Label>週期迄日</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={form.period_end}
-                onChange={e => setForm(prev => ({ ...prev, period_end: e.target.value }))}
+                onChange={period_end => setForm(prev => ({ ...prev, period_end }))}
+                minDate={form.period_start}
               />
             </div>
           </div>
@@ -353,10 +353,9 @@ export function BillingTab({ workspaceId }: BillingTabProps) {
           {form.status === 'paid' && (
             <div className="space-y-2">
               <Label>付款日（留空 = 今天）</Label>
-              <Input
-                type="date"
+              <DatePicker
                 value={form.paid_at}
-                onChange={e => setForm(prev => ({ ...prev, paid_at: e.target.value }))}
+                onChange={paid_at => setForm(prev => ({ ...prev, paid_at }))}
               />
             </div>
           )}

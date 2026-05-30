@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { hasCapabilityByCode } from '@/app/api/lib/check-capability'
@@ -7,7 +7,7 @@ import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
 import { createPaymentMethodSchema, updatePaymentMethodSchema } from '@/lib/validations/api-schemas'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 /**
@@ -40,7 +40,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const includeInactive = searchParams.get('include_inactive') === 'true'
 
   // 明確用 workspace_id 過濾（擁有平台管理資格時 RLS 會放行全部、所以不能只靠 RLS）
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
   let query = supabase
     .from('payment_methods')
     .select(
@@ -69,11 +69,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const { data, error } = await query
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -87,7 +83,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
   const guard = await requireCapability(CAPABILITIES.FINANCE_MANAGE_SETTINGS)
   if (!guard.ok) return guard.response
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
 
   if (!workspaceId) {
     return NextResponse.json({ error: '未登入' }, { status: 401 })
@@ -106,11 +102,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -145,11 +137,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -191,11 +179,7 @@ export const DELETE = apiHandler(async (request: NextRequest) => {
         { status: 409 }
       )
     }
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ success: true })

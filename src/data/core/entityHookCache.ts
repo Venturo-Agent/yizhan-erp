@@ -13,7 +13,8 @@
 
 import { useState, useEffect } from 'react'
 import { get_cache } from '@/lib/cache/indexeddb-cache'
-import type { UserRole } from '@/lib/rbac-config'
+import type { UserRole } from '@/types/user.types'
+import { useAuthStore } from '@/stores/auth-store'
 
 // ============================================
 // UUID v4 生成（兼容瀏覽器）
@@ -34,11 +35,14 @@ export function generateUUID(): string {
 }
 
 // ============================================
-// Workspace / User context（從 localStorage 讀）
+// Workspace / User context（從 zustand auth store 讀）
 // ============================================
 
 /**
  * 取得當前使用者的 workspace_id 和 role
+ *
+ * B10 收斂：原本直讀 localStorage 手解 JSON、改為走 zustand store
+ * （`workspace-context.ts` 是 client 端 SSOT、本函式僅服務 entity hook cache scope）。
  *
  * userRole 僅供 SWR cache scoping、不用於權限決策。
  */
@@ -48,21 +52,13 @@ export function getCurrentUserContext(): {
   userId: string | null
 } {
   if (typeof window === 'undefined') return { workspaceId: null, userRole: null, userId: null }
-  try {
-    const authData = localStorage.getItem('auth-storage')
-    if (authData) {
-      const parsed = JSON.parse(authData)
-      const user = parsed?.state?.user
-      return {
-        workspaceId: user?.workspace_id || null,
-        userRole: 'staff' as UserRole,
-        userId: user?.id || null,
-      }
-    }
-  } catch {
-    // 忽略解析錯誤
+  const user = useAuthStore.getState().user
+  if (!user) return { workspaceId: null, userRole: null, userId: null }
+  return {
+    workspaceId: user.workspace_id || null,
+    userRole: 'staff' as UserRole,
+    userId: user.id || null,
   }
-  return { workspaceId: null, userRole: null, userId: null }
 }
 
 // ============================================
@@ -103,39 +99,28 @@ export function useIdbFallback<D>(cache_key: string | null): D | undefined {
 // ============================================
 
 /**
- * 需要 workspace 隔離的表格列表
+ * 需要 workspace 隔離的表格列表（fallback 名單）
  *
- * SSOT 註：理論上 entity config 自帶 workspaceScoped 才是 SSOT、本名單為 fallback。
- * 漸進式遷移：新 entity 請在 createEntityHook(...) config 內顯式設 workspaceScoped: true，
- * 不要再加進這個 list；本 list 隨時間萎縮、最終只剩 cross-tenant whitelist（如 workspaces）。
+ * SSOT 註：entity config 自帶 workspaceScoped 才是 SSOT、本名單只是 fallback。
+ *
+ * 2026-05-29 B11：以下表已在自家 entity config 顯式設 workspaceScoped: true、
+ * 從本名單移除（避免雙軌）：
+ *   tours / orders / order_members / customers / quotes / itineraries /
+ *   payment_requests / payment_request_items / disbursement_orders / receipts /
+ *   chart_of_accounts / todos / calendar_events / notes / airport_images /
+ *   suppliers / tour_bonus_settings / workspace_bonus_defaults / tour_itinerary_items
+ *
+ * 保留項：尚未建立 entity hook 檔的業務表（散落 supabase.from 或 future entity）。
+ * 新建 entity 不要再加進名單、請直接在 createEntityHook(...) config 顯式宣告。
  */
 export const WORKSPACE_SCOPED_TABLES = [
-  // === 核心業務 ===
-  'tours',
-  'orders',
-  'order_members',
-  'customers',
-  // === 行程與報價 ===
-  'quotes',
-  'itineraries',
-  // === 財務管理 ===
-  'payment_requests',
-  'payment_request_items',
-  'disbursement_orders',
-  'receipts',
-  // === 會計模組 ===
-  'chart_of_accounts',
+  // === 會計模組（無對應 entity hook 檔）===
   'journal_vouchers',
   'confirmations',
-  // === 其他業務 ===
-  'todos',
-  'calendar_events',
-  'notes',
-  // === 企業客戶（B2B）===
+  // === 企業客戶 B2B（無對應 entity hook 檔）===
   'companies',
   'company_contacts',
-  // === 金流串接 log ===
-  // === PNR 系統 ===
+  // === PNR 系統（無對應 entity hook 檔）===
   'pnrs',
   'pnr_records',
   'pnr_fare_history',
@@ -145,20 +130,9 @@ export const WORKSPACE_SCOPED_TABLES = [
   'pnr_queue_items',
   'pnr_schedule_changes',
   'pnr_ai_queries',
-  // === 其他 ===
-  'airport_images',
+  // === 業務雜項（無對應 entity hook 檔）===
   'request_responses',
   'request_response_items',
-  // === 資料庫（景點/飯店/餐廳/國家/城市/區域/機場：平台共用層、漫途/角落人員維護、workspace_id 為 NULL）===
-  // 2026-05-20 S1.1a 拔除：entity config workspaceScoped 已是 false/undefined、量測
-  // attractions 99.9% / hotels 99.6% / restaurants 100% 已是 NULL workspace_id；
-  // cities/regions 0 筆、countries 已遷 ref_countries。零跨公司串味風險、解 SSOT 撕裂（紅線 F）。
-  'suppliers',
-  // === 獎金系統 ===
-  'tour_bonus_settings',
-  'workspace_bonus_defaults',
-  // === 核心表 ===
-  'tour_itinerary_items',
 ]
 
 /**

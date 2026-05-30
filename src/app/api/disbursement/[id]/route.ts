@@ -27,10 +27,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getApiContext } from '@/lib/auth/get-api-context'
+import { requireCapability } from '@/lib/auth/require-capability'
+import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { translateDbError, dbErrorResponse } from '@/lib/db-error-translate'
 import {
   validatePatchBody,
   checkCrossWorkspaceItems,
@@ -62,10 +63,8 @@ import {
 import { computeBatchFees } from '@/lib/disbursement/fee-distribution'
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const ctx = await getApiContext({ capabilityCode: 'finance.disbursement.write' })
-  if (!ctx.ok) {
-    return NextResponse.json({ error: ctx.error }, { status: ctx.status })
-  }
+  const ctx = await requireCapability(CAPABILITIES.FINANCE_MANAGE_DISBURSEMENT)
+  if (!ctx.ok) return ctx.response
 
   const { id: disbursementId } = await params
 
@@ -80,8 +79,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (!bodyResult.ok) return bodyResult.response
   const body = bodyResult.body
 
-  const workspaceId = ctx.workspace_id
-  const employeeId = ctx.employee_id
+  const workspaceId = ctx.workspaceId
+  const employeeId = ctx.employeeId
 
   // audit context（recordApiAuditContext 需要 admin client、這裡用一次性的）
   const auditAdmin = getSupabaseAdminClient()
@@ -223,8 +222,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         employeeId
       )
       if (forkErr || !newReqId) {
-        const t = translateDbError(forkErr)
-        return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+        return dbErrorResponse(forkErr)
       }
       for (const itemId of selectedInReq) {
         const it = finalItemsMap.get(itemId)

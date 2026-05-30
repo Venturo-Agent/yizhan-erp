@@ -58,16 +58,17 @@ export const paymentStatuses: Record<string, StatusConfig> = {
 }
 
 // 出納單狀態（實際使用：pending → confirmed → paid）
+// 2026-05-21 William 拍板：對齊請款單 3 階段語意（未付款 / 待付款 / 已付款）
 export const disbursementStatuses: Record<string, StatusConfig> = {
   pending: {
     color: 'text-morandi-secondary',
-    label: '待確認',
+    label: '未付款',
     icon: Clock,
     bgColor: 'bg-morandi-secondary/15',
   },
   confirmed: {
     color: 'text-status-success',
-    label: '已確認',
+    label: '待付款',
     icon: CheckSquare,
     bgColor: 'bg-status-success-bg',
   },
@@ -267,7 +268,7 @@ export const quoteStatuses: Record<string, StatusConfig> = {
   },
   proposed: {
     color: 'text-morandi-secondary',
-    label: '開團',
+    label: '提案',
     icon: Clock,
     bgColor: 'bg-morandi-secondary/15',
   },

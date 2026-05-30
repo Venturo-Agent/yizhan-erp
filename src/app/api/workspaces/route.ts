@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { logger } from '@/lib/utils/logger'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 /**
@@ -35,11 +35,7 @@ export const GET = apiHandler(async () => {
 
   if (featureError) {
     logger.error('[/api/workspaces GET] feature lookup error:', featureError)
-    const t = translateDbError(featureError)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(featureError)
   }
   if (!feature) {
     return NextResponse.json({ error: '無權限（此 workspace 未啟用租戶管理）' }, { status: 403 })
@@ -52,11 +48,7 @@ export const GET = apiHandler(async () => {
     .order('created_at', { ascending: true })
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   // 取得所有擁有管理員資格的職務 id

@@ -15,14 +15,14 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { hasCapabilityByCode } from '@/app/api/lib/check-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
 import { apiHandler } from '@/lib/api/api-handler'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { sendChannelNotification, NOTIFICATION_SOURCE_TYPES } from '@/lib/channels/send'
 import { logger } from '@/lib/utils/logger'
@@ -48,7 +48,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   if (!auth.success) return NextResponse.json({ error: '請先登入' }, { status: 401 })
 
   const supabase = await createApiClient()
-  const workspaceId = await getCurrentWorkspaceId()
+  const workspaceId = await getCurrentWorkspaceIdServer()
   if (!workspaceId) return NextResponse.json({ error: '無 workspace' }, { status: 401 })
 
   const scope = request.nextUrl.searchParams.get('scope') ?? 'mine'
@@ -79,8 +79,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
 
   const { data, error } = await query
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
   return NextResponse.json({ data: data ?? [] })
 })
@@ -118,8 +117,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   // 通知 system_notice 頻道（HR 看得到、可進審核頁批 / 拒）

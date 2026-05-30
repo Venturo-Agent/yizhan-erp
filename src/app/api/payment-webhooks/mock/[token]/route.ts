@@ -19,7 +19,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { notifyPaymentCapturedToConversation } from '@/lib/ai/notify-payment-captured'
 
@@ -45,8 +45,7 @@ export async function POST(
     .maybeSingle()
 
   if (txError) {
-    const t = translateDbError(txError)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(txError)
   }
   if (!tx) {
     return NextResponse.json({ error: '連結無效或已過期' }, { status: 404 })
@@ -91,8 +90,7 @@ export async function POST(
     .eq('id', tx.id)
 
   if (updateTxError) {
-    const t = translateDbError(updateTxError)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(updateTxError)
   }
 
   // 3. 同步更新 receipt（若有）

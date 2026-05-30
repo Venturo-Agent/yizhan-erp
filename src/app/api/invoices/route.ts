@@ -5,7 +5,7 @@ import { getServerAuth } from '@/lib/auth/server-auth'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { logger } from '@/lib/utils/logger'
-import { dbErrorResponse, translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
 /**
@@ -108,11 +108,8 @@ export async function POST(req: Request) {
 
     if (batchError || !batch) {
       logger.error('[/api/invoices POST] batch insert error:', batchError)
-      const batchT = batchError ? translateDbError(batchError) : null
-      return NextResponse.json(
-        { error: batchT?.message ?? '建立批次失敗' },
-        { status: batchT?.httpStatus ?? 500 }
-      )
+      if (batchError) return dbErrorResponse(batchError)
+      return NextResponse.json({ error: '建立批次失敗' }, { status: 500 })
     }
 
     // Step 2: 建 N 個 invoices、掛同個 batch_id
@@ -138,8 +135,7 @@ export async function POST(req: Request) {
       logger.error('[/api/invoices POST] invoices insert error:', insertError)
       // 補救：rollback 已建的 batch、避免孤兒
       await supabase.from('invoice_batches').delete().eq('id', batch.id)
-      const insertT = translateDbError(insertError)
-      return NextResponse.json({ error: insertT.message }, { status: insertT.httpStatus })
+      return dbErrorResponse(insertError)
     }
 
     return NextResponse.json(

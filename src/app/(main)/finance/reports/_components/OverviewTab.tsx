@@ -12,7 +12,7 @@ import { useDraftTourIds } from '../_hooks/useDraftTourIds'
 import { format } from 'date-fns'
 import { zhTW } from 'date-fns/locale'
 import type { DateRange } from './DateRangeSelector'
-import { getStatusLabelFor } from '@/lib/design/status-tone-map'
+import { getStatusLabelFor } from '@/lib/status'
 import { OverviewStatCards } from './OverviewStatCards'
 import {
   OverviewSupplierTable,

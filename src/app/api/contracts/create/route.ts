@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { nanoid } from 'nanoid'
-import { createApiClient, getCurrentWorkspaceId } from '@/lib/supabase/api-client'
+import { createApiClient, getCurrentWorkspaceIdServer } from '@/lib/supabase/api-client'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { validateBody } from '@/lib/api/validation'
 import { createContractSchema } from '@/lib/validations/api-schemas'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 
 // 自動判斷合約類型 — 從 country_id 解析出國家名，台灣 = 國內團
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     const guard = await requireCapability(CAPABILITIES.TOURS_CONTRACT_WRITE)
     if (!guard.ok) return guard.response
     const supabase = await createApiClient()
-    const workspaceId = await getCurrentWorkspaceId()
+    const workspaceId = await getCurrentWorkspaceIdServer()
 
     if (!workspaceId) {
       return NextResponse.json({ error: '未登入或無法取得租戶' }, { status: 401 })
@@ -220,11 +220,7 @@ export async function POST(request: NextRequest) {
 
     if (createError) {
       logger.error('Create contract error:', createError)
-      const t = translateDbError(createError)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(createError)
     }
 
     // 更新團員的 contract_id
@@ -242,10 +238,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (err) {
     logger.error('Create contract uncaught:', err)
-    const t = translateDbError(err)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(err)
   }
 }

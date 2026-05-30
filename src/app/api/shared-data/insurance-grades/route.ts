@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 import { apiHandler } from '@/lib/api/api-handler'
@@ -33,8 +33,7 @@ export const GET = apiHandler(async () => {
     .order('grade_number')
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data: data ?? [] })
@@ -93,8 +92,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .single()
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data })

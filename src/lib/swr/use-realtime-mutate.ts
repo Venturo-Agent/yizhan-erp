@@ -1,16 +1,24 @@
 /**
- * useRealtimeMutate — 訂閱 Supabase Realtime、收到變動自動 mutate SWR cache
+ * useRealtimeMutate — REST endpoint / 自定 SWR key 的 Realtime 同步 helper
+ *
+ * 2026-05-29 B11 邊界釐清：
+ *   - 本 hook 服務「REST API endpoint 當 SWR key」場景（譬如 /api/messaging/conversations）。
+ *   - entity hook 的 `useRealtimeSync(table, cacheKeyPrefix)`（src/data/core/entityHookRealtime.ts）
+ *     服務「entity:<table> 前綴的 SWR cache」場景、由 createEntityHook 自動內建、不該手動呼。
+ *   - 兩者**不是重複**：cache key 命名空間不同（API path vs entity prefix）、不能互相替代。
  *
  * 設計（William 2026-05-17 拍板「真正根本解」#8 SWR Realtime）：
  *   - 解決「別人改了我看不到、要 reload」的全 SaaS UX 痛點
  *   - 配合 apiMutate（寫入後立即 invalidate）形成「自己改 + 別人改」雙向即時
  *
- * 用法：
+ * 用法（限 REST endpoint / 自定 key）：
  *   useRealtimeMutate({
  *     table: 'inbox_conversations',
  *     filter: `workspace_id=eq.${workspaceId}`,  // Realtime postgres-changes filter
  *     swrKeys: ['/api/messaging/conversations'],
  *   })
+ *
+ * 用 entity hook 的場景請走 useList() 內建 realtime、不要在 page 散刻本 hook 補訂閱。
  *
  * 前提（已完成 2026-05-17）：
  *   - production DB 上對應 table 已加進 supabase_realtime publication

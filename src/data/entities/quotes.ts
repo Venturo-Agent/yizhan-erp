@@ -9,6 +9,7 @@ import { CACHE_PRESETS } from '../core/types'
 import type { Quote } from '@/stores/types'
 
 const quoteEntity = createEntityHook<Quote>('quotes', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // 2026-05-15 補 version / versions / current_version_index / confirmed_version / country_code（雙軌版本系統）
     select:

@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { Loader2, CheckSquare, AlertTriangle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { DatePicker } from '@/components/ui/date-picker'
 import {
   Select,
   SelectTrigger,
@@ -244,12 +245,10 @@ export function PayFormDialog({
                   <label className="block text-xs font-medium text-morandi-primary mb-1">
                     {LABELS.FORM_DATE}
                   </label>
-                  <input
-                    type="date"
-                    max={todayStr}
+                  <DatePicker
                     value={paymentDate}
-                    onChange={e => setPaymentDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm bg-background focus:outline-none focus:ring-2 focus:ring-morandi-gold/40"
+                    onChange={setPaymentDate}
+                    maxDate={todayStr}
                     disabled={submitting}
                     required
                   />

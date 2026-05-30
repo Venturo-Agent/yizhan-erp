@@ -11,7 +11,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { translateDbError } from '@/lib/db-error-translate'
+import { createApiClient } from '@/lib/supabase/api-client'
+import { recordApiAuditContext } from '@/lib/audit/audit-helper'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { apiHandler } from '@/lib/api/api-handler'
 
@@ -27,8 +29,7 @@ export const GET = apiHandler(async () => {
     .order('sort_order', { ascending: true })
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data: data ?? [] })
@@ -44,6 +45,12 @@ export const POST = apiHandler(async ({ req }) => {
   if (!code || !label) {
     return NextResponse.json({ error: 'code 和 label 必填' }, { status: 400 })
   }
+
+  const auditClient = await createApiClient()
+  await recordApiAuditContext(auditClient, {
+    actorId: guard.employeeId,
+    reason: '新增證件種類',
+  })
 
   const supabase = getSupabaseAdminClient()
   const { data, error } = await supabase
@@ -61,8 +68,7 @@ export const POST = apiHandler(async ({ req }) => {
 
   if (error) {
     logger.error('建立 document_types 失敗:', error)
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data }, { status: 201 })

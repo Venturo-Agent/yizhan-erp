@@ -4,7 +4,7 @@ import React, { useMemo, useState } from 'react'
 import { useAsyncSubmit } from '@/hooks/useAsyncSubmit'
 import { FormDialog } from '@/components/dialog'
 import { Button } from '@/components/ui/button'
-import { SimpleDateInput } from '@/components/ui/simple-date-input'
+import { DatePicker } from '@/components/ui/date-picker'
 import {
   Select,
   SelectContent,
@@ -194,7 +194,7 @@ export function ConvertToTourDialog({
             <label className="text-sm font-medium text-morandi-primary">
               {TOUR_CONVERT.label_departure}
             </label>
-            <SimpleDateInput
+            <DatePicker
               value={departureDate}
               onChange={date => {
                 setDepartureDate(date)
@@ -211,10 +211,10 @@ export function ConvertToTourDialog({
             <label className="text-sm font-medium text-morandi-primary">
               {TOUR_CONVERT.label_return}
             </label>
-            <SimpleDateInput
+            <DatePicker
               value={returnDate}
               onChange={setReturnDate}
-              min={departureDate}
+              minDate={departureDate}
               defaultMonth={departureDate}
               className="mt-1"
               required

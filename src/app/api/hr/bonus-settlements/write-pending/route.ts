@@ -12,7 +12,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 import type { SupabaseClient } from '@supabase/supabase-js'
 
@@ -72,8 +72,7 @@ export const POST = apiHandler(async (request: NextRequest) => {
     .upsert(rows, { onConflict: 'tour_id,employee_id,bonus_kind' })
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data: { inserted: rows.length } })

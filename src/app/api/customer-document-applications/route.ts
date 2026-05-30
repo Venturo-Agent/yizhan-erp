@@ -12,7 +12,7 @@ import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { logger } from '@/lib/utils/logger'
 import { apiHandler } from '@/lib/api/api-handler'
 
@@ -31,8 +31,7 @@ export const GET = apiHandler(async () => {
     .limit(200)
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data: data ?? [] })
@@ -74,8 +73,7 @@ export const POST = apiHandler(async ({ req }) => {
 
   if (error) {
     logger.error('建立申辦失敗:', error)
-    const t = translateDbError(error)
-    return NextResponse.json({ error: t.message }, { status: t.httpStatus })
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ data }, { status: 201 })

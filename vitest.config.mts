@@ -16,6 +16,7 @@ export default defineConfig({
       '**/e2e/**',
       '**/*.spec.ts',
       'tests/lib/linkpay/signature.test.ts',
+      '**/.claude/worktrees/**',
     ],
     coverage: {
       provider: 'v8',

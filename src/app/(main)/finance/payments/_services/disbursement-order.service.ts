@@ -1,5 +1,5 @@
 import { formatDate } from '@/lib/utils/format-date'
-import { BaseService, StoreOperations } from '@/core/services/base.service'
+import { BaseService, StoreOperations } from '@/lib/services/base.service'
 import { DisbursementOrder, PaymentRequest } from '@/stores/types'
 import { supabase } from '@/lib/supabase/client'
 import type { Database } from '@/lib/supabase/types'
@@ -22,7 +22,7 @@ async function fetchRequestIdsByOrder(orderId: string): Promise<string[]> {
   if (error) throw new Error(error.message)
   return (data || []).map(r => r.id)
 }
-import { ValidationError } from '@/core/errors/app-errors'
+import { ValidationError } from '@/lib/errors/app-errors'
 import { logger } from '@/lib/utils/logger'
 // workspace_id is now auto-set by DB trigger
 

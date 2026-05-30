@@ -15,12 +15,12 @@ export type URL = string
 // ==================== Supabase 表格型別映射 ====================
 
 export type Employee = Database['public']['Tables']['employees']['Row']
-// Tour 的 canonical source 在 @/types/tour.types（手寫 interface、含業務註解與衍生型別）
-export type { Tour } from './tour.types'
+// Tour 的 canonical source 在 @/types/tour（手寫 interface、含業務註解與衍生型別）
+export type { Tour } from './tour'
 export type Order = Database['public']['Tables']['orders']['Row']
 export type Customer = Database['public']['Tables']['customers']['Row']
-// Member 來自手寫 interface（@/types/tour.types）、實際資料用 order_members 表
-export type { Member } from './tour.types'
+// Member 來自手寫 interface（@/types/tour）、實際資料用 order_members 表
+export type { Member } from './tour'
 // Payment 走手寫 interface（@/types/base.types）
 export type { Payment } from './base.types'
 export type Todo = Database['public']['Tables']['todos']['Row']

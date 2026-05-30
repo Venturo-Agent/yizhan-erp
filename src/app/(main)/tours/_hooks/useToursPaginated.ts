@@ -187,6 +187,9 @@ export function useToursPaginated(params: UseToursPaginatedParams): UseToursPagi
     await invalidateTours()
   }
 
+  // 散刻 supabase.channel — 此 hook 的 SWR key 前綴是 `tours-paginated-...`、
+  // 不在 entity hook 的 `entity:tours` 前綴內、useRealtimeSync 無法刷到、所以保留。
+  // 2026-05-29 B11 標記：未來若 server-pagination 也接 entity hook（補 usePaginated）、可改 useRealtimeSync。
   useEffect(() => {
     const workspaceId = user?.workspace_id
     if (!workspaceId) return

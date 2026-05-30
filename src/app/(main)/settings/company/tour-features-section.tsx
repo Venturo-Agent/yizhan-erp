@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { TOUR_SERVICE_TYPES } from '@/lib/constants/tour-service-types'
+import { TOUR_SERVICE_TYPES } from '@/constants/tour-service-types'
 
 interface TourAttributesSectionProps {
   selectedCategories: string[]

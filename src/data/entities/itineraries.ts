@@ -9,6 +9,7 @@ import { CACHE_PRESETS } from '../core/types'
 import type { Itinerary } from '@/stores/types'
 
 const itineraryEntity = createEntityHook<Itinerary>('itineraries', {
+  workspaceScoped: true, // 2026-05-29 B11：從 WORKSPACE_SCOPED_TABLES fallback 名單搬進顯式宣告
   list: {
     // 註：移除已廢棄的 city / country / erp_itinerary_id（Online 已暫停）欄位
     // 2026-05-15 補 country / city / price_note / price_tiers / template_* / hidden_items_*（行程模板系統）

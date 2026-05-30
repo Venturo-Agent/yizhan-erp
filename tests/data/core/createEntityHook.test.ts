@@ -227,9 +227,19 @@ const authState = {
   _hasHydrated: true,
 }
 
-vi.mock('@/stores/auth-store', () => ({
-  useAuthStore: (selector: (s: typeof authState) => unknown) => selector(authState),
-}))
+vi.mock('@/stores/auth-store', () => {
+  const authStateInner = {
+    user: { id: 'E001', workspace_id: 'W1' },
+    isAuthenticated: true,
+    _hasHydrated: true,
+  }
+  return {
+    useAuthStore: Object.assign(
+      (selector: (s: typeof authStateInner) => unknown) => selector(authStateInner),
+      { getState: () => authStateInner }
+    ),
+  }
+})
 
 // ============================================================
 // 3) Mock logger（避免 noise）
@@ -318,7 +328,7 @@ describe('createEntityHook — useList', () => {
 
   it('workspace-scoped 表會加 .or() workspace 過濾', async () => {
     pushResponse({ data: [], error: null })
-    const hook = createEntityHook<Tour>('tours', { list: { select: '*' } })
+    const hook = createEntityHook<Tour>('tours', { list: { select: '*' }, workspaceScoped: true })
     renderHook(() => hook.useList(), { wrapper: makeWrapper() })
     await waitFor(() => expect(mockQueue.ops.length).toBeGreaterThan(0))
     expect(mockQueue.ops[0].or).toBe('workspace_id.eq.W1,workspace_id.is.null')
@@ -531,10 +541,10 @@ describe('createEntityHook — usePaginated', () => {
 
 describe('createEntityHook — create', () => {
   it('INSERT + 注入 id / created_at / updated_at / workspace_id / created_by', async () => {
-    // calendar_events：workspace-scoped 但不在 TABLE_CODE_PREFIX 裡 → 不會先發 max-code 查詢
+    // calendar_events：workspace-scoped (B11 後需顯式宣告)、不在 TABLE_CODE_PREFIX → 不會先發 max-code 查詢
     pushResponse({ data: { id: 'new-id', name: 'Created' }, error: null })
 
-    const hook = createEntityHook<Tour>('calendar_events', { list: { select: '*' } })
+    const hook = createEntityHook<Tour>('calendar_events', { list: { select: '*' }, workspaceScoped: true })
     const created = await hook.create({ name: 'New event' } as never)
 
     expect(created).toEqual({ id: 'new-id', name: 'Created' })

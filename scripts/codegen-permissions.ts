@@ -322,8 +322,21 @@ function genCapabilitiesTs(): {
         lines.push('  // ════ module 衍生（從 src/modules/* 自動產出）════')
       if (e.group === 'non-module')
         lines.push('  // ════ Non-module（scope / 全域 capability、不屬任何 module）════')
-      if (e.group === 'legacy')
+      if (e.group === 'legacy') {
         lines.push('  // ════ Legacy（現有 caller 還在用、modules/ 沒衍生對應、之後審視）════')
+        lines.push('  //')
+        lines.push('  // 2026-05-29 William 拍板砍 bot/messaging/office module SOURCE：')
+        lines.push(
+          '  // - LINE_BOT_* 仍有 src/app/api/line/postback-templates/* 3 route 在用 → 留下'
+        )
+        lines.push(
+          '  //   （B6 範圍只動 (main) 路由與 module 描述子、api/line 不在範圍內、未來 api/line 全砍時再清）'
+        )
+        lines.push("  // - CHANNELS_MANAGE ('channels.manage') 仍有 ChannelView.tsx caller → 留下")
+        lines.push(
+          "  // - MANAGE_ENV_SETTINGS ('settings.env.write') 仍有 api/settings/env caller → 留下"
+        )
+      }
       lastGroup = e.group
       lastModulePrefix = null
     }

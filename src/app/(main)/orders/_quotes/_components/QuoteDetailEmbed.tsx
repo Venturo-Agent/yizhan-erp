@@ -18,7 +18,7 @@ import {
   CostCategory,
   CostItem,
 } from '@/app/(main)/orders/_quotes/_types'
-import type { Tour } from '@/types/tour.types'
+import type { Tour } from '@/types/tour'
 import { useQuotes } from '@/app/(main)/orders/_quotes/_hooks/useQuotes'
 import { useQuote as useQuoteDetail, useTour } from '@/data'
 import { useCategoryOperations } from '@/app/(main)/orders/_quotes/_hooks/useCategoryOperations'

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
-import { InputIME } from '@/components/ui/input-ime'
+import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Eye } from 'lucide-react'
@@ -225,9 +225,9 @@ export function TodoExpandedView({ todo, onUpdate, onClose, onDelete }: TodoExpa
           </div>
           <DialogTitle asChild>
             {canEdit ? (
-              <InputIME
+              <Input
                 value={todo.title}
-                onChange={value => onUpdate({ title: value })}
+                onChange={e => onUpdate({ title: e.target.value })}
                 placeholder="任務標題"
                 className="text-xl font-semibold text-morandi-primary mt-1.5 text-left border-0 border-b border-transparent rounded-none px-0 py-0 h-auto bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-morandi-gold transition-colors"
               />

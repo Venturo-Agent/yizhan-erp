@@ -24,7 +24,7 @@ import type {} from '@/lib/supabase/typed-client'
 import { useAuthStore } from '@/stores/auth-store'
 import { logger } from '@/lib/utils/logger'
 import { set_cache } from '@/lib/cache/indexeddb-cache'
-import type { UserRole } from '@/lib/rbac-config'
+import type { UserRole } from '@/types/user.types'
 import { enforceWorkspaceScope } from '@/lib/auth/enforce-workspace-scope'
 import {
   BaseEntity,

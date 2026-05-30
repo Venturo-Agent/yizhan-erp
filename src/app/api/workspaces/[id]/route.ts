@@ -3,15 +3,14 @@ import { getSupabaseAdminClient } from '@/lib/supabase/admin'
 import { getServerAuth } from '@/lib/auth/server-auth'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { logger } from '@/lib/utils/logger'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
 
 // Corner 是主 workspace、刪除它會滅整個 SaaS 平台
-// 2026-05-16 QDF R40：移到 env、fallback 保留歷史值（避免 ship 漏設）
+// 2026-05-29 B9 收斂：移除 hardcode UUID fallback、env 未設直接拒絕（避免「漏設 = 任何租戶都能被刪」的隱性洞）
 // 對齊鐵律 #9（不該 hardcode workspace 判斷）+ 鐵律 #11（secret 走 SSOT）
-const CORNER_WORKSPACE_ID =
-  process.env.PLATFORM_WORKSPACE_ID || '8ef05a74-1f87-48ab-afd3-9bfeb423935d'
+const CORNER_WORKSPACE_ID = process.env.PLATFORM_WORKSPACE_ID || ''
 
 /**
  * GET /api/workspaces/[workspaceId]
@@ -145,6 +144,11 @@ export async function DELETE(
     }
 
     // Guard 1：Corner 硬擋
+    // PLATFORM_WORKSPACE_ID 必須設置、未設直接 server config error 拒絕（避免靜默繞過主租戶保護）
+    if (!CORNER_WORKSPACE_ID) {
+      logger.error('[CONFIG] PLATFORM_WORKSPACE_ID 未設定、拒絕租戶刪除')
+      return NextResponse.json({ error: '伺服器設定錯誤、無法執行刪除' }, { status: 500 })
+    }
     if (workspaceId === CORNER_WORKSPACE_ID) {
       return NextResponse.json({ error: '不能刪除主租戶' }, { status: 403 })
     }
@@ -207,11 +211,7 @@ export async function DELETE(
         target_workspace_id: workspaceId,
         error: error.message,
       })
-      const t = translateDbError(error)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({
@@ -268,11 +268,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       .eq('id', workspaceId) as unknown as Promise<{ error: unknown }>)
 
     if (error) {
-      const t = translateDbError(error as Parameters<typeof translateDbError>[0])
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
 
     return NextResponse.json({ success: true, subscription_plan })

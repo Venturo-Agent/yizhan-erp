@@ -1,29 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createApiClient } from '@/lib/supabase/api-client'
 import { getSupabaseAdminClient } from '@/lib/supabase/admin'
-import { getApiContext } from '@/lib/auth/get-api-context'
 import { requireCapability } from '@/lib/auth/require-capability'
 import { CAPABILITIES } from '@/lib/permissions/capabilities'
 import { recordApiAuditContext } from '@/lib/audit/audit-helper'
-import { translateDbError } from '@/lib/db-error-translate'
+import { dbErrorResponse } from '@/lib/db-error-translate'
 import { apiHandler } from '@/lib/api/api-handler'
 
 // 只有有 workspaces.write 的人才能動任何 workspace 的 features。
 // 同 pattern 於 src/app/api/tenants/create/route.ts。
 async function requireTenantAdmin(): Promise<
-  { ok: true; workspaceId: string } | { ok: false; response: NextResponse }
+  | { ok: true; workspaceId: string; employeeId: string }
+  | { ok: false; response: NextResponse }
 > {
-  const ctx = await getApiContext({ capabilityCode: 'workspaces.write' })
-  if (!ctx.ok) {
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { error: ctx.status === 401 ? '請先登入' : '無權限操作' },
-        { status: ctx.status }
-      ),
-    }
-  }
-  return { ok: true, workspaceId: ctx.workspace_id }
+  const ctx = await requireCapability(CAPABILITIES.WORKSPACES_WRITE)
+  if (!ctx.ok) return { ok: false, response: ctx.response }
+  return { ok: true, workspaceId: ctx.workspaceId, employeeId: ctx.employeeId }
 }
 
 /**
@@ -52,11 +44,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
       .eq('workspace_id', queryWorkspaceId)
 
     if (error) {
-      const t = translateDbError(error)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(error)
     }
     return NextResponse.json(data)
   }
@@ -66,11 +54,7 @@ export const GET = apiHandler(async (request: NextRequest) => {
   const { data, error } = await supabase.from('workspace_features').select('feature_code, enabled')
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json(data)
@@ -86,14 +70,11 @@ export const PUT = apiHandler(async (request: NextRequest) => {
   const gate = await requireTenantAdmin()
   if (!gate.ok) return gate.response
 
-  const ctx = await getApiContext({ capabilityCode: 'workspaces.write' })
   const supabaseForAudit = await createApiClient()
-  if (ctx.ok) {
-    await recordApiAuditContext(supabaseForAudit, {
-      actorId: ctx.employee_id,
-      reason: '更新租戶功能開關',
-    })
-  }
+  await recordApiAuditContext(supabaseForAudit, {
+    actorId: gate.employeeId,
+    reason: '更新租戶功能開關',
+  })
 
   const body = await request.json()
   const { workspace_id, features, premium_enabled } = body
@@ -114,11 +95,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
       .eq('id', targetWorkspaceId)
 
     if (wsError) {
-      const t = translateDbError(wsError)
-      return NextResponse.json(
-        { error: t.message, code: t.code, field: t.field },
-        { status: t.httpStatus }
-      )
+      return dbErrorResponse(wsError)
     }
   }
 
@@ -144,11 +121,7 @@ export const PUT = apiHandler(async (request: NextRequest) => {
     .upsert(upsertData, { onConflict: 'workspace_id,feature_code' })
 
   if (error) {
-    const t = translateDbError(error)
-    return NextResponse.json(
-      { error: t.message, code: t.code, field: t.field },
-      { status: t.httpStatus }
-    )
+    return dbErrorResponse(error)
   }
 
   return NextResponse.json({ success: true })
