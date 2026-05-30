@@ -10,7 +10,6 @@
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Tour } from '@/stores/types'
-import { tourService } from '@/app/(main)/tours/_services/tour.service'
 import { logger } from '@/lib/utils/logger'
 import { NewTourData } from '../_types'
 import { OrderFormData } from '@/app/(main)/orders/_components/add-order-form'
@@ -19,7 +18,7 @@ import { updateCountry, updateCity, updateQuote } from '@/data'
 import { createOrder } from '@/data/entities/orders'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabase/client'
-import { generateOrderNumber } from '@/lib/codes'
+import { generateOrderNumber, generateTourCode } from '@/lib/codes'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
 
 interface TourCreateActions {
@@ -155,7 +154,12 @@ export function useTourCreateOperation(params: UseTourCreateOperationParams) {
             return
           }
           const departure_date = new Date(newTour.departure_date)
-          code = await tourService.generateTourCode(cityCode, departure_date, newTour.isSpecial)
+          if (!workspaceId) {
+            setFormError('無法取得 workspace、請重新登入')
+            setSubmitting(false)
+            return
+          }
+          code = await generateTourCode(workspaceId, cityCode, departure_date)
         }
 
         let countryId: string | undefined
