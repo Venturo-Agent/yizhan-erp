@@ -13,7 +13,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Printer, X, Plane, Hotel, Users, Check, FileSpreadsheet } from 'lucide-react'
+import { Printer, X, Plane, Hotel, Users, Check, FileSpreadsheet, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
@@ -32,6 +32,7 @@ import {
   generateMembersPrintContent,
   generateFlightPrintContent,
   generateHotelPrintContent,
+  generateCustomsPrintContent,
 } from './print-templates'
 import { AIRPORT_NAMES, AIRLINE_NAMES } from './tour-print-airline-data'
 import { TourPrintMemberList } from './TourPrintMemberList'
@@ -71,7 +72,7 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
     tourServiceType === 'hotel' ||
     tourServiceType === 'flight_hotel'
 
-  const [activeTab, setActiveTab] = useState<'members' | 'flight' | 'hotel'>('members')
+  const [activeTab, setActiveTab] = useState<'members' | 'flight' | 'hotel' | 'customs'>('members')
   const [columns, setColumns] = useState<ExportColumnsConfig>(DEFAULT_COLUMNS)
   const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set())
 
@@ -182,6 +183,30 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
     openPrintWindow(generateHotelPrintContent({ tour, members: printMembers }))
   }
 
+  // 列印入境卡 + 海關單
+  const handlePrintCustoms = () => {
+    const printMembers = members.filter(m => selectedMembers.has(m.id))
+    if (printMembers.length === 0) {
+      toast.error(COMPONENT_LABELS.NO_MEMBERS_SELECTED)
+      return
+    }
+
+    // 檢查必要欄位
+    const tourRecord = tour as unknown as Record<string, unknown>
+    const missingAddress = !tourRecord.tour_address
+    const missingFlight = printMembers.every(
+      m => !m.pnr && !tourRecord.outbound_flight
+    )
+    if (missingAddress) {
+      toast.warning('此團未填寫住宿地址，入境卡與海關單的地址欄將留空')
+    }
+    if (missingFlight) {
+      toast.warning('所有團員皆未帶入航班，入境卡與海關單將留空航班欄')
+    }
+
+    openPrintWindow(generateCustomsPrintContent({ tour, members: printMembers, mode: 'both' }))
+  }
+
   // 匯出 Excel
   const handleExportExcel = async () => {
     const selectedColumns = Object.entries(columns)
@@ -261,7 +286,7 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
           <TabsList
             className="grid w-full"
             style={{
-              gridTemplateColumns: `repeat(${1 + (showFlightTab ? 1 : 0) + (showHotelTab ? 1 : 0)}, minmax(0, 1fr))`,
+              gridTemplateColumns: `repeat(${1 + (showFlightTab ? 1 : 0) + (showHotelTab ? 1 : 0) + 1}, minmax(0, 1fr))`,
             }}
           >
             <TabsTrigger value="members" className="gap-1">
@@ -280,6 +305,10 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
                 {t('printHotelConfirm')}
               </TabsTrigger>
             )}
+            <TabsTrigger value="customs" className="gap-1">
+              <FileText size={14} />
+              {t('printCustomsCard')}
+            </TabsTrigger>
           </TabsList>
 
           {/* 成員名單 Tab */}
@@ -396,6 +425,47 @@ export function TourPrintDialog({ isOpen, tour, members, onClose }: TourPrintDia
               <Button
                 variant="soft-gold"
                 onClick={handlePrintHotelConfirmation}
+                disabled={selectedCount === 0}
+              >
+                <Printer size={16} className="mr-1" />
+                {COMPONENT_LABELS.PRINT_COUNT(selectedCount)}
+              </Button>
+            </div>
+          </TabsContent>
+
+          {/* 入境卡 + 海關單 Tab */}
+          <TabsContent value="customs" className="space-y-4">
+            <div className="text-sm text-morandi-secondary mb-2">
+              {t('printSelectCustomsMembers')}
+            </div>
+            <TourPrintMemberList
+              members={members}
+              selectedMembers={selectedMembers}
+              toggleMember={toggleMember}
+              toggleAllMembers={toggleAllMembers}
+              renderDetail={member => (
+                <div className="text-xs text-morandi-secondary flex gap-2">
+                  <span>{COMPONENT_LABELS.PNR_LABEL} {member.pnr || '-'}</span>
+                  <span>
+                    護照 {member.passport_number || '-'}
+                  </span>
+                </div>
+              )}
+              renderBadge={member =>
+                member.passport_name ? <Check size={14} className="text-status-success" /> : null
+              }
+            />
+            <div className="flex flex-col gap-2 rounded bg-morandi-bg p-3 border border-border text-xs text-morandi-secondary">
+              <p>{t('printCustomsInfo')}</p>
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t border-border">
+              <Button variant="soft-gold" onClick={onClose}>
+                <X size={16} className="mr-1" />
+                {t('printCancel')}
+              </Button>
+              <Button
+                variant="soft-gold"
+                onClick={handlePrintCustoms}
                 disabled={selectedCount === 0}
               >
                 <Printer size={16} className="mr-1" />
