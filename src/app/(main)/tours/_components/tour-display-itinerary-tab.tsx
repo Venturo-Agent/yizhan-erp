@@ -40,6 +40,7 @@ import {
   unpublishDisplayCanvas,
 } from '../[code]/display-editor/_hooks/useDisplayCanvasApi'
 import { EditorPanel } from '../[code]/display-editor/_components/EditorPanel'
+import { GeneratePptxButton } from '../[code]/display-editor/_components/GeneratePptxButton'
 import { DeleteBlockDialog } from '../[code]/display-editor/_components/DeleteBlockDialog'
 import { AiAssistDialog } from '../[code]/display-editor/_components/AiAssistDialog'
 import {
@@ -289,7 +290,13 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
   // 無編輯權限：唯讀預覽
   return (
     <div className="flex flex-col gap-2">
-      <ReadOnlyToolbar copied={copied} onCopy={handleCopy} onOpen={handleOpen} />
+      <ReadOnlyToolbar
+        code={tour.code}
+        canvas={bootstrap.canvas}
+        copied={copied}
+        onCopy={handleCopy}
+        onOpen={handleOpen}
+      />
       <CanvasRenderer canvas={bootstrap.canvas} />
     </div>
   )
@@ -298,10 +305,14 @@ export function TourDisplayItineraryTab({ tour }: TourDisplayItineraryTabProps) 
 // ── Read-only toolbar ─────────────────────────────────────
 
 function ReadOnlyToolbar({
+  code,
+  canvas,
   copied,
   onCopy,
   onOpen,
 }: {
+  code: string
+  canvas: Canvas
   copied: boolean
   onCopy: () => void
   onOpen: () => void
@@ -316,6 +327,7 @@ function ReadOnlyToolbar({
         <ExternalLink className="h-4 w-4" />
         新分頁開啟
       </Button>
+      <GeneratePptxButton code={code} canvas={canvas} />
     </div>
   )
 }
@@ -457,6 +469,9 @@ function EditorView({
           <ExternalLink className="h-4 w-4" />
           新分頁開啟
         </Button>
+
+        {/* 產簡報（PPTX）— 用當前 canvas、所見即所得 */}
+        <GeneratePptxButton code={code} canvas={canvas} />
 
         <div className="mx-1 h-5 w-px bg-border" />
 
