@@ -2,10 +2,6 @@
  * 建立租戶 Dialog — 共用型別
  */
 
-import type { PlanId } from '@/lib/permissions/subscription-plans'
-
-export type { PlanId }
-
 export interface DimensionRow {
   code: string
   name: string
@@ -29,11 +25,7 @@ export interface FormData {
   industry: Industry | ''
   subIndustry: SubIndustry
 
-  // 訂閱方案
-  subscriptionPlan: PlanId
-
-  // 其他可選功能（建立時現場決定、union 進方案 features）
-  // 方案已含的 chip 鎖住、用戶不能取消（避免「勾了 calendar 但 BASE 還是強制開」的 UX 不一致）
+  // 功能勾選（建立時現場決定要開哪些功能、預設全關、系統必要功能後端自動開）
   optionalFeatures: string[]
 
   // 品牌
@@ -63,7 +55,6 @@ export const INITIAL_FORM: FormData = {
   maxEmployees: '5',
   industry: '',
   subIndustry: null,
-  subscriptionPlan: 'lite',
   optionalFeatures: [],
   brands: [],
   isMultiBranch: false,

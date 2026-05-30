@@ -13,7 +13,6 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { errorResponse, ErrorCode } from '@/lib/api/response'
 import { logger } from '@/lib/utils/logger'
 import { MODULES } from '@/lib/permissions/module-tabs'
-import { getFeaturesForPlan, type PlanId } from '@/lib/permissions/subscription-plans'
 import type { BrandPayload } from './create-tenant-validation'
 
 // Corner workspace 當全站職務模板的來源。
@@ -192,9 +191,8 @@ export async function seedRolesAndCapabilities(
 export async function seedWorkspaceFeatures(
   supabaseAdmin: SupabaseClient,
   workspaceId: string,
-  planId: PlanId = 'custom',
-  /** 「其他可選功能」現場勾選的 feature_code、union 進方案 features */
-  optionalFeatures?: string[]
+  /** 新增租戶時勾選要開的功能（module code 或 module.tab code）、未勾的全關 */
+  selectedFeatures?: string[]
 ): Promise<ReturnType<typeof errorResponse> | null> {
   // All module-level features that exist in the system
   const allModuleFeatures = [
@@ -220,36 +218,23 @@ export async function seedWorkspaceFeatures(
     'documents',
   ]
 
-  // Determine which features are enabled based on the selected plan
-  const isCustom = planId === 'custom'
+  // William 2026-05-30：拆掉版本套餐、新分店預設全關、業務功能逐項手動勾。
+  // 系統運作必要的基礎功能永遠開（不出現在勾選清單）、其餘只開使用者勾選的。
+  const ALWAYS_ENABLED = new Set([
+    'dashboard',
+    'workspace',
+    'settings',
+    'hr',
+    'database',
+    'quotes',
+    'itinerary',
+  ])
 
-  // For custom: enable all except premium (accounting) — same as old default
-  // For named plans: use getFeaturesForPlan + always-on baseline (workspace/quotes/itinerary)
-  const ALWAYS_ENABLED = new Set(['workspace', 'quotes', 'itinerary'])
-  const planFeatureSet: Set<string> = isCustom
-    ? new Set([
-        'dashboard',
-        'calendar',
-        'workspace',
-        'todos',
-        'tours',
-        'orders',
-        'quotes',
-        'finance',
-        'database',
-        'hr',
-        'hr_bonus_settlement',
-        'hr_salary_settlement',
-        'settings',
-        // 2026-05-26 移除孤兒 'customers' feature（同上、客戶頁由 database feature 涵蓋）
-        'itinerary',
-        ...(optionalFeatures ?? []),
-      ])
-    : new Set([...getFeaturesForPlan(planId), ...ALWAYS_ENABLED, ...(optionalFeatures ?? [])])
+  const enabledSet = new Set([...ALWAYS_ENABLED, ...(selectedFeatures ?? [])])
 
   const defaultFeatures = allModuleFeatures.map(code => ({
     feature_code: code,
-    enabled: planFeatureSet.has(code),
+    enabled: enabledSet.has(code),
   }))
 
   // 某些 tab.code 跟獨立 module feature 同名（例：database.customers tab vs customers module）
@@ -261,14 +246,14 @@ export async function seedWorkspaceFeatures(
     for (const t of m.tabs) {
       const key = `${m.code}.${t.code}`
       let enabled: boolean
-      if (planFeatureSet.has(key)) {
+      if (enabledSet.has(key)) {
         // tab key 明確在方案 / 可選功能內（如 premium tab tours.contract 經「其他可選功能」勾選）
         enabled = true
       } else if (moduleFeatureCodes.has(t.code)) {
         // tab 跟某 module feature 同名（如 customers）→ 對齊 module feature 狀態
-        enabled = planFeatureSet.has(t.code)
+        enabled = enabledSet.has(t.code)
       } else {
-        enabled = planFeatureSet.has(m.code) && t.category !== 'premium'
+        enabled = enabledSet.has(m.code) && t.category !== 'premium'
       }
       tabFeatures.push({ feature_code: key, enabled })
     }

@@ -18,7 +18,6 @@ import {
   type SubIndustry,
   INITIAL_FORM,
 } from './create-tenant-types'
-import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 export function useCreateTenantForm(existingCodes: string[]) {
   const t = useTranslations('workspacesPage')
@@ -139,13 +138,6 @@ export function useCreateTenantForm(existingCodes: string[]) {
     }))
   }
 
-  const handlePlanChange = useCallback((planId: PlanId) => {
-    setForm(prev => ({
-      ...prev,
-      subscriptionPlan: planId,
-    }))
-  }, [])
-
   const handleOptionalFeaturesChange = useCallback((features: string[]) => {
     setForm(prev => ({ ...prev, optionalFeatures: features }))
   }, [])
@@ -198,7 +190,6 @@ export function useCreateTenantForm(existingCodes: string[]) {
         workspaceType: 'travel_agency',
         maxEmployees: form.maxEmployees ? parseInt(form.maxEmployees, 10) : null,
         taxId: form.taxId.trim(),
-        subscriptionPlan: form.subscriptionPlan,
         optionalFeatures: form.optionalFeatures,
         brands: form.brands
           .filter(b => b.name.trim())
@@ -293,8 +284,7 @@ export function useCreateTenantForm(existingCodes: string[]) {
     removeBranch,
     // toggles
     toggleMultiBranch,
-    // plan
-    handlePlanChange,
+    // 功能勾選
     handleOptionalFeaturesChange,
     // industry
     handleIndustryChange,

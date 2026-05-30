@@ -5,7 +5,6 @@
  */
 
 import { errorResponse, ErrorCode } from '@/lib/api/response'
-import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 export interface BrandPayload {
   code: string
@@ -29,9 +28,7 @@ export interface CreateTenantRequest {
   isMultiBranch: boolean
   branches?: BrandPayload[] // isMultiBranch=true 才需要
 
-  // 訂閱方案
-  subscriptionPlan?: PlanId
-  /** 「其他可選功能」現場勾選的 feature_code 陣列、union 進方案 features */
+  /** 新增租戶時勾選要開的功能 feature_code 陣列（module 或 module.tab）、未勾全關 */
   optionalFeatures?: string[]
 
   // 第一個系統主管資訊

@@ -104,7 +104,6 @@ export async function POST(request: NextRequest) {
       adminEmployeeNumber,
       adminName,
       adminEmail,
-      subscriptionPlan,
       optionalFeatures,
     } = body
 
@@ -147,7 +146,6 @@ export async function POST(request: NextRequest) {
       maxEmployees: body.maxEmployees,
       trimmedTaxId,
       isMultiBranch,
-      subscriptionPlan: subscriptionPlan ?? 'custom',
       industry: industry ?? null,
       subIndustry: subIndustry ?? null,
     })
@@ -207,7 +205,6 @@ export async function POST(request: NextRequest) {
     const featuresError = await seedWorkspaceFeatures(
       supabaseAdmin,
       wsResult.workspaceId,
-      subscriptionPlan ?? 'custom',
       optionalFeatures
     )
     if (featuresError) {

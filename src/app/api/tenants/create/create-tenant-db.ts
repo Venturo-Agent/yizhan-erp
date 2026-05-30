@@ -15,7 +15,6 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { errorResponse, ErrorCode } from '@/lib/api/response'
 import { logger } from '@/lib/utils/logger'
 import { translateDbError } from '@/lib/db-error-translate'
-import type { PlanId } from '@/lib/permissions/subscription-plans'
 
 // =========================================================================
 // Rollback 相關型別
@@ -79,7 +78,6 @@ export interface CreateWorkspaceParams {
   maxEmployees: number | null
   trimmedTaxId: string
   isMultiBranch: boolean
-  subscriptionPlan?: PlanId
   industry?: string | null
   subIndustry?: string | null
 }
@@ -94,7 +92,6 @@ export async function createWorkspace(
     maxEmployees,
     trimmedTaxId,
     isMultiBranch,
-    subscriptionPlan,
     industry,
     subIndustry,
   } = params
@@ -110,7 +107,8 @@ export async function createWorkspace(
       premium_enabled: false,
       tax_id: trimmedTaxId,
       is_multi_branch: !!isMultiBranch,
-      subscription_plan: subscriptionPlan ?? 'custom',
+      // 版本套餐已拆（2026-05-30）、欄位暫留並固定 custom、待刀4 砍欄位
+      subscription_plan: 'custom',
       industry: industry ?? null,
       sub_industry: subIndustry ?? null,
       // 2026-05-26 William 拍板：新租戶不再預設出帳日（覆蓋 DB column DEFAULT 4）

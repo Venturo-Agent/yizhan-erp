@@ -12,7 +12,7 @@ import { TenantIndustrySection } from './_components/TenantIndustrySection'
 import { TenantBrandSection } from './_components/TenantBrandSection'
 import { TenantOrgSection } from './_components/TenantOrgSection'
 import { TenantAdminSection } from './_components/TenantAdminSection'
-import { TenantPlanSection } from './_components/TenantPlanSection'
+import { TenantFeatureSection } from './_components/TenantFeatureSection'
 import { TenantPrepSection } from './_components/TenantPrepSection'
 
 interface CreateTenantDialogProps {
@@ -51,7 +51,6 @@ export function CreateTenantDialog({
     addBranch,
     removeBranch,
     toggleMultiBranch,
-    handlePlanChange,
     handleOptionalFeaturesChange,
     handleIndustryChange,
     handleSubIndustryChange,
@@ -81,17 +80,12 @@ export function CreateTenantDialog({
 
         {step === 'form' && (
           <div className="space-y-5">
-            <TenantPlanSection
-              subscriptionPlan={form.subscriptionPlan}
-              optionalFeatures={form.optionalFeatures}
-              onPlanChange={handlePlanChange}
-              onOptionalFeaturesChange={handleOptionalFeaturesChange}
+            <TenantFeatureSection
+              selectedFeatures={form.optionalFeatures}
+              onChange={handleOptionalFeaturesChange}
             />
 
-            <TenantPrepSection
-              subscriptionPlan={form.subscriptionPlan}
-              optionalFeatures={form.optionalFeatures}
-            />
+            <TenantPrepSection selectedFeatures={form.optionalFeatures} />
 
             <TenantBasicInfoSection
               form={form}
