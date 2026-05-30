@@ -190,6 +190,7 @@ export const CAPABILITIES = {
   LINE_BOT_READ: 'line_bot.read',
   LINE_BOT_WRITE: 'line_bot.write',
   MANAGE_ENV_SETTINGS: 'settings.env.write',
+  TOURS_REOPEN_CLOSED: 'tours.reopen_closed',
 } as const
 
 export type Capability = (typeof CAPABILITIES)[keyof typeof CAPABILITIES]

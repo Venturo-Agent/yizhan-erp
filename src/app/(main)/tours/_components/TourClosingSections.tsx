@@ -21,6 +21,9 @@ import type { Tour } from '@/stores/types'
 import { ProfitTab } from './ProfitTab'
 import { BonusSettingsDialog } from './BonusSettingsDialog'
 import { ClosingReportDialog } from './ClosingReportDialog'
+import { ReopenClosedTourDialog } from './ReopenClosedTourDialog'
+import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
+import { invalidateTours } from '@/data'
 import {
   useReceipts,
   usePaymentRequests,
@@ -57,6 +60,9 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
   const [bonusDialogOpen, setBonusDialogOpen] = useState(false)
   const [reportDialogOpen, setReportDialogOpen] = useState(false)
   const [statusUpdating, setStatusUpdating] = useState(false)
+  const [reopenDialogOpen, setReopenDialogOpen] = useState(false)
+  const { can } = useCapabilities()
+  const canReopenClosed = can(CAPABILITIES.TOURS_REOPEN_CLOSED)
 
   // server-side filter by tour_id（egress 殺手修復、不再全撈）
   const { items: allReceipts } = useReceipts({ all: true, filter: { tour_id: tour.id } })
@@ -129,27 +135,72 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
     ? { label: '已結案', color: 'bg-status-success/20 text-status-success' }
     : { label: '未結案', color: 'bg-morandi-gold/20 text-morandi-gold' }
 
-  const handleToggleClosingStatus = useCallback(async () => {
-    const nextStatus = isClosed ? TOUR_STATUS.RETURNED : TOUR_STATUS.CLOSED
+  // 結案：未結案 → 已結案（合法、走 updateTour）
+  const handleMarkAsClosed = useCallback(async () => {
     setStatusUpdating(true)
     try {
       await updateTour(tour.id, {
-        status: nextStatus,
-        ...(nextStatus === TOUR_STATUS.CLOSED
-          ? { closing_date: new Date().toISOString() }
-          : { closing_date: null }),
+        status: TOUR_STATUS.CLOSED,
+        closing_date: new Date().toISOString(),
       })
-      // updateTour 只動「tours 列表」SWR cache、團詳情頁用另一條 key (`tour-${id}`)
-      // 不手動 invalidate 這條、畫面會看不到狀態更新（重新開啟按鈕「沒反應」的 root cause）
+      // 團詳情頁用另一條 cache key (`tour-${id}`)、要手動 invalidate
       await globalMutate(`tour-${tour.id}`)
-      toast.success(nextStatus === TOUR_STATUS.CLOSED ? '已標記為結案' : '已重新開啟團')
+      toast.success('已標記為結案')
     } catch (err) {
       logger.error('更新結案狀態失敗', err)
       toast.error(COMPONENT_LABELS.STATUS_UPDATE_FAILED)
     } finally {
       setStatusUpdating(false)
     }
-  }, [isClosed, tour.id])
+  }, [tour.id])
+
+  // 強制重開：已結案 → 未結案
+  // DB trigger 守門擋下直接 UPDATE、必須走 reopen_closed_tour RPC：
+  //   - 後端 capability check（tours.reopen_closed）
+  //   - 後端強制必填原因
+  //   - 後端記錄 tour_status_logs.is_force_reopen=true + reopen_reason
+  const handleConfirmReopen = useCallback(
+    async (reason: string) => {
+      setStatusUpdating(true)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any).rpc('reopen_closed_tour', {
+          _tour_id: tour.id,
+          _reason: reason,
+        })
+        if (error) throw error
+        await Promise.all([globalMutate(`tour-${tour.id}`), invalidateTours()])
+        toast.success('已強制重開、改回「未結案」')
+        setReopenDialogOpen(false)
+      } catch (err) {
+        logger.error('強制重開失敗', err)
+        const message = err instanceof Error ? err.message : ''
+        if (message.includes('權限不足')) {
+          toast.error('權限不足、需主管專屬「強制重開」權限')
+        } else {
+          toast.error('強制重開失敗、請再試一次')
+        }
+      } finally {
+        setStatusUpdating(false)
+      }
+    },
+    [tour.id]
+  )
+
+  // 對外的「切換結案狀態」入口（按鈕點擊）
+  const handleToggleClosingStatus = useCallback(() => {
+    if (isClosed) {
+      // 強制重開走對話框（要原因 + capability）
+      if (!canReopenClosed) {
+        toast.error('權限不足、需主管專屬「強制重開」權限')
+        return
+      }
+      setReopenDialogOpen(true)
+      return
+    }
+    // 結案直接做
+    void handleMarkAsClosed()
+  }, [isClosed, canReopenClosed, handleMarkAsClosed])
 
   // 結案報告資料（給 ClosingReportDialog 用）
   const reportData: PrintTourClosingPreviewProps = useMemo(() => {
@@ -273,7 +324,8 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
             <FileDown className="h-4 w-4 mr-2" />
             {isClosed ? '檢視結案報告' : '生成結案報告'}
           </Button>
-          {isClosed && (
+          {/* 強制重開：只有有 tours.reopen_closed capability 的主管能看到 */}
+          {isClosed && canReopenClosed && (
             <Button variant="outline" onClick={handleToggleClosingStatus} disabled={statusUpdating}>
               {statusUpdating ? (
                 <Spinner size="md" className="mr-2" />
@@ -294,6 +346,14 @@ export function TourClosingSections({ tour }: TourClosingSectionsProps) {
         data={reportData}
         onConfirmClose={handleConfirmCloseFromReport}
         alreadyClosed={isClosed}
+      />
+
+      <ReopenClosedTourDialog
+        isOpen={reopenDialogOpen}
+        tour={tour}
+        onClose={() => setReopenDialogOpen(false)}
+        onConfirm={handleConfirmReopen}
+        loading={statusUpdating}
       />
     </>
   )

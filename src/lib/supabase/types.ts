@@ -631,6 +631,75 @@ export type Database = {
           },
         ]
       }
+      attractions_master: {
+        Row: {
+          address: string | null
+          aliases: string[] | null
+          city: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          id: string
+          images: string[] | null
+          latitude: number | null
+          longitude: number | null
+          master_score: number | null
+          name_en: string | null
+          name_local: string | null
+          name_zh: string
+          notes: string | null
+          region: string | null
+          source_type: string
+          tags: string[] | null
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          address?: string | null
+          aliases?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          latitude?: number | null
+          longitude?: number | null
+          master_score?: number | null
+          name_en?: string | null
+          name_local?: string | null
+          name_zh: string
+          notes?: string | null
+          region?: string | null
+          source_type?: string
+          tags?: string[] | null
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          address?: string | null
+          aliases?: string[] | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          latitude?: number | null
+          longitude?: number | null
+          master_score?: number | null
+          name_en?: string | null
+          name_local?: string | null
+          name_zh?: string
+          notes?: string | null
+          region?: string | null
+          source_type?: string
+          tags?: string[] | null
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -2445,6 +2514,69 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_unknown_queries: {
+        Row: {
+          added_master_id: string | null
+          ai_response: string | null
+          asked_count: number | null
+          customer_context: string | null
+          first_asked_at: string
+          id: string
+          last_asked_at: string
+          notes: string | null
+          query_text: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          added_master_id?: string | null
+          ai_response?: string | null
+          asked_count?: number | null
+          customer_context?: string | null
+          first_asked_at?: string
+          id?: string
+          last_asked_at?: string
+          notes?: string | null
+          query_text: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          added_master_id?: string | null
+          ai_response?: string | null
+          asked_count?: number | null
+          customer_context?: string | null
+          first_asked_at?: string
+          id?: string
+          last_asked_at?: string
+          notes?: string | null
+          query_text?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'customer_unknown_queries_added_master_id_fkey'
+            columns: ['added_master_id']
+            isOneToOne: false
+            referencedRelation: 'attractions_master'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'customer_unknown_queries_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string | null
@@ -3901,6 +4033,7 @@ export type Database = {
           media_url: string | null
           message_type: string
           raw_event: Json | null
+          related_order_id: string | null
           sender_employee_id: string | null
           sender_type: string
           source_id: string | null
@@ -3915,6 +4048,7 @@ export type Database = {
           media_url?: string | null
           message_type?: string
           raw_event?: Json | null
+          related_order_id?: string | null
           sender_employee_id?: string | null
           sender_type: string
           source_id?: string | null
@@ -3929,6 +4063,7 @@ export type Database = {
           media_url?: string | null
           message_type?: string
           raw_event?: Json | null
+          related_order_id?: string | null
           sender_employee_id?: string | null
           sender_type?: string
           source_id?: string | null
@@ -5695,6 +5830,67 @@ export type Database = {
             columns: ['workspace_id']
             isOneToOne: false
             referencedRelation: 'workspaces'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      master_merge_suggestions: {
+        Row: {
+          created_at: string
+          id: string
+          master_a_id: string
+          master_b_id: string
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          similarity_score: number | null
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          master_a_id: string
+          master_b_id: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          similarity_score?: number | null
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          master_a_id?: string
+          master_b_id?: string
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          similarity_score?: number | null
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'master_merge_suggestions_master_a_id_fkey'
+            columns: ['master_a_id']
+            isOneToOne: false
+            referencedRelation: 'attractions_master'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'master_merge_suggestions_master_b_id_fkey'
+            columns: ['master_b_id']
+            isOneToOne: false
+            referencedRelation: 'attractions_master'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'master_merge_suggestions_reviewed_by_fkey'
+            columns: ['reviewed_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
             referencedColumns: ['id']
           },
         ]
@@ -8313,6 +8509,7 @@ export type Database = {
           latitude: number | null
           local_name: string | null
           longitude: number | null
+          master_id: string | null
           name: string
           notes: string | null
           opening_hours: string | null
@@ -8349,6 +8546,7 @@ export type Database = {
           latitude?: number | null
           local_name?: string | null
           longitude?: number | null
+          master_id?: string | null
           name: string
           notes?: string | null
           opening_hours?: string | null
@@ -8385,6 +8583,7 @@ export type Database = {
           latitude?: number | null
           local_name?: string | null
           longitude?: number | null
+          master_id?: string | null
           name?: string
           notes?: string | null
           opening_hours?: string | null
@@ -8412,6 +8611,13 @@ export type Database = {
             referencedColumns: ['id']
           },
           {
+            foreignKeyName: 'scrape_candidates_master_id_fkey'
+            columns: ['master_id']
+            isOneToOne: false
+            referencedRelation: 'attractions_master'
+            referencedColumns: ['id']
+          },
+          {
             foreignKeyName: 'scrape_candidates_reviewed_by_fkey'
             columns: ['reviewed_by']
             isOneToOne: false
@@ -8434,15 +8640,20 @@ export type Database = {
           departures: string[] | null
           destinations: string[] | null
           duration_days: number | null
+          duration_hours: number | null
           id: string
           last_checked_at: string | null
           last_scrape_at: string | null
+          notes: string | null
           price_from: number | null
           price_text: string | null
+          product_type: string
           source_agency: string
           source_code: string | null
           source_url: string | null
+          starts_at_text: string | null
           status: string
+          tags: string[] | null
           title: string
           updated_at: string
           workspace_id: string
@@ -8453,15 +8664,20 @@ export type Database = {
           departures?: string[] | null
           destinations?: string[] | null
           duration_days?: number | null
+          duration_hours?: number | null
           id?: string
           last_checked_at?: string | null
           last_scrape_at?: string | null
+          notes?: string | null
           price_from?: number | null
           price_text?: string | null
+          product_type?: string
           source_agency: string
           source_code?: string | null
           source_url?: string | null
+          starts_at_text?: string | null
           status?: string
+          tags?: string[] | null
           title: string
           updated_at?: string
           workspace_id: string
@@ -8472,15 +8688,20 @@ export type Database = {
           departures?: string[] | null
           destinations?: string[] | null
           duration_days?: number | null
+          duration_hours?: number | null
           id?: string
           last_checked_at?: string | null
           last_scrape_at?: string | null
+          notes?: string | null
           price_from?: number | null
           price_text?: string | null
+          product_type?: string
           source_agency?: string
           source_code?: string | null
           source_url?: string | null
+          starts_at_text?: string | null
           status?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
           workspace_id?: string
@@ -8877,8 +9098,11 @@ export type Database = {
           color: string | null
           created_at: string | null
           id: string
+          is_system: boolean
           name: string
+          owner_employee_id: string | null
           sort_order: number | null
+          system_kind: string | null
           updated_at: string | null
           workspace_id: string
         }
@@ -8886,8 +9110,11 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           id?: string
+          is_system?: boolean
           name: string
+          owner_employee_id?: string | null
           sort_order?: number | null
+          system_kind?: string | null
           updated_at?: string | null
           workspace_id: string
         }
@@ -8895,8 +9122,11 @@ export type Database = {
           color?: string | null
           created_at?: string | null
           id?: string
+          is_system?: boolean
           name?: string
+          owner_employee_id?: string | null
           sort_order?: number | null
+          system_kind?: string | null
           updated_at?: string | null
           workspace_id?: string
         }
@@ -8922,6 +9152,7 @@ export type Database = {
           enabled_quick_actions: string[] | null
           id: string
           is_public: boolean | null
+          linked_group_id: string | null
           needs_creator_notification: boolean | null
           notes: Json | null
           priority: number
@@ -8947,6 +9178,7 @@ export type Database = {
           enabled_quick_actions?: string[] | null
           id?: string
           is_public?: boolean | null
+          linked_group_id?: string | null
           needs_creator_notification?: boolean | null
           notes?: Json | null
           priority?: number
@@ -8972,6 +9204,7 @@ export type Database = {
           enabled_quick_actions?: string[] | null
           id?: string
           is_public?: boolean | null
+          linked_group_id?: string | null
           needs_creator_notification?: boolean | null
           notes?: Json | null
           priority?: number
@@ -9789,6 +10022,60 @@ export type Database = {
           tour_id?: string
         }
         Relationships: []
+      }
+      tour_status_logs: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          is_force_reopen: boolean
+          note: string | null
+          reopen_reason: string | null
+          to_status: string
+          tour_id: string
+          workspace_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          is_force_reopen?: boolean
+          note?: string | null
+          reopen_reason?: string | null
+          to_status: string
+          tour_id: string
+          workspace_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          is_force_reopen?: boolean
+          note?: string | null
+          reopen_reason?: string | null
+          to_status?: string
+          tour_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'tour_status_logs_changed_by_fkey'
+            columns: ['changed_by']
+            isOneToOne: false
+            referencedRelation: 'employees'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'tour_status_logs_tour_id_fkey'
+            columns: ['tour_id']
+            isOneToOne: false
+            referencedRelation: 'tours'
+            referencedColumns: ['id']
+          },
+        ]
       }
       tours: {
         Row: {
@@ -12191,10 +12478,6 @@ export type Database = {
       }
     }
     Functions: {
-      get_workspace_country_usage: {
-        Args: Record<PropertyKey, never>
-        Returns: { country_code: string; usage_count: number }[]
-      }
       _recalc_one_batch: { Args: { p_batch_id: string }; Returns: undefined }
       _recalc_one_invoice: {
         Args: { p_invoice_id: string }
@@ -12367,6 +12650,13 @@ export type Database = {
           unread_count: number
         }[]
       }
+      get_workspace_country_usage: {
+        Args: never
+        Returns: {
+          country_code: string
+          usage_count: number
+        }[]
+      }
       has_capability_for_workspace: {
         Args: { _code: string; _workspace_id: string }
         Returns: boolean
@@ -12417,6 +12707,91 @@ export type Database = {
         Args: { p_traveler_id?: string }
         Returns: number
       }
+      reopen_closed_tour: {
+        Args: { _reason: string; _tour_id: string }
+        Returns: {
+          airport_code: string | null
+          archive_reason: string | null
+          archived: boolean | null
+          branch_id: string | null
+          brand_id: string | null
+          checkin_qrcode: string | null
+          closed_by: string | null
+          closing_date: string | null
+          code: string
+          confirmed_requirements: Json | null
+          contract_archived_date: string | null
+          contract_completed: boolean | null
+          contract_content: string | null
+          contract_created_at: string | null
+          contract_notes: string | null
+          contract_status: string
+          contract_template: string | null
+          controller_id: string | null
+          country_code: string | null
+          country_id: string | null
+          created_at: string
+          created_by: string | null
+          current_participants: number | null
+          custom_cost_fields: Json | null
+          days_count: number | null
+          deleted_at: string | null
+          deleted_by: string | null
+          deleted_reason: string | null
+          departure_date: string | null
+          description: string | null
+          enable_checkin: boolean | null
+          envelope_records: string | null
+          features: Json | null
+          fee_cost: number
+          hero_image_url: string | null
+          id: string
+          is_active: boolean
+          is_public_listed: boolean
+          itinerary_id: string | null
+          last_unlocked_at: string | null
+          last_unlocked_by: string | null
+          liability_insurance_coverage: number | null
+          location: string | null
+          locked_at: string | null
+          locked_by: string | null
+          locked_itinerary_id: string | null
+          locked_itinerary_version: number | null
+          locked_quote_id: string | null
+          locked_quote_version: number | null
+          marketing_body: string | null
+          marketing_subtitle: string | null
+          marketing_title: string | null
+          max_participants: number | null
+          medical_insurance_coverage: number | null
+          modification_reason: string | null
+          name: string
+          outbound_flight: Json | null
+          price: number | null
+          profit: number
+          published_at: string | null
+          published_by: string | null
+          quote_cost_structure: Json | null
+          return_date: string | null
+          return_flight: Json | null
+          selling_price_per_person: number | null
+          seo_description: string | null
+          seo_title: string | null
+          status: string
+          total_cost: number
+          total_revenue: number
+          tour_service_type: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        SetofOptions: {
+          from: '*'
+          to: 'tours'
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       run_auto_open_now: {
         Args: never
         Returns: {
@@ -12444,6 +12819,8 @@ export type Database = {
         Args: { p_actor_id: string; p_reason?: string; p_request_id?: string }
         Returns: undefined
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { '': string }; Returns: string[] }
       sync_my_tours: { Args: never; Returns: Json }
       sync_passport_to_order_members: {
         Args: {

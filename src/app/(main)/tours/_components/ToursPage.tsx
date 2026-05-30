@@ -24,6 +24,7 @@ import { ArchiveReasonDialog } from './ArchiveReasonDialog'
 import { LinkItineraryToTourDialog } from './LinkItineraryToTourDialog'
 import { TourItineraryDialog } from './TourItineraryDialog'
 import { ConvertToTourDialog } from './ConvertToTourDialog'
+import { ReopenClosedTourDialog } from './ReopenClosedTourDialog'
 import { TourEditDialog } from '@/app/(main)/tours/_components/tour-edit-dialog'
 import { alert } from '@/lib/ui/alert-dialog'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -33,6 +34,9 @@ import { generateOrderNumber } from '@/lib/codes'
 import { toast } from 'sonner'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
 import { logger } from '@/lib/utils/logger'
+import { supabase } from '@/lib/supabase/client'
+import { invalidateTours } from '@/data'
+import { mutate as globalMutate } from '@/lib/swr/scoped-mutate'
 
 const COMPONENT_LABELS = {
   ORDER_CREATED: '訂單建立成功',
@@ -54,6 +58,10 @@ export const ToursPage: React.FC = () => {
 
   // Add order dialog state (報名訂單)
   const [addOrderDialogTour, setAddOrderDialogTour] = useState<Tour | null>(null)
+
+  // 主管強制重開已結案團 dialog state
+  const [reopenDialogTour, setReopenDialogTour] = useState<Tour | null>(null)
+  const [reopenLoading, setReopenLoading] = useState(false)
 
   // 🔧 優化：只保留 quotes（TourActionButtons 需要），其他由 useTourOperations 內部處理
   const { items: quotes } = useQuotesSlim()
@@ -236,6 +244,45 @@ export const ToursPage: React.FC = () => {
     [actions]
   )
 
+  // 主管強制重開：dropdown「強制重開」點擊 → 開對話框（capability gate 在 button 顯示時擋了一次）
+  const handleOpenReopenDialog = useCallback((tour: Tour) => {
+    setReopenDialogTour(tour)
+  }, [])
+
+  // 主管強制重開：對話框確認 → 呼叫 RPC + invalidate cache
+  // DB trigger 守門擋下直接 UPDATE、只能透過 reopen_closed_tour RPC：
+  //   - 後端 capability check（tours.reopen_closed）
+  //   - 後端強制必填原因
+  //   - 後端寫 tour_status_logs.is_force_reopen=true + reopen_reason
+  const handleConfirmReopen = useCallback(
+    async (reason: string) => {
+      if (!reopenDialogTour) return
+      setReopenLoading(true)
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { error } = await (supabase as any).rpc('reopen_closed_tour', {
+          _tour_id: reopenDialogTour.id,
+          _reason: reason,
+        })
+        if (error) throw error
+        await Promise.all([invalidateTours(), globalMutate(`tour-${reopenDialogTour.id}`)])
+        toast.success('已強制重開、改回「未結案」')
+        setReopenDialogTour(null)
+      } catch (err) {
+        logger.error('強制重開失敗', err)
+        const message = err instanceof Error ? err.message : ''
+        if (message.includes('權限不足')) {
+          toast.error('權限不足、需主管專屬「強制重開」權限')
+        } else {
+          toast.error('強制重開失敗、請再試一次')
+        }
+      } finally {
+        setReopenLoading(false)
+      }
+    },
+    [reopenDialogTour]
+  )
+
   const { renderActions } = useTourActionButtons({
     quotes,
     activeStatusTab,
@@ -251,6 +298,7 @@ export const ToursPage: React.FC = () => {
     onOpenRequirementsDialog: undefined,
     onConvertTour: handleConvertTour,
     onCopyTemplate: handleCopyTemplate,
+    onReopenTour: handleOpenReopenDialog,
   })
 
   // 點擊整列導航到詳情頁面
@@ -445,6 +493,15 @@ export const ToursPage: React.FC = () => {
         onClose={closeArchiveDialog}
         onConfirm={reason => confirmArchive(reason, operations.handleArchiveTour)}
         loading={isArchiving}
+      />
+
+      {/* 主管強制重開已結案團（要 tours.reopen_closed capability） */}
+      <ReopenClosedTourDialog
+        isOpen={!!reopenDialogTour}
+        tour={reopenDialogTour}
+        onClose={() => setReopenDialogTour(null)}
+        onConfirm={handleConfirmReopen}
+        loading={reopenLoading}
       />
 
       {itineraryDialogTour && (

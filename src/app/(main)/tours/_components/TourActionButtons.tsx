@@ -13,9 +13,10 @@
 
 import { useCallback } from 'react'
 import { useTranslations } from 'next-intl'
-import { Archive, ArchiveRestore, Trash2, Edit, Copy, Send, UserPlus } from 'lucide-react'
+import { Archive, ArchiveRestore, Trash2, Edit, Copy, Send, UserPlus, Unlock } from 'lucide-react'
 import { Tour, EmployeeFull } from '@/stores/types'
 import { TOUR_STATUS } from '@/lib/constants/status-maps'
+import { useCapabilities, CAPABILITIES } from '@/lib/permissions'
 
 import { ActionCell } from '@/components/table-cells'
 import { useRouter } from 'next/navigation'
@@ -40,6 +41,7 @@ interface UseTourActionButtonsParams {
   onAddOrder?: (tour: Tour) => void
   onConvertTour?: (tour: Tour) => void // 開團（proposal → upcoming）
   onCopyTemplate?: (tour: Tour) => void // 複製模板 → 新提案
+  onReopenTour?: (tour: Tour) => void // 主管強制重開（closed → returned、要 capability）
   itineraries?: { id: string }[]
 }
 
@@ -53,14 +55,18 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
     onAddOrder,
     onConvertTour,
     onCopyTemplate,
+    onReopenTour,
   } = params
   const router = useRouter()
+  const { can } = useCapabilities()
+  const canReopenClosed = can(CAPABILITIES.TOURS_REOPEN_CLOSED)
 
   const renderActions = useCallback(
     (row: unknown) => {
       const tour = row as Tour
       const isTemplate = tour.status === TOUR_STATUS.TEMPLATE
       const isProposal = tour.status === TOUR_STATUS.PROPOSAL
+      const isClosed = tour.status === TOUR_STATUS.CLOSED
       const isActiveTour = !isTemplate && !isProposal
 
       const handleSignUp = () => {
@@ -109,6 +115,15 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
           customColor: TOUR_GOLD_TONE,
           hidden: !isActiveTour,
         },
+        // 已結案：主管強制重開（要 tours.reopen_closed capability + 原因 + 留稽核）
+        {
+          icon: Unlock,
+          label: '強制重開',
+          onClick: () => onReopenTour?.(tour),
+          variant: 'custom' as const,
+          customColor: TOUR_GOLD_TONE,
+          hidden: !(isClosed && canReopenClosed && onReopenTour),
+        },
         // 所有狀態通用：封存 / 還原
         {
           icon: tour.archived ? ArchiveRestore : Archive,
@@ -142,6 +157,8 @@ export function useTourActionButtons(params: UseTourActionButtonsParams) {
       onAddOrder,
       onConvertTour,
       onCopyTemplate,
+      onReopenTour,
+      canReopenClosed,
       router,
       params.user,
     ]
