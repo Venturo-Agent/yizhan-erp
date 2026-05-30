@@ -137,3 +137,13 @@ public/*.html
 # Codex CLI workspace (副本 of CLAUDE.md、IDE 自動讀)
 .codex/
 AGENTS.md
+
+# OpenCode 工具本地產物（同 .claude/、不追蹤）
+.opencode/
+
+# git worktree 目錄（各 session 獨立工作環境、不進 repo）
+.worktrees/
+
+# slides/ 簡報舊試驗工廠的相依與產出（引擎已遷至 src/lib/presentation）
+slides/node_modules/
+slides/output/
