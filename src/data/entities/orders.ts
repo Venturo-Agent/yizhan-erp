@@ -23,7 +23,7 @@ const orderEntity = createEntityHook<Order>('orders', {
     // 2026-05-15 補 notes / identity_options
     // 2026-05-29 補 sales relation：列表帶業務員「當前」資料（員工改暱稱跟著動、不靠 sales_person 字串 fallback）
     select:
-      'id,order_number,tour_id,tour_name,contact_person,contact_phone,contact_email,customer_id,sales_person,sales_id,status,payment_status,paid_amount,remaining_amount,total_amount,member_count,adult_count,departure_date,is_active,notes,identity_options,workspace_id,created_at,created_by,updated_at,updated_by,sales:employees!sales_id(id,display_name,chinese_name,english_name)',
+      'id,order_number,tour_id,tour_name,contact_person,contact_phone,contact_email,customer_id,sales_person,sales_id,status,payment_status,paid_amount,remaining_amount,total_amount,member_count,adult_count,departure_date,is_active,notes,identity_options,workspace_id,created_at,created_by,updated_at,updated_by,sales:sales_id(id,display_name,chinese_name,english_name)',
     orderBy: {
       column: 'departure_date',
       ascending: false,
@@ -33,7 +33,7 @@ const orderEntity = createEntityHook<Order>('orders', {
   slim: {
     // 2026-05-29 同上、slim 也帶 sales relation
     select:
-      'id,order_number,tour_id,tour_name,contact_person,contact_phone,sales_person,sales_id,payment_status,paid_amount,remaining_amount,total_amount,member_count,departure_date,created_at,customer_id,sales:employees!sales_id(id,display_name,chinese_name,english_name)',
+      'id,order_number,tour_id,tour_name,contact_person,contact_phone,sales_person,sales_id,payment_status,paid_amount,remaining_amount,total_amount,member_count,departure_date,created_at,customer_id,sales:sales_id(id,display_name,chinese_name,english_name)',
   },
   detail: {
     select: '*',

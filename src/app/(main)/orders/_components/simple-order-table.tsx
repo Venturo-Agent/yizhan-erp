@@ -176,6 +176,18 @@ export const SimpleOrderTable = React.memo(function SimpleOrderTable({
       label: t('salesPerson'),
       sortable: true,
       width: '4rem',
+      // 統一顯示業務員「當前中文名」(sales.chinese_name)、員工改名跟著動；
+      // 歷史單無關聯員工 → fallback 舊字串 sales_person。
+      // 解決舊資料 WILLIAM/William 大小寫、英文暱稱、夾備註等不一致亂象。
+      render: (value, row) => {
+        const sales = (row as unknown as { sales?: { chinese_name?: string | null } | null }).sales
+        const name = sales?.chinese_name || value
+        return (
+          <span className="font-medium truncate" title={String(name || '')}>
+            {String(name || '')}
+          </span>
+        )
+      },
     },
     {
       key: 'member_count',
