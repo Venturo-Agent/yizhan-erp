@@ -1,189 +1,19 @@
 /**
- * 訂閱方案定義
+ * 訂閱方案殘留 — HR 完整人資判定
  *
- * William 2026-05-18 拍板：5 層方案（Lite / Standard / Advance / Premium / Custom）
- * William 2026-05-26 調整：
- *   - 廢進階版「3 選 2」pick 機制 → 進階版直接內含「完整人資 + 會計」
- *   - 電子合約（tours.contract）不再綁方案 → 改為「其他可選功能」手動加購
- *     （旗艦版 baseFeatures 也拿掉 tours.contract 內含）
- *
- * 設計原則：
- * - 方案只是「UI 套裝快捷」，真實授權由 workspace_features 決定
- * - 切換方案會自動配置 features state（前端 only）、儲存時才寫入 DB
- * - Custom = 手動管理、方案選擇不動 features
- * - parent module 在方案內 → 該 module 所有 basic 子 tab 自動展開（getFeaturesForPlan）
- *   premium-tagged 子 tab（如 tours.contract / tours.display-itinerary）不綁方案、走可選加購
+ * William 2026-05-30：「輕量/標準/進階/旗艦」版本套餐已整團拆除、改純功能開關（每個
+ * 功能各自獨立開關、誰要誰自己勾）。本檔僅保留：
+ *   - PlanId type：workspaces.subscription_plan 欄位殘留、待後續 migration 砍欄位後一併移除
+ *   - 完整人資判定（HR_FULL_FEATURES / isHrFullEnabled）：員工表單用、與版本套餐無關
  */
-
-import { MODULES } from './module-tabs'
 
 export type PlanId = 'lite' | 'standard' | 'advance' | 'premium' | 'custom'
 
 /**
- * 基本功能：任何方案都包含、不列入計費
- */
-export const BASE_FEATURES: string[] = [
-  'dashboard',
-  'calendar',
-  'todos',
-  'settings',
-  'hr',
-  'database',
-]
-
-/**
  * 「完整人資」對應的 feature code 集合（薪資結算 + 獎金結算）
  * SSOT：給「員工 form 是否顯示薪資 / 銀行 / 到職日等進階欄位」判定用、避免散刻
- * 2026-05-26：原本掛在 ADVANCE_PICK_OPTIONS.hr_full、pick 機制廢除後改為獨立常數
  */
 export const HR_FULL_FEATURES: readonly string[] = ['hr_salary_settlement', 'hr_bonus_settlement']
-
-export interface PlanDefinition {
-  id: PlanId
-  name: string
-  tagline: string
-  colorClass: string
-  description: string
-  /** 除 BASE_FEATURES 之外的基礎功能 */
-  baseFeatures: string[]
-}
-
-export const SUBSCRIPTION_PLANS: PlanDefinition[] = [
-  {
-    id: 'lite',
-    name: '輕量版',
-    tagline: 'Lite',
-    colorClass: 'text-morandi-secondary bg-morandi-container/20',
-    description: '旅遊團 + 訂單 + 基礎財務，適合剛起步的旅行社',
-    baseFeatures: ['tours', 'orders', 'finance'],
-  },
-  {
-    id: 'standard',
-    name: '標準版',
-    tagline: 'Standard',
-    colorClass: 'text-morandi-primary bg-morandi-container/40',
-    description: '輕量版全部功能 + 顧客管理，完整業務流程',
-    baseFeatures: ['tours', 'orders', 'finance', 'customers'],
-  },
-  {
-    id: 'advance',
-    name: '進階版',
-    tagline: 'Advance',
-    colorClass: 'text-morandi-gold bg-morandi-gold/10',
-    description: '標準版 + 完整人資（薪資 + 獎金）+ 會計系統',
-    baseFeatures: [
-      'tours',
-      'orders',
-      'finance',
-      'customers',
-      'hr_salary_settlement',
-      'hr_bonus_settlement',
-      'accounting',
-    ],
-  },
-  {
-    id: 'premium',
-    name: '旗艦版',
-    tagline: 'Premium',
-    colorClass: 'text-morandi-primary bg-morandi-gold/20',
-    description: '全功能：標準版 + 完整人資 + 會計系統 + AI Hub + Happy 機器人',
-    baseFeatures: [
-      'tours',
-      'orders',
-      'finance',
-      'customers',
-      'hr_salary_settlement',
-      'hr_bonus_settlement',
-      'accounting',
-      'ai_hub',
-      'channels.happy',
-    ],
-  },
-  {
-    id: 'custom',
-    name: '客製版',
-    tagline: 'Custom',
-    colorClass: 'text-morandi-muted bg-morandi-container/10',
-    description: '手動管理各功能開關，不受方案限制',
-    baseFeatures: [],
-  },
-]
-
-/**
- * 依 id 取得方案定義
- */
-export function getPlanById(id: PlanId): PlanDefinition {
-  const plan = SUBSCRIPTION_PLANS.find(p => p.id === id)
-  if (!plan) {
-    // fallback to custom（防止非法 id 炸）
-    return SUBSCRIPTION_PLANS.find(p => p.id === 'custom')!
-  }
-  return plan
-}
-
-/**
- * 依方案 取得應啟用的 feature code 列表
- *
- * @param planId 方案 id
- * @returns 所有應啟用的 feature code（包含 BASE_FEATURES）
- *
- * 註：2026-05-26 廢除進階版 pick 機制後、進階版直接靠 baseFeatures、不再吃 advancePicks
- */
-export function getFeaturesForPlan(planId: PlanId): string[] {
-  if (planId === 'custom') {
-    // custom 不自動配置
-    return []
-  }
-
-  const plan = getPlanById(planId)
-  const features = new Set<string>([...BASE_FEATURES, ...plan.baseFeatures])
-
-  for (const m of MODULES) {
-    if (!features.has(m.code)) continue
-    for (const tab of m.tabs) {
-      if (tab.category === 'premium') continue
-      features.add(`${m.code}.${tab.code}`)
-    }
-  }
-
-  return Array.from(features)
-}
-
-/**
- * 從目前已啟用的 feature 集合推測當前方案（盡力判斷、用於顯示）
- *
- * 判斷邏輯（從最高往下）：
- * 1. premium：包含 premium 全部 baseFeatures（含 AI Hub + Happy）
- * 2. advance：包含 advance 全部 baseFeatures（完整人資 + 會計、但無 AI Hub）
- * 3. standard：包含 customers
- * 4. lite：包含 tours + orders + finance
- * 5. custom：其他
- *
- * 註：tours.contract / tours.display-itinerary 是不綁方案的可選加購、不參與方案判定
- */
-export function detectCurrentPlan(enabledFeatures: string[]): PlanId {
-  const featureSet = new Set(enabledFeatures)
-
-  const hasAll = (codes: string[]) => codes.every(c => featureSet.has(c))
-
-  if (hasAll(getPlanById('premium').baseFeatures)) {
-    return 'premium'
-  }
-
-  if (hasAll(getPlanById('advance').baseFeatures)) {
-    return 'advance'
-  }
-
-  if (featureSet.has('customers') && hasAll(['tours', 'orders', 'finance'])) {
-    return 'standard'
-  }
-
-  if (hasAll(['tours', 'orders', 'finance'])) {
-    return 'lite'
-  }
-
-  return 'custom'
-}
 
 /**
  * 判定某 workspace 是否啟用「完整人資」(hr_full)
