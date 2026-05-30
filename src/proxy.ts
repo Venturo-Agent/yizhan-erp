@@ -38,7 +38,6 @@ const EXACT_PUBLIC_PATHS = new Set<string>([
   '/public',
   '/view',
   '/game',
-  '/app',
   // === 靜態資源 ===
   '/favicon.ico',
   '/manifest.json',
@@ -67,8 +66,6 @@ const PREFIX_PUBLIC_PATHS: readonly string[] = [
   '/p/',
   '/game/',
   '/setup/',
-  // APP 頁面（需登入）
-  '/app/',
   // 客戶自助付款頁（invoices.public_token、14 天過期、5/14 William 拍板）
   '/pay/',
   // === Server-to-server webhook ===
