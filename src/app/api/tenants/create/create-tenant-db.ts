@@ -107,8 +107,6 @@ export async function createWorkspace(
       premium_enabled: false,
       tax_id: trimmedTaxId,
       is_multi_branch: !!isMultiBranch,
-      // 版本套餐已拆（2026-05-30）、欄位暫留並固定 custom、待刀4 砍欄位
-      subscription_plan: 'custom',
       industry: industry ?? null,
       sub_industry: subIndustry ?? null,
       // 2026-05-26 William 拍板：新租戶不再預設出帳日（覆蓋 DB column DEFAULT 4）

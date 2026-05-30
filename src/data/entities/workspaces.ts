@@ -23,7 +23,7 @@ export const workspaceEntity = createEntityHook<WorkspaceEntity>('workspaces', {
   list: {
     // 2026-05-15 對齊 DB schema：砍 type（DB 5/14 已砍）、補 5/15 新加的 transfer_fee_* 等
     select:
-      'id,name,description,icon,is_active,created_at,updated_at,created_by,code,employee_number_prefix,default_password,logo_url,address,phone,fax,tax_id,bank_name,bank_branch,bank_account,bank_account_name,bank_code,company_seal_url,email,website,invoice_seal_image_url,updated_by,legal_name,subtitle,contract_seal_image_url,personal_seal_url,premium_enabled,custom_domain,max_employees,payment_config,setup_state,enabled_tour_categories,home_country_code,default_billing_day_of_week,brand_primary_hex,print_accent_hex,is_multi_branch,subscription_plan,subscription_period_end,transfer_fee_mode,transfer_fee_unified_amount,transfer_fee_overflow_account_id',
+      'id,name,description,icon,is_active,created_at,updated_at,created_by,code,employee_number_prefix,default_password,logo_url,address,phone,fax,tax_id,bank_name,bank_branch,bank_account,bank_account_name,bank_code,company_seal_url,email,website,invoice_seal_image_url,updated_by,legal_name,subtitle,contract_seal_image_url,personal_seal_url,premium_enabled,custom_domain,max_employees,payment_config,setup_state,enabled_tour_categories,home_country_code,default_billing_day_of_week,brand_primary_hex,print_accent_hex,is_multi_branch,subscription_period_end,transfer_fee_mode,transfer_fee_unified_amount,transfer_fee_overflow_account_id',
     orderBy: { column: 'created_at', ascending: false },
   },
   slim: {

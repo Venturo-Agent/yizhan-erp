@@ -60,10 +60,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
   const supabase = getSupabaseAdminClient()
 
-  // 訂閱方案資訊（從 workspaces 表取）
+  // 訂閱週期資訊（subscription_plan 版本套餐欄位已於 2026-05-30 砍除、收費機制日後重做）
   const { data: ws, error: wsError } = await supabase
     .from('workspaces')
-    .select('subscription_plan, subscription_period_end')
+    .select('subscription_period_end')
     .eq('id', workspaceId)
     .single()
 
@@ -86,7 +86,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
   return NextResponse.json({
     subscription: {
-      plan: ws.subscription_plan ?? null,
+      plan: null,
       period_end: ws.subscription_period_end ?? null,
     },
     records: records ?? [],

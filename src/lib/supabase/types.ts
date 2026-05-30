@@ -11685,7 +11685,6 @@ export type Database = {
           sub_industry: string | null
           subdomain: string | null
           subscription_period_end: string | null
-          subscription_plan: string | null
           subtitle: string | null
           tax_id: string | null
           transfer_fee_mode: string | null
@@ -11751,7 +11750,6 @@ export type Database = {
           sub_industry?: string | null
           subdomain?: string | null
           subscription_period_end?: string | null
-          subscription_plan?: string | null
           subtitle?: string | null
           tax_id?: string | null
           transfer_fee_mode?: string | null
@@ -11817,7 +11815,6 @@ export type Database = {
           sub_industry?: string | null
           subdomain?: string | null
           subscription_period_end?: string | null
-          subscription_plan?: string | null
           subtitle?: string | null
           tax_id?: string | null
           transfer_fee_mode?: string | null
